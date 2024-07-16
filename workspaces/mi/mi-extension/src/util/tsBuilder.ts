@@ -14,19 +14,20 @@ import path = require("path");
 import { Uri, workspace } from "vscode";
 import { convertTypeScriptToJavascript, convertToJSONSchema } from './schemaBuilder';
 import { JSONSchema3or4 } from 'to-json-schema';
+import {DM_OPERATORS_FILE, DM_OPERATORS_IMPORT_NAME} from "../constants";
 
 export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4): Promise<string> {
-    const ts = compile(schema, "Schema", {bannerComment: ""});
+    const ts = compile(schema, "Schema", { bannerComment: "" });
     return ts;
 }
 
-export async function updateDMC(dmName:string, sourcePath: string): Promise<string> {
+export async function updateDMC(dmName: string, sourcePath: string): Promise<string> {
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
-            workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
         const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
-        const inputSchemaPath = path.join(dataMapperConfigFolder, dmName,  `${dmName}_inputSchema.json`);
+        const inputSchemaPath = path.join(dataMapperConfigFolder, dmName, `${dmName}_inputSchema.json`);
         const outputSchemaPath = path.join(dataMapperConfigFolder, dmName, `${dmName}_outputSchema.json`);
         const dmcFilePath = path.join(dataMapperConfigFolder, dmName, `${dmName}.dmc`);
 
@@ -42,30 +43,30 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
                 schema.type = "object";
                 schema.properties = schema.items[0].properties;
             }
-            const tsInterfaces = schemaContent.length > 0 
-                ? await generateTSInterfacesFromSchemaFile(schema) 
+            const tsInterfaces = schemaContent.length > 0
+                ? await generateTSInterfacesFromSchemaFile(schema)
                 : `interface ${defaultTitle} {\n}\n\n`;
             return { schema, tsInterfaces, isSchemaArray, schemaTitle };
         };
-        
-        let { 
-            schema: inputSchema, 
-            tsInterfaces: inputTSInterfaces, 
-            isSchemaArray: isInputArray, 
-            schemaTitle: inputSchemaTitle  
+
+        let {
+            schema: inputSchema,
+            tsInterfaces: inputTSInterfaces,
+            isSchemaArray: isInputArray,
+            schemaTitle: inputSchemaTitle
         } = await readAndConvertSchema(inputSchemaPath, "InputRoot");
-        let { 
-            schema: outputSchema, 
-            tsInterfaces: outputTSInterfaces, 
-            isSchemaArray: isOutputArray, 
-            schemaTitle: outputSchemaTitle  
+        let {
+            schema: outputSchema,
+            tsInterfaces: outputTSInterfaces,
+            isSchemaArray: isOutputArray,
+            schemaTitle: outputSchemaTitle
         } = await readAndConvertSchema(outputSchemaPath, "OutputRoot");
-        
+
         if (outputSchema.title === inputSchema.title) {
-            outputTSInterfaces =  outputTSInterfaces.replace('interface ' + outputSchema.title, 'interface Output' + outputSchema.title);
+            outputTSInterfaces = outputTSInterfaces.replace('interface ' + outputSchema.title, 'interface Output' + outputSchema.title);
             outputSchema.title = `Output${outputSchema.title}`;
         }
-    
+        tsContent += `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE}";\n`;
         tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: ${inputSchema.title}${isInputArray ? "[]" : ""}): ${outputSchema.title}${isOutputArray ? "[]" : ""} {\n`;
         tsContent += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`;
         tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}() {\n\treturn mapFunction(input${inputSchemaTitle.replace(":", "_")});\n}\n`;
@@ -76,11 +77,11 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
     return "";
 }
 
-export async function updateDMCContent(dmName:string, sourcePath: string): Promise<string> {
+export async function updateDMCContent(dmName: string, sourcePath: string): Promise<string> {
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
-            workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+            workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
         const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
         const dmcFilePath = path.join(dataMapperConfigFolder, dmName, `${dmName}.dmc`);
         const tsContent = fs.readFileSync(tsFilepath, 'utf8');

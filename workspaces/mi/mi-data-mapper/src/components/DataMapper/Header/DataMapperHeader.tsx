@@ -17,6 +17,7 @@ import { View } from "../Views/DataMapperView";
 import ExpressionBar from "./ExpressionBar";
 import { isFocusedOnMapFunction } from "./utils";
 import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
+import { DMOperator } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -25,10 +26,11 @@ export interface DataMapperHeaderProps {
     onClose?: () => void;
     applyModifications: () => Promise<void>;
     inputNode: DataMapperNodeModel;
+    operators: DMOperator[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications, inputNode } = props;
+    const { views, switchView, hasEditDisabled, onClose, applyModifications, inputNode, operators } = props;
 
     const isFocusedOnMapFn = isFocusedOnMapFunction(views);
 
@@ -53,7 +55,10 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBar applyModifications={applyModifications} />
+                <ExpressionBar
+                    applyModifications={applyModifications}
+                    operators={operators}
+                />
             </ExpressionContainer>
         </HeaderContainer>
     );
