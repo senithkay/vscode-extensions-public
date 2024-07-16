@@ -100,7 +100,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
             const { documentUri, overwriteSchema, resourceName, content, ioType, schemaType, configName } = params;
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(documentUri));
             if (overwriteSchema) {
                 const response = await window.showInformationMessage(
                     "Are you sure you want to override the existing schema?\n\nPlease note that this will remove all existing mappings.",
@@ -116,7 +115,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (content) {
                 let schema: JSONSchema3or4;
                 try {
-                    schema = await generateSchemaFromContent(content, schemaType, schemaType);
+                    schema = await generateSchemaFromContent(ioType, content, schemaType);
                 } catch (error: any) {
                     console.error(error);
                     window.showErrorMessage("Error while generating schema. Please check the input file and Resource Type and try again.");

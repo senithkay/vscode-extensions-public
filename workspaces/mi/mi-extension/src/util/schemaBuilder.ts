@@ -31,14 +31,17 @@ export async function generateSchema(ioType: string, schemaType: string, filePat
   return schema;
 }
 
-export async function generateSchemaFromContent(content: string, fileType: string, title: string): Promise<JSONSchema3or4> {
+export async function generateSchemaFromContent(ioType: string, content: string, fileType: string): Promise<JSONSchema3or4> {
   const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchemaFromContent({
     fileContent: content,
     delimiter: "",
     type: fileType.toUpperCase(),
-    title: title
+    title: ""
   });
   let schema = JSON.parse(response.schema);
+  let schemaIOMetadataKey = ioType.toLowerCase() + 'Type';
+  let schemaIOMetadataValue = fileType === 'JSONSCHEMA' ? 'JSON' : fileType;
+  schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
 }
