@@ -206,8 +206,8 @@ const RewriteForm = (props: AddMediatorProps) => {
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
-                                        param.key = index;
-                                        param.value = index;
+                                        param.key = index + 1;
+                                        param.value = index + 1;
                                         param.icon = 'query';
 
                                         (property[0].value as ParamConfig).paramValues = (property[0].value as ParamConfig).paramValues.map((param: any, index: number) => {

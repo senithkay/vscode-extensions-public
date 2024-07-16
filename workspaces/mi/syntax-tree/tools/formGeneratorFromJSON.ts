@@ -148,7 +148,7 @@ const isExpression = (elements: any[], index: number) => {
 const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?: string) => {
     const key = getIndexByKeyName(tableKey, elements);
     if (key === -1) {
-        return "index";
+        return "index + 1";
     }
     if (key !== -1 && elements[key].type === 'table') {
         return `generateSpaceSeperatedStringFromParamValues(property[${key}]${postFix ?? ''} as ParamConfig)`;

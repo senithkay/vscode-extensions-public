@@ -510,7 +510,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const property: ParamValue[] = param.paramValues;
-                                            param.key = index;
+                                            param.key = index + 1;
                                             param.value = property[0].value;
                                             param.icon = 'query';
 
