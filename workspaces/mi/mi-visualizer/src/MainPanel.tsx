@@ -87,7 +87,7 @@ const PopUpContainer = styled.div`
 
 const ViewContainer = styled.div({});
 
-const MainPanel = () => {
+const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
@@ -101,6 +101,7 @@ const MainPanel = () => {
             setStateUpdated(!stateUpdated);
         }
         if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+            handleResetError();
             setStateUpdated(!stateUpdated);
         }
         if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewEditing') {

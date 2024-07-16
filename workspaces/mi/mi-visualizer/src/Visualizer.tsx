@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { createRef, useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { MachineStateValue, AIMachineStateValue, SwaggerData } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
@@ -35,9 +35,23 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
+const MODES = {
+    VISUALIZER: "visualizer",
+    AI: "ai",
+    RUNTIME_SERVICES: "runtime-services",
+    SWAGGER: "swagger"
+};
+
 export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: SwaggerData }) {
     const { rpcClient } = useVisualizerContext();
+    const errorBoundaryRef = createRef<any>();
     const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
+
+    const handleResetError = () => {
+        if (errorBoundaryRef.current) {
+            errorBoundaryRef.current.resetErrorBoundary();
+        }
+    };
 
     rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
         setState(newState);
@@ -53,27 +67,27 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     }, []);
 
     return (
-        <ErrorBoundary errorMsg="An error occurred in the MI Diagram" issueUrl="https://github.com/wso2/mi-vscode/issues">
+        <ErrorBoundary errorMsg="An error occurred in the MI Diagram" issueUrl="https://github.com/wso2/mi-vscode/issues" ref={errorBoundaryRef}>
             {(() => {
                 switch (mode) {
-                    case "visualizer":
-                        return <VisualizerComponent state={state as MachineStateValue} />
-                    case "ai":
+                    case MODES.VISUALIZER:
+                        return <VisualizerComponent state={state as MachineStateValue} handleResetError={handleResetError} />
+                    case MODES.AI:
                         return <AiVisualizerComponent state={state as AIMachineStateValue} />
-                    case "runtime-services":
+                    case MODES.RUNTIME_SERVICES:
                         return <RuntimeServicesComponent />
-                    case "swagger":
-                        return <SwaggerComponent data={swaggerData}  />
+                    case MODES.SWAGGER:
+                        return <SwaggerComponent data={swaggerData} />
                 }
             })()}
         </ErrorBoundary>
     );
 };
 
-const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
+const VisualizerComponent = React.memo(({ state, handleResetError }: { state: MachineStateValue, handleResetError: () => void }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
-            return <MainPanel />;
+            return <MainPanel handleResetError={handleResetError} />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
             return <WelcomePanel />;
         case state === 'disabled':
@@ -104,7 +118,7 @@ const RuntimeServicesComponent = () => {
     return <RuntimeServicePanel />;
 }
 
-const SwaggerComponent = React.memo(({ data }: { data: SwaggerData })  => {
+const SwaggerComponent = React.memo(({ data }: { data: SwaggerData }) => {
     if (!data) {
         return (
             <LoaderWrapper>
@@ -112,5 +126,5 @@ const SwaggerComponent = React.memo(({ data }: { data: SwaggerData })  => {
             </LoaderWrapper>
         );
     }
-    return <SwaggerPanel swaggerData={data}/>;
+    return <SwaggerPanel swaggerData={data} />;
 });
