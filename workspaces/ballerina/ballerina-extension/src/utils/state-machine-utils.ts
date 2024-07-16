@@ -62,21 +62,14 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
         ) {
             if (StateMachine.context().isEggplant) {
-                try {
-                    const model = await StateMachine.langClient().getEggplantModel(getEggplantReq(documentUri, position));
-                    console.log("===BackEndModel", model);
-                    return {
-                        location: {
-                            view: "EggplantDiagram",
-                            documentUri: documentUri,
-                            position: position,
-                            syntaxTree: model.flowDesignModel
-                        },
-                        dataMapperDepth: 0
-                    };
-                } catch (error) {
-                    console.log(error);
-                }
+                return {
+                    location: {
+                        view: "EggplantDiagram",
+                        documentUri: documentUri,
+                        position: position
+                    },
+                    dataMapperDepth: 0
+                };
             }
             return {
                 location: {

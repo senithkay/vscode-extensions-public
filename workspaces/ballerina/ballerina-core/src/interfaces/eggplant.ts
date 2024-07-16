@@ -7,8 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { LineRange } from "./common";
-
 export type Flow = {
     nodes: Node[];
     name: string;
@@ -19,7 +17,7 @@ export type Client = {
     id: string;
     label: string;
     kind: ClientKind;
-    lineRange: LineRange;
+    lineRange: ELineRange;
     scope: ClientScope;
     value: string;
     flags: number;
@@ -36,7 +34,7 @@ export type Node = {
     returning: boolean;
     fixed: boolean;
     id: string;
-    lineRange: LineRange;
+    lineRange: ELineRange;
     branches?: Branch[];
     viewState?: ViewState;
     flags?: number;
@@ -57,6 +55,12 @@ export type Branch = {
     label: string;
     children: Node[];
     viewState?: ViewState;
+};
+
+export type ELineRange = {
+    fileName: string;
+    startLine: number[];
+    endLine: number[];
 };
 
 export type Expression = {

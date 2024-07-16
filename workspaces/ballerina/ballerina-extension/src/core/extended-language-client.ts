@@ -82,7 +82,8 @@ import {
     ExtendedLangClientInterface,
     EggplantModelRequest,
     UpdateNodeRequest,
-    UpdateNodeResponse
+    UpdateNodeResponse,
+    EggplantModelResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -524,7 +525,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     // <------------ EGGPLANT APIS START --------------->
 
     getEggplantModel = async (params: EggplantModelRequest) => {
-        return this.sendRequest<any>(EXTENDED_APIS.EGGPLANT_MODEL, params);
+        return this.sendRequest<EggplantModelResponse>(EXTENDED_APIS.EGGPLANT_MODEL, params);
     }
 
     getUpdatedNodeModifications = async (params: UpdateNodeRequest) => {

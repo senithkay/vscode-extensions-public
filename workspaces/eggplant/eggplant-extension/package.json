@@ -16,6 +16,7 @@
         "workspaceContains:**/Ballerina.toml"
     ],
     "main": "./out/extension",
+    "extensionDependencies": [ "WSO2.ballerina" ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -39,13 +40,7 @@
                     "name": "Overview"
                 }
             ]
-        },
-        "commands": [
-            {
-                "command": "Eggplant.show.visualizer",
-                "title": "Open Low Code"
-            }
-        ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "pnpm run compile",
@@ -63,18 +58,8 @@
         "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
     },
     "dependencies": {
-        "@wso2-enterprise/font-wso2-vscode": "workspace:*",
-        "@wso2-enterprise/syntax-tree": "workspace:*",
-        "@wso2-enterprise/eggplant-visualizer": "workspace:*",
-        "@wso2-enterprise/eggplant-core": "workspace:*",
-        "@wso2-enterprise/eggplant-diagram": "workspace:*",
         "@wso2-enterprise/ballerina-core": "workspace:*",
-        "vscode-messenger": "^0.4.5",
-        "vscode-messenger-common": "^0.4.5",
-        "xstate": "^4.38.3",
-        "vscode-languageserver-types": "^3.17.5",
-        "vscode-uri": "^3.0.8",
-        "lodash": "^4.17.11"
+        "xstate": "^4.38.3"
     },
     "devDependencies": {
         "@vscode/vsce": "^2.22.0",
