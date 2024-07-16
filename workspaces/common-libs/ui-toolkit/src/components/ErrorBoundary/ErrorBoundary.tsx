@@ -10,7 +10,7 @@
 // In React, error boundaries do not catch errors inside event handlers.
 // React's error boundaries are designed to catch errors in the rendering phase,
 // in lifecycle methods, and in constructors of the whole tree below them. 
-import React, { ReactNode } from "react";
+import React, { ReactNode, forwardRef } from "react";
 import { ErrorScreen } from "./Error/Error";
 
 export interface ErrorBoundaryProps {
@@ -21,11 +21,14 @@ export interface ErrorBoundaryProps {
 
 import { ErrorBoundary as EB } from "react-error-boundary";
 
-export function ErrorBoundary(props: ErrorBoundaryProps) {
+export const ErrorBoundary = forwardRef<any, ErrorBoundaryProps>((props, ref) => {
     const Fallback = () => <ErrorScreen errorMsg={props.errorMsg} issueUrl={props.issueUrl} />;
     return (
-        <EB FallbackComponent={Fallback}>
+        <EB FallbackComponent={Fallback} ref={ref}>
             {props.children}
         </EB>
     );
-}
+});
+
+ErrorBoundary.displayName = "ErrorBoundary";
+
