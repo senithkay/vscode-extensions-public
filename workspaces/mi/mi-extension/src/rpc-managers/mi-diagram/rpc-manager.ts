@@ -11,7 +11,6 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
-    UpdateDependencyInPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -131,6 +130,7 @@ import {
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
     MACHINE_VIEW,
+    MarkAsDefaultSequenceRequest,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -158,10 +158,13 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    StoreConnectorJsonResponse,
     SwaggerData,
     SwaggerFromAPIResponse,
     SwaggerTypeRequest,
     TemplatesResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
     UndoRedoParams,
     UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
@@ -169,6 +172,7 @@ import {
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
+    UpdateDependencyInPomRequest,
     UpdateFailoverEPRequest,
     UpdateFailoverEPResponse,
     UpdateHttpEndpointRequest,
@@ -194,10 +198,7 @@ import {
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
-    StoreConnectorJsonResponse,
-    onSwaggerSpecReceived,
-    TestDbConnectionRequest,
-    TestDbConnectionResponse
+    onSwaggerSpecReceived
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3343,7 +3344,7 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const connectorDataState = StateMachine.context().connectorData;
             if (connectorDataState !== undefined) {
-                resolve({data: connectorDataState});
+                resolve({ data: connectorDataState });
             }
         });
 
@@ -4343,6 +4344,75 @@ ${endpointAttributes}
             const langClient = StateMachine.context().langClient;
             const response = await langClient?.testDbConnection(req);
             resolve({ success: response ? response.success : false });
+        });
+    }
+
+    async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { path: filePath, remove } = params;
+            const langClient = StateMachine.context().langClient;
+
+            if (!langClient) {
+                window.showErrorMessage('Language client is not available');
+                throw new Error('Language client is not available');
+            }
+
+            // Get the syntax tree of the given file path
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri: filePath
+                },
+            });
+
+            // Get the sequence name from the syntax tree
+            const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
+            if (!sequenceName) {
+                window.showErrorMessage('Failed to get the sequence name from the syntax tree');
+                throw new Error('Failed to get the sequence name from the syntax tree');
+            }
+
+            // Read the POM file
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
+            if (!workspaceFolder) {
+                window.showErrorMessage('Cannot find workspace folder');
+                throw new Error('Cannot find workspace folder');
+            }
+
+            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+            const pomContent = fs.readFileSync(pomPath, 'utf-8');
+            const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
+
+            // Check if the <properties> tag exists
+            const propertiesTagExists = pomContent.includes('<properties>');
+
+            let updatedPomContent;
+            if (propertiesTagExists) {
+                if (remove) {
+                    // Remove the <mainSequence> tag from the POM
+                    updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
+                } else {
+                    // Inject the <mainSequence> tag inside the <properties> tag
+                    updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
+                        if (p1.includes('<mainSequence>')) {
+                            // Update the existing <mainSequence> tag
+                            return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
+                        } else {
+                            // Get the indentation from the <properties> tag
+                            const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
+                            const indentedMainSequenceTag = `\t${mainSequenceTag}`;
+                            // Add the <mainSequence> tag
+                            return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
+                        }
+                    });
+                }
+            } else {
+                window.showErrorMessage('Failed to find the project properties in the POM file');
+            }
+
+            // Write the updated POM content back to the file
+            fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+
+            resolve();
         });
     }
 }
