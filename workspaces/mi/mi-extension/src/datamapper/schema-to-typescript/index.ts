@@ -106,10 +106,6 @@ export const DEFAULT_OPTIONS: Options = {
 export async function compile(schema: JSONSchema4, name: string, schemaTitle: string, options: Partial<Options> = {}): Promise<string> {
   validateOptions(options);
   const _options = merge({}, DEFAULT_OPTIONS, options);
-  const start = Date.now();
-  function time() {
-    return `(${Date.now() - start}ms)`;
-  }
 
   // normalize options
   if (!endsWith(_options.cwd, '/')) {

@@ -187,4 +187,3 @@ function separateInterfacesWithComments(sourceFile: ts.SourceFile): ts.SourceFil
     functionDeclaration += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`; 
     return functionDeclaration;
   }
-  
