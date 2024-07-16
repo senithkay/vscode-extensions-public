@@ -21,6 +21,8 @@ import {
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
+    OpenExternalRequest,
+    OpenExternalResponse,
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
@@ -41,7 +43,7 @@ import {
     MACHINE_VIEW,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace, window, commands } from "vscode";
+import { workspace, window, commands, env, Uri } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
@@ -351,6 +353,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                     }
                 });
             }
+        });
+    }
+
+    async openExternal(params: OpenExternalRequest): Promise<OpenExternalResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { uri } = params;
+            const isSuccess = await env.openExternal(Uri.parse(uri));
+            resolve({ success: isSuccess });
         });
     }
 }

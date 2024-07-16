@@ -143,10 +143,15 @@ export function WelcomeView() {
     }
 
     const openTroubleshootGuide = () => {
-
+        rpcClient.getMiVisualizerRpcClient().openExternal({
+            uri: "https://mi.docs.wso2.com/en/4.3.0/develop/mi-for-vscode/troubleshooting-mi-for-vscode/"
+        })
     }
 
     const openGettingStartedGuide = () => {
+        rpcClient.getMiVisualizerRpcClient().openExternal({
+            uri: "https://mi.docs.wso2.com/en/4.3.0/get-started/development-kickstart/"
+        })
     }
 
     function downloadSample(sampleName: string) {

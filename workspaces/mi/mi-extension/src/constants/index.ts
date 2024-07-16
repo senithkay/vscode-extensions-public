@@ -82,12 +82,12 @@ export const COMMANDS = {
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
     ADD_TEST_SUITE: 'MI.test.add.suite',
     GEN_AI_TESTS: 'MI.test.gen.ai-test',
-    UPDATE_TEST_SUITE: 'MI.test.update.suite',
+    EDIT_TEST_SUITE: 'MI.test.edit.suite',
     ADD_TEST_CASE: 'MI.test.add.case',
-    UPDATE_TEST_CASE: 'MI.test.update.case',
+    EDIT_TEST_CASE: 'MI.test.edit.case',
     ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
     REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
-    UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
+    EDIT_MOCK_SERVICE: 'MI.test.edit.mock-service',
     OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
 };
@@ -95,6 +95,35 @@ export const COMMANDS = {
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+
+export enum EndpointTypes {
+    DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",
+    ADDRESS_ENDPOINT = "ADDRESS_ENDPOINT",
+    HTTP_ENDPOINT = "HTTP_ENDPOINT",
+    WSDL_ENDPOINT = "WSDL_ENDPOINT",
+    LOAD_BALANCE_ENDPOINT = "LOAD_BALANCE_ENDPOINT",
+    FAILOVER_ENDPOINT = "FAILOVER_ENDPOINT",
+    TEMPLATE_ENDPOINT = "TEMPLATE_ENDPOINT",
+    RECIPIENT_ENDPOINT = "RECIPIENT_ENDPOINT",
+};
+
+export enum TemplateTypes {
+    DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",
+    ADDRESS_ENDPOINT = "ADDRESS_ENDPOINT",
+    HTTP_ENDPOINT = "HTTP_ENDPOINT",
+    WSDL_ENDPOINT = "WSDL_ENDPOINT",
+    SEQUENCE_ENDPOINT = "SEQUENCE"
+};
+
+// export enum TemplateTypes {
+//     INBOUND_ENDPOINT = "INBOUND_ENDPOINT",
+//     LOCAL_ENTRY = "LOCAL_ENTRY",
+//     MESSAGE_PROCESSOR = "MESSAGE_PROCESSOR",
+//     MESSAGE_STORE = "MESSAGE_STORE",
+//     SEQUENCE = "SEQUENCE",
+//     TASK = "TASK",
+//     TEMPLATE = "TEMPLATE",
+// };
 
 export * from "./swagger";
 

@@ -68,10 +68,6 @@ const CallForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.formValues]);
 
     useEffect(() => {
-        props.endpoint && reset({ endopint: props.endpoint });
-    }, [props.endpoint]);
-
-    useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };
@@ -84,7 +80,7 @@ const CallForm = (props: AddMediatorProps) => {
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i]}${trailingSpaces}`
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
