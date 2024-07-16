@@ -354,7 +354,7 @@ jobs:
         if: failure()
 
   ExtTest_MI:
-    name: Run MI extension tests
+    name: Run MI diagram tests
     needs: Build_Stage
     if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
     timeout-minutes: 30
