@@ -377,12 +377,16 @@ const EntryContainer = styled.div`
 const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact, isMainSequence, markAsDefaultSequence, iconSx, isCodicon }) => {
     const [showFallbackIcon, setShowFallbackIcon] = useState(false);
 
+    const onError = () => {
+        setShowFallbackIcon(true);
+    }
+
     return (
         <EntryContainer onClick={onClick}>
             {description === "Connection" ? (
                 <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
                     {!showFallbackIcon && icon ? (
-                        <img src={icon} alt="Icon" onError={() => setShowFallbackIcon(true)} />
+                        <img src={icon} alt="Icon" onError={onError} />
                     ) : (
                         // Fallback icon on offline mode
                         <Icon name="connector" sx={{ color: "#D32F2F" }} />
