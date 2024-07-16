@@ -329,7 +329,6 @@ const EntryContainer = styled.div`
 `;
 
 const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact }) => {
-    
     const [showFallbackIcon, setShowFallbackIcon] = useState(false);
 
     const onError = () => {
