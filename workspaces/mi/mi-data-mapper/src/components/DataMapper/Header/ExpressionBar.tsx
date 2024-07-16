@@ -139,7 +139,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const disabled = useMemo(() => {
         let value = "";
-        let disabled = true;
+        let disabled;
     
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
@@ -273,7 +273,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             <ExpressionBar
                 id='expression-bar'
                 ref={textFieldRef}
-                disabled={disabled}
+                disabled={disabled ?? false}
                 value={textFieldValue}
                 placeholder={placeholder}
                 onChange={onChangeTextField}
