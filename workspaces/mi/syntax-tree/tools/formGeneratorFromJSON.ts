@@ -557,7 +557,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: \`\${xml[i]}\${trailingSpaces}\`
+                    documentUri: props.documentUri, range: xml[i].range, text: \`\${xml[i].text}\${trailingSpaces}\`
                 });
             }
         } else {

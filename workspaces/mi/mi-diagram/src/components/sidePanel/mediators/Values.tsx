@@ -84,7 +84,8 @@ export interface GetMediatorsProps {
     nextNode?: string;
 }
 export function getAllMediators(props: GetMediatorsProps) {
-    const { nodePosition, documentUri, trailingSpace } = props;
+    const { nodePosition, documentUri } = props;
+    const trailingSpace = props.trailingSpace ?? "";
 
     const allMediators = {
         "most popular": [
