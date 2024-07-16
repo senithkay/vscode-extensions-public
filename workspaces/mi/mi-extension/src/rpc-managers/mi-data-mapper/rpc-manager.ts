@@ -42,6 +42,7 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
+import {DM_OPERATORS_FILE, DM_OPERATORS_IMPORT_NAME} from "../../constants";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -203,7 +204,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return new Promise(async (resolve, reject) => {
             try {
-                const dmContent = `import * as utils from "./dm-utils.ts";\ninterface InputRoot {\n}\n\ninterface OutputRoot {\n}\n\nfunction mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
+                const dmContent = `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE}";\ninterface InputRoot {\n}\n\ninterface OutputRoot {\n}\n\nfunction mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
                 const { filePath, dmName } = params;
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
@@ -219,8 +220,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         fs.writeFileSync(tsFilePath, dmContent);
                     }
 
-                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", "dm-utils.ts.lib");
-                    const operatorsDstFilePath = path.join(dataMapperConfigFolder, "dm-utils.ts");
+                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", `${DM_OPERATORS_FILE}.lib`);
+                    const operatorsDstFilePath = path.join(dataMapperConfigFolder, DM_OPERATORS_FILE);
                     fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
 
                     const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
