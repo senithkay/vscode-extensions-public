@@ -183,6 +183,7 @@ import {
     GetAllDependenciesResponse,
     TestDbConnectionRequest,
     TestDbConnectionResponse,
+    MarkAsDefaultSequenceRequest,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -302,4 +303,5 @@ export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> =
 export const updateDependencyInPom: NotificationType<UpdateDependencyInPomRequest> = { method: `${_preFix}/updateDependencyInPom` };
 export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { method: `${_preFix}/openDependencyPom` };
 export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };
-export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDBConnection` };
+export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };
+export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };
