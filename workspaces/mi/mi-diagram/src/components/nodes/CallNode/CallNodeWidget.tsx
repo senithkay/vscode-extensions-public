@@ -241,9 +241,13 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             stroke={endpointHasDiagnotics ? Colors.ERROR : (isHoveredEndpoint || isEndpointSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
-                        {node.endpoint && <g transform="translate(66,5)">
-                            <foreignObject width="25" height="25">
-                                {getMediatorIconsFromFont(node.endpoint.type)}
+                        {node.endpoint && <g transform="translate(80,20)">
+                            <foreignObject width="25" height="25" overflow="visible">
+                                <div style={{
+                                    transform: "translate(-50%, -50%)",
+                                }}>
+                                    {getMediatorIconsFromFont(node.endpoint.type)}
+                                </div>
                             </foreignObject>
                         </g>}
 

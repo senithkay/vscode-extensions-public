@@ -355,13 +355,13 @@ const stateMachine = createMachine<MachineContext>({
         },
         waitForConnectorData: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                try {
-                    const response = await fetch(APIS.CONNECTOR);
-                    const data = await response.json();
-                    resolve(data.data);
-                } catch (error) {
-                    reject(error);
-                }
+                fetchConnectorData().then(data => {
+                    if (data) {
+                        resolve(data);
+                    } else {
+                        resolve([]);
+                    }
+                });
             });
         },
         openWebPanel: (context, event) => {
@@ -576,6 +576,25 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
                 dark: Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)),
             };;
         }
+    }
+}
+
+async function fetchConnectorData() {
+    try {
+        const response = await fetch(APIS.CONNECTOR, {
+            method: 'GET',
+            cache: "no-cache"
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.data;
+        } else {
+            console.log("Failed to fetch data, but user is connected.");
+            return null;
+        }
+    } catch (error) {
+        console.log("User is offline.", error);
+        return null;
     }
 }
 

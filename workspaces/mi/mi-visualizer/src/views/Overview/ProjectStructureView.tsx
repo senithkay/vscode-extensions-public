@@ -372,7 +372,7 @@ const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToVie
         <EntryContainer onClick={onClick}>
             {description === "Connection" ? (
                 <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                    {!showFallbackIcon ? (
+                    {!showFallbackIcon && icon ? (
                         <img src={icon} alt="Icon" onError={() => setShowFallbackIcon(true)} />
                     ) : (
                         // Fallback icon on offline mode
