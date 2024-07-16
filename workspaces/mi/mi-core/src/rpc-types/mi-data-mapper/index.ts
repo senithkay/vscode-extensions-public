@@ -18,7 +18,9 @@ import {
     ConvertRegPathToAbsPathResponse,
     UpdateDMCRequest,
     SubMappingTypesResponse,
-    UpdateDMUndoRedoMangerRequest
+    UpdateDMUndoRedoMangerRequest,
+    GetOperatorsRequest,
+    GetOperatorsResponse
 } from "./types";
 
 export interface MIDataMapperAPI {
@@ -34,4 +36,5 @@ export interface MIDataMapperAPI {
     dmRedo: () => Promise<string | undefined>;
     addToDMUndoStack: (source: string) => void;
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
+    getOperators: (params: GetOperatorsRequest) => Promise<GetOperatorsResponse>;
 }
