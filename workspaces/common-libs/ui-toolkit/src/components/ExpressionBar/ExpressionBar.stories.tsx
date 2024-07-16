@@ -9,22 +9,36 @@
 
 import React, { useState } from 'react';
 import { ComponentStory } from '@storybook/react';
-import { ExpressionBar, ExpressionBarProps } from './ExpressionBar';
+import { ExpressionBar, ExpressionBarProps, ITEM_TYPE_KIND } from './ExpressionBar';
 
 const Template: ComponentStory<typeof ExpressionBar> = (args: ExpressionBarProps) => {
-    const [value, setValue] = useState('=');
+    const [value, setValue] = useState('');
 
     return <ExpressionBar {...args} value={value} onChange={async (text: string) => setValue(text)} />;
 };
 
 export const Default = Template.bind();
 Default.args = {
-    items: [
-        { label: 'fn1', description: 'Description of fn1', args: ['value1', 'value2'] },
-        { label: 'fn2', description: 'Description of fn2', args: ['arg1', '...args'] },
-        { label: 'fn3', description: 'Description of fn3' }
-    ],
-    autoFocus: true
+    autoFocus: true,
+    getCompletions: () => {
+        return [
+            { tag: 'utils', label: 'fn1', value: 'utils.fn1', description: 'Description of fn1', args: ['value1', 'value2'], kind: ITEM_TYPE_KIND.Function },
+            { tag: 'utils', label: 'fn2', value: 'utils.fn2', description: 'Description of fn2', args: ['arg1', '...args'], kind: ITEM_TYPE_KIND.Function },
+            { tag: 'utils', label: 'fn3', value: 'utils.fn3', description: 'Description of fn3', kind: ITEM_TYPE_KIND.Function },
+            { label: 'user', value: 'user', kind: ITEM_TYPE_KIND.Parameter },
+            { label: 'name', value: 'name', kind: ITEM_TYPE_KIND.Property },
+            { label: 'age', value: 'age', kind: ITEM_TYPE_KIND.Property },
+            { label: 'email', value: 'email', kind: ITEM_TYPE_KIND.Property }
+        ];
+    },
+    onItemSelect: (text: string) => {
+        console.log('--- Item Selected ---')
+        console.log(`Updated TextField: ${text}`);
+    },
+    onSave: (text: string) => {
+        console.log('--- Saved ---');
+        console.log(`Updated TextField: ${text}`);
+    }
 };
 
 export default { component: ExpressionBar, title: 'ExpressionBar' };
