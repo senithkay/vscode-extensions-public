@@ -379,6 +379,10 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     };
 
     const handleChange = async (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
+        if (text === value) {
+            return;
+        }
+
         await onChange(text);
         // Check whether the cursor is inside a function
         const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);

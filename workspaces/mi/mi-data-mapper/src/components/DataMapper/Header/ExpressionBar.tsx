@@ -232,9 +232,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const applyChanges = async (value: string) => {
         if (focusedPort) {
-            applyChangesOnFocusedPort(value);
+            await applyChangesOnFocusedPort(value);
         } else if (focusedFilter) {
-            applyChangesOnFocusedFilter(value);
+            await applyChangesOnFocusedFilter(value);
         }
     };
 
