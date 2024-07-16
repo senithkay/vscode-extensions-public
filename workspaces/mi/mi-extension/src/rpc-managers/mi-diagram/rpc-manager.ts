@@ -1334,7 +1334,6 @@ ${endpointAttributes}
 
             const filePath = this.getFilePath(directory, templateParams.name);
             await replaceFullContentToFile(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
     }

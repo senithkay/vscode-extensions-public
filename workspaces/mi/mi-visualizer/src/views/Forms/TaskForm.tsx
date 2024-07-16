@@ -9,8 +9,9 @@
 
 import { useEffect, useState } from "react";
 import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBoxGroup, CheckBox, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Task } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -19,6 +20,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { XMLValidator } from "fast-xml-parser";
+import path from "path";
 export interface Region {
     label: string;
     value: string;
@@ -26,6 +28,7 @@ export interface Region {
 
 interface TaskFormProps {
     path?: string;
+    model?: Task;
 };
 
 type InputsFields = {
@@ -61,14 +64,15 @@ const initialInboundEndpoint: InputsFields = {
     injectTo: "sequence",
 };
 
+function generateSequenceName(taskName: string) {
+    return taskName + "Sequence";
+}
+
 export function TaskForm(props: TaskFormProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [isNewTask, setIsNewTask] = useState(true);
     const [savedTaskName, setSavedTaskName] = useState<string>("");
-    const formTitle = isNewTask
-        ? "Create New Scheduled Task"
-        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [messageIsXML, setMessageIsXML] = useState(false);
@@ -83,6 +87,10 @@ export function TaskForm(props: TaskFormProps) {
         isError: false,
         text: ""
     });
+
+    const formTitle = isNewTask
+        ? "Create New Scheduled Task"
+        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
     const schema = yup.object({
         name: yup.string().required("Task Name is required")
@@ -114,17 +122,14 @@ export function TaskForm(props: TaskFormProps) {
             otherwise: (schema) => schema.notRequired().default(''),
         }),
         format: yup.mixed().oneOf(["soap11", "soap12", "pox", "get"]).default("soap12"),
+        to: yup.string().matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in the URL").notRequired(),
         injectTo: yup.mixed().oneOf(["proxy", "sequence"]).default("sequence"),
         proxyName: yup.string().when('injectTo', {
             is: 'proxy',
             then: () => yup.string().required('Proxy name is required'),
             otherwise: () => yup.string().notRequired()
         }),
-        sequenceName: yup.string().when('injectTo', {
-            is: 'sequence',
-            then: () => yup.string().required('Sequence name is required'),
-            otherwise: () => yup.string().notRequired()
-        }),
+        sequenceName: yup.string().notRequired(),
         soapAction: yup.string().notRequired(),
         message: yup.string().notRequired(),
         invokeHandlers: yup.boolean().default(false),
@@ -191,8 +196,6 @@ export function TaskForm(props: TaskFormProps) {
         taskProperties.push({ key: "injectTo", value: values.injectTo, isLiteral: true });
         if (values.injectTo === "proxy") {
             taskProperties.push({ key: "proxyName", value: values.proxyName, isLiteral: true });
-        } else if (values.injectTo === "sequence") {
-            taskProperties.push({ key: "sequenceName", value: values.sequenceName, isLiteral: true });
         }
         taskProperties.push({ key: "registryKey", value: values.registryKey, isLiteral: true });
         taskProperties.push({ key: "invokeHandlers", value: values.invokeHandlers, isLiteral: true });
@@ -201,13 +204,44 @@ export function TaskForm(props: TaskFormProps) {
             taskProperties: taskProperties,
             directory: props.path
         };
-        await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
-        openOverview();
+        // Hanlde the case where user do not secify a sequence 
+        // Here we need to create a sequence and add the task to the sequence
+        if (values.injectTo === "sequence") {
+            if (!values.sequenceName) {
+                const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+                const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
+                const sequenceRequest: CreateSequenceRequest = {
+                    name: generateSequenceName(values.name),
+                    directory: sequenceDir,
+                    endpoint: "",
+                    onErrorSequence: "",
+                    getContentOnly: false,
+                    statistics: false,
+                    trace: false
+                };
+                await rpcClient.getMiDiagramRpcClient().createSequence(sequenceRequest);
+            }
+            taskProperties.push({ key: "sequenceName", value: generateSequenceName(values.name), isLiteral: true });
+        }
+        const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
+        openTaskView(response.path);
+    };
+
+    const openTaskView = (documentUri: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskView, documentUri: documentUri } });
     };
 
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
+
+    const cancelHandler = function () {
+        if (isNewTask) {
+            openOverview();
+        } else {
+            openTaskView(props.path);
+        }
+    }
 
     const handleXMLInputChange = (text: string) => {
         setValue("message", text, { shouldDirty: true });
@@ -236,7 +270,7 @@ export function TaskForm(props: TaskFormProps) {
     }, [getValues("message"), messageIsXML]);
 
     return (
-        <FormView title={formTitle} onClose={openOverview}>
+        <FormView title={formTitle} onClose={cancelHandler}>
             <TextField
                 id="name"
                 required
@@ -281,7 +315,7 @@ export function TaskForm(props: TaskFormProps) {
                     </>
                 )}
             </FormGroup>
-            <FormGroup title="Task Implementation" isCollapsed={false}>
+            <FormGroup title="Task Implementation" isCollapsed={true}>
                 <Dropdown
                     id="injectTo"
                     label="Message inject destination"
@@ -341,7 +375,7 @@ export function TaskForm(props: TaskFormProps) {
                     />
                 </>)}
             </FormGroup>
-            <FormGroup title="Message" isCollapsed={false}>
+            <FormGroup title="Message" isCollapsed={true}>
                 <CheckBox
                     label="message format is XML"
                     value="xml"
@@ -405,11 +439,11 @@ export function TaskForm(props: TaskFormProps) {
                     onClick={handleSubmit(handleCreateTask)}
                     disabled={!isDirty}
                 >
-                    {isNewTask ? "Create" : "Save Changes"}
+                    {isNewTask ? "Create" : "Update"}
                 </Button>
                 <Button
                     appearance="secondary"
-                    onClick={openOverview}
+                    onClick={cancelHandler}
                 >
                     Cancel
                 </Button>
