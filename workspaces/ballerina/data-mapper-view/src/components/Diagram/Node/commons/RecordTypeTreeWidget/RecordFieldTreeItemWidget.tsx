@@ -33,7 +33,7 @@ const useStyles = () => ({
     treeLabelPortSelected: css({
         color: "var(--vscode-list-activeSelectionForeground)",
         backgroundColor: 'var(--vscode-list-activeSelectionBackground)',
-        outline: "1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))",
+        outline: "1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-editorLink-activeForeground, var(--vscode-list-focusOutline))))",
         "&:hover": {
             backgroundColor: 'var(--vscode-list-activeSelectionBackground)'
         }
