@@ -1293,26 +1293,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let statisticsAttribute = ``;
             let traceAttribute = ``;
             if (endpoint) {
-                endpointAttributes = `<send>
-          <endpoint key="${endpoint.replace(".xml", "")}"/>
-      </send>`;
+                endpointAttributes = `\t<send>\n\t\t<endpoint key="${endpoint.replace(".xml", "")}"/>\n\t</send>`;
             }
 
             if (onErrorSequence) {
-                errorSequence = `onError="${onErrorSequence}"`;
+                errorSequence = `onError="${onErrorSequence}" `;
             }
             if (statistics) {
-                statisticsAttribute = `statistics="enable"`;
+                statisticsAttribute = `statistics="enable" `;
             }
             if (trace) {
-                traceAttribute = `trace="enable"`;
+                traceAttribute = `trace="enable" `;
             } else {
-                traceAttribute = `trace="disable"`;
+                traceAttribute = `trace="disable" `;
             }
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-<sequence name="${name}" ${errorSequence} ${traceAttribute} ${statisticsAttribute} xmlns="http://ws.apache.org/ns/synapse">
-  ${endpointAttributes}
+<sequence name="${name}" ${errorSequence}${traceAttribute}${statisticsAttribute}xmlns="http://ws.apache.org/ns/synapse">
+${endpointAttributes}
 </sequence>`;
 
             if (params.getContentOnly) {

@@ -41,10 +41,13 @@ export function HierachicalPath(props: HierachicalPathProps) {
             return;
         }
 
-        const isWindows = navigator.platform.toLowerCase().includes("win");
-        const splitString = isWindows ? path.win32.join(machineView.projectUri, "src") : path.join(machineView.projectUri, "src");
-        const filePath = machineView.documentUri.split(splitString)[1];
-        const pathItems = filePath.substring(1).split(isWindows ? path.win32.sep : path.sep);
+        // Normalize paths to ensure compatibility across different platforms
+        const normalizedProjectUri = path.normalize(machineView.projectUri);
+        const normalizedDocumentUri = path.normalize(machineView.documentUri);
+
+        const projectSrc = path.join(normalizedProjectUri, "src");
+        const filePath = normalizedDocumentUri.split(projectSrc)[1];   
+        const pathItems = filePath?.substring(1).split(path.sep);
 
         const segments: Segment[] = [];
         const updateSegments = async () => {
