@@ -46,7 +46,7 @@ export function getSources(filePath: string) {
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
-        fileContent = sourceFile.getText();
+        fileContent = sourceFile.getFullText();
         interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
             return interfaceNode.getText();
         }).join('\n');

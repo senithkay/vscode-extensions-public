@@ -69,15 +69,6 @@ export interface ConvertRegPathToAbsPathResponse {
     configName: string;
 }
 
-export interface UpdateDMCRequest {
-    dmName: string;
-    sourcePath: string;
-}
-
-export interface UpdateDMCResponse {
-    success: boolean;
-}
-
 interface SchemaGenBaseRequest {
     delimiter: string;
     type: string;
