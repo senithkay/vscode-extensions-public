@@ -77,6 +77,8 @@ jobs:
           testArray=""
           echo "hasBalDiff=false" >> $GITHUB_OUTPUT
           echo "hasChoreoDiff=false" >> $GITHUB_OUTPUT
+          echo "hasMIDiff=false" >> $GITHUB_OUTPUT
+
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
             git fetch origin main
@@ -85,7 +87,7 @@ jobs:
             CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^/*" || true)
           fi
 
-          echo $CHANGED_DIRS
+          echo $CHANGED_DIRS[@]
 
           # Ballerina ext
           if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/ballerina" ]]; then
@@ -99,7 +101,7 @@ jobs:
 
           # MI ext
           if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/mi" ]]; then
-              echo "runMIExtTests=true" >> $GITHUB_OUTPUT
+              echo "hasMIDiff=true" >> $GITHUB_OUTPUT
           fi
           
           # APK ext
@@ -113,12 +115,14 @@ jobs:
           fi
 
           # Common
-          if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ "^/*.yaml" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
+          if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ ".github" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
+            echo "Have changes in common libs"
             echo "hasBalDiff=true" >> $GITHUB_OUTPUT
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
             echo "hasEggplantDiff=true" >> $GITHUB_OUTPUT
+            echo "hasMIDiff=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Set test matrix
@@ -126,12 +130,14 @@ jobs:
         id: testMatrix
         run: |
           echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
-          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
+          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
           echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
           echo "runEggplantExtTests=${{ steps.diff.outputs.hasEggplantDiff }}" >> $GITHUB_OUTPUT
+          echo "MI Tests: ${{ steps.diff.outputs.hasMIDiff }}"
+          echo "runMIExtTests=${{ steps.diff.outputs.hasMIDiff }}" >> $GITHUB_OUTPUT
 
       - name: Build
         uses: ./.github/actions/build
@@ -350,7 +356,7 @@ jobs:
   ExtTest_MI:
     name: Run MI extension tests
     needs: Build_Stage
-    if: ${{ (inputs.mi == 'true' && needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
+    if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -374,5 +380,5 @@ jobs:
 
       - name: Run Test
         run: |
-          cd workspaces/mi/mi-extension
+          cd workspaces/mi/mi-diagram
           xvfb-run --auto-servernum pnpm run test

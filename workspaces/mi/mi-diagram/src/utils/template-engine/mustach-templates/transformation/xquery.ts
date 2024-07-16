@@ -14,9 +14,9 @@ import { transformNamespaces } from "../../../commons";
 export function getXqueryMustacheTemplate() {
 
   return `
-    <xquery {{#staticScriptKey}}key="{{{staticScriptKey}}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{{dynamicScriptKey}}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
+    <xquery {{#staticScriptKey}}key="{{{staticScriptKey}}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{{dynamicScriptKey}}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
         {{#variables}}        
-            <variable name="{{{variableName}}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{{variableLiteral}}}"{{/variableLiteral}} {{#variableExpression}}expression="{{{variableExpression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/variableExpression}} />
+            <variable name="{{{variableName}}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{{variableLiteral}}}"{{/variableLiteral}} {{#variableExpression}}expression="{{{variableExpression}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/variableExpression}} />
         {{/variables}}
     </xquery>
     `;

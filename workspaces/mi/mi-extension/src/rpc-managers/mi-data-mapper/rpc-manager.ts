@@ -31,7 +31,7 @@ import {
 import { fetchIOTypes, fetchSubMappingTypes, fetchOperators } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
-import { generateSchema } from "../../util/schemaBuilder";
+import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateDMC, updateDMCContent } from "../../util/tsBuilder";
 import * as fs from "fs";
@@ -100,7 +100,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
-            const { documentUri, overwriteSchema, resourceName, sourcePath, ioType, schemaType, configName } = params;
+            const { documentUri, overwriteSchema, resourceName, content, ioType, schemaType, configName } = params;
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(documentUri));
             if (overwriteSchema) {
                 const response = await window.showInformationMessage(
@@ -114,18 +114,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     return;
                 }
             }
-            const selectedFile = await window.showOpenDialog({
-                defaultUri: Uri.file(os.homedir()),
-                canSelectFiles: true,
-                canSelectFolders: false,
-                canSelectMany: false,
-                title: `Select a schema file`
-            });
-            if (selectedFile) {
-                const filePath = selectedFile[0].fsPath;
+            if (content) {
                 let schema: JSONSchema3or4;
                 try {
-                    schema = await generateSchema(ioType, schemaType, schemaType, extension.context, filePath);
+                    schema = await generateSchemaFromContent(content, schemaType, schemaType);
                 } catch (error: any) {
                     console.error(error);
                     window.showErrorMessage("Error while generating schema. Please check the input file and Resource Type and try again.");
@@ -139,7 +131,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     fs.writeFileSync(newFilePath, JSON.stringify(schema, null, 4));
                 }
                 try {
-                    await updateDMC(configName, sourcePath);
+                    await updateDMC(configName, documentUri);
                     await this.formatDMC(documentUri);
                     navigate();
                     return resolve({ success: true });

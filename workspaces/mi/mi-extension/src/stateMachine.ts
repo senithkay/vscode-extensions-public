@@ -18,7 +18,7 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
-import { COMMANDS } from './constants';
+import { APIS, COMMANDS } from './constants';
 import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
@@ -31,6 +31,7 @@ import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
+import fetch from 'node-fetch';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -53,7 +54,7 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: [
                     {
-                        target: 'projectDetected',
+                        target: 'connectorInit',
                         cond: (context, event) =>
                             // Assuming true means project detected
                             event.data.isProject === true && event.data.emptyProject === true,
@@ -65,7 +66,7 @@ const stateMachine = createMachine<MachineContext>({
                         })
                     },
                     {
-                        target: 'projectDetected',
+                        target: 'connectorInit',
                         cond: (context, event) =>
                             // Assuming true means project detected
                             event.data.isProject === true && event.data.emptyProject === false,
@@ -115,6 +116,19 @@ const stateMachine = createMachine<MachineContext>({
                         errors: (context, event) => event.data
                     })
                 }
+            }
+        },
+        connectorInit: {
+            invoke: {
+                src: 'waitForConnectorData',
+                onDone: [
+                    {
+                        target: 'projectDetected',
+                        actions: assign({
+                            connectorData: (context, event) => event.data
+                        })
+                    }
+                ]
             }
         },
         projectDetected: {
@@ -339,6 +353,17 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
+        waitForConnectorData: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                fetchConnectorData().then(data => {
+                    if (data) {
+                        resolve(data);
+                    } else {
+                        resolve([]);
+                    }
+                });
+            });
+        },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
@@ -551,6 +576,25 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
                 dark: Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)),
             };;
         }
+    }
+}
+
+async function fetchConnectorData() {
+    try {
+        const response = await fetch(APIS.CONNECTOR, {
+            method: 'GET',
+            cache: "no-cache"
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.data;
+        } else {
+            console.log("Failed to fetch data, but user is connected.");
+            return null;
+        }
+    } catch (error) {
+        console.log("User is offline.", error);
+        return null;
     }
 }
 

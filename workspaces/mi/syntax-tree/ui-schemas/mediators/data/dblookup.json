@@ -46,6 +46,7 @@
               "displayName": "Connection DB Type",
               "inputType": "combo",
               "defaultValue": "OTHER",
+              "showManageDeps": true,
               "comboValues": [
                 "OTHER",
                 "MYSQL",

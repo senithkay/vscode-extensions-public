@@ -40,7 +40,7 @@ export interface GenerateDMInputResponse {
 export interface BrowseSchemaRequest {
     documentUri: string;
     overwriteSchema?: boolean;
-    sourcePath: string;
+    content: string;
     resourceName: string;
     ioType: string;
     schemaType: string;
@@ -78,11 +78,18 @@ export interface UpdateDMCResponse {
     success: boolean;
 }
 
-export interface SchemaGenRequest {
-    filePath: string;
+interface SchemaGenBaseRequest {
     delimiter: string;
     type: string;
     title: string;
+}
+
+export interface SchemaGenRequest extends SchemaGenBaseRequest {
+    filePath: string;
+}
+
+export interface SchemaGenFromContentRequest extends SchemaGenBaseRequest {
+    fileContent: string;
 }
 
 export interface SchemaGenResponse {

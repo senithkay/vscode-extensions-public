@@ -23,6 +23,7 @@ interface SidePanelContext {
     isOpen: boolean;
     isEditing: boolean;
     nodeRange?: Range;
+    trailingSpace?: string;
     operationName?: string;
     parentNode?: string;
     previousNode?: string;

@@ -26,6 +26,8 @@ import {
     RuntimeServicesResponse,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
+    OpenExternalRequest,
+    OpenExternalResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
@@ -50,4 +52,5 @@ export interface MIVisualizerAPI {
     showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
     getAvailableRuntimeServices:() => Promise<RuntimeServicesResponse>;
     sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
+    openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
 }

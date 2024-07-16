@@ -13,6 +13,7 @@ export interface STNode {
     selfClosed: boolean;
     textNode: string;
     range: TagRange;
+    spaces: Spaces;
     tag: string;
     namespaces?: { [key: string]: string };
     viewState?: ViewState;
@@ -47,6 +48,21 @@ export interface TagRange {
 export interface Range {
     start: Position;
     end: Position;
+}
+
+export interface Spaces {
+    startingTagSpace: TagSpaces;
+    endingTagSpace: TagSpaces;
+}
+
+export interface TagSpaces {
+    leadingSpace: Space;
+    trailingSpace: Space;
+}
+
+export interface Space {
+    space: string;
+    range: Range;
 }
 
 export interface Position {
@@ -165,7 +181,7 @@ export interface Foreach extends STNode {
 }
 
 export interface PayloadFactoryFormat extends STNode {
-    content: any[];
+    content: string;
     key: string;
 }
 
