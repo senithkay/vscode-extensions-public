@@ -10,7 +10,6 @@
  */
 import {
     AIUserInput,
-    UpdateDependencyInPomRequest,
     ApplyEditRequest,
     BrowseFileRequest,
     CommandsRequest,
@@ -62,6 +61,7 @@ import {
     HighlightCodeRequest,
     ImportProjectRequest,
     ListRegistryArtifactsRequest,
+    MarkAsDefaultSequenceRequest,
     MigrateProjectRequest,
     OpenDependencyPomRequest,
     OpenDiagramRequest,
@@ -75,11 +75,13 @@ import {
     RetrieveWsdlEndpointRequest,
     ShowErrorMessageRequest,
     SwaggerTypeRequest,
+    TestDbConnectionRequest,
     UndoRedoParams,
     UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
+    UpdateDependencyInPomRequest,
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
@@ -91,7 +93,6 @@ import {
     UpdateTestSuiteRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
-    updateDependencyInPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -168,6 +169,7 @@ import {
     getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
+    getStoreConnectorJSON,
     getSyntaxTree,
     getTask,
     getTemplate,
@@ -182,6 +184,7 @@ import {
     importProject,
     initUndoRedoManager,
     logoutFromMIAccount,
+    markAsDefaultSequence,
     migrateProject,
     openDependencyPom,
     openDiagram,
@@ -190,11 +193,13 @@ import {
     redo,
     refreshAccessToken,
     showErrorMessage,
+    testDbConnection,
     undo,
     updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
+    updateDependencyInPom,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
@@ -206,10 +211,7 @@ import {
     updateTestCase,
     updateTestSuite,
     updateWsdlEndpoint,
-    writeContentToFile,
-    getStoreConnectorJSON,
-    testDbConnection,
-    TestDbConnectionRequest
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -332,4 +334,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openDependencyPom, (args: OpenDependencyPomRequest) => rpcManger.openDependencyPom(args));
     messenger.onRequest(getAllDependencies, (args: getAllDependenciesRequest) => rpcManger.getAllDependencies(args));
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));
+    messenger.onNotification(markAsDefaultSequence, (args: MarkAsDefaultSequenceRequest) => rpcManger.markAsDefaultSequence(args));
 }

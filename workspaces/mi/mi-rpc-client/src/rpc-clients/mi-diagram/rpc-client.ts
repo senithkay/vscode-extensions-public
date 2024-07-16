@@ -300,7 +300,9 @@ import {
     getStoreConnectorJSON,
     TestDbConnectionRequest,
     TestDbConnectionResponse,
-    testDbConnection
+    testDbConnection,
+    MarkAsDefaultSequenceRequest,
+    markAsDefaultSequence
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -774,5 +776,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     testDbConnection(params: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
         return this._messenger.sendRequest(testDbConnection, HOST_EXTENSION, params);
+    }
+
+    markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
+        return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
     }
 }
