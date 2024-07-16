@@ -134,7 +134,7 @@ interface PortsContainerProps {
 	hasError: boolean;
 }
 
-const portActiveColor = "var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))";
+const portActiveColor = "var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-editorLink-activeForeground, var(--vscode-list-focusOutline))))";
 
 const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
