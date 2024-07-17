@@ -44,7 +44,9 @@ export type RDBMSObject = {
     driverClassName?: string;
     url?: string;
     username?: string;
+    useSecretAlias?: boolean;
     password?: string;
+    secretAlias?: string;
     [key: string]: any;
 };
 
@@ -151,7 +153,9 @@ export const newDataSource: DataSourceFields = {
         driverClassName: "",
         url: "",
         username: "",
-        password: ""
+        useSecretAlias: false,
+        password: "",
+        secretAlias: ""
     },
     mongodb: {
         type: "",
@@ -249,7 +253,9 @@ const schema = yup.object({
             otherwise: (schema) => schema.notRequired().default(""),
         }),
         username: yup.string().notRequired(),
-        password: yup.string().notRequired()
+        useSecretAlias: yup.boolean().notRequired(),
+        password: yup.string().notRequired(),
+        secretAlias: yup.string().notRequired()
     }),
     mongodb: yup.object().shape({
         type: yup.string().notRequired(),
@@ -360,7 +366,9 @@ export function restructureDatasource(initialDatasource: any) {
             driverClassName: "",
             url: "",
             username: "",
-            password: ""
+            useSecretAlias: false,
+            password: "",
+            secretAlias: ""
         },
         mongodb: {
             mongoDB_servers: "",
@@ -462,6 +470,9 @@ export function restructureDatasource(initialDatasource: any) {
             updatedDatasource.rdbms.databaseEngine = "H2";
         } else {
             updatedDatasource.rdbms.databaseEngine = "Generic";
+        }
+        if (updatedDatasource.rdbms.secretAlias !== "") {
+            updatedDatasource.rdbms.useSecretAlias = true;
         }
     } else if (propertyKeys.includes("csv_datasource")) {
         updatedDatasource.dataSourceType = "CSV";
@@ -647,7 +658,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             />
             <Dropdown label="Datasource Type" required items={datasourceTypes} {...renderProps('dataSourceType')} />
             { watch('dataSourceType') === 'RDBMS' && (
-                <DataSourceRDBMSForm renderProps={renderPropsForObject} watch={watch} setValue={setValue} />
+                <DataSourceRDBMSForm renderProps={renderPropsForObject} watch={watch} setValue={setValue} control={control}/>
             )}
             { watch('dataSourceType') === 'MongoDB' && (
                 <DataSourceMongoDBForm renderProps={renderPropsForObject} />

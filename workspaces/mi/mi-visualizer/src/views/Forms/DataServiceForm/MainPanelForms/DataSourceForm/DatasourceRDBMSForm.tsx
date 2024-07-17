@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect } from "react";
-import { TextField, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataSourceRDBMSFormProps {
     renderProps: any;
     watch: any;
     setValue: any;
+    control: any;
 }
 
 interface OptionProps {
@@ -129,6 +130,14 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
         }
     }, [props.watch('rdbms.databaseEngine')]);
 
+    useEffect(() => {
+        if (props.watch('rdbms.useSecretAlias')) {
+            props.setValue('rdbms.password', '');
+        } else {
+            props.setValue('rdbms.secretAlias', '');
+        }
+    }, [props.watch('rdbms.useSecretAlias')]);
+
     return (
         <>
             <Dropdown label="Database Engine" required items={databaseEngines} {...props.renderProps('rdbms.databaseEngine')} />
@@ -149,11 +158,24 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                 size={100}
                 {...props.renderProps('rdbms.username')}
             />
-            <TextField
-                label="Password"
-                size={100}
-                {...props.renderProps('rdbms.password')}
+            <FormCheckBox
+                label="Use Secret Alias"
+                {...props.renderProps("rdbms.useSecretAlias")}
+                control={props.control}
             />
+            { props.watch('rdbms.useSecretAlias') ?
+                <TextField
+                    label="Secret Alias"
+                    size={100}
+                    {...props.renderProps('rdbms.secretAlias')}
+                />
+                :
+                <TextField
+                    label="Password"
+                    size={100}
+                    {...props.renderProps('rdbms.password')}
+                />
+            }
         </>
     );
 }
