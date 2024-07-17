@@ -29,8 +29,6 @@ import {
     ConvertRegPathToAbsPathResponse,
     convertRegPathToAbsPath,
     createDMFiles,
-    UpdateDMCRequest,
-    updateDMCFileContent,
     UpdateDMUndoRedoMangerRequest,
     initDMUndoRedoManager,
     dmUndo,
@@ -77,10 +75,6 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return this._messenger.sendRequest(createDMFiles, HOST_EXTENSION, params);
-    }
-
-    updateDMCFileContent(params: UpdateDMCRequest): void {
-        return this._messenger.sendNotification(updateDMCFileContent, HOST_EXTENSION, params);
     }
 
     initDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): void {

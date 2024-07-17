@@ -31,8 +31,8 @@
             <xs:attribute name="config" type="xs:string" use="required" />
             <xs:attribute name="inputSchema" type="xs:string" use="required" />
             <xs:attribute name="outputSchema" type="xs:string" use="required" />
-            <xs:attribute name="inputType" type="SchemaType" use="required" />
-            <xs:attribute name="outputType" type="SchemaType" use="required" />
+            <xs:attribute name="inputType" type="SchemaType" use="optional" />
+            <xs:attribute name="outputType" type="SchemaType" use="optional" />
             <xs:attribute name="xsltStyleSheet" type="xs:string" use="optional" />
             <xs:attribute name="description" type="xs:string" use="optional" />
         </xs:complexType>
@@ -50,4 +50,3 @@
     </xs:simpleType>
 
 </xs:schema>
-

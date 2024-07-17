@@ -1032,7 +1032,7 @@ export interface Datasource {
 
 export interface Property {
     key: string;
-    value: string;
+    value: any;
 }
 
 export interface Configuration {

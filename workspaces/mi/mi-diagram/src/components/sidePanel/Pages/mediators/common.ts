@@ -89,7 +89,8 @@ export const getParamManagerFromValues = (values: any[], keyIndex?: number, valu
         if (typeof value === 'object' && value !== null) {
             const paramValues = getParamValues(value);
             return {
-                id: index, key: keyIndex != undefined && keyIndex >= 0 ? typeof value[keyIndex] === 'object' ? value[keyIndex].value : value[keyIndex] : index,
+                id: index, 
+                key: keyIndex != undefined && keyIndex >= 0 ? typeof value[keyIndex] === 'object' ? value[keyIndex].value : value[keyIndex] : index + 1,
                 value: typeof value[valueIndex] === 'object' ? value[valueIndex].value : value[valueIndex],
                 icon: 'query', paramValues
             };
