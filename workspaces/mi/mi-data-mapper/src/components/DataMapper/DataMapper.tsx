@@ -116,7 +116,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     useEffect(() => {
         generateNodes();
-        updateDMCFileContent();
         setupKeyboardShortcuts();
     
         return () => {
@@ -174,10 +173,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });
     };
 
-    const updateDMCFileContent = () => {
-        rpcClient.getMiDataMapperRpcClient().updateDMCFileContent({ dmName: configName, sourcePath: filePath });
-    };
-
     const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
         const lastSource = await rpcClient.getMiDataMapperRpcClient()[action]();
         if (lastSource) {
@@ -198,7 +193,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
-                    inputNode={inputNode}
                     operators={operators}
                 />
             )}
