@@ -3134,6 +3134,9 @@ importers:
       tslint-react-hooks: 2.2.2_t7b5rvrgqeu75u2a5tstpdiwve
       typescript: 5.3.3
 
+  ../../workspaces/mi/mi-data-mapper-utils:
+    specifiers: {}
+
   ../../workspaces/mi/mi-diagram:
     specifiers:
       '@emotion/css': ^11.10.5
@@ -3278,6 +3281,7 @@ importers:
       '@vscode/vsce': ~2.21.0
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-data-mapper-utils': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
@@ -3375,6 +3379,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
       '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
       '@vscode/test-electron': 2.3.9
+      '@wso2-enterprise/mi-data-mapper-utils': link:../mi-data-mapper-utils
       '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
       await-notify: 1.0.1
       eslint: 8.56.0

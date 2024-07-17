@@ -48,8 +48,8 @@ const DataMapperForm = (props: AddMediatorProps) => {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
         } else {
             setFormValues({
-                "inputType": "JSON",
-                "outputType": "JSON"
+                "inputType": "",
+                "outputType": ""
             });
         }
     }, [sidePanelContext.formValues]);
@@ -70,8 +70,8 @@ const DataMapperForm = (props: AddMediatorProps) => {
     });
 
     if (formValues.inputType === undefined && formValues.outputType === undefined && createOption === 'new') {
-        formValues.inputType = 'JSON';
-        formValues.outputType = 'JSON';
+        formValues.inputType = '';
+        formValues.outputType = '';
     }
 
     const submitFormValues = async () => {
@@ -256,7 +256,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                         <FormGroup title="Advanced" isCollapsed={true}>
                             <Field>
                                 <label>Input Type</label>
-                                <AutoComplete identifier='input-type' items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
+                                <AutoComplete identifier='input-type' items={["", "JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "inputType": e });
                                     formValidators["inputType"](e);
                                 }} />
@@ -264,7 +264,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             </Field>
                             <Field>
                                 <label>Output Type</label>
-                                <AutoComplete identifier='output-type' items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
+                                <AutoComplete identifier='output-type' items={["", "JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
                                     setFormValues({ ...formValues, "outputType": e });
                                     formValidators["outputType"](e);
                                 }} />

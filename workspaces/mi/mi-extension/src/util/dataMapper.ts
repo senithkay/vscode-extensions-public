@@ -6,9 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Block, FunctionDeclaration, Node, Project, SourceFile, Type } from 'ts-morph';
+import { Block, FunctionDeclaration, Node, Project, SourceFile, Type, ts } from 'ts-morph';
 import * as path from 'path';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind, DMOperator } from '@wso2-enterprise/mi-core';
 
 export function fetchIOTypes(filePath: string, functionName: string) {
     const inputTypes: DMType[] = [];
@@ -46,7 +46,7 @@ export function getSources(filePath: string) {
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
-        fileContent = sourceFile.getText();
+        fileContent = sourceFile.getFullText();
         interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
             return interfaceNode.getText();
         }).join('\n');
@@ -66,6 +66,101 @@ export function deriveConfigName(filePath: string) {
     const fileName = parts[parts.length - 1];
     return fileName.split(".")[0];
 }
+
+export function fetchOperators(filePath: string): DMOperator[] {
+
+    const operators: DMOperator[] = [];
+    const resolvedPath = path.resolve(filePath);
+
+    const { completions, languageService } = getCompletions(resolvedPath);
+
+    if (completions) {
+
+        completions.entries.forEach(entry => {
+
+            const details = getCompletionEntryDetails(languageService, entry, filePath);
+
+            if (details) {
+
+                const functionDetails = getImportedFuntionDetails(entry, details);
+
+                if (functionDetails)
+                    operators.push(functionDetails);
+
+            }
+        });
+    }
+
+    return operators;
+}
+
+function getCompletions(filePath: string) {
+    const project = new Project();
+    project.addSourceFileAtPath(filePath);
+
+    const completionOptions = {
+        includeExternalModuleExports: true,
+        includeInsertTextCompletions: true,
+        includeCompletionsForModuleExports: true,
+        includeCompletionsWithInsertText: true,
+        includeAutomaticOptionalChainCompletions: true
+    };
+
+    const languageService = project.getLanguageService().compilerObject;
+
+    const completions = languageService.getCompletionsAtPosition(filePath, 0, completionOptions);
+
+    return { completions, languageService };
+}
+
+function getCompletionEntryDetails(languageService: ts.LanguageService, entry: ts.CompletionEntry, filePath: string) {
+    const details = languageService.getCompletionEntryDetails(
+        filePath,
+        0,
+        entry.name,
+        {},
+        entry.source,
+        {
+            importModuleSpecifierPreference: 'relative',
+        },
+        entry.data
+    );
+
+    return details;
+}
+
+function getImportedFuntionDetails(entry: ts.CompletionEntry, details: ts.CompletionEntryDetails) {
+
+    if (details.sourceDisplay != undefined) {
+
+        if (details.kind === ts.ScriptElementKind.functionElement || details.kind === ts.ScriptElementKind.memberFunctionElement) {
+            const params: string[] = [];
+            let param: string = '';
+
+            details.displayParts.forEach(part => {
+                if (part.kind === 'parameterName' || part.text === '...') {
+                    param += part.text;
+                } else if (param && part.text === ':') {
+                    params.push(param);
+                    param = '';
+                }
+            });
+
+            return {
+                label: entry.name,
+                args: params,
+                description: details.documentation?.[0]?.text,
+                src: entry.source,
+                action: details.codeActions?.[0].changes[0].textChanges[0].newText
+            };
+        }
+
+    }
+
+    return undefined;
+}
+
+
 
 function getDMFunction(filePath: string, functionName: string) {
     try {

@@ -3196,6 +3196,22 @@ ${endpointAttributes}
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
+            } else if (params.createOption === 'entryOnly') {
+                let fileName = params.resourceName;
+                const fileData = getMediatypeAndFileExtension(params.templateType);
+                fileName = fileName + "." + fileData.fileExtension;
+                const registryPath = path.join(registryDir, params.registryPath);
+                const destPath = path.join(registryPath, fileName);
+                if (!fs.existsSync(registryPath)) {
+                    fs.mkdirSync(registryPath, { recursive: true });
+                }
+                //add the new entry to artifact.xml
+                transformedPath = path.join(transformedPath, params.registryPath);
+                transformedPath = transformedPath.split(path.sep).join("/");
+                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: destPath });
+
             } else {
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);

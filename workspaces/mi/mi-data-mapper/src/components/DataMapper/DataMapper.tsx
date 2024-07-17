@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMType, Range, DMOperator } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
@@ -45,6 +45,7 @@ export interface MIDataMapperProps {
     filePath: string;
     configName: string;
     applyModifications: () => Promise<void>;
+    operators: DMOperator[];
 };
 
 enum ActionType {
@@ -77,7 +78,7 @@ function viewsReducer(state: ViewState, action: ViewAction) {
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications } = props;
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, operators } = props;
 
     const initialView = [{
         targetFieldFQN: "",
@@ -94,19 +95,19 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const { resetFocus: resetExprBarFocus } = useDMExpressionBarStore();
 
     const addView = useCallback((view: View) => {
-        dispatch({ type: ActionType.ADD_VIEW, payload: {view} });
+        dispatch({ type: ActionType.ADD_VIEW, payload: { view } });
         resetSearchStore();
         resetExprBarFocus();
     }, [resetSearchStore, resetExprBarFocus]);
 
     const switchView = useCallback((navigateIndex: number) => {
-        dispatch({ type: ActionType.SWITCH_VIEW, payload: {index: navigateIndex} });
+        dispatch({ type: ActionType.SWITCH_VIEW, payload: { index: navigateIndex } });
         resetSearchStore();
         resetExprBarFocus();
     }, [resetSearchStore, resetExprBarFocus]);
 
     const editView = useCallback((newData: View) => {
-        dispatch({ type: ActionType.EDIT_VIEW, payload: { view: newData} });
+        dispatch({ type: ActionType.EDIT_VIEW, payload: { view: newData } });
         resetSearchStore();
         resetExprBarFocus();
     }, [resetSearchStore, resetExprBarFocus]);
@@ -115,7 +116,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     useEffect(() => {
         generateNodes();
-        updateDMCFileContent();
         setupKeyboardShortcuts();
     
         return () => {
@@ -173,10 +173,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });
     };
 
-    const updateDMCFileContent = () => {
-        rpcClient.getMiDataMapperRpcClient().updateDMCFileContent({ dmName: configName, sourcePath: filePath });
-    };
-
     const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
         const lastSource = await rpcClient.getMiDataMapperRpcClient()[action]();
         if (lastSource) {
@@ -185,7 +181,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     };
 
     const updateFileContent = async (content: string) => {
-        await rpcClient.getMiDataMapperRpcClient().updateFileContent({filePath, fileContent: content});
+        await rpcClient.getMiDataMapperRpcClient().updateFileContent({ filePath, fileContent: content });
     };
 
     return (
@@ -198,6 +194,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     onClose={undefined}
                     applyModifications={applyModifications}
                     inputNode={inputNode}
+                    operators={operators}
                 />
             )}
             {nodes.length > 0 && (
