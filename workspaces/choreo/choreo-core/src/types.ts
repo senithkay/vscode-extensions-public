@@ -995,9 +995,10 @@ export interface ComponentYamlSchema {
 }
 
 export interface ComponentYamlContent {
-    apiVersion: "core.choreo.dev/v1alpha1";
+    apiVersion: "core.choreo.dev/v1beta1";
     kind: "ComponentConfig";
-    metadata: ComponentMetadata;
+    // todo: remove metadata
+    metadata?: ComponentMetadata;
     spec: {
         build?: { branch: string; revision?: string };
         image?: { registry: string; repository: string; tag: string };

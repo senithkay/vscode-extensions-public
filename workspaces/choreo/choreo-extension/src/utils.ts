@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
+import { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
 import { existsSync, mkdirSync, readFileSync, unlinkSync, readdirSync, rmdirSync } from "fs";
 import * as yaml from "js-yaml";
 import { commands, window, workspace } from "vscode";
@@ -46,6 +46,12 @@ export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
     if (existsSync(endpointsYamlPath)) {
         const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
         return { endpoints: endpointFileContent.endpoints, filePath: endpointsYamlPath };
+    }
+
+    const componentConfigYamlPath = join(componentPath, ".choreo", "component-config.yaml");
+    if (existsSync(componentConfigYamlPath)) {
+        const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+        return { endpoints: endpointFileContent?.spec?.inbound ?? [], filePath: componentConfigYamlPath };
     }
     return { endpoints: [], filePath: "" };
 };

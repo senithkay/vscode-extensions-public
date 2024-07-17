@@ -11,6 +11,7 @@ import { ext } from "../extensionVariables";
 import {
     ChoreoComponentType,
     CommandIds,
+    ComponentYamlContent,
     EndpointYamlContent,
     ICreateComponentParams,
     Project,
@@ -129,15 +130,16 @@ export const submitCreateComponentHandler = async ({
     );
 
     if (createParams.type === ChoreoComponentType.Service && endpoint) {
-        const endpointFileContent: EndpointYamlContent = {
-            version: "0.1",
-            endpoints: [{ name: cleanCompName, context: "/", type: "REST", ...endpoint }],
+        const componentConfigFileContent: ComponentYamlContent = {
+            apiVersion:"core.choreo.dev/v1beta1",
+            kind:"ComponentConfig",
+            spec:{ inbound: [{ name: cleanCompName, context: "/", type: "REST", ...endpoint }]},
         };
         const choreoDir = path.join(createParams.componentDir, ".choreo");
         if (!existsSync(choreoDir)) {
             mkdirSync(choreoDir);
         }
-        writeFileSync(path.join(choreoDir, "endpoints.yaml"), yaml.dump(endpointFileContent));
+        writeFileSync(path.join(choreoDir, "component-config.yaml"), yaml.dump(componentConfigFileContent));
     }
 
     window.showInformationMessage(`Component ${createParams?.name} has been successfully created`);

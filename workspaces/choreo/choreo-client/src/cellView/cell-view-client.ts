@@ -80,17 +80,17 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             
             if (existsSync(componentYamlPath)) {
                 const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as ComponentYamlContent;
-                const componentName = componentYamlContent.metadata.name;
-                const componentTypeAnnotation = componentYamlContent.metadata.annotations?.componentType;
+                const componentName = componentYamlContent?.metadata?.name;
+                const componentTypeAnnotation = componentYamlContent?.metadata?.annotations?.componentType;
                 const componentType = componentTypeAnnotation ? componentTypeAnnotation as ComponentType : ComponentType.SERVICE;
                 const buildPack = getBuildPackFromFs(componentPath);
-                const defaultComponentModel = getDefaultComponentModel(orgName, componentName, componentType, buildPack);
+                const defaultComponentModel = getDefaultComponentModel(orgName, componentName!, componentType, buildPack);
 
                 if (componentType === ComponentType.SERVICE) {
                     const endpoints = componentYamlContent.spec.inbound || []
                     const connections = componentYamlContent.spec.outbound;
 
-                    const serviceModels = getServiceModels(endpoints, orgName, projectId, componentName,
+                    const serviceModels = getServiceModels(endpoints, orgName, projectId, componentName!,
                         folder.path, componentYamlPath);
                     const servicesRecord: Record<string, CMService> = {};
                     serviceModels.forEach(service => {
@@ -115,12 +115,12 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                             }
                         },
                     };
-                    defaultComponentModel.services = {[componentName]: service} as any;
+                    defaultComponentModel.services = {[componentName!]: service} as any;
                 } else if (componentType === ComponentType.MANUAL_TASK || componentType === ComponentType.SCHEDULED_TASK) {
                     defaultComponentModel.functionEntryPoint = {
                         id: 'main',
-                        label: componentName,
-                        annotation: { id: componentName, label: "" },
+                        label: componentName!,
+                        annotation: { id: componentName!, label: "" },
                         type: componentType === ComponentType.MANUAL_TASK ? "manualTrigger" : "scheduledTask",
                         dependencies: [],
                         interactions: [],
