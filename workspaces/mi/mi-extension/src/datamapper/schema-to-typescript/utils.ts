@@ -354,3 +354,34 @@ export function isSchemaLike(schema: LinkedJSONSchema) {
 
   return true
 }
+
+export function getSchemaMetaDataAsComment(schema: LinkedJSONSchema, schemaTitle: string): string {
+  // need to add title and namespaces as comments in the following format
+  /* 
+  * title : "axis2ns1:ADT_A01",
+  * inputType : "JSON",
+  * namespaces :[{"prefix": "axis2ns1","url": "urn:hl7-org:v2xml"}] 
+  */
+
+  let metadata = "";
+  if (schemaTitle) {
+    metadata += `* title : "${schemaTitle}",\n`;
+  }
+  if (schema.inputType) {
+    metadata += `* inputType : "${schema.inputType}",\n`;
+  } else if (schema.outputType) {
+    metadata += `* outputType : "${schema.outputType}",\n`;
+  }
+  if (schema.namespaces) {
+    metadata += `* namespaces :[`;
+    schema.namespaces.forEach((namespace) => {
+      metadata += `{"prefix": "${namespace.prefix}","url": "${namespace.url}"},`;
+    });
+    metadata = metadata.slice(0, -1); // remove the last comma
+    metadata += "]\n";
+  }
+  if (metadata && metadata.length > 0) {
+    metadata = `/*\n${metadata}*/\n`;
+  }
+  return metadata;
+}

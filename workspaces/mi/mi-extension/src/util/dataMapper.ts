@@ -47,7 +47,7 @@ export function getSources(filePath: string) {
         const project = DMProject.getInstance(resolvedPath).getProject();
         const sourceFile = project.getSourceFileOrThrow(resolvedPath);
 
-        fileContent = sourceFile.getText();
+        fileContent = sourceFile.getFullText();
         interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
             return interfaceNode.getText();
         }).join('\n');

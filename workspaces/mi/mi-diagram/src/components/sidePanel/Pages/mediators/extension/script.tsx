@@ -121,7 +121,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="scriptLanguage"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Script Language" name="scriptLanguage" items={["js", "rb", "groovy", "nashornJs"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Script Language" name="scriptLanguage" items={["js", "rb", "groovy", "nashornJs (Deprecated)", "rhinoJs (Deprecated)"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}

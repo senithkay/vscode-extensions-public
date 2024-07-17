@@ -108,7 +108,7 @@ export function DataMapperView(props: DataMapperViewProps) {
     }, [rpcClient, filePath, fileContent, functionName]);
 
     const applyModifications = async () => {
-        await updateFileContent(sourceFile.getText());
+        await updateFileContent(sourceFile.getFullText());
     };
 
     return (
