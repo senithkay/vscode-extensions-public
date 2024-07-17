@@ -164,6 +164,7 @@ export function getDataServiceCreateMustacheTemplate() {
     {{#datasourceProperties}}
     <property name="{{key}}">{{{value}}}</property>
     {{/datasourceProperties}}
+    {{#secretAlias}}<property xmlns:svns="http://org.wso2.securevault/configuration" name="password" svns:secretAlias="{{secretAlias}}" />{{/secretAlias}}
     {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
     {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
       <configuration>
@@ -194,6 +195,7 @@ export function getDataServiceEditMustacheTemplate() {
     {{#datasourceProperties}}
     <property name="{{key}}">{{{value}}}</property>
     {{/datasourceProperties}}
+    {{#secretAlias}}<property xmlns:svns="http://org.wso2.securevault/configuration" name="password" svns:secretAlias="{{secretAlias}}" />{{/secretAlias}}
     {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
     {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
       <configuration>
@@ -230,6 +232,7 @@ export function getDataSourceMustacheTemplate() {
     {{#datasourceProperties}}
     <property name="{{key}}">{{{value}}}</property>
     {{/datasourceProperties}}
+    {{#secretAlias}}<property xmlns:svns="http://org.wso2.securevault/configuration" name="password" svns:secretAlias="{{secretAlias}}" />{{/secretAlias}}
     {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
     {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
       <configuration>
@@ -253,9 +256,22 @@ export function getDataSourceXml(data: Datasource) {
         data.dynamicUserAuthMapping = null;
     }
 
+    let secretAlias: (string | null) = null;
+    data.datasourceProperties.forEach(property => {
+        if (property.key === "useSecretAlias") {
+            if (property.value) {
+                const secretElement = data.datasourceProperties.find(element => element.key === "secretAlias");
+                if (secretElement) {
+                    secretAlias = secretElement.value;
+                }
+            }
+        }
+    });
+    data.datasourceProperties = data.datasourceProperties.filter(element => !["secretAlias", "useSecretAlias"].includes(element.key));
+
     assignNullToEmptyStrings(data);
 
-    return render(getDataSourceMustacheTemplate(), data);
+    return render(getDataSourceMustacheTemplate(), { ...data, secretAlias });
 }
 
 export function getDataServiceXml(data: DataServiceArgs) {
@@ -281,20 +297,32 @@ export function getDataServiceXml(data: DataServiceArgs) {
         })
     }
 
+    let secretAlias: (string | null) = null;
     data.datasources.forEach(datasource => {
         if (datasource.datasourceConfigurations != null && datasource.datasourceConfigurations.length > 0) {
             datasource.dynamicUserAuthMapping = true;
         } else {
             datasource.dynamicUserAuthMapping = null;
         }
+        datasource.datasourceProperties.forEach(property => {
+            if (property.key === "useSecretAlias") {
+                if (property.value) {
+                    const secretElement = datasource.datasourceProperties.find(element => element.key === "secretAlias");
+                    if (secretElement) {
+                        secretAlias = secretElement.value;
+                    }
+                }
+            }
+        });
+        datasource.datasourceProperties = datasource.datasourceProperties.filter(element => !["secretAlias", "useSecretAlias"].includes(element.key));
     });
 
     assignNullToEmptyStrings(data);
 
     if (data.writeType === 'edit') {
-        return render(getDataServiceEditMustacheTemplate(), data);
+        return render(getDataServiceEditMustacheTemplate(), { ...data, secretAlias });
     } else {
-        return render(getDataServiceCreateMustacheTemplate(), data);
+        return render(getDataServiceCreateMustacheTemplate(), { ...data, secretAlias });
     }
 }
 
