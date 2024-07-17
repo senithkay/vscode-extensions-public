@@ -58,14 +58,14 @@ export class InputNode extends DataMapperNodeModel {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
-                        subField, "OUT", this._paramName, '',
-                        parentPort, collapsedFields, parentPort.collapsed
+                        subField, "OUT", this._paramName, this._paramName, '',
+                        parentPort, collapsedFields, parentPort.collapsed, subField.optional
                     );
                 });
             } else {
                 this.addPortsForInputField(
-                    this.dmType, "OUT", this._paramName, '',
-                    parentPort, collapsedFields, parentPort.collapsed
+                    this.dmType, "OUT", this._paramName, this._paramName,  '',
+                    parentPort, collapsedFields, parentPort.collapsed, this.dmType.optional
                 );
             }
         }
