@@ -48,15 +48,13 @@ const stateMachine = createMachine<MachineContext>(
             },
             lsReady: {
                 invoke: {
-                    src: checkIfEggplantProject,
+                    src: checkForProjects,
                     onDone: {
                         target: "extensionReady",
                         actions: assign({
-                            isEggplant: (context, event) => event.data
+                            isEggplant: (context, event) => event.data.isEggplant,
+                            projectUri: (context, event) => event.data.projectUri
                         })
-                    },
-                    onError: {
-                        target: "extensionReady"
                     }
                 }
             },
@@ -71,7 +69,7 @@ const stateMachine = createMachine<MachineContext>(
                         target: "viewActive",
                         actions: assign({
                             view: (context, event) => event.viewLocation.view,
-                            documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                            documentUri: (context, event) => event.viewLocation.documentUri,
                             position: (context, event) => event.viewLocation.position,
                             identifier: (context, event) => event.viewLocation.identifier
                         })
@@ -117,7 +115,7 @@ const stateMachine = createMachine<MachineContext>(
                                 target: "viewInit",
                                 actions: assign({
                                     view: (context, event) => event.viewLocation.view,
-                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
@@ -125,7 +123,7 @@ const stateMachine = createMachine<MachineContext>(
                             VIEW_UPDATE: {
                                 target: "webViewLoaded",
                                 actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     view: (context, event) => event.viewLocation.view,
                                     identifier: (context, event) => event.viewLocation.identifier
@@ -134,7 +132,7 @@ const stateMachine = createMachine<MachineContext>(
                             FILE_EDIT: {
                                 target: "viewEditing",
                                 actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
@@ -146,7 +144,7 @@ const stateMachine = createMachine<MachineContext>(
                             EDIT_DONE: {
                                 target: "viewReady",
                                 actions: assign({
-                                    documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
+                                    documentUri: (context, event) => event.viewLocation.documentUri,
                                     position: (context, event) => event.viewLocation.position,
                                     identifier: (context, event) => event.viewLocation.identifier
                                 })
@@ -187,15 +185,6 @@ const stateMachine = createMachine<MachineContext>(
         },
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
-                if (ballerinaExtInstance.getPersistDiagramStatus()) {
-                    history.push({
-                        location: {
-                            view: MACHINE_VIEW.ERDiagram,
-                            identifier: context.identifier
-                        }
-                    });
-                    return resolve();
-                }
                 if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
@@ -222,8 +211,12 @@ const stateMachine = createMachine<MachineContext>(
                 const historyStack = history.get();
                 const selectedEntry = historyStack[historyStack.length - 1];
 
+                if (selectedEntry && selectedEntry.location.view === MACHINE_VIEW.ERDiagram) {
+                    return resolve(selectedEntry.location);
+                }
+
                 const { location: { documentUri, position } = { documentUri: context.documentUri, position: undefined }, uid } = selectedEntry ?? {};
-                const node = await StateMachine.langClient().getSyntaxTree({
+                const node = documentUri && await StateMachine.langClient().getSyntaxTree({
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()
                     }
@@ -231,7 +224,7 @@ const stateMachine = createMachine<MachineContext>(
 
                 if (!selectedEntry?.location.view) {
                     return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
-                } else if (selectedEntry.location.view === "Overview") {
+                } else if (selectedEntry.location.view === MACHINE_VIEW.Overview) {
                     return resolve({ ...selectedEntry.location, syntaxTree: node.syntaxTree });
                 }
 
@@ -346,8 +339,9 @@ export function updateView() {
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
 }
 
-async function checkIfEggplantProject(): Promise<boolean> {
+async function checkForProjects() {
     let isEggplant = false;
+    let projectUri = '';
     try {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
@@ -356,6 +350,7 @@ async function checkIfEggplantProject(): Promise<boolean> {
         // Assume we are only interested in the root workspace folder
         const rootFolder = workspaceFolders[0].uri.fsPath;
         const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
+        projectUri = rootFolder;
 
         if (fs.existsSync(ballerinaTomlPath)) {
             const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
@@ -364,8 +359,5 @@ async function checkIfEggplantProject(): Promise<boolean> {
     } catch (err) {
         console.error(err);
     }
-    if (!isEggplant) {
-        throw new Error("Eggplant project not found");
-    }
-    return isEggplant;
+    return { isEggplant, projectUri };
 }

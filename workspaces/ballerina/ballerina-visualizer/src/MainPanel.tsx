@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { KeyboardNavigationManager, MachineStateValue, STModification, Flow } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, STModification, Flow, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
@@ -79,10 +79,10 @@ const MainPanel = () => {
                 setViewComponent(<LoadingRing />);
             } else {
                 switch (value?.view) {
-                    case "Overview":
+                    case MACHINE_VIEW.Overview:
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
-                    case "ServiceDesigner":
+                    case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
                             <ServiceDesigner
                                 model={value?.syntaxTree as ServiceDeclaration}
@@ -90,13 +90,13 @@ const MainPanel = () => {
                             />
                         );
                         break;
-                    case "EggplantDiagram":
+                    case MACHINE_VIEW.EggplantDiagram:
                         setViewComponent(<EggplantDiagram />);
                         break;
-                    case "ERDiagram":
+                    case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
                         break;
-                    case "DataMapper":
+                    case MACHINE_VIEW.DataMapper:
                         setViewComponent((
                             <DataMapper
                                 filePath={value.documentUri}
@@ -105,10 +105,10 @@ const MainPanel = () => {
                             />
                         ));
                         break;
-                    case "GraphQLDiagram":
+                    case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram />);
                         break;
-                    case "SequenceDiagram":
+                    case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(<SequenceDiagram />)
                         break;
                     default:

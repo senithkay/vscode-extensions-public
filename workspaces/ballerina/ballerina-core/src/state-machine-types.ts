@@ -52,6 +52,7 @@ export interface CommandProps {
 export interface VisualizerLocation {
     view?: MACHINE_VIEW | null;
     documentUri?: string;
+    projectUri?: string;
     identifier?: string;
     position?: NodePosition;
     syntaxTree?: STNode;
