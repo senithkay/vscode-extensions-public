@@ -219,12 +219,11 @@ export function TaskForm(props: TaskFormProps) {
                     statistics: false,
                     trace: false
                 };
-                await rpcClient.getMiDiagramRpcClient().createSequence(sequenceRequest);
+                taskRequest.sequence = sequenceRequest;
             }
             taskProperties.push({ key: "sequenceName", value: generateSequenceName(values.name), isLiteral: true });
         }
         const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
-        openTaskView(response.path);
     };
 
     const openTaskView = (documentUri: string) => {
