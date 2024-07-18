@@ -164,7 +164,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Group ID" size={50} placeholder="" />
+                                <TextField {...field} label="Group ID" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.groupId && <Error>{errors.groupId.message.toString()}</Error>}
@@ -180,7 +180,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Accept Branch Sequence Type" name="onAcceptBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Accept Branch Sequence Type" name="onAcceptBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -200,6 +200,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     label="On Accept Branch Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -217,7 +218,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Reject Branch Sequence Type" name="onRejectBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Reject Branch Sequence Type" name="onRejectBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -237,6 +238,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     label="On Reject Branch Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -254,7 +256,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="policyType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Policy Type" name="policyType" items={["INLINE", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Policy Type" name="policyType" items={["INLINE", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -268,7 +270,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="maximumConcurrentAccess"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
@@ -315,6 +317,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     label="Policy Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -329,7 +332,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

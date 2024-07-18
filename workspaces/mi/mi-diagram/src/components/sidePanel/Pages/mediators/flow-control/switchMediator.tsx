@@ -118,6 +118,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Source XPath"
                                 placeholder=""
+                                required={true}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -157,7 +158,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

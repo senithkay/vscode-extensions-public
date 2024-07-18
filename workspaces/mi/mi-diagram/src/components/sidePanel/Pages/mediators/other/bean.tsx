@@ -114,7 +114,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <AutoComplete label="Action" name="action" items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Action" name="action" items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]} value={field.value} required={true} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -133,7 +133,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Class" size={50} placeholder="" />
+                                <TextField {...field} label="Class" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.class && <Error>{errors.class.message.toString()}</Error>}
@@ -145,7 +145,7 @@ const BeanForm = (props: AddMediatorProps) => {
                             name="var"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Var" size={50} placeholder="" />
+                                <TextField {...field} label="Var" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.var && <Error>{errors.var.message.toString()}</Error>}
@@ -162,7 +162,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Property" size={50} placeholder="" />
+                                <TextField {...field} label="Property" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.property && <Error>{errors.property.message.toString()}</Error>}
@@ -183,7 +183,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                     }
                                 }
                                 render={({ field }) => (
-                                    <AutoComplete label="Value Type" name="valueType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
+                                    <AutoComplete label="Value Type" name="valueType" items={["LITERAL", "EXPRESSION"]} value={field.value} required={true} onValueChange={(e: any) => {
                                         field.onChange(e);
                                     }} />
                                 )}
@@ -202,7 +202,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                         }
                                     }
                                     render={({ field }) => (
-                                        <TextField {...field} label="Value Literal" size={50} placeholder="" />
+                                        <TextField {...field} label="Value Literal" size={50} placeholder="" required={true} />
                                     )}
                                 />
                                 {errors.valueLiteral && <Error>{errors.valueLiteral.message.toString()}</Error>}
@@ -223,6 +223,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                         <ExpressionField
                                             {...field} label="Value Expression"
                                             placeholder=""
+                                            required={true}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
@@ -249,7 +250,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                     }
                                 }
                                 render={({ field }) => (
-                                    <AutoComplete label="Target Type" name="targetType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
+                                    <AutoComplete label="Target Type" name="targetType" items={["LITERAL", "EXPRESSION"]} value={field.value} required={true} onValueChange={(e: any) => {
                                         field.onChange(e);
                                     }} />
                                 )}
@@ -268,7 +269,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                         }
                                     }
                                     render={({ field }) => (
-                                        <TextField {...field} label="Target Literal" size={50} placeholder="" />
+                                        <TextField {...field} label="Target Literal" size={50} placeholder="" required={true} />
                                     )}
                                 />
                                 {errors.targetLiteral && <Error>{errors.targetLiteral.message.toString()}</Error>}
@@ -289,6 +290,7 @@ const BeanForm = (props: AddMediatorProps) => {
                                         <ExpressionField
                                             {...field} label="Target Expression"
                                             placeholder=""
+                                            required={true}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
@@ -306,7 +308,7 @@ const BeanForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

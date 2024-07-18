@@ -102,7 +102,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="executor"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Executor" size={50} placeholder="" />
+                                <TextField {...field} label="Executor" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.executor && <Error>{errors.executor.message.toString()}</Error>}
@@ -118,7 +118,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Priority" size={50} placeholder="" />
+                                <TextField {...field} label="Priority" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.priority && <Error>{errors.priority.message.toString()}</Error>}
@@ -135,6 +135,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -146,7 +147,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

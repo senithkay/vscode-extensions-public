@@ -103,7 +103,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             name="fastXsltSchemaType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Fast Xslt Schema Type" name="fastXsltSchemaType" items={["Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Fast Xslt Schema Type" name="fastXsltSchemaType" items={["Static", "Dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -120,6 +120,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Fast Xslt Dynamic SchemaKey"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -141,6 +142,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                     label="Fast Xslt Static SchemaKey"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -158,7 +160,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

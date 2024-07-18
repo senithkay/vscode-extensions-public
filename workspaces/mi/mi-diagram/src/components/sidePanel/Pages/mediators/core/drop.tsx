@@ -100,7 +100,7 @@ const DropForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={true} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

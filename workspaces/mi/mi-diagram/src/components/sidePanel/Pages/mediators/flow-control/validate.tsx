@@ -153,6 +153,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Source"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -260,7 +261,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

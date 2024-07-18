@@ -101,7 +101,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         name="forEachID"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="ForEach ID" size={50} placeholder="" />
+                            <TextField {...field} label="ForEach ID" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.forEachID && <Error>{errors.forEachID.message.toString()}</Error>}
@@ -120,6 +120,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="ForEach Expression"
                                 placeholder=""
+                                required={true}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -136,7 +137,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             name="sequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Sequence Type" name="sequenceType" items={["Anonymous", "Key"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Sequence Type" name="sequenceType" items={["Anonymous", "Key"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -156,6 +157,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -170,7 +172,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

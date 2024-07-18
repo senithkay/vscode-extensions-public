@@ -106,7 +106,7 @@ const BamForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Server Profile Name" size={50} placeholder="" />
+                                <TextField {...field} label="Server Profile Name" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.serverProfileName && <Error>{errors.serverProfileName.message.toString()}</Error>}
@@ -125,7 +125,7 @@ const BamForm = (props: AddMediatorProps) => {
                                     }
                                 }
                                 render={({ field }) => (
-                                    <TextField {...field} label="Stream Name" size={50} placeholder="" />
+                                    <TextField {...field} label="Stream Name" size={50} placeholder="" required={true} />
                                 )}
                             />
                             {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
@@ -141,7 +141,7 @@ const BamForm = (props: AddMediatorProps) => {
                                     }
                                 }
                                 render={({ field }) => (
-                                    <TextField {...field} label="Stream Version" size={50} placeholder="" />
+                                    <TextField {...field} label="Stream Version" size={50} placeholder="" required={true} />
                                 )}
                             />
                             {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
@@ -154,7 +154,7 @@ const BamForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
