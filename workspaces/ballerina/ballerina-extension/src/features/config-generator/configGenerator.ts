@@ -61,8 +61,13 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
 
             const props: object = configSchema.properties;
-            const firstKey = Object.keys(props)[0];
-            const orgName = props[firstKey].properties;
+            let orgName;
+            for (const key of Object.keys(props)) {
+                if (props[key].properties[packageName]) {
+                    orgName = props[key].properties;
+                    break;
+                }
+            }
 
             if (!isCommand && !orgName) {
                 executeRunCommand(ballerinaExtInstance);
