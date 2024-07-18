@@ -75,20 +75,21 @@ const ExpressionContainer = styled.div`
 `;
 
 const Title = styled.h3`
+    width: 18%;
     margin: 0 10px 0 0;
     color: var(--vscode-sideBarSectionHeader-foreground);
     font-size: var(--vscode-font-size);
 `;
 
 const BreadCrumb = styled.div`
-    width: 60%;
+    width: 70%;
     display: flex;
 `;
 
 const IOFilterBar = styled.div`
-  flex: 3;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 3px;
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 3px;
 `;

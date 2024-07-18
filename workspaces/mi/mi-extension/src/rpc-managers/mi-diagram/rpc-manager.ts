@@ -2299,10 +2299,18 @@ ${endpointAttributes}
                                 if (element.name === 'dynamicUserAuthClass') {
                                     datasourceObject.dynamicUserAuthClass = element.textNode;
                                 } else {
-                                    datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                    if (element.name === 'password' && Object.keys(element.namespaces).length !== 0) {
+                                        datasourceObject.datasourceProperties.push({ key: "useSecretAlias", value: true });
+                                        datasourceObject.datasourceProperties.push({ key: "secretAlias", value: element.textNode });
+                                    } else {
+                                        datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                    }
                                 }
                             }
                         });
+                        if (!datasourceObject.datasourceProperties.some(element => element.key === "secretAlias")) {
+                            datasourceObject.datasourceProperties.push({ key: "useSecretAlias", value: false });
+                        }
                         response.datasources.push(datasourceObject);
                     });
                 }

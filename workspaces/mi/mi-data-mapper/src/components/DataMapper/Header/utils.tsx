@@ -70,6 +70,23 @@ export function getFilterExpression(callExpr: CallExpression): Node | undefined 
     return filterExpr;
 }
 
+export function extractLastPartFromLabel(targetLabel: string): string | null {
+    const regexPatterns = [
+        /\.([^.\['"\]]+)$/, // Matches the last part after a dot
+        /\["([^"]+)"\]$/,   // Matches the last part inside double quotes brackets
+        /\['([^']+)'\]$/    // Matches the last part inside single quotes brackets
+    ];
+
+    for (const pattern of regexPatterns) {
+        const match = targetLabel.match(pattern);
+        if (match) {
+            return match[1];
+        }
+    }
+
+    return targetLabel;
+}
+
 export function filterOperators(
     entry: ts.CompletionEntry,
     details: ts.CompletionEntryDetails,

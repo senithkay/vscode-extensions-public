@@ -341,9 +341,9 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
     const cleanedXml = Array.isArray(xml) ? xml.map(item => {
         return {
             ...item,
-            text: item.text.replace(/^\s*[\r\n]/gm, '')
+            text: item.text.replace(/^\s*[\r\n]/gm, '').trimStart().trimEnd()
         }
-    }) : xml.replace(/^\s*[\r\n]/gm, '');
+    }) : xml.replace(/^\s*[\r\n]/gm, '').trimStart().trimEnd();
     return cleanedXml;
 }
 
