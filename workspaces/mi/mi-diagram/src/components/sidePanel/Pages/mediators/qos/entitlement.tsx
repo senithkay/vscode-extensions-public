@@ -112,7 +112,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="entitlementServerURL"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Entitlement Server URL" size={50} placeholder="" />
+                            <TextField {...field} label="Entitlement Server URL" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.entitlementServerURL && <Error>{errors.entitlementServerURL.message.toString()}</Error>}
@@ -123,7 +123,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="username"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Username" size={50} placeholder="" />
+                            <TextField {...field} label="Username" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.username && <Error>{errors.username.message.toString()}</Error>}
@@ -134,7 +134,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="password"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Password" size={50} placeholder="" />
+                            <TextField {...field} label="Password" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.password && <Error>{errors.password.message.toString()}</Error>}
@@ -145,7 +145,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="callbackHandler"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Callback Handler" name="callbackHandler" items={["UT", "X509", "SAML", "Kerberos", "Custom"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Callback Handler" name="callbackHandler" items={["UT", "X509", "SAML", "Kerberos", "Custom"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -159,7 +159,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="callbackClassName"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Callback Class Name" size={50} placeholder="" />
+                            <TextField {...field} label="Callback Class Name" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.callbackClassName && <Error>{errors.callbackClassName.message.toString()}</Error>}
@@ -171,7 +171,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="entitlementClientType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Entitlement Client Type" name="entitlementClientType" items={["SOAP - Basic Auth (WSO2 IS 4.0.0 or later)", "THRIFT", "SOAP - Authentication Admin (WSO2 IS 3.2.3 or earlier)", "WSXACML"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Entitlement Client Type" name="entitlementClientType" items={["SOAP - Basic Auth (WSO2 IS 4.0.0 or later)", "THRIFT", "SOAP - Authentication Admin (WSO2 IS 3.2.3 or earlier)", "WSXACML"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -185,7 +185,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="thriftHost"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Thrift Host" size={50} placeholder="" />
+                            <TextField {...field} label="Thrift Host" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.thriftHost && <Error>{errors.thriftHost.message.toString()}</Error>}
@@ -198,7 +198,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="thriftPort"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Thrift Port" size={50} placeholder="" />
+                            <TextField {...field} label="Thrift Port" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.thriftPort && <Error>{errors.thriftPort.message.toString()}</Error>}
@@ -213,7 +213,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             name="onAcceptSequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Accept Sequence Type" name="onAcceptSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Accept Sequence Type" name="onAcceptSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -233,6 +233,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     label="On Accept SequenceKey"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -250,7 +251,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             name="onRejectSequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Reject Sequence Type" name="onRejectSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Reject Sequence Type" name="onRejectSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -270,6 +271,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     label="On Reject SequenceKey"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -287,7 +289,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             name="obligationsSequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Obligations Sequence Type" name="obligationsSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Obligations Sequence Type" name="obligationsSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -307,6 +309,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     label="Obligations SequenceKey"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -324,7 +327,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                             name="adviceSequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Advice Sequence Type" name="adviceSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Advice Sequence Type" name="adviceSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -344,6 +347,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     label="Advice SequenceKey"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -358,7 +362,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

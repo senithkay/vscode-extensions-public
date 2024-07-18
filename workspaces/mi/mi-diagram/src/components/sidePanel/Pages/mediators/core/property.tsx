@@ -103,8 +103,13 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyName"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Property Name" size={50} placeholder="New Property Name" />
+                            <TextField {...field} label="Property Name" size={50} placeholder="New Property Name" required={true} />
                         )}
                     />
                     {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
@@ -114,8 +119,13 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyAction"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -128,8 +138,13 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyDataType"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <AutoComplete label="Property Data Type" name="propertyDataType" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Property Data Type" name="propertyDataType" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -143,10 +158,21 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="value"
                         control={control}
+                        rules={
+                            {
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Property Value"
                                 placeholder="Value"
+                                required={true}
                                 canChange={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -161,8 +187,13 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="OMValue"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="OM" size={50} placeholder="Value" />
+                            <TextField {...field} label="OM" size={50} placeholder="Value" required={true} />
                         )}
                     />
                     {errors.OMValue && <Error>{errors.OMValue.message.toString()}</Error>}
@@ -173,8 +204,13 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyScope"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <AutoComplete label="Property Scope" name="propertyScope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Property Scope" name="propertyScope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -189,7 +225,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             name="valueStringPattern"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Value String Pattern" size={50} placeholder="Value String Pattern" />
+                                <TextField {...field} label="Value String Pattern" size={50} placeholder="Value String Pattern" required={false} />
                             )}
                         />
                         {errors.valueStringPattern && <Error>{errors.valueStringPattern.message.toString()}</Error>}
@@ -202,7 +238,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             name="valueStringCapturingGroup"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Value String Capturing Group" size={50} placeholder="Value String Capturing Group" />
+                                <TextField {...field} label="Value String Capturing Group" size={50} placeholder="Value String Capturing Group" required={false} />
                             )}
                         />
                         {errors.valueStringCapturingGroup && <Error>{errors.valueStringCapturingGroup.message.toString()}</Error>}
@@ -216,7 +252,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}
