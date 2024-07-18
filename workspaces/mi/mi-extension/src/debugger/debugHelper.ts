@@ -397,13 +397,11 @@ export async function deleteCapp(serverPath: string): Promise<void> {
 
 export async function deleteCopiedCapAndLibs() {
     try {
-        // get the copiedCapp from debugConfig
         const copiedCapp = DebuggerConfig.getCopiedCapp();
         const copiedLibs = DebuggerConfig.getCopiedLibs();
 
         await deleteSpecificFiles(copiedCapp);
         await deleteSpecificFiles(copiedLibs);
-
 
     } catch (err) {
         logDebug(`Failed to delete Capp and Libs: ${err}`, ERROR_LOG);
@@ -421,7 +419,7 @@ export async function deleteSpecificFiles(filesToDelete: string[]): Promise<void
             }
             resolve();
         } catch (err) {
-            logDebug(`Error deleting specific files: ${err}`, ERROR_LOG);
+            logDebug(`Error deleting files: ${err}`, ERROR_LOG);
             reject(err);
         }
     });

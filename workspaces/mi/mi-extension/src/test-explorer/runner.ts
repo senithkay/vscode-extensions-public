@@ -225,7 +225,6 @@ async function startTestServer(serverPath: string, printToOutput?: (line: string
             function onData(data: string) {
                 if (data.includes("Micro Integrator started in")) {
                     serverStarted = true;
-
                     resolve({ cp });
                 }
                 if (data.includes("Address already in use")) {
