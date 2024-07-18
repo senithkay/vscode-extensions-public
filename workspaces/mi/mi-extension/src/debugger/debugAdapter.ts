@@ -272,7 +272,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview();
                                         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
-                                        extension.context.workspaceState.update("isMiRunning", 'true');
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
                                         response.success = true;
@@ -285,6 +284,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
                                         openRuntimeServicesWebview();
                                         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
+                                        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
