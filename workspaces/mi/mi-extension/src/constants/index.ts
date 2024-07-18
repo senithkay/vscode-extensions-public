@@ -131,7 +131,7 @@ export const APIS = {
     CONNECTOR: "https://mi-connectors.wso2.com/icons/mi-connectors-info.json"
 }
 
-export const DM_OPERATORS_FILE="dm-utils";
+export const DM_OPERATORS_FILE_NAME="dm-utils";
 export const DM_OPERATORS_IMPORT_NAME="dmUtils";
 
 
