@@ -379,13 +379,22 @@ function parseSchema(
   usedNames: UsedNames,
   parentSchemaName: string,
 ): TInterfaceParam[] {
+  if (schema.attributes) {
+    for (const key in schema.attributes) {
+      if (schema.properties) {
+        schema.properties["attr_" + key] = schema.attributes[key];
+      } else {
+        schema.properties = {["attr_" + key]: schema.attributes[key]};
+      }
+    }
+  }
   let asts: TInterfaceParam[] = map(schema.properties, (value, key: string) => ({
     ast: parse(value, options, key, processed, usedNames),
     isPatternProperty: false,
-    isRequired: true,
+    isRequired: false,
     isUnreachableDefinition: false,
     keyName: key,
-  }))
+  }));
 
   let singlePatternProperty = false
   if (schema.patternProperties) {
@@ -403,7 +412,7 @@ function parseSchema(
         return {
           ast,
           isPatternProperty: !singlePatternProperty,
-          isRequired: true,
+          isRequired: false,
           isUnreachableDefinition: false,
           keyName: singlePatternProperty ? '[k: string]' : key,
         }
@@ -421,7 +430,7 @@ function parseSchema(
         return {
           ast,
           isPatternProperty: false,
-          isRequired: true,
+          isRequired: false,
           isUnreachableDefinition: true,
           keyName: key,
         }

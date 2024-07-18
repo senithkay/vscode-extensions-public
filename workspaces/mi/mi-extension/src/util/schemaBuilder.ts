@@ -8,72 +8,40 @@
  * 
  */
 
-import transformTypescript from "@babel/plugin-transform-typescript";
-import getBabelOptions from "recast/parsers/_babel_options";
-import { parser } from "recast/parsers/babel";
-import { parse, print } from "recast";
-import { transformFromAstSync } from "@babel/core";
-import { ExtensionContext } from "vscode";
 import { JSONSchema3or4 } from "to-json-schema";
 import { StateMachine } from "../stateMachine";
 
-export function convertToJSONSchema(fileContent: string): JSONSchema3or4 {
+export function convertToJSONSchema(fileContent: JSONSchema3or4): JSONSchema3or4 {
     let schema = JSON.parse(fileContent);
     return schema;
 }
 
-export async function generateSchema(ioType: string, fileType: string, title: string, context: ExtensionContext, filePath: string): Promise<JSONSchema3or4> {
+export async function generateSchema(ioType: string, schemaType: string, filePath: string): Promise<JSONSchema3or4> {
   const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchema({
     filePath: filePath,
     delimiter: "",
-    type: fileType.toUpperCase(),
-    title: title
+    type: schemaType.toUpperCase(),
+    title: ""
   });
   let schema = JSON.parse(response.schema);
+  let schemaIOMetadataKey = ioType.toLowerCase() + 'Type';
+  let schemaIOMetadataValue = schemaType === 'JSONSCHEMA' ? 'JSON' : schemaType;
+  schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
 }
 
-export async function generateSchemaFromContent(content: string, fileType: string, title: string): Promise<JSONSchema3or4> {
+export async function generateSchemaFromContent(ioType: string, content: string, fileType: string): Promise<JSONSchema3or4> {
   const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchemaFromContent({
     fileContent: content,
     delimiter: "",
     type: fileType.toUpperCase(),
-    title: title
+    title: ""
   });
   let schema = JSON.parse(response.schema);
+  let schemaIOMetadataKey = ioType.toLowerCase() + 'Type';
+  let schemaIOMetadataValue = fileType === 'JSONSCHEMA' ? 'JSON' : fileType;
+  schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
-}
-
-export function convertTypeScriptToJavascript(fileContent: string): string {
-    try {
-        const ast = parse(fileContent, {
-          parser: {
-            parse: (source, options) => {
-              const babelOptions = getBabelOptions(options);
-              babelOptions.plugins.push("typescript", "jsx");
-              return parser.parse(source, babelOptions);
-            }
-          }
-        });
-
-        const options = {
-          cloneInputAst: false, 
-          code: false,
-          ast: true,
-          plugins: [transformTypescript],
-          configFile: false
-        };
-        const { ast: transformedAST } = transformFromAstSync(
-          ast,
-          fileContent,
-          options
-        );
-        const result = print(transformedAST).code;
-        return result;
-      } catch (e) {
-        console.error(e);
-        return "";
-      }
 }

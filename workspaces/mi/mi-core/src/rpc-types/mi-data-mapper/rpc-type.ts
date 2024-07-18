@@ -21,7 +21,6 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    UpdateDMCRequest,
     UpdateDMUndoRedoMangerRequest,
     GetOperatorsRequest,
     GetOperatorsResponse
@@ -36,7 +35,6 @@ export const browseSchema: RequestType<BrowseSchemaRequest, BrowseSchemaResponse
 export const loadDMConfigs: RequestType<LoadDMConfigsRequest, LoadDMConfigsResponse> = { method: `${_preFix}/loadDMConfigs` };
 export const convertRegPathToAbsPath: RequestType<ConvertRegPathToAbsPathRequest, ConvertRegPathToAbsPathResponse> = { method: `${_preFix}/convertRegPathToAbsPath` };
 export const createDMFiles: RequestType<GenerateDMInputRequest, GenerateDMInputResponse> = { method: `${_preFix}/createDMFiles` };
-export const updateDMCFileContent: RequestType<UpdateDMCRequest, void> = { method: `${_preFix}/updateDMCFileContent` };
 export const initDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/initDMUndoRedoManager` };
 export const dmUndo: RequestType<void, string> = { method: `${_preFix}/dmUndo` };
 export const dmRedo: RequestType<void, string> = { method: `${_preFix}/dmRedo` };

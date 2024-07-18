@@ -48,6 +48,7 @@
                         <xs:enumeration value="rb" />
                         <xs:enumeration value="groovy" />
                         <xs:enumeration value="nashornJs" />
+                        <xs:enumeration value="rhinoJs" />
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
@@ -58,4 +59,3 @@
     </xs:element>
 
 </xs:schema>
-

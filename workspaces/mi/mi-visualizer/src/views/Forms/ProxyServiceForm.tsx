@@ -104,7 +104,9 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         'mailto',
         'fix',
         'rabbitmq',
-        'hl7'
+        'hl7',
+        'tcp',
+        'udp'
     ];
 
     const logLevelOptions: OptionProps[] = [
