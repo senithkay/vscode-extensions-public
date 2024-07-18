@@ -25,7 +25,7 @@ import {
 export interface MIDataMapperAPI {
     getIOTypes: (params: DMTypeRequest) => Promise<IOTypeResponse>;
     getSubMappingTypes: (params: DMTypeRequest) => Promise<SubMappingTypesResponse>;
-    updateFileContent: (params: UpdateFileContentRequest) => void;
+    updateFileContent: (params: UpdateFileContentRequest) => Promise<void>;
     loadDMConfigs: (params: LoadDMConfigsRequest) => Promise<LoadDMConfigsResponse>;
     convertRegPathToAbsPath: (params: ConvertRegPathToAbsPathRequest) => Promise<ConvertRegPathToAbsPathResponse>;
     createDMFiles: (params: GenerateDMInputRequest) => Promise<GenerateDMInputResponse>;

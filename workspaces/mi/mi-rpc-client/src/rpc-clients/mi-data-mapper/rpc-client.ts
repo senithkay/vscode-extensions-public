@@ -57,8 +57,8 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendRequest(getSubMappingTypes, HOST_EXTENSION, params);
     }
 
-    updateFileContent(params: UpdateFileContentRequest): void {
-        return this._messenger.sendNotification(updateFileContent, HOST_EXTENSION, params);
+    updateFileContent(params: UpdateFileContentRequest): Promise<void> {
+        return this._messenger.sendRequest(updateFileContent, HOST_EXTENSION, params);
     }
 
     browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
