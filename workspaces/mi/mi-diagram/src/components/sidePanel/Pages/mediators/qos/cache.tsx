@@ -119,7 +119,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="cacheMediatorImplementation"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Cache Mediator Implementation" name="cacheMediatorImplementation" items={["Default", "611 Compatible"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Cache Mediator Implementation" name="cacheMediatorImplementation" items={["Default", "611 Compatible"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -137,7 +137,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="cacheType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Cache Type" name="cacheType" items={["FINDER", "COLLECTOR"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Cache Type" name="cacheType" items={["FINDER", "COLLECTOR"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -151,7 +151,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="id"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Id" size={50} placeholder="" />
+                                <TextField {...field} label="Id" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.id && <Error>{errors.id.message.toString()}</Error>}
@@ -164,7 +164,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="cacheTimeout"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Cache Timeout(S)" size={50} placeholder="" />
+                                <TextField {...field} label="Cache Timeout(S)" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.cacheTimeout && <Error>{errors.cacheTimeout.message.toString()}</Error>}
@@ -177,7 +177,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="maxMessageSize"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Max Message Size(bytes)" size={50} placeholder="" />
+                                <TextField {...field} label="Max Message Size(bytes)" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.maxMessageSize && <Error>{errors.maxMessageSize.message.toString()}</Error>}
@@ -190,7 +190,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="scope"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Scope" name="scope" items={["per-host", "per-mediator"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Scope" name="scope" items={["per-host", "per-mediator"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -205,7 +205,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="hashGeneratorAttribute"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="HashGenerator Attribute" size={50} placeholder="" />
+                                <TextField {...field} label="HashGenerator Attribute" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.hashGeneratorAttribute && <Error>{errors.hashGeneratorAttribute.message.toString()}</Error>}
@@ -223,7 +223,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="maxEntryCount"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Max Entry Count" size={50} placeholder="" />
+                                <TextField {...field} label="Max Entry Count" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.maxEntryCount && <Error>{errors.maxEntryCount.message.toString()}</Error>}
@@ -235,7 +235,7 @@ const CacheForm = (props: AddMediatorProps) => {
                                 name="implementationType"
                                 control={control}
                                 render={({ field }) => (
-                                    <AutoComplete label="Implementation Type" name="implementationType" items={["memory", "disk"]} value={field.value} onValueChange={(e: any) => {
+                                    <AutoComplete label="Implementation Type" name="implementationType" items={["memory", "disk"]} value={field.value} required={false} onValueChange={(e: any) => {
                                         field.onChange(e);
                                     }} />
                                 )}
@@ -256,7 +256,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="sequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Sequence Type" name="sequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Sequence Type" name="sequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -276,6 +276,7 @@ const CacheForm = (props: AddMediatorProps) => {
                                         label="Sequence Key"
                                         allowItemCreate={false}
                                         onValueChange={field.onChange}
+                                        required={false}
                                     />
                                 )}
                             />
@@ -295,7 +296,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="cacheProtocolType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Cache Protocol Type" name="cacheProtocolType" items={["HTTP"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Cache Protocol Type" name="cacheProtocolType" items={["HTTP"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -308,7 +309,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="cacheProtocolMethods"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Cache Protocol Methods" size={50} placeholder="" />
+                                <TextField {...field} label="Cache Protocol Methods" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.cacheProtocolMethods && <Error>{errors.cacheProtocolMethods.message.toString()}</Error>}
@@ -319,7 +320,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="headersToExcludeInHash"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Headers To Exclude In Hash" size={50} placeholder="" />
+                                <TextField {...field} label="Headers To Exclude In Hash" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.headersToExcludeInHash && <Error>{errors.headersToExcludeInHash.message.toString()}</Error>}
@@ -330,7 +331,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="headersToIncludeInHash"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Headers To Include In Hash" size={50} placeholder="" />
+                                <TextField {...field} label="Headers To Include In Hash" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.headersToIncludeInHash && <Error>{errors.headersToIncludeInHash.message.toString()}</Error>}
@@ -341,7 +342,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="responseCodes"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Response Codes" size={50} placeholder="" />
+                                <TextField {...field} label="Response Codes" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.responseCodes && <Error>{errors.responseCodes.message.toString()}</Error>}
@@ -374,7 +375,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="hashGenerator"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Hash Generator" size={50} placeholder="" />
+                                <TextField {...field} label="Hash Generator" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.hashGenerator && <Error>{errors.hashGenerator.message.toString()}</Error>}
@@ -388,7 +389,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}
