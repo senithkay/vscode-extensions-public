@@ -31,7 +31,6 @@ import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
-import fetch from 'node-fetch';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -581,12 +580,9 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 
 async function fetchConnectorData() {
     try {
-        const response = await fetch(APIS.CONNECTOR, {
-            method: 'GET',
-            cache: "no-cache"
-        });
-        if (response.ok) {
-            const data = await response.json();
+        const response = await fetch(APIS.CONNECTOR);
+        const data = await response.json();
+        if (data) {
             return data.data;
         } else {
             console.log("Failed to fetch data, but user is connected.");
