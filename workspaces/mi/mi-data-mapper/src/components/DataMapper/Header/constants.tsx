@@ -7,5 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const READONLY_MAPPING_FUNCTION_NAME = 'map_S_root_S_root';
+export const READONLY_MAPPING_FUNCTION_NAME = 'mapFunction';
 

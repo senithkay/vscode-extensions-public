@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, ItemType } from './ExpressionBar';
 import { debounce, throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, isFunction, isParameter, setCursor } from './utils';
+import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 
 // Types
@@ -335,7 +335,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             const completionItems = await getCompletions();
             setFilteredItems(completionItems);
         }
-    }, 200);
+    }, 100);
 
     useImperativeHandle(ref, () => inputRef.current);
 
@@ -347,7 +347,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                 left: rect.left,
             });
         }
-    }, 200);
+    }, 100);
 
     useEffect(() => {
         handleResize();
@@ -397,28 +397,9 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length);
-        let suffix = value.substring(cursorPosition + suffixMatches[1].length);
-
-        let newCursorPosition: number;
-        let newTextValue: string;
-        if (isFunction(item.kind)) {
-            // If the item is a function
-            if (suffix.startsWith('(')) {
-                suffix = suffix.substring(1);
-            }
-            newCursorPosition = prefix.length + item.value.length + 1;
-            newTextValue = prefix + item.value + '(' + suffix;
-        } else if (isParameter(item.kind)) {
-            // If the item is a parameter
-            if (suffix.startsWith('.')) {
-                suffix = suffix.substring(1);
-            }
-            newCursorPosition = prefix.length + item.value.length + 1;
-            newTextValue = prefix + item.value + '.' + suffix;
-        } else {
-            newCursorPosition = prefix.length + item.value.length;
-            newTextValue = prefix + item.value + suffix;
-        }
+        const suffix = value.substring(cursorPosition + suffixMatches[1].length);
+        const newCursorPosition = prefix.length + item.value.length;
+        const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition, item);
         setCursor(inputRef, newCursorPosition);

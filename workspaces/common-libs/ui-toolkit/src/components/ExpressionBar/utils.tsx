@@ -51,10 +51,6 @@ export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: numbe
     inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
 };
 
-export const isFunction = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Function || kind === ITEM_TYPE_KIND.Method;
-
-export const isParameter = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Parameter;
-
 export const getIcon = (kind: ItemTypeKind) => {
     switch (kind) {
         case ITEM_TYPE_KIND.Function:
