@@ -158,7 +158,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             disabled = false;
         } else if (textFieldRef.current) {
-            setPlaceholder('Click on an output port to use the Expression Editor.');
+            setPlaceholder('Click on an output port or a filter to add/edit expressions.');
             textFieldRef.current.blur();
         }
     
