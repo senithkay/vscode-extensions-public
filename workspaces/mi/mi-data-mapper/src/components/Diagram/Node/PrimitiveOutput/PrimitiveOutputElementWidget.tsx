@@ -16,12 +16,15 @@ import classnames from "classnames";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
-import { getDefaultValue, getEditorLineAndColumn } from "../../utils/common-utils";
+import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { useIONodesStyles } from "../../../styles";
 import { useDMExpressionBarStore } from "../../../../store/store";
+import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
+import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -68,6 +71,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
 
     const portIn = getPort(`${fieldId}.IN`);
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
+    const diagnostic = value && getDiagnostics(field.value)[0];
 
     const handleEditValue = () => {
         if (field.value) {
@@ -106,7 +110,35 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     const label = (
         <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn?.getName()}`}>
             <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
-                <OutputSearchHighlight>{value}</OutputSearchHighlight>
+                {diagnostic ? (
+                        <DiagnosticTooltip
+                            diagnostic={diagnostic}
+                            value={value}
+                            onClick={handleEditValue}
+                        >
+                            <Button
+                                appearance="icon"
+                                onClick={handleEditValue}
+                                data-testid={`object-output-field-${portIn?.getName()}`}
+                            >
+                                {value}
+                                <Icon
+                                    name="error-icon"
+                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
+                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                />
+                            </Button>
+                        </DiagnosticTooltip>
+                    ) : (
+                        <span
+                            className={classes.outputNodeValue}
+                            onClick={handleEditValue}
+                            data-testid={`object-output-field-${portIn?.getName()}`}
+                        >
+                            <OutputSearchHighlight>{value}</OutputSearchHighlight>
+                        </span>
+                    )
+                }
             </span>
         </span>
     );

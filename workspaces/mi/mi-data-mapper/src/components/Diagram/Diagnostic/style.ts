@@ -33,6 +33,9 @@ export const useStyles = () => ({
         display: "flex",
         flexDirection: "column"
     }),
+    tooltip: css({
+        verticalAlign: "middle"
+    }),
     editButton: css({
         marginTop: "10px",
         color: "var(--vscode-input-placeholderForeground)",

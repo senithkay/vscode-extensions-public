@@ -26,6 +26,7 @@ export function getPropertyGroupMustacheTemplate() {
 
 export function getPropertyGroupXml(data: { [key: string]: any }) {
     const properties = data.properties.map((property: any[]) => {
+        let hasStringPattern = property[6] != null && property[6] != "";
         return {
             newPropertyName: property[0],
             propertyAction: property[1],
@@ -35,8 +36,8 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
             namespaces: property[3]?.isExpression ? property[3]?.namespaces : undefined,
             OMValue: property[1] == "OM" ? property[4] : undefined,
             propertyScope: property[5]?.toLowerCase(),
-            valueStringPattern: property[6],
-            valueStringCapturingGroup: property[7],
+            valueStringPattern: hasStringPattern ? property[6] : undefined,
+            valueStringCapturingGroup: hasStringPattern ? property[7] : undefined,
             description: property[8]
         }
     });
