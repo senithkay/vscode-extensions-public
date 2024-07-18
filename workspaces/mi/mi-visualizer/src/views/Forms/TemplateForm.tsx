@@ -105,6 +105,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
             otherwise: () =>
                 yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("templateName"));
+                    if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                 }),
         }),
