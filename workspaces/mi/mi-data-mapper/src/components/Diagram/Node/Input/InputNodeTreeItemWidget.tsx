@@ -27,12 +27,11 @@ export interface InputNodeTreeItemWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     treeDepth?: number;
-    isOptional?: boolean;
     hasHoveredParent?: boolean;
 }
 
 export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
-    const { parentId, dmType, getPort, engine, treeDepth = 0, isOptional, hasHoveredParent } = props;
+    const { parentId, dmType, getPort, engine, treeDepth = 0, hasHoveredParent } = props;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -40,13 +39,12 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     const fieldName = dmType.fieldName;
     const typeName = getTypeName(dmType);
-    const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
+    const fieldId = `${parentId}.${fieldName}`;
     const portOut = getPort(`${fieldId}.OUT`);
 
     const classes = useIONodesStyles();
 
     let fields: DMType[];
-    let optional = false;
 
     if (dmType.kind === TypeKind.Interface) {
         fields = dmType.fields;
@@ -134,7 +132,6 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                             getPort={getPort}
                             parentId={fieldId}
                             treeDepth={treeDepth + 1}
-                            isOptional={isOptional || optional}
                             hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     );

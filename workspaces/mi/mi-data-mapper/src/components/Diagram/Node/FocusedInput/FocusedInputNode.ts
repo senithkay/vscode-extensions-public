@@ -64,8 +64,8 @@ export class FocusedInputNode extends DataMapperNodeModel {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
-                        subField, "OUT", this.nodeLabel,FOCUSED_INPUT_SOURCE_PORT_PREFIX,
-                        parentPort, collapsedFields, parentPort.collapsed
+                        subField, "OUT", this.nodeLabel, FOCUSED_INPUT_SOURCE_PORT_PREFIX,
+                        FOCUSED_INPUT_SOURCE_PORT_PREFIX, parentPort, collapsedFields, parentPort.collapsed
                     );
                 });
             }

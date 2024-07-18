@@ -144,7 +144,6 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                                     getPort={getPort}
                                     parentId={id}
                                     treeDepth={0}
-                                    isOptional={dmType.optional}
                                     hasHoveredParent={isHovered}
                                 />
                             );

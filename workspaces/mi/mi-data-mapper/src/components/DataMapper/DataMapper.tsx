@@ -193,7 +193,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
-                    inputNode={inputNode}
                     operators={operators}
                 />
             )}
