@@ -109,7 +109,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             name="completionTimeout"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Completion Timeout" size={50} placeholder="" />
+                                <TextField {...field} label="Completion Timeout" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.completionTimeout && <Error>{errors.completionTimeout.message.toString()}</Error>}
@@ -123,6 +123,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Completion Min Messages"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -139,6 +140,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Completion Max Messages"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -152,7 +154,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             name="aggregateID"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Aggregate ID" size={50} placeholder="" />
+                                <TextField {...field} label="Aggregate ID" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.aggregateID && <Error>{errors.aggregateID.message.toString()}</Error>}
@@ -163,7 +165,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             name="enclosingElementProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Enclosing Element Property" size={50} placeholder="" />
+                                <TextField {...field} label="Enclosing Element Property" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.enclosingElementProperty && <Error>{errors.enclosingElementProperty.message.toString()}</Error>}
@@ -177,6 +179,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Correlation Expression"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -195,7 +198,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             name="aggregateElementType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Aggregate Element Type" name="aggregateElementType" items={["ROOT", "CHILD"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Aggregate Element Type" name="aggregateElementType" items={["ROOT", "CHILD"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -207,10 +210,21 @@ const AggregateForm = (props: AddMediatorProps) => {
                         <Controller
                             name="aggregationExpression"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Aggregation Expression"
                                     placeholder=""
+                                    required={true}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -224,7 +238,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                             name="sequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Sequence Type" name="sequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Sequence Type" name="sequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -244,6 +258,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />

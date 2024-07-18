@@ -155,7 +155,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         name="beanstalk"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Beanstalk" size={50} placeholder="" />
+                            <TextField {...field} label="Beanstalk" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.beanstalk && <Error>{errors.beanstalk.message.toString()}</Error>}
@@ -166,7 +166,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         name="class"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Class" size={50} placeholder="" />
+                            <TextField {...field} label="Class" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.class && <Error>{errors.class.message.toString()}</Error>}
@@ -177,7 +177,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         name="method"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Method" size={50} placeholder="" />
+                            <TextField {...field} label="Method" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.method && <Error>{errors.method.message.toString()}</Error>}
@@ -199,7 +199,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         name="target"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Target" size={50} placeholder="" />
+                            <TextField {...field} label="Target" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.target && <Error>{errors.target.message.toString()}</Error>}
@@ -210,7 +210,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         name="jndiName"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="JNDI Name" size={50} placeholder="" />
+                            <TextField {...field} label="JNDI Name" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.jndiName && <Error>{errors.jndiName.message.toString()}</Error>}
@@ -250,7 +250,7 @@ const EJBForm = (props: AddMediatorProps) => {
                             name="sessionIdType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Session Id Type" name="sessionIdType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Session Id Type" name="sessionIdType" items={["LITERAL", "EXPRESSION"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -264,7 +264,7 @@ const EJBForm = (props: AddMediatorProps) => {
                             name="sessionIdLiteral"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Session Id Literal" size={50} placeholder="" />
+                                <TextField {...field} label="Session Id Literal" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.sessionIdLiteral && <Error>{errors.sessionIdLiteral.message.toString()}</Error>}
@@ -280,6 +280,7 @@ const EJBForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Session Id Expression"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -296,7 +297,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

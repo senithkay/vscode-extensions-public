@@ -182,6 +182,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                     label="Data Service Name"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -193,7 +194,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="sourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Source Type" name="sourceType" items={["INLINE", "BODY"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Source Type" name="sourceType" items={["INLINE", "BODY"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -206,7 +207,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="operationType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Operation Type" name="operationType" items={["SINGLE", "BATCH", "REQUESTBOX"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Operation Type" name="operationType" items={["SINGLE", "BATCH", "REQUESTBOX"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -256,7 +257,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["BODY", "PROPERTY"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Target Type" name="targetType" items={["BODY", "PROPERTY"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -270,7 +271,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="targetProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Property" size={50} placeholder="" />
+                                <TextField {...field} label="Target Property" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
@@ -282,7 +283,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
