@@ -15,7 +15,8 @@
           "js",
           "rb",
           "groovy",
-          "nashornJs"
+          "nashornJs",
+          "rhinoJs"
         ],
         "required": false,
         "helpTip": ""

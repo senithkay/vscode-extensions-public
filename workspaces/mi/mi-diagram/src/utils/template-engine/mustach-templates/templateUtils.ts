@@ -338,7 +338,12 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
     }
 
     const xml = getTemplateRendered();
-    const cleanedXml = xml.replace(/^\s*[\r\n]/gm, '');
+    const cleanedXml = Array.isArray(xml) ? xml.map(item => {
+        return {
+            ...item,
+            text: item.text.replace(/^\s*[\r\n]/gm, '').trimStart().trimEnd()
+        }
+    }) : xml.replace(/^\s*[\r\n]/gm, '').trimStart().trimEnd();
     return cleanedXml;
 }
 

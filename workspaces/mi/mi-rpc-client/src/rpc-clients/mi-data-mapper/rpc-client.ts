@@ -29,14 +29,15 @@ import {
     ConvertRegPathToAbsPathResponse,
     convertRegPathToAbsPath,
     createDMFiles,
-    UpdateDMCRequest,
-    updateDMCFileContent,
     UpdateDMUndoRedoMangerRequest,
     initDMUndoRedoManager,
     dmUndo,
     dmRedo,
     addToDMUndoStack,
-    updateDMUndoRedoManager
+    updateDMUndoRedoManager,
+    getOperators,
+    GetOperatorsRequest,
+    GetOperatorsResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -76,10 +77,6 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendRequest(createDMFiles, HOST_EXTENSION, params);
     }
 
-    updateDMCFileContent(params: UpdateDMCRequest): void {
-        return this._messenger.sendNotification(updateDMCFileContent, HOST_EXTENSION, params);
-    }
-
     initDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): void {
         return this._messenger.sendNotification(initDMUndoRedoManager, HOST_EXTENSION, params);
     }
@@ -98,5 +95,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     updateDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): void {
         return this._messenger.sendNotification(updateDMUndoRedoManager, HOST_EXTENSION, params);
+    }
+
+    getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
+        return this._messenger.sendRequest(getOperators, HOST_EXTENSION, params);
     }
 }

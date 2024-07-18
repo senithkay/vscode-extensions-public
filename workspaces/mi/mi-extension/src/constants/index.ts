@@ -96,9 +96,42 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
 
+export enum EndpointTypes {
+    DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",
+    ADDRESS_ENDPOINT = "ADDRESS_ENDPOINT",
+    HTTP_ENDPOINT = "HTTP_ENDPOINT",
+    WSDL_ENDPOINT = "WSDL_ENDPOINT",
+    LOAD_BALANCE_ENDPOINT = "LOAD_BALANCE_ENDPOINT",
+    FAILOVER_ENDPOINT = "FAILOVER_ENDPOINT",
+    TEMPLATE_ENDPOINT = "TEMPLATE_ENDPOINT",
+    RECIPIENT_ENDPOINT = "RECIPIENT_ENDPOINT",
+};
+
+export enum TemplateTypes {
+    DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",
+    ADDRESS_ENDPOINT = "ADDRESS_ENDPOINT",
+    HTTP_ENDPOINT = "HTTP_ENDPOINT",
+    WSDL_ENDPOINT = "WSDL_ENDPOINT",
+    SEQUENCE_ENDPOINT = "SEQUENCE"
+};
+
+// export enum TemplateTypes {
+//     INBOUND_ENDPOINT = "INBOUND_ENDPOINT",
+//     LOCAL_ENTRY = "LOCAL_ENTRY",
+//     MESSAGE_PROCESSOR = "MESSAGE_PROCESSOR",
+//     MESSAGE_STORE = "MESSAGE_STORE",
+//     SEQUENCE = "SEQUENCE",
+//     TASK = "TASK",
+//     TEMPLATE = "TEMPLATE",
+// };
+
 export * from "./swagger";
 
 export const APIS = {
     CONNECTOR: "https://mi-connectors.wso2.com/icons/mi-connectors-info.json"
 }
+
+export const DM_OPERATORS_FILE="dm-utils.ts";
+export const DM_OPERATORS_IMPORT_NAME="dmUtils";
+
 

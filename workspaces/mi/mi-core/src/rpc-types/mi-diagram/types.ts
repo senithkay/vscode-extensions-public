@@ -1032,7 +1032,7 @@ export interface Datasource {
 
 export interface Property {
     key: string;
-    value: string;
+    value: any;
 }
 
 export interface Configuration {
@@ -1645,4 +1645,9 @@ export interface TestDbConnectionRequest {
 
 export interface TestDbConnectionResponse {
     success: boolean;
+}
+
+export interface MarkAsDefaultSequenceRequest {
+    path: string;
+    remove?: boolean;
 }

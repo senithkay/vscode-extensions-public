@@ -27,55 +27,13 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
-			{ label: 'New Project', description: 'Create new project' },
-			{ label: 'API', description: 'Add new API' },
-			{ label: 'Endpoint', description: 'Add new endpoint' },
-			{ label: 'Sequence', description: 'Add new sequence' },
-			{ label: 'Inbound Endpoint', description: 'Add new inbound endpoint' },
-			{ label: 'Local Entry', description: 'Add new local entry' },
-			{ label: 'Message Store', description: 'Add new message store' },
-			{ label: 'Message Processor', description: 'Add new message processor' },
-			{ label: 'Task', description: 'Add new task' },
-			{ label: 'Proxy Service', description: 'Add new proxy service' },
-			{ label: 'Template', description: 'Add new template' },
-			{ label: 'Connection', description: 'Add new connection'}
-			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
-			// { label: 'Data Service', description: 'Add new data service' },
-			// { label: 'Data Source', description: 'Add new data source' }
+			{ label: 'New Project', description: 'Create new project' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
-			if (selection?.label === 'API') {
-				commands.executeCommand(COMMANDS.ADD_API_COMMAND);
-			} else if (selection?.label === 'Endpoint') {
-				commands.executeCommand(COMMANDS.ADD_ENDPOINT_COMMAND);
-			} else if (selection?.label === 'Sequence') {
-				commands.executeCommand(COMMANDS.ADD_SEQUENCE_COMMAND);
-			} else if (selection?.label === 'Inbound Endpoint') {
-				commands.executeCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND);
-			} else if (selection?.label === 'Message Processor') {
-				commands.executeCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND);
-			} else if (selection?.label === 'Task') {
-				commands.executeCommand(COMMANDS.ADD_TASK_COMMAND);
-			} else if (selection?.label === 'Proxy Service') {
-				commands.executeCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND);
-			} else if (selection?.label === 'Template') {
-				commands.executeCommand(COMMANDS.ADD_TEMPLATE_COMMAND);
-			} else if (selection?.label === 'New Project') {
+			if (selection?.label === 'New Project') {
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
-			} else if (selection?.label === 'Local Entry') {
-				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
-			} else if (selection?.label === 'Message Store') {
-				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
-			} else if (selection?.label === 'Connection') {
-				commands.executeCommand(COMMANDS.ADD_CONNECTION_COMMAND);
 			}
-			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
-			// else if (selection?.label === 'Data Service') {
-			// 	commands.executeCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND);
-			// } else if (selection?.label === 'Data Source') {
-			// 	commands.executeCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND);
-			// }
 		});
 
 	});
@@ -238,8 +196,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	});
 	commands.registerCommand(COMMANDS.SHOW_CONNECTION, async (documentUri: Uri, connectionName: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ConnectionForm, documentUri: documentUri?.fsPath, 
-			customProps: { connectionName: connectionName } });
+		openView(EVENT_TYPE.OPEN_VIEW, {
+			view: MACHINE_VIEW.ConnectionForm, documentUri: documentUri?.fsPath,
+			customProps: { connectionName: connectionName }
+		});
 	});
 	commands.registerCommand(COMMANDS.SHOW_DATA_SOURCE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);

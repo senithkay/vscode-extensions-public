@@ -645,6 +645,10 @@
       "projectFolder": "workspaces/mi/mi-data-mapper"
     },
     {
+      "packageName": "@wso2-enterprise/mi-data-mapper-utils",
+      "projectFolder": "workspaces/mi/mi-data-mapper-utils"
+    },
+    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"

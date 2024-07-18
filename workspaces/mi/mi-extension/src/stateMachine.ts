@@ -355,13 +355,13 @@ const stateMachine = createMachine<MachineContext>({
         },
         waitForConnectorData: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                try {
-                    const response = await fetch(APIS.CONNECTOR);
-                    const data = await response.json();
-                    resolve(data.data);
-                } catch (error) {
-                    reject(error);
-                }
+                fetchConnectorData().then(data => {
+                    if (data) {
+                        resolve(data);
+                    } else {
+                        resolve([]);
+                    }
+                });
             });
         },
         openWebPanel: (context, event) => {
@@ -579,6 +579,25 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     }
 }
 
+async function fetchConnectorData() {
+    try {
+        const response = await fetch(APIS.CONNECTOR, {
+            method: 'GET',
+            cache: "no-cache"
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.data;
+        } else {
+            console.log("Failed to fetch data, but user is connected.");
+            return null;
+        }
+    } catch (error) {
+        console.log("User is offline.", error);
+        return null;
+    }
+}
+
 async function checkIfMiProject() {
     let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
@@ -658,48 +677,78 @@ function findViewIcon(view) {
         case MACHINE_VIEW.ServiceDesigner:
         case MACHINE_VIEW.ResourceView:
         case MACHINE_VIEW.APIForm:
-            icon = 'globe';
+            icon = 'APIResource';
             break;
         case MACHINE_VIEW.SequenceView:
         case MACHINE_VIEW.SequenceForm:
-            icon = 'list-ordered';
+            icon = 'Sequence';
             break;
         case MACHINE_VIEW.EndPointForm:
+            icon = 'endpoint';
+            break;
         case MACHINE_VIEW.HttpEndpointForm:
+            icon = 'http-endpoint';
+            break;
         case MACHINE_VIEW.WsdlEndpointForm:
+            icon = 'wsdl-endpoint';
+            break;
         case MACHINE_VIEW.AddressEndpointForm:
+            icon = 'address-endpoint';
+            break;
         case MACHINE_VIEW.DefaultEndpointForm:
+            icon = 'default-endpoint';
+            break;
         case MACHINE_VIEW.FailoverEndPointForm:
+            icon = 'failover-endpoint';
+            break;
         case MACHINE_VIEW.RecipientEndPointForm:
+            icon = 'recipient-endpoint';
+            break;
         case MACHINE_VIEW.LoadBalanceEndPointForm:
-            icon = 'plug';
+            icon = 'load-balance-endpoint';
             break;
         case MACHINE_VIEW.InboundEPForm:
-            icon = 'fold-down';
+            icon = 'inbound-endpoint';
             break;
         case MACHINE_VIEW.MessageStoreForm:
-            icon = 'database';
+            icon = 'message-store';
             break;
         case MACHINE_VIEW.MessageProcessorForm:
-            icon = 'gear';
+            icon = 'message-processor';
             break;
         case MACHINE_VIEW.ProxyView:
         case MACHINE_VIEW.ProxyServiceForm:
             icon = 'arrow-swap';
             break;
         case MACHINE_VIEW.TaskForm:
-            icon = 'tasklist';
+            icon = 'task';
             break;
         case MACHINE_VIEW.LocalEntryForm:
-            icon = 'settings';
+            icon = 'local-entry';
             break;
         case MACHINE_VIEW.TemplateEndPointForm:
         case MACHINE_VIEW.TemplateForm:
-            icon = 'file';
+            icon = 'template';
+            break;
+        case MACHINE_VIEW.TemplateEndPointForm:
+            icon = 'template-endpoint';
+            break;
+        case MACHINE_VIEW.SequenceTemplateView:
+            icon = 'sequence-template';
+            break;
+        case MACHINE_VIEW.DataSourceForm:
+            icon = 'data-source';
+            break;
+        case MACHINE_VIEW.DataServiceForm:
+        case MACHINE_VIEW.DataServiceView:
+            icon = 'data-service';
             break;
         case MACHINE_VIEW.RegistryResourceForm:
         case MACHINE_VIEW.RegistryMetadataForm:
-            icon = 'type-hierarchy';
+            icon = 'registry';
+            break;
+        case MACHINE_VIEW.DataMapperView:
+            icon = 'dataMapper';
             break;
         default:
             break;

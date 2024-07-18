@@ -119,7 +119,7 @@ const ValidateForm = (props: AddMediatorProps) => {
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i]}${trailingSpaces}`
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
@@ -186,7 +186,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
-                                        param.key = index;
+                                        param.key = index + 1;
                                         param.value = property[0].value;
                                         param.icon = 'query';
                                         return param;
