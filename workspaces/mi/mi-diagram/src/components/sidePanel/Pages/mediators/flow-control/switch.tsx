@@ -109,6 +109,11 @@ const SwitchForm = (props: AddMediatorProps) => {
                     <Controller
                         name="sourceXPath"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Source XPath"

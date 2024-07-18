@@ -245,6 +245,11 @@ const EnrichForm = (props: AddMediatorProps) => {
                         <Controller
                             name="targetXPathJsonPath"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Target XPath / JSONPath"

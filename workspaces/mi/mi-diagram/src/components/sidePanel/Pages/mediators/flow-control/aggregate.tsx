@@ -207,6 +207,11 @@ const AggregateForm = (props: AddMediatorProps) => {
                         <Controller
                             name="aggregationExpression"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Aggregation Expression"

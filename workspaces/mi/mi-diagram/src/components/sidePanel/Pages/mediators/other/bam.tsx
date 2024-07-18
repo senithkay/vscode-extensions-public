@@ -100,6 +100,11 @@ const BamForm = (props: AddMediatorProps) => {
                         <Controller
                             name="serverProfileName"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Server Profile Name" size={50} placeholder="" />
                             )}
@@ -114,6 +119,11 @@ const BamForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="streamName"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
                                     <TextField {...field} label="Stream Name" size={50} placeholder="" />
                                 )}
@@ -125,6 +135,11 @@ const BamForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="streamVersion"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
                                     <TextField {...field} label="Stream Version" size={50} placeholder="" />
                                 )}

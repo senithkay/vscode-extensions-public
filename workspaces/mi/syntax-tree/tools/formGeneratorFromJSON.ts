@@ -168,7 +168,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
 
         tableKeys.push(name);
-        const isRequired = required == 'true';
+        const isRequired = required == true || required == 'true';
 
         let type;
         if (attribute.type === 'table') {
@@ -276,7 +276,7 @@ const generateForm = (jsonData: any): string => {
                 let defaultValue = element.value.defaultValue;
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
-                const isRequired = required == 'true';
+                const isRequired = required == true || required == 'true';
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 

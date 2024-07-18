@@ -165,6 +165,11 @@ const ValidateForm = (props: AddMediatorProps) => {
                     <Controller
                         name="enableSchemaCaching"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Schema Caching</VSCodeCheckbox>
                         )}

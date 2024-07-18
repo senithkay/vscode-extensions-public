@@ -108,6 +108,11 @@ const BeanForm = (props: AddMediatorProps) => {
                         <Controller
                             name="action"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <AutoComplete label="Action" name="action" items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
@@ -122,6 +127,11 @@ const BeanForm = (props: AddMediatorProps) => {
                         <Controller
                             name="class"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Class" size={50} placeholder="" />
                             )}
@@ -146,6 +156,11 @@ const BeanForm = (props: AddMediatorProps) => {
                         <Controller
                             name="property"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Property" size={50} placeholder="" />
                             )}
@@ -162,6 +177,11 @@ const BeanForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="valueType"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
                                     <AutoComplete label="Value Type" name="valueType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
                                         field.onChange(e);
@@ -176,6 +196,11 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="valueLiteral"
                                     control={control}
+                                    rules={
+                                        {
+                                            required: "This field is required",
+                                        }
+                                    }
                                     render={({ field }) => (
                                         <TextField {...field} label="Value Literal" size={50} placeholder="" />
                                     )}
@@ -189,6 +214,11 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="valueExpression"
                                     control={control}
+                                    rules={
+                                        {
+                                            required: "This field is required",
+                                        }
+                                    }
                                     render={({ field }) => (
                                         <ExpressionField
                                             {...field} label="Value Expression"
@@ -213,6 +243,11 @@ const BeanForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="targetType"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
                                     <AutoComplete label="Target Type" name="targetType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
                                         field.onChange(e);
@@ -227,6 +262,11 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="targetLiteral"
                                     control={control}
+                                    rules={
+                                        {
+                                            required: "This field is required",
+                                        }
+                                    }
                                     render={({ field }) => (
                                         <TextField {...field} label="Target Literal" size={50} placeholder="" />
                                     )}
@@ -240,6 +280,11 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="targetExpression"
                                     control={control}
+                                    rules={
+                                        {
+                                            required: "This field is required",
+                                        }
+                                    }
                                     render={({ field }) => (
                                         <ExpressionField
                                             {...field} label="Target Expression"

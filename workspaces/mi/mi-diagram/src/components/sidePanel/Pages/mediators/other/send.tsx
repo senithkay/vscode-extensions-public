@@ -118,6 +118,11 @@ const SendForm = (props: AddMediatorProps) => {
                         <Controller
                             name="endpoint"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}

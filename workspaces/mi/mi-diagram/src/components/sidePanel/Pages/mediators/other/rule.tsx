@@ -59,13 +59,13 @@ const RuleForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Prefix",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "TextField",
                         "label": "Namespace URI",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                 ]
             },

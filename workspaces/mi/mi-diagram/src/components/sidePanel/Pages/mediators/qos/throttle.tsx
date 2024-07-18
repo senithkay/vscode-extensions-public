@@ -158,6 +158,11 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         <Controller
                             name="groupId"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Group ID" size={50} placeholder="" />
                             )}

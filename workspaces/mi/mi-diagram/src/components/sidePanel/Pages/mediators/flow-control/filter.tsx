@@ -113,6 +113,11 @@ const FilterForm = (props: AddMediatorProps) => {
                     <Controller
                         name="source"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Source"

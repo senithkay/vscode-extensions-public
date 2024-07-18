@@ -110,6 +110,11 @@ const CallForm = (props: AddMediatorProps) => {
                     <Controller
                         name="endopint"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}

@@ -112,6 +112,11 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         <Controller
                             name="priority"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Priority" size={50} placeholder="" />
                             )}

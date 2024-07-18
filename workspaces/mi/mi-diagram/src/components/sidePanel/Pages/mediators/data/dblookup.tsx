@@ -89,7 +89,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Data Type",
                                         "defaultValue": "CHAR",
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "values": [
                                             "CHAR",
                                             "VARCHAR",
@@ -113,7 +113,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Value Type",
                                         "defaultValue": "LITERAL",
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "values": [
                                             "LITERAL",
                                             "EXPRESSION"
@@ -123,7 +123,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                         "type": "TextField",
                                         "label": "Value Literal",
                                         "defaultValue": "",
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "enableCondition": [
                                             {
                                                 "1": "LITERAL"
@@ -137,7 +137,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                             "isExpression": true,
                                             "value": ""
                                         },
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "canChange": false,
                                         "enableCondition": [
                                             {
@@ -244,6 +244,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <AutoComplete label="Connection Type" name="connectionType" items={["DB_CONNECTION", "DATA_SOURCE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
@@ -258,6 +263,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="databaseConfiguration"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" />
                             )}
@@ -271,6 +281,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDBType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <>
                                     <FlexLabelContainer>
@@ -312,6 +327,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDBDriver"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" />
                             )}
@@ -325,6 +345,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedConnectionDBDriver"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
                             )}
@@ -338,6 +363,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDSType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <AutoComplete label="Connection DS Type" name="connectionDsType" items={["EXTERNAL", "CARBON"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
@@ -353,6 +383,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDSInitialContext"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" />
                             )}
@@ -366,6 +401,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDSName"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" />
                             )}
@@ -392,6 +432,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionURL"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" />
                             )}
@@ -405,6 +450,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedURLConfigKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" />
                             )}
@@ -431,6 +481,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionUsername"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" />
                             )}
@@ -444,6 +499,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedUserConfigKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" />
                             )}
@@ -470,6 +530,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionPassword"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" />
                             )}
@@ -483,6 +548,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedPassConfigKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" />
                             )}

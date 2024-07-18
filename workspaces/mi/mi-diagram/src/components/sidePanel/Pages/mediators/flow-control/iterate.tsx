@@ -117,6 +117,11 @@ const IterateForm = (props: AddMediatorProps) => {
                     <Controller
                         name="iterateExpression"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Iterate Expression"

@@ -119,6 +119,11 @@ const ClassForm = (props: AddMediatorProps) => {
                     <Controller
                         name="className"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <TextField {...field} label="Class Name" size={50} placeholder="" />
                         )}

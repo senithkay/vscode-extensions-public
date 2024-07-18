@@ -103,6 +103,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyName"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <TextField {...field} label="Property Name" size={50} placeholder="New Property Name" />
                         )}
@@ -114,6 +119,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyAction"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
@@ -128,6 +138,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyDataType"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <AutoComplete label="Property Data Type" name="propertyDataType" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
@@ -143,6 +158,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="value"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Property Value"
@@ -161,6 +181,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="OMValue"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <TextField {...field} label="OM" size={50} placeholder="Value" />
                         )}
@@ -173,6 +198,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                     <Controller
                         name="propertyScope"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <AutoComplete label="Property Scope" name="propertyScope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);

@@ -111,6 +111,11 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                     <Controller
                         name="forEachExpression"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="ForEach Expression"
