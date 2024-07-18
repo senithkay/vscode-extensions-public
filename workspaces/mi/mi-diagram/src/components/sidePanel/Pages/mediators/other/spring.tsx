@@ -100,7 +100,7 @@ const SpringForm = (props: AddMediatorProps) => {
                             name="beanName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Bean Name" size={50} placeholder="" />
+                                <TextField {...field} label="Bean Name" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.beanName && <Error>{errors.beanName.message.toString()}</Error>}
@@ -111,7 +111,7 @@ const SpringForm = (props: AddMediatorProps) => {
                             name="configurationKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Configuration Key" size={50} placeholder="" />
+                                <TextField {...field} label="Configuration Key" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.configurationKey && <Error>{errors.configurationKey.message.toString()}</Error>}
@@ -122,7 +122,7 @@ const SpringForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
