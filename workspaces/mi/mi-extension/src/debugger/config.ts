@@ -21,6 +21,10 @@ export class DebuggerConfig {
 
     private static portOffset: number | undefined;
 
+    // Management API username and password
+    private static managementUserName: string = "admin";
+    private static managementPassword: string = "admin";
+
     public static getCommandPort(): number {
         return this.commandPort;
     }
@@ -56,5 +60,21 @@ export class DebuggerConfig {
 
     public static getHost(): string {
         return this.host;
+    }
+
+    public static getManagementUserName(): string {
+        return this.managementUserName;
+    }
+
+    public static getManagementPassword(): string {
+        return this.managementPassword;
+    }
+
+    public static setManagementUserName(userName: string): void {
+        this.managementUserName = userName;
+    }
+
+    public static setManagementPassword(password: string): void {
+        this.managementPassword = password;
     }
 }

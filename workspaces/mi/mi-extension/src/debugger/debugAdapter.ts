@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, stopServer } from './debugHelper';
+import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, setManagementCredentials, stopServer } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -261,10 +261,12 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 } else {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !args?.noDebug ?? true;
-                    readPortOffset(serverPath).then((portOffset) => {
+                    readPortOffset(serverPath).then(async (portOffset) => {
                         if (portOffset !== undefined) {
                             DebuggerConfig.setPortOffset(portOffset);
                         }
+
+                        await setManagementCredentials(serverPath);
 
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {

@@ -253,8 +253,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async getAvailableRuntimeServices(): Promise<RuntimeServicesResponse> {
         return new Promise(async (resolve) => {
-            const username = 'admin';
-            const password = 'admin';
+            const username = DebuggerConfig.getManagementUserName();
+            const password = DebuggerConfig.getManagementPassword();
+            
             const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
             const authHeader = `Basic ${token}`;
             // Create an HTTPS agent that ignores SSL certificate verification
@@ -330,7 +331,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
                 resolve(runtimeServicesResponse);
             } else {
-                throw new Error(`Error while checking token usage: ${response.statusText}`);
+                log(`Error while login to MI management api: ${response.statusText}`);
             }
         });
     }

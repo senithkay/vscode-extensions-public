@@ -22,7 +22,7 @@ import * as net from 'net';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { StateMachine } from '../stateMachine';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
-import * as toml from 'toml';
+import * as toml from "@iarna/toml";
 import { DebuggerConfig } from './config';
 import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
@@ -487,10 +487,50 @@ export async function readPortOffset(serverConfigPath: string): Promise<number |
         const configPath = path.join(serverConfigPath, 'conf', 'deployment.toml');
         const content = await fs.promises.readFile(configPath, 'utf-8');
         const config = toml.parse(content);
-        const offset = config?.server?.offset;
-        return offset;
+        interface ServerConfig {
+            offset?: number;
+        }
+
+        const serverConfig = config?.server as unknown as ServerConfig;
+        if (serverConfig) {
+            return serverConfig?.offset;
+        }
+        return undefined;
     } catch (error) {
         logDebug(`Failed to read or parse deployment.toml: ${error}`, ERROR_LOG);
         return undefined;
+    }
+}
+
+export async function setManagementCredentials(serverConfigPath: string) {
+    try {
+        const configPath = path.join(serverConfigPath, 'conf', 'deployment.toml');
+        const content = await fs.promises.readFile(configPath, 'utf-8');
+        const config = toml.parse(content);
+
+        interface InternalApis {
+            users: User;
+        }
+        interface User {
+            name: string;
+            password: string;
+        }
+
+        const management = config?.internal_apis as unknown as InternalApis;
+        const users = management?.users;
+
+
+        if (users) {
+            const userName = users[0]?.user?.name;
+            if (userName) {
+                DebuggerConfig.setManagementUserName(userName);
+            }
+            const password = users[0]?.user?.password;
+            if (password) {
+                DebuggerConfig.setManagementPassword(password);
+            }
+        }
+    } catch (error) {
+        logDebug(`Failed to read or parse deployment.toml: ${error}`, ERROR_LOG);
     }
 }
