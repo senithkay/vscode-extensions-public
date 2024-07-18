@@ -25,7 +25,7 @@ const useStyles = () => ({
 
 const importTypes: ImportType[] = [
     { type: "JSON", label: "JSON" },
-    { type: "JSON_SCHEMA", label: "JSON Schema" },
+    { type: "JSONSCHEMA", label: "JSON Schema" },
     { type: "XML", label: "XML" },
     { type: "CSV", label: "CSV" }
 ];
