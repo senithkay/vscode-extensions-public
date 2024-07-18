@@ -68,8 +68,8 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
-export function fetchOperators(filePath: string, fileContent: string, cursorPosition: number) {
-    const operators: { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[] = [];
+export function fetchCompletions(filePath: string, fileContent: string, cursorPosition: number) {
+    const enrichedCompletions: { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[] = [];
     const resolvedPath = path.resolve(filePath);
     const { completions, languageService } = getCompletions(resolvedPath, fileContent, cursorPosition);
 
@@ -78,12 +78,12 @@ export function fetchOperators(filePath: string, fileContent: string, cursorPosi
             const details = getCompletionEntryDetails(languageService, entry, filePath, cursorPosition);
 
             if (details) {
-                operators.push({ entry, details });
+                enrichedCompletions.push({ entry, details });
             }
         });
     }
 
-    return operators;
+    return enrichedCompletions;
 }
 
 function getCompletions(filePath: string, fileContent: string, cursorPosition: number) {

@@ -28,8 +28,8 @@ import {
     addToDMUndoStack,
     updateDMUndoRedoManager,
     UpdateDMUndoRedoMangerRequest,
-    getOperators,
-    GetOperatorsRequest
+    getCompletions,
+    GetCompletionsRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -48,6 +48,6 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onRequest(dmRedo, () => rpcManger.dmRedo());
     messenger.onNotification(addToDMUndoStack, (args: string) => rpcManger.addToDMUndoStack(args));
     messenger.onNotification(updateDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.updateDMUndoRedoManager(args));
-    messenger.onRequest(getOperators, (args: GetOperatorsRequest) => rpcManger.getOperators(args));
+    messenger.onRequest(getCompletions, (args: GetCompletionsRequest) => rpcManger.getCompletions(args));
 
 }

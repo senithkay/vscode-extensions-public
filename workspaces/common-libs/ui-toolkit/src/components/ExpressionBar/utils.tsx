@@ -8,7 +8,7 @@
  */
 
 import React, { RefObject } from 'react';
-import { ITEM_TYPE_KIND, ItemTypeKind } from './ExpressionBar';
+import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
 
 export const getExpressionInfo = (text: string, cursorPosition: number) => {
@@ -51,15 +51,15 @@ export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: numbe
     inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
 };
 
-export const getIcon = (kind: ItemTypeKind) => {
+export const getIcon = (kind: CompletionItemKind) => {
     switch (kind) {
-        case ITEM_TYPE_KIND.Function:
+        case COMPLETION_ITEM_KIND.Function:
             return <Codicon name="symbol-constructor" />;
-        case ITEM_TYPE_KIND.Method:
+        case COMPLETION_ITEM_KIND.Method:
             return <Codicon name="symbol-constructor" />;
-        case ITEM_TYPE_KIND.Parameter:
+        case COMPLETION_ITEM_KIND.Parameter:
             return <Codicon name="symbol-variable" />;
-        case ITEM_TYPE_KIND.Property:
+        case COMPLETION_ITEM_KIND.Property:
             return <Codicon name="symbol-field" />;
     }
 };

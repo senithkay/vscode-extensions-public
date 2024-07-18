@@ -14,7 +14,7 @@ import { Transition } from '@headlessui/react';
 import { css } from '@emotion/css';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
-import { ExpressionBarProps, ItemType } from './ExpressionBar';
+import { ExpressionBarProps, CompletionItem } from './ExpressionBar';
 import { debounce, throttle } from 'lodash';
 import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
@@ -26,18 +26,18 @@ type StyleBase = {
 };
 
 type DropdownProps = StyleBase & {
-    items: ItemType[];
-    onItemSelect: (item: ItemType) => Promise<void>;
+    items: CompletionItem[];
+    onCompletionSelect: (item: CompletionItem) => Promise<void>;
 };
 
 type DropdownItemProps = {
-    item: ItemType;
+    item: CompletionItem;
     firstItem?: boolean;
     onClick: () => void;
 };
 
 type SyntaxProps = {
-    item: ItemType;
+    item: CompletionItem;
     currentArgIndex: number;
 };
 
@@ -218,7 +218,7 @@ const DropdownItem = (props: DropdownItemProps) => {
 };
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, onItemSelect, sx } = props;
+    const { items, onCompletionSelect, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
@@ -232,7 +232,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                             key={`dropdown-item-${index}`}
                             {...(index === 0 && { firstItem: true })}
                             item={item}
-                            onClick={async () => await onItemSelect(item)}
+                            onClick={async () => await onCompletionSelect(item)}
                         />
                     );
                 })}
@@ -317,23 +317,23 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
-    const { value, sx, onChange, onSave, onItemSelect, getCompletions, ...rest } = props;
+    const { value, sx, onChange, onSave, onCompletionSelect, getCompletions, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
-    const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
-    const [selectedItem, setSelectedItem] = useState<ItemType | undefined>();
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /(\w*)$/,
         suffix: /^(\w*)/,
     };
 
-    const getSuggestions = debounce(async () => {
+    const updateCompletions = debounce(async () => {
         if (inputRef.current) {
             const completionItems = await getCompletions();
-            setFilteredItems(completionItems);
+            setCompletions(completionItems);
         }
     }, 100);
 
@@ -358,11 +358,11 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef]);
 
-    const updateSyntax = (currentFnContent: string, newSelectedItem?: ItemType) => {
+    const updateSyntax = (currentFnContent: string, newSelectedItem?: CompletionItem) => {
         if (newSelectedItem) {
-            setSelectedItem(newSelectedItem);
+            setSelectedCompletion(newSelectedItem);
         }
-        const item = newSelectedItem ?? selectedItem;
+        const item = newSelectedItem ?? selectedCompletion;
         const inputArgsCount = currentFnContent.trim().split(',').length;
         if (item?.args) {
             if (inputArgsCount <= item.args.length) {
@@ -378,7 +378,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         }
     };
 
-    const handleChange = async (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
+    const handleChange = async (text: string, cursorPosition?: number, selectedItem?: CompletionItem) => {
         if (text === value) {
             return;
         }
@@ -389,10 +389,10 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         if (isCursorInFunction) {
             updateSyntax(currentFnContent, selectedItem);
         }
-        await getSuggestions();
+        await updateCompletions();
     };
 
-    const handleItemSelect = async (item: ItemType) => {
+    const handleCompletionSelect = async (item: CompletionItem) => {
         const cursorPosition = inputRef.current.shadowRoot.querySelector('input').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
@@ -403,12 +403,12 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
 
         await handleChange(newTextValue, newCursorPosition, item);
         setCursor(inputRef, newCursorPosition);
-        await onItemSelect(newTextValue);
+        await onCompletionSelect(newTextValue);
     };
 
     const handleClose = () => {
-        getSuggestions.cancel();
-        setFilteredItems([]);
+        updateCompletions.cancel();
+        setCompletions([]);
         setSyntax(undefined);
     };
 
@@ -479,11 +479,11 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                 case 'Tab':
                     e.preventDefault();
                     if (hoveredEl) {
-                        const item = filteredItems.find(
-                            (item: ItemType) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                        const item = completions.find(
+                            (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
                         );
                         if (item) {
-                            await handleItemSelect(item);
+                            await handleCompletionSelect(item);
                         }
                     }
                     break;
@@ -512,7 +512,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
-                        <Transition show={filteredItems.length > 0 || !!syntax?.item} {...ANIMATION}>
+                        <Transition show={completions.length > 0 || !!syntax?.item} {...ANIMATION}>
                             <Codicon
                                 sx={{
                                     position: 'absolute',
@@ -528,7 +528,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                                 name="close"
                                 onClick={handleClose}
                             />
-                            <Dropdown ref={listBoxRef} items={filteredItems} onItemSelect={handleItemSelect} />
+                            <Dropdown ref={listBoxRef} items={completions} onCompletionSelect={handleCompletionSelect} />
                             <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
                         </Transition>
                     </DropdownContainer>,

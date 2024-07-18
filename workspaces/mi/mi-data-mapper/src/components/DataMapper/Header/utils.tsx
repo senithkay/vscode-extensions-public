@@ -11,7 +11,7 @@
  * associated services.
  */
 import { CallExpression, Node, SyntaxKind, ts } from "ts-morph";
-import { ItemType, ItemTypeKind } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 import { View } from "../Views/DataMapperView";
 
@@ -87,11 +87,11 @@ export function extractLastPartFromLabel(targetLabel: string): string | null {
     return targetLabel;
 }
 
-export function filterOperators(
+export function filterCompletions(
     entry: ts.CompletionEntry,
     details: ts.CompletionEntryDetails,
     localFunctionNames: string[]
-): ItemType {
+): CompletionItem {
     if (
         details.kind === ts.ScriptElementKind.parameterElement ||
         details.kind === ts.ScriptElementKind.memberVariableElement
@@ -100,7 +100,7 @@ export function filterOperators(
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
             value: entry.name,
-            kind: details.kind as ItemTypeKind,
+            kind: details.kind as CompletionItemKind,
         }
     } else if (
         details.kind === ts.ScriptElementKind.functionElement ||
@@ -127,7 +127,7 @@ export function filterOperators(
                 label: entry.name,
                 description: details.documentation?.[0]?.text,
                 value: action + entry.name,
-                kind: details.kind as ItemTypeKind,
+                kind: details.kind as CompletionItemKind,
                 args: params
             }
         } else if (localFunctionNames.includes(entry.name)) {
@@ -135,7 +135,7 @@ export function filterOperators(
                 label: entry.name,
                 description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
                 value: entry.name,
-                kind: details.kind as ItemTypeKind,
+                kind: details.kind as CompletionItemKind,
             }
         }
     }

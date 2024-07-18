@@ -23,10 +23,10 @@ import {
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
     UpdateDMUndoRedoMangerRequest,
-    GetOperatorsRequest,
-    GetOperatorsResponse
+    GetCompletionsRequest,
+    GetCompletionsResponse
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, fetchSubMappingTypes, fetchOperators } from "../../util/dataMapper";
+import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
@@ -291,11 +291,11 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
     }
 
-    async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
+    async getCompletions(params: GetCompletionsRequest): Promise<GetCompletionsResponse> {
         return new Promise(async (resolve, reject) => {
             const { filePath, fileContent, cursorPosition } = params;
             try {
-                resolve({ operators: fetchOperators(filePath, fileContent, cursorPosition) });
+                resolve({ completions: fetchCompletions(filePath, fileContent, cursorPosition) });
             } catch (error) {
                 console.error(error);
                 reject(error);

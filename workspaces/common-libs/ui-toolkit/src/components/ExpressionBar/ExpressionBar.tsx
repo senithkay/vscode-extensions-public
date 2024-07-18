@@ -10,24 +10,24 @@
 import styled from '@emotion/styled';
 import React, { forwardRef } from 'react';
 import { Icon } from '../Icon/Icon';
-import { ExpressionEditor } from './SearchBox';
+import { ExpressionEditor } from './ExpressionEditor';
 
 // Types
-export const ITEM_TYPE_KIND = {
+export const COMPLETION_ITEM_KIND = {
     Function: 'function',
     Method: 'method',
     Parameter: 'parameter',
     Property: 'property',
 } as const;
 
-export type ItemTypeKind = (typeof ITEM_TYPE_KIND)[keyof typeof ITEM_TYPE_KIND];
+export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMPLETION_ITEM_KIND];
 
-export type ItemType = {
+export type CompletionItem = {
     tag?: string;
     label: string;
     value: string;
     description: string;
-    kind: ItemTypeKind;
+    kind: CompletionItemKind;
     args?: string[];
 };
 
@@ -40,9 +40,9 @@ export type ExpressionBarBaseProps = {
     onChange: (value: string) => Promise<void>;
     onFocus?: () => void;
     onBlur?: () => void;
-    onItemSelect: (value: string) => Promise<void>;
+    onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
-    getCompletions: () => Promise<ItemType[]>;
+    getCompletions: () => Promise<CompletionItem[]>;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {

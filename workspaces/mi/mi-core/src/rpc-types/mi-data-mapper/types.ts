@@ -92,13 +92,13 @@ export interface UpdateDMUndoRedoMangerRequest {
     fileContent: string;
 }
 
-export interface GetOperatorsRequest {
+export interface GetCompletionsRequest {
     filePath: string;
     fileContent: string;
     cursorPosition: number;
 }
 
-export interface GetOperatorsResponse {
-    operators: unknown[];
+export interface GetCompletionsResponse {
+    completions: unknown[];
 }
 

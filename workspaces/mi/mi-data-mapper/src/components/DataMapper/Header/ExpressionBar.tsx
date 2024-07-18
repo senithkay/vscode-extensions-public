@@ -8,7 +8,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { ExpressionBar, ItemType } from '@wso2-enterprise/ui-toolkit';
+import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
 
@@ -16,7 +16,7 @@ import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
-import { filterOperators } from './utils';
+import { filterCompletions } from './utils';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 
@@ -56,7 +56,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         resetInputPort: state.resetInputPort
     }));
 
-    const getCompletions = async (): Promise<ItemType[]> => {
+    const getCompletions = async (): Promise<CompletionItem[]> => {
         if (!focusedPort && !focusedFilter) {
             return [];
         }
@@ -72,17 +72,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
             const fileContent = nodeForSuggestions.getSourceFile().getText();
             const cursorPosition = nodeForSuggestions.getEnd();
-            const response = await rpcClient.getMiDataMapperRpcClient().getOperators({
+            const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
                 filePath,
                 fileContent,
                 cursorPosition
             });
 
-            if (!response.operators) {
+            if (!response.completions) {
                 return [];
             }
 
-            const operators = response.operators as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
+            const completions = response.completions as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
 
             const localFunctionNames = nodeForSuggestions
                 .getSourceFile()
@@ -90,15 +90,15 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 .map(fn => fn.getName())
                 .filter(name => name !== READONLY_MAPPING_FUNCTION_NAME);
 
-            const filteredOperators: ItemType[] = [];
-            for (const operator of operators) {
-                const details = filterOperators(operator.entry, operator.details, localFunctionNames);
+            const filteredCompletions: CompletionItem[] = [];
+            for (const completion of completions) {
+                const details = filterCompletions(completion.entry, completion.details, localFunctionNames);
                 if (details) {
-                    filteredOperators.push(details);
+                    filteredCompletions.push(details);
                 }
             }
             
-            return filteredOperators;
+            return filteredCompletions;
         }
 
         return [];
@@ -216,7 +216,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyChanges(value);
     }
 
-    const handleItemSelect = async (value: string) => {
+    const handleCompletionSelect = async (value: string) => {
         if (savedTextFieldValue.current === value) {
             return;
         }
@@ -270,7 +270,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 value={textFieldValue}
                 placeholder={placeholder}
                 onChange={onChangeTextField}
-                onItemSelect={handleItemSelect}
+                onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
                 getCompletions={getCompletions}
                 sx={{ display: 'flex', alignItems: 'center' }}

@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react';
 import { ComponentStory } from '@storybook/react';
-import { ExpressionBar, ExpressionBarProps, ITEM_TYPE_KIND } from './ExpressionBar';
+import { ExpressionBar, ExpressionBarProps, COMPLETION_ITEM_KIND } from './ExpressionBar';
 
 const Template: ComponentStory<typeof ExpressionBar> = (args: ExpressionBarProps) => {
     const [value, setValue] = useState('');
@@ -22,13 +22,13 @@ Default.args = {
     autoFocus: true,
     getCompletions: () => {
         return [
-            { tag: 'utils', label: 'fn1', value: 'utils.fn1', description: 'Description of fn1', args: ['value1', 'value2'], kind: ITEM_TYPE_KIND.Function },
-            { tag: 'utils', label: 'fn2', value: 'utils.fn2', description: 'Description of fn2', args: ['arg1', '...args'], kind: ITEM_TYPE_KIND.Function },
-            { tag: 'utils', label: 'fn3', value: 'utils.fn3', description: 'Description of fn3', kind: ITEM_TYPE_KIND.Function },
-            { label: 'user', value: 'user', kind: ITEM_TYPE_KIND.Parameter },
-            { label: 'name', value: 'name', kind: ITEM_TYPE_KIND.Property },
-            { label: 'age', value: 'age', kind: ITEM_TYPE_KIND.Property },
-            { label: 'email', value: 'email', kind: ITEM_TYPE_KIND.Property }
+            { tag: 'utils', label: 'fn1', value: 'utils.fn1', description: 'Description of fn1', args: ['value1', 'value2'], kind: COMPLETION_ITEM_KIND.Function },
+            { tag: 'utils', label: 'fn2', value: 'utils.fn2', description: 'Description of fn2', args: ['arg1', '...args'], kind: COMPLETION_ITEM_KIND.Function },
+            { tag: 'utils', label: 'fn3', value: 'utils.fn3', description: 'Description of fn3', kind: COMPLETION_ITEM_KIND.Function },
+            { label: 'user', value: 'user', kind: COMPLETION_ITEM_KIND.Parameter },
+            { label: 'name', value: 'name', kind: COMPLETION_ITEM_KIND.Property },
+            { label: 'age', value: 'age', kind: COMPLETION_ITEM_KIND.Property },
+            { label: 'email', value: 'email', kind: COMPLETION_ITEM_KIND.Property }
         ];
     },
     onItemSelect: (text: string) => {
