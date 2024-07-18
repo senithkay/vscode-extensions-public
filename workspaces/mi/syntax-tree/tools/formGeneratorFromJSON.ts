@@ -280,7 +280,16 @@ const generateForm = (jsonData: any): string => {
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
-                const rules = isRequired || validation ? fixIndentation(`
+                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression') ? `
+                {
+                    validate: (value) => {
+                        if (!value?.value || value.value === "") {
+                            return "This field is required";
+                        }
+                        return true;
+                    },
+                }
+                `: `
                 {
                     ${isRequired ? 'required: "This field is required",' : ''}${validation ? `
                     pattern: { value: ${regex}, message: "${message}" }` : ""}
