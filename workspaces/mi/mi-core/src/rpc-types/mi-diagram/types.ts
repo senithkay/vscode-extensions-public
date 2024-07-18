@@ -40,6 +40,7 @@ export interface CreateAPIRequest {
 
 export interface EditAPIRequest {
     documentUri: string;
+    apiName: string;
     xmlData: string;
     handlersXmlData: string;
     apiRange: Range;
@@ -1650,4 +1651,9 @@ export interface TestDbConnectionResponse {
 export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
+}
+
+export interface FileRenameRequest {
+    existingPath: string;
+    newPath: string;
 }

@@ -183,6 +183,7 @@ import {
     TestDbConnectionRequest,
     TestDbConnectionResponse,
     MarkAsDefaultSequenceRequest,
+    FileRenameRequest
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -303,4 +304,5 @@ export interface MiDiagramAPI {
     getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
     testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
     markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => Promise<void>;
+    renameFile: (params: FileRenameRequest) => void;
 }

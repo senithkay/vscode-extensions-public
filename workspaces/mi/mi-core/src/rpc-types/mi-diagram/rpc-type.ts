@@ -184,6 +184,7 @@ import {
     TestDbConnectionRequest,
     TestDbConnectionResponse,
     MarkAsDefaultSequenceRequest,
+    FileRenameRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -305,3 +306,4 @@ export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { m
 export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };
 export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };
 export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };
+export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_preFix}/renameFile` };

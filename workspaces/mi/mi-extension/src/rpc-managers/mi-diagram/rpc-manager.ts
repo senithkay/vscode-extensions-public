@@ -198,7 +198,8 @@ import {
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
-    onSwaggerSpecReceived
+    onSwaggerSpecReceived,
+    FileRenameRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -438,10 +439,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
         return new Promise(async (resolve) => {
-            const { documentUri, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+            let { documentUri, apiName, xmlData, handlersXmlData, apiRange, handlersRange } = params;
 
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
+
+            if (path.basename(documentUri).split('.')[0] !== apiName) {
+                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${apiName}.xml`)});
+                documentUri = path.join(path.dirname(documentUri), `${apiName}.xml`);
+            }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
             await this.rangeFormat({ uri: documentUri, range: apiRange });
@@ -582,7 +588,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
@@ -656,7 +667,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
@@ -720,7 +736,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
@@ -782,7 +803,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
@@ -844,7 +870,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('localEntries', 'local-entries');
             }
             if (filePath.endsWith('.xml')) {
-                filePath = directory;
+                if (path.basename(filePath).split('.')[0] !== name) {
+                    fs.unlinkSync(filePath);
+                    filePath = path.join(path.dirname(filePath), `${name}.xml`);
+                }
             } else {
                 filePath = path.join(filePath, `${name}.xml`);
             }
@@ -926,7 +955,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('messageStores', 'message-stores');
             }
             if (filePath.endsWith('.xml')) {
-                filePath = params.directory;
+                if (path.basename(filePath).split('.')[0] !== params.name) {
+                    fs.unlinkSync(filePath);
+                    filePath = path.join(path.dirname(filePath), `${params.name}.xml`);
+                }
             } else {
                 filePath = path.join(filePath, `${params.name}.xml`);
             }
@@ -1124,6 +1156,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             if (filePath.endsWith('.xml')) {
+                if (path.basename(filePath).split('.')[0] !== templateParams.name) {
+                    fs.unlinkSync(filePath);
+                    filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
+                }
             } else {
                 filePath = path.join(filePath, `${templateParams.name}.xml`);
             }
@@ -1369,7 +1405,12 @@ ${endpointAttributes}
             let filePath: string;
 
             if (directory.endsWith('.xml')) {
-                filePath = directory;
+                if (path.basename(directory).split('.')[0] !== templateParams.name) {
+                    fs.unlinkSync(directory);
+                    filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
+                } else {
+                    filePath = directory;
+                }
             } else {
                 filePath = path.join(directory, `${templateParams.name}.xml`);
             }
@@ -1484,7 +1525,12 @@ ${endpointAttributes}
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== templateName) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${templateName}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${templateName}.xml`);
                 }
@@ -1598,7 +1644,12 @@ ${endpointAttributes}
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== fileName) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
@@ -1775,7 +1826,12 @@ ${endpointAttributes}
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== fileName) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
@@ -1885,7 +1941,12 @@ ${endpointAttributes}
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== fileName) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
@@ -1997,7 +2058,12 @@ ${endpointAttributes}
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
-                    filePath = directory;
+                    if (path.basename(directory).split('.')[0] !== fileName) {
+                        fs.unlinkSync(directory);
+                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+                    } else {
+                        filePath = directory;
+                    }
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
@@ -2177,6 +2243,11 @@ ${endpointAttributes}
 
             const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            if (path.basename(filePath).split('.')[0] !== dataServiceName) {
+                fs.unlinkSync(filePath);
+                filePath = path.join(path.dirname(filePath), `${dataServiceName}.dbs`);
+            }
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -2398,16 +2469,19 @@ ${endpointAttributes}
             const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
-            } else {
-                filePath = path.join(directory, `${messageProcessorName}.xml`);
-            }
+            let filePath = directory;
 
             if (filePath.includes('messageProcessors')) {
                 filePath = filePath.replace('messageProcessors', 'message-processors');
+            }
+
+            if (filePath.endsWith('.xml')) {
+                if (path.basename(filePath).split('.')[0] !== messageProcessorName) {
+                    fs.unlinkSync(filePath);
+                    filePath = path.join(path.dirname(filePath), `${messageProcessorName}.xml`);
+                }
+            } else {
+                filePath = path.join(filePath, `${messageProcessorName}.xml`);
             }
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -2503,24 +2577,24 @@ ${endpointAttributes}
                         }];
 
                     const ScheduledMessageForwardingProcessor = {
-                        'client.retry.interval': 'retryInterval',
-                        'member.count': 'taskCount',
-                        'message.processor.reply.sequence': 'replySequence',
-                        'axis2.config': 'axis2Config',
-                        'quartz.conf': 'quartzConfigPath',
-                        'non.retry.status.codes': 'statusCodes',
-                        'message.processor.deactivate.sequence': 'deactivateSequence',
-                        'is.active': 'processorState',
-                        'axis2.repo': 'clientRepository',
-                        cronExpression: 'cron',
-                        'max.delivery.attempts': 'maxRedeliveryAttempts',
-                        'message.processor.fault.sequence': 'faultSequence',
-                        'store.connection.retry.interval': 'connectionAttemptInterval',
-                        'max.store.connection.attempts': 'maxConnectionAttempts',
-                        'max.delivery.drop': 'dropMessageOption',
-                        interval: 'forwardingInterval',
-                        'message.processor.failMessagesStore': 'failMessageStoreType'
-                    },
+                            'client.retry.interval': 'retryInterval',
+                            'member.count': 'taskCount',
+                            'message.processor.reply.sequence': 'replySequence',
+                            'axis2.config': 'axis2Config',
+                            'quartz.conf': 'quartzConfigPath',
+                            'non.retry.status.codes': 'statusCodes',
+                            'message.processor.deactivate.sequence': 'deactivateSequence',
+                            'is.active': 'processorState',
+                            'axis2.repo': 'clientRepository',
+                            cronExpression: 'cron',
+                            'max.delivery.attempts': 'maxRedeliveryAttempts',
+                            'message.processor.fault.sequence': 'faultSequence',
+                            'store.connection.retry.interval': 'connectionAttemptInterval',
+                            'max.store.connection.attempts': 'maxConnectionAttempts',
+                            'max.delivery.drop': 'dropMessageOption',
+                            interval: 'forwardingInterval',
+                            'message.processor.failMessagesStore': 'failMessageStoreType'
+                        },
                         ScheduledFailoverMessageForwardingProcessor = {
                             'client.retry.interval': 'retryInterval',
                             cronExpression: 'cron',
@@ -2835,7 +2909,7 @@ ${endpointAttributes}
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
 
-        //get current workspace folder 
+        //get current workspace folder
         const directoryPath = StateMachine.context().projectUri;
         console.log('Directory path:', directoryPath);
 
@@ -3379,15 +3453,19 @@ ${endpointAttributes}
             const xmlData = await getDataSourceXml(params);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            let filePath: string;
-            if (params.projectDirectory.endsWith('.xml')) {
-                filePath = params.projectDirectory;
-            } else {
-                filePath = path.join(params.projectDirectory, params.name + '.xml');
-            }
+            let filePath = params.projectDirectory;
 
             if (filePath.includes('dataSources')) {
                 filePath = filePath.replace('dataSources', 'data-sources');
+            }
+
+            if (filePath.endsWith('.xml')) {
+                if (path.basename(filePath).split('.')[0] !== params.name) {
+                    fs.unlinkSync(filePath);
+                    filePath = path.join(path.dirname(filePath), `${params.name}.xml`);
+                }
+            } else {
+                filePath = path.join(filePath, `${params.name}.xml`);
             }
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -4438,6 +4516,14 @@ ${endpointAttributes}
 
             resolve();
         });
+    }
+
+    renameFile(params: FileRenameRequest): void {
+        try {
+            fs.renameSync(params.existingPath, params.newPath);
+        } catch (error) {
+            console.error(`Error renaming file: ${error}`);
+        }
     }
 }
 

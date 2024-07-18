@@ -302,7 +302,9 @@ import {
     TestDbConnectionResponse,
     testDbConnection,
     MarkAsDefaultSequenceRequest,
-    markAsDefaultSequence
+    markAsDefaultSequence,
+    FileRenameRequest,
+    renameFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -780,5 +782,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
+    }
+
+    renameFile(params: FileRenameRequest): Promise<void> {
+        return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
     }
 }
