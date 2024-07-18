@@ -97,8 +97,13 @@ const OAuthForm = (props: AddMediatorProps) => {
                     <Controller
                         name="remoteServiceURL"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Remote Service URL" size={50} placeholder="" />
+                            <TextField {...field} label="Remote Service URL" size={50} placeholder="" required={true} />
                         )}
                     />
                     {errors.remoteServiceURL && <Error>{errors.remoteServiceURL.message.toString()}</Error>}
@@ -111,8 +116,13 @@ const OAuthForm = (props: AddMediatorProps) => {
                         <Controller
                             name="username"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Username" size={50} placeholder="" />
+                                <TextField {...field} label="Username" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.username && <Error>{errors.username.message.toString()}</Error>}
@@ -122,8 +132,13 @@ const OAuthForm = (props: AddMediatorProps) => {
                         <Controller
                             name="password"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Password" size={50} placeholder="" />
+                                <TextField {...field} label="Password" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.password && <Error>{errors.password.message.toString()}</Error>}
@@ -136,7 +151,7 @@ const OAuthForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}
