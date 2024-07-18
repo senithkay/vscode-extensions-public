@@ -14,7 +14,7 @@ import { ExtendedLangClient } from '../../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../../core';
 import { getCommonWebViewOptions } from '../../utils';
 import { TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW, sendTelemetryEvent, sendTelemetryException } from '../../features/telemetry';
-import { PALETTE_COMMANDS } from 'src/features/project';
+import { PALETTE_COMMANDS } from '../../features/project';
 
 let examplesPanel: WebviewPanel | undefined;
 const exampleMaps = new Map([
