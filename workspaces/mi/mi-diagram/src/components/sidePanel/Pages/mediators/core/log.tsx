@@ -127,7 +127,7 @@ const LogForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -145,7 +145,7 @@ const LogForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -158,7 +158,7 @@ const LogForm = (props: AddMediatorProps) => {
                         name="separator"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Log Separator" size={50} placeholder="" />
+                            <TextField {...field} label="Log Separator" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.separator && <Error>{errors.separator.message.toString()}</Error>}
@@ -195,7 +195,7 @@ const LogForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

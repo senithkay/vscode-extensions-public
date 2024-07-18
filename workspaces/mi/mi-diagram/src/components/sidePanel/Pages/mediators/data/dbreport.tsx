@@ -89,7 +89,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Data Type",
                                         "defaultValue": "CHAR",
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "values": [
                                             "CHAR",
                                             "VARCHAR",
@@ -113,7 +113,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Value Type",
                                         "defaultValue": "LITERAL",
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "values": [
                                             "LITERAL",
                                             "EXPRESSION"
@@ -123,7 +123,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "TextField",
                                         "label": "Value Literal",
                                         "defaultValue": "",
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "enableCondition": [
                                             {
                                                 "1": "LITERAL"
@@ -137,7 +137,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                             "isExpression": true,
                                             "value": ""
                                         },
-                                        "isRequired": false,
+                                        "isRequired": true,
                                         "canChange": false,
                                         "enableCondition": [
                                             {
@@ -244,8 +244,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <AutoComplete label="Connection Type" name="connectionType" items={["DB_CONNECTION", "DATA_SOURCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Connection Type" name="connectionType" items={["DB_CONNECTION", "DATA_SOURCE"]} value={field.value} required={true} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -258,8 +263,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="databaseConfiguration"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" />
+                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" required={true} />
                             )}
                         />
                         {errors.databaseConfiguration && <Error>{errors.databaseConfiguration.message.toString()}</Error>}
@@ -271,6 +281,11 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDBType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <>
                                     <FlexLabelContainer>
@@ -312,8 +327,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDBDriver"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" />
+                                <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" required={true} />
                             )}
                         />
                         {errors.connectionDBDriver && <Error>{errors.connectionDBDriver.message.toString()}</Error>}
@@ -325,8 +345,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedConnectionDBDriver"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
+                                <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" required={true} />
                             )}
                         />
                         {errors.registryBasedConnectionDBDriver && <Error>{errors.registryBasedConnectionDBDriver.message.toString()}</Error>}
@@ -338,8 +363,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDSType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <AutoComplete label="Connection DS Type" name="connectionDsType" items={["EXTERNAL", "CARBON"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Connection DS Type" name="connectionDsType" items={["EXTERNAL", "CARBON"]} value={field.value} required={true} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -353,8 +383,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDSInitialContext"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" />
+                                <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" required={true} />
                             )}
                         />
                         {errors.connectionDSInitialContext && <Error>{errors.connectionDSInitialContext.message.toString()}</Error>}
@@ -366,8 +401,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionDSName"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" />
+                                <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" required={true} />
                             )}
                         />
                         {errors.connectionDSName && <Error>{errors.connectionDSName.message.toString()}</Error>}
@@ -392,8 +432,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionURL"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" />
+                                <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" required={true} />
                             )}
                         />
                         {errors.connectionURL && <Error>{errors.connectionURL.message.toString()}</Error>}
@@ -405,8 +450,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedURLConfigKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" />
+                                <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" required={true} />
                             )}
                         />
                         {errors.registryBasedURLConfigKey && <Error>{errors.registryBasedURLConfigKey.message.toString()}</Error>}
@@ -431,8 +481,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionUsername"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" />
+                                <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" required={true} />
                             )}
                         />
                         {errors.connectionUsername && <Error>{errors.connectionUsername.message.toString()}</Error>}
@@ -444,8 +499,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedUserConfigKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" />
+                                <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" required={true} />
                             )}
                         />
                         {errors.registryBasedUserConfigKey && <Error>{errors.registryBasedUserConfigKey.message.toString()}</Error>}
@@ -470,8 +530,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="connectionPassword"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" />
+                                <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" required={true} />
                             )}
                         />
                         {errors.connectionPassword && <Error>{errors.connectionPassword.message.toString()}</Error>}
@@ -483,8 +548,13 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="registryBasedPassConfigKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" />
+                                <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" required={true} />
                             )}
                         />
                         {errors.registryBasedPassConfigKey && <Error>{errors.registryBasedPassConfigKey.message.toString()}</Error>}
@@ -550,7 +620,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyAutocommit"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Autocommit" name="propertyAutocommit" items={["DEFAULT", "true", "false"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Property Autocommit" name="propertyAutocommit" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -563,7 +633,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyIsolation"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Isolation" name="propertyIsolation" items={["DEFAULT", "Connection.TRANSACTION_NONE", "Connection.TRANSACTION_READ_COMMITTED", "Connection.TRANSACTION_UNCOMMITTED", "Connection.TRANSACTION_REPEATABLE_READ", "Connection.TRANSACTION.SERIALIZABLE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Property Isolation" name="propertyIsolation" items={["DEFAULT", "Connection.TRANSACTION_NONE", "Connection.TRANSACTION_READ_COMMITTED", "Connection.TRANSACTION_UNCOMMITTED", "Connection.TRANSACTION_REPEATABLE_READ", "Connection.TRANSACTION.SERIALIZABLE"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -576,7 +646,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyMaxActive"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Active" size={50} placeholder="Enter the max active property" />
+                                <TextField {...field} label="Property Max Active" size={50} placeholder="Enter the max active property" required={false} />
                             )}
                         />
                         {errors.propertyMaxActive && <Error>{errors.propertyMaxActive.message.toString()}</Error>}
@@ -587,7 +657,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyMaxIdle"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Idle" size={50} placeholder="Enter the max idle property" />
+                                <TextField {...field} label="Property Max Idle" size={50} placeholder="Enter the max idle property" required={false} />
                             )}
                         />
                         {errors.propertyMaxIdle && <Error>{errors.propertyMaxIdle.message.toString()}</Error>}
@@ -598,7 +668,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyMaxOpenStatements"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Open Statements" size={50} placeholder="Enter the max open statements property" />
+                                <TextField {...field} label="Property Max Open Statements" size={50} placeholder="Enter the max open statements property" required={false} />
                             )}
                         />
                         {errors.propertyMaxOpenStatements && <Error>{errors.propertyMaxOpenStatements.message.toString()}</Error>}
@@ -609,7 +679,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyMaxWait"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Wait" size={50} placeholder="Enter the max wait property" />
+                                <TextField {...field} label="Property Max Wait" size={50} placeholder="Enter the max wait property" required={false} />
                             )}
                         />
                         {errors.propertyMaxWait && <Error>{errors.propertyMaxWait.message.toString()}</Error>}
@@ -620,7 +690,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyMinIdle"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Min Idle" size={50} placeholder="Enter the min idle property" />
+                                <TextField {...field} label="Property Min Idle" size={50} placeholder="Enter the min idle property" required={false} />
                             )}
                         />
                         {errors.propertyMinIdle && <Error>{errors.propertyMinIdle.message.toString()}</Error>}
@@ -631,7 +701,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyPoolStatements"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Pool Statements" name="propertyPoolStatements" items={["DEFAULT", "true", "false"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Property Pool Statements" name="propertyPoolStatements" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -644,7 +714,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyTestOnBorrow"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Test On Borrow" name="propertyTestOnBorrow" items={["DEFAULT", "true", "false"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Property Test On Borrow" name="propertyTestOnBorrow" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -657,7 +727,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyTestWhileIdle"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Test While Idle" name="propertyTestWhileIdle" items={["DEFAULT", "true", "false"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Property Test While Idle" name="propertyTestWhileIdle" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -670,7 +740,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyValidationQuery"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Validation Query" size={50} placeholder="Enter the validation query property" />
+                                <TextField {...field} label="Property Validation Query" size={50} placeholder="Enter the validation query property" required={false} />
                             )}
                         />
                         {errors.propertyValidationQuery && <Error>{errors.propertyValidationQuery.message.toString()}</Error>}
@@ -681,7 +751,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="propertyInitialSize"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Initial Size" size={50} placeholder="Enter the initial size property" />
+                                <TextField {...field} label="Property Initial Size" size={50} placeholder="Enter the initial size property" required={false} />
                             )}
                         />
                         {errors.propertyInitialSize && <Error>{errors.propertyInitialSize.message.toString()}</Error>}
@@ -697,7 +767,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="Enter a description" />
+                                <TextField {...field} label="Description" size={50} placeholder="Enter a description" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
