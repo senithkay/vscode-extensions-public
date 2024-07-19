@@ -47,7 +47,7 @@ const CARD_WRAPPER_DATA = {
                 description: 'Kafka messaging',
             },
             {
-                title: 'rabbit-mq',
+                title: 'RABBITMQ',
                 icon: 'rabbit-mq',
                 description: 'RabbitMQ messaging',
             },

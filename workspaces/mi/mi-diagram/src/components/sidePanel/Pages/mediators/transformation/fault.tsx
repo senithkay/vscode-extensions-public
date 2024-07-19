@@ -107,7 +107,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="soapVersion"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="SOAP Version" name="soapVersion" items={["soap11", "soap12", "POX"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="SOAP Version" name="soapVersion" items={["soap11", "soap12", "POX"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -121,7 +121,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="soap11"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="SOAP11" name="soap11" items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="SOAP11" name="soap11" items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -136,7 +136,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="code"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Code" name="code" items={["VersionMismatch", "MustUnderstand", "DataEncordingUnknown", "Sender", "Reciever"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Code" name="code" items={["VersionMismatch", "MustUnderstand", "DataEncordingUnknown", "Sender", "Reciever"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -151,7 +151,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="Role"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Role" size={50} placeholder="" />
+                            <TextField {...field} label="Role" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.Role && <Error>{errors.Role.message.toString()}</Error>}
@@ -164,7 +164,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="node"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Node" size={50} placeholder="" />
+                            <TextField {...field} label="Node" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.node && <Error>{errors.node.message.toString()}</Error>}
@@ -177,7 +177,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="actor"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Actor" size={50} placeholder="" />
+                            <TextField {...field} label="Actor" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.actor && <Error>{errors.actor.message.toString()}</Error>}
@@ -216,6 +216,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Detail"
                                 placeholder=""
+                                required={false}
                                 canChange={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -232,6 +233,7 @@ const FaultForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Reason"
                                 placeholder=""
+                                required={false}
                                 canChange={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -245,7 +247,7 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

@@ -375,7 +375,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="streamName"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Stream Name" size={50} placeholder="" />
+                            <TextField {...field} label="Stream Name" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
@@ -386,7 +386,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="streamVersion"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Stream Version" size={50} placeholder="" />
+                            <TextField {...field} label="Stream Version" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
@@ -397,7 +397,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="eventSink"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Event Sink" size={50} placeholder="" />
+                            <TextField {...field} label="Event Sink" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.eventSink && <Error>{errors.eventSink.message.toString()}</Error>}
@@ -419,7 +419,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="asyncTimeout"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Async Timeout" size={50} placeholder="" />
+                            <TextField {...field} label="Async Timeout" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.asyncTimeout && <Error>{errors.asyncTimeout.message.toString()}</Error>}
@@ -554,7 +554,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

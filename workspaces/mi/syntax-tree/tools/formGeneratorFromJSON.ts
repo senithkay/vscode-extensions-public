@@ -168,7 +168,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
 
         tableKeys.push(name);
-        const isRequired = required == 'true';
+        const isRequired = required == true || required == 'true';
 
         let type;
         if (attribute.type === 'table') {
@@ -276,11 +276,20 @@ const generateForm = (jsonData: any): string => {
                 let defaultValue = element.value.defaultValue;
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
-                const isRequired = required == 'true';
+                const isRequired = required == true || required == 'true';
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
-                const rules = isRequired || validation ? fixIndentation(`
+                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression') ? `
+                {
+                    validate: (value) => {
+                        if (!value?.value || value.value === "") {
+                            return "This field is required";
+                        }
+                        return true;
+                    },
+                }
+                `: `
                 {
                     ${isRequired ? 'required: "This field is required",' : ''}${validation ? `
                     pattern: { value: ${regex}, message: "${message}" }` : ""}
@@ -300,19 +309,20 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" />`, indentation);
+                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} />`, indentation);
                 } else if (inputType === 'codeTextArea') {
 
                     fields +=
                         fixIndentation(`
-                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" resize="vertical" growRange={{ start: 5, offset: 10 }} />`, indentation);
+                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} resize="vertical" growRange={{ start: 5, offset: 10 }} />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
                     defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
                         fixIndentation(`
                         <ExpressionField 
                             {...field} label="${displayName}"
-                            placeholder="${helpTip}" 
+                            placeholder="${helpTip}"
+                            required={${isRequired}}
                             canChange={${inputType === 'stringOrExpression'}}
                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                          />`, indentation);
@@ -324,6 +334,7 @@ const generateForm = (jsonData: any): string => {
                                 label="${displayName}"
                                 autoWidth={true}
                                 {...field}
+                                required={${isRequired}}
                                 style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
                             >
                             ${allowedConnectionTypes.map((value: string) => (
@@ -343,7 +354,7 @@ const generateForm = (jsonData: any): string => {
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
                     const name = toCamelCase(displayName);
                     const comboStr = !element.value.showManageDeps ? `
-                        <AutoComplete label="${displayName}" name="${name}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="${displayName}" name="${name}" items={[${comboValues}]} value={field.value} required={${isRequired}} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />` : `
                         <>
@@ -388,6 +399,7 @@ const generateForm = (jsonData: any): string => {
                             label="${element.value.displayName}"
                             allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
                             onValueChange={field.onChange}
+                            required={${isRequired}}
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
@@ -395,7 +407,7 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" />`, indentation);
+                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" required={${isRequired}} />`, indentation);
                 }
 
                 defaultValues +=

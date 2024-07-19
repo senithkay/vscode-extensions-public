@@ -75,8 +75,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		const isValueEmpty = isEmptyValue(valuePosition);
 
 		if (!isValueEmpty) {
-			targetExpr.replaceWithText(rhs);
-			await applyModifications();
+			const updatedTargetExpr = targetExpr.replaceWithText(rhs);
+			await applyModifications(updatedTargetExpr.getSourceFile().getFullText());
 			return rhs;
 		}
 	}
@@ -133,8 +133,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 				if (!valueExpr.getText()) {
 					const valueExprSource = constructValueExprSource(lhs, rhs, fieldNames, i);
-                    valueExpr.replaceWithText(valueExprSource);
-                    await applyModifications();
+                    const updatedValueExpr = valueExpr.replaceWithText(valueExprSource);
+                    await applyModifications(updatedValueExpr.getSourceFile().getFullText());
                     return valueExprSource;
 				}
 
@@ -163,8 +163,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 			if (propAssignment && !propAssignment.getInitializer().getText()) {
 				const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
-                propAssignment.getInitializer().replaceWithText(valueExprSource);
-               await applyModifications();
+                const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
+                await applyModifications(updatedValueExpr.getSourceFile().getFullText());
                 return valueExprSource;
 			}
 			source = `${lhs}: ${rhs}`;
@@ -174,8 +174,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
-            propAssignment.getInitializer().replaceWithText(valueExprSource);
-            await applyModifications();
+            const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
+            await applyModifications(updatedValueExpr.getSourceFile().getFullText());
             return valueExprSource;
 		}
 		source = `${lhs}: ${rhs}`;
@@ -186,15 +186,15 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		// Add new property only if the propery with the lhs value doesn't exist
 		// This can occur when adding dynamic fields
 		if (!property) {
-			targetObjectLitExpr.addProperty(writer => {
+			const updatedTargetObjectLitExpr = targetObjectLitExpr.addProperty(writer => {
 				writer.writeLine(source);
 			});
+			await applyModifications(updatedTargetObjectLitExpr.getSourceFile().getFullText());
 		}
 	} else if (targetNode instanceof ObjectOutputNode) {
-        targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
+        const updatedExpr = targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
+		await applyModifications(updatedExpr.getSourceFile().getFullText());
 	}
-
-    await applyModifications();
 
 	function createPropAssignment(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -219,7 +219,7 @@ export async function createSourceForUserInput(
 	objectLitExpr: ObjectLiteralExpression,
 	newValue: string,
 	fnBody: Block,
-	applyModifications?: () => Promise<void>
+	applyModifications?: (fileContent: string) => Promise<void>
 ): Promise<PropertyAssignment> {
 
 	let source: string;
@@ -242,7 +242,7 @@ export async function createSourceForUserInput(
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
 				const propertyAssignment = parentField.setInitializer(valueExprSource);
-				applyModifications && (await applyModifications());
+				applyModifications && (await applyModifications(propertyAssignment.getSourceFile().getFullText()));
 				return propertyAssignment;
 			}
 
@@ -252,7 +252,7 @@ export async function createSourceForUserInput(
 				if (propAssignment && !propAssignment.getInitializer().getText()) {
 					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 					const propertyAssignment = propAssignment.setInitializer(valExprSource);
-					applyModifications && (await applyModifications());
+					applyModifications && (await applyModifications(propertyAssignment.getSourceFile().getFullText()));
 					return propertyAssignment;
 				}
 				source = createSpecificField(parentFields.reverse());
@@ -268,7 +268,7 @@ export async function createSourceForUserInput(
 						if (propAssignment && !propAssignment.getInitializer().getText()) {
 							const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 							const propertyAssignment = propAssignment.setInitializer(valExprSource);
-							applyModifications && (await applyModifications());
+							applyModifications && (await applyModifications(propertyAssignment.getSourceFile().getFullText()));
 							return propertyAssignment;
 						}
 						source = createSpecificField(parentFields.reverse());
@@ -288,7 +288,7 @@ export async function createSourceForUserInput(
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(field.originalType.fieldName, newValue, parentFields, 1);
 			const propertyAssignment = propAssignment.setInitializer(valueExprSource);
-			applyModifications && (await applyModifications());
+			applyModifications && (await applyModifications(propertyAssignment.getSourceFile().getFullText()));
 			return propertyAssignment;
 		}
 		source = createSpecificField(parentFields.reverse());
@@ -298,7 +298,7 @@ export async function createSourceForUserInput(
 		const propertyAssignment = targetObjectLitExpr.addProperty(writer => {
 			writer.writeLine(source);
 		}) as PropertyAssignment;
-		applyModifications && (await applyModifications());
+		applyModifications && (await applyModifications(propertyAssignment.getSourceFile().getFullText()));
 		return propertyAssignment;
 	} else {
 		if (!targetObjectLitExpr) {
@@ -310,9 +310,10 @@ export async function createSourceForUserInput(
 		}
 		const modifiedTargetObjectLitExpr = targetObjectLitExpr
 			.replaceWithText(`{${source}}`) as ObjectLiteralExpression;
-		applyModifications && (await applyModifications());
-		return modifiedTargetObjectLitExpr
-			.getProperties()[modifiedTargetObjectLitExpr.getProperties().length - 1] as PropertyAssignment;
+		const propertyAssignment = modifiedTargetObjectLitExpr
+		.getProperties()[modifiedTargetObjectLitExpr.getProperties().length - 1] as PropertyAssignment;
+		applyModifications && (await applyModifications(propertyAssignment.getSourceFile().getFullText()));
+		return propertyAssignment;
 	}
 
 
@@ -388,8 +389,8 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 				}
 
 				const newSource = `${valueNode.getText()} + ${rhs}`;
-				valueNode.replaceWithText(newSource);
-				await (targetNode as DataMapperNodeModel).context.applyModifications();
+				const updatedValueNode = valueNode.replaceWithText(newSource);
+				await (targetNode as DataMapperNodeModel).context.applyModifications(updatedValueNode.getSourceFile().getFullText());
 			}
 		});
 	}

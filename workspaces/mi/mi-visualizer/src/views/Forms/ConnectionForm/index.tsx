@@ -14,6 +14,7 @@ import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { ConnectorStatus, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import AddConnection from "./ConnectionFormGenerator";
+import { APIS } from "../../../constants";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -117,10 +118,10 @@ export function ConnectorStore(props: ConnectionStoreProps) {
 
     const fetchStoreConnectors = async () => {
         try {
-            const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
+            const response = await fetch(APIS.CONNECTOR);
             const data = await response.json();
-            if (data?.data) {
-                setStoreConnectors(data.data);
+            if (data) {
+                setStoreConnectors(data['outbound-connector-data']);
             } else {
                 setStoreConnectors([]);
             }
