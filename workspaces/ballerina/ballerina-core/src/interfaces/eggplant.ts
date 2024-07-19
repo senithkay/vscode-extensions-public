@@ -37,6 +37,7 @@ export type Node = {
     lineRange: ELineRange;
     branches?: Branch[];
     viewState?: ViewState;
+    description?: string;
     flags?: number;
 };
 
@@ -47,7 +48,9 @@ export type NodeKind =
     | "IF"
     | "HTTP_API_GET_CALL"
     | "HTTP_API_POST_CALL"
+    | "ACTION_CALL"
     | "RETURN"
+    | "ERROR_HANDLER"
     | "EXPRESSION";
 
 export type Branch = {
@@ -77,7 +80,7 @@ export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
 
 export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targetType" | "variable" | "expression";
 
-export type NodeProperties = { [P in NodePropertyKey]?: Expression; };
+export type NodeProperties = { [P in NodePropertyKey]?: Expression };
 
 export type ViewState = {
     // element view state
