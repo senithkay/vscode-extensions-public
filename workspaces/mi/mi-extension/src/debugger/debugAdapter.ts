@@ -24,6 +24,11 @@ import { DebuggerConfig } from './config';
 import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
 import { RPCLayer } from '../RPCLayer';
 
+interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
+    /** Env variables setup through launch.json */
+    env?: any;
+}
+
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
     private debuggerHandler: Debugger | undefined;
@@ -251,7 +256,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
 
     private currentServerPath;
-    protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args?: ILaunchRequestArguments, request?: DebugProtocol.Request): void {
         this._configurationDone.wait().then(() => {
             getServerPath().then((serverPath) => {
                 if (!serverPath) {
@@ -265,6 +270,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         if (portOffset !== undefined) {
                             DebuggerConfig.setPortOffset(portOffset);
                         }
+                        DebuggerConfig.setEnvVariables(args?.env? args?.env : {});
 
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {

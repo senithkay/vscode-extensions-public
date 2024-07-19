@@ -18,8 +18,17 @@ export class DebuggerConfig {
     private static managementPort: number = 9164;
     private static host: string = 'localhost';
     private static internalOffset = 10;
+    private static envVariables: { [key: string]: string } = {};
 
     private static portOffset: number | undefined;
+
+    public static getEnvVariables(): { [key: string]: string } {
+        return this.envVariables;
+    }
+
+    public static setEnvVariables(envVariables: { [key: string]: string }): void {
+        this.envVariables = envVariables;
+    }
 
     public static getCommandPort(): number {
         return this.commandPort;

@@ -225,7 +225,13 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
         if (runCommand === undefined) {
             reject('Error getting run command');
         } else {
-            serverProcess = child_process.spawn(`${runCommand}`, [], { shell: true });
+            const definedEnvVariables = DebuggerConfig.getEnvVariables();
+            const envVariables = {
+                ...process.env,
+                ...definedEnvVariables
+              };
+
+            serverProcess = child_process.spawn(`${runCommand}`, [], { shell: true, env: envVariables});
             showServerOutputChannel();
 
             if (serverProcess.stdout) {
