@@ -13,7 +13,7 @@ import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
 import { CloseIcon } from "../../resources";
 
-export interface ComponentPanelProps {
+export interface PanelContainerProps {
     children?: React.ReactNode;
     show: boolean;
     onClose(): void;
@@ -25,7 +25,7 @@ namespace S {
     `;
 }
 
-export function ComponentPanel(props: ComponentPanelProps) {
+export function PanelContainer(props: PanelContainerProps) {
     const { children, show, onClose } = props;
 
     return (
@@ -54,3 +54,5 @@ export function ComponentPanel(props: ComponentPanelProps) {
         </SidePanel>
     );
 }
+
+export default PanelContainer;
