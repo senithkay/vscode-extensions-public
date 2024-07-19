@@ -69,3 +69,7 @@ export enum TemplateTypes {
     WSDL_ENDPOINT = "WSDL_ENDPOINT",
     SEQUENCE_ENDPOINT = "SEQUENCE"
 };
+
+export const APIS = {
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+}
