@@ -46,7 +46,7 @@ export type SubMappingConfigFormProps = {
     inputNode: DataMapperNodeModel;
     addView: (view: View) => void;
     updateView: (updatedView: View) => void;
-    applyModifications: () => Promise<void>;
+    applyModifications: (fileContent: string) => Promise<void>;
 };
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
@@ -91,7 +91,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}`: ''} = ${defaultValue};`;
         (functionST.getBody() as Block).insertStatements(nextSubMappingIndex, varStmt);
 
-        await applyModifications();
+        await applyModifications(functionST.getSourceFile().getFullText());
 
         resetSubMappingConfig();
         reset();
@@ -116,11 +116,13 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);
             if (typeNode) {
-                typeNode.replaceWithText(typeDesc);
+                const updatedTypeNode = typeNode.replaceWithText(typeDesc);
+                await applyModifications(updatedTypeNode.getSourceFile().getFullText());
             } else {
                 varDecl.setType(typeDesc);
             }
-            varDecl.getInitializer().replaceWithText(defaultValue);
+            const updatedInitializer = varDecl.getInitializer().replaceWithText(defaultValue);
+            await applyModifications(updatedInitializer.getSourceFile().getFullText());
             updatedType = typeDesc;
         }
 
@@ -134,7 +136,6 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             }
         });
 
-        await applyModifications();
         resetSubMappingConfig();
         reset();
     };
