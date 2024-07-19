@@ -42,7 +42,7 @@ export class DebuggerConfig {
         return this.eventPort;
     }
 
-    public static setPortOffset(offset: number): void {
+    public static setPortOffset(offset: number | undefined): void {
         this.portOffset = offset;
     }
 

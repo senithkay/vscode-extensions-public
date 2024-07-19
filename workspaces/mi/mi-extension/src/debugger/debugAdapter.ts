@@ -267,9 +267,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !args?.noDebug ?? true;
                     readPortOffset(serverPath).then((portOffset) => {
-                        if (portOffset !== undefined) {
-                            DebuggerConfig.setPortOffset(portOffset);
-                        }
+                        DebuggerConfig.setPortOffset(portOffset);
+                       
                         DebuggerConfig.setEnvVariables(args?.env? args?.env : {});
 
                         executeTasks(serverPath, isDebugAllowed)
