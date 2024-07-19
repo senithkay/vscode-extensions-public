@@ -120,8 +120,8 @@ export function ConnectorStore(props: ConnectionStoreProps) {
         try {
             const response = await fetch(APIS.CONNECTOR);
             const data = await response.json();
-            if (data?.data) {
-                setStoreConnectors(data.data);
+            if (data) {
+                setStoreConnectors(data['outbound-connector-data']);
             } else {
                 setStoreConnectors([]);
             }
