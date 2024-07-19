@@ -69,3 +69,36 @@ export enum TemplateTypes {
     WSDL_ENDPOINT = "WSDL_ENDPOINT",
     SEQUENCE_ENDPOINT = "SEQUENCE"
 };
+
+export enum MessageProcessorTypes {
+    MESSAGE_SAMPLING = "MESSAGE_SAMPLING",
+    SCHEDULED_MESSAGE_FORWARDING = "SCHEDULED_MESSAGE_FORWARDING",
+    SCHEDULED_FAILOVER_MESSAGE_FORWARDING = "SCHEDULED_FAILOVER_MESSAGE_FORWARDING",
+    CUSTOM = "CUSTOM"
+};
+
+export enum MessageStoreTypes {
+    IN_MEMORY = "IN_MEMORY",
+    CUSTOM = "CUSTOM",
+    JMS = "JMS",
+    RABBITMQ = "RABBITMQ",
+    WSO2_MB = "WSO2_MB",
+    RESEQUENCE = "RESEQUENCE",
+    JDBC = "JDBC"
+};
+
+export enum InboundEndpointTypes {
+    CXF_WS_RM = "CXF_WS_RM",
+    FILE = "FILE",
+    HL7 = "HL7",
+    JMS = "JMS",
+    MQTT = "MQTT",
+    WS = "WS",
+    FEED = "Feed",
+    HTTPS = "HTTPS",
+    HTTP = "HTTP",
+    KAFKA = "KAFKA",
+    WSS = "WSS",
+    CUSTOM = "CUSTOM",
+    RABBITMQ = "rabbit-mq"
+};
