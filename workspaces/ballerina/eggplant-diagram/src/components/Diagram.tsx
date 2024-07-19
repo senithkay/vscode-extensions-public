@@ -11,29 +11,25 @@ import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import {
-    createNodesLink,
-    genDagreEngine,
     generateEngine,
     hasDiagramZoomAndPosition,
     loadDiagramZoomAndPosition,
     registerListeners,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeKind, NodeModel, TargetMetadata, Node } from "../utils/types";
+import { Flow, NodeModel, Node } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
-import { EmptyNodeModel } from "./nodes/EmptyNode";
-import { ComponentList, ComponentPanel } from "./ComponentPanel";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode?: (kind: NodeKind, target: TargetMetadata) => void;
+    onAddNode?: (parent: Node) => void;
     onNodeChange?: (node: Node) => void;
 }
 
@@ -128,11 +124,6 @@ export function Diagram(props: DiagramProps) {
         setShowComponentPanel(true);
     };
 
-    const handleAddNode = (kind: NodeKind, target: TargetMetadata) => {
-        console.log("Add node", { kind, target });
-        onAddNode && onAddNode(kind, target);
-    };
-
     const context: DiagramContextState = {
         flow: model,
         componentPanel: {
@@ -140,7 +131,7 @@ export function Diagram(props: DiagramProps) {
             show: handleShowComponentPanel,
             hide: handleCloseComponentPanel,
         },
-        addNode: {},
+        onAddNode: onAddNode,
         onNodeUpdate: onNodeChange,
     };
 
@@ -151,9 +142,6 @@ export function Diagram(props: DiagramProps) {
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
-                    <ComponentPanel show={showComponentPanel} onClose={handleCloseComponentPanel}>
-                        <ComponentList onAddNode={handleAddNode} />
-                    </ComponentPanel>
                 </DiagramContextProvider>
             )}
         </>

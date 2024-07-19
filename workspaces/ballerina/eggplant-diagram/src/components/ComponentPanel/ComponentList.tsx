@@ -87,7 +87,6 @@ export function ComponentList(props: ComponentListProps) {
     const [searchText, setSearchText] = useState<string>("");
     const {
         flow,
-        addNode: { targetMetadata },
     } = useDiagramContext();
 
     const flowControls: { kind: NodeKind; label: string }[] = [
@@ -103,7 +102,7 @@ export function ComponentList(props: ComponentListProps) {
     };
 
     const handleAddNode = (kind: NodeKind) => {
-        onAddNode(kind, targetMetadata);
+        //
     };
 
     return (

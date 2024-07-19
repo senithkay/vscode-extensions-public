@@ -14,6 +14,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
+import { BaseNodeModel } from "../nodes/BaseNode";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -34,22 +35,16 @@ const fadeInZoomIn = keyframes`
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
     const {
-        componentPanel,
-        addNode: { setTargetMetadata },
+        onAddNode
     } = useDiagramContext();
 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
-        setTargetMetadata &&
-            setTargetMetadata({
-                topNodeId: link.sourceNode.getID(),
-                bottomNodeId: link.targetNode.getID(),
-                linkLabel: link.label,
-            });
-        componentPanel.show();
-        if (link.onAddClick) {
-            link.onAddClick();
+        console.log("Add node clicked", (link.sourceNode as BaseNodeModel).node);
+        const sourceNode = link.sourceNode as BaseNodeModel;
+        if(sourceNode.node){
+            onAddNode(sourceNode.node);
         }
     };
 

@@ -42,8 +42,14 @@ export class InitVisitor implements BaseVisitor {
                 fixed: false,
                 lineRange: {
                     fileName: "",
-                    startLine: [],
-                    endLine: [],
+                    startLine: {
+                        line: 0,
+                        offset:0,
+                    },
+                    endLine: {
+                        line: 0,
+                        offset:0,
+                    },
                 },
                 viewState: this.getDefaultViewState(),
             };
@@ -69,8 +75,14 @@ export class InitVisitor implements BaseVisitor {
                     fixed: false,
                     lineRange: {
                         fileName: "",
-                        startLine: [],
-                        endLine: [],
+                        startLine: {
+                            line: 0,
+                            offset:0,
+                        },
+                        endLine: {
+                            line: 0,
+                            offset:0,
+                        },
                     },
                     viewState: this.getDefaultViewState(),
                 };
