@@ -53,15 +53,28 @@ export function Diagram(props: DiagramProps) {
     }, [model]);
 
     const getDiagramData = () => {
-        const initVisitor = new InitVisitor(model);
-        traverseFlow(model, initVisitor);
+
+        // TODO: move to a separate function
+        // get only do block
+        let flowModel = model;
+        const globalErrorHandleBlock = model.nodes.find((node)=> node.kind === "ERROR_HANDLER");
+        if (globalErrorHandleBlock) {
+            const successFlow = globalErrorHandleBlock.branches.find((branch) => branch.label === "Body");
+            if (successFlow) {
+                // replace error handler block with success flow
+                flowModel.nodes = [model.nodes.at(0), ...successFlow.children];
+            }
+        }
+
+        const initVisitor = new InitVisitor(flowModel);
+        traverseFlow(flowModel, initVisitor);
         const sizingVisitor = new SizingVisitor();
-        traverseFlow(model, sizingVisitor);
+        traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
-        traverseFlow(model, positionVisitor);
+        traverseFlow(flowModel, positionVisitor);
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
-        traverseFlow(model, nodeVisitor);
+        traverseFlow(flowModel, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
