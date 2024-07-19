@@ -119,11 +119,13 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
     }, []);
 
     const onClickAddFilter = async () => {
-        const newFilter = `\n.filter(${label} => ${label} !== null)`;
         const callExprExpr = focusedInputCallExpr.getExpression();
+        const isPropertyAccessExpression = callExprExpr && Node.isPropertyAccessExpression(callExprExpr);
+        const isSourceOptional = isPropertyAccessExpression && !!callExprExpr.getQuestionDotTokenNode();
+        const newFilter = `\n${isSourceOptional ? '?.' : '.'}filter(${label} => ${label} !== null)`;
 
         let targetExpr: Node;
-        if (Node.isPropertyAccessExpression(callExprExpr)) {
+        if (isPropertyAccessExpression) {
             targetExpr = callExprExpr.getExpression();
         }
 
