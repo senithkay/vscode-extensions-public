@@ -2822,7 +2822,7 @@ ${endpointAttributes}
                 console.error('Failed to fetch connectors');
             }
             const data = await response.json();
-            const connector = data.data.find(connector => connector.name === name);
+            const connector = data['outbound-connector-data']?.find(connector => connector.name === name);
             if (connector) {
                 return connector.download_url;
             } else {
