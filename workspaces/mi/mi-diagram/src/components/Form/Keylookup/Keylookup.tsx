@@ -8,13 +8,15 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Codicon, ErrorBanner, getItemKey, ItemComponent, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { FieldValues, Path, useController, UseControllerProps } from "react-hook-form";
+import { FieldValues, useController, UseControllerProps } from "react-hook-form";
 import { Colors } from "../../../resources/constants";
 import fsPath from "path";
+import { ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
+import { Namespace } from "../../sidePanel/expressionEditor/ExpressionEditor";
 
 export type FilterType =
     | "sequence"
@@ -72,15 +74,21 @@ interface IKeylookupBase {
 
 // Define the conditional properties for the ExpressionField
 type ExpressionFieldProps = {
-    isExpression: true;
-    isExActive: boolean;
+    exprToggleEnabled: true;
+    isExpression: boolean;
     setIsExpression: (isExpr: boolean) => void;
-    canChangeEx?: boolean
+    namespaces: Namespace[];
+    setNamespaces: (namespaces: Namespace[]) => void;
+    canChangeEx?: boolean;
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: (value: ExpressionFieldValue) => void) => void;
 } | {
-    isExpression?: false | never;
-    isExActive?: never;
+    exprToggleEnabled?: false | never;
+    isExpression?: never;
     setIsExpression?: never;
-    canChangeEx?: never
+    namespaces?: never;
+    setNamespaces?: never;
+    canChangeEx?: never;
+    openExpressionEditor?: never;
 };
 
 // Define the conditional properties
@@ -97,13 +105,29 @@ export type IFormKeylookup<T extends FieldValues> = IKeylookupBase
     & { label?: string }
     & UseControllerProps<T>
     // Properties for the ExpressionField
-    & ({ isExpression: true; canChangeEx?: boolean } | { isExpression?: false | never; canChangeEx?: never });
+    & ({
+        exprToggleEnabled: true;
+        canChangeEx?: boolean;
+        openExpressionEditor?: (value: ExpressionFieldValue, setValue: (value: ExpressionFieldValue) => void) => void;
+    } | {
+        exprToggleEnabled?: false | never;
+        canChangeEx?: never;
+        openExpressionEditor?: never;
+    });
 
 // Styles
 const Container = styled.div({
+    position: "relative",
     display: "flex",
     flexDirection: "column",
     gap: "2px",
+});
+
+const Link = styled.div({
+    position: "absolute",
+    right: "0",
+    top: "0",
+    padding: "2px"
 });
 
 const ItemContainer = styled.div({
@@ -162,10 +186,13 @@ export const Keylookup = (props: IKeylookup) => {
         allowItemCreate = true,
         path,
         errorMsg,
+        exprToggleEnabled,
         isExpression,
-        isExActive,
         setIsExpression,
+        namespaces,
+        setNamespaces,
         canChangeEx,
+        openExpressionEditor,
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
@@ -280,6 +307,7 @@ export const Keylookup = (props: IKeylookup) => {
         onValueChange && onValueChange(val);
     };
 
+    
     const ExButton = (props: { isActive: boolean; onClick: () => void }) => {
         return (
             <ExBtn.Container>
@@ -290,8 +318,27 @@ export const Keylookup = (props: IKeylookup) => {
         );
     }
 
+    const expressionFieldValue: ExpressionFieldValue = {
+        value: value || initialValue,
+        isExpression,
+        namespaces
+    }
+    
+    const handleExpressionEditorChanges = (value: ExpressionFieldValue) => {
+        setValue(value.value);
+        setNamespaces(value.namespaces);
+        onValueChange && onValueChange(value.value);
+    }
+    
     return (
         <Container>
+            {exprToggleEnabled && isExpression && (
+                <Link onClick={() => openExpressionEditor(expressionFieldValue, handleExpressionEditorChanges)}>
+                    <Tooltip content="Open Expression editor" position="left">
+                        <Codicon name="edit" />
+                    </Tooltip>
+                </Link>
+            )}
             <AutoComplete
                 {...rest}
                 value={value || initialValue}
@@ -303,17 +350,18 @@ export const Keylookup = (props: IKeylookup) => {
                     handleValueChange("");
                     props.onCreateButtonClick(fetchItems, handleValueChange);
                 } : null}
-                {...isExpression && {
+                {...exprToggleEnabled && {
                     actionBtns: [
                         <ExButton
-                            isActive={isExActive}
+                            isActive={isExpression}
                             onClick={() => {
                                 if (canChangeEx) {
-                                    setIsExpression(!isExActive);
+                                    setIsExpression(!isExpression);
                                 }
                             }}
                         />
-                    ]
+                    ],
+                    hideDropdown: isExpression
                 }}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
@@ -322,18 +370,22 @@ export const Keylookup = (props: IKeylookup) => {
 };
 
 export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
-    const { control, name, label, isExpression, canChangeEx = true, ...rest } = props;
+    const { control, name, label, canChangeEx = true, exprToggleEnabled, openExpressionEditor, ...rest } = props;
     const {
         field: { value, onChange },
     } = useController({ name, control });
 
-    if (isExpression) {
+    if (exprToggleEnabled) {
         const handleValueChange = (val: string) => {
             onChange({ ...value, value: val });
         }
 
         const handleExprChange = (isExpr: boolean) => {
             onChange({ ...value, isExpression: isExpr });
+        }
+
+        const handleNamespacesChange = (namespaces: Namespace[]) => {
+            onChange({ ...value, namespaces: namespaces });
         }
 
         return (
@@ -343,10 +395,13 @@ export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) =
                 label={label}
                 value={value.value}
                 onValueChange={handleValueChange}
-                isExpression={true}
-                isExActive={value.isExpression}
+                exprToggleEnabled={true}
+                isExpression={value.isExpression}
                 setIsExpression={handleExprChange}
                 canChangeEx={canChangeEx}
+                namespaces={value.namespaces}
+                setNamespaces={handleNamespacesChange}
+                openExpressionEditor={openExpressionEditor}
             />
         );
     }

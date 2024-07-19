@@ -81,7 +81,7 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
                 case 'XML':
                     validateXML(fileContent);
                     break;
-                case 'JSON_SCHEMA':
+                case 'JSONSCHEMA':
                     validateJSONSchema(fileContent);
                     break;
                 default:
@@ -136,7 +136,7 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
                 return 'column1,column2,column3';
             case 'XML':
                 return '<root><element>value</element></root>';
-            case 'JSON_SCHEMA':
+            case 'JSONSCHEMA':
                 return `Enter JSON Schema`;
             default:
                 return 'Enter your data';

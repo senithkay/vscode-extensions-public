@@ -68,7 +68,7 @@ const TooltipContent = styled.div<TooltipProps>`
     visibility: hidden;
     transition: opacity 0.2s ease-in-out;
     white-space: nowrap;
-    z-index: 210;
+    z-index: 999999;
     ${(props: TooltipProps) => props.sx}
 `;
 

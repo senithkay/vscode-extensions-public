@@ -218,7 +218,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -2817,12 +2817,12 @@ ${endpointAttributes}
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
-            const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
+            const response = await fetch(APIS.CONNECTOR);
             if (!response.ok) {
                 console.error('Failed to fetch connectors');
             }
             const data = await response.json();
-            const connector = data.data.find(connector => connector.name === name);
+            const connector = data['outbound-connector-data']?.find(connector => connector.name === name);
             if (connector) {
                 return connector.download_url;
             } else {
