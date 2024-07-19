@@ -32,7 +32,7 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        const centerX = parent ? parent.viewState.x + parent.viewState.cw / 2 : this.diagramCenterX;
+        const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
         node.viewState.x = centerX - node.viewState.w / 2;
         console.log(">>> if node", { node, parent, centerX, diagramCenterX: this.diagramCenterX });
 
