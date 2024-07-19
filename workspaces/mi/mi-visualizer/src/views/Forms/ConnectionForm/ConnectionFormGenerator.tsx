@@ -141,75 +141,52 @@ export function AddConnection(props: AddConnectionProps) {
                     connectorName: null
                 });
 
-                let connectionFound: Connection;
-                // Get Connection data
-                for (const key of Object.keys(connectionData)) {
-                    const connections = connectionData[key].connections;
-                    const connection = connections.find((connection: any) => connection.name === props.connectionName);
-                    if (connection) {
-                        connectionFound = connection
-                        break;
-                    }
+                const connectionFound = Object.values(connectionData).flatMap((key: any) => key.connections).find((connection: any) => connection.name === props.connectionName);
+
+                if (!connectionFound) {
+                    return
                 }
+                // Set Form Data
+                setValue('connectionType', connectionFound.connectionType);
+                const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: props.path, connectorName: connectionFound.connectorName
+                });
 
-                if (connectionFound) {
-                    // Set Form Data
-                    setValue('connectionType', connectionFound.connectionType);
-                    const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                        documentUri: props.path, connectorName: connectionFound.connectorName
-                    });
+                setValue('name', connector.name)
 
-                    setValue('name', connector.name)
+                const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
 
-                    const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
+                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
-                    const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+                setFormData(connectionFormJSON.formJSON);
+                reset();
 
-                    setFormData(connectionFormJSON.formJSON);
-                    reset();
+                const parameters = connectionFound.parameters
 
-                    const parameters = connectionFound.parameters
-
-                    // Populate form with existing values
-                    if (connectionFormJSON.formJSON !== "") {
-                        if (parameters) {
-                            parameters.forEach((param: any) => {
+                // Populate form with existing values
+                if (connectionFormJSON.formJSON !== "") {
+                    if (parameters) {
+                        parameters.forEach((param: any) => {
+                            if (param.name !== "name") {
                                 const inputType = getInputType(connectionFormJSON.formJSON, param.name);
-                                if (param.name !== "name") {
-                                    if (expressionFieldTypes.includes(inputType)) {
-                                        if (param.isExpression) {
-                                            let namespacesArray: any[] = [];
-                                            if (param.namespaces) {
-                                                namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({
-                                                    prefix: prefix.split(':')[1], uri: uri
-                                                }));
-                                            }
-                                            setValue(param.name, {
-                                                isExpression: true,
-                                                value: param.value.replace(/[{}]/g, ''),
-                                                namespaces: namespacesArray
-                                            });
-                                        } else {
-                                            param.namespaces = [];
-                                            setValue(param.name, param);
-                                        }
-                                    } else {
-                                        setValue(param.name, param.value);
-                                    }
-                                }
-                            });
-                        }
-                    } else {
-                        // Handle connections without uischema
-
-                        // Remove connection name from param manager fields
-                        const filteredParameters = parameters.filter(param => param.name !== 'name');
-
-                        const modifiedParams = {
-                            ...params, paramValues: generateParams(filteredParameters)
-                        };
-                        setParams(modifiedParams);
+                                const isExpressionField = expressionFieldTypes.includes(inputType);
+                                const value = param.isExpression && isExpressionField ? param.expression.replace(/[{}]/g, '') : param.value;
+                                const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
+                                    prefix: prefix.split(':')[1], uri: uri
+                                })) : [];
+                                setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
+                            }
+                        });
                     }
+                } else {
+                    // Handle connections without uischema
+                    // Remove connection name from param manager fields
+                    const filteredParameters = parameters.filter((param: { name: string; }) => param.name !== 'name');
+
+                    const modifiedParams = {
+                        ...params, paramValues: generateParams(filteredParameters)
+                    };
+                    setParams(modifiedParams);
                 }
             }
         }
