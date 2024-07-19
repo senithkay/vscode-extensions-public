@@ -16,7 +16,7 @@ import {
     SizingVisitor,
 } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { ComponentPanel, ComponentList } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer, NodeList } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 
 enum MESSAGE_TYPE {
@@ -94,9 +94,9 @@ export function SequenceDiagram() {
             <Container>{!!st && 
                 <LowCodeDiagram syntaxTree={st} isReadOnly={false} onAddComponent={() => { setShowPanel(true) }} />
             }</Container>
-            <ComponentPanel show={showPanel} onClose={() => { setShowPanel(false) }}>
-                <ComponentList onAdd={(kind: string) => { }} />
-            </ComponentPanel>
+            <PanelContainer show={showPanel} onClose={() => { setShowPanel(false) }}>
+                <NodeList categories={[]} onSelect={(id: string) => { }} />
+            </PanelContainer>
         </>
     );
 }
