@@ -20,6 +20,10 @@ export class DebuggerConfig {
     private static internalOffset = 10;
     private static envVariables: { [key: string]: string } = {};
 
+    //Capps and Libs copied to the MI server
+    private static copiedCappUri: string[] = [];
+    private static copiedLibs: string[] = [];
+
     private static portOffset: number | undefined;
 
     public static getEnvVariables(): { [key: string]: string } {
@@ -40,6 +44,35 @@ export class DebuggerConfig {
 
     public static setPortOffset(offset: number): void {
         this.portOffset = offset;
+    }
+
+    public static setCopiedCapp(capp: string) {
+        if (this.copiedCappUri.length > 0) {
+            this.copiedCappUri.push(capp);
+        } else {
+            this.copiedCappUri = [capp];
+        }
+    }
+
+    public static getCopiedCapp() {
+        return this.copiedCappUri;
+    }
+
+    public static setCopiedLibs(libs: string) {
+        if (this.copiedLibs.length > 0) {
+            this.copiedLibs.push(libs);
+        } else {
+            this.copiedLibs = [libs];
+        }
+    }
+
+    public static getCopiedLibs() {
+        return this.copiedLibs;
+    }
+
+    public static resetCappandLibs() {
+        this.copiedCappUri = [];
+        this.copiedLibs = [];
     }
 
     public static getServerPort(): number {

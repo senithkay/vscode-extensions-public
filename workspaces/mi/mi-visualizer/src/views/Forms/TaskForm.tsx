@@ -38,7 +38,6 @@ type InputsFields = {
     triggerInterval?: number;
     triggerCron?: string;
     format?: string;
-    to?: string;
     message?: string;
     soapAction?: string;
     proxyName?: string;
@@ -59,7 +58,7 @@ const initialInboundEndpoint: InputsFields = {
     triggerCron: "",
     invokeHandlers: false,
     format: "soap12",
-    injectTo: "main",
+    injectTo: "sequence",
 };
 
 export function TaskForm(props: TaskFormProps) {
@@ -115,8 +114,7 @@ export function TaskForm(props: TaskFormProps) {
             otherwise: (schema) => schema.notRequired().default(''),
         }),
         format: yup.mixed().oneOf(["soap11", "soap12", "pox", "get"]).default("soap12"),
-        to: yup.string().matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in the URL").notRequired(),
-        injectTo: yup.mixed().oneOf(["proxy", "sequence", "main"]).default("main"),
+        injectTo: yup.mixed().oneOf(["proxy", "sequence"]).default("sequence"),
         proxyName: yup.string().when('injectTo', {
             is: 'proxy',
             then: () => yup.string().required('Proxy name is required'),
@@ -148,7 +146,6 @@ export function TaskForm(props: TaskFormProps) {
         mode: "onChange"
     });
 
-    useEffect(() => { console.log(errors) }, [errors]);
     useEffect(() => {
         (async () => {
             if (props.path && props.path.endsWith(".xml")) {
@@ -159,7 +156,6 @@ export function TaskForm(props: TaskFormProps) {
                     setSavedTaskName(taskRes.name);
                     if (taskRes.taskProperties) {
                         setValue("format", taskRes.taskProperties.find((prop: any) => prop.key === "format")?.value);
-                        setValue("to", taskRes.taskProperties.find((prop: any) => prop.key === "to")?.value);
                         setValue("message", taskRes.taskProperties.find((prop: any) => prop.key === "message")?.value);
                         setMessageIsXML(!taskRes.taskProperties.find((prop: any) => prop.key === "message")?.isLiteral);
                         setValue("soapAction", taskRes.taskProperties.find((prop: any) => prop.key === "soapAction")?.value);
@@ -190,7 +186,6 @@ export function TaskForm(props: TaskFormProps) {
     const handleCreateTask = async (values: any) => {
         let taskProperties = [];
         taskProperties.push({ key: "format", value: values.format, isLiteral: true });
-        taskProperties.push({ key: "to", value: values.to, isLiteral: true });
         taskProperties.push({ key: "message", value: values.message, isLiteral: !messageIsXML });
         taskProperties.push({ key: "soapAction", value: values.soapAction, isLiteral: true });
         taskProperties.push({ key: "injectTo", value: values.injectTo, isLiteral: true });
@@ -264,13 +259,6 @@ export function TaskForm(props: TaskFormProps) {
                 items={[{ value: "soap12" }, { value: "soap11" }, { value: "pox" }, { value: "get" }]}
                 {...register('format')}
             />
-            <TextField
-                id="to"
-                description="Endpoint address if the message should be sent to a specific endpoint."
-                label="To"
-                errorMsg={errors.to?.message}
-                {...register("to")}
-            />
             <Typography variant="body3">Message</Typography>
             <CheckBox
                 label="message format is XML"
@@ -307,7 +295,7 @@ export function TaskForm(props: TaskFormProps) {
             <Dropdown
                 id="injectTo"
                 label="Message inject destination"
-                items={[{ value: "main" }, { value: "sequence" }, { value: "proxy" }]}
+                items={[{ value: "sequence" }, { value: "proxy" }]}
                 {...register("injectTo")}
             />
             {watch("injectTo") === 'proxy' && (<>

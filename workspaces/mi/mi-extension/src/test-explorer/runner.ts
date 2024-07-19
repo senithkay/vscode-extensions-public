@@ -17,7 +17,7 @@ import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
 import path = require("path");
 import { getProjectRoot } from "./helper";
-import { deleteCappAndLibs, getServerPath } from "../debugger/debugHelper";
+import { getServerPath } from "../debugger/debugHelper";
 import { TestRunnerConfig } from "./config";
 import { ChildProcess } from "child_process";
 import treeKill = require("tree-kill");
@@ -75,7 +75,6 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                     window.showErrorMessage("MI server path not found");
                     throw new Error("Server path not found");
                 }
-                await deleteCappAndLibs(serverPath);
 
                 const printer = (line: string, isError: boolean) => {
                     printToOutput(run, line, isError);
