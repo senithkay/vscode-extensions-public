@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NODE_GAP_X, NODE_GAP_Y } from "../resources/constants";
+import { NODE_GAP_X, NODE_GAP_Y, VSCODE_MARGIN } from "../resources/constants";
 import { Branch, Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -34,6 +34,7 @@ export class PositionVisitor implements BaseVisitor {
 
         const centerX = parent ? parent.viewState.x + parent.viewState.cw / 2 : this.diagramCenterX;
         node.viewState.x = centerX - node.viewState.w / 2;
+        console.log(">>> if node", { node, parent, centerX, diagramCenterX: this.diagramCenterX });
 
         const thenBranch = node.branches.find((branch) => branch.label === "Then");
         thenBranch.viewState.y = this.lastNodeY;
@@ -48,10 +49,12 @@ export class PositionVisitor implements BaseVisitor {
 
         thenBranch.viewState.x = centerX - (3 * thenWidth + elseWidth + 2 * gap) / 4;
         elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
+        console.log(">>> if node cont.", { thenWidth, elseWidth, gap, thenBranch, elseBranch });
     }
 
     endVisitIf(node: Node, parent?: Node): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+        console.log(">>> if node end", { node });
     }
 
     beginVisitBlock(node: Branch, parent?: Node): void {
@@ -65,9 +68,25 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         if (!node.viewState.x) {
-            const center = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
-            node.viewState.x = center - node.viewState.w / 2;
+            const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
+            node.viewState.x = centerX - node.viewState.w / 2;
+
+            console.log(">>> begin node", { node, parent, center: centerX, diagramCenterX: this.diagramCenterX });
         }
+    }
+
+    beginVisitEmpty(node: Node, parent?: Node): void {
+        // add empty node end of the block
+        if (node.id.endsWith("-last")) {
+            node.viewState.y = this.lastNodeY;
+            const centerX = parent
+                ? parent.viewState.x + (parent.viewState.w - VSCODE_MARGIN) / 2
+                : this.diagramCenterX;
+            node.viewState.x = centerX - node.viewState.w / 2;
+            return;
+        }
+        // normal node flow
+        this.beginVisitNode(node, parent);
     }
 
     skipChildren(): boolean {

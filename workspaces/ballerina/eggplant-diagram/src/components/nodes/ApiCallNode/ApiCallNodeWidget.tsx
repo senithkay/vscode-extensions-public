@@ -20,10 +20,10 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { CodeIcon, MoreVertIcon } from "../../../resources";
+import { MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
-import { HttpIcon } from "../../../resources/icons/nodes/HttpIcon";
+import ConnectorIcon from "../../ConnectorIcon";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -42,12 +42,12 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH}px;
+        width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -124,7 +124,7 @@ interface ApiCallNodeWidgetProps {
     onClick?: (node: Node) => void;
 }
 
-export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> { }
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -165,7 +165,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     strokeWidth={1.5}
                 />
                 <foreignObject x="68" y="8" width="44" height="44" fill={Colors.ON_SURFACE}>
-                    <HttpIcon />
+                    <ConnectorIcon node={model.node} />
                 </foreignObject>
                 <line
                     x1="0"
