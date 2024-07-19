@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AutoComplete, Icon, TextField } from '@wso2-enterprise/ui-toolkit';
 import { DMOperator } from "@wso2-enterprise/mi-core";
 import { css } from '@emotion/css';
-import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, PropertyAssignment, ReturnStatement, SyntaxKind, Expression } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
@@ -84,10 +84,10 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     const disabled = useMemo(() => {
         let value = "";
         let disabled = true;
-    
+
         if (focusedPort) {
             const focusedNode = focusedPort.typeWithValue.value;
-    
+
             if (focusedNode && !focusedNode.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedNode)) {
                     value = focusedNode.getInitializer()?.getText();
@@ -99,7 +99,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             if (textFieldRef.current) {
                 textFieldRef.current.focus();
             }
-    
+
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
@@ -112,7 +112,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         } else if (textFieldRef.current) {
             textFieldRef.current.blur();
         }
-    
+
         expressionRef.current = value;
         return disabled;
     }, [focusedPort, focusedFilter]);
@@ -159,7 +159,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     const applyChangesOnFocusedPort = async () => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
 
-        
+
 
         if (focusedFieldValue) {
             let targetExpr: Node;
@@ -193,9 +193,21 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
 
-            const returnExpr = (fnBody.getStatements().find((statement) =>
-                Node.isReturnStatement(statement)
-            ) as ReturnStatement)?.getExpression();
+            let returnExpr: Expression;
+
+            //Condition to check array mapping or not
+            if (focusedNode.context.views.length > 1) {
+                const propertyAssignment = focusedNode.context.focusedST as PropertyAssignment;
+                const arrowFunction = propertyAssignment?.getInitializerIfKindOrThrow(SyntaxKind.CallExpression)
+                    ?.getArguments()?.[0]
+                    ?.asKindOrThrow(SyntaxKind.ArrowFunction);
+                const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
+                returnExpr = returnStatement?.getExpression();
+            } else {
+                returnExpr = (fnBody.getStatements().find((statement) =>
+                    Node.isReturnStatement(statement)
+                ) as ReturnStatement)?.getExpression();
+            }
 
             let objLitExpr: ObjectLiteralExpression;
             if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
