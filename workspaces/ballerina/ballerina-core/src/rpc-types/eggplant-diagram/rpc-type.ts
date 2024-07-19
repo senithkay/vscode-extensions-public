@@ -9,10 +9,19 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { Flow } from "../../interfaces/eggplant";
-import { RequestType, NotificationType } from "vscode-messenger-common";
-import { EggplantModelResponse, UpdateNodeRequest } from "../../interfaces/extended-lang-client";
+import {
+    EggplantAvailableNodesRequest,
+    EggplantAvailableNodesResponse,
+    EggplantFlowModelResponse,
+    EggplantNodeTemplateRequest,
+    EggplantNodeTemplateResponse,
+    EggplantSourceCodeRequest,
+    EggplantSourceCodeResponse,
+} from "../../interfaces/extended-lang-client";
+import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "eggplant-diagram";
-export const getEggplantModel: RequestType<void, EggplantModelResponse> = { method: `${_preFix}/getEggplantModel` };
-export const updateEggplantModel: NotificationType<Flow> = { method: `${_preFix}/updateEggplantModel` };
-export const updateNode: NotificationType<UpdateNodeRequest> = { method: `${_preFix}/updateNode` };
+export const getFlowModel: RequestType<void, EggplantFlowModelResponse> = { method: `${_preFix}/getFlowModel` };
+export const getSourceCode: RequestType<EggplantSourceCodeRequest, EggplantSourceCodeResponse> = { method: `${_preFix}/getSourceCode` };
+export const getAvailableNodes: RequestType<EggplantAvailableNodesRequest, EggplantAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
+export const getNodeTemplate: RequestType<EggplantNodeTemplateRequest, EggplantNodeTemplateResponse> = { method: `${_preFix}/getNodeTemplate` };

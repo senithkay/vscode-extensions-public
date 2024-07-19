@@ -10,11 +10,11 @@
 
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
-import { DocumentIdentifier, LinePosition, NOT_SUPPORTED_TYPE, Range } from "./common";
+import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Flow } from "./eggplant";
+import { Category, Flow, Node, NodeId } from "./eggplant";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -438,6 +438,44 @@ export interface UpdateNodeResponse {
     textEdits: TextEdit[];
 }
 
+// new
+
+export interface EggplantFlowModelRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export type EggplantFlowModelResponse = {
+    flowModel: Flow;
+};
+
+export interface EggplantSourceCodeRequest {
+    flowNode: Node;
+}
+
+export type EggplantSourceCodeResponse = {
+    textEdits: TextEdit[];
+};
+
+export interface EggplantAvailableNodesRequest {
+    parentNodeLineRange: LineRange;
+    parentNodeKind: string;
+    branchLabel?: string;
+}
+
+export type EggplantAvailableNodesResponse = {
+    categories: Category[];
+};
+
+export interface EggplantNodeTemplateRequest {
+    id: NodeId;
+}
+
+export type EggplantNodeTemplateResponse = {
+    flowNode: Node;
+};
+
 // <------------ EGGPLANT INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -451,8 +489,10 @@ export interface BaseLangClientInterface {
 
 export interface EggplantInterface extends BaseLangClientInterface {
     getSTByRange: (params: BallerinaSTParams) => Promise<SyntaxTree | NOT_SUPPORTED_TYPE>;
-    getEggplantModel: (params: EggplantModelRequest) => Promise<EggplantModelResponse>;
-    getUpdatedNodeModifications: (params: UpdateNodeRequest) => Promise<UpdateNodeResponse>;
+    getFlowModel: (params: EggplantFlowModelRequest) => Promise<EggplantFlowModelResponse>;
+    getSourceCode: (params: EggplantSourceCodeRequest) => Promise<EggplantSourceCodeResponse>;
+    getAvailableNodes: (params: EggplantAvailableNodesRequest) => Promise<EggplantAvailableNodesResponse>;
+    getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
 }
 
 export interface ExtendedLangClientInterface extends EggplantInterface {

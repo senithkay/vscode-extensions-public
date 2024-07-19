@@ -9,9 +9,17 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    EggplantAvailableNodesRequest,
+    EggplantAvailableNodesResponse,
     EggplantDiagramAPI,
+    EggplantFlowModelRequest,
+    EggplantFlowModelResponse,
     EggplantModelRequest,
     EggplantModelResponse,
+    EggplantNodeTemplateRequest,
+    EggplantNodeTemplateResponse,
+    EggplantSourceCodeRequest,
+    EggplantSourceCodeResponse,
     Flow,
     Node,
     STModification,
@@ -19,9 +27,9 @@ import {
     UpdateNodeRequest,
     UpdateNodeResponse
 } from "@wso2-enterprise/ballerina-core";
+import { writeFileSync } from "fs";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";
-import { writeFileSync } from "fs";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getEggplantModel(): Promise<EggplantModelResponse> {
@@ -48,18 +56,17 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
 
             };
 
-
-            StateMachine.langClient().getEggplantModel(params).then((model) => {
-                console.log("===BackEndModel", model);
-                resolve(model);
-            }).catch((error) => {
-                // demo hack
-                //@ts-ignore
-                return new Promise((resolve) => {
-                    //@ts-ignore
-                    resolve(undefined);
-                });
-            });
+            // StateMachine.langClient().getEggplantModel(params).then((model) => {
+            //     console.log("===BackEndModel", model);
+            //     resolve(model);
+            // }).catch((error) => {
+            //     // demo hack
+            //     //@ts-ignore
+            //     return new Promise((resolve) => {
+            //         //@ts-ignore
+            //         resolve(undefined);
+            //     });
+            // });
         });
     }
 
@@ -191,47 +198,120 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         const updatedNodeRequest = {
             diagramNode: newNode
         };
-        const response: UpdateNodeResponse = await StateMachine.langClient().getUpdatedNodeModifications(updatedNodeRequest);
+        // const response: UpdateNodeResponse = await StateMachine.langClient().getUpdatedNodeModifications(updatedNodeRequest);
 
-        if (response.textEdits && response.textEdits.length > 0) {
-            const modificationList: STModification[] = [];
+        // if (response.textEdits && response.textEdits.length > 0) {
+        //     const modificationList: STModification[] = [];
 
-            for (const edit of response.textEdits) {
-                const stModification: STModification = {
-                    startLine: edit.range.start.line,
-                    startColumn: edit.range.start.character,
-                    endLine: edit.range.end.line,
-                    endColumn: edit.range.end.character,
-                    type: "INSERT",
-                    isImport: false,
-                    config: {
-                        "STATEMENT": edit.newText
-                    }
-                };
+        //     for (const edit of response.textEdits) {
+        //         const stModification: STModification = {
+        //             startLine: edit.range.start.line,
+        //             startColumn: edit.range.start.character,
+        //             endLine: edit.range.end.line,
+        //             endColumn: edit.range.end.character,
+        //             type: "INSERT",
+        //             isImport: false,
+        //             config: {
+        //                 "STATEMENT": edit.newText
+        //             }
+        //         };
 
-                modificationList.push(stModification);
-            }
+        //         modificationList.push(stModification);
+        //     }
 
+        //     const context = StateMachine.context();
+        //     const fileUri = Uri.parse(context.documentUri!);
+
+        //     const { parseSuccess, source, syntaxTree: newST } =
+        //         await StateMachine.langClient().stModify({
+        //             documentIdentifier: { uri: fileUri.toString() },
+        //             astModifications: modificationList
+        //         }) as SyntaxTree;
+
+        //     if (parseSuccess) {
+        //         writeFileSync(fileUri.fsPath, source);
+        //         await StateMachine.langClient().didChange({
+        //             textDocument: { uri: fileUri.toString(), version: 1 },
+        //             contentChanges: [
+        //                 {
+        //                     text: source
+        //                 }
+        //             ],
+        //         });
+        //     }
+        // }
+    }
+
+    async getFlowModel(): Promise<EggplantFlowModelResponse> {
+        return new Promise((resolve) => {
             const context = StateMachine.context();
-            const fileUri = Uri.parse(context.documentUri!);
-
-            const { parseSuccess, source, syntaxTree: newST } =
-                await StateMachine.langClient().stModify({
-                    documentIdentifier: { uri: fileUri.toString() },
-                    astModifications: modificationList
-                }) as SyntaxTree;
-
-            if (parseSuccess) {
-                writeFileSync(fileUri.fsPath, source);
-                await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUri.toString(), version: 1 },
-                    contentChanges: [
-                        {
-                            text: source
-                        }
-                    ],
+            if (!context.position) {
+                console.log(">>> position not found in the context");
+                return new Promise((resolve) => {
+                    resolve(undefined);
                 });
             }
-        }
+
+            const params: EggplantFlowModelRequest = {
+                filePath: Uri.parse(context.documentUri!).fsPath,
+                startLine: {
+                    line: context.position.startLine ?? 0,
+                    offset: context.position.startColumn ?? 0
+                },
+                endLine: {
+                    line: context.position.endLine ?? 0,
+                    offset: context.position.endColumn ?? 0
+                }
+            };
+
+            StateMachine.langClient().getFlowModel(params).then((model) => {
+                console.log(">>> eggplant flow model from ls", model);
+                resolve(model);
+            }).catch((error) => {
+                console.log(">>> error fetching eggplant flow model from ls", error);
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            });
+        });
+    }
+
+    async getSourceCode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getAvailableNodes(params)
+                .then((model) => {
+                    console.log(">>> eggplant available nodes from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching available nodes from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+
+    async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getNodeTemplate(params)
+                .then((model) => {
+                    console.log(">>> eggplant node template from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching node template from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
     }
 }

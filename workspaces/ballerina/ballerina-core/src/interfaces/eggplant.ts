@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { LinePosition } from "./common";
+
 export type Flow = {
     nodes: Node[];
     name: string;
@@ -62,8 +64,8 @@ export type Branch = {
 
 export type ELineRange = {
     fileName: string;
-    startLine: number[];
-    endLine: number[];
+    startLine: LinePosition;
+    endLine: LinePosition;
 };
 
 export type Expression = {
@@ -100,4 +102,27 @@ export type TargetMetadata = {
     topNodeId: string;
     bottomNodeId?: string;
     linkLabel?: string;
+};
+
+export type Item = Category | AvailableNode;
+
+export type Category = {
+    name: string;
+    description: string;
+    keywords: string[];
+    items: Item[];
+};
+
+export type AvailableNode = {
+    id: NodeId;
+    name: string;
+    description: string;
+    keywords: string[];
+    enabled: boolean;
+};
+
+export type NodeId = {
+    kind: string;
+    library: string;
+    call: string;
 };

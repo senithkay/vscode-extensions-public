@@ -74,16 +74,18 @@ import {
     OpenAPIConverterParams,
     OpenAPISpec,
     TypesFromSymbol,
-    PerformanceAnalyzerParams,
-    PerformanceAnalyzer,
     GraphqlDesignService,
     PartialST,
     BallerinaServerCapability,
     ExtendedLangClientInterface,
-    EggplantModelRequest,
-    UpdateNodeRequest,
-    UpdateNodeResponse,
-    EggplantModelResponse
+    EggplantAvailableNodesRequest,
+    EggplantAvailableNodesResponse,
+    EggplantNodeTemplateRequest,
+    EggplantNodeTemplateResponse,
+    EggplantFlowModelRequest,
+    EggplantFlowModelResponse,
+    EggplantSourceCodeRequest,
+    EggplantSourceCodeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -139,8 +141,10 @@ enum EXTENDED_APIS {
     PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels',
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
     SEQUENCE_DIAGRAM_MODEL = 'sequenceModelGeneratorService/getSequenceDiagramModel',
-    EGGPLANT_MODEL = 'flowDesignService/getFlowDesignModel',
-    UPDATE_NODE = 'flowDesignService/getSourceCode'
+    EGGPLANT_FLOW_MODEL = 'flowDesignService/getFlowModel',
+    EGGPLANT_SOURCE_CODE = 'flowDesignService/getSourceCode',
+    EGGPLANT_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
+    EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -524,13 +528,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     // <------------ EGGPLANT APIS START --------------->
 
-    getEggplantModel = async (params: EggplantModelRequest) => {
-        return this.sendRequest<EggplantModelResponse>(EXTENDED_APIS.EGGPLANT_MODEL, params);
+    async getFlowModel(params: EggplantFlowModelRequest): Promise<EggplantFlowModelResponse> {
+        return this.sendRequest<EggplantFlowModelResponse>(EXTENDED_APIS.EGGPLANT_FLOW_MODEL, params);
     }
 
-    getUpdatedNodeModifications = async (params: UpdateNodeRequest) => {
-        return this.sendRequest<UpdateNodeResponse>(EXTENDED_APIS.UPDATE_NODE, params);
+    async getSourceCode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        return this.sendRequest<EggplantSourceCodeResponse>(EXTENDED_APIS.EGGPLANT_SOURCE_CODE, params);
     }
+
+    async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
+        return this.sendRequest<EggplantAvailableNodesResponse>(EXTENDED_APIS.EGGPLANT_AVAILABLE_NODES, params);
+    }
+
+    async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
+        return this.sendRequest<EggplantNodeTemplateResponse>(EXTENDED_APIS.EGGPLANT_NODE_TEMPLATE, params);
+    }
+
     // <------------ EGGPLANT APIS END --------------->
 
 

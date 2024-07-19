@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -11,11 +11,19 @@
  *  associated services.
  */
 
-import { Flow } from "../../interfaces/eggplant";
-import { EggplantModelResponse, UpdateNodeRequest } from "../../interfaces/extended-lang-client";
+import {
+    EggplantAvailableNodesRequest,
+    EggplantAvailableNodesResponse,
+    EggplantFlowModelResponse,
+    EggplantNodeTemplateRequest,
+    EggplantNodeTemplateResponse,
+    EggplantSourceCodeRequest,
+    EggplantSourceCodeResponse,
+} from "../../interfaces/extended-lang-client";
 
 export interface EggplantDiagramAPI {
-    getEggplantModel: () => Promise<EggplantModelResponse>;
-    updateEggplantModel: (params: Flow) => void;
-    updateNode: (params: UpdateNodeRequest) => void;
+    getFlowModel: () => Promise<EggplantFlowModelResponse>;
+    getSourceCode: (params: EggplantSourceCodeRequest) => Promise<EggplantSourceCodeResponse>;
+    getAvailableNodes: (params: EggplantAvailableNodesRequest) => Promise<EggplantAvailableNodesResponse>;
+    getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
 }
