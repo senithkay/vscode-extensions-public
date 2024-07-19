@@ -26,7 +26,7 @@ export function isTargetPortArray(port: PortModel): boolean {
     return false;
 }
 
-export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: DMType) {
+export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: DMType, isSourceOptional: boolean) {
 
     const parts = splitSrcExprWithRegex(srcExpr) // Split by dot or square brackets
     let item = parts[parts.length - 1];
@@ -46,7 +46,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
         returnExpr = `return ${getDefaultValue(targetType.kind)}`;
     }
 
-    return `${srcExpr.trim()}\n.map((${refinedVarName}) => {${returnExpr}})`;
+    return `${srcExpr.trim()}\n${isSourceOptional ? '?.' : '.'}map((${refinedVarName}) => {${returnExpr}})`;
 }
 
 function fillWithDefaults(type: DMType): string {

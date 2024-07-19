@@ -583,7 +583,7 @@ async function fetchConnectorData() {
         const response = await fetch(APIS.CONNECTOR);
         const data = await response.json();
         if (data) {
-            return data.data;
+            return data['outbound-connector-data'];
         } else {
             console.log("Failed to fetch data, but user is connected.");
             return null;

@@ -127,7 +127,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
             const data = await response.json();
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
-                connectors: data.data,
+                connectors: data['outbound-connector-data'],
             });
         } catch (e) {
             console.error("Error fetching connectors", e);
