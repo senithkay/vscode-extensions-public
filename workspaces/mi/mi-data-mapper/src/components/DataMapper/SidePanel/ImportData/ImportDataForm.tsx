@@ -60,7 +60,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                 return FileExtension.CSV;
             case 'XML':
                 return FileExtension.XML;
-            case 'JSON_SCHEMA':
+            case 'JSONSCHEMA':
                 return FileExtension.JSON;
         }
     }, [selectedImportType]);
