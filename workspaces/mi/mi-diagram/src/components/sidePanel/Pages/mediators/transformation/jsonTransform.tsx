@@ -122,6 +122,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                                 label="Schema"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -159,7 +160,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

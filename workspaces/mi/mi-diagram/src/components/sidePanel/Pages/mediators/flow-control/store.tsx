@@ -100,7 +100,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="messageStore"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Message Store" size={50} placeholder="" />
+                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
@@ -115,6 +115,7 @@ const StoreForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Expression"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -135,6 +136,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 label="On Store Sequence"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -146,7 +148,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

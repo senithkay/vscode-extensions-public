@@ -118,6 +118,11 @@ const SendForm = (props: AddMediatorProps) => {
                         <Controller
                             name="endpoint"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
@@ -128,6 +133,7 @@ const SendForm = (props: AddMediatorProps) => {
                                         openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
                                     }}
                                     onValueChange={field.onChange}
+                                    required={true}
                                 />
                             )}
                         />
@@ -157,7 +163,7 @@ const SendForm = (props: AddMediatorProps) => {
                                 name="receivingSequenceType"
                                 control={control}
                                 render={({ field }) => (
-                                    <AutoComplete label="Receiving Sequence Type" name="receivingSequenceType" items={["Default", "Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                    <AutoComplete label="Receiving Sequence Type" name="receivingSequenceType" items={["Default", "Static", "Dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
                                         field.onChange(e);
                                     }} />
                                 )}
@@ -177,6 +183,7 @@ const SendForm = (props: AddMediatorProps) => {
                                             label="Static Receiving Sequence"
                                             allowItemCreate={false}
                                             onValueChange={field.onChange}
+                                            required={false}
                                         />
                                     )}
                                 />
@@ -193,6 +200,7 @@ const SendForm = (props: AddMediatorProps) => {
                                         <ExpressionField
                                             {...field} label="Dynamic Receiving Sequence"
                                             placeholder=""
+                                            required={false}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
@@ -210,7 +218,7 @@ const SendForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
