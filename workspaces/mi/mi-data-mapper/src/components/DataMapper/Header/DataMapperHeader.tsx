@@ -47,7 +47,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBarWrapper filePath={filePath} applyModifications={applyModifications} />
+                <ExpressionBarWrapper views={views} filePath={filePath} applyModifications={applyModifications} />
             </ExpressionContainer>
         </HeaderContainer>
     );

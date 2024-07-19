@@ -19,6 +19,7 @@ import { getDefaultValue } from '../../../components/Diagram/utils/common-utils'
 import { filterCompletions } from './utils';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
+import { View } from '../Views/DataMapperView';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -36,12 +37,13 @@ const useStyles = () => ({
 });
 
 export interface ExpressionBarProps {
+    views: View[];
     filePath: string;
     applyModifications: () => Promise<void>;
 }
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
-    const { filePath, applyModifications } = props;
+    const { views, filePath, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
     const textFieldRef = useRef<HTMLInputElement>(null);
@@ -158,7 +160,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             disabled = false;
         } else if (textFieldRef.current) {
-            setPlaceholder('Click on an output port or a filter to add/edit expressions.');
+            // If displaying a focused view
+            if (views.length > 1 && !views[views.length - 1].subMappingInfo) {
+                setPlaceholder('Click on an output field or a filter to add/edit expressions.');
+            } else {
+                setPlaceholder('Click on an output field to add/edit expressions.');
+            }
+
             textFieldRef.current.blur();
         }
     
@@ -166,7 +174,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setTextFieldValue(value);
         return disabled;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [textFieldRef.current, focusedPort, focusedFilter]);
+    }, [textFieldRef.current, focusedPort, focusedFilter, views]);
 
     const onChangeTextField = async (text: string) => {
         setTextFieldValue(text);
