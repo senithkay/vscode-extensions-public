@@ -117,6 +117,8 @@ import {
     GetSelectiveArtifactsRequest,
     GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
+    GetSubFoldersRequest,
+    GetSubFoldersResponse,
     GetTaskRequest,
     GetTaskResponse,
     GetTemplateEPRequest,
@@ -4437,6 +4439,21 @@ ${endpointAttributes}
             fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
 
             resolve();
+        });
+    }
+
+    async getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
+        return new Promise(async (resolve) => {
+            const { path: folderPath } = params;
+            const subFolders: string[] = [];
+
+            const subItems = fs.readdirSync(folderPath, { withFileTypes: true });
+            for (const item of subItems) {
+                if (item.isDirectory()) {
+                    subFolders.push(item.name);
+                }
+            }
+            resolve({ folders: subFolders });
         });
     }
 }
