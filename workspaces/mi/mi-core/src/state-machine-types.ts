@@ -60,8 +60,11 @@ export enum MACHINE_VIEW {
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
     DataSourceForm = "Data Source Creation Form",
+    AddDriverPopup = "Add Driver Popup",
     Samples = "Samples",
     ImportProject = "Import Project",
+    ConnectorStore = "Connector Store Form",
+    ConnectionForm = "Connection Creation Form",
     TestSuite = "Test Suite",
     TestCase = "Test Cases",
     AITestGen = "AI Test Generation",
@@ -154,6 +157,7 @@ export interface VisualizerLocation {
     customProps?: any;
     dataMapperProps?: DataMapperProps;
     type?: string;
+    connectorData?: any[];
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

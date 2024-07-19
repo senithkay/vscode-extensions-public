@@ -65,15 +65,16 @@ const StoreForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.STORE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -99,7 +100,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="messageStore"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Message Store" size={50} placeholder="" />
+                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
@@ -114,6 +115,7 @@ const StoreForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Expression"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -134,6 +136,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 label="On Store Sequence"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -145,7 +148,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

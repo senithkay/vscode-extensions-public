@@ -32,7 +32,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 		});
 
 		if (isActualLink){
-			this.setColor('var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))');
+			this.setColor('var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-editorLink-activeForeground, var(--vscode-list-focusOutline))))');
 		}
 
 		if (diagnostics.length > 0){

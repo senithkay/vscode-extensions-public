@@ -87,15 +87,16 @@ const LogForm = (props: AddMediatorProps) => {
         
         values["properties"] = getParamManagerValues(values.properties);
         const xml = getXML(MEDIATORS.LOG, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -126,7 +127,7 @@ const LogForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -144,7 +145,7 @@ const LogForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} required={true} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -157,7 +158,7 @@ const LogForm = (props: AddMediatorProps) => {
                         name="separator"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Log Separator" size={50} placeholder="" />
+                            <TextField {...field} label="Log Separator" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.separator && <Error>{errors.separator.message.toString()}</Error>}
@@ -194,7 +195,7 @@ const LogForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

@@ -69,7 +69,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Evaluator Expression",
                         "defaultValue": "<equal  type='param' source='foo' value='bar'/>",
-                        "isRequired": false
+                        "isRequired": true
                     },
                 ]
             },
@@ -88,15 +88,16 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
         
         values["conditionalRouteBranches"] = getParamManagerValues(values.conditionalRouteBranches);
         const xml = getXML(MEDIATORS.CONDITIONALROUTER, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -162,7 +163,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

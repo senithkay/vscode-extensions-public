@@ -63,15 +63,16 @@ const OAuthForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.OAUTH, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -96,8 +97,13 @@ const OAuthForm = (props: AddMediatorProps) => {
                     <Controller
                         name="remoteServiceURL"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Remote Service URL" size={50} placeholder="" />
+                            <TextField {...field} label="Remote Service URL" size={50} placeholder="" required={true} />
                         )}
                     />
                     {errors.remoteServiceURL && <Error>{errors.remoteServiceURL.message.toString()}</Error>}
@@ -110,8 +116,13 @@ const OAuthForm = (props: AddMediatorProps) => {
                         <Controller
                             name="username"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Username" size={50} placeholder="" />
+                                <TextField {...field} label="Username" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.username && <Error>{errors.username.message.toString()}</Error>}
@@ -121,8 +132,13 @@ const OAuthForm = (props: AddMediatorProps) => {
                         <Controller
                             name="password"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Password" size={50} placeholder="" />
+                                <TextField {...field} label="Password" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.password && <Error>{errors.password.message.toString()}</Error>}
@@ -135,7 +151,7 @@ const OAuthForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

@@ -15,7 +15,7 @@ import {normalize} from './normalizer';
 import {optimize} from './optimizer';
 import {parse} from './parser';
 import {dereference} from './resolver';
-import {error} from './utils';
+import {error, getSchemaMetaDataAsComment} from './utils';
 import {validate} from './validator';
 import {link} from './linker';
 import {validateOptions} from './optionValidator';
@@ -103,43 +103,31 @@ export const DEFAULT_OPTIONS: Options = {
   unknownAny: true,
 }
 
-export async function compile(schema: JSONSchema4, name: string, options: Partial<Options> = {}): Promise<string> {
-  validateOptions(options)
-
-  const _options = merge({}, DEFAULT_OPTIONS, options)
-
-  const start = Date.now()
-  function time() {
-    return `(${Date.now() - start}ms)`
-  }
+export async function compile(schema: JSONSchema4, name: string, schemaTitle: string, options: Partial<Options> = {}): Promise<string> {
+  validateOptions(options);
+  const _options = merge({}, DEFAULT_OPTIONS, options);
 
   // normalize options
   if (!endsWith(_options.cwd, '/')) {
-    _options.cwd += '/'
+    _options.cwd += '/';
   }
 
   // Initial clone to avoid mutating the input
-  const _schema = cloneDeep(schema)
-
-  const {dereferencedPaths, dereferencedSchema} = await dereference(_schema, _options)
-
-  const linked = link(dereferencedSchema)
-
-  const errors = validate(linked, name)
+  const _schema = cloneDeep(schema);
+  const {dereferencedPaths, dereferencedSchema} = await dereference(_schema, _options);
+  const linked = link(dereferencedSchema);
+  const errors = validate(linked, name);
   if (errors.length) {
-    errors.forEach(_ => error(_))
-    throw new ValidationError()
+    errors.forEach(_ => error(_));
+    throw new ValidationError();
   }
-  
-  const normalized = normalize(linked, dereferencedPaths, name, _options)
-
-  const parsed = parse(normalized, _options)
-
-  const optimized = optimize(parsed, _options)
-
-  const generated = generate(optimized, _options)
-
-  return generated;
+  const metadata = getSchemaMetaDataAsComment(linked, schemaTitle);
+  const normalized = normalize(linked, dereferencedPaths, name, _options);
+  const parsed = parse(normalized, _options);
+  const optimized = optimize(parsed, _options);
+  const generated = generate(optimized, _options);
+  const result = `${metadata}${generated}`;
+  return result;
 }
 
 export class ValidationError extends Error {}

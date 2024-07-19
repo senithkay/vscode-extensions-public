@@ -175,8 +175,15 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
+    StoreConnectorJsonResponse,
+    OpenDependencyPomRequest,
+    getAllDependenciesRequest,
+    GetAllDependenciesResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
+    MarkAsDefaultSequenceRequest,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -268,6 +275,7 @@ export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, G
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
+export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
@@ -292,4 +300,8 @@ export const updateTestCase: RequestType<UpdateTestCaseRequest, UpdateTestCaseRe
 export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMockServiceResponse> = { method: `${_preFix}/updateMockService` };
 export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
 export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };
-export const addDependencyToPom: NotificationType<AddDependencyToPomRequest> = { method: `${_preFix}/addDependencyToPom` };
+export const updateDependencyInPom: NotificationType<UpdateDependencyInPomRequest> = { method: `${_preFix}/updateDependencyInPom` };
+export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { method: `${_preFix}/openDependencyPom` };
+export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };
+export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };
+export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };

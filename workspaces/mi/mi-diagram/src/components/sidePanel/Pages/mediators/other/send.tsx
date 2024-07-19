@@ -69,15 +69,16 @@ const SendForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.SEND, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -117,6 +118,11 @@ const SendForm = (props: AddMediatorProps) => {
                         <Controller
                             name="endpoint"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
@@ -127,6 +133,7 @@ const SendForm = (props: AddMediatorProps) => {
                                         openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
                                     }}
                                     onValueChange={field.onChange}
+                                    required={true}
                                 />
                             )}
                         />
@@ -156,7 +163,7 @@ const SendForm = (props: AddMediatorProps) => {
                                 name="receivingSequenceType"
                                 control={control}
                                 render={({ field }) => (
-                                    <AutoComplete label="Receiving Sequence Type" name="receivingSequenceType" items={["Default", "Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                    <AutoComplete label="Receiving Sequence Type" name="receivingSequenceType" items={["Default", "Static", "Dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
                                         field.onChange(e);
                                     }} />
                                 )}
@@ -176,6 +183,7 @@ const SendForm = (props: AddMediatorProps) => {
                                             label="Static Receiving Sequence"
                                             allowItemCreate={false}
                                             onValueChange={field.onChange}
+                                            required={false}
                                         />
                                     )}
                                 />
@@ -192,6 +200,7 @@ const SendForm = (props: AddMediatorProps) => {
                                         <ExpressionField
                                             {...field} label="Dynamic Receiving Sequence"
                                             placeholder=""
+                                            required={false}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
@@ -209,7 +218,7 @@ const SendForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

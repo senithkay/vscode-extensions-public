@@ -148,7 +148,7 @@ const isExpression = (elements: any[], index: number) => {
 const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?: string) => {
     const key = getIndexByKeyName(tableKey, elements);
     if (key === -1) {
-        return "index";
+        return "index + 1";
     }
     if (key !== -1 && elements[key].type === 'table') {
         return `generateSpaceSeperatedStringFromParamValues(property[${key}]${postFix ?? ''} as ParamConfig)`;
@@ -168,7 +168,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
 
         tableKeys.push(name);
-        const isRequired = required == 'true';
+        const isRequired = required == true || required == 'true';
 
         let type;
         if (attribute.type === 'table') {
@@ -276,11 +276,20 @@ const generateForm = (jsonData: any): string => {
                 let defaultValue = element.value.defaultValue;
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
-                const isRequired = required == 'true';
+                const isRequired = required == true || required == 'true';
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
-                const rules = isRequired || validation ? fixIndentation(`
+                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression') ? `
+                {
+                    validate: (value) => {
+                        if (!value?.value || value.value === "") {
+                            return "This field is required";
+                        }
+                        return true;
+                    },
+                }
+                `: `
                 {
                     ${isRequired ? 'required: "This field is required",' : ''}${validation ? `
                     pattern: { value: ${regex}, message: "${message}" }` : ""}
@@ -300,19 +309,20 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" />`, indentation);
+                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} />`, indentation);
                 } else if (inputType === 'codeTextArea') {
 
                     fields +=
                         fixIndentation(`
-                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" resize="vertical" growRange={{ start: 5, offset: 10 }} />`, indentation);
+                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} resize="vertical" growRange={{ start: 5, offset: 10 }} />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
                     defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
                         fixIndentation(`
                         <ExpressionField 
                             {...field} label="${displayName}"
-                            placeholder="${helpTip}" 
+                            placeholder="${helpTip}"
+                            required={${isRequired}}
                             canChange={${inputType === 'stringOrExpression'}}
                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                          />`, indentation);
@@ -324,6 +334,7 @@ const generateForm = (jsonData: any): string => {
                                 label="${displayName}"
                                 autoWidth={true}
                                 {...field}
+                                required={${isRequired}}
                                 style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
                             >
                             ${allowedConnectionTypes.map((value: string) => (
@@ -341,10 +352,27 @@ const generateForm = (jsonData: any): string => {
                 } else if (inputType === 'comboOrExpression' || inputType === 'combo') {
 
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
-                    const comboStr = `
-                        <AutoComplete label="${displayName}" name="${toCamelCase(displayName)}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                    const name = toCamelCase(displayName);
+                    const comboStr = !element.value.showManageDeps ? `
+                        <AutoComplete label="${displayName}" name="${name}" items={[${comboValues}]} value={field.value} required={${isRequired}} onValueChange={(e: any) => {
                             field.onChange(e);
-                        }} />`;
+                        }} />` : `
+                        <>
+                            <FlexLabelContainer>
+                                <Label>${displayName}</Label>
+                                <Link onClick={() => {
+                                    openPopup(rpcClient, "addDriver", undefined, undefined, props.documentUri, { identifier: watch("${inputName}") });
+
+                                }}>
+                                    <Typography variant="body3" sx={{
+                                        color: "var(--vscode-textLink-activeForeground)",
+                                    }}>Manage Drivers</Typography>
+                                </Link>
+                            </FlexLabelContainer>
+                            <AutoComplete name="${name}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        </>`;
                     fields +=
                         fixIndentation(comboStr, indentation);
                 } else if (inputType === 'checkbox') {
@@ -371,6 +399,7 @@ const generateForm = (jsonData: any): string => {
                             label="${element.value.displayName}"
                             allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
                             onValueChange={field.onChange}
+                            required={${isRequired}}
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
@@ -378,7 +407,7 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" />`, indentation);
+                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" required={${isRequired}} />`, indentation);
                 }
 
                 defaultValues +=
@@ -479,7 +508,7 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState, useRef } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -489,7 +518,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
-import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ExpressionField, ExpressionFieldValue, FlexLabelContainer, Label, Link } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../../..';
@@ -536,15 +565,16 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         ${valueChanges}
         const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: \`\${xml[i].text}\${trailingSpaces}\`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: \`\${xml}\${trailingSpaces}\`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -619,6 +649,7 @@ const generateForms = () => {
     console.log(`Found ${jsonFiles.length} json files`);
 
     const failedFiles: string[] = [];
+    const skippedFiles: string[] = [];
     jsonFiles.forEach((file) => {
         const fileContent = fs.readFileSync(file, 'utf8');
         const fileName = path.basename(file);
@@ -630,6 +661,7 @@ const generateForms = () => {
             const isAutoGenerated = existingContent.includes("// AUTO-GENERATED FILE. DO NOT MODIFY.");
             if (!isAutoGenerated) {
                 console.log(`Skipping ${fileName} as it is not auto-generated`);
+                skippedFiles.push(fileName);
                 return;
             }
         }
@@ -670,7 +702,10 @@ const generateForms = () => {
     if (failedFiles.length > 0) {
         console.log(`\x1b[31mFailed to generate forms for the following files: (${failedFiles.length})\n${failedFiles.join('\n')}\x1b[0m`);
     } else {
-        console.log(`\x1b[32mSuccessfully generated forms for ${jsonFiles.length} files\x1b[0m`);
+        console.log(`\x1b[32mSuccessfully generated forms for ${jsonFiles.length - skippedFiles.length} files\x1b[0m`);
+        if (skippedFiles.length > 0) {
+            console.log(`\x1b[33mSkipped files: ${skippedFiles.join(', ')}\x1b[0m`);
+        }
     }
 }
 

@@ -71,15 +71,16 @@ const IterateForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.ITERATE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -106,7 +107,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         name="iterateID"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Iterate ID" size={50} placeholder="" />
+                            <TextField {...field} label="Iterate ID" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.iterateID && <Error>{errors.iterateID.message.toString()}</Error>}
@@ -116,10 +117,21 @@ const IterateForm = (props: AddMediatorProps) => {
                     <Controller
                         name="iterateExpression"
                         control={control}
+                        rules={
+                            {
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Iterate Expression"
                                 placeholder=""
+                                required={true}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -170,6 +182,7 @@ const IterateForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Attach Path"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -187,7 +200,7 @@ const IterateForm = (props: AddMediatorProps) => {
                             name="sequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Sequence Type" name="sequenceType" items={["Anonymous", "Key"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Sequence Type" name="sequenceType" items={["Anonymous", "Key"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -207,6 +220,7 @@ const IterateForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -221,7 +235,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

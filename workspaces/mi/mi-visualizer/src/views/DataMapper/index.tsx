@@ -13,7 +13,7 @@ import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-import { useIOTypes } from "../../Hooks";
+import { useIOTypes, useOperators } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
@@ -30,6 +30,8 @@ export function DataMapper(props: DataMapperProps) {
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
+
+    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath);
 
     const updateFileContent = async (newContent: string) => {
         try {
@@ -49,12 +51,14 @@ export function DataMapper(props: DataMapperProps) {
             throw new Error("Error while fetching input/output types");
         } else if (isFileUpdateError) {
             throw new Error("Error while updating file content");
+        } else if (isOperatorsError) {
+            throw new Error("Error while fetching operators");
         }
-    }, [isIOTypeError, isFileUpdateError]);
+    }, [isIOTypeError, isFileUpdateError, isOperatorsError]);
 
     return (
         <>
-            {isFetchingIOTypes
+            {isFetchingIOTypes || isFetchingOperators
                 ? <ProgressIndicator />
                 : (
                     <DataMapperView
@@ -64,10 +68,12 @@ export function DataMapper(props: DataMapperProps) {
                         inputTrees={dmIOTypes.inputTrees}
                         outputTree={dmIOTypes.outputTree}
                         updateFileContent={updateFileContent}
-                        configName= {props.configName}
+                        configName={props.configName}
+                        operators={dmOperators.operators}
                     />
                 )
             }
         </>
     );
+
 };

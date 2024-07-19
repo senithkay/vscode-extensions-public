@@ -81,15 +81,16 @@ const JSONTransformForm = (props: AddMediatorProps) => {
         
         values["jsonTransformProperties"] = getParamManagerValues(values.jsonTransformProperties);
         const xml = getXML(MEDIATORS.JSONTRANSFORM, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -121,6 +122,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                                 label="Schema"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -158,7 +160,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

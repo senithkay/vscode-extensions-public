@@ -97,7 +97,6 @@ interface ConnectorNodeWidgetProps {
 export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const visualizerContext = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [iconPath, setIconPath] = useState(null);
@@ -239,7 +238,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                             strokeWidth={2}
                         />
 
-                        {iconPath && <g transform="translate(66,5)">
+                        {iconPath && <g transform="translate(68,7)">
                             <foreignObject width="25" height="25">
                                 <img src={iconPath} alt="Icon" />
                             </foreignObject>

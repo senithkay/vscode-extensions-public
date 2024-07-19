@@ -141,15 +141,16 @@ const XQueryForm = (props: AddMediatorProps) => {
         
         values["variables"] = getParamManagerValues(values.variables);
         const xml = getXML(MEDIATORS.XQUERY, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -178,7 +179,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                             name="scriptKeyType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Script Key Type" name="scriptKeyType" items={["Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Script Key Type" name="scriptKeyType" items={["Static", "Dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -198,6 +199,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                                     label="Static Script Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -214,6 +216,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Dynamic Script Key"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -231,6 +234,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Target XPath"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -275,7 +279,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

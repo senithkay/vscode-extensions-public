@@ -100,15 +100,16 @@ const PayloadForm = (props: AddMediatorProps) => {
         
         values["args"] = getParamManagerValues(values.args);
         const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -134,7 +135,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         name="payloadFormat"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Payload Format" name="payloadFormat" items={["Inline", "Registry Reference"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Payload Format" name="payloadFormat" items={["Inline", "Registry Reference"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -147,7 +148,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         name="mediaType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Media Type" name="mediaType" items={["xml", "json", "text"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Media Type" name="mediaType" items={["xml", "json", "text"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -160,7 +161,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         name="templateType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Template Type" name="templateType" items={["Default", "Freemarker"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Template Type" name="templateType" items={["Default", "Freemarker"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -174,7 +175,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         name="payloadKey"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Payload Key" size={50} placeholder="" />
+                            <TextField {...field} label="Payload Key" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.payloadKey && <Error>{errors.payloadKey.message.toString()}</Error>}
@@ -190,7 +191,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             name="payload"
                             control={control}
                             render={({ field }) => (
-                                <CodeTextArea {...field} label="Payload" placeholder="" resize="vertical" growRange={{ start: 5, offset: 10 }} />
+                                <CodeTextArea {...field} label="Payload" placeholder="" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} />
                             )}
                         />
                         {errors.payload && <Error>{errors.payload.message.toString()}</Error>}
@@ -211,7 +212,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const property: ParamValue[] = param.paramValues;
-                                            param.key = index;
+                                            param.key = index + 1;
                                             param.value = (property[0].value as ExpressionFieldValue).value;
                                             param.icon = 'query';
                                             return param;
@@ -230,7 +231,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

@@ -115,15 +115,16 @@ const ValidateForm = (props: AddMediatorProps) => {
         values["features"] = getParamManagerValues(values.features);
         values["resources"] = getParamManagerValues(values.resources);
         const xml = getXML(MEDIATORS.VALIDATE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -152,6 +153,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Source"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -164,6 +166,11 @@ const ValidateForm = (props: AddMediatorProps) => {
                     <Controller
                         name="enableSchemaCaching"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Schema Caching</VSCodeCheckbox>
                         )}
@@ -185,7 +192,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
-                                        param.key = index;
+                                        param.key = index + 1;
                                         param.value = property[0].value;
                                         param.icon = 'query';
                                         return param;
@@ -254,7 +261,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

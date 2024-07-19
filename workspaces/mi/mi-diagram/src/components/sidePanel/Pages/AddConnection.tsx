@@ -37,10 +37,8 @@ const Field = styled.div`
 `;
 
 interface AddConnectionProps {
-    nodePosition: Range;
     documentUri: string;
-    onNewConnection: (connectionName: string) => void;
-    cancelConnection: () => void;
+    reloadConnectionList?: () => void;
     allowedConnectionTypes: string[];
     connectorName: string;
 }
@@ -57,7 +55,7 @@ interface Element {
 }
 
 const AddConnection = (props: AddConnectionProps) => {
-    const { allowedConnectionTypes, documentUri, onNewConnection, cancelConnection } = props;
+    const { allowedConnectionTypes, reloadConnectionList } = props;
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -170,15 +168,21 @@ const AddConnection = (props: AddConnectionProps) => {
             const sep = visualizerState.pathSeparator;
             const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 
-            const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
+            await rpcClient.getMiDiagramRpcClient().createConnection({
                 connectionName: values['connectionName'],
                 keyValuesXML: modifiedXml,
                 directory: localEntryPath
             });
 
-            onNewConnection(connectionName.name);
+            sidepanelGoBack(sidePanelContext, 2);
+
+            reloadConnectionList && reloadConnectionList();
         }
     };
+
+    const cancelConnection = async () => {
+        sidepanelGoBack(sidePanelContext);
+    }
 
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
@@ -362,7 +366,7 @@ const AddConnection = (props: AddConnectionProps) => {
     };
 
     return (
-        <>
+        <div style={{ padding: "20px" }}>
             <label>{"Connection Type"}</label> {<RequiredFormInput />}
             <VSCodeDropdown
                 label={"Connection Type"}
@@ -403,7 +407,7 @@ const AddConnection = (props: AddConnectionProps) => {
                     </div>
                 </>
             )}
-        </>
+        </div>
     );
 };
 

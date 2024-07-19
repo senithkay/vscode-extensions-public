@@ -12,7 +12,7 @@
         "title": "URL Rewrite Rule",
         "description": "Editing of the properties of an object URL Rewrite Rule",
         "tableKey": "ruleAction",
-        "tableValue": "ruleFragment",
+        "tableValue": "urlRewriteRuleCondition",
         "elements": [
           {
             "type": "table",

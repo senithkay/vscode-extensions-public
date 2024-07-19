@@ -11,7 +11,6 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
-    AddDependencyToPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -34,6 +33,8 @@ import {
     CreateDataServiceRequest,
     CreateDataServiceResponse,
     CreateDataSourceResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -56,11 +57,10 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
-    CreateDssDataSourceRequest,
-    CreateDssDataSourceResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
+    Dependency,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
     ESBConfigsResponse,
@@ -75,6 +75,7 @@ import {
     GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllDependenciesResponse,
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
@@ -129,9 +130,11 @@ import {
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
     MACHINE_VIEW,
+    MarkAsDefaultSequenceRequest,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
+    OpenDependencyPomRequest,
     OpenDiagramRequest,
     POPUP_EVENT_TYPE,
     ProjectDirResponse,
@@ -155,9 +158,13 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    StoreConnectorJsonResponse,
+    SwaggerData,
     SwaggerFromAPIResponse,
     SwaggerTypeRequest,
     TemplatesResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
     UndoRedoParams,
     UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
@@ -165,6 +172,7 @@ import {
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
+    UpdateDependencyInPomRequest,
     UpdateFailoverEPRequest,
     UpdateFailoverEPResponse,
     UpdateHttpEndpointRequest,
@@ -187,10 +195,10 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    onSwaggerSpecReceived,
-    SwaggerData,
+    getAllDependenciesRequest,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
+    onSwaggerSpecReceived
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -199,6 +207,7 @@ import { copy } from 'fs-extra';
 import { isEqual } from "lodash";
 import fetch from 'node-fetch';
 import * as os from 'os';
+import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
@@ -207,14 +216,16 @@ import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, c
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
+import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
+import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getDssDataSourceXmlWrapper } from "../../util";
+import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -227,9 +238,6 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { openSwaggerWebview } from "../../swagger/activate";
-import { RPCLayer } from "../../RPCLayer";
-import { getPortPromise } from "portfinder";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -414,12 +422,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
                 const swaggerRegPath = path.join(
                     workspacePath,
-                    'src',
-                    'main',
-                    'wso2mi',
-                    'artifacts',
-                    'apis',
-                    'api-definitions',
+                    SWAGGER_REL_DIR,
                     getSwaggerName(swaggerDefPath)
                 );
                 if (!fs.existsSync(path.dirname(swaggerRegPath))) {
@@ -441,7 +444,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
-            await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+            await this.rangeFormat({ uri: documentUri, range: apiRange });
+
+            if (sanitizedHandlersXmlData) {
+                await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+                await this.rangeFormat({ uri: documentUri, range: handlersRange });
+            }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: documentUri });
@@ -1286,26 +1294,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let statisticsAttribute = ``;
             let traceAttribute = ``;
             if (endpoint) {
-                endpointAttributes = `<send>
-          <endpoint key="${endpoint.replace(".xml", "")}"/>
-      </send>`;
+                endpointAttributes = `\t<send>\n\t\t<endpoint key="${endpoint.replace(".xml", "")}"/>\n\t</send>`;
             }
 
             if (onErrorSequence) {
-                errorSequence = `onError="${onErrorSequence}"`;
+                errorSequence = `onError="${onErrorSequence}" `;
             }
             if (statistics) {
-                statisticsAttribute = `statistics="enable"`;
+                statisticsAttribute = `statistics="enable" `;
             }
             if (trace) {
-                traceAttribute = `trace="enable"`;
+                traceAttribute = `trace="enable" `;
             } else {
-                traceAttribute = `trace="disable"`;
+                traceAttribute = `trace="disable" `;
             }
 
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-<sequence name="${name}" ${errorSequence} ${traceAttribute} ${statisticsAttribute} xmlns="http://ws.apache.org/ns/synapse">
-  ${endpointAttributes}
+<sequence name="${name}" ${errorSequence}${traceAttribute}${statisticsAttribute}xmlns="http://ws.apache.org/ns/synapse">
+${endpointAttributes}
 </sequence>`;
 
             if (params.getContentOnly) {
@@ -2251,7 +2257,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     dataServiceNamespace: dataServiceParams.serviceNamespace,
                     serviceGroup: dataServiceParams.serviceGroup,
                     selectedTransports: dataServiceParams.transports,
-                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : false,
+                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : '',
                     jndiName: dataServiceParams.txManagerJNDIName != undefined ? dataServiceParams.txManagerJNDIName : '',
                     enableBoxcarring: dataServiceParams.enableBoxcarring != undefined ? dataServiceParams.enableBoxcarring : false,
                     enableBatchRequests: dataServiceParams.enableBatchRequests != undefined ? dataServiceParams.enableBatchRequests : false,
@@ -2293,10 +2299,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 if (element.name === 'dynamicUserAuthClass') {
                                     datasourceObject.dynamicUserAuthClass = element.textNode;
                                 } else {
-                                    datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                    if (element.name === 'password' && Object.keys(element.namespaces).length !== 0) {
+                                        datasourceObject.datasourceProperties.push({ key: "useSecretAlias", value: true });
+                                        datasourceObject.datasourceProperties.push({ key: "secretAlias", value: element.textNode });
+                                    } else {
+                                        datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                    }
                                 }
                             }
                         });
+                        if (!datasourceObject.datasourceProperties.some(element => element.key === "secretAlias")) {
+                            datasourceObject.datasourceProperties.push({ key: "useSecretAlias", value: false });
+                        }
                         response.datasources.push(datasourceObject);
                     });
                 }
@@ -2315,35 +2329,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+            const uri = params.documentUri;
+            let text = params.text;
+            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri);
 
             if (!document) {
-                document = await workspace.openTextDocument(Uri.file(params.documentUri));
+                document = await workspace.openTextDocument(Uri.file(uri));
             }
 
             const range = new Range(new Position(params.range.start.line, params.range.start.character),
                 new Position(params.range.end.line, params.range.end.character));
-            const startLine = document.lineAt(range.start.line).text;
-            const startLineIndentation = startLine.match(/^\s*/);
-            const endLine = document.lineAt(range.end.line).text;
-            const endLineIndentation = endLine.match(/^\s*/);
 
-            const sIndentation = startLineIndentation ? startLineIndentation[0] : "";
-            const eIndentation = endLineIndentation ? endLineIndentation[0] : "";
-            const textEmpty = params.text.trim().length === 0;
-            const textBefore = startLine.substring(0, range.start.character).trim();
-            const textAfter = endLine.substring(range.end.character).trim();
-            let text = params.text;
-            if (!textEmpty) {
-                text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
-            }
-
-            edit.replace(Uri.file(params.documentUri), range, text);
+            edit.replace(Uri.file(uri), range, text);
             await workspace.applyEdit(edit);
 
             if (!params.disableFormatting) {
                 const formatRange = this.getFormatRange(range, text);
-                await this.rangeFormat({ uri: params.documentUri, range: formatRange });
+                await this.rangeFormat({ uri: uri, range: formatRange });
             }
             const content = document.getText();
             undoRedo.addModification(content);
@@ -2356,7 +2358,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const editSplit = text.split('\n');
         const addedLine = editSplit.length;
         const lastLineLength = editSplit[editSplit.length - 1].length;
-        const formatStart = range.start;
+        const formatStart = new Position(range.start.line, 0);
         const formatend = new Position(range.start.line + addedLine - 1, lastLineLength);
         const formatRange = new Range(formatStart, formatend);
         return formatRange;
@@ -3202,6 +3204,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
                 }
+            } else if (params.createOption === 'entryOnly') {
+                let fileName = params.resourceName;
+                const fileData = getMediatypeAndFileExtension(params.templateType);
+                fileName = fileName + "." + fileData.fileExtension;
+                const registryPath = path.join(registryDir, params.registryPath);
+                const destPath = path.join(registryPath, fileName);
+                if (!fs.existsSync(registryPath)) {
+                    fs.mkdirSync(registryPath, { recursive: true });
+                }
+                //add the new entry to artifact.xml
+                transformedPath = path.join(transformedPath, params.registryPath);
+                transformedPath = transformedPath.split(path.sep).join("/");
+                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: destPath });
+
             } else {
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
@@ -3283,7 +3301,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         continue;
                     }
                     const stats = await fs.promises.stat(filePath);
-    
+
                     if (stats.isFile()) {
                         const content = await fs.promises.readFile(filePath, 'utf-8');
                         fileContents.push(content);
@@ -3344,6 +3362,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve(res);
         })
+    }
+
+    async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+        return new Promise(async (resolve) => {
+            const connectorDataState = StateMachine.context().connectorData;
+            if (connectorDataState !== undefined) {
+                resolve({ data: connectorDataState });
+            }
+        });
+
     }
 
     async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
@@ -3723,11 +3751,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const openAPISpecPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -3781,11 +3805,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -3815,11 +3835,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -3847,11 +3863,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -4107,13 +4119,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+    async updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
         const showErrorMessage = () => {
             window.showErrorMessage('Failed to add the dependency to the POM file');
         }
 
         return new Promise(async (resolve) => {
-            const { groupId, artifactId, version, file } = params;
+            const { groupId, artifactId, version, file, range } = params;
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
 
             if (!workspaceFolder) {
@@ -4135,7 +4147,42 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 throw new Error('Failed to parse POM XML');
             }
 
-            let dependencies = Array.isArray(pom.project?.dependencies?.dependency) ? pom.project.dependencies.dependency : [pom.project?.dependencies?.dependency].filter(Boolean);
+            if (range) {
+                const workspaceEdit = new WorkspaceEdit();
+                const document = await workspace.openTextDocument(pomPath);
+                if (groupId || artifactId || version) {
+                    const originalText = document.getText(new Range(range.start.line, range.start.character, range.end.line, range.end.character));
+                    let updatedText = originalText;
+
+                    if (groupId) {
+                        updatedText = updatedText.replace(/<groupId>.*<\/groupId>/, `<groupId>${groupId}</groupId>`);
+                    }
+                    if (artifactId) {
+                        updatedText = updatedText.replace(/<artifactId>.*<\/artifactId>/, `<artifactId>${artifactId}</artifactId>`);
+                    }
+                    if (version) {
+                        updatedText = updatedText.replace(/<version>.*<\/version>/, `<version>${version}</version>`);
+                    }
+
+
+                    workspaceEdit.replace(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character), updatedText);
+                    await workspace.applyEdit(workspaceEdit);
+                } else {
+                    workspaceEdit.delete(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character));
+                    await workspace.applyEdit(workspaceEdit);
+
+                    const lineText = document.lineAt(range.start.line).text;
+                    if (lineText.trim() === '') {
+                        const deleteEmptyLine = new WorkspaceEdit();
+                        deleteEmptyLine.delete(Uri.file(pomPath), new Range(range.start.line, 0, range.start.line + 1, 0));
+                        await workspace.applyEdit(deleteEmptyLine);
+                    }
+                }
+                resolve();
+                return;
+            }
+
+            let dependencies: any = (await this.getAllDependencies({ file: file }))?.dependencies;
             let dependencyExists = dependencies.some(dep =>
                 dep.groupId === groupId &&
                 dep.artifactId === artifactId &&
@@ -4220,6 +4267,177 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
         return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
+    }
+
+    async openDependencyPom(params: OpenDependencyPomRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { name, file } = params;
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
+            if (!workspaceFolder) {
+                window.showErrorMessage('Cannot find workspace folder');
+                throw new Error('Cannot find workspace folder');
+            }
+
+            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+            const pomContent = fs.readFileSync(pomPath, 'utf-8');
+
+            const dependencies = (await this.getAllDependencies({ file: file }))?.dependencies;
+            let dependencyExists = dependencies.some(dep =>
+                dep.groupId.toLowerCase().includes(name.toLowerCase())
+            );
+
+            const openPomAtPosition = async (position: number) => {
+                const editor = await window.showTextDocument(Uri.file(pomPath));
+                const newPosition = new Position(position, 0);
+                const newSelection = new Selection(newPosition, newPosition);
+                editor.selection = newSelection;
+                editor.revealRange(newSelection, vscode.TextEditorRevealType.AtTop);
+            };
+
+            if (dependencyExists) {
+                const dependencyIndex = dependencies.findIndex(dep => dep.groupId.includes(name));
+                const dependencyPosition = pomContent.split('\n').findIndex(line => line.includes(dependencies[dependencyIndex].groupId));
+                await openPomAtPosition(dependencyPosition);
+            } else {
+                const dependenciesPosition = pomContent.split('\n').findIndex(line => line.includes('<dependencies>'));
+                await openPomAtPosition(dependenciesPosition);
+            }
+
+            resolve();
+        });
+    }
+
+    async getAllDependencies(params: getAllDependenciesRequest): Promise<GetAllDependenciesResponse> {
+        const { file } = params;
+        const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
+
+        if (!workspaceFolder) {
+            window.showErrorMessage('Cannot find workspace folder');
+            throw new Error('Cannot find workspace folder');
+        }
+
+        const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+        const pomContent = fs.readFileSync(pomPath, 'utf-8');
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@_"
+        };
+        const parser = new XMLParser(options);
+        const pom = parser.parse(pomContent);
+
+        if (!pom) {
+            window.showErrorMessage('Failed to parse POM XML');
+            throw new Error('Failed to parse POM XML');
+        }
+
+        const dependencyRegex = /<dependency>([\s\S]*?)<\/dependency>/g;
+        const groupIdRegex = /<groupId>(.*?)<\/groupId>/;
+        const artifactIdRegex = /<artifactId>(.*?)<\/artifactId>/;
+        const versionRegex = /<version>(.*?)<\/version>/;
+
+        let dependencies: Dependency[] = [];
+        let match;
+        while ((match = dependencyRegex.exec(pomContent)) !== null) {
+            const dependencyContent = match[1];
+            const groupIdMatch = groupIdRegex.exec(dependencyContent);
+            const artifactIdMatch = artifactIdRegex.exec(dependencyContent);
+            const versionMatch = versionRegex.exec(dependencyContent);
+
+            const groupId = groupIdMatch ? groupIdMatch[1] : "";
+            const artifactId = artifactIdMatch ? artifactIdMatch[1] : "";
+            const version = versionMatch ? versionMatch[1] : "";
+
+            const startLine = pomContent.substring(0, match.index).split('\n').length;
+            const endLine = pomContent.substring(0, match.index + match[0].length).split('\n').length;
+            const startColumn = match.index - pomContent.lastIndexOf('\n', match.index - 1) - 1;
+            const endColumn = (match.index + match[0].length) - pomContent.lastIndexOf('\n', match.index + match[0].length - 1) - 1;
+
+            dependencies.push({
+                groupId,
+                artifactId,
+                version,
+                range: { start: { line: startLine - 1, character: startColumn }, end: { line: endLine - 1, character: endColumn } }
+            });
+        }
+
+        return { dependencies };
+    }
+    async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
+
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient;
+            const response = await langClient?.testDbConnection(req);
+            resolve({ success: response ? response.success : false });
+        });
+    }
+
+    async markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { path: filePath, remove } = params;
+            const langClient = StateMachine.context().langClient;
+
+            if (!langClient) {
+                window.showErrorMessage('Language client is not available');
+                throw new Error('Language client is not available');
+            }
+
+            // Get the syntax tree of the given file path
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri: filePath
+                },
+            });
+
+            // Get the sequence name from the syntax tree
+            const sequenceName = syntaxTree?.syntaxTree?.sequence?.name;
+            if (!sequenceName) {
+                window.showErrorMessage('Failed to get the sequence name from the syntax tree');
+                throw new Error('Failed to get the sequence name from the syntax tree');
+            }
+
+            // Read the POM file
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
+            if (!workspaceFolder) {
+                window.showErrorMessage('Cannot find workspace folder');
+                throw new Error('Cannot find workspace folder');
+            }
+
+            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+            const pomContent = fs.readFileSync(pomPath, 'utf-8');
+            const mainSequenceTag = `<mainSequence>${sequenceName}</mainSequence>`;
+
+            // Check if the <properties> tag exists
+            const propertiesTagExists = pomContent.includes('<properties>');
+
+            let updatedPomContent;
+            if (propertiesTagExists) {
+                if (remove) {
+                    // Remove the <mainSequence> tag from the POM
+                    updatedPomContent = pomContent.replace(/\s*<mainSequence>.*?<\/mainSequence>/, '');
+                } else {
+                    // Inject the <mainSequence> tag inside the <properties> tag
+                    updatedPomContent = pomContent.replace(/<properties>([\s\S]*?)<\/properties>/, (match, p1) => {
+                        if (p1.includes('<mainSequence>')) {
+                            // Update the existing <mainSequence> tag
+                            return match.replace(/<mainSequence>.*?<\/mainSequence>/, mainSequenceTag);
+                        } else {
+                            // Get the indentation from the <properties> tag
+                            const propertiesIndentation = pomContent.match(/(\s*)<properties>/)?.[1] || '';
+                            const indentedMainSequenceTag = `\t${mainSequenceTag}`;
+                            // Add the <mainSequence> tag
+                            return `<properties>${p1}${indentedMainSequenceTag}${propertiesIndentation}</properties>`;
+                        }
+                    });
+                }
+            } else {
+                window.showErrorMessage('Failed to find the project properties in the POM file');
+            }
+
+            // Write the updated POM content back to the file
+            fs.writeFileSync(pomPath, updatedPomContent, 'utf-8');
+
+            resolve();
+        });
     }
 }
 

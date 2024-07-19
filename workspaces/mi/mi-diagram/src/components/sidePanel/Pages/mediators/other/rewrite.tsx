@@ -49,7 +49,7 @@ const RewriteForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             urlRewriteRules: {
-                paramValues: sidePanelContext?.formValues?.urlRewriteRules ? getParamManagerFromValues(sidePanelContext?.formValues?.urlRewriteRules, -1, -1) : [],
+                paramValues: sidePanelContext?.formValues?.urlRewriteRules ? getParamManagerFromValues(sidePanelContext?.formValues?.urlRewriteRules, -1, 1) : [],
                 paramFields: [
                     {
                         "type": "ParamManager",
@@ -58,7 +58,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction ? getParamManagerFromValues(sidePanelContext?.formValues?.rewriteRuleAction, 0, 1) : [],
+                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction ? getParamManagerFromValues(sidePanelContext?.formValues?.rewriteRuleAction, 0, -1) : [],
                                 paramFields: [
                                     {
                                         "type": "Dropdown",
@@ -162,15 +162,16 @@ const RewriteForm = (props: AddMediatorProps) => {
         
         values["urlRewriteRules"] = getParamManagerValues(values.urlRewriteRules);
         const xml = getXML(MEDIATORS.REWRITE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -205,8 +206,8 @@ const RewriteForm = (props: AddMediatorProps) => {
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
-                                        param.key = index;
-                                        param.value = index;
+                                        param.key = index + 1;
+                                        param.value = property[1].value;
                                         param.icon = 'query';
 
                                         (property[0].value as ParamConfig).paramValues = (property[0].value as ParamConfig).paramValues.map((param: any, index: number) => {
@@ -231,7 +232,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         name="inProperty"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="In Property" size={50} placeholder="" />
+                            <TextField {...field} label="In Property" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.inProperty && <Error>{errors.inProperty.message.toString()}</Error>}
@@ -242,7 +243,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         name="outProperty"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Out Property" size={50} placeholder="" />
+                            <TextField {...field} label="Out Property" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.outProperty && <Error>{errors.outProperty.message.toString()}</Error>}
@@ -253,7 +254,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

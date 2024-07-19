@@ -143,6 +143,10 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-local-entry", entry] });
+        } else if (key === "connections") {
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-connection", entry] });
         }
     };
 
@@ -167,7 +171,7 @@ export function AddArtifactView() {
 
     return (
         <View>
-            <ViewHeader title={"Project: " + activeWorkspaces?.name} codicon="project"></ViewHeader>
+            <ViewHeader title={"Project: " + activeWorkspaces?.name} icon="project" iconSx={{ fontSize: "15px" }}></ViewHeader>
             <ViewContent padding>
                 <Container>
                     <AddPanel>
@@ -195,25 +199,26 @@ export function AddArtifactView() {
                         </Typography>
                         <HorizontalCardContainer>
                             <Card
-                                icon="globe"
+                                icon="APIResource"
                                 title="API"
                                 description="Create an HTTP API with a defined interface."
                                 onClick={() => handleClick("apis")}
                             />
                             <Card
                                 icon="arrow-swap"
+                                isCodicon
                                 title="Proxy"
                                 description="Create a proxy service to process and route messages."
                                 onClick={() => handleClick("proxyServices")}
                             />
                             <Card
-                                icon="tasklist"
+                                icon="task"
                                 title="Task"
                                 description="Create a task that can be run periodically."
                                 onClick={() => handleClick("tasks")}
                             />
                             <Card
-                                icon="fold-down"
+                                icon="inbound-endpoint"
                                 title="Inbound Endpoint"
                                 description="Mediate messages sent via events."
                                 onClick={() => handleClick("inboundEndpoints")}
@@ -230,46 +235,52 @@ export function AddArtifactView() {
                                 </Typography>
                                 <HorizontalCardContainer>
                                     <Card
-                                        icon="plug"
+                                        icon="endpoint"
                                         title="Endpoint"
                                         description="Define communication endpoint configurations."
                                         onClick={() => handleClick("endpoints")}
                                     />
                                     <Card
-                                        icon="list-ordered"
+                                        icon="Sequence"
                                         title="Sequence"
                                         description="Configure reusable mediation sequences."
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
-                                        icon="type-hierarchy"
+                                        icon="registry"
                                         title="Registry"
                                         description="Manage shared resources and configurations."
                                         onClick={() => handleClick("registry")}
                                     />
                                     <Card
-                                        icon="gear"
+                                        icon="message-processor"
                                         title="Message Processor"
                                         description="Define processing logic for messages."
                                         onClick={() => handleClick("messageProcessors")}
                                     />
                                     <Card
-                                        icon="file"
+                                        icon="template"
                                         title="Template"
                                         description="Create reusable message transformation templates."
                                         onClick={() => handleClick("templates")}
                                     />
                                     <Card
-                                        icon="database"
+                                        icon="message-store"
                                         title="Message Store"
                                         description="Store and manage messages locally."
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
-                                        icon="settings"
+                                        icon="local-entry"
                                         title="Local Entry"
                                         description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}
+                                    />
+                                    <Card
+                                        icon="vm-connect"
+                                        title="Connections"
+                                        description="Create resuable connections."
+                                        onClick={() => handleClick("connections")}
                                     />
                                 </HorizontalCardContainer>
                             </PanelViewMore>

@@ -63,15 +63,16 @@ const BamForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.BAM, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -99,8 +100,13 @@ const BamForm = (props: AddMediatorProps) => {
                         <Controller
                             name="serverProfileName"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Server Profile Name" size={50} placeholder="" />
+                                <TextField {...field} label="Server Profile Name" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.serverProfileName && <Error>{errors.serverProfileName.message.toString()}</Error>}
@@ -113,8 +119,13 @@ const BamForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="streamName"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
-                                    <TextField {...field} label="Stream Name" size={50} placeholder="" />
+                                    <TextField {...field} label="Stream Name" size={50} placeholder="" required={true} />
                                 )}
                             />
                             {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
@@ -124,8 +135,13 @@ const BamForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="streamVersion"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
-                                    <TextField {...field} label="Stream Version" size={50} placeholder="" />
+                                    <TextField {...field} label="Stream Version" size={50} placeholder="" required={true} />
                                 )}
                             />
                             {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
@@ -138,7 +154,7 @@ const BamForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

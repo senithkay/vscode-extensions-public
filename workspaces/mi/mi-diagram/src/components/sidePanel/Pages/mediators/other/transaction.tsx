@@ -61,15 +61,16 @@ const TransactionForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.TRANSACTION, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -98,7 +99,7 @@ const TransactionForm = (props: AddMediatorProps) => {
                             name="action"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Action" name="action" items={["Commit transaction", "Fault if no transaction", "Initiate new transaction", "Resume transaction", "Suspend transaction", "Rollback transaction", "Use existing or initiate transaction"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Action" name="action" items={["Commit transaction", "Fault if no transaction", "Initiate new transaction", "Resume transaction", "Suspend transaction", "Rollback transaction", "Use existing or initiate transaction"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -111,7 +112,7 @@ const TransactionForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

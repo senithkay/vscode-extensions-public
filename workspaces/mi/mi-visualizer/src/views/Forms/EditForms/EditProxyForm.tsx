@@ -53,6 +53,8 @@ type InputsFields = {
         fix: boolean;
         rabbitmq: boolean;
         hl7: boolean;
+        tcp: boolean;
+        udp: boolean;
     };
     enableAddressing?: boolean;
     endpointType?: string;
@@ -264,6 +266,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             fix: proxyData.transports.includes("fix"),
             rabbitmq: proxyData.transports.includes("rabbitmq"),
             hl7: proxyData.transports.includes("hl7"),
+            tcp: proxyData.transports.includes("tcp"),
+            udp: proxyData.transports.includes("udp"),
         },
         enableAddressing: proxyData.enableAddressing?.selfClosed ?? false,
         endpointType :  proxyData.target?.endpointAttribute ? "named" : "inline",
@@ -573,7 +577,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     
     useEffect(() => {
         setValue("transports", transportGenerator(), { shouldValidate: true ,shouldDirty: true });
-    }, [watch("transport.http"), watch("transport.https"), watch("transport.jms"), watch("transport.vfs"), watch("transport.local"), watch("transport.malito"), watch("transport.fix"), watch("transport.rabbitmq"), watch("transport.hl7")]);
+    }, [watch("transport.http"), watch("transport.https"), watch("transport.jms"), watch("transport.vfs"), watch("transport.local"), watch("transport.malito"), watch("transport.fix"), watch("transport.rabbitmq"), watch("transport.hl7"), watch("transport.tcp"), watch("transport.udp")]);
 
     useEffect(() => {
         if(!validationMessage) {
@@ -616,6 +620,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                         <FormCheckBox label="FIX" {...register("transport.fix")} control={control}/>
                         <FormCheckBox label="RabbitMQ" {...register("transport.rabbitmq")} control={control}/>
                         <FormCheckBox label="HL7" {...register("transport.hl7")} control={control}/>
+                        <FormCheckBox label="TCP" {...register("transport.tcp")} control={control}/>
+                        <FormCheckBox label="UDP" {...register("transport.udp")} control={control}/>
                     </CheckBoxGroup>
                     <span style={{ color:"#f48771" }}>{errors["transports"]?.message.toString()}</span>
                     <FormGroup title="Advanced Options" >

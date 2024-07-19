@@ -123,15 +123,16 @@ const XSLTForm = (props: AddMediatorProps) => {
         values["resources"] = getParamManagerValues(values.resources);
         values["features"] = getParamManagerValues(values.features);
         const xml = getXML(MEDIATORS.XSLT, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -160,6 +161,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Source XPath"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -179,6 +181,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 label="XSLT Schema Key"
                                 allowItemCreate={true}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -271,7 +274,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

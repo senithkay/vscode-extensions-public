@@ -18,7 +18,7 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
-import { COMMANDS } from './constants';
+import { APIS, COMMANDS } from './constants';
 import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
@@ -31,6 +31,7 @@ import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
+import fetch from 'node-fetch';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -53,7 +54,7 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: [
                     {
-                        target: 'projectDetected',
+                        target: 'connectorInit',
                         cond: (context, event) =>
                             // Assuming true means project detected
                             event.data.isProject === true && event.data.emptyProject === true,
@@ -65,7 +66,7 @@ const stateMachine = createMachine<MachineContext>({
                         })
                     },
                     {
-                        target: 'projectDetected',
+                        target: 'connectorInit',
                         cond: (context, event) =>
                             // Assuming true means project detected
                             event.data.isProject === true && event.data.emptyProject === false,
@@ -115,6 +116,19 @@ const stateMachine = createMachine<MachineContext>({
                         errors: (context, event) => event.data
                     })
                 }
+            }
+        },
+        connectorInit: {
+            invoke: {
+                src: 'waitForConnectorData',
+                onDone: [
+                    {
+                        target: 'projectDetected',
+                        actions: assign({
+                            connectorData: (context, event) => event.data
+                        })
+                    }
+                ]
             }
         },
         projectDetected: {
@@ -339,6 +353,17 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
+        waitForConnectorData: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                fetchConnectorData().then(data => {
+                    if (data) {
+                        resolve(data);
+                    } else {
+                        resolve([]);
+                    }
+                });
+            });
+        },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
@@ -554,6 +579,25 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     }
 }
 
+async function fetchConnectorData() {
+    try {
+        const response = await fetch(APIS.CONNECTOR, {
+            method: 'GET',
+            cache: "no-cache"
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.data;
+        } else {
+            console.log("Failed to fetch data, but user is connected.");
+            return null;
+        }
+    } catch (error) {
+        console.log("User is offline.", error);
+        return null;
+    }
+}
+
 async function checkIfMiProject() {
     let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
@@ -633,48 +677,78 @@ function findViewIcon(view) {
         case MACHINE_VIEW.ServiceDesigner:
         case MACHINE_VIEW.ResourceView:
         case MACHINE_VIEW.APIForm:
-            icon = 'globe';
+            icon = 'APIResource';
             break;
         case MACHINE_VIEW.SequenceView:
         case MACHINE_VIEW.SequenceForm:
-            icon = 'list-ordered';
+            icon = 'Sequence';
             break;
         case MACHINE_VIEW.EndPointForm:
+            icon = 'endpoint';
+            break;
         case MACHINE_VIEW.HttpEndpointForm:
+            icon = 'http-endpoint';
+            break;
         case MACHINE_VIEW.WsdlEndpointForm:
+            icon = 'wsdl-endpoint';
+            break;
         case MACHINE_VIEW.AddressEndpointForm:
+            icon = 'address-endpoint';
+            break;
         case MACHINE_VIEW.DefaultEndpointForm:
+            icon = 'default-endpoint';
+            break;
         case MACHINE_VIEW.FailoverEndPointForm:
+            icon = 'failover-endpoint';
+            break;
         case MACHINE_VIEW.RecipientEndPointForm:
+            icon = 'recipient-endpoint';
+            break;
         case MACHINE_VIEW.LoadBalanceEndPointForm:
-            icon = 'plug';
+            icon = 'load-balance-endpoint';
             break;
         case MACHINE_VIEW.InboundEPForm:
-            icon = 'fold-down';
+            icon = 'inbound-endpoint';
             break;
         case MACHINE_VIEW.MessageStoreForm:
-            icon = 'database';
+            icon = 'message-store';
             break;
         case MACHINE_VIEW.MessageProcessorForm:
-            icon = 'gear';
+            icon = 'message-processor';
             break;
         case MACHINE_VIEW.ProxyView:
         case MACHINE_VIEW.ProxyServiceForm:
             icon = 'arrow-swap';
             break;
         case MACHINE_VIEW.TaskForm:
-            icon = 'tasklist';
+            icon = 'task';
             break;
         case MACHINE_VIEW.LocalEntryForm:
-            icon = 'settings';
+            icon = 'local-entry';
             break;
         case MACHINE_VIEW.TemplateEndPointForm:
         case MACHINE_VIEW.TemplateForm:
-            icon = 'file';
+            icon = 'template';
+            break;
+        case MACHINE_VIEW.TemplateEndPointForm:
+            icon = 'template-endpoint';
+            break;
+        case MACHINE_VIEW.SequenceTemplateView:
+            icon = 'sequence-template';
+            break;
+        case MACHINE_VIEW.DataSourceForm:
+            icon = 'data-source';
+            break;
+        case MACHINE_VIEW.DataServiceForm:
+        case MACHINE_VIEW.DataServiceView:
+            icon = 'data-service';
             break;
         case MACHINE_VIEW.RegistryResourceForm:
         case MACHINE_VIEW.RegistryMetadataForm:
-            icon = 'type-hierarchy';
+            icon = 'registry';
+            break;
+        case MACHINE_VIEW.DataMapperView:
+            icon = 'dataMapper';
             break;
         default:
             break;

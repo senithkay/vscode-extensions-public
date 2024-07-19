@@ -681,6 +681,7 @@ export interface UpdateAddressEndpointRequest {
     requireTemplateParameters: boolean;
     templateParameters: any;
     getContentOnly: boolean;
+    isPopup: boolean;
 }
 
 export interface UpdateAddressEndpointResponse {
@@ -1031,7 +1032,7 @@ export interface Datasource {
 
 export interface Property {
     key: string;
-    value: string;
+    value: any;
 }
 
 export interface Configuration {
@@ -1393,6 +1394,7 @@ export interface GetAvailableConnectorResponse {
     version?: string;
     iconPath?: string;
     connectionUiSchema?: connectionUiSchemaRecord;
+    actions?: any[];
 }
 
 export interface UpdateConnectorRequest {
@@ -1415,6 +1417,11 @@ export interface GetConnectionFormRequest {
 export interface GetConnectionFormResponse {
     formJSON: string;
 }
+
+export interface StoreConnectorJsonResponse {
+    data: any[];
+}
+
 export interface CreateDataSourceResponse {
     path: string;
 }
@@ -1601,9 +1608,46 @@ export interface GetAllMockServicesResponse {
     }[];
 }
 
-export interface AddDependencyToPomRequest {
+export interface Dependency {
     groupId: string;
     artifactId: string;
     version: string;
+    range?: Range;
+}
+
+export interface UpdateDependencyInPomRequest extends Dependency {
     file: string
+}
+
+export interface OpenDependencyPomRequest {
+    name: string;
+    file: string
+}
+
+export interface getAllDependenciesRequest {
+    file: string;
+}
+
+export interface GetAllDependenciesResponse {
+    dependencies: Dependency[];
+}
+
+export interface TestDbConnectionRequest {
+    dbType: string;
+    version: string;
+    username: string;
+    password: string;
+    host: string;
+    port: string;
+    dbName: string;
+    dbDriverFolder: string;
+}
+
+export interface TestDbConnectionResponse {
+    success: boolean;
+}
+
+export interface MarkAsDefaultSequenceRequest {
+    path: string;
+    remove?: boolean;
 }

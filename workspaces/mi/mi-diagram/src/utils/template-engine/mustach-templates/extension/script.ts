@@ -34,6 +34,10 @@ export function getScriptXml(data: { [key: string]: any }) {
         }
     }
 
+    if (data.scriptLanguage && data.scriptLanguage.includes("(Deprecated)")) {
+        data.scriptLanguage = data.scriptLanguage.replace("(Deprecated)", "").trim();
+    }
+
     const output = Mustache.render(getScriptMustacheTemplate(), data);
     return output.trim();
 }

@@ -8,18 +8,51 @@
  */
 
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Alert, Codicon, ContextMenu } from '@wso2-enterprise/ui-toolkit';
+import { Alert, Codicon, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
+import { EndpointTypes, TemplateTypes } from '../../constants';
+
+const getIcon = (type: string, subType: string, defaultIcon: string) => {
+    switch (type) {
+        case "ENDPOINT": {
+            switch (subType) {
+                case EndpointTypes.ADDRESS_ENDPOINT: return "address-endpoint";
+                case EndpointTypes.DEFAULT_ENDPOINT: return "default-endpoint";
+                case EndpointTypes.HTTP_ENDPOINT: return "http-endpoint";
+                case EndpointTypes.LOAD_BALANCE_ENDPOINT: return "load-balance-endpoint";
+                case EndpointTypes.WSDL_ENDPOINT: return "wsdl-endpoint";
+                case EndpointTypes.FAILOVER_ENDPOINT: return "failover-endpoint";
+                case EndpointTypes.RECIPIENT_ENDPOINT: return "recipient-list-endpoint";
+                case EndpointTypes.TEMPLATE_ENDPOINT: return "template-endpoint";
+                default: return defaultIcon;
+            }
+        }
+        case "TEMPLATE": {
+            switch (subType) {
+                case TemplateTypes.SEQUENCE_ENDPOINT: return "sequence-template";
+                case TemplateTypes.WSDL_ENDPOINT: return "wsdl-endpoint-template";
+                case TemplateTypes.HTTP_ENDPOINT: return "http-endpoint-template";
+                case TemplateTypes.ADDRESS_ENDPOINT: return "address-endpoint-template";
+                case TemplateTypes.DEFAULT_ENDPOINT: return "default-endpoint-template";
+                default: return defaultIcon;
+            }
+        }
+        default: return defaultIcon;
+    }
+}
 
 interface ArtifactType {
     title: string;
     command: string;
     view: MACHINE_VIEW;
     icon: string;
+    iconSx?: any;
+    isCodicon?: boolean;
     description: (entry: any) => string;
     path: (entry: any) => string;
+    isMainSequence?: boolean;
 }
 
 const artifactTypeMap: Record<string, ArtifactType> = {
@@ -27,7 +60,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "APIs",
         command: "MI.project-explorer.add-api",
         view: MACHINE_VIEW.ServiceDesigner,
-        icon: "globe",
+        icon: "APIResource",
         description: (entry: any) => `API Context: ${entry.context}`,
         path: (entry: any) => entry.path,
     },
@@ -35,7 +68,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Endpoints",
         command: "MI.project-explorer.add-endpoint",
         view: MACHINE_VIEW.EndPointForm,
-        icon: "plug",
+        icon: "endpoint",
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -43,7 +76,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Sequences",
         command: "MI.project-explorer.add-sequence",
         view: MACHINE_VIEW.SequenceView,
-        icon: "list-tree",
+        icon: "Sequence",
         description: (entry: any) => `Reusable sequence`,
         path: (entry: any) => entry.path,
     },
@@ -51,7 +84,8 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Proxy Services",
         command: "MI.project-explorer.add-proxy-service",
         view: MACHINE_VIEW.ProxyView,
-        icon: "server",
+        isCodicon: true,
+        icon: "arrow-swap",
         description: (entry: any) => "Proxy Service",
         path: (entry: any) => entry.path,
     },
@@ -59,7 +93,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Inbound Endpoints",
         command: "MI.project-explorer.add-inbound-endpoint",
         view: MACHINE_VIEW.InboundEPForm,
-        icon: "sign-in",
+        icon: "inbound-endpoint",
         description: (entry: any) => "Inbound Endpoint",
         path: (entry: any) => entry.path,
     },
@@ -67,7 +101,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Message Stores",
         command: "MI.project-explorer.add-message-store",
         view: MACHINE_VIEW.MessageStoreForm,
-        icon: "database",
+        icon: "message-store",
         description: (entry: any) => "Message Store",
         path: (entry: any) => entry.path,
     },
@@ -75,7 +109,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Message Processors",
         command: "MI.project-explorer.add-message-processor",
         view: MACHINE_VIEW.MessageProcessorForm,
-        icon: "gear",
+        icon: "message-processor",
         description: (entry: any) => "Message Processor",
         path: (entry: any) => entry.path,
     },
@@ -83,7 +117,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Tasks",
         command: "MI.project-explorer.add-task",
         view: MACHINE_VIEW.TaskForm,
-        icon: "checklist",
+        icon: "task",
         description: (entry: any) => "Task",
         path: (entry: any) => entry.path,
     },
@@ -91,7 +125,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Local Entries",
         command: "MI.project-explorer.add-local-entry",
         view: MACHINE_VIEW.LocalEntryForm,
-        icon: "note",
+        icon: "local-entry",
         description: (entry: any) => "Local Entry",
         path: (entry: any) => entry.path,
     },
@@ -99,7 +133,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Templates",
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
-        icon: "file-code",
+        icon: "template",
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -107,7 +141,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Data Services",
         command: "MI.project-explorer.open-dss-service-designer",
         view: MACHINE_VIEW.DSSServiceDesigner,
-        icon: "file-code",
+        icon: "data-service",
         description: (entry: any) => "Data Service",
         path: (entry: any) => entry.path,
     },
@@ -115,8 +149,16 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Data Sources",
         command: "MI.project-explorer.add-data-source",
         view: MACHINE_VIEW.DataSourceForm,
-        icon: "file-code",
+        icon: "data-source",
         description: (entry: any) => "Data Source",
+        path: (entry: any) => entry.path,
+    },
+    connections: {
+        title: "Connections",
+        command: "MI.project-explorer.add-connection",
+        view: MACHINE_VIEW.ConnectionForm,
+        icon: "link",
+        description: (entry: any) => "Connection",
         path: (entry: any) => entry.path,
     }
     // Add more artifact types as needed
@@ -125,6 +167,21 @@ const artifactTypeMap: Record<string, ArtifactType> = {
 const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
+    const [connectorData, setConnectorData] = useState<any[]>([]);
+
+    const fetchConnectors = async () => {
+        const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+        setConnectorData(connectorDataResponse.data);
+    };
+
+    useEffect(() => {
+        fetchConnectors();
+    }, []);
+
+    function getConnectorIconUrl(connectorName: string): string | undefined {
+        const connector = connectorData.find(c => c.name === connectorName);
+        return connector?.icon_url;
+    }
 
     const goToView = async (documentUri: string, view: MACHINE_VIEW) => {
         const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
@@ -134,12 +191,24 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
     };
 
+    const goToConnectionView = async (documentUri: string, view: MACHINE_VIEW, connectionName: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view, documentUri, customProps: { connectionName: connectionName } }
+        });
+    };
+
+
     const goToSource = (filePath: string) => {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath });
     }
 
     const deleteArtifact = (path: string) => {
         rpcClient.getMiDiagramRpcClient().deleteArtifact({ path, enableUndo: true });
+    }
+
+    const markAsDefaultSequence = (path: string, remove: boolean) => {
+        rpcClient.getMiDiagramRpcClient().markAsDefaultSequence({ path, remove });
     }
 
     const ifHasEntries = () => {
@@ -180,6 +249,17 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         return view;
     }
 
+    function checkHasConnections(value: any) {
+        return value.some((entry: any) => {
+            for (let key in entry) {
+                if (Array.isArray(entry[key])) {
+                    return entry[key].some((innerItem: any) => innerItem.connectorName !== undefined);
+                }
+            }
+            return false;
+        });
+    }
+
     return (
         <Fragment>
             {/* If has entries render content*/}
@@ -189,21 +269,64 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
                         .map(([key, value]) => {
                             const hasOnlyUndefinedItems = Object.values(value).every(entry => entry.path === undefined);
-                            return !hasOnlyUndefinedItems && (
+                            const hasConnections = hasOnlyUndefinedItems ? checkHasConnections(value) : false;
+                            return (!hasOnlyUndefinedItems || hasConnections) && (
                                 <div>
                                     <h3>{artifactTypeMap[key].title}</h3>
                                     {Object.entries(value).map(([_, entry]) => (
-                                        entry.path && (
+                                        entry.path ? (
                                             <Entry
                                                 key={entry.name}
-                                                icon={artifactTypeMap[key].icon}
+                                                isCodicon={artifactTypeMap[key].isCodicon}
+                                                icon={getIcon(entry.type, entry.subType, artifactTypeMap[key].icon)}
+                                                iconSx={artifactTypeMap[key].iconSx}
                                                 name={entry.name}
                                                 description={artifactTypeMap[key].description(entry)}
                                                 onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
                                                 goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
                                                 goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
                                                 deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
+                                                isMainSequence={entry.isMainSequence}
+                                                markAsDefaultSequence={artifactTypeMap[key].title == "Sequences" ? () => markAsDefaultSequence(artifactTypeMap[key].path(entry), entry.isMainSequence) : undefined}
                                             />
+                                        ) : (
+                                            (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
+                                                if (Array.isArray(value)) {
+                                                    key = "connections"
+                                                    return (
+                                                        <div>
+                                                            {value.map(connectionEntry => (
+                                                                connectionEntry.type === "localEntry" && (
+                                                                    <Entry
+                                                                        key={connectionEntry.name}
+                                                                        icon={getConnectorIconUrl(connectionEntry.connectorName)}
+                                                                        name={connectionEntry.name}
+                                                                        description={artifactTypeMap[key].description(connectionEntry)}
+                                                                        onClick={() =>
+                                                                            goToConnectionView(
+                                                                                artifactTypeMap[key].path(connectionEntry),
+                                                                                artifactTypeMap[key].view,
+                                                                                connectionEntry.name)
+                                                                        }
+                                                                        goToView={() =>
+                                                                            goToConnectionView(
+                                                                                artifactTypeMap[key].path(connectionEntry),
+                                                                                artifactTypeMap[key].view,
+                                                                                connectionEntry.name)
+                                                                        }
+                                                                        goToSource={() =>
+                                                                            goToSource(artifactTypeMap[key].path(connectionEntry))
+                                                                        }
+                                                                        deleteArtifact={() =>
+                                                                            deleteArtifact(artifactTypeMap[key].path(connectionEntry))
+                                                                        }
+                                                                    />
+                                                                )
+                                                            ))}
+                                                        </div>
+                                                    )
+                                                }
+                                            })
                                         )
                                     ))}
                                 </div>
@@ -226,6 +349,8 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
 
 interface EntryProps {
     icon: string; // Changed to string to use codicon names
+    iconSx?: any;
+    isCodicon?: boolean;
     name: string;
     description: string;
     // Context menu action callbacks
@@ -233,6 +358,8 @@ interface EntryProps {
     goToView: () => void;
     goToSource: () => void;
     deleteArtifact: () => void;
+    isMainSequence?: boolean;
+    markAsDefaultSequence?: () => void;
 }
 
 const EntryContainer = styled.div`
@@ -247,17 +374,43 @@ const EntryContainer = styled.div`
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact }) => {
+const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact, isMainSequence, markAsDefaultSequence, iconSx, isCodicon }) => {
+    const [showFallbackIcon, setShowFallbackIcon] = useState(false);
+
+    const onError = () => {
+        setShowFallbackIcon(true);
+    }
+
     return (
         <EntryContainer onClick={onClick}>
-            <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                <Codicon name={icon} />
-            </div>
+            {description === "Connection" ? (
+                <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                    {!showFallbackIcon && icon ? (
+                        <img src={icon} alt="Icon" onError={onError} />
+                    ) : (
+                        // Fallback icon on offline mode
+                        <Icon name="connector" sx={{ color: "#D32F2F" }} />
+                    )}
+                </div>
+            ) : (
+                <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                    <Icon name={icon} iconSx={iconSx} isCodicon={isCodicon} />
+                </div>
+            )}
             <div style={{ flex: 2, fontWeight: 'bold' }}>
                 {name}
             </div>
-            <div style={{ flex: 9 }}>
-                {description}
+            <div style={{ flex: 9, display: 'flex' }}>
+                <div style={{ flex: 6 }}>{description}</div>
+                {isMainSequence && <div style={{ flex: 2 }}>
+                    <div style={{
+                        backgroundColor: 'var(--button-secondary-background)',
+                        color: 'white',
+                        padding: 'var(--button-padding-vertical) var(--button-padding-horizontal)',
+                        width: 'fit-content',
+                        borderRadius: '10px'
+                    }}>Automation Sequence</div>
+                </div>}
             </div>
             <div style={{ marginLeft: 'auto' }}>
                 <ContextMenu
@@ -273,6 +426,11 @@ const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToVie
                             label: "Go to Source",
                             onClick: goToSource,
                         },
+                        ...(markAsDefaultSequence ? [{
+                            id: "markAsAutomationModeDefaultSequence",
+                            label: `${isMainSequence ? "Remove" : "Set"} as automation sequence`,
+                            onClick: markAsDefaultSequence,
+                        }] : []),
                         {
                             id: "deleteArtifact",
                             label: "Delete",

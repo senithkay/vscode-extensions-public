@@ -15,9 +15,9 @@ import { transformNamespaces } from "../../../commons";
 export function getXsltMustacheTemplate() {
 
   return `
-    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{xsltSchemaKey}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} >
+    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{xsltSchemaKey}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} >
         {{#properties}}
-        <property name="{{{propertyName}}}" {{#propertyValue}}value="{{{propertyValue}}}"{{/propertyValue}} {{#propertyExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/propertyExpression}} />
+        <property name="{{{propertyName}}}" {{#propertyValue}}value="{{{propertyValue}}}"{{/propertyValue}} {{#propertyExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/propertyExpression}} />
         {{/properties}}
         {{#features}}
         <feature name="{{featureName}}" value="{{featureEnabled}}"/>

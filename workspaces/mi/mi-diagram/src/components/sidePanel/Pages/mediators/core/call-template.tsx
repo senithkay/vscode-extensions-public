@@ -87,15 +87,16 @@ const CallTemplateForm = (props: AddMediatorProps) => {
         
         values["parameterNameTable"] = getParamManagerValues(values.parameterNameTable);
         const xml = getXML(MEDIATORS.CALLTEMPLATE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -130,6 +131,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                     openPopup(rpcClient, "sequenceTemplate", fetchItems, handleValueChange);
                                 }}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -173,6 +175,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 label="OnError"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
+                                required={false}
                             />
                         )}
                     />
@@ -184,7 +187,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

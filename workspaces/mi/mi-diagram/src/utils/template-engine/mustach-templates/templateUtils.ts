@@ -47,7 +47,7 @@ import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
 import { getCacheFormDataFromSTNode, getCacheMustacheTemplate, getCacheXml } from "./advanced/cache";
-import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggreagte";
+import { getAggregateFormDataFromSTNode, getAggregateMustacheTemplate, getAggregateXml } from "./eip/aggregate";
 import { getIterateFormDataFromSTNode, getIterateMustacheTemplate, getIterateXml } from "./eip/iterate";
 import { getNewSwitchCaseXml, getSwitchFormDataFromSTNode, getSwitchMustacheTemplate, getSwitchXml } from "./filter/switch";
 import { getForEachFormDataFromSTNode, getForeachMustacheTemplate, getForeachXml } from "./eip/foreach";
@@ -214,126 +214,137 @@ export function getMustacheTemplate(name: string) {
 }
 
 export function getXML(name: string, data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
-    switch (name) {
-        //Advanced Mediators
-        case MEDIATORS.CACHE:
-            return getCacheXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.CLONE:
-            return getCloneXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.DATASERVICECALL:
-            return getDataSerivceCallXml(data);
-        case MEDIATORS.DBLOOKUP:
-            return getDblookupXml(data);
-        case MEDIATORS.DBREPORT:
-            return getDbReportXml(data);
-        case MEDIATORS.TRANSACTION:
-            return getTransactionXml(data);
-        case MEDIATORS.EVENT:
-            return getEventXml(data);
-        //Core Mediators
-        case MEDIATORS.CALL:
-            return getCallXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.LOG:
-            return getLogXml(data);
-        case MEDIATORS.CALLOUT:
-            return getCalloutXml(data);
-        case MEDIATORS.CALLTEMPLATE:
-            return getCallTemplateXml(data)
-        case MEDIATORS.PROPERTY:
-            return getPropertyXml(data);
-        case MEDIATORS.PROPERTYGROUP:
-            return getPropertyGroupXml(data);
-        case MEDIATORS.STORE:
-            return getStoreXml(data);
-        case MEDIATORS.VALIDATE:
-            return getValidateXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.SEND:
-            return getSendXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.PAYLOAD:
-            return getPayloadXml(data);
-        case MEDIATORS.HEADER:
-            return getHeaderXml(data);
-        case ENDPOINTS.NAMED:
-            return getNamedEndpointXml(data);
-        //EIP Mediators
-        case MEDIATORS.AGGREGATE:
-            return getAggregateXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.ITERATE:
-            return getIterateXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.FOREACHMEDIATOR:
-            return getForeachXml(data, dirtyFields, defaultValues);
-        //Filter Mediators
-        case MEDIATORS.FILTER:
-            return getFilterXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.SWITCH:
-            return getSwitchXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.THROTTLE:
-            return getThrottleXml(data, dirtyFields, defaultValues);
-        //Transformation Mediators
-        case MEDIATORS.PAYLOAD:
-            return getPayloadXml(data);
-        case MEDIATORS.CONDITIONALROUTER:
-            return getConditionalRouterXml(data);
-        case MEDIATORS.ENRICH:
-            return getEnrichXml(data);
-        case MEDIATORS.FASTXSLT:
-            return getFastXSLTXml(data);
-        case MEDIATORS.FAULT:
-            return getFaultXml(data);
-        case MEDIATORS.JSONTRANSFORM:
-            return getJsonTransformXml(data);
-        case MEDIATORS.SMOOKS:
-            return getSmooksXml(data);
-        case MEDIATORS.XQUERY:
-            return getXqueryXml(data);
-        case MEDIATORS.XSLT:
-            return getXsltXml(data);
-        //Extension Mediators    
-        case MEDIATORS.BEAN:
-            return getBeanXml(data);
-        case MEDIATORS.CLASS:
-            return getClassXml(data);
-        case MEDIATORS.EJB:
-            return getEjbXml(data);
-        case MEDIATORS.SCRIPT:
-            return getScriptXml(data).trim();
-        case MEDIATORS.COMMAND:
-            return getCommandXml(data);
-        case MEDIATORS.SEQUENCE:
-            return getSequenceXml(data);
-        //Other Mediators
-        case MEDIATORS.OAUTH:
-            return getOauthXml(data);
-        case MEDIATORS.BUILDER:
-            return getBuilderXml(data);
-        case MEDIATORS.PUBLISHEVENT:
-            return getPublishEventXml(data);
-        case MEDIATORS.ENTITLEMENT:
-            return getEntitlementXml(data, dirtyFields, defaultValues);
-        case MEDIATORS.RULE:
-            return getRuleXml(data);
-        case MEDIATORS.NTLM:
-            return getNtlmXml(data);
-        case MEDIATORS.REWRITE:
-            return getRewriteXml(data);
+    const getTemplateRendered = () => {
+        switch (name) {
+            //Advanced Mediators
+            case MEDIATORS.CACHE:
+                return getCacheXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.CLONE:
+                return getCloneXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.DATASERVICECALL:
+                return getDataSerivceCallXml(data);
+            case MEDIATORS.DBLOOKUP:
+                return getDblookupXml(data);
+            case MEDIATORS.DBREPORT:
+                return getDbReportXml(data);
+            case MEDIATORS.TRANSACTION:
+                return getTransactionXml(data);
+            case MEDIATORS.EVENT:
+                return getEventXml(data);
+            //Core Mediators
+            case MEDIATORS.CALL:
+                return getCallXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.LOG:
+                return getLogXml(data);
+            case MEDIATORS.CALLOUT:
+                return getCalloutXml(data);
+            case MEDIATORS.CALLTEMPLATE:
+                return getCallTemplateXml(data)
+            case MEDIATORS.PROPERTY:
+                return getPropertyXml(data);
+            case MEDIATORS.PROPERTYGROUP:
+                return getPropertyGroupXml(data);
+            case MEDIATORS.STORE:
+                return getStoreXml(data);
+            case MEDIATORS.VALIDATE:
+                return getValidateXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.SEND:
+                return getSendXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.PAYLOAD:
+                return getPayloadXml(data);
+            case MEDIATORS.HEADER:
+                return getHeaderXml(data);
+            case ENDPOINTS.NAMED:
+                return getNamedEndpointXml(data);
+            //EIP Mediators
+            case MEDIATORS.AGGREGATE:
+                return getAggregateXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.ITERATE:
+                return getIterateXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.FOREACHMEDIATOR:
+                return getForeachXml(data, dirtyFields, defaultValues);
+            //Filter Mediators
+            case MEDIATORS.FILTER:
+                return getFilterXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.SWITCH:
+                return getSwitchXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.THROTTLE:
+                return getThrottleXml(data, dirtyFields, defaultValues);
+            //Transformation Mediators
+            case MEDIATORS.PAYLOAD:
+                return getPayloadXml(data);
+            case MEDIATORS.CONDITIONALROUTER:
+                return getConditionalRouterXml(data);
+            case MEDIATORS.ENRICH:
+                return getEnrichXml(data);
+            case MEDIATORS.FASTXSLT:
+                return getFastXSLTXml(data);
+            case MEDIATORS.FAULT:
+                return getFaultXml(data);
+            case MEDIATORS.JSONTRANSFORM:
+                return getJsonTransformXml(data);
+            case MEDIATORS.SMOOKS:
+                return getSmooksXml(data);
+            case MEDIATORS.XQUERY:
+                return getXqueryXml(data);
+            case MEDIATORS.XSLT:
+                return getXsltXml(data);
+            //Extension Mediators    
+            case MEDIATORS.BEAN:
+                return getBeanXml(data);
+            case MEDIATORS.CLASS:
+                return getClassXml(data);
+            case MEDIATORS.EJB:
+                return getEjbXml(data);
+            case MEDIATORS.SCRIPT:
+                return getScriptXml(data).trim();
+            case MEDIATORS.COMMAND:
+                return getCommandXml(data);
+            case MEDIATORS.SEQUENCE:
+                return getSequenceXml(data);
+            //Other Mediators
+            case MEDIATORS.OAUTH:
+                return getOauthXml(data);
+            case MEDIATORS.BUILDER:
+                return getBuilderXml(data);
+            case MEDIATORS.PUBLISHEVENT:
+                return getPublishEventXml(data);
+            case MEDIATORS.ENTITLEMENT:
+                return getEntitlementXml(data, dirtyFields, defaultValues);
+            case MEDIATORS.RULE:
+                return getRuleXml(data);
+            case MEDIATORS.NTLM:
+                return getNtlmXml(data);
+            case MEDIATORS.REWRITE:
+                return getRewriteXml(data);
 
-        // Endpoint Forms
-        case ENDPOINTS.HTTP:
-            return getHTTPEndpointXml(data);
+            // Endpoint Forms
+            case ENDPOINTS.HTTP:
+                return getHTTPEndpointXml(data);
 
-        // Data Service Forms
-        case DATA_SERVICE.EDIT_QUERY:
-            return getDssQueryXml(data);
-        case DATA_SERVICE.EDIT_RESOURCE_PARAMS:
-            return getDssResourceQueryParamsXml(data);
-        case DATA_SERVICE.EDIT_RESOURCE:
-            return getDssResourceXml(data);
-        case DATA_SERVICE.EDIT_SELF_CLOSE_RESOURCE:
-            return getDssResourceSelfClosingXml(data);
+            // Data Service Forms
+            case DATA_SERVICE.EDIT_QUERY:
+                return getDssQueryXml(data);
+            case DATA_SERVICE.EDIT_RESOURCE_PARAMS:
+                return getDssResourceQueryParamsXml(data);
+            case DATA_SERVICE.EDIT_RESOURCE:
+                return getDssResourceXml(data);
+            case DATA_SERVICE.EDIT_SELF_CLOSE_RESOURCE:
+                return getDssResourceSelfClosingXml(data);
 
-        default:
-            return Mustache.render(getMustacheTemplate(name), data).trim();
+            default:
+                return Mustache.render(getMustacheTemplate(name), data).trim();
+        }
     }
+
+    const xml = getTemplateRendered();
+    const cleanedXml = Array.isArray(xml) ? xml.map(item => {
+        return {
+            ...item,
+            text: item.text.replace(/^\s*[\r\n]/gm, '').trimStart().trimEnd()
+        }
+    }) : xml.replace(/^\s*[\r\n]/gm, '').trimStart().trimEnd();
+    return cleanedXml;
 }
 
 export function getNewSubSequenceXml(name: string, st: STNode) {

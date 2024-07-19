@@ -63,15 +63,16 @@ const EventForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.EVENT, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -100,7 +101,7 @@ const EventForm = (props: AddMediatorProps) => {
                             name="topicType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Topic Type" name="topicType" items={["static", "dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Topic Type" name="topicType" items={["static", "dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -114,7 +115,7 @@ const EventForm = (props: AddMediatorProps) => {
                             name="staticTopic"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Static Topic" size={50} placeholder="" />
+                                <TextField {...field} label="Static Topic" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.staticTopic && <Error>{errors.staticTopic.message.toString()}</Error>}
@@ -127,7 +128,7 @@ const EventForm = (props: AddMediatorProps) => {
                             name="dynamicTopic"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Dynamic Topic" size={50} placeholder="" />
+                                <TextField {...field} label="Dynamic Topic" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.dynamicTopic && <Error>{errors.dynamicTopic.message.toString()}</Error>}
@@ -139,7 +140,7 @@ const EventForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

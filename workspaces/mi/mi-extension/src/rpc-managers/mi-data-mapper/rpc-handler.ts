@@ -21,15 +21,15 @@ import {
     loadDMConfigs,
     ConvertRegPathToAbsPathRequest,
     convertRegPathToAbsPath,
-    UpdateDMCRequest,
     createDMFiles,
-    updateDMCFileContent,
     initDMUndoRedoManager,
     dmUndo,
     dmRedo,
     addToDMUndoStack,
     updateDMUndoRedoManager,
-    UpdateDMUndoRedoMangerRequest
+    UpdateDMUndoRedoMangerRequest,
+    getOperators,
+    GetOperatorsRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -43,10 +43,11 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onRequest(loadDMConfigs, (args: LoadDMConfigsRequest) => rpcManger.loadDMConfigs(args));
     messenger.onRequest(convertRegPathToAbsPath, (args: ConvertRegPathToAbsPathRequest) => rpcManger.convertRegPathToAbsPath(args));
     messenger.onRequest(createDMFiles, (args: GenerateDMInputRequest) => rpcManger.createDMFiles(args));
-    messenger.onRequest(updateDMCFileContent, (args: UpdateDMCRequest) => rpcManger.updateDMCFileContent(args));
     messenger.onNotification(initDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.initDMUndoRedoManager(args));
     messenger.onRequest(dmUndo, () => rpcManger.dmUndo());
     messenger.onRequest(dmRedo, () => rpcManger.dmRedo());
     messenger.onNotification(addToDMUndoStack, (args: string) => rpcManger.addToDMUndoStack(args));
     messenger.onNotification(updateDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.updateDMUndoRedoManager(args));
+    messenger.onRequest(getOperators, (args: GetOperatorsRequest) => rpcManger.getOperators(args));
+
 }

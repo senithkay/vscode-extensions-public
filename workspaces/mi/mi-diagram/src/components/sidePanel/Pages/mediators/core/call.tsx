@@ -76,15 +76,16 @@ const CallForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.CALL, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -109,6 +110,11 @@ const CallForm = (props: AddMediatorProps) => {
                     <Controller
                         name="endopint"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
@@ -119,6 +125,7 @@ const CallForm = (props: AddMediatorProps) => {
                                     openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
                                 }}
                                 onValueChange={field.onChange}
+                                required={true}
                             />
                         )}
                     />
@@ -131,7 +138,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="inlineEndpoint"
                         control={control}
                         render={({ field }) => (
-                            <TextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" />
+                            <TextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} />
                         )}
                     />
                     {errors.inlineEndpoint && <Error>{errors.inlineEndpoint.message.toString()}</Error>}
@@ -144,7 +151,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="endpointRegistryKey"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Endpoint Registry Key" size={50} placeholder="Endpoint Registry Key" />
+                            <TextField {...field} label="Endpoint Registry Key" size={50} placeholder="Endpoint Registry Key" required={false} />
                         )}
                     />
                     {errors.endpointRegistryKey && <Error>{errors.endpointRegistryKey.message.toString()}</Error>}
@@ -160,6 +167,7 @@ const CallForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Endpoint Xpath"
                                 placeholder="Endpoint Xpath"
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -199,7 +207,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="sourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -213,7 +221,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="sourceProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Source Property" size={50} placeholder="Source Property" />
+                                <TextField {...field} label="Source Property" size={50} placeholder="Source Property" required={false} />
                             )}
                         />
                         {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
@@ -226,7 +234,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="contentType"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Content Type" size={50} placeholder="Content Type" />
+                                <TextField {...field} label="Content Type" size={50} placeholder="Content Type" required={false} />
                             )}
                         />
                         {errors.contentType && <Error>{errors.contentType.message.toString()}</Error>}
@@ -239,7 +247,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="sourcePayload"
                             control={control}
                             render={({ field }) => (
-                                <TextArea {...field} label="Source Payload" placeholder="" />
+                                <TextArea {...field} label="Source Payload" placeholder="" required={false} />
                             )}
                         />
                         {errors.sourcePayload && <Error>{errors.sourcePayload.message.toString()}</Error>}
@@ -255,6 +263,7 @@ const CallForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Source XPath"
                                     placeholder="Source XPath"
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -269,7 +278,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["none", "body", "property"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Target Type" name="targetType" items={["none", "body", "property"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -283,7 +292,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="targetProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Property" size={50} placeholder="Target Property" />
+                                <TextField {...field} label="Target Property" size={50} placeholder="Target Property" required={false} />
                             )}
                         />
                         {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
@@ -297,7 +306,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

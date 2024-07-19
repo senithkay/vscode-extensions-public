@@ -19,7 +19,7 @@ export function getLogMustacheTemplate() {
   {{^selfClosed}}
   <log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
 {{#properties}}
-    <property name="{{{propertyName}}}" {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{expression}}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
+    <property name="{{{propertyName}}}" {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{expression}}}" {{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} {{/expression}} />
 {{/properties}}
 </log>
 {{/selfClosed}}`;
@@ -48,7 +48,8 @@ export function getLogXml(data: { [key: string]: any }) {
 }
 
 export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log) {
-  if (data.level) data.level = data.level.toString().toUpperCase();
+  if (node.category) data.category = node.category.toString().toUpperCase();
+  if (node.level) data.level = node.level.toString().toUpperCase();
   data.description = node.description;
   data.separator = node.separator;
   if (node.property) {

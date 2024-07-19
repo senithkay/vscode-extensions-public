@@ -21,6 +21,7 @@ export interface ButtonProps {
     tooltip?: string;
     disabled?: boolean;
     sx?: React.CSSProperties;
+    buttonSx?: React.CSSProperties;
     onClick?: (() => void) | ((event: React.MouseEvent<HTMLElement | SVGSVGElement>) => void);
 }
 
@@ -40,12 +41,12 @@ export const ButtonWrapper = styled.div<ButtonWrapperProps>`
 `;
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props: PropsWithChildren<ButtonProps>) => {
-    const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx } = props;
+    const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx, buttonSx } = props;
 
     return (
         // Workaround for button not being disabled when disabled prop is passed
         <ButtonWrapper id={id} className={className} sx={sx}>
-            <VSCodeButton appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)}>
+            <VSCodeButton style={buttonSx} appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)}>
                 {children}
             </VSCodeButton>
         </ButtonWrapper>

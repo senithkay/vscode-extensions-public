@@ -85,15 +85,16 @@ const ClassForm = (props: AddMediatorProps) => {
         
         values["properties"] = getParamManagerValues(values.properties);
         const xml = getXML(MEDIATORS.CLASS, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -118,8 +119,13 @@ const ClassForm = (props: AddMediatorProps) => {
                     <Controller
                         name="className"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Class Name" size={50} placeholder="" />
+                            <TextField {...field} label="Class Name" size={50} placeholder="" required={true} />
                         )}
                     />
                     {errors.className && <Error>{errors.className.message.toString()}</Error>}
@@ -156,7 +162,7 @@ const ClassForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

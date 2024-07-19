@@ -66,15 +66,16 @@ const NTLMForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.NTLM, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -106,6 +107,7 @@ const NTLMForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Username"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -122,6 +124,7 @@ const NTLMForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Password"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -138,6 +141,7 @@ const NTLMForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Host"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -154,6 +158,7 @@ const NTLMForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Domain"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -170,6 +175,7 @@ const NTLMForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="NTLM Version"
                                     placeholder=""
+                                    required={false}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -183,7 +189,7 @@ const NTLMForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

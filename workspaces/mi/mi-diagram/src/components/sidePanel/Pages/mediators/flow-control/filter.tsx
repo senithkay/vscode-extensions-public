@@ -65,15 +65,16 @@ const FilterForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.FILTER, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -99,7 +100,7 @@ const FilterForm = (props: AddMediatorProps) => {
                         name="conditionType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Condition Type" name="conditionType" items={["Source and Regular Expression", "XPath"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Condition Type" name="conditionType" items={["Source and Regular Expression", "XPath"]} value={field.value} required={false} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -112,10 +113,21 @@ const FilterForm = (props: AddMediatorProps) => {
                     <Controller
                         name="source"
                         control={control}
+                        rules={
+                            {
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Source"
                                 placeholder=""
+                                required={true}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -131,7 +143,7 @@ const FilterForm = (props: AddMediatorProps) => {
                         name="regularExpression"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Regular Expression" size={50} placeholder="" />
+                            <TextField {...field} label="Regular Expression" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.regularExpression && <Error>{errors.regularExpression.message.toString()}</Error>}
@@ -147,6 +159,7 @@ const FilterForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="XPath"
                                 placeholder=""
+                                required={false}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
@@ -161,7 +174,7 @@ const FilterForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

@@ -64,15 +64,16 @@ const EnqueueForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         const xml = getXML(MEDIATORS.ENQUEUE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -101,7 +102,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="executor"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Executor" size={50} placeholder="" />
+                                <TextField {...field} label="Executor" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.executor && <Error>{errors.executor.message.toString()}</Error>}
@@ -111,8 +112,13 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         <Controller
                             name="priority"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Priority" size={50} placeholder="" />
+                                <TextField {...field} label="Priority" size={50} placeholder="" required={true} />
                             )}
                         />
                         {errors.priority && <Error>{errors.priority.message.toString()}</Error>}
@@ -129,6 +135,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
                                 />
                             )}
                         />
@@ -140,7 +147,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

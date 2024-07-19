@@ -15,8 +15,7 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import { View } from "../Views/DataMapperView";
 import ExpressionBar from "./ExpressionBar";
-import { isFocusedOnMapFunction } from "./utils";
-import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
+import { DMOperator } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -24,13 +23,11 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: () => Promise<void>;
-    inputNode: DataMapperNodeModel;
+    operators: DMOperator[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications, inputNode } = props;
-
-    const isFocusedOnMapFn = isFocusedOnMapFunction(views);
+    const { views, switchView, hasEditDisabled, onClose, applyModifications, operators } = props;
 
     return (
         <HeaderContainer>
@@ -53,7 +50,10 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBar applyModifications={applyModifications} />
+                <ExpressionBar
+                    applyModifications={applyModifications}
+                    operators={operators}
+                />
             </ExpressionContainer>
         </HeaderContainer>
     );
@@ -81,28 +81,22 @@ const ExpressionContainer = styled.div`
     border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;
 
-const ArrayFilterContainer = styled.div`
-    width: 100%;
-    min-height: 40px;
-    display: flex;
-    border-bottom: 1px solid var(--vscode-menu-separatorBackground);
-`;
-
 const Title = styled.h3`
+    width: 18%;
     margin: 0 10px 0 0;
     color: var(--vscode-sideBarSectionHeader-foreground);
     font-size: var(--vscode-font-size);
 `;
 
 const BreadCrumb = styled.div`
-    width: 60%;
+    width: 70%;
     display: flex;
 `;
 
 const IOFilterBar = styled.div`
-  flex: 3;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 3px;
+    flex: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 3px;
 `;

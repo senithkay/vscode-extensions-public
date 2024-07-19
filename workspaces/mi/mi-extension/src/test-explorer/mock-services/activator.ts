@@ -37,12 +37,7 @@ class MockServiceTreeProvider implements TreeDataProvider<MockServiceItem> {
             label: element.name,
             collapsibleState: TreeItemCollapsibleState.None,
             iconPath: new ThemeIcon('notebook-open-as-text'),
-            id: element.path,
-            command: {
-                command: COMMANDS.UPDATE_MOCK_SERVICE,
-                title: 'Open Mock Service',
-                arguments: [element.path]
-            }
+            id: element.path
         };
     }
 
@@ -96,20 +91,8 @@ export function activateMockServiceTreeView(context: ExtensionContext): void {
         console.log('Refresh Mock Services');
     });
 
-    commands.registerCommand(COMMANDS.UPDATE_MOCK_SERVICE, (documentUri: string) => {
-        const now = Date.now()
-        const isSameItem = documentUri === lastSelectedItem
-        const isWithinShortTime = now - lastSelectedAt < 500
-        if (isSameItem && isWithinShortTime) {
-            // reset state
-            lastSelectedItem = undefined;
-            lastSelectedAt = now;
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService, documentUri });
-        } else {
-            // set new state
-            lastSelectedItem = documentUri;
-            lastSelectedAt = now;
-        }
+    commands.registerCommand(COMMANDS.EDIT_MOCK_SERVICE, (data: any) => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService, documentUri: data?.path });
 
         console.log('Update Mock Service');
     });

@@ -59,13 +59,13 @@ const RuleForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Prefix",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "TextField",
                         "label": "Namespace URI",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                 ]
             },
@@ -179,15 +179,16 @@ const RuleForm = (props: AddMediatorProps) => {
         values["factsConfiguration"] = getParamManagerValues(values.factsConfiguration);
         values["resultsConfiguration"] = getParamManagerValues(values.resultsConfiguration);
         const xml = getXML(MEDIATORS.RULE, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i].text}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({
@@ -216,7 +217,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="sourceValue"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Source Value" size={50} placeholder="" />
+                                <TextField {...field} label="Source Value" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.sourceValue && <Error>{errors.sourceValue.message.toString()}</Error>}
@@ -230,6 +231,7 @@ const RuleForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Source XPath"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -248,7 +250,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="targetValue"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Value" size={50} placeholder="" />
+                                <TextField {...field} label="Target Value" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.targetValue && <Error>{errors.targetValue.message.toString()}</Error>}
@@ -259,7 +261,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="targetAction"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Action" name="targetAction" items={["Replace", "Child", "Sibiling"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Target Action" name="targetAction" items={["Replace", "Child", "Sibiling"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -301,6 +303,7 @@ const RuleForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Target XPath"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -317,6 +320,7 @@ const RuleForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Target Result XPath"
                                     placeholder=""
+                                    required={false}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
@@ -335,7 +339,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Rule Set Type" name="ruleSetType" items={["Regular", "Decision Table"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Rule Set Type" name="ruleSetType" items={["Regular", "Decision Table"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -348,7 +352,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetSourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Rule Set Source Type" name="ruleSetSourceType" items={["INLINE", "REGISTRY_REFERENCE", "URL"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Rule Set Source Type" name="ruleSetSourceType" items={["INLINE", "REGISTRY_REFERENCE", "URL"]} value={field.value} required={false} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -362,7 +366,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetSourceCode"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Rule Set Source Code" size={50} placeholder="" />
+                                <TextField {...field} label="Rule Set Source Code" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.ruleSetSourceCode && <Error>{errors.ruleSetSourceCode.message.toString()}</Error>}
@@ -375,7 +379,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="inlineRegistryKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Inline Registry Key" size={50} placeholder="" />
+                                <TextField {...field} label="Inline Registry Key" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.inlineRegistryKey && <Error>{errors.inlineRegistryKey.message.toString()}</Error>}
@@ -388,7 +392,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetURL"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Rule Set URL" size={50} placeholder="" />
+                                <TextField {...field} label="Rule Set URL" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.ruleSetURL && <Error>{errors.ruleSetURL.message.toString()}</Error>}
@@ -405,7 +409,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="inputWrapperName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Input Wrapper Name" size={50} placeholder="" />
+                                <TextField {...field} label="Input Wrapper Name" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.inputWrapperName && <Error>{errors.inputWrapperName.message.toString()}</Error>}
@@ -416,7 +420,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="inputNamespace"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Input Namespace" size={50} placeholder="" />
+                                <TextField {...field} label="Input Namespace" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.inputNamespace && <Error>{errors.inputNamespace.message.toString()}</Error>}
@@ -458,7 +462,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="outputWrapperName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Output Wrapper Name" size={50} placeholder="" />
+                                <TextField {...field} label="Output Wrapper Name" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.outputWrapperName && <Error>{errors.outputWrapperName.message.toString()}</Error>}
@@ -469,7 +473,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="outputNamespace"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Output Namespace" size={50} placeholder="" />
+                                <TextField {...field} label="Output Namespace" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.outputNamespace && <Error>{errors.outputNamespace.message.toString()}</Error>}
@@ -511,7 +515,7 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                             )}
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}

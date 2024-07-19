@@ -639,22 +639,6 @@ export function AIProjectGenerationChat() {
         });
 
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
-
-        //clear code blocks array and the chat array
-        // codeBlocks.length = 0;
-        // chatArray.length = 0;
-
-        // setMessages((prevMessages) => [
-        //   { role: "", content: "Welcome to the AI Powered Generation and Editing Tool. You may use this tool to generate entirely new Artifacts or to do changes to existing artifacts simply using text based prompts. The context of your generation shall always be the window you have currenly opened.", type: "label" },
-        //   { role: "", content: "Given below are some sample questions you may ask. I am powered by AI, therefore mistakes and surprises are inevitable.", type: "label" },
-        //   { role: "" , content: "Generate a Sample Hello World API", type: "question"},
-        //   { role: "" , content: "Generate a JSON to XML Integration Scenario", type: "question"},
-        //   { role: "" , content: "Generate a Message Routing Integration for a Hospital System", type: "question"}
-        // ]);
-
-        //clear the local storage
-        // localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
-        // localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
     }
 
     const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
@@ -684,7 +668,6 @@ export function AIProjectGenerationChat() {
         if (lastIndex < content.length) {
             segments.push({ isCode: false, loading: false, text: content });
         }
-
         return segments;
     }
 
@@ -992,12 +975,41 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
     },
 }));
 
+function identifyLanguage(segmentText: string): string {
+    if (segmentText.includes('<') && segmentText.includes('>') && /(?:name|key)="([^"]+)"/.test(segmentText)) {
+        return "xml";
+    } else if (segmentText.includes('```toml')) {
+        return "toml";
+    } else if (segmentText.startsWith('```')) {
+        // Split the string to get the first line
+        const firstLine = segmentText.split('\n', 1)[0];
+        // Remove the starting ```
+        return firstLine.substring(3).trim();
+    } else {
+        return "";
+    }
+}
+
 
 const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleAddSelectiveCodetoWorkspace }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const match = segmentText.match(/(name|key)="([^"]+)"/);
-    let name = match ? match[2] + "" : "Unknown File";
+    const language = identifyLanguage(segmentText);
+    let name = "";
+
+    switch (language) {
+        case "xml":
+            const xmlMatch = segmentText.match(/(name|key)="([^"]+)"/);
+            name = xmlMatch ? xmlMatch[2] : "XML File";
+            break;
+        case "toml":
+            name = "deployment.toml"; // Default name
+            break;
+        default:
+            name = `${language} file`;
+            break;
+    }
+
     if (loading) {
         name = "Generating " + name + "...";
     }
@@ -1012,7 +1024,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                    {!loading &&
+                {!loading && language === 'xml' &&
                         <Button
                             appearance="icon"
                             onClick={(e) => {
@@ -1025,7 +1037,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                 </div>
             </EntryContainer>
             <Collapse isOpened={isOpen}>
-                <SyntaxHighlighter language="xml" style={{ ...materialOceanic, 'pre[class*="language-"]': { ...materialOceanic['pre[class*="language-"]'], marginTop: 0 } }}>
+                <SyntaxHighlighter language={language} style={{ ...materialOceanic, 'pre[class*="language-"]': { ...materialOceanic['pre[class*="language-"]'], marginTop: 0 } }}>
                     {segmentText.trim()}
                 </SyntaxHighlighter>
             </Collapse>
