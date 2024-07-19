@@ -9,6 +9,7 @@ import advancedModel from "./advanced.json";
 import advanced2Model from "./advanced-2.json";
 import advanced3Model from "./advanced-3.json";
 import advanced4Model from "./advanced-4.json";
+import advanced5Model from "./advanced-5.json";
 
 export default {
     title: "Example/Diagram",
@@ -55,4 +56,9 @@ Advanced3.args = {
 export const Advanced4 = Template.bind({});
 Advanced4.args = {
     model: advanced4Model,
+};
+
+export const Advanced5 = Template.bind({});
+Advanced5.args = {
+    model: advanced5Model,
 };
