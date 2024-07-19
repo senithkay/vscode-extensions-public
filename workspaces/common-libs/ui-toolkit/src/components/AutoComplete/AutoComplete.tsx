@@ -30,6 +30,10 @@ export interface DropdownContainerProps {
     display?: boolean;
 }
 
+interface DropdownProps {
+    hideDropdown: boolean;
+}
+
 const ActionButtonStyles = cx(css`
     display: flex;
     align-items: center;
@@ -85,6 +89,7 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
     height: ${hideDropdown ? '100%' : '24px'};
     width: ${hideDropdown ? '100%' : 'calc(100% - 5px)' };
     padding-left: 8px;
+    padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
     border-top: 1px solid var(--vscode-dropdown-border);
@@ -104,10 +109,14 @@ const LabelContainer = styled.div`
     margin-bottom: 4px;
 `;
 
-const ComboboxInputWrapper = styled.div`
+const ComboboxInputWrapper = styled.div<DropdownProps>`
     height: 100%;
     display: flex;
     flex-direction: row;
+    border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
+    &:focus-within {
+        border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
+    }
 `;
 
 export const OptionContainer = cx(css`
@@ -283,11 +292,13 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         setIsTextFieldFocused(true);
     };
     const handleTextFieldClick = () => {
-        inputRef.current?.select();
-        // This is to open the dropdown when the text field is focused.
-        // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${btnId}`)?.click();
-        document.getElementById(props.value as string)?.focus();
+        if (!hideDropdown) {
+            inputRef.current?.select();
+            // This is to open the dropdown when the text field is focused.
+            // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
+            document.getElementById(`autocomplete-dropdown-button-${btnId}`)?.click();
+            document.getElementById(props.value as string)?.focus();
+        }
     };
     const handleTextFieldOutFocused = (e: any) => {
         setIsTextFieldFocused(false);
@@ -340,7 +351,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                     </LabelContainer>
                 )}
                 <ComboboxContent>
-                    <ComboboxInputWrapper ref={inputWrapperRef}>
+                    <ComboboxInputWrapper ref={inputWrapperRef} hideDropdown={hideDropdown}>
                         <Combobox.Input
                             id={id}
                             ref={inputRef}

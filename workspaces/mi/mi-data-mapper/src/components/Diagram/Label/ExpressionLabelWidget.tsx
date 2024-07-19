@@ -197,27 +197,28 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: DMType) => {
         if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
 
-                let isOptionalSource = false;
-                const sourcePort = linkModel.getSourcePort();
-                const targetPort = linkModel.getTargetPort();
+            let isSourceOptional = false;
+            const linkModelValue = linkModel.value;
+            const sourcePort = linkModel.getSourcePort();
+            const targetPort = linkModel.getTargetPort();
 
-                let targetExpr: Node = linkModel.value;
-                if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
-                    isOptionalSource = true;
+            let targetExpr: Node = linkModelValue;
+            if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
+                isSourceOptional = true;
+            }
+            if (targetPort instanceof InputOutputPortModel) {
+                const expr = targetPort.typeWithValue?.value;
+                if (Node.isPropertyAssignment(expr)) {
+                    targetExpr = expr.getInitializer();
+                } else {
+                    targetExpr = expr;
                 }
-                if (targetPort instanceof InputOutputPortModel) {
-                    const expr = targetPort.typeWithValue?.value;
-                    if (Node.isPropertyAssignment(expr)) {
-                        targetExpr = expr.getInitializer();
-                    } else {
-                        targetExpr = expr;
-                    }
-                }
+            }
 
-                const mapFnSrc = generateArrayToArrayMappingWithFn(linkModel.value.getText(), targetType);
+            const mapFnSrc = generateArrayToArrayMappingWithFn(linkModelValue.getText(), targetType, isSourceOptional);
 
-                targetExpr.replaceWithText(mapFnSrc);
-                await context.applyModifications();
+            targetExpr.replaceWithText(mapFnSrc);
+            await context.applyModifications();
         }
     };
 
