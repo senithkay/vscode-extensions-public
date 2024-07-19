@@ -18,14 +18,14 @@ import {
     ConvertRegPathToAbsPathResponse,
     SubMappingTypesResponse,
     UpdateDMUndoRedoMangerRequest,
-    GetOperatorsRequest,
-    GetOperatorsResponse
+    GetCompletionsRequest,
+    GetCompletionsResponse
 } from "./types";
 
 export interface MIDataMapperAPI {
     getIOTypes: (params: DMTypeRequest) => Promise<IOTypeResponse>;
     getSubMappingTypes: (params: DMTypeRequest) => Promise<SubMappingTypesResponse>;
-    updateFileContent: (params: UpdateFileContentRequest) => void;
+    updateFileContent: (params: UpdateFileContentRequest) => Promise<void>;
     loadDMConfigs: (params: LoadDMConfigsRequest) => Promise<LoadDMConfigsResponse>;
     convertRegPathToAbsPath: (params: ConvertRegPathToAbsPathRequest) => Promise<ConvertRegPathToAbsPathResponse>;
     createDMFiles: (params: GenerateDMInputRequest) => Promise<GenerateDMInputResponse>;
@@ -34,5 +34,5 @@ export interface MIDataMapperAPI {
     dmRedo: () => Promise<string | undefined>;
     addToDMUndoStack: (source: string) => void;
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
-    getOperators: (params: GetOperatorsRequest) => Promise<GetOperatorsResponse>;
+    getCompletions: (params: GetCompletionsRequest) => Promise<GetCompletionsResponse>;
 }
