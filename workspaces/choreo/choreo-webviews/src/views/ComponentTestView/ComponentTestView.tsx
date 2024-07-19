@@ -69,7 +69,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
     } = useQuery({
         queryKey: ["get-test-key", { selectedEndpoint, env, org }],
         enabled: !!selectedEndpoint,
-        refetchInterval: 10000,
+        refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
         queryFn: () =>
             ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getTestKey({
                 apimId: selectedEndpoint.apimId,

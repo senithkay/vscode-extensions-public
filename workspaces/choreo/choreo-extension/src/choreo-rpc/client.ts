@@ -115,11 +115,12 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         return resp.project;
     }
 
-    async createComponent(params: CreateComponentReq): Promise<void> {
+    async createComponent(params: CreateComponentReq): Promise<ComponentKind> {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        await this.client.sendRequest("component/create", params);
+        const resp = await this.client.sendRequest<{ component: ComponentKind }>("component/create", params);
+        return resp.component;
     }
 
     async createEpYaml(params: CreateComponentReq): Promise<{ success: boolean }> {

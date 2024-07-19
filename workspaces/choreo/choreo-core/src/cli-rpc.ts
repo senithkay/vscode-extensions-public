@@ -72,7 +72,7 @@ export interface IChoreoRPCClient {
     getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
     getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
     createProject(params: CreateProjectReq): Promise<Project>;
-    createComponent(params: CreateComponentReq): Promise<void>;
+    createComponent(params: CreateComponentReq): Promise<ComponentKind>;
     getBuildPacks(params: BuildPackReq): Promise<Buildpack[]>;
     getRepoBranches(params: GetBranchesReq): Promise<string[]>;
     isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<IsRepoAuthorizedResp>;
@@ -105,7 +105,7 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     createProject(params: CreateProjectReq): Promise<Project> {
         return this._messenger.sendRequest(ChoreoRpcCreateProjectRequest, HOST_EXTENSION, params);
     }
-    createComponent(params: CreateComponentReq): Promise<void> {
+    createComponent(params: CreateComponentReq): Promise<ComponentKind> {
         return this._messenger.sendRequest(ChoreoRpcCreateComponentRequest, HOST_EXTENSION, params);
     }
     getBuildPacks(params: BuildPackReq): Promise<Buildpack[]> {
@@ -156,7 +156,7 @@ export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { met
 export const ChoreoRpcGetComponentsRequest: RequestType<GetComponentsReq, ComponentKind[]> = { method: 'rpc/component/getList' };
 export const ChoreoRpcGetComponentItemRequest: RequestType<GetComponentItemReq, ComponentKind> = { method: 'rpc/component/getItem' };
 export const ChoreoRpcCreateProjectRequest: RequestType<CreateProjectReq, Project> = { method: 'rpc/project/create' };
-export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, void> = { method: 'rpc/component/create' };
+export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, ComponentKind> = { method: 'rpc/component/create' };
 export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = { method: 'rpc/component/getBuildPacks' };
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: 'rpc/repo/getBranches' };
 export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, IsRepoAuthorizedResp> = { method: 'rpc/repo/isRepoAuthorized' };

@@ -121,7 +121,7 @@ export const submitCreateComponentHandler = async ({
     project,
 }: SubmitComponentCreateReq) => {
     const cleanCompName = makeURLSafe(createParams.name);
-    await window.withProgress(
+    const createdComponent = await window.withProgress(
         {
             title: `Creating new component ${createParams.displayName}...`,
             location: ProgressLocation.Notification,
@@ -144,18 +144,6 @@ export const submitCreateComponentHandler = async ({
 
     window.showInformationMessage(`Component ${createParams?.name} has been successfully created`);
 
-    const createdComponent = await window.withProgress(
-        {
-            title: `Fetching newly created component ${createParams?.name}...`,
-            location: ProgressLocation.Notification,
-        },
-        () =>
-            ext.clients.rpcClient.getComponentItem({
-                orgId: org.id.toString(),
-                projectHandle: project.handler,
-                componentName: cleanCompName,
-            })
-    );
 
     if (createdComponent) {
         showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
