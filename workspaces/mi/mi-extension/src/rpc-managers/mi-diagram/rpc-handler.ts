@@ -55,6 +55,8 @@ import {
     GetRecipientEPRequest,
     GetRegistryMetadataRequest,
     GetSelectiveArtifactsRequest,
+    GetSubFoldersRequest,
+    getSubFolderNames,
     GetTaskRequest,
     GetTemplateEPRequest,
     GetTextAtRangeRequest,
@@ -335,4 +337,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllDependencies, (args: getAllDependenciesRequest) => rpcManger.getAllDependencies(args));
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));
     messenger.onNotification(markAsDefaultSequence, (args: MarkAsDefaultSequenceRequest) => rpcManger.markAsDefaultSequence(args));
+    messenger.onRequest(getSubFolderNames, (args: GetSubFoldersRequest) => rpcManger.getSubFolderNames(args));
 }

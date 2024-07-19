@@ -184,6 +184,8 @@ import {
     TestDbConnectionRequest,
     TestDbConnectionResponse,
     MarkAsDefaultSequenceRequest,
+    GetSubFoldersRequest,
+    GetSubFoldersResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -305,3 +307,4 @@ export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { m
 export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };
 export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };
 export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };
+export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
