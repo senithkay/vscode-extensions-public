@@ -21,14 +21,16 @@ export interface DataImportNodeWidgetProps {
 export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
     const {configName, ioType} = props;
 
-    const { setIsIOConfigPanelOpen, setIOConfigPanelType } = useDMIOConfigPanelStore(state => ({
+    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
 		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
-		setIOConfigPanelType: state.setIOConfigPanelType
+		setIOConfigPanelType: state.setIOConfigPanelType,
+        setIsSchemaOverridden: state.setIsSchemaOverridden
 	}));
 
     const handleOnClick = () => {
         setIsIOConfigPanelOpen(true);
         setIOConfigPanelType(ioType);
+        setIsSchemaOverridden(false);
     };
 
     return (

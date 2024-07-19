@@ -102,3 +102,6 @@ export enum InboundEndpointTypes {
     CUSTOM = "CUSTOM",
     RABBITMQ = "rabbit-mq"
 };
+export const APIS = {
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+}

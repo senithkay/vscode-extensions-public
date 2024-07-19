@@ -60,7 +60,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                 return FileExtension.CSV;
             case 'XML':
                 return FileExtension.XML;
-            case 'JSON_SCHEMA':
+            case 'JSONSCHEMA':
                 return FileExtension.JSON;
         }
     }, [selectedImportType]);
@@ -130,7 +130,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                     <ImportDataPanel
                         importType={selectedImportType}
                         extension={fileExtension}
-                        rowRange={{ start: 5, offset: 10 }}
+                        rowRange={{ start: 15, offset: 10 }}
                         onSave={handleFileUpload}
                     />
                 )}

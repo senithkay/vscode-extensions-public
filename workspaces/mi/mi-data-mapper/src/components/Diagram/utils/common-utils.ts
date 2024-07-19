@@ -135,7 +135,7 @@ export function getInputPort(
 
             for (let i = 1; i < fieldNames.length; i++) {
                 const fieldName = fieldNames[i];
-                portIdBuffer += fieldName.isOptional ? `?.${fieldName.name}` : `.${fieldName.name}`;
+                portIdBuffer += `.${fieldName.name}`;
                 const optionalField = getOptionalField(nextTypeNode);
                 let fieldType: DMType;
 
@@ -327,7 +327,7 @@ export function getTypeName(field: DMType): string {
 }
 
 export function getMapFnViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
-    const { field, fieldFQN } = targetPort;
+    const { field, fieldFQN: fieldFQN } = targetPort;
     let label = fieldFQN;
 
     if (field.kind === TypeKind.Array) {

@@ -232,7 +232,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         name="inProperty"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="In Property" size={50} placeholder="" />
+                            <TextField {...field} label="In Property" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.inProperty && <Error>{errors.inProperty.message.toString()}</Error>}
@@ -243,7 +243,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         name="outProperty"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Out Property" size={50} placeholder="" />
+                            <TextField {...field} label="Out Property" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.outProperty && <Error>{errors.outProperty.message.toString()}</Error>}
@@ -254,7 +254,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}

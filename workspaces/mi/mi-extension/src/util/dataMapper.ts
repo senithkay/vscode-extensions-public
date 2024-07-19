@@ -182,11 +182,11 @@ function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
     } else if (typeNode.isObject()) {
         return getTypeInfoForObject(typeNode, sourceFile);
     } else if (typeNode.isString()) {
-        return { kind: TypeKind.String };
+        return { kind: TypeKind.String, optional: typeNode.isNullable() };
     } else if (typeNode.isBoolean()) {
-        return { kind: TypeKind.Boolean };
+        return { kind: TypeKind.Boolean, optional: typeNode.isNullable() };
     } else if (typeNode.isNumber()) {
-        return { kind: TypeKind.Number };
+        return { kind: TypeKind.Number, optional: typeNode.isNullable() };
     }
 
     return { kind: TypeKind.Unknown };
@@ -218,7 +218,8 @@ function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType
         if (Node.isPropertySignature(member)) {
             return {
                 ...getTypeInfo(member.getType()!, sourceFile),
-                fieldName: member.getName()
+                fieldName: member.getName(),
+                optional: !!member.getQuestionTokenNode()
             };
         }
     }).filter(Boolean) as DMType[];
@@ -226,7 +227,8 @@ function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType
     return {
         kind: TypeKind.Interface,
         typeName,
-        fields
+        fields,
+        optional: typeNode.isNullable()
     };
 }
 
@@ -234,7 +236,8 @@ function getTypeInfoForArray(typeNode: Type, sourceFile: SourceFile): DMType {
     const elementType = getTypeInfo(typeNode.getArrayElementType()!, sourceFile);
     return {
         kind: TypeKind.Array,
-        memberType: elementType
+        memberType: elementType,
+        optional: typeNode.isNullable()
     };
 }
 
@@ -248,7 +251,8 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
             if (Node.isPropertySignature(decl) || Node.isPropertyAssignment(decl)) {
                 return {
                     ...getTypeInfo(decl.getType()!, sourceFile),
-                    fieldName: decl.getName()
+                    fieldName: decl.getName(),
+                    optional: !!decl.getQuestionTokenNode()
                 };
             }
         }).filter(Boolean) as DMType[];
@@ -258,6 +262,7 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
     return {
         kind: TypeKind.Interface,
         typeName: 'Object',
-        fields
+        fields,
+        optional: typeNode.isNullable()
     };
 }

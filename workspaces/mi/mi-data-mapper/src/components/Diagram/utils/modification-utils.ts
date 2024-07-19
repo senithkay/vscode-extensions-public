@@ -405,7 +405,7 @@ export function buildInputAccessExpr(fieldFqn: string): string {
         }
     });
 
-    return result.replace(/\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
+	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {
