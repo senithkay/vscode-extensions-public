@@ -33,6 +33,7 @@ import {
     DataSourceTemplate,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
+    DownloadInboundConnectorRequest,
     EditAPIRequest,
     ExportProjectRequest,
     GetAllArtifactsRequest,
@@ -124,6 +125,7 @@ import {
     createTemplate,
     deleteArtifact,
     downloadConnector,
+    downloadInboundConnector,
     editAPI,
     editOpenAPISpec,
     executeCommand,
@@ -303,6 +305,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getMetadataOfRegistryResource, (args: GetRegistryMetadataRequest) => rpcManger.getMetadataOfRegistryResource(args));
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
+    messenger.onRequest(downloadInboundConnector, (args: DownloadInboundConnectorRequest) => rpcManger.downloadInboundConnector(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
     messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));

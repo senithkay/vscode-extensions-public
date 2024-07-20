@@ -1377,6 +1377,15 @@ export interface DownloadConnectorRequest {
 export interface DownloadConnectorResponse {
     path: string;
 }
+
+export interface DownloadInboundConnectorRequest {
+    url: string;
+}
+
+export interface DownloadInboundConnectorResponse {
+    uischema: any;
+}
+
 export interface GetAvailableConnectorRequest {
     documentUri: string;
     connectorName: string | null;

@@ -185,6 +185,8 @@ import {
     MarkAsDefaultSequenceRequest,
     GetSubFoldersResponse,
     GetSubFoldersRequest,
+    DownloadInboundConnectorRequest,
+    DownloadInboundConnectorResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -271,6 +273,7 @@ export interface MiDiagramAPI {
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
+    downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;

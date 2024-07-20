@@ -63,6 +63,8 @@ import {
     Dependency,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DownloadInboundConnectorRequest,
+    DownloadInboundConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
     EditAPIRequest,
@@ -213,6 +215,9 @@ import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
+import AdmZip from 'adm-zip';
+import { remove } from 'fs-extra';
+import { promisify } from 'util';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
@@ -240,6 +245,8 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+const glob = require('glob');
+const globPromise = promisify(glob);
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -3054,6 +3061,108 @@ ${endpointAttributes}
 
             return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
+            });
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
+    async downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
+        const { url } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const metadataDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'metadata');
+            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+
+            if (!fs.existsSync(metadataDirectory)) {
+                fs.mkdirSync(metadataDirectory, { recursive: true });
+            }
+
+            // Extract the zip name from the URL
+            const zipName = path.basename(url);
+
+            const metadataPath = path.join(metadataDirectory, zipName);
+
+            if (!fs.existsSync(metadataPath)) {
+                const response = await axios.get(url, {
+                    responseType: 'stream',
+                    headers: {
+                        'User-Agent': 'My Client'
+                    }
+                });
+
+                // Create a temporary file
+                const tmpobj = tmp.fileSync();
+                const writer = fs.createWriteStream(tmpobj.name);
+
+                response.data.pipe(writer);
+
+                return new Promise((resolve, reject) => {
+                    writer.on('finish', async () => {
+                        writer.close();
+                        // Copy the file from the temp location to the connectorPath
+                        await copy(tmpobj.name, metadataPath);
+                        // Remove the temporary file
+                        tmpobj.removeCallback();
+
+                        // Extract the ZIP file at metadataPath
+                        try {
+                            const zip = new AdmZip(metadataPath);
+                            // Assuming you want to extract it in the same directory as metadataPath
+                            // You might need to adjust this path depending on your requirements
+                            const extractPath = metadataPath + '_extracted'; // Example extracted directory name
+                            zip.extractAllTo(extractPath, true);
+
+                            // Find the .jar file in the extracted directory
+                            glob(`${extractPath}/**/*.jar`, async (err, files) => {
+                                if (err) {
+                                    reject(err);
+                                } else if (files.length > 0) {
+                                    const jarPath = files[0]; // Assuming there's only one .jar file
+                                    await copy(jarPath, libDirectory); // Copy the .jar file to libDirectory
+
+                                    // After copying the .jar file, proceed to read the uischema.JSON
+                                    const uischemaPath = `${extractPath}/resources/uischema.json`;
+                                    fs.readFile(uischemaPath, 'utf8', async (err, data) => {
+                                        if (err) {
+                                            reject(err); // Handle file read error
+                                        } else {
+                                            try {
+                                                const uischema = JSON.parse(data); // Parse the JSON content
+
+                                                // Use the uischema JSON object as needed
+                                                // ...
+
+                                                // After using the uischema JSON, delete the ZIP file and extracted folder
+                                                await remove(metadataPath); // Delete the ZIP file
+                                                await remove(extractPath); // Delete the extracted folder
+
+                                                resolve({ uischema }); // Resolve with the uischema JSON object
+                                            } catch (parseError) {
+                                                reject(parseError); // Handle JSON parsing error
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    reject(new Error("No .jar file found in the extracted directory."));
+                                }
+                            });
+                        } catch (error) {
+                            reject(error); // Handle any errors during extraction
+                        }
+                    });
+                    writer.on('error', reject);
+                });
+            }
+
+            return new Promise((resolve, reject) => {
+                resolve({ uischema: metadataPath });
             });
         } catch (error) {
             console.error('Error downloading connector:', error);

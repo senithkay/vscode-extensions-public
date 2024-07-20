@@ -305,7 +305,10 @@ import {
     markAsDefaultSequence,
     getSubFolderNames,
     GetSubFoldersResponse,
-    GetSubFoldersRequest
+    GetSubFoldersRequest,
+    downloadInboundConnector,
+    DownloadInboundConnectorResponse,
+    DownloadInboundConnectorRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -647,6 +650,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
         return this._messenger.sendRequest(downloadConnector, HOST_EXTENSION, params);
+    }
+
+    downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
+        return this._messenger.sendRequest(downloadInboundConnector, HOST_EXTENSION, params);
     }
 
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
