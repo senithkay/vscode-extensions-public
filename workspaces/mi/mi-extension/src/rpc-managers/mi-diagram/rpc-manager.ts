@@ -117,6 +117,8 @@ import {
     GetSelectiveArtifactsRequest,
     GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
+    GetSubFoldersRequest,
+    GetSubFoldersResponse,
     GetTaskRequest,
     GetTaskResponse,
     GetTemplateEPRequest,
@@ -2896,7 +2898,7 @@ ${endpointAttributes}
                 console.error('Failed to fetch connectors');
             }
             const data = await response.json();
-            const connector = data.data.find(connector => connector.name === name);
+            const connector = data['outbound-connector-data']?.find(connector => connector.name === name);
             if (connector) {
                 return connector.download_url;
             } else {
@@ -4518,6 +4520,21 @@ ${endpointAttributes}
         });
     }
 
+    async getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
+        return new Promise(async (resolve) => {
+            const { path: folderPath } = params;
+            const subFolders: string[] = [];
+
+            const subItems = fs.readdirSync(folderPath, { withFileTypes: true });
+            for (const item of subItems) {
+                if (item.isDirectory()) {
+                    subFolders.push(item.name);
+                }
+            }
+            resolve({ folders: subFolders });
+        });
+    }
+  
     renameFile(params: FileRenameRequest): void {
         try {
             fs.renameSync(params.existingPath, params.newPath);

@@ -1653,6 +1653,14 @@ export interface MarkAsDefaultSequenceRequest {
     remove?: boolean;
 }
 
+export interface GetSubFoldersRequest {
+    path: string;
+}
+
+export interface GetSubFoldersResponse {
+    folders: string[];
+}
+
 export interface FileRenameRequest {
     existingPath: string;
     newPath: string;

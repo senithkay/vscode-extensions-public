@@ -18,6 +18,7 @@ import { Combobox, Transition } from '@headlessui/react'
 import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 import { Control, Controller } from 'react-hook-form';
+import { ErrorBanner } from '../Commons/ErrorBanner';
 
 export interface ComboboxOptionProps {
     active?: boolean;
@@ -28,6 +29,10 @@ export interface DropdownContainerProps {
     widthOffset?: number;
     dropdownWidth?: number;
     display?: boolean;
+}
+
+interface DropdownProps {
+    hideDropdown: boolean;
 }
 
 const ActionButtonStyles = cx(css`
@@ -83,8 +88,9 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
     height: ${hideDropdown ? '100%' : '24px'};
-    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)' };
+    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
     padding-left: 8px;
+    padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
     border-top: 1px solid var(--vscode-dropdown-border);
@@ -104,10 +110,14 @@ const LabelContainer = styled.div`
     margin-bottom: 4px;
 `;
 
-const ComboboxInputWrapper = styled.div`
+const ComboboxInputWrapper = styled.div<DropdownProps>`
     height: 100%;
     display: flex;
     flex-direction: row;
+    border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
+    &:focus-within {
+        border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
+    }
 `;
 
 export const OptionContainer = cx(css`
@@ -192,10 +202,11 @@ interface BaseProps {
     onCreateButtonClick?: () => void;
     notItemsFoundMessage?: string;
     hideDropdown?: boolean;
+    errorMsg?: string;
 }
 
 // Define the conditional properties
-type ConditionalProps = 
+type ConditionalProps =
     | { label: string; name: string; identifier?: never }
     | { label: string; name?: never; identifier?: never }
     | { label?: never; name: string; identifier?: never }
@@ -266,7 +277,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onValueChange,
         onCreateButtonClick,
         identifier,
-        hideDropdown
+        hideDropdown,
+        errorMsg
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -283,11 +295,13 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         setIsTextFieldFocused(true);
     };
     const handleTextFieldClick = () => {
-        inputRef.current?.select();
-        // This is to open the dropdown when the text field is focused.
-        // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${btnId}`)?.click();
-        document.getElementById(props.value as string)?.focus();
+        if (!hideDropdown) {
+            inputRef.current?.select();
+            // This is to open the dropdown when the text field is focused.
+            // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
+            document.getElementById(`autocomplete-dropdown-button-${btnId}`)?.click();
+            document.getElementById(props.value as string)?.focus();
+        }
     };
     const handleTextFieldOutFocused = (e: any) => {
         setIsTextFieldFocused(false);
@@ -340,7 +354,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                     </LabelContainer>
                 )}
                 <ComboboxContent>
-                    <ComboboxInputWrapper ref={inputWrapperRef}>
+                    <ComboboxInputWrapper ref={inputWrapperRef} hideDropdown={hideDropdown}>
                         <Combobox.Input
                             id={id}
                             ref={inputRef}
@@ -455,6 +469,9 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         </DropdownContainer>
                     </Transition>
                 </ComboboxContent>
+                {errorMsg && (
+                    <ErrorBanner errorMsg={errorMsg} />
+                )}
             </Combobox>
         </Container>
     )

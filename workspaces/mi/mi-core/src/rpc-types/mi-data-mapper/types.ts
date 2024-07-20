@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMOperator, DMType } from "../../interfaces/mi-data-mapper";
+import { DMType } from "../../interfaces/mi-data-mapper";
 
 export interface DMTypeRequest {
     filePath: string;
@@ -92,11 +92,13 @@ export interface UpdateDMUndoRedoMangerRequest {
     fileContent: string;
 }
 
-export interface GetOperatorsRequest {
+export interface GetCompletionsRequest {
     filePath: string;
+    fileContent: string;
+    cursorPosition: number;
 }
 
-export interface GetOperatorsResponse {
-    operators: DMOperator[];
+export interface GetCompletionsResponse {
+    completions: unknown[];
 }
 

@@ -303,6 +303,9 @@ import {
     testDbConnection,
     MarkAsDefaultSequenceRequest,
     markAsDefaultSequence,
+    getSubFolderNames,
+    GetSubFoldersResponse,
+    GetSubFoldersRequest,
     FileRenameRequest,
     renameFile
 } from "@wso2-enterprise/mi-core";
@@ -783,7 +786,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
     }
-
+  
+    getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
+        return this._messenger.sendRequest(getSubFolderNames, HOST_EXTENSION, params);
+    }
+  
     renameFile(params: FileRenameRequest): Promise<void> {
         return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
     }
