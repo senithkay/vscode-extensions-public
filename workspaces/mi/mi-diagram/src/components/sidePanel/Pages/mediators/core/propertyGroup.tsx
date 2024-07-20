@@ -258,10 +258,9 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" required={true} />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={true} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

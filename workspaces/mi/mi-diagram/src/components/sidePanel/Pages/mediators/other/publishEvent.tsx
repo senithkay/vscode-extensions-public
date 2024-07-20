@@ -375,10 +375,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="streamName"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Stream Name" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Stream Name" size={50} placeholder="" required={false} errorMsg={errors?.streamName?.message?.toString()} />
                         )}
                     />
-                    {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -386,10 +385,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="streamVersion"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Stream Version" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Stream Version" size={50} placeholder="" required={false} errorMsg={errors?.streamVersion?.message?.toString()} />
                         )}
                     />
-                    {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -397,10 +395,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="eventSink"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Event Sink" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Event Sink" size={50} placeholder="" required={false} errorMsg={errors?.eventSink?.message?.toString()} />
                         )}
                     />
-                    {errors.eventSink && <Error>{errors.eventSink.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -411,7 +408,6 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Async</VSCodeCheckbox>
                         )}
                     />
-                    {errors.async && <Error>{errors.async.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -419,10 +415,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="asyncTimeout"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Async Timeout" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Async Timeout" size={50} placeholder="" required={false} errorMsg={errors?.asyncTimeout?.message?.toString()} />
                         )}
                     />
-                    {errors.asyncTimeout && <Error>{errors.asyncTimeout.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -554,10 +549,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

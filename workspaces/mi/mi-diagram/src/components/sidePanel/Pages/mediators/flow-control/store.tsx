@@ -100,10 +100,9 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="messageStore"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} errorMsg={errors?.messageStore?.message?.toString()} />
                         )}
                     />
-                    {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
                 </Field>
 
                 {watch("messageStore") == "Select Expresison" &&
@@ -116,12 +115,12 @@ const StoreForm = (props: AddMediatorProps) => {
                                 {...field} label="Expression"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.expression?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.expression && <Error>{errors.expression.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -137,10 +136,10 @@ const StoreForm = (props: AddMediatorProps) => {
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
                                 required={false}
+                                errorMsg={errors?.onStoreSequence?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.onStoreSequence && <Error>{errors.onStoreSequence.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -148,10 +147,9 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

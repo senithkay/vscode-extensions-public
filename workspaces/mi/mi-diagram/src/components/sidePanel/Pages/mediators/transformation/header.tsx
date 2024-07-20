@@ -107,12 +107,12 @@ const HeaderForm = (props: AddMediatorProps) => {
                                 {...field} label="Header Name"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.headerName?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.headerName && <Error>{errors.headerName.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -120,12 +120,19 @@ const HeaderForm = (props: AddMediatorProps) => {
                         name="headerAction"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Header Action" name="headerAction" items={["set", "remove"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Header Action"
+                                name="headerAction"
+                                items={["set", "remove"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.headerAction?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.headerAction && <Error>{errors.headerAction.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -133,12 +140,19 @@ const HeaderForm = (props: AddMediatorProps) => {
                         name="scope"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Scope" name="scope" items={["default", "transport"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Scope"
+                                name="scope"
+                                items={["default", "transport"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.scope?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.scope && <Error>{errors.scope.message.toString()}</Error>}
                 </Field>
 
                 {watch("headerAction") == "set" &&
@@ -150,12 +164,19 @@ const HeaderForm = (props: AddMediatorProps) => {
                             name="valueType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Value Type" name="valueType" items={["LITERAL", "EXPRESSION", "INLINE"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Value Type"
+                                    name="valueType"
+                                    items={["LITERAL", "EXPRESSION", "INLINE"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.valueType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.valueType && <Error>{errors.valueType.message.toString()}</Error>}
                     </Field>
 
                     {watch("valueType") == "LITERAL" &&
@@ -164,10 +185,9 @@ const HeaderForm = (props: AddMediatorProps) => {
                                 name="valueLiteral"
                                 control={control}
                                 render={({ field }) => (
-                                    <TextField {...field} label="Value Literal" size={50} placeholder="" required={false} />
+                                    <TextField {...field} label="Value Literal" size={50} placeholder="" required={false} errorMsg={errors?.valueLiteral?.message?.toString()} />
                                 )}
                             />
-                            {errors.valueLiteral && <Error>{errors.valueLiteral.message.toString()}</Error>}
                         </Field>
                     }
 
@@ -181,12 +201,12 @@ const HeaderForm = (props: AddMediatorProps) => {
                                         {...field} label="Value Expression"
                                         placeholder=""
                                         required={false}
+                                        errorMsg={errors?.valueExpression?.message?.toString()}
                                         canChange={false}
                                         openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                     />
                                 )}
                             />
-                            {errors.valueExpression && <Error>{errors.valueExpression.message.toString()}</Error>}
                         </Field>
                     }
 
@@ -196,10 +216,9 @@ const HeaderForm = (props: AddMediatorProps) => {
                                 name="valueInline"
                                 control={control}
                                 render={({ field }) => (
-                                    <TextField {...field} label="Value Inline" size={50} placeholder="" required={false} />
+                                    <TextField {...field} label="Value Inline" size={50} placeholder="" required={false} errorMsg={errors?.valueInline?.message?.toString()} />
                                 )}
                             />
-                            {errors.valueInline && <Error>{errors.valueInline.message.toString()}</Error>}
                         </Field>
                     }
 
@@ -211,10 +230,9 @@ const HeaderForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 
