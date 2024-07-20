@@ -18,6 +18,7 @@ import { Combobox, Transition } from '@headlessui/react'
 import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 import { Control, Controller } from 'react-hook-form';
+import { ErrorBanner } from '../Commons/ErrorBanner';
 
 export interface ComboboxOptionProps {
     active?: boolean;
@@ -87,7 +88,7 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
     height: ${hideDropdown ? '100%' : '24px'};
-    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)' };
+    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
     padding-left: 8px;
     padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
@@ -201,10 +202,11 @@ interface BaseProps {
     onCreateButtonClick?: () => void;
     notItemsFoundMessage?: string;
     hideDropdown?: boolean;
+    errorMsg?: string;
 }
 
 // Define the conditional properties
-type ConditionalProps = 
+type ConditionalProps =
     | { label: string; name: string; identifier?: never }
     | { label: string; name?: never; identifier?: never }
     | { label?: never; name: string; identifier?: never }
@@ -275,7 +277,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onValueChange,
         onCreateButtonClick,
         identifier,
-        hideDropdown
+        hideDropdown,
+        errorMsg
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -466,6 +469,9 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         </DropdownContainer>
                     </Transition>
                 </ComboboxContent>
+                {errorMsg && (
+                    <ErrorBanner errorMsg={errorMsg} />
+                )}
             </Combobox>
         </Container>
     )
