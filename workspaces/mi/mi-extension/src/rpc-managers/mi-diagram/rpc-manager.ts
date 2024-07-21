@@ -588,18 +588,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${templateParams.name}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -667,18 +656,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${templateParams.name}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -736,18 +714,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${templateParams.name}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -803,18 +770,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== templateParams.name) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${templateParams.name}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -864,21 +820,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createLocalEntry(params: CreateLocalEntryRequest): Promise<CreateLocalEntryResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, type, value, URL } = params;
+            let { directory, name, type, value, URL } = params;
             const xmlData = generateXmlData(name, type, value, URL);
-            let filePath = directory;
 
-            if (filePath.includes('localEntries')) {
-                filePath = filePath.replace('localEntries', 'local-entries');
+            if (directory.includes('localEntries')) {
+                directory = directory.replace('localEntries', 'local-entries');
             }
-            if (filePath.endsWith('.xml')) {
-                if (path.basename(filePath).split('.')[0] !== name) {
-                    fs.unlinkSync(filePath);
-                    filePath = path.join(path.dirname(filePath), `${name}.xml`);
-                }
-            } else {
-                filePath = path.join(filePath, `${name}.xml`);
-            }
+            const filePath = this.getFilePath(directory, name);
 
             if (params.getContentOnly) {
                 resolve({ filePath: "", fileContent: xmlData });
@@ -947,23 +895,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createMessageStore(params: CreateMessageStoreRequest): Promise<CreateMessageStoreResponse> {
         return new Promise(async (resolve) => {
 
-            const getTemplateParams = params;
+            let getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
-            let filePath = params.directory;
 
-            if (filePath.includes('messageStores')) {
-                filePath = filePath.replace('messageStores', 'message-stores');
+            if (getTemplateParams.directory.includes('messageStores')) {
+                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores');
             }
-            if (filePath.endsWith('.xml')) {
-                if (path.basename(filePath).split('.')[0] !== params.name) {
-                    fs.unlinkSync(filePath);
-                    filePath = path.join(path.dirname(filePath), `${params.name}.xml`);
-                }
-            } else {
-                filePath = path.join(filePath, `${params.name}.xml`);
-            }
+            const filePath = this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -1148,26 +1088,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return new Promise(async (resolve) => {
-            const { directory, ...templateParams } = params;
-
-            let filePath: string = directory;
+            let { directory, ...templateParams } = params;
             templateParams.type = templateParams.type.toLowerCase();
 
-            if (filePath.includes('inboundEndpoints')) {
-                filePath = filePath.replace('inboundEndpoints', 'inbound-endpoints');
+            if (directory.includes('inboundEndpoints')) {
+                directory = directory.replace('inboundEndpoints', 'inbound-endpoints');
             }
-
-            if (filePath.endsWith('.xml')) {
-                if (path.basename(filePath).split('.')[0] !== templateParams.name) {
-                    fs.unlinkSync(filePath);
-                    filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
-                }
-            } else {
-                filePath = path.join(filePath, `${templateParams.name}.xml`);
-            }
+            const filePath = this.getFilePath(directory, templateParams.name);
 
             const xmlData = getInboundEndpointXmlWrapper(templateParams);
-
             await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
@@ -1404,19 +1333,7 @@ ${endpointAttributes}
             };
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                if (path.basename(directory).split('.')[0] !== templateParams.name) {
-                    fs.unlinkSync(directory);
-                    filePath = path.join(path.dirname(directory), `${templateParams.name}.xml`);
-                } else {
-                    filePath = directory;
-                }
-            } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
-            }
-
+            const filePath = this.getFilePath(directory, templateParams.name);
             await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
@@ -1525,17 +1442,7 @@ ${endpointAttributes}
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== templateName) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${templateName}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${templateName}.xml`);
-                }
+                const filePath = this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1644,17 +1551,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getHttpEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== fileName) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${fileName}.xml`);
-                }
+                const filePath = this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1826,18 +1723,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getAddressEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== fileName) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${fileName}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1941,18 +1827,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getWsdlEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== fileName) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${fileName}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -2058,18 +1933,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getDefaultEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                let filePath: string;
-                if (directory.endsWith('.xml')) {
-                    if (path.basename(directory).split('.')[0] !== fileName) {
-                        fs.unlinkSync(directory);
-                        filePath = path.join(path.dirname(directory), `${fileName}.xml`);
-                    } else {
-                        filePath = directory;
-                    }
-                } else {
-                    filePath = path.join(directory, `${fileName}.xml`);
-                }
-
+                const filePath = this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -2451,7 +2315,7 @@ ${endpointAttributes}
 
     async createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
         return new Promise(async (resolve) => {
-            const { directory, messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType,
+            let { directory, messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType,
                 sourceMessageStoreType, targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath,
                 cron, forwardingInterval, retryInterval, maxRedeliveryAttempts, maxConnectionAttempts,
                 connectionAttemptInterval, taskCount, statusCodes, clientRepository, axis2Config, endpointType,
@@ -2471,20 +2335,10 @@ ${endpointAttributes}
             const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            let filePath = directory;
-
-            if (filePath.includes('messageProcessors')) {
-                filePath = filePath.replace('messageProcessors', 'message-processors');
+            if (directory.includes('messageProcessors')) {
+                directory = directory.replace('messageProcessors', 'message-processors');
             }
-
-            if (filePath.endsWith('.xml')) {
-                if (path.basename(filePath).split('.')[0] !== messageProcessorName) {
-                    fs.unlinkSync(filePath);
-                    filePath = path.join(path.dirname(filePath), `${messageProcessorName}.xml`);
-                }
-            } else {
-                filePath = path.join(filePath, `${messageProcessorName}.xml`);
-            }
+            const filePath = this.getFilePath(directory, messageProcessorName);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -3455,20 +3309,11 @@ ${endpointAttributes}
             const xmlData = await getDataSourceXml(params);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            let filePath = params.projectDirectory;
-
-            if (filePath.includes('dataSources')) {
-                filePath = filePath.replace('dataSources', 'data-sources');
+            let directory = params.projectDirectory;
+            if (directory.includes('dataSources')) {
+                directory = directory.replace('dataSources', 'data-sources');
             }
-
-            if (filePath.endsWith('.xml')) {
-                if (path.basename(filePath).split('.')[0] !== params.name) {
-                    fs.unlinkSync(filePath);
-                    filePath = path.join(path.dirname(filePath), `${params.name}.xml`);
-                }
-            } else {
-                filePath = path.join(filePath, `${params.name}.xml`);
-            }
+            const filePath = this.getFilePath(directory, params.name);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -4541,6 +4386,21 @@ ${endpointAttributes}
         } catch (error) {
             console.error(`Error renaming file: ${error}`);
         }
+    }
+
+     getFilePath(directory: string, fileName: string): string {
+         let filePath: string;
+         if (directory.endsWith('.xml')) {
+             if (path.basename(directory).split('.')[0] !== fileName) {
+                 fs.unlinkSync(directory);
+                 filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+             } else {
+                 filePath = directory;
+             }
+         } else {
+             filePath = path.join(directory, `${fileName}.xml`);
+         }
+         return filePath;
     }
 }
 
