@@ -35,9 +35,9 @@ import {
     dmRedo,
     addToDMUndoStack,
     updateDMUndoRedoManager,
-    getOperators,
-    GetOperatorsRequest,
-    GetOperatorsResponse
+    getCompletions,
+    GetCompletionsRequest,
+    GetCompletionsResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -57,8 +57,8 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendRequest(getSubMappingTypes, HOST_EXTENSION, params);
     }
 
-    updateFileContent(params: UpdateFileContentRequest): void {
-        return this._messenger.sendNotification(updateFileContent, HOST_EXTENSION, params);
+    updateFileContent(params: UpdateFileContentRequest): Promise<void> {
+        return this._messenger.sendRequest(updateFileContent, HOST_EXTENSION, params);
     }
 
     browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
@@ -97,7 +97,7 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendNotification(updateDMUndoRedoManager, HOST_EXTENSION, params);
     }
 
-    getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
-        return this._messenger.sendRequest(getOperators, HOST_EXTENSION, params);
+    getCompletions(params: GetCompletionsRequest): Promise<GetCompletionsResponse> {
+        return this._messenger.sendRequest(getCompletions, HOST_EXTENSION, params);
     }
 }

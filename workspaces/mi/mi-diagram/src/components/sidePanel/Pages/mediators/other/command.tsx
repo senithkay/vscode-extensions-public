@@ -198,10 +198,9 @@ const CommandForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Class Name" size={50} placeholder="" required={true} />
+                                <TextField {...field} label="Class Name" size={50} placeholder="" required={true} errorMsg={errors?.className?.message?.toString()} />
                             )}
                         />
-                        {errors.className && <Error>{errors.className.message.toString()}</Error>}
                     </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -235,10 +234,9 @@ const CommandForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

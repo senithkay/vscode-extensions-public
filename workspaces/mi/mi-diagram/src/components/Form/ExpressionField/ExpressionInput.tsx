@@ -87,6 +87,7 @@ interface ExBtnComponentProps {
     setValue: any;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     canChange: boolean;
+    errorMsg?: string;
 }
 
 const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
@@ -102,7 +103,7 @@ const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
 }
 
 const ExBtnComponent = (props: ExBtnComponentProps) => {
-    const { label, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange } = props;
+    const { label, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange, errorMsg } = props;
 
     return <>
         <FlexLabelContainer>
@@ -129,12 +130,13 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
             }}
             value={value.value}
             onTextChange={event => onChange({ isExpression: isExActive, value: event } as any)}
+            errorMsg={errorMsg}
         />
     </>;
 }
 
 export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFieldProps>((props, ref) => {
-    const { label, placeholder, required, disabled, openExpressionEditor, onChange, canChange, sx } = props;
+    const { label, placeholder, required, disabled, openExpressionEditor, onChange, canChange, errorMsg, sx } = props;
     let value = props.value;
     const [isExpression, setIsExpression] = React.useState(value?.isExpression || false);
 
@@ -170,6 +172,7 @@ export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFiel
             setValue={setValue}
             onChange={onChange}
             canChange={canChange}
+            errorMsg={errorMsg}
         />
 
     </Container>
