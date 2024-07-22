@@ -11,13 +11,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AutoComplete, Icon, TextField } from '@wso2-enterprise/ui-toolkit';
 import { DMOperator } from "@wso2-enterprise/mi-core";
 import { css } from '@emotion/css';
-import { Block, Node, ObjectLiteralExpression, PropertyAssignment, ReturnStatement, SyntaxKind, Expression } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, PropertyAssignment, ReturnStatement, SyntaxKind, Expression, ts } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getFnDeclStructure, operators } from '../Operators/operators';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
+import { isMapFunction } from '../../../components/Diagram/utils/common-utils';
+
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -37,6 +39,23 @@ const useStyles = () => ({
 export interface ExpressionBarProps {
     applyModifications: () => Promise<void>
     operators: DMOperator[];
+}
+
+function getMapFunctionReturnStatement(
+    resolvedNode: PropertyAssignment | ReturnStatement,
+    index: number
+): ReturnStatement | undefined {
+
+    // Constraint: In focused views, return statements are only allowed at map functions
+    const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+    if (returnStmts.length >= index) {
+        return returnStmts.filter(stmt => {
+            const returnExpr = stmt.getExpression();
+            return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
+        })[index - 1];
+    }
+    return undefined;
 }
 
 export default function ExpressionBar(props: ExpressionBarProps) {
@@ -197,12 +216,17 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
             //Condition to check array mapping or not
             if (focusedNode.context.views.length > 1) {
-                const propertyAssignment = focusedNode.context.focusedST as PropertyAssignment;
-                const arrowFunction = propertyAssignment?.getInitializerIfKindOrThrow(SyntaxKind.CallExpression)
-                    ?.getArguments()?.[0]
-                    ?.asKindOrThrow(SyntaxKind.ArrowFunction);
-                const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
-                returnExpr = returnStatement?.getExpression();
+                if (Node.isPropertyAssignment(focusedNode.context.focusedST)) {
+                    const propertyAssignment = focusedNode.context.focusedST as PropertyAssignment;
+                    const arrowFunction = propertyAssignment?.getInitializerIfKindOrThrow(SyntaxKind.CallExpression)
+                        ?.getArguments()?.[0]
+                        ?.asKindOrThrow(SyntaxKind.ArrowFunction);
+                    const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
+                    returnExpr = returnStatement?.getExpression();
+                } else if (Node.isReturnStatement(focusedNode.context.focusedST)) {
+                    const returnStatement = getMapFunctionReturnStatement(focusedNode.context.focusedST, focusedNode.context.views[1].mapFnIndex);
+                    returnExpr = returnStatement?.getExpression();
+                }
             } else {
                 returnExpr = (fnBody.getStatements().find((statement) =>
                     Node.isReturnStatement(statement)
