@@ -162,12 +162,12 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 {...field} label="Source XPath"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.sourceXPath?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -182,10 +182,10 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 allowItemCreate={true}
                                 onValueChange={field.onChange}
                                 required={false}
+                                errorMsg={errors?.xsltSchemaKey?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.xsltSchemaKey && <Error>{errors.xsltSchemaKey.message.toString()}</Error>}
                 </Field>
 
                 <FormGroup title="Advanced">
@@ -274,10 +274,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

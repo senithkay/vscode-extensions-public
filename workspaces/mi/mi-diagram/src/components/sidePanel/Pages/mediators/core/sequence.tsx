@@ -104,10 +104,10 @@ const SequenceForm = (props: AddMediatorProps) => {
                                 allowItemCreate={true}
                                 onValueChange={field.onChange}
                                 required={false}
+                                errorMsg={errors?.referingSequence?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.referingSequence && <Error>{errors.referingSequence.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -115,10 +115,9 @@ const SequenceForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

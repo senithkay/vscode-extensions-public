@@ -154,12 +154,12 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 {...field} label="Source"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.source?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.source && <Error>{errors.source.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -175,7 +175,6 @@ const ValidateForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Schema Caching</VSCodeCheckbox>
                         )}
                     />
-                    {errors.enableSchemaCaching && <Error>{errors.enableSchemaCaching.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -261,10 +260,9 @@ const ValidateForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 
