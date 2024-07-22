@@ -1907,6 +1907,7 @@ importers:
 
   ../../workspaces/choreo/choreo-extension:
     specifiers:
+      '@biomejs/biome': ^1.8.3
       '@playwright/test': ~1.37.0
       '@types/byline': ^4.2.33
       '@types/chai': ^4.2.18
@@ -1916,8 +1917,6 @@ importers:
       '@types/node': ^18.18.2
       '@types/vscode': ^1.73.0
       '@types/which': ^2.0.2
-      '@typescript-eslint/eslint-plugin': ~5.48.2
-      '@typescript-eslint/parser': ~5.48.2
       '@vscode-logging/logger': ^1.2.3
       '@vscode-logging/types': ^0.1.4
       '@vscode-logging/wrapper': ^1.0.2
@@ -1936,7 +1935,6 @@ importers:
       copyfiles: ^2.4.1
       del-cli: ^5.0.0
       dotenv: ^16.0.3
-      eslint: ^8.32.0
       file-type: ^18.2.1
       js-yaml: ^4.1.0
       jschardet: ^3.0.0
@@ -1975,6 +1973,7 @@ importers:
       which: 3.0.1
       zustand: 4.5.2
     devDependencies:
+      '@biomejs/biome': 1.8.3
       '@playwright/test': 1.37.1
       '@types/byline': 4.2.36
       '@types/chai': 4.3.11
@@ -1984,8 +1983,6 @@ importers:
       '@types/node': 18.19.14
       '@types/vscode': 1.86.0
       '@types/which': 2.0.2
-      '@typescript-eslint/eslint-plugin': 5.48.2_272e7o3s2e3z2ffyedar6ii3ra
-      '@typescript-eslint/parser': 5.48.2_7sjm5uif3lrlodkmlzqsvrpzla
       '@vscode/test-electron': 2.3.9
       '@vscode/vsce': 2.30.0
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
@@ -1993,7 +1990,6 @@ importers:
       copy-webpack-plugin: 11.0.0_webpack@5.90.1
       copyfiles: 2.4.1
       del-cli: 5.1.0
-      eslint: 8.56.0
       mocha: 10.2.0
       ts-loader: 9.4.4_ahsu3n7nsuhdp6gozcsyrqnvra
       typescript: 4.9.5

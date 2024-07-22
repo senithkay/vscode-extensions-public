@@ -310,7 +310,6 @@ export interface ICreateComponentParams {
 }
 
 export interface GHAppConfig {
-	appUrl: string;
 	installUrl: string;
 	authUrl: string;
 	clientId: string;

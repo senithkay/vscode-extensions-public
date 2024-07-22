@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from "vscode";
-import { WebViewPanelRpc } from "./rpc/WebviewRPC";
+import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
 import { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { dataCacheStore } from "../../stores/data-cache-store";
+import { dataCacheStore } from "../stores/data-cache-store";
 
 
 interface IComponentCreateFormParams {

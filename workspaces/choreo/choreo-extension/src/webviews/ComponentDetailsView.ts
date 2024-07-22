@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from "vscode";
-import { WebViewPanelRpc } from "./rpc/WebviewRPC";
+import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
 import { ComponentKind, Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
-import { ext } from "../../extensionVariables";
-import { webviewStateStore } from "../../stores/webview-state-store";
+import { ext } from "../extensionVariables";
+import { webviewStateStore } from "../stores/webview-state-store";
 
 const componentViewMap = new Map<string, ComponentDetailsView>();
 

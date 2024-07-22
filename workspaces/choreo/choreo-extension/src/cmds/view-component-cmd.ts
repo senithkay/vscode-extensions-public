@@ -11,7 +11,7 @@ import { CommandIds, ViewComponentDetailsReq } from "@wso2-enterprise/choreo-cor
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { existsSync } from "fs";
 import * as path from "path";
-import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
+import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { contextStore } from "../stores/context-store";
 
 export function viewComponentCommand(context: ExtensionContext) {

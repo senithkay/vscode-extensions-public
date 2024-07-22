@@ -10,8 +10,8 @@ import { ExtensionContext, commands, window, ProgressLocation, workspace, Uri, Q
 import { CommandIds, ComponentKind, Organization, Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { ext } from "../extensionVariables";
-import { closeComponentDetailsView } from "../views/webviews/ComponentDetailsView";
-import { closeAllComponentTestView } from "../views/webviews/ComponentTestView";
+import { closeComponentDetailsView } from "../webviews/ComponentDetailsView";
+import { closeAllComponentTestView } from "../webviews/ComponentTestView";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { basename } from "path";

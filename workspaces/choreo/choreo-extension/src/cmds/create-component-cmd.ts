@@ -18,13 +18,13 @@ import {
     SubmitComponentCreateReq,
     WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
-import { ComponentFormView } from "../views/webviews/ComponentFormView";
+import { ComponentFormView } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 import * as path from "path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { getSubPath, makeURLSafe } from "../utils";
 import * as yaml from "js-yaml";
-import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
+import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import * as os from "os";

@@ -17,29 +17,6 @@ import * as yaml from "js-yaml";
 import { commands, window, workspace } from "vscode";
 import { join, dirname } from "path";
 import * as path from "path";
-import { contextStore } from "./stores/context-store";
-
-// TODO: move into ChoreoExtensionApi()
-// export const deleteLinkFile = async (orgHandle: string, projectHandle: string, componentHandle: string) => {
-//     const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
-//     for (const linkFile of linkFiles) {
-//         const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
-//         if (
-//             parsedData.component === componentHandle &&
-//             parsedData.project === projectHandle &&
-//             parsedData.org === orgHandle
-//         ) {
-//             unlinkSync(linkFile.fsPath);
-//             const choreoDirPath = dirname(linkFile.fsPath);
-//             const choreoDirFiles = readdirSync(choreoDirPath);
-//             if (choreoDirFiles.length === 0) {
-//                 rmdirSync(choreoDirPath);
-//             }
-//             await contextStore.getState().refreshState();
-//             break;
-//         }
-//     }
-// };
 
 export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
     const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");

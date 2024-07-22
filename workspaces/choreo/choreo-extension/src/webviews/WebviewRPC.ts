@@ -58,22 +58,22 @@ import {
     RefreshContextState,
     CloseWebViewNotification,
 } from "@wso2-enterprise/choreo-core";
-import { ext } from "../../../extensionVariables";
+import { ext } from "../extensionVariables";
 import * as vscode from "vscode";
-import { getLogger } from "../../../logger/logger";
+import { getLogger } from "../logger/logger";
 import { join } from "path";
-import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
+import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
 import { readdirSync, statSync, unlinkSync } from "fs";
-import { authStore } from "../../../stores/auth-store";
-import { contextStore } from "../../../stores/context-store";
-import { webviewStateStore } from "../../../stores/webview-state-store";
-import { registerChoreoRpcResolver } from "../../../choreo-rpc";
-import { getGitRemotes, removeCredentialsFromGitURL } from "../../../git/util";
-import { choreoEnvConfig } from "../../../config";
-import { getChoreoEnv, getChoreoExecPath } from "../../../choreo-rpc/cli-install";
-import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../../../utils";
-import { submitCreateComponentHandler } from "../../../cmds/create-component-cmd";
-import { showComponentTestView } from "../ComponentTestView";
+import { authStore } from "../stores/auth-store";
+import { contextStore } from "../stores/context-store";
+import { webviewStateStore } from "../stores/webview-state-store";
+import { registerChoreoRpcResolver } from "../choreo-rpc";
+import { getGitRemotes, removeCredentialsFromGitURL } from "../git/util";
+import { choreoEnvConfig } from "../config";
+import { getChoreoEnv, getChoreoExecPath } from "../choreo-rpc/cli-install";
+import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../utils";
+import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
+import { showComponentTestView } from "./ComponentTestView";
 
 
 // Register handlers

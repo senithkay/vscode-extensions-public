@@ -36,46 +36,29 @@ export interface EndpointYamlContent {
 	endpoints: Endpoint[];
 }
 
+export interface ComponentMetadata {
+	name: string;
+	projectName: string;
+	annotations: Record<string, string>;
+}
+
 // component.yaml
 export interface ComponentYamlContent {
-	apiVersion: "core.choreo.dev/v1alpha1";
+	apiVersion: "core.choreo.dev/v1beta1";
 	kind: "ComponentConfig";
-	metadata: {
-		name: string;
-		projectName: string;
-		annotations: Record<string, string>;
-	};
+	// todo: remove metadata
+	metadata?: ComponentMetadata;
 	spec: {
-		build?: {
-			branch: string;
-			revision?: string;
-		};
-		image?: {
-			registry: string;
-			repository: string;
-			tag: string;
-		};
+		build?: { branch: string; revision?: string };
+		image?: { registry: string; repository: string; tag: string };
 		inbound?: Inbound[];
 		outbound?: Outbound;
 		configurations?: {
-			keys?: {
-				name: string;
-				envName?: string;
-				volume?: { mountPath: string };
-			}[];
+			keys?: { name: string; envName?: string; volume?: { mountPath: string } }[];
 			groups?: {
 				name: string;
-				env?: {
-					from: string;
-					to: string;
-				}[];
-				volume?: {
-					mountPath: string;
-					files: {
-						from: string;
-						to: string;
-					}[];
-				}[];
+				env?: { from: string; to: string }[];
+				volume?: { mountPath: string; files: { from: string; to: string }[] }[];
 			}[];
 		};
 	};

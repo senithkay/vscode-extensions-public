@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from 'vscode';
-import { WebViewViewRPC } from "../rpc/WebviewRPC";
-import { getUri } from '../utils';
-import { ext } from '../../../extensionVariables';
+import { WebViewViewRPC } from "./WebviewRPC";
+import { getUri } from './utils';
+import { ext } from '../extensionVariables';
 import { WebviewProps } from '@wso2-enterprise/choreo-core';
-import { contextStore } from '../../../stores/context-store';
+import { contextStore } from '../stores/context-store';
 
 
 export class ProjectActivityView implements vscode.WebviewViewProvider {
