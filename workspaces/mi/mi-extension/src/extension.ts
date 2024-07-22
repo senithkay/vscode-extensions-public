@@ -21,6 +21,18 @@ import { activateRuntimeService } from './runtime-services-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
+	
+	// Latest root URL for MI Copilot backend
+	const latestCopilotRootUrl = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
+	
+	const config = vscode.workspace.getConfiguration('MI');
+	
+	// Update the root URL if it is not the latest
+	const currentRootUrl = config.get<string>('rootUrl');
+	if (currentRootUrl !== latestCopilotRootUrl) {
+		await config.update('rootUrl', latestCopilotRootUrl, vscode.ConfigurationTarget.Global);
+	}
+
 	RPCLayer.init();
 	activateHistory();
 
