@@ -127,12 +127,19 @@ const LogForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} required={true} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Log Category"
+                                name="logCategory"
+                                items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]}
+                                value={field.value}
+                                required={true}
+                                errorMsg={errors?.category?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.category && <Error>{errors.category.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -145,12 +152,19 @@ const LogForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} required={true} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Log Level"
+                                name="logLevel"
+                                items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]}
+                                value={field.value}
+                                required={true}
+                                errorMsg={errors?.level?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.level && <Error>{errors.level.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -158,10 +172,9 @@ const LogForm = (props: AddMediatorProps) => {
                         name="separator"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Log Separator" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Log Separator" size={50} placeholder="" required={false} errorMsg={errors?.separator?.message?.toString()} />
                         )}
                     />
-                    {errors.separator && <Error>{errors.separator.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -195,10 +208,9 @@ const LogForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

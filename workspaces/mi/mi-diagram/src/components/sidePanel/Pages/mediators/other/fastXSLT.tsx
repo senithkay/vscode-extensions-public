@@ -103,12 +103,19 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             name="fastXsltSchemaType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Fast Xslt Schema Type" name="fastXsltSchemaType" items={["Static", "Dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Fast Xslt Schema Type"
+                                    name="fastXsltSchemaType"
+                                    items={["Static", "Dynamic"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.fastXsltSchemaType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.fastXsltSchemaType && <Error>{errors.fastXsltSchemaType.message.toString()}</Error>}
                     </Field>
 
                     {watch("fastXsltSchemaType") == "Dynamic" &&
@@ -121,12 +128,12 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                     {...field} label="Fast Xslt Dynamic SchemaKey"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.fastXsltDynamicSchemaKey?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.fastXsltDynamicSchemaKey && <Error>{errors.fastXsltDynamicSchemaKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -143,10 +150,10 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
                                     required={false}
+                                    errorMsg={errors?.fastXsltStaticSchemaKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.fastXsltStaticSchemaKey && <Error>{errors.fastXsltStaticSchemaKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -160,10 +167,9 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

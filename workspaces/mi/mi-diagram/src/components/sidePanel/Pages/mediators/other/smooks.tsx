@@ -107,12 +107,19 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="inputType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Input Type" name="inputType" items={["xml", "text"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Input Type"
+                                    name="inputType"
+                                    items={["xml", "text"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.inputType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.inputType && <Error>{errors.inputType.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -124,12 +131,12 @@ const SmooksForm = (props: AddMediatorProps) => {
                                     {...field} label="Input Expression"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.inputExpression?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.inputExpression && <Error>{errors.inputExpression.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
@@ -142,10 +149,9 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="configurationKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Configuration Key" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Configuration Key" size={50} placeholder="" required={false} errorMsg={errors?.configurationKey?.message?.toString()} />
                             )}
                         />
-                        {errors.configurationKey && <Error>{errors.configurationKey.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
@@ -158,12 +164,19 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="outputType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Output Type" name="outputType" items={["xml", "text", "java"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Output Type"
+                                    name="outputType"
+                                    items={["xml", "text", "java"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.outputType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.outputType && <Error>{errors.outputType.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -171,12 +184,19 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="outputMethod"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Output Method" name="outputMethod" items={["Default", "Property", "Expression"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Output Method"
+                                    name="outputMethod"
+                                    items={["Default", "Property", "Expression"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.outputMethod?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.outputMethod && <Error>{errors.outputMethod.message.toString()}</Error>}
                     </Field>
 
                     {watch("outputMethod") == "Property" &&
@@ -185,10 +205,9 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="outputProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Output Property" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Output Property" size={50} placeholder="" required={false} errorMsg={errors?.outputProperty?.message?.toString()} />
                             )}
                         />
-                        {errors.outputProperty && <Error>{errors.outputProperty.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -198,12 +217,19 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="outputAction"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Output Action" name="outputAction" items={["Add", "Replace", "Sibiling"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Output Action"
+                                    name="outputAction"
+                                    items={["Add", "Replace", "Sibiling"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.outputAction?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.outputAction && <Error>{errors.outputAction.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -213,10 +239,9 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="outputExpression"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Output Expression" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Output Expression" size={50} placeholder="" required={false} errorMsg={errors?.outputExpression?.message?.toString()} />
                             )}
                         />
-                        {errors.outputExpression && <Error>{errors.outputExpression.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -230,10 +255,9 @@ const SmooksForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
