@@ -143,8 +143,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         // make VS Code use 'evaluate' when hovering over source
         response.body.supportsEvaluateForHovers = true;
 
-        response.body.supportsRestartRequest = true;
-
         // make VS Code support data breakpoints
         response.body.supportsDataBreakpoints = true;
 
@@ -268,8 +266,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     const isDebugAllowed = !args?.noDebug ?? true;
                     readPortOffset(serverPath).then((portOffset) => {
                         DebuggerConfig.setPortOffset(portOffset);
-                       
-                        DebuggerConfig.setEnvVariables(args?.env? args?.env : {});
+
+                        DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
 
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
@@ -312,37 +310,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 }
             });
         });
-    }
-
-
-    protected async restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        const lauchArgs: DebugProtocol.LaunchRequestArguments = args.arguments as DebugProtocol.LaunchRequestArguments;
-        const isDebugAllowed = !lauchArgs?.noDebug ?? true;
-
-        if (isDebugAllowed) {
-            vscode.debug.stopDebugging().then(() => {
-                vscode.debug.startDebugging(undefined, {
-                    name: "MI: Run and Debug",
-                    request: "launch",
-                    type: "mi"
-                });
-
-                this.sendResponse(response);
-            });
-        } else {
-            executeBuildTask(this.currentServerPath).then(async () => {
-                response.success = true;
-                this.sendResponse(response);
-            }).catch(error => {
-                const completeError = `Error while executing build task: ${error}`;
-                if (error === INCORRECT_SERVER_PATH_MSG) {
-                    this.showErrorAndExecuteChangeServerPath(completeError);
-                } else {
-                    vscode.window.showErrorMessage(completeError);
-                }
-                this.sendError(response, 2, completeError);
-            });
-        }
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
