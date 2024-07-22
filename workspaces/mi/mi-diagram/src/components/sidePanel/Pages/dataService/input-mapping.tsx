@@ -263,6 +263,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
         });
         const updatedQuery = sidePanelContext?.formValues?.queryObject;
         updatedQuery.queryParams = queryParameters;
+        const queryType = sidePanelContext?.formValues.queryObject.expression ? "expression" : "sql";
 
         const resourceQuery = {
             query: sidePanelContext?.formValues?.queryObject.queryName,
@@ -270,7 +271,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
             hasQueryParams: queryParams.length > 0
         };
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
               text: xml, documentUri: props.documentUri,
