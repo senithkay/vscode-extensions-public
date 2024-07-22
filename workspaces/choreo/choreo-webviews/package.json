@@ -5,8 +5,10 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write . ",
     "start": "webpack serve --mode development",
-    "build": "tsc --pretty && webpack && npm run copy:assets",
+    "build": "npm run lint && tsc --pretty && webpack && npm run copy:assets",
     "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/"
   },
   "keywords": [],
@@ -29,7 +31,8 @@
     "clipboardy": "^4.0.0",
     "@formkit/auto-animate": "0.8.2",
     "timezone-support": "^3.1.0",
-    "swagger-ui-react": "^5.17.9"
+    "swagger-ui-react": "^5.17.9",
+    "@biomejs/biome": "^1.8.3"
   },
   "devDependencies": {
     "copyfiles": "~2.4.1",

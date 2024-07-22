@@ -1,1 +1,1 @@
-export {CommitLink} from './CommitLink'
+export { CommitLink } from "./CommitLink";

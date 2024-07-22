@@ -1,3 +1,5 @@
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider, type PersistedClient, type Persister } from "@tanstack/react-query-persist-client";
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
@@ -11,48 +13,45 @@
  *  associated services.
  */
 import React from "react";
-
-import { QueryClient } from "@tanstack/react-query";
-import { PersistedClient, Persister, PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { ChoreoWebViewAPI } from "./WebViewRpc";
 
 /**
  * Persist data within vscode workspace cache
  */
 const workspaceStatePersister = (queryBaseKey: string) => {
-    return {
-        persistClient: async (client: PersistedClient) => {
-            ChoreoWebViewAPI.getInstance().setWebviewCache(queryBaseKey, client);
-        },
-        restoreClient: async () => {
-            const cache = await ChoreoWebViewAPI.getInstance().restoreWebviewCache(queryBaseKey)
-            return cache;
-        },
-        removeClient: async () => {
-            await ChoreoWebViewAPI.getInstance().clearWebviewCache(queryBaseKey);
-        },
-    } as Persister;
+	return {
+		persistClient: async (client: PersistedClient) => {
+			ChoreoWebViewAPI.getInstance().setWebviewCache(queryBaseKey, client);
+		},
+		restoreClient: async () => {
+			const cache = await ChoreoWebViewAPI.getInstance().restoreWebviewCache(queryBaseKey);
+			return cache;
+		},
+		removeClient: async () => {
+			await ChoreoWebViewAPI.getInstance().clearWebviewCache(queryBaseKey);
+		},
+	} as Persister;
 };
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            cacheTime: 1000 * 60 * 60 * 24, // 24 hours
-            retry: false,
-        },
-    },
+	defaultOptions: {
+		queries: {
+			cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+			retry: false,
+		},
+	},
 });
 
-export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: string; children: React.ReactNode, }) => {
-    return (
-        <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{
-                persister: workspaceStatePersister(`react-query-persister-${type}`),
-                buster: "choreo-webview-cache-v2",
-            }}
-        >
-            {children}
-        </PersistQueryClientProvider>
-    );
+export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: string; children: React.ReactNode }) => {
+	return (
+		<PersistQueryClientProvider
+			client={queryClient}
+			persistOptions={{
+				persister: workspaceStatePersister(`react-query-persister-${type}`),
+				buster: "choreo-webview-cache-v2",
+			}}
+		>
+			{children}
+		</PersistQueryClientProvider>
+	);
 };

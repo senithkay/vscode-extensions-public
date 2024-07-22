@@ -8,12 +8,12 @@
  */
 
 import classNames from "classnames";
-import React, { HTMLProps, FC } from "react";
+import React, { type HTMLProps, type FC } from "react";
 
 interface Props {
-    className?: HTMLProps<HTMLElement>["className"];
+	className?: HTMLProps<HTMLElement>["className"];
 }
 
 export const Divider: FC<Props> = ({ className }) => {
-    return <div className={classNames(`border-t-1 border-vsc-editorIndentGuide-background w-full`, className)} />;
+	return <div className={classNames("border-t-1 border-vsc-editorIndentGuide-background w-full", className)} />;
 };

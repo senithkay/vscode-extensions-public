@@ -1,3 +1,4 @@
+import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
@@ -10,62 +11,57 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
-import React, { FC, Component, ErrorInfo } from "react";
+import React from "react";
+import { Component, type ErrorInfo, type FC } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { Banner } from "../Banner";
 
 interface ErrorBoundaryCProps {
-    children: React.ReactNode;
-    queryClient: QueryClient;
+	children: React.ReactNode;
+	queryClient: QueryClient;
 }
 
 interface ErrorBoundaryState {
-    hasError: boolean;
-    clearedCache: boolean;
+	hasError: boolean;
+	clearedCache: boolean;
 }
 
 class ErrorBoundaryC extends Component<ErrorBoundaryCProps, ErrorBoundaryState> {
-    constructor(props: ErrorBoundaryCProps) {
-        super(props);
-        this.state = {
-            hasError: false,
-            clearedCache: false,
-        };
-    }
+	constructor(props: ErrorBoundaryCProps) {
+		super(props);
+		this.state = {
+			hasError: false,
+			clearedCache: false,
+		};
+	}
 
-    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        if (this.state.clearedCache === false) {
-            // If an exception is thrown, clear the queryClient cache and try again
-            this.props.queryClient.clear();
-            this.setState({ clearedCache: true });
-        } else {
-            // Show the error boundary if an exception is thrown even after clearing the cache
-            this.setState({ hasError: true });
-            ChoreoWebViewAPI.getInstance().sendTelemetryException({ error });
-            console.error(error, errorInfo);
-        }
-    }
+	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+		if (this.state.clearedCache === false) {
+			// If an exception is thrown, clear the queryClient cache and try again
+			this.props.queryClient.clear();
+			this.setState({ clearedCache: true });
+		} else {
+			// Show the error boundary if an exception is thrown even after clearing the cache
+			this.setState({ hasError: true });
+			ChoreoWebViewAPI.getInstance().sendTelemetryException({ error });
+			console.error(error, errorInfo);
+		}
+	}
 
-    render() {
-        if (this.state.hasError) {
-            return (
-                <Banner type="error" className="m-6">
-                    Oops! Something went wrong. Please reopen this window and try again
-                </Banner>
-            );
-        }
+	render() {
+		if (this.state.hasError) {
+			return (
+				<Banner type="error" className="m-6">
+					Oops! Something went wrong. Please reopen this window and try again
+				</Banner>
+			);
+		}
 
-        return (
-            <div key={`Error-boundary-${this.state.clearedCache ? "with" : "with-reset"}-cache`}>
-                {this.props.children}
-            </div>
-        );
-    }
+		return <div key={`Error-boundary-${this.state.clearedCache ? "with" : "with-reset"}-cache`}>{this.props.children}</div>;
+	}
 }
 
 export const ErrorBoundary: FC<{ children: React.ReactNode }> = ({ children }) => {
-    const queryClient = useQueryClient();
-    return <ErrorBoundaryC queryClient={queryClient}>{children}</ErrorBoundaryC>;
+	const queryClient = useQueryClient();
+	return <ErrorBoundaryC queryClient={queryClient}>{children}</ErrorBoundaryC>;
 };

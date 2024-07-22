@@ -212,7 +212,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		return response.userInfo;
 	}
 
-	async signOut(): Promise<string | undefined> {
+	async signOut(): Promise<void> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}

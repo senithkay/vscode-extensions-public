@@ -7,20 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import type { WebviewProps } from "@wso2-enterprise/choreo-core";
 import React from "react";
 import { render } from "react-dom";
 import ChoreoWebview from "./ChoreoWebview";
-import { WebviewProps } from "@wso2-enterprise/choreo-core";
-import "./style.css"
+import "./style.css";
 
-export function renderChoreoWebViews(
-	target: HTMLDivElement,
-	params: WebviewProps,
-) {
+export function renderChoreoWebViews(target: HTMLDivElement, params: WebviewProps) {
 	render(
 		<React.StrictMode>
 			<ChoreoWebview {...params} />
 		</React.StrictMode>,
-		target
+		target,
 	);
 }

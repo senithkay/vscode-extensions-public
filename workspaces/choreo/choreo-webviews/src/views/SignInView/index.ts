@@ -1,1 +1,1 @@
-export {SignInView} from './SignInView'
+export { SignInView } from "./SignInView";

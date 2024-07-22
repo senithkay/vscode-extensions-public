@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { ArchitectureViewIcon } from './ArchitectureViewIcon';
-export { BitBucketIcon } from './BitBucketIcon';
-export { CellViewIcon } from './CellViewIcon';
-export { ChoreoIcon } from './ChoreoIcon';
-export { GithubIcon } from './GithubIcon';
+export { ArchitectureViewIcon } from "./ArchitectureViewIcon";
+export { BitBucketIcon } from "./BitBucketIcon";
+export { CellViewIcon } from "./CellViewIcon";
+export { ChoreoIcon } from "./ChoreoIcon";
+export { GithubIcon } from "./GithubIcon";

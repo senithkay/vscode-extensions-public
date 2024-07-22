@@ -1,1 +1,1 @@
-export {Codicon} from './Codicon'
+export { Codicon } from "./Codicon";

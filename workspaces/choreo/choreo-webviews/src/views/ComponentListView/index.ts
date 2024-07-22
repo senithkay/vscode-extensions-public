@@ -1,1 +1,1 @@
-export {ComponentListView} from './ComponentListView'
+export { ComponentListView } from "./ComponentListView";

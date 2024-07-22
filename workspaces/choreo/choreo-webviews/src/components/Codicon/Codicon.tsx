@@ -8,14 +8,14 @@
  */
 
 import classNames from "classnames";
-import React, { HTMLProps, FC } from "react";
+import React, { type HTMLProps, type FC } from "react";
 
 interface Props {
-    name: string;
-    className?: HTMLProps<HTMLElement>["className"];
-    title?: HTMLProps<HTMLElement>["title"];
+	name: string;
+	className?: HTMLProps<HTMLElement>["className"];
+	title?: HTMLProps<HTMLElement>["title"];
 }
 
 export const Codicon: FC<Props> = ({ title, name, className }) => {
-    return <i title={title} className={classNames(`codicon`, `codicon-${name}`, className)} />;
+	return <i title={title} className={classNames("codicon", `codicon-${name}`, className)} />;
 };

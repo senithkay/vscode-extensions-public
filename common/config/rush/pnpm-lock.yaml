@@ -2000,6 +2000,7 @@ importers:
 
   ../../workspaces/choreo/choreo-webviews:
     specifiers:
+      '@biomejs/biome': ^1.8.3
       '@formkit/auto-animate': 0.8.2
       '@hookform/resolvers': ^3.3.4
       '@tanstack/react-query': ~4.28.0
@@ -2045,6 +2046,7 @@ importers:
       webpack-dev-server: ^4.11.1
       zod: ^3.22.4
     dependencies:
+      '@biomejs/biome': 1.8.3
       '@formkit/auto-animate': 0.8.2
       '@hookform/resolvers': 3.3.4_react-hook-form@7.51.2
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
@@ -5426,7 +5428,6 @@ packages:
       '@biomejs/cli-linux-x64-musl': 1.8.3
       '@biomejs/cli-win32-arm64': 1.8.3
       '@biomejs/cli-win32-x64': 1.8.3
-    dev: true
 
   /@biomejs/cli-darwin-arm64/1.8.3:
     resolution: {integrity: sha512-9DYOjclFpKrH/m1Oz75SSExR8VKvNSSsLnVIqdnKexj6NwmiMlKk94Wa1kZEdv6MCOHGHgyyoV57Cw8WzL5n3A==}
@@ -5434,7 +5435,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-darwin-x64/1.8.3:
@@ -5443,7 +5443,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-linux-arm64-musl/1.8.3:
@@ -5452,7 +5451,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-linux-arm64/1.8.3:
@@ -5461,7 +5459,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-linux-x64-musl/1.8.3:
@@ -5470,7 +5467,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-linux-x64/1.8.3:
@@ -5479,7 +5475,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-win32-arm64/1.8.3:
@@ -5488,7 +5483,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@biomejs/cli-win32-x64/1.8.3:
@@ -5497,7 +5491,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@braintree/sanitize-url/7.0.1:

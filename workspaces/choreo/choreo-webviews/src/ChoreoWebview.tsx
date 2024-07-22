@@ -11,47 +11,47 @@
  *  associated services.
  */
 
-import React from "react";
-import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
-import { AuthContextProvider } from "./context/choreo-auth-ctx";
-import { ComponentFormView } from "./views/ComponentFormView";
-import { ComponentTestView } from "./views/ComponentTestView";
-import { ComponentDetailsView } from "./views/ComponentDetailsView";
-import { ComponentListView } from "./views/ComponentListView";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import {
-    NewComponentWebviewProps,
-    WebviewProps,
-    ComponentsListActivityViewProps,
-    ComponentsDetailsWebviewProps,
-    TestWebviewProps,
+import type {
+	ComponentsDetailsWebviewProps,
+	ComponentsListActivityViewProps,
+	NewComponentWebviewProps,
+	TestWebviewProps,
+	WebviewProps,
 } from "@wso2-enterprise/choreo-core";
+import React from "react";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { AuthContextProvider } from "./context/choreo-auth-ctx";
+import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
+import { ComponentDetailsView } from "./views/ComponentDetailsView";
+import { ComponentFormView } from "./views/ComponentFormView";
+import { ComponentListView } from "./views/ComponentListView";
+import { ComponentTestView } from "./views/ComponentTestView";
 
 function ChoreoWebview(props: WebviewProps) {
-    return (
-        <ChoreoWebviewQueryClientProvider type={props.type}>
-            <ErrorBoundary>
-                <AuthContextProvider viewType={props.type}>
-                    <main>
-                        {(() => {
-                            switch (props.type) {
-                                case "NewComponentForm":
-                                    return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
-                                case "TestView":
-                                    return <ComponentTestView {...(props as TestWebviewProps)} />;
-                                case "ComponentDetailsView":
-                                    return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
-                                case "ComponentsListActivityView":
-                                    return <ComponentListView {...(props as ComponentsListActivityViewProps)} />;
-                                default:
-                                    return null;
-                            }
-                        })()}
-                    </main>
-                </AuthContextProvider>
-            </ErrorBoundary>
-        </ChoreoWebviewQueryClientProvider>
-    );
+	return (
+		<ChoreoWebviewQueryClientProvider type={props.type}>
+			<ErrorBoundary>
+				<AuthContextProvider viewType={props.type}>
+					<main>
+						{(() => {
+							switch (props.type) {
+								case "NewComponentForm":
+									return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
+								case "TestView":
+									return <ComponentTestView {...(props as TestWebviewProps)} />;
+								case "ComponentDetailsView":
+									return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
+								case "ComponentsListActivityView":
+									return <ComponentListView {...(props as ComponentsListActivityViewProps)} />;
+								default:
+									return null;
+							}
+						})()}
+					</main>
+				</AuthContextProvider>
+			</ErrorBoundary>
+		</ChoreoWebviewQueryClientProvider>
+	);
 }
 
 export default ChoreoWebview;
