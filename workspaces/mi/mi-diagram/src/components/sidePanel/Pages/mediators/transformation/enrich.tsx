@@ -115,7 +115,6 @@ const EnrichForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Clone Source</VSCodeCheckbox>
                             )}
                         />
-                        {errors.cloneSource && <Error>{errors.cloneSource.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -123,12 +122,19 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="sourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Source Type" name="sourceType" items={["custom", "envelope", "body", "property", "inline"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Source Type"
+                                    name="sourceType"
+                                    items={["custom", "envelope", "body", "property", "inline"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.sourceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("sourceType") == "custom" &&
@@ -141,12 +147,12 @@ const EnrichForm = (props: AddMediatorProps) => {
                                     {...field} label="Source XPath"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.sourceXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -156,10 +162,9 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="sourceProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Source Property" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Source Property" size={50} placeholder="" required={false} errorMsg={errors?.sourceProperty?.message?.toString()} />
                             )}
                         />
-                        {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -169,12 +174,19 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="inlineType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Inline Type" name="inlineType" items={["Inline XML/JSON", "RegistryKey"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Inline Type"
+                                    name="inlineType"
+                                    items={["Inline XML/JSON", "RegistryKey"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.inlineType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.inlineType && <Error>{errors.inlineType.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -184,10 +196,9 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="sourceXML"
                             control={control}
                             render={({ field }) => (
-                                <TextArea {...field} label="Source XML" placeholder="" required={false} />
+                                <TextArea {...field} label="Source XML" placeholder="" required={false} errorMsg={errors?.sourceXML?.message?.toString()} />
                             )}
                         />
-                        {errors.sourceXML && <Error>{errors.sourceXML.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -204,10 +215,10 @@ const EnrichForm = (props: AddMediatorProps) => {
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
                                     required={false}
+                                    errorMsg={errors?.inlineRegistryKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.inlineRegistryKey && <Error>{errors.inlineRegistryKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -221,12 +232,19 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="targetAction"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Action" name="targetAction" items={["replace", "child", "sibling", "remove"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Target Action"
+                                    name="targetAction"
+                                    items={["replace", "child", "sibling", "remove"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.targetAction?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -234,12 +252,19 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["custom", "body", "property", "envelope", "key"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Target Type"
+                                    name="targetType"
+                                    items={["custom", "body", "property", "envelope", "key"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.targetType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                     </Field>
 
                     {((watch("targetType") == "custom") ||(watch("targetType") == "key") ) &&
@@ -262,12 +287,12 @@ const EnrichForm = (props: AddMediatorProps) => {
                                     {...field} label="Target XPath / JSONPath"
                                     placeholder=""
                                     required={true}
+                                    errorMsg={errors?.targetXPathJsonPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.targetXPathJsonPath && <Error>{errors.targetXPathJsonPath.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -277,10 +302,9 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="targetProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Property" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Target Property" size={50} placeholder="" required={false} errorMsg={errors?.targetProperty?.message?.toString()} />
                             )}
                         />
-                        {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -291,10 +315,9 @@ const EnrichForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

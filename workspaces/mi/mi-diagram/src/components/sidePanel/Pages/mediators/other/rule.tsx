@@ -217,10 +217,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="sourceValue"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Source Value" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Source Value" size={50} placeholder="" required={false} errorMsg={errors?.sourceValue?.message?.toString()} />
                             )}
                         />
-                        {errors.sourceValue && <Error>{errors.sourceValue.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -232,12 +231,12 @@ const RuleForm = (props: AddMediatorProps) => {
                                     {...field} label="Source XPath"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.sourceXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
@@ -250,10 +249,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="targetValue"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Value" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Target Value" size={50} placeholder="" required={false} errorMsg={errors?.targetValue?.message?.toString()} />
                             )}
                         />
-                        {errors.targetValue && <Error>{errors.targetValue.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -261,12 +259,19 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="targetAction"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Action" name="targetAction" items={["Replace", "Child", "Sibiling"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Target Action"
+                                    name="targetAction"
+                                    items={["Replace", "Child", "Sibiling"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.targetAction?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
                     </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -304,12 +309,12 @@ const RuleForm = (props: AddMediatorProps) => {
                                     {...field} label="Target XPath"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.targetXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.targetXPath && <Error>{errors.targetXPath.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -321,12 +326,12 @@ const RuleForm = (props: AddMediatorProps) => {
                                     {...field} label="Target Result XPath"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.targetResultXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.targetResultXPath && <Error>{errors.targetResultXPath.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
@@ -339,12 +344,19 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Rule Set Type" name="ruleSetType" items={["Regular", "Decision Table"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Rule Set Type"
+                                    name="ruleSetType"
+                                    items={["Regular", "Decision Table"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.ruleSetType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.ruleSetType && <Error>{errors.ruleSetType.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -352,12 +364,19 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetSourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Rule Set Source Type" name="ruleSetSourceType" items={["INLINE", "REGISTRY_REFERENCE", "URL"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Rule Set Source Type"
+                                    name="ruleSetSourceType"
+                                    items={["INLINE", "REGISTRY_REFERENCE", "URL"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.ruleSetSourceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.ruleSetSourceType && <Error>{errors.ruleSetSourceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("ruleSetSourceType") == "INLINE" &&
@@ -366,10 +385,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetSourceCode"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Rule Set Source Code" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Rule Set Source Code" size={50} placeholder="" required={false} errorMsg={errors?.ruleSetSourceCode?.message?.toString()} />
                             )}
                         />
-                        {errors.ruleSetSourceCode && <Error>{errors.ruleSetSourceCode.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -379,10 +397,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="inlineRegistryKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Inline Registry Key" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Inline Registry Key" size={50} placeholder="" required={false} errorMsg={errors?.inlineRegistryKey?.message?.toString()} />
                             )}
                         />
-                        {errors.inlineRegistryKey && <Error>{errors.inlineRegistryKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -392,10 +409,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="ruleSetURL"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Rule Set URL" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Rule Set URL" size={50} placeholder="" required={false} errorMsg={errors?.ruleSetURL?.message?.toString()} />
                             )}
                         />
-                        {errors.ruleSetURL && <Error>{errors.ruleSetURL.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -409,10 +425,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="inputWrapperName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Input Wrapper Name" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Input Wrapper Name" size={50} placeholder="" required={false} errorMsg={errors?.inputWrapperName?.message?.toString()} />
                             )}
                         />
-                        {errors.inputWrapperName && <Error>{errors.inputWrapperName.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -420,10 +435,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="inputNamespace"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Input Namespace" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Input Namespace" size={50} placeholder="" required={false} errorMsg={errors?.inputNamespace?.message?.toString()} />
                             )}
                         />
-                        {errors.inputNamespace && <Error>{errors.inputNamespace.message.toString()}</Error>}
                     </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -462,10 +476,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="outputWrapperName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Output Wrapper Name" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Output Wrapper Name" size={50} placeholder="" required={false} errorMsg={errors?.outputWrapperName?.message?.toString()} />
                             )}
                         />
-                        {errors.outputWrapperName && <Error>{errors.outputWrapperName.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -473,10 +486,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="outputNamespace"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Output Namespace" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Output Namespace" size={50} placeholder="" required={false} errorMsg={errors?.outputNamespace?.message?.toString()} />
                             )}
                         />
-                        {errors.outputNamespace && <Error>{errors.outputNamespace.message.toString()}</Error>}
                     </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -515,10 +527,9 @@ const RuleForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

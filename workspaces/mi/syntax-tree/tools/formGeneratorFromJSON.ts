@@ -277,6 +277,7 @@ const generateForm = (jsonData: any): string => {
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
                 const isRequired = required == true || required == 'true';
+                const errMsg = `errors?.${inputName}?.message?.toString()`;
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
@@ -309,12 +310,12 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} />`, indentation);
+                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} errorMsg={${errMsg}} />`, indentation);
                 } else if (inputType === 'codeTextArea') {
 
                     fields +=
                         fixIndentation(`
-                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} resize="vertical" growRange={{ start: 5, offset: 10 }} />`, indentation);
+                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={${errMsg}} />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
                     defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
@@ -323,6 +324,7 @@ const generateForm = (jsonData: any): string => {
                             {...field} label="${displayName}"
                             placeholder="${helpTip}"
                             required={${isRequired}}
+                            errorMsg={${errMsg}}
                             canChange={${inputType === 'stringOrExpression'}}
                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                          />`, indentation);
@@ -335,6 +337,7 @@ const generateForm = (jsonData: any): string => {
                                 autoWidth={true}
                                 {...field}
                                 required={${isRequired}}
+                                errorMsg={${errMsg}}
                                 style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
                             >
                             ${allowedConnectionTypes.map((value: string) => (
@@ -354,9 +357,17 @@ const generateForm = (jsonData: any): string => {
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
                     const name = toCamelCase(displayName);
                     const comboStr = !element.value.showManageDeps ? `
-                        <AutoComplete label="${displayName}" name="${name}" items={[${comboValues}]} value={field.value} required={${isRequired}} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />` : `
+                        <AutoComplete 
+                            label="${displayName}" 
+                            name="${name}" 
+                            items={[${comboValues}]} 
+                            value={field.value} 
+                            required={${isRequired}} 
+                            errorMsg={${errMsg}}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} 
+                        />` : `
                         <>
                             <FlexLabelContainer>
                                 <Label>${displayName}</Label>
@@ -369,9 +380,15 @@ const generateForm = (jsonData: any): string => {
                                     }}>Manage Drivers</Typography>
                                 </Link>
                             </FlexLabelContainer>
-                            <AutoComplete name="${name}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete 
+                                name="${name}" 
+                                items={[${comboValues}]} 
+                                value={field.value} 
+                                errorMsg={${errMsg}}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} 
+                            />
                         </>`;
                     fields +=
                         fixIndentation(comboStr, indentation);
@@ -400,6 +417,7 @@ const generateForm = (jsonData: any): string => {
                             allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
                             onValueChange={field.onChange}
                             required={${isRequired}}
+                            errorMsg={${errMsg}}
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
@@ -407,7 +425,7 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" required={${isRequired}} />`, indentation);
+                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" required={${isRequired}} errorMsg={${errMsg}} />`, indentation);
                 }
 
                 defaultValues +=
@@ -419,7 +437,6 @@ const generateForm = (jsonData: any): string => {
                     fixIndentation(`
                             )}
                         />
-                        {errors.${inputName} && <Error>{errors.${inputName}.message.toString()}</Error>}
                     </Field>`, indentation);
 
 

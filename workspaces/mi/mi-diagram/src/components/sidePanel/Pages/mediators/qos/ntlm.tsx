@@ -108,12 +108,12 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     {...field} label="Username"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.username?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.username && <Error>{errors.username.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -125,12 +125,12 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     {...field} label="Password"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.password?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.password && <Error>{errors.password.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -142,12 +142,12 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     {...field} label="Host"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.host?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.host && <Error>{errors.host.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -159,12 +159,12 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     {...field} label="Domain"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.domain?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.domain && <Error>{errors.domain.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -176,12 +176,12 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     {...field} label="NTLM Version"
                                     placeholder=""
                                     required={false}
+                                    errorMsg={errors?.ntlmVersion?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.ntlmVersion && <Error>{errors.ntlmVersion.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -189,10 +189,9 @@ const NTLMForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

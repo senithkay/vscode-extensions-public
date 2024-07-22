@@ -128,7 +128,7 @@ export enum TemplateTypes {
 export * from "./swagger";
 
 export const APIS = {
-    CONNECTOR: "https://mi-connectors.wso2.com/icons/mi-connectors-info.json"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";

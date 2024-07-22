@@ -80,6 +80,9 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
     const rawFileLink = repoUrl + sampleName + '/' + sampleName + '.zip';
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const pathFromDialog = await selectFileDownloadPath();
+    if (pathFromDialog === "") {
+        return;
+    }
     const selectedPath = pathFromDialog === "" ? defaultDownloadsPath : pathFromDialog;
     const filePath = path.join(selectedPath, sampleName + '.zip');
     let isSuccess = false;

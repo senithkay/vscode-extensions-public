@@ -107,10 +107,9 @@ const IterateForm = (props: AddMediatorProps) => {
                         name="iterateID"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Iterate ID" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Iterate ID" size={50} placeholder="" required={false} errorMsg={errors?.iterateID?.message?.toString()} />
                         )}
                     />
-                    {errors.iterateID && <Error>{errors.iterateID.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -132,12 +131,12 @@ const IterateForm = (props: AddMediatorProps) => {
                                 {...field} label="Iterate Expression"
                                 placeholder=""
                                 required={true}
+                                errorMsg={errors?.iterateExpression?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.iterateExpression && <Error>{errors.iterateExpression.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -148,7 +147,6 @@ const IterateForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Sequential Mediation</VSCodeCheckbox>
                         )}
                     />
-                    {errors.sequentialMediation && <Error>{errors.sequentialMediation.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -159,7 +157,6 @@ const IterateForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Continue Parent</VSCodeCheckbox>
                         )}
                     />
-                    {errors.continueParent && <Error>{errors.continueParent.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -170,7 +167,6 @@ const IterateForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Preserve Payload</VSCodeCheckbox>
                         )}
                     />
-                    {errors.preservePayload && <Error>{errors.preservePayload.message.toString()}</Error>}
                 </Field>
 
                 {watch("preservePayload") == true &&
@@ -183,12 +179,12 @@ const IterateForm = (props: AddMediatorProps) => {
                                 {...field} label="Attach Path"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.attachPath?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.attachPath && <Error>{errors.attachPath.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -200,12 +196,19 @@ const IterateForm = (props: AddMediatorProps) => {
                             name="sequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Sequence Type" name="sequenceType" items={["Anonymous", "Key"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Sequence Type"
+                                    name="sequenceType"
+                                    items={["Anonymous", "Key"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.sequenceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.sequenceType && <Error>{errors.sequenceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("sequenceType") == "Key" &&
@@ -221,10 +224,10 @@ const IterateForm = (props: AddMediatorProps) => {
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
                                     required={false}
+                                    errorMsg={errors?.sequenceKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -235,10 +238,9 @@ const IterateForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

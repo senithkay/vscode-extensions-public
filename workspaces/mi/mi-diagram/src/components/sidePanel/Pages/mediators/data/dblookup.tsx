@@ -250,12 +250,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <AutoComplete label="Connection Type" name="connectionType" items={["DB_CONNECTION", "DATA_SOURCE"]} value={field.value} required={true} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Connection Type"
+                                    name="connectionType"
+                                    items={["DB_CONNECTION", "DATA_SOURCE"]}
+                                    value={field.value}
+                                    required={true}
+                                    errorMsg={errors?.connectionType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.connectionType && <Error>{errors.connectionType.message.toString()}</Error>}
                     </Field>
 
                     {watch("connectionType") == "DB_CONNECTION" &&
@@ -269,10 +276,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" required={true} />
+                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" required={true} errorMsg={errors?.databaseConfiguration?.message?.toString()} />
                             )}
                         />
-                        {errors.databaseConfiguration && <Error>{errors.databaseConfiguration.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -299,13 +305,18 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                             }}>Manage Drivers</Typography>
                                         </Link>
                                     </FlexLabelContainer>
-                                    <AutoComplete name="connectionDbType" items={["OTHER", "MYSQL", "ORACLE", "MSSQL", "POSTGRESQL"]} value={field.value} onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }} />
+                                    <AutoComplete
+                                        name="connectionDbType"
+                                        items={["OTHER", "MYSQL", "ORACLE", "MSSQL", "POSTGRESQL"]}
+                                        value={field.value}
+                                        errorMsg={errors?.connectionDBType?.message?.toString()}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                    />
                                 </>
                             )}
                         />
-                        {errors.connectionDBType && <Error>{errors.connectionDBType.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -318,7 +329,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based Driver Config</VSCodeCheckbox>
                             )}
                         />
-                        {errors.isRegistryBasedDriverConfig && <Error>{errors.isRegistryBasedDriverConfig.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -333,10 +343,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" required={true} />
+                                <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" required={true} errorMsg={errors?.connectionDBDriver?.message?.toString()} />
                             )}
                         />
-                        {errors.connectionDBDriver && <Error>{errors.connectionDBDriver.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -351,10 +360,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" required={true} />
+                                <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" required={true} errorMsg={errors?.registryBasedConnectionDBDriver?.message?.toString()} />
                             )}
                         />
-                        {errors.registryBasedConnectionDBDriver && <Error>{errors.registryBasedConnectionDBDriver.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -369,12 +377,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <AutoComplete label="Connection DS Type" name="connectionDsType" items={["EXTERNAL", "CARBON"]} value={field.value} required={true} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Connection DS Type"
+                                    name="connectionDsType"
+                                    items={["EXTERNAL", "CARBON"]}
+                                    value={field.value}
+                                    required={true}
+                                    errorMsg={errors?.connectionDSType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.connectionDSType && <Error>{errors.connectionDSType.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -389,10 +404,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" required={true} />
+                                <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" required={true} errorMsg={errors?.connectionDSInitialContext?.message?.toString()} />
                             )}
                         />
-                        {errors.connectionDSInitialContext && <Error>{errors.connectionDSInitialContext.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -407,10 +421,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" required={true} />
+                                <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" required={true} errorMsg={errors?.connectionDSName?.message?.toString()} />
                             )}
                         />
-                        {errors.connectionDSName && <Error>{errors.connectionDSName.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -423,7 +436,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based URL Config</VSCodeCheckbox>
                             )}
                         />
-                        {errors.isRegistryBasedURLConfig && <Error>{errors.isRegistryBasedURLConfig.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -438,10 +450,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" required={true} />
+                                <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" required={true} errorMsg={errors?.connectionURL?.message?.toString()} />
                             )}
                         />
-                        {errors.connectionURL && <Error>{errors.connectionURL.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -456,10 +467,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" required={true} />
+                                <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" required={true} errorMsg={errors?.registryBasedURLConfigKey?.message?.toString()} />
                             )}
                         />
-                        {errors.registryBasedURLConfigKey && <Error>{errors.registryBasedURLConfigKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -472,7 +482,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based User Config</VSCodeCheckbox>
                             )}
                         />
-                        {errors.isRegistryBasedUserConfig && <Error>{errors.isRegistryBasedUserConfig.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -487,10 +496,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" required={true} />
+                                <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" required={true} errorMsg={errors?.connectionUsername?.message?.toString()} />
                             )}
                         />
-                        {errors.connectionUsername && <Error>{errors.connectionUsername.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -505,10 +513,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" required={true} />
+                                <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" required={true} errorMsg={errors?.registryBasedUserConfigKey?.message?.toString()} />
                             )}
                         />
-                        {errors.registryBasedUserConfigKey && <Error>{errors.registryBasedUserConfigKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -521,7 +528,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based Pass Config</VSCodeCheckbox>
                             )}
                         />
-                        {errors.isRegistryBasedPassConfig && <Error>{errors.isRegistryBasedPassConfig.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -536,10 +542,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" required={true} />
+                                <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" required={true} errorMsg={errors?.connectionPassword?.message?.toString()} />
                             )}
                         />
-                        {errors.connectionPassword && <Error>{errors.connectionPassword.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -554,10 +559,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" required={true} />
+                                <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" required={true} errorMsg={errors?.registryBasedPassConfigKey?.message?.toString()} />
                             )}
                         />
-                        {errors.registryBasedPassConfigKey && <Error>{errors.registryBasedPassConfigKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -620,12 +624,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyAutocommit"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Autocommit" name="propertyAutocommit" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Property Autocommit"
+                                    name="propertyAutocommit"
+                                    items={["DEFAULT", "true", "false"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.propertyAutocommit?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.propertyAutocommit && <Error>{errors.propertyAutocommit.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -633,12 +644,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyIsolation"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Isolation" name="propertyIsolation" items={["DEFAULT", "Connection.TRANSACTION_NONE", "Connection.TRANSACTION_READ_COMMITTED", "Connection.TRANSACTION_UNCOMMITTED", "Connection.TRANSACTION_REPEATABLE_READ", "Connection.TRANSACTION.SERIALIZABLE"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Property Isolation"
+                                    name="propertyIsolation"
+                                    items={["DEFAULT", "Connection.TRANSACTION_NONE", "Connection.TRANSACTION_READ_COMMITTED", "Connection.TRANSACTION_UNCOMMITTED", "Connection.TRANSACTION_REPEATABLE_READ", "Connection.TRANSACTION.SERIALIZABLE"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.propertyIsolation?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.propertyIsolation && <Error>{errors.propertyIsolation.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -646,10 +664,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyMaxActive"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Active" size={50} placeholder="Enter the max active property" required={false} />
+                                <TextField {...field} label="Property Max Active" size={50} placeholder="Enter the max active property" required={false} errorMsg={errors?.propertyMaxActive?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyMaxActive && <Error>{errors.propertyMaxActive.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -657,10 +674,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyMaxIdle"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Idle" size={50} placeholder="Enter the max idle property" required={false} />
+                                <TextField {...field} label="Property Max Idle" size={50} placeholder="Enter the max idle property" required={false} errorMsg={errors?.propertyMaxIdle?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyMaxIdle && <Error>{errors.propertyMaxIdle.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -668,10 +684,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyMaxOpenStatements"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Open Statements" size={50} placeholder="Enter the max open statements property" required={false} />
+                                <TextField {...field} label="Property Max Open Statements" size={50} placeholder="Enter the max open statements property" required={false} errorMsg={errors?.propertyMaxOpenStatements?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyMaxOpenStatements && <Error>{errors.propertyMaxOpenStatements.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -679,10 +694,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyMaxWait"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Max Wait" size={50} placeholder="Enter the max wait property" required={false} />
+                                <TextField {...field} label="Property Max Wait" size={50} placeholder="Enter the max wait property" required={false} errorMsg={errors?.propertyMaxWait?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyMaxWait && <Error>{errors.propertyMaxWait.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -690,10 +704,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyMinIdle"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Min Idle" size={50} placeholder="Enter the min idle property" required={false} />
+                                <TextField {...field} label="Property Min Idle" size={50} placeholder="Enter the min idle property" required={false} errorMsg={errors?.propertyMinIdle?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyMinIdle && <Error>{errors.propertyMinIdle.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -701,12 +714,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyPoolStatements"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Pool Statements" name="propertyPoolStatements" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Property Pool Statements"
+                                    name="propertyPoolStatements"
+                                    items={["DEFAULT", "true", "false"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.propertyPoolStatements?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.propertyPoolStatements && <Error>{errors.propertyPoolStatements.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -714,12 +734,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyTestOnBorrow"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Test On Borrow" name="propertyTestOnBorrow" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Property Test On Borrow"
+                                    name="propertyTestOnBorrow"
+                                    items={["DEFAULT", "true", "false"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.propertyTestOnBorrow?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.propertyTestOnBorrow && <Error>{errors.propertyTestOnBorrow.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -727,12 +754,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyTestWhileIdle"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Property Test While Idle" name="propertyTestWhileIdle" items={["DEFAULT", "true", "false"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Property Test While Idle"
+                                    name="propertyTestWhileIdle"
+                                    items={["DEFAULT", "true", "false"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.propertyTestWhileIdle?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.propertyTestWhileIdle && <Error>{errors.propertyTestWhileIdle.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -740,10 +774,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyValidationQuery"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Validation Query" size={50} placeholder="Enter the validation query property" required={false} />
+                                <TextField {...field} label="Property Validation Query" size={50} placeholder="Enter the validation query property" required={false} errorMsg={errors?.propertyValidationQuery?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyValidationQuery && <Error>{errors.propertyValidationQuery.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -751,10 +784,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="propertyInitialSize"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Property Initial Size" size={50} placeholder="Enter the initial size property" required={false} />
+                                <TextField {...field} label="Property Initial Size" size={50} placeholder="Enter the initial size property" required={false} errorMsg={errors?.propertyInitialSize?.message?.toString()} />
                             )}
                         />
-                        {errors.propertyInitialSize && <Error>{errors.propertyInitialSize.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
@@ -767,10 +799,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="Enter a description" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="Enter a description" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

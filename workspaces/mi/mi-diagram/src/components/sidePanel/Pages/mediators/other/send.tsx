@@ -110,7 +110,6 @@ const SendForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Skip Serialization</VSCodeCheckbox>
                             )}
                         />
-                        {errors.skipSerialization && <Error>{errors.skipSerialization.message.toString()}</Error>}
                     </Field>
 
                     {watch("skipSerialization") == false &&
@@ -134,10 +133,10 @@ const SendForm = (props: AddMediatorProps) => {
                                     }}
                                     onValueChange={field.onChange}
                                     required={true}
+                                    errorMsg={errors?.endpoint?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.endpoint && <Error>{errors.endpoint.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -150,7 +149,6 @@ const SendForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Build Message Before Sending</VSCodeCheckbox>
                             )}
                         />
-                        {errors.buildMessageBeforeSending && <Error>{errors.buildMessageBeforeSending.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -163,12 +161,19 @@ const SendForm = (props: AddMediatorProps) => {
                                 name="receivingSequenceType"
                                 control={control}
                                 render={({ field }) => (
-                                    <AutoComplete label="Receiving Sequence Type" name="receivingSequenceType" items={["Default", "Static", "Dynamic"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }} />
+                                    <AutoComplete
+                                        label="Receiving Sequence Type"
+                                        name="receivingSequenceType"
+                                        items={["Default", "Static", "Dynamic"]}
+                                        value={field.value}
+                                        required={false}
+                                        errorMsg={errors?.receivingSequenceType?.message?.toString()}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                    />
                                 )}
                             />
-                            {errors.receivingSequenceType && <Error>{errors.receivingSequenceType.message.toString()}</Error>}
                         </Field>
 
                         {watch("receivingSequenceType") == "Static" &&
@@ -184,10 +189,10 @@ const SendForm = (props: AddMediatorProps) => {
                                             allowItemCreate={false}
                                             onValueChange={field.onChange}
                                             required={false}
+                                            errorMsg={errors?.staticReceivingSequence?.message?.toString()}
                                         />
                                     )}
                                 />
-                                {errors.staticReceivingSequence && <Error>{errors.staticReceivingSequence.message.toString()}</Error>}
                             </Field>
                         }
 
@@ -201,12 +206,12 @@ const SendForm = (props: AddMediatorProps) => {
                                             {...field} label="Dynamic Receiving Sequence"
                                             placeholder=""
                                             required={false}
+                                            errorMsg={errors?.dynamicReceivingSequence?.message?.toString()}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
                                     )}
                                 />
-                                {errors.dynamicReceivingSequence && <Error>{errors.dynamicReceivingSequence.message.toString()}</Error>}
                             </Field>
                         }
 
@@ -218,10 +223,9 @@ const SendForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
