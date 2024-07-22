@@ -6,82 +6,80 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { GHAppConfig } from "@wso2-enterprise/choreo-core";
+import type { GHAppConfig } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 
 export interface IChoreoEnvConfig {
-    ghApp: GHAppConfig,
-    choreoConsoleBaseUrl: string;
-    billingConsoleBaseUrl: string;
+	ghApp: GHAppConfig;
+	choreoConsoleBaseUrl: string;
+	billingConsoleBaseUrl: string;
 }
 
 export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
-    ghApp: {
-        installUrl: "https://github.com/apps/choreo-dev/installations/new",
-        authUrl: "https://github.com/login/oauth/authorize",
-        clientId: "Iv1.804167a242012c66",
-        redirectUrl: "https://console.choreo.dev/ghapp"
-    },
-    choreoConsoleBaseUrl: "https://console.choreo.dev",
-    billingConsoleBaseUrl: "https://subscriptions.wso2.com"
+	ghApp: {
+		installUrl: "https://github.com/apps/choreo-dev/installations/new",
+		authUrl: "https://github.com/login/oauth/authorize",
+		clientId: "Iv1.804167a242012c66",
+		redirectUrl: "https://console.choreo.dev/ghapp",
+	},
+	choreoConsoleBaseUrl: "https://console.choreo.dev",
+	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
 };
 
 export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
-    ghApp: {
-        installUrl: "https://github.com/apps/choreo-apps-stage/installations/new",
-        authUrl: "https://github.com/login/oauth/authorize",
-        clientId: "Iv1.20fd2645fc8a5aab",
-        redirectUrl: "https://console.st.choreo.dev/ghapp"
-    },
-    choreoConsoleBaseUrl: "https://console.st.choreo.dev",
-    billingConsoleBaseUrl: "https://subscriptions.st.wso2.com"
+	ghApp: {
+		installUrl: "https://github.com/apps/choreo-apps-stage/installations/new",
+		authUrl: "https://github.com/login/oauth/authorize",
+		clientId: "Iv1.20fd2645fc8a5aab",
+		redirectUrl: "https://console.st.choreo.dev/ghapp",
+	},
+	choreoConsoleBaseUrl: "https://console.st.choreo.dev",
+	billingConsoleBaseUrl: "https://subscriptions.st.wso2.com",
 };
 
 export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
-    ghApp: {
-        installUrl: "https://github.com/apps/choreo-apps-dev/installations/new",
-        authUrl: "https://github.com/login/oauth/authorize",
-        clientId: "Iv1.f6cf2cd585148ee7",
-        redirectUrl: "https://consolev2.preview-dv.choreo.dev/ghapp"
-    },
-    choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
-    billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com"
+	ghApp: {
+		installUrl: "https://github.com/apps/choreo-apps-dev/installations/new",
+		authUrl: "https://github.com/login/oauth/authorize",
+		clientId: "Iv1.f6cf2cd585148ee7",
+		redirectUrl: "https://consolev2.preview-dv.choreo.dev/ghapp",
+	},
+	choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
+	billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com",
 };
 
 export class ChoreoEnvConfig {
-    constructor(private _config: IChoreoEnvConfig = DEFAULT_CHOREO_ENV_CONFIG) {
-    }
+	constructor(private _config: IChoreoEnvConfig = DEFAULT_CHOREO_ENV_CONFIG) {}
 
-    public getGHAppConfig(): GHAppConfig {
-        return this._config.ghApp;
-    }
+	public getGHAppConfig(): GHAppConfig {
+		return this._config.ghApp;
+	}
 
-    public getConsoleUrl(): string {
-        return this._config.choreoConsoleBaseUrl;
-    }
+	public getConsoleUrl(): string {
+		return this._config.choreoConsoleBaseUrl;
+	}
 
-    public getBillingUrl(): string {
-        return this._config.billingConsoleBaseUrl;
-    }
+	public getBillingUrl(): string {
+		return this._config.billingConsoleBaseUrl;
+	}
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 const choreoEnv = process.env.TEST_CHOREO_EXT_ENV ?? workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
 
 let pickedEnvConfig: IChoreoEnvConfig;
 
 switch (choreoEnv) {
-    case 'prod':
-        pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
-        break;
-    case 'stage':
-        pickedEnvConfig = CHOREO_ENV_CONFIG_STAGE;
-        break;
-    case 'dev':
-        pickedEnvConfig = CHOREO_ENV_CONFIG_DEV;
-        break;
-    default:
-        pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
+	case "prod":
+		pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
+		break;
+	case "stage":
+		pickedEnvConfig = CHOREO_ENV_CONFIG_STAGE;
+		break;
+	case "dev":
+		pickedEnvConfig = CHOREO_ENV_CONFIG_DEV;
+		break;
+	default:
+		pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
 }
 
 export const choreoEnvConfig: ChoreoEnvConfig = new ChoreoEnvConfig(pickedEnvConfig);

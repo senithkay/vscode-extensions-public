@@ -1,3 +1,4 @@
+import type { ComponentKind, Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,51 +8,55 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from "vscode";
-import { WebViewPanelRpc } from "./WebviewRPC";
-import { getUri } from "./utils";
-import { ComponentKind, Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { WebViewPanelRpc } from "./WebviewRPC";
+import { getUri } from "./utils";
 
 const componentViewMap = new Map<string, ComponentDetailsView>();
 
 class ComponentDetailsView {
-    public static currentPanel: ComponentDetailsView | undefined;
-    private _panel: vscode.WebviewPanel | undefined;
-    private _disposables: vscode.Disposable[] = [];
-    private _rpcHandler: WebViewPanelRpc;
+	public static currentPanel: ComponentDetailsView | undefined;
+	private _panel: vscode.WebviewPanel | undefined;
+	private _disposables: vscode.Disposable[] = [];
+	private _rpcHandler: WebViewPanelRpc;
 
-    constructor(extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryPath?: string) {
-        this._panel = ComponentDetailsView.createWebview(component);
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, organization, project, component, directoryPath);
-        this._rpcHandler = new WebViewPanelRpc(this._panel);
-    }
+	constructor(extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryPath?: string) {
+		this._panel = ComponentDetailsView.createWebview(component);
+		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, organization, project, component, directoryPath);
+		this._rpcHandler = new WebViewPanelRpc(this._panel);
+	}
 
-    private static createWebview(component: ComponentKind): vscode.WebviewPanel {
-        const panel = vscode.window.createWebviewPanel(
-            `ComponentDetailsView-${component.metadata.name}`,
-            `Component: ${component.metadata.displayName}`,
-            vscode.ViewColumn.One,
-            { enableScripts: true, retainContextWhenHidden: true }
-        );
+	private static createWebview(component: ComponentKind): vscode.WebviewPanel {
+		const panel = vscode.window.createWebviewPanel(
+			`ComponentDetailsView-${component.metadata.name}`,
+			`Component: ${component.metadata.displayName}`,
+			vscode.ViewColumn.One,
+			{ enableScripts: true, retainContextWhenHidden: true },
+		);
 
-        return panel;
-    }
+		return panel;
+	}
 
-    public getWebview(): vscode.WebviewPanel | undefined {
-        return this._panel;
-    }
+	public getWebview(): vscode.WebviewPanel | undefined {
+		return this._panel;
+	}
 
-    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryPath?: string) {
-        // The JS file from the React build output
-        const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
+	private _getWebviewContent(
+		webview: vscode.Webview,
+		extensionUri: vscode.Uri,
+		organization: Organization,
+		project: Project,
+		component: ComponentKind,
+		directoryPath?: string,
+	) {
+		// The JS file from the React build output
+		const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
 
-        const codiconUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css")
-        );
+		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css"));
 
-        return /*html*/ `
+		return /*html*/ `
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -71,84 +76,69 @@ class ComponentDetailsView {
                 choreoWebviews.renderChoreoWebViews(
                   document.getElementById("root"),
                   ${JSON.stringify({
-                      type: "ComponentDetailsView",
-                      directoryPath,
-                      organization,
-                      project,
-                      component
-                  } as WebviewProps)}
+										type: "ComponentDetailsView",
+										directoryPath,
+										organization,
+										project,
+										component,
+									} as WebviewProps)}
                 );
               }
               render();
             </script>
           </html>
         `;
-    }
+	}
 
-    public dispose() {
-        ComponentDetailsView.currentPanel = undefined;
-        this._panel?.dispose();
+	public dispose() {
+		ComponentDetailsView.currentPanel = undefined;
+		this._panel?.dispose();
 
-        while (this._disposables.length) {
-            const disposable = this._disposables.pop();
-            if (disposable) {
-                disposable.dispose();
-            }
-        }
+		while (this._disposables.length) {
+			const disposable = this._disposables.pop();
+			if (disposable) {
+				disposable.dispose();
+			}
+		}
 
-        this._panel = undefined;
-    }
+		this._panel = undefined;
+	}
 }
 
-const getComponentDetailsView = (
-    orgHandle: string,
-    projectHandle: string,
-    component: string
-): vscode.WebviewPanel | undefined => {
-    const componentKey = `${orgHandle}-${projectHandle}-${component}`;
-    return componentViewMap.get(componentKey)?.getWebview();
+const getComponentDetailsView = (orgHandle: string, projectHandle: string, component: string): vscode.WebviewPanel | undefined => {
+	const componentKey = `${orgHandle}-${projectHandle}-${component}`;
+	return componentViewMap.get(componentKey)?.getWebview();
 };
 
 export const closeComponentDetailsView = (orgHandle: string, projectHandle: string, component: string): void => {
-    const webView = getComponentDetailsView(orgHandle, projectHandle, component);
-    if (webView) {
-        webView.dispose();
-        componentViewMap.delete(`${orgHandle}-${projectHandle}-${component}`);
-    }
+	const webView = getComponentDetailsView(orgHandle, projectHandle, component);
+	if (webView) {
+		webView.dispose();
+		componentViewMap.delete(`${orgHandle}-${projectHandle}-${component}`);
+	}
 };
 
-export const showComponentDetailsView = (
-    org: Organization,
-    project: Project,
-    component: ComponentKind,
-    componentPath: string
-) => {
-    const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
-    const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
+export const showComponentDetailsView = (org: Organization, project: Project, component: ComponentKind, componentPath: string) => {
+	const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
+	const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
 
-    if (webView) {
-        webView?.reveal();
-    } else {
-        const componentDetailsView = new ComponentDetailsView(
-            ext.context.extensionUri,
-            org,
-            project,
-            component,
-            componentPath
-        );
-        componentDetailsView.getWebview()?.reveal();
-        componentViewMap.set(componentKey, componentDetailsView);
+	if (webView) {
+		webView?.reveal();
+	} else {
+		const componentDetailsView = new ComponentDetailsView(ext.context.extensionUri, org, project, component, componentPath);
+		componentDetailsView.getWebview()?.reveal();
+		componentViewMap.set(componentKey, componentDetailsView);
 
-        webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
-        componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
-            if (event.webviewPanel.active) {
-                webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
-            } else {
-                webviewStateStore.getState().onCloseComponentView(componentKey);
-            }
-        });
-        componentDetailsView.getWebview()?.onDidDispose(() => {
-            webviewStateStore.getState().onCloseComponentView(componentKey);
-        });
-    }
+		webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
+		componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
+			if (event.webviewPanel.active) {
+				webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
+			} else {
+				webviewStateStore.getState().onCloseComponentView(componentKey);
+			}
+		});
+		componentDetailsView.getWebview()?.onDidDispose(() => {
+			webviewStateStore.getState().onCloseComponentView(componentKey);
+		});
+	}
 };

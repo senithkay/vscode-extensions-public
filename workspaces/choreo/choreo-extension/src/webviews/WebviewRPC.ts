@@ -1,3 +1,50 @@
+import { readdirSync, statSync, unlinkSync } from "fs";
+import { join } from "path";
+import {
+	AuthStoreChangedNotification,
+	ClearWebviewCache,
+	CloseWebViewNotification,
+	ContextStoreChangedNotification,
+	DeleteFile,
+	ExecuteCommandRequest,
+	FileExists,
+	GetAuthState,
+	GetContextState,
+	GetDirectoryFileNames,
+	GetGitRemotes,
+	GetSubPath,
+	GetWebviewStoreState,
+	GoToSource,
+	JoinFilePaths,
+	type OpenDialogOptions,
+	OpenExternal,
+	OpenSubDialogRequest,
+	OpenTestView,
+	type OpenTestViewReq,
+	ReadServiceEndpoints,
+	RefreshContextState,
+	RestoreWebviewCache,
+	SendTelemetryEventNotification,
+	type SendTelemetryEventParams,
+	SendTelemetryExceptionNotification,
+	type SendTelemetryExceptionParams,
+	SetWebviewCache,
+	type ShowConfirmBoxReq,
+	ShowConfirmMessage,
+	ShowErrorMessage,
+	ShowInfoMessage,
+	ShowInputBox,
+	ShowQuickPick,
+	SubmitComponentCreate,
+	TriggerGithubAuthFlow,
+	TriggerGithubInstallFlow,
+	ViewBuildsLogs,
+	ViewRuntimeLogs,
+	WebviewNotificationsMethodList,
+	type WebviewQuickPickItem,
+	WebviewStateChangedNotification,
+	showOpenDialogRequest,
+} from "@wso2-enterprise/choreo-core";
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
@@ -10,293 +57,244 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView, env } from "vscode";
+import { ProgressLocation, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
+import * as vscode from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
-import {
-    ExecuteCommandRequest,
-    OpenExternal,
-    ShowErrorMessage,
-    showOpenDialogRequest,
-    OpenDialogOptions,
-    SendTelemetryEventNotification,
-    SendTelemetryEventParams,
-    SendTelemetryExceptionNotification,
-    SendTelemetryExceptionParams,
-    SetWebviewCache,
-    RestoreWebviewCache,
-    ClearWebviewCache,
-    GoToSource,
-    AuthStoreChangedNotification,
-    WebviewNotificationsMethodList,
-    GetAuthState,
-    OpenSubDialogRequest,
-    GetGitRemotes,
-    ShowInfoMessage,
-    JoinFilePaths,
-    DeleteFile,
-    ShowConfirmMessage,
-    ShowConfirmBoxReq,
-    ReadServiceEndpoints,
-    ShowQuickPick,
-    WebviewQuickPickItem,
-    WebviewStateChangedNotification,
-    ViewBuildsLogs,
-    ViewRuntimeLogs,
-    GetWebviewStoreState,
-    TriggerGithubAuthFlow,
-    TriggerGithubInstallFlow,
-    SubmitComponentCreate,
-    GetSubPath,
-    GetDirectoryFileNames,
-    FileExists,
-    ShowInputBox,
-    OpenTestViewReq,
-    OpenTestView,
-    ContextStoreChangedNotification,
-    GetContextState,
-    RefreshContextState,
-    CloseWebViewNotification,
-} from "@wso2-enterprise/choreo-core";
+import { registerChoreoRpcResolver } from "../choreo-rpc";
+import { getChoreoEnv, getChoreoExecPath } from "../choreo-rpc/cli-install";
+import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
+import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import * as vscode from "vscode";
+import { getGitRemotes, removeCredentialsFromGitURL } from "../git/util";
 import { getLogger } from "../logger/logger";
-import { join } from "path";
-import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
-import { readdirSync, statSync, unlinkSync } from "fs";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { webviewStateStore } from "../stores/webview-state-store";
-import { registerChoreoRpcResolver } from "../choreo-rpc";
-import { getGitRemotes, removeCredentialsFromGitURL } from "../git/util";
-import { choreoEnvConfig } from "../config";
-import { getChoreoEnv, getChoreoExecPath } from "../choreo-rpc/cli-install";
+import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
 import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../utils";
-import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { showComponentTestView } from "./ComponentTestView";
-
 
 // Register handlers
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
+	authStore.subscribe((store) => messenger.sendNotification(AuthStoreChangedNotification, BROADCAST, store.state));
+	webviewStateStore.subscribe((store) => messenger.sendNotification(WebviewStateChangedNotification, BROADCAST, store.state));
+	contextStore.subscribe((store) => messenger.sendNotification(ContextStoreChangedNotification, BROADCAST, store.state));
 
-    authStore.subscribe((store)=> messenger.sendNotification(AuthStoreChangedNotification, BROADCAST, store.state));
-    webviewStateStore.subscribe((store)=> messenger.sendNotification(WebviewStateChangedNotification, BROADCAST, store.state));
-    contextStore.subscribe((store)=> messenger.sendNotification(ContextStoreChangedNotification, BROADCAST, store.state));
+	messenger.onRequest(GetAuthState, () => authStore.getState().state);
+	messenger.onRequest(GetWebviewStoreState, async () => webviewStateStore.getState().state);
+	messenger.onRequest(GetContextState, async () => contextStore.getState().state);
 
-    messenger.onRequest(GetAuthState, ()=>authStore.getState().state);
-    messenger.onRequest(GetWebviewStoreState, async ()=>webviewStateStore.getState().state);
-    messenger.onRequest(GetContextState, async ()=>contextStore.getState().state);
+	messenger.onRequest(OpenSubDialogRequest, async (options: OpenDialogOptions) => {
+		try {
+			const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
+			return result?.map((file) => file.path);
+		} catch (error: any) {
+			getLogger().error(error.message);
+			return [];
+		}
+	});
+	messenger.onRequest(GetGitRemotes, async (dirPath: string) => {
+		try {
+			const remotes = await getGitRemotes(ext.context, dirPath);
+			return remotes?.map((item) => removeCredentialsFromGitURL(item.fetchUrl!));
+		} catch (error: any) {
+			getLogger().error(error.message);
+			return [];
+		}
+	});
+	messenger.onRequest(JoinFilePaths, (files: string[]) => join(...files));
+	messenger.onRequest(GetSubPath, (params: { subPath: string; parentPath: string }) => getSubPath(params.subPath, params.parentPath));
+	messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
+		if (args.length >= 1) {
+			const cmdArgs = args.length > 1 ? args.slice(1) : [];
+			const result = await commands.executeCommand(args[0], ...cmdArgs);
+			return result;
+		}
+	});
+	messenger.onRequest(OpenExternal, (url: string) => {
+		vscode.env.openExternal(vscode.Uri.parse(url));
+	});
+	messenger.onRequest(SetWebviewCache, async (params) => {
+		await ext.context.workspaceState.update(params.cacheKey, params.data);
+	});
+	messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
+		return ext.context.workspaceState.get(cacheKey);
+	});
+	messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
+		await ext.context.workspaceState.update(cacheKey, undefined);
+	});
+	messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
+		await goTosource(filePath, false);
+	});
+	messenger.onRequest(DeleteFile, async (filePath) => {
+		unlinkSync(filePath);
+	});
+	messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
+		const response = await window.showInformationMessage(params.message, { modal: true }, params.buttonText);
+		return response === params.buttonText;
+	});
+	messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => readEndpoints(componentPath));
+	messenger.onRequest(ShowQuickPick, async (params) => {
+		const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
+			title: params.title,
+		});
+		return itemSelection as WebviewQuickPickItem;
+	});
+	messenger.onRequest(ShowInputBox, async ({ regex, ...rest }) => {
+		return window.showInputBox({
+			...rest,
+			validateInput: (val) => {
+				if (regex && !new RegExp(regex.expression).test(val)) {
+					return regex.message;
+				}
+				return null;
+			},
+		});
+	});
+	let buildLogsOutputChannel: vscode.OutputChannel;
+	messenger.onRequest(ViewBuildsLogs, async (params) => {
+		const logs = await window.withProgress(
+			{ title: `Fetching build logs for build ID ${params.buildId}`, location: ProgressLocation.Notification },
+			() => ext.clients.rpcClient.getBuildLogs(params),
+		);
+		if (!buildLogsOutputChannel) {
+			buildLogsOutputChannel = window.createOutputChannel("Choreo: Build Logs");
+		}
+		buildLogsOutputChannel.replace(logs);
+		buildLogsOutputChannel.show();
+	});
+	messenger.onRequest(ViewRuntimeLogs, async ({ orgName, projectName, componentName, deploymentTrackName, envName, type }) => {
+		if (getChoreoEnv() !== "prod") {
+			window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
+			return;
+		}
+		const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+		window.createTerminal(`${componentName}:${type.replace("component-", "")}-logs`, getChoreoExecPath(), args).show();
+	});
+	const _getGithubUrlState = async (orgId: string): Promise<string> => {
+		const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));
+		const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString() };
+		return Buffer.from(JSON.stringify(state), "binary").toString("base64");
+	};
+	messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {
+		const { authUrl, clientId, redirectUrl } = choreoEnvConfig.getGHAppConfig();
+		const state = await _getGithubUrlState(orgId);
+		const ghURL = Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=${state}`);
+		await env.openExternal(ghURL);
+	});
+	messenger.onRequest(TriggerGithubInstallFlow, async (orgId: string) => {
+		const { installUrl } = choreoEnvConfig.getGHAppConfig();
+		const state = await _getGithubUrlState(orgId);
+		const ghURL = Uri.parse(`${installUrl}?state=${state}`);
+		await env.openExternal(ghURL);
+	});
+	messenger.onRequest(SubmitComponentCreate, submitCreateComponentHandler);
+	messenger.onRequest(GetDirectoryFileNames, (dirPath: string) => {
+		return readdirSync(dirPath)?.filter((fileName) => statSync(join(dirPath, fileName)).isFile());
+	});
+	messenger.onRequest(FileExists, (filePath: string) => {
+		try {
+			return statSync(filePath).isFile();
+		} catch (err) {
+			return false;
+		}
+	});
+	messenger.onRequest(OpenTestView, (props: OpenTestViewReq) => {
+		showComponentTestView(props);
+	});
+	messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
+		try {
+			const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
+			return result?.map((file) => file.fsPath);
+		} catch (error: any) {
+			getLogger().error(error.message);
+			return [];
+		}
+	});
 
-    messenger.onRequest(OpenSubDialogRequest, async (options: OpenDialogOptions) => {
-        try {
-            const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
-            return result?.map((file) => file.path);
-        } catch (error: any) {
-            getLogger().error(error.message);
-            return [];
-        }
-    });
-    messenger.onRequest(GetGitRemotes, async (dirPath: string) => {
-        try {
-            const remotes = await getGitRemotes(ext.context, dirPath);
-            return remotes?.map(item => removeCredentialsFromGitURL(item.fetchUrl!));
-        } catch (error: any) {
-            getLogger().error(error.message);
-            return [];
-        }
-    });
-    messenger.onRequest(JoinFilePaths, (files: string[])=>join(...files));
-    messenger.onRequest(GetSubPath, (params: {subPath: string; parentPath: string;})=>getSubPath(params.subPath, params.parentPath));
-    messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
-        if (args.length >= 1) {
-            const cmdArgs = args.length > 1 ? args.slice(1) : [];
-            const result = await commands.executeCommand(args[0], ...cmdArgs);
-            return result;
-        }
-    });
-    messenger.onRequest(OpenExternal, (url: string) => {
-        vscode.env.openExternal(vscode.Uri.parse(url));
-    });
-    messenger.onRequest(SetWebviewCache, async (params) => {
-        await ext.context.workspaceState.update(params.cacheKey, params.data);
-    });
-    messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
-        return ext.context.workspaceState.get(cacheKey);
-    });
-    messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
-        await ext.context.workspaceState.update(cacheKey, undefined);
-    });
-    messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
-        await goTosource(filePath, false);
-    });
-    messenger.onRequest(DeleteFile, async (filePath) => {
-        unlinkSync(filePath);
-    });
-    messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
-        const response = await window.showInformationMessage(params.message,{modal: true},params.buttonText);
-        return response === params.buttonText;
-    });
-    messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => readEndpoints(componentPath));
-    messenger.onRequest(ShowQuickPick, async (params) => {
-        const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
-            title: params.title,
-        });
-        return itemSelection as WebviewQuickPickItem;
-    });
-    messenger.onRequest(ShowInputBox, async ({regex, ...rest}) => {
-        return window.showInputBox({
-            ...rest,
-            validateInput: (val) => {
-                if(regex && !(new RegExp(regex.expression).test(val))){
-                    return regex.message;
-                }
-                return null;
-            }
-        });
-    });
-    let buildLogsOutputChannel: vscode.OutputChannel;
-    messenger.onRequest(ViewBuildsLogs, async (params) => {
-        const logs = await window.withProgress(
-            { title: `Fetching build logs for build ID ${params.buildId}`, location: ProgressLocation.Notification },
-            () => ext.clients.rpcClient.getBuildLogs(params)
-        );
-        if(!buildLogsOutputChannel){
-            buildLogsOutputChannel = window.createOutputChannel(`Choreo: Build Logs`);
-        }
-        buildLogsOutputChannel.replace(logs);
-        buildLogsOutputChannel.show();
-    });
-    messenger.onRequest(ViewRuntimeLogs, async ({orgName, projectName, componentName, deploymentTrackName, envName, type}) => {
-        if(getChoreoEnv() !== "prod"){
-            window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
-            return;
-        }
-        const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-        window.createTerminal(`${componentName}:${type.replace("component-","")}-logs`, getChoreoExecPath(), args).show();
-    });
-    const _getGithubUrlState = async (orgId: string):Promise<string> => {
-        const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));
-        const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString()};
-        return Buffer.from(JSON.stringify(state), 'binary').toString('base64');
-    };
-    messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {
-        const { authUrl, clientId, redirectUrl } = choreoEnvConfig.getGHAppConfig();
-        const state = await _getGithubUrlState(orgId);
-        const ghURL = Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=${state}`);
-        await env.openExternal(ghURL);
-    });
-    messenger.onRequest(TriggerGithubInstallFlow, async (orgId: string) => {
-        const { installUrl } = choreoEnvConfig.getGHAppConfig();
-        const state = await _getGithubUrlState(orgId);
-        const ghURL = Uri.parse(`${installUrl}?state=${state}`);
-        await env.openExternal(ghURL);
-    });
-    messenger.onRequest(SubmitComponentCreate, submitCreateComponentHandler);
-    messenger.onRequest(GetDirectoryFileNames, (dirPath: string)=>{
-        return readdirSync(dirPath)?.filter(fileName => statSync(join(dirPath, fileName)).isFile());
-    });      
-    messenger.onRequest(FileExists, (filePath: string) => {
-        try {
-            return statSync(filePath).isFile();
-        } catch (err) {
-            return false;
-        }
-    });    
-    messenger.onRequest(OpenTestView, (props: OpenTestViewReq)=>{
-        showComponentTestView(props);
-    });
-    messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
-        try {
-            const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
-            return result?.map((file) => file.fsPath);
-        } catch (error: any) {
-            getLogger().error(error.message);
-            return [];
-        }
-    });
+	messenger.onNotification(RefreshContextState, () => {
+		contextStore.getState().refreshState();
+	});
+	messenger.onNotification(ShowErrorMessage, (error: string) => {
+		window.showErrorMessage(error);
+	});
+	messenger.onNotification(ShowInfoMessage, (info: string) => {
+		window.showInformationMessage(info);
+	});
+	messenger.onNotification(SendTelemetryEventNotification, (event: SendTelemetryEventParams) => {
+		sendTelemetryEvent(event.eventName, event.properties, event.measurements);
+	});
+	messenger.onNotification(SendTelemetryExceptionNotification, (event: SendTelemetryExceptionParams) => {
+		sendTelemetryException(event.error, event.properties, event.measurements);
+	});
+	messenger.onNotification(CloseWebViewNotification, () => {
+		if ("dispose" in view) {
+			view.dispose();
+		}
+	});
 
-    messenger.onNotification(RefreshContextState, () => {
-        contextStore.getState().refreshState();
-    });
-    messenger.onNotification(ShowErrorMessage, (error: string) => {
-        window.showErrorMessage(error);
-    });
-    messenger.onNotification(ShowInfoMessage, (info: string) => {
-        window.showInformationMessage(info);
-    });
-    messenger.onNotification(SendTelemetryEventNotification, (event: SendTelemetryEventParams) => {
-        sendTelemetryEvent(event.eventName, event.properties, event.measurements);
-    });
-    messenger.onNotification(SendTelemetryExceptionNotification, (event: SendTelemetryExceptionParams) => {
-        sendTelemetryException(event.error, event.properties, event.measurements);
-    });
-    messenger.onNotification(CloseWebViewNotification, () => {
-        if ("dispose" in view) {
-            view.dispose();
-        }
-    });
-
-    // Register Choreo CLL RPC handler
-    registerChoreoRpcResolver(messenger, ext.clients.rpcClient);
+	// Register Choreo CLL RPC handler
+	registerChoreoRpcResolver(messenger, ext.clients.rpcClient);
 }
 
 export class WebViewPanelRpc {
-    private _messenger = new Messenger();
-    private _panel: WebviewPanel | undefined;
+	private _messenger = new Messenger();
+	private _panel: WebviewPanel | undefined;
 
-    constructor(view: WebviewPanel) {
-        this.registerPanel(view);
-        registerWebviewRPCHandlers(this._messenger, view);
-    }
+	constructor(view: WebviewPanel) {
+		this.registerPanel(view);
+		registerWebviewRPCHandlers(this._messenger, view);
+	}
 
-    public get panel(): WebviewPanel | undefined {
-        return this._panel;
-    }
+	public get panel(): WebviewPanel | undefined {
+		return this._panel;
+	}
 
-    public registerPanel(view: WebviewPanel) {
-        if (!this._panel) {
-            this._messenger.registerWebviewPanel(view, {
-                broadcastMethods: [ ...WebviewNotificationsMethodList],
-            });
-            this._panel = view;
-        } else {
-            throw new Error("Panel already registered");
-        }
-    }
+	public registerPanel(view: WebviewPanel) {
+		if (!this._panel) {
+			this._messenger.registerWebviewPanel(view, {
+				broadcastMethods: [...WebviewNotificationsMethodList],
+			});
+			this._panel = view;
+		} else {
+			throw new Error("Panel already registered");
+		}
+	}
 
-    public dispose() {
-        if (this._panel) {
-            this._panel.dispose();
-            this._panel = undefined;
-        }
-    }
+	public dispose() {
+		if (this._panel) {
+			this._panel.dispose();
+			this._panel = undefined;
+		}
+	}
 }
 
 export class WebViewViewRPC {
-    private _messenger = new Messenger();
-    private _view: WebviewView | undefined;
+	private _messenger = new Messenger();
+	private _view: WebviewView | undefined;
 
-    constructor(view: WebviewView) {
-        this.registerView(view);
-        try{
-            registerWebviewRPCHandlers(this._messenger, view);
-        } catch(err){
-            console.log('registerWebviewRPCHandlers error:', err)
-        }
-    }
+	constructor(view: WebviewView) {
+		this.registerView(view);
+		try {
+			registerWebviewRPCHandlers(this._messenger, view);
+		} catch (err) {
+			console.log("registerWebviewRPCHandlers error:", err);
+		}
+	}
 
-    public get view(): WebviewView | undefined {
-        return this._view;
-    }
+	public get view(): WebviewView | undefined {
+		return this._view;
+	}
 
-    public registerView(view: WebviewView) {
-        if (!this._view) {
-            this._messenger.registerWebviewView(view, {
-                broadcastMethods: [...WebviewNotificationsMethodList],
-            });
-            this._view = view;
-        } else {
-            throw new Error("View already registered");
-        }
-    }
+	public registerView(view: WebviewView) {
+		if (!this._view) {
+			this._messenger.registerWebviewView(view, {
+				broadcastMethods: [...WebviewNotificationsMethodList],
+			});
+			this._view = view;
+		} else {
+			throw new Error("View already registered");
+		}
+	}
 }

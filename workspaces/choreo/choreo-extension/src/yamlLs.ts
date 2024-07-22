@@ -1,42 +1,38 @@
+import * as fs from "fs";
 import path from "path";
-import { extensions, window, Uri } from "vscode";
+import type { ComponentYamlContent } from "@wso2-enterprise/choreo-core";
+import { Uri, extensions, window } from "vscode";
 import { ext } from "./extensionVariables";
-import * as fs from 'fs'
-import { ComponentYamlContent } from "@wso2-enterprise/choreo-core";
 
 // COMPONENT_YAML_SCHEMA = "choreo";
 // COMPONENT_YAML_SCHEMA_DIR = "schema/component-schema.json";
 
-
-
-
-
 interface ComponentYamlSchema {
-    $schema?: string;
-    $id?: string;
-    title?: string;
-    description?: string;
-    type: string;
-    properties?: {
-        [key: string]: ComponentYamlSchema;
-    };
-    definitions?: {
-        [key: string]: ComponentYamlSchema;
-    };
-    allOf?: [
-        {
-            [key: string]: ComponentYamlSchema;
-        }
-    ];
-    default?: string;
-    const?: string;
-    enum?: string[];
-    pattern?: string;
-    format?: string;
-    minLength?: number;
-    items?: ComponentYamlSchema;
-    required?: string[];
-    $ref?: string;
+	$schema?: string;
+	$id?: string;
+	title?: string;
+	description?: string;
+	type: string;
+	properties?: {
+		[key: string]: ComponentYamlSchema;
+	};
+	definitions?: {
+		[key: string]: ComponentYamlSchema;
+	};
+	allOf?: [
+		{
+			[key: string]: ComponentYamlSchema;
+		},
+	];
+	default?: string;
+	const?: string;
+	enum?: string[];
+	pattern?: string;
+	format?: string;
+	minLength?: number;
+	items?: ComponentYamlSchema;
+	required?: string[];
+	$ref?: string;
 }
 
 // async function getComponentYamlMetadata():
@@ -128,93 +124,92 @@ interface ComponentYamlSchema {
 //     }
 // }
 
-
 export function enrichComponentSchema(
-    schema: ComponentYamlSchema,
-    component: string, project: string,
-    componentConfigs: ComponentYamlContent[] | undefined
+	schema: ComponentYamlSchema,
+	component: string,
+	project: string,
+	componentConfigs: ComponentYamlContent[] | undefined,
 ): ComponentYamlSchema {
-    delete schema.definitions!.name.default;
-    delete schema.definitions!.projectName.default;
+	schema.definitions!.name.default = undefined;
+	schema.definitions!.projectName.default = undefined;
 
-    schema.definitions!.name.const = component;
-    schema.definitions!.projectName.const = project;
+	schema.definitions!.name.const = component;
+	schema.definitions!.projectName.const = project;
 
-    if (!componentConfigs) {
-        return schema;
-    }
-    const branches = new Set<string>();
-    componentConfigs.forEach((config) => {
-        branches.add(config.spec.build!.branch);
-    });
+	if (!componentConfigs) {
+		return schema;
+	}
+	const branches = new Set<string>();
+	componentConfigs.forEach((config) => {
+		branches.add(config.spec.build!.branch);
+	});
 
-    schema.definitions!.branch.enum = Array.from(branches);
+	schema.definitions!.branch.enum = Array.from(branches);
 
-    return schema;
+	return schema;
 }
 
-
 interface CacheParams<V, Args extends any[]> {
-    readonly expirationTime?: number;
-    readonly getDataFunc: (...args: Args) => Promise<V | undefined>;
+	readonly expirationTime?: number;
+	readonly getDataFunc: (...args: Args) => Promise<V | undefined>;
 }
 
 class Cache<V, Args extends any[]> {
-    private _timerIndex: Map<string, NodeJS.Timeout>;
-    private readonly _expirationTime: number;
+	private _timerIndex: Map<string, NodeJS.Timeout>;
+	private readonly _expirationTime: number;
 
-    constructor(private params: CacheParams<V, Args>) {
-        this._timerIndex = new Map<string, NodeJS.Timeout>();
-        this._expirationTime = params.expirationTime ?? 1000 * 60 * 10; // 10 minutes
-    }
+	constructor(private params: CacheParams<V, Args>) {
+		this._timerIndex = new Map<string, NodeJS.Timeout>();
+		this._expirationTime = params.expirationTime ?? 1000 * 60 * 10; // 10 minutes
+	}
 
-    private setExpiration(key: string, ...args: Args): void {
-        if (this._timerIndex.has(key)) {
-            clearTimeout(this._timerIndex.get(key));
-        }
-        const timer = setTimeout(async () => {
-            this._timerIndex.delete(key);
-            await this.invalidate(key, ...args);
-        }, this._expirationTime);
-        this._timerIndex.set(key, timer);
-    }
+	private setExpiration(key: string, ...args: Args): void {
+		if (this._timerIndex.has(key)) {
+			clearTimeout(this._timerIndex.get(key));
+		}
+		const timer = setTimeout(async () => {
+			this._timerIndex.delete(key);
+			// await this.invalidate(key, ...args);
+		}, this._expirationTime);
+		this._timerIndex.set(key, timer);
+	}
 
-    public async delete(key: string): Promise<void> {
-        await ext.context.globalState.update(key, undefined);
-        clearTimeout(this._timerIndex.get(key));
-        this._timerIndex.delete(key);
-    }
+	public async delete(key: string): Promise<void> {
+		await ext.context.globalState.update(key, undefined);
+		clearTimeout(this._timerIndex.get(key));
+		this._timerIndex.delete(key);
+	}
 
-    public async get(key: string, ...args: Args): Promise<V | undefined> {
-        const value = ext.context.globalState.get(key);
-        if (!!value) {
-            if (!this._timerIndex.has(key)) {
-                this.setExpiration(key, ...args);
-            }
-            return value as V;
-        }
-        try {
-            const res = await this.params.getDataFunc(...args);
-            if (res) {
-                await ext.context.globalState.update(key, res);
-                this.setExpiration(key, ...args);
-                return res;
-            }
-            return undefined;
-        } catch(err) {
-            throw err;
-        }
-    }
+	// public async get(key: string, ...args: Args): Promise<V | undefined> {
+	// 	const value = ext.context.globalState.get(key);
+	// 	if (value) {
+	// 		if (!this._timerIndex.has(key)) {
+	// 			this.setExpiration(key, ...args);
+	// 		}
+	// 		return value as V;
+	// 	}
+	// 	try {
+	// 		const res = await this.params.getDataFunc(...args);
+	// 		if (res) {
+	// 			await ext.context.globalState.update(key, res);
+	// 			this.setExpiration(key, ...args);
+	// 			return res;
+	// 		}
+	// 		return undefined;
+	// 	} catch (err) {
+	// 		throw err;
+	// 	}
+	// }
 
-    public async invalidate(key: string, ...args: Args): Promise<void> {
-        try {
-            const res = await this.params.getDataFunc(...args);
-            if (res) {
-                await ext.context.globalState.update(key, res);
-                this.setExpiration(key, ...args);
-            }
-        } catch(err) {
-            throw err;
-        }
-    }
+	// public async invalidate(key: string, ...args: Args): Promise<void> {
+	// 	try {
+	// 		const res = await this.params.getDataFunc(...args);
+	// 		if (res) {
+	// 			await ext.context.globalState.update(key, res);
+	// 			this.setExpiration(key, ...args);
+	// 		}
+	// 	} catch (err) {
+	// 		throw err;
+	// 	}
+	// }
 }

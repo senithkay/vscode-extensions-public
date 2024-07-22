@@ -1,3 +1,4 @@
+import type { WebviewProps } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -6,59 +7,44 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { ext } from "../extensionVariables";
+import { contextStore } from "../stores/context-store";
 import { WebViewViewRPC } from "./WebviewRPC";
-import { getUri } from './utils';
-import { ext } from '../extensionVariables';
-import { WebviewProps } from '@wso2-enterprise/choreo-core';
-import { contextStore } from '../stores/context-store';
-
+import { getUri } from "./utils";
 
 export class ProjectActivityView implements vscode.WebviewViewProvider {
-
-	public static readonly viewType = 'choreo.activity.project';
+	public static readonly viewType = "choreo.activity.project";
 
 	private _view?: vscode.WebviewView;
 	private _rpc?: WebViewViewRPC;
 
-	constructor(
-		private readonly _extensionUri: vscode.Uri,
-	) { }
+	constructor(private readonly _extensionUri: vscode.Uri) {}
 
-	public resolveWebviewView(
-		webviewView: vscode.WebviewView,
-		context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
-	) {
+	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken) {
 		this._view = webviewView;
 		webviewView.webview.options = {
 			// Allow scripts in the webview
 			enableScripts: true,
 
-			localResourceRoots: [
-				this._extensionUri
-			]
+			localResourceRoots: [this._extensionUri],
 		};
 		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
 		this._rpc = new WebViewViewRPC(webviewView);
 		// this.updateProjectInfo();
 
-		contextStore.subscribe((store=>{
+		contextStore.subscribe((store) => {
 			webviewView.title = store?.state?.selected?.project?.name ?? "Project";
 			// webviewView.description = store?.state?.selected?.org?.name;
-		}));
+		});
 	}
 
 	private _getWebviewContent(webview: vscode.Webview) {
 		// The JS file from the React build output
-		const scriptUri = getUri(webview, ext.context.extensionUri, [
-		  "resources",
-		  "jslibs",
-		  "main.js"
-		]);
-	
+		const scriptUri = getUri(webview, ext.context.extensionUri, ["resources", "jslibs", "main.js"]);
+
 		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
-	
+
 		return /*html*/ `
 			  <!DOCTYPE html>
 			  <html lang="en">
@@ -80,7 +66,7 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 						document.getElementById("root"), 
 						${JSON.stringify({
 							type: "ComponentsListActivityView",
-							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath
+							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath,
 						} as WebviewProps)}
 					);
 				  }
@@ -88,7 +74,7 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 				</script>
 			  </html>
 			`;
-	  }
+	}
 }
 
 // TODO: move common html content to different file!

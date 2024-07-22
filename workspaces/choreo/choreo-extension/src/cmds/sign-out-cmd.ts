@@ -1,3 +1,4 @@
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -6,24 +7,23 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import {  ExtensionContext, commands, window } from "vscode";
-import { authStore } from "../stores/auth-store";
+import { type ExtensionContext, commands, window } from "vscode";
 import { getLogger } from "../logger/logger";
-import { CommandIds } from '@wso2-enterprise/choreo-core';
+import { authStore } from "../stores/auth-store";
 
 export function signOutCommand(context: ExtensionContext) {
-    context.subscriptions.push(
-        commands.registerCommand(CommandIds.SignOut, async () => {
-            try {
-                getLogger().debug("Signing out from Choreo");
-                authStore.getState().logout();
-                window.showInformationMessage('Successfully signed out from Choreo!');
-            } catch (error: any) {
-                getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                if (error instanceof Error) {
-                    window.showErrorMessage(error.message);
-                }
-            }
-        })
-    );
+	context.subscriptions.push(
+		commands.registerCommand(CommandIds.SignOut, async () => {
+			try {
+				getLogger().debug("Signing out from Choreo");
+				authStore.getState().logout();
+				window.showInformationMessage("Successfully signed out from Choreo!");
+			} catch (error: any) {
+				getLogger().error(`Error while signing out from Choreo. ${error?.message}${error?.cause ? `\nCause: ${error.cause.message}` : ""}`);
+				if (error instanceof Error) {
+					window.showErrorMessage(error.message);
+				}
+			}
+		}),
+	);
 }

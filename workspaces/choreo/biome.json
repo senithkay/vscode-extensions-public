@@ -3,9 +3,6 @@
 	"organizeImports": {
 		"enabled": true
 	},
-	"files": {
-		"ignore": ["lib/**", "*.json"]
-	},
 	"formatter": {
 		"enabled": true,
 		"lineWidth": 150

@@ -8,48 +8,46 @@
  */
 import { EventEmitter } from "vscode";
 
-import { Project } from "@wso2-enterprise/choreo-core";
+import type { Project } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoExtensionAPI {
-    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    waitForLogin(): Promise<boolean>;
-    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    getChoreoProject(): Promise<Project | undefined>;
-    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    isChoreoProject(): Promise<boolean>;
-    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    enrichChoreoMetadata(model: Map<string, any>): Promise<Map<string, any> | undefined>;
-    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    getNonBalComponentModels(): Promise<{ [key: string]: any }>;
-    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    deleteComponent(projectId: string, path: string): Promise<void>;
+	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
+	waitForLogin(): Promise<boolean>;
+	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
+	getChoreoProject(): Promise<Project | undefined>;
+	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
+	isChoreoProject(): Promise<boolean>;
+	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
+	enrichChoreoMetadata(model: Map<string, any>): Promise<Map<string, any> | undefined>;
+	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
+	getNonBalComponentModels(): Promise<{ [key: string]: any }>;
+	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
+	deleteComponent(projectId: string, path: string): Promise<void>;
 }
 
 export class ChoreoExtensionApi implements IChoreoExtensionAPI {
-    constructor() {}
+	private _onRefreshWorkspaceMetadata = new EventEmitter();
+	public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
 
-    private _onRefreshWorkspaceMetadata = new EventEmitter();
-    public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
+	public async waitForLogin() {
+		return false;
+	}
 
-    public async waitForLogin() {
-        return false;
-    }
+	public async getChoreoProject() {
+		return undefined;
+	}
 
-    public async getChoreoProject() {
-        return undefined;
-    }
+	public async isChoreoProject() {
+		return false;
+	}
 
-    public async isChoreoProject() {
-        return false;
-    }
+	public async enrichChoreoMetadata() {
+		return undefined;
+	}
 
-    public async enrichChoreoMetadata() {
-        return undefined;
-    }
+	public async getNonBalComponentModels() {
+		return {};
+	}
 
-    public async getNonBalComponentModels() {
-        return {};
-    }
-
-    public async deleteComponent() {}
+	public async deleteComponent() {}
 }

@@ -6,26 +6,23 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Uri, Webview } from "vscode";
+import { Uri, type Webview } from "vscode";
+import * as vscode from "vscode";
 import { ProjectActivityView } from "./ProjectActivityView";
-import * as vscode from 'vscode';
 
 export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
-  if (shouldUseWebViewDevMode(pathList)) {
-    return process.env.WEB_VIEW_DEV_HOST;
-  }
-  return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
+	if (shouldUseWebViewDevMode(pathList)) {
+		return process.env.WEB_VIEW_DEV_HOST;
+	}
+	return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList));
 }
 
 function shouldUseWebViewDevMode(pathList: string[]): boolean {
-  return pathList[pathList.length - 1] === "main.js"
-    && process.env.WEB_VIEW_DEV_MODE === "true"
-    && process.env.WEB_VIEW_DEV_HOST !== undefined;
+	return pathList[pathList.length - 1] === "main.js" && process.env.WEB_VIEW_DEV_MODE === "true" && process.env.WEB_VIEW_DEV_HOST !== undefined;
 }
 
 export function activateActivityWebViews(context: vscode.ExtensionContext) {
-  const projectActivityViewProvider = new ProjectActivityView(context.extensionUri);
+	const projectActivityViewProvider = new ProjectActivityView(context.extensionUri);
 
-context.subscriptions.push(
-  vscode.window.registerWebviewViewProvider(ProjectActivityView.viewType, projectActivityViewProvider));
+	context.subscriptions.push(vscode.window.registerWebviewViewProvider(ProjectActivityView.viewType, projectActivityViewProvider));
 }

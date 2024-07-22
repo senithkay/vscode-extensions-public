@@ -1,3 +1,4 @@
+import type { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,58 +8,52 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from "vscode";
+import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
-import { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { dataCacheStore } from "../stores/data-cache-store";
-
 
 interface IComponentCreateFormParams {
-  directoryPath: string;
-  directoryFsPath: string;
-  directoryName: string;
-  organization: Organization;
-  project: Project, 
-  initialValues?: { type?: string; buildPackLang?: string; subPath?: string; }
+	directoryPath: string;
+	directoryFsPath: string;
+	directoryName: string;
+	organization: Organization;
+	project: Project;
+	initialValues?: { type?: string; buildPackLang?: string; subPath?: string };
 }
 
 export class ComponentFormView {
-    public static currentPanel: ComponentFormView | undefined;
-    private _panel: vscode.WebviewPanel | undefined;
-    private _disposables: vscode.Disposable[] = [];
-    private _rpcHandler: WebViewPanelRpc;
+	public static currentPanel: ComponentFormView | undefined;
+	private _panel: vscode.WebviewPanel | undefined;
+	private _disposables: vscode.Disposable[] = [];
+	private _rpcHandler: WebViewPanelRpc;
 
-    constructor(extensionUri: vscode.Uri, params: IComponentCreateFormParams) {
-        this._panel = ComponentFormView.createWebview();
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, params);
-        this._rpcHandler = new WebViewPanelRpc(this._panel);
-    }
+	constructor(extensionUri: vscode.Uri, params: IComponentCreateFormParams) {
+		this._panel = ComponentFormView.createWebview();
+		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, params);
+		this._rpcHandler = new WebViewPanelRpc(this._panel);
+	}
 
-    private static createWebview(): vscode.WebviewPanel {
-        const panel = vscode.window.createWebviewPanel(
-            "create-new-component",
-            `Create New Component`,
-            vscode.ViewColumn.One,
-            { enableScripts: true, retainContextWhenHidden: true }
-        );
+	private static createWebview(): vscode.WebviewPanel {
+		const panel = vscode.window.createWebviewPanel("create-new-component", "Create New Component", vscode.ViewColumn.One, {
+			enableScripts: true,
+			retainContextWhenHidden: true,
+		});
 
-        return panel;
-    }
+		return panel;
+	}
 
-    public getWebview(): vscode.WebviewPanel | undefined {
-        return this._panel;
-    }
+	public getWebview(): vscode.WebviewPanel | undefined {
+		return this._panel;
+	}
 
-    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, params: IComponentCreateFormParams) {
-        // The JS file from the React build output
-        const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
+	private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, params: IComponentCreateFormParams) {
+		// The JS file from the React build output
+		const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
 
-        const codiconUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css")
-        );
+		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css"));
 
-        return /*html*/ `
+		return /*html*/ `
           <!DOCTYPE html>
           <html lang="en">
             <head>
@@ -78,29 +73,29 @@ export class ComponentFormView {
                 choreoWebviews.renderChoreoWebViews(
                   document.getElementById("root"),
                   ${JSON.stringify({
-                      type: "NewComponentForm",
-                      existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
-                      ...params
-                  } as NewComponentWebviewProps)}
+										type: "NewComponentForm",
+										existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
+										...params,
+									} as NewComponentWebviewProps)}
                 );
               }
               render();
             </script>
           </html>
         `;
-    }
+	}
 
-    public dispose() {
-        ComponentFormView.currentPanel = undefined;
-        this._panel?.dispose();
+	public dispose() {
+		ComponentFormView.currentPanel = undefined;
+		this._panel?.dispose();
 
-        while (this._disposables.length) {
-            const disposable = this._disposables.pop();
-            if (disposable) {
-                disposable.dispose();
-            }
-        }
+		while (this._disposables.length) {
+			const disposable = this._disposables.pop();
+			if (disposable) {
+				disposable.dispose();
+			}
+		}
 
-        this._panel = undefined;
-    }
+		this._panel = undefined;
+	}
 }

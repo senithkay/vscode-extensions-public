@@ -6,19 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, StatusBarItem } from "vscode";
-import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
-import { ChoreoRPCClient } from "./choreo-rpc";
+import type { ExtensionContext, StatusBarItem } from "vscode";
+import type { ChoreoExtensionApi } from "./ChoreoExtensionApi";
+import type { ChoreoRPCClient } from "./choreo-rpc";
 
 export class ExtensionVariables {
-    public context!: ExtensionContext;
-    public isPluginStartup!: boolean;
-    public api!: ChoreoExtensionApi;
-    public statusBarItem!: StatusBarItem;    
+	public context!: ExtensionContext;
+	public isPluginStartup!: boolean;
+	public api!: ChoreoExtensionApi;
+	public statusBarItem!: StatusBarItem;
 
-    public clients!: {
-        rpcClient:ChoreoRPCClient
-    };
+	public clients!: {
+		rpcClient: ChoreoRPCClient;
+	};
 }
 
 export const ext = new ExtensionVariables();

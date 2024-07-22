@@ -1,22 +1,21 @@
-import { RPCClient } from "./client";
 import * as fs from "fs";
-import { getCliVersion, downloadCLI, getChoreoExecPath } from "./cli-install";
+import { downloadCLI, getChoreoExecPath, getCliVersion } from "./cli-install";
+import { RPCClient } from "./client";
 
 export function isChoreoCliInstalled(): boolean {
-    const rpcPath = getChoreoExecPath();
-    if (fs.existsSync(rpcPath)) {
-        return true;
-    } else {
-        return false;
-    }
+	const rpcPath = getChoreoExecPath();
+	if (fs.existsSync(rpcPath)) {
+		return true;
+	}
+	return false;
 }
 
 export async function initRPCServer() {
-    const installed = isChoreoCliInstalled();
-    if (!installed) {
-        console.log(`Choreo RPC version ${getCliVersion()} not installed`);
-        await downloadCLI();
-    }
+	const installed = isChoreoCliInstalled();
+	if (!installed) {
+		console.log(`Choreo RPC version ${getCliVersion()} not installed`);
+		await downloadCLI();
+	}
 
-    await RPCClient.getInstance();
+	await RPCClient.getInstance();
 }

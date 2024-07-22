@@ -11,91 +11,90 @@
  *  associated services.
  */
 
-import { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
-import { existsSync, mkdirSync, readFileSync, unlinkSync, readdirSync, rmdirSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync } from "fs";
+import { dirname, join } from "path";
+import * as path from "path";
+import type { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { commands, window, workspace } from "vscode";
-import { join, dirname } from "path";
-import * as path from "path";
 
 export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
-    const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
-    if (existsSync(endpointsYamlPath)) {
-        const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
-        return { endpoints: endpointFileContent.endpoints, filePath: endpointsYamlPath };
-    }
+	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
+	if (existsSync(endpointsYamlPath)) {
+		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
+		return { endpoints: endpointFileContent.endpoints, filePath: endpointsYamlPath };
+	}
 
-    const componentConfigYamlPath = join(componentPath, ".choreo", "component-config.yaml");
-    if (existsSync(componentConfigYamlPath)) {
-        const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
-        return { endpoints: endpointFileContent?.spec?.inbound ?? [], filePath: componentConfigYamlPath };
-    }
-    return { endpoints: [], filePath: "" };
+	const componentConfigYamlPath = join(componentPath, ".choreo", "component-config.yaml");
+	if (existsSync(componentConfigYamlPath)) {
+		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+		return { endpoints: endpointFileContent?.spec?.inbound ?? [], filePath: componentConfigYamlPath };
+	}
+	return { endpoints: [], filePath: "" };
 };
 
 // TODO: move into ChoreoExtensionApi()
 export const goTosource = async (filePath: string, focusFileExplorer?: boolean) => {
-    if (existsSync(filePath)) {
-        const sourceFile = await workspace.openTextDocument(filePath);
-        await window.showTextDocument(sourceFile);
-        if (focusFileExplorer) {
-            await commands.executeCommand("workbench.explorer.fileView.focus");
-        }
-    }
+	if (existsSync(filePath)) {
+		const sourceFile = await workspace.openTextDocument(filePath);
+		await window.showTextDocument(sourceFile);
+		if (focusFileExplorer) {
+			await commands.executeCommand("workbench.explorer.fileView.focus");
+		}
+	}
 };
 
 // sanitize the component display name to make it url friendly
 export function makeURLSafe(input: string): string {
-    return input.trim().replace(/\s+/g, "-").toLowerCase();
+	return input.trim().replace(/\s+/g, "-").toLowerCase();
 }
 
-export const isSubpath = (parent: string, sub: string): boolean =>{
-    const normalizedParent = path.normalize(parent).toLowerCase();
-    const normalizedSub = path.normalize(sub).toLowerCase();
-    if (normalizedParent === normalizedSub) {
-        return true;
-    }
+export const isSubpath = (parent: string, sub: string): boolean => {
+	const normalizedParent = path.normalize(parent).toLowerCase();
+	const normalizedSub = path.normalize(sub).toLowerCase();
+	if (normalizedParent === normalizedSub) {
+		return true;
+	}
 
-    const relative = path.relative(normalizedParent, normalizedSub);
-    return !!relative && !relative.startsWith("..") && !path.isAbsolute(relative);
-}
-
+	const relative = path.relative(normalizedParent, normalizedSub);
+	return !!relative && !relative.startsWith("..") && !path.isAbsolute(relative);
+};
 
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
-    const normalizedParent = path.normalize(parentPath);
-    const normalizedSub = path.normalize(subPath);
-    if (normalizedParent === normalizedSub) {
-        return ".";
-    }
+	const normalizedParent = path.normalize(parentPath);
+	const normalizedSub = path.normalize(subPath);
+	if (normalizedParent === normalizedSub) {
+		return ".";
+	}
 
-    const relative = path.relative(normalizedParent, normalizedSub);
-    // If the relative path starts with '..', it means subPath is outside of parentPath
-    if (!relative.startsWith("..")) {
-        // If subPath and parentPath are the same, return '.'
-        if (relative === "") {
-            return ".";
-        }
-        return relative;
-    }
-    return null;
+	const relative = path.relative(normalizedParent, normalizedSub);
+	// If the relative path starts with '..', it means subPath is outside of parentPath
+	if (!relative.startsWith("..")) {
+		// If subPath and parentPath are the same, return '.'
+		if (relative === "") {
+			return ".";
+		}
+		return relative;
+	}
+	return null;
 };
 
 export const createDirectory = (basePath: string, dirName: string) => {
-    let newDirName = dirName;
-    let counter = 1;
+	let newDirName = dirName;
+	let counter = 1;
 
-    // Define the full path for the initial directory
-    let dirPath = path.join(basePath, newDirName);
+	// Define the full path for the initial directory
+	let dirPath = path.join(basePath, newDirName);
 
-    // Check if the directory exists
-    while (existsSync(dirPath)) {
-        newDirName = `${dirName}-${counter}`;
-        dirPath = path.join(basePath, newDirName);
-        counter++;
-    }
+	// Check if the directory exists
+	while (existsSync(dirPath)) {
+		newDirName = `${dirName}-${counter}`;
+		dirPath = path.join(basePath, newDirName);
+		counter++;
+	}
 
-    // Create the directory
-    mkdirSync(dirPath);
+	// Create the directory
+	mkdirSync(dirPath);
 
-    return { dirName: newDirName, dirPath };
+	return { dirName: newDirName, dirPath };
 };
