@@ -100,12 +100,19 @@ const FilterForm = (props: AddMediatorProps) => {
                         name="conditionType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Condition Type" name="conditionType" items={["Source and Regular Expression", "XPath"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Condition Type"
+                                name="conditionType"
+                                items={["Source and Regular Expression", "XPath"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.conditionType?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.conditionType && <Error>{errors.conditionType.message.toString()}</Error>}
                 </Field>
 
                 {watch("conditionType") == "Source and Regular Expression" &&
@@ -113,16 +120,27 @@ const FilterForm = (props: AddMediatorProps) => {
                     <Controller
                         name="source"
                         control={control}
+                        rules={
+                            {
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Source"
                                 placeholder=""
+                                required={true}
+                                errorMsg={errors?.source?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.source && <Error>{errors.source.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -132,10 +150,9 @@ const FilterForm = (props: AddMediatorProps) => {
                         name="regularExpression"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Regular Expression" size={50} placeholder="" />
+                            <TextField {...field} label="Regular Expression" size={50} placeholder="" required={false} errorMsg={errors?.regularExpression?.message?.toString()} />
                         )}
                     />
-                    {errors.regularExpression && <Error>{errors.regularExpression.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -148,12 +165,13 @@ const FilterForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="XPath"
                                 placeholder=""
+                                required={false}
+                                errorMsg={errors?.xPath?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.xPath && <Error>{errors.xPath.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -162,10 +180,9 @@ const FilterForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

@@ -164,10 +164,9 @@ const CloneForm = (props: AddMediatorProps) => {
                         name="cloneId"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Clone ID" size={50} placeholder="" />
+                            <TextField {...field} label="Clone ID" size={50} placeholder="" required={false} errorMsg={errors?.cloneId?.message?.toString()} />
                         )}
                     />
-                    {errors.cloneId && <Error>{errors.cloneId.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -178,7 +177,6 @@ const CloneForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Sequential Mediation</VSCodeCheckbox>
                         )}
                     />
-                    {errors.sequentialMediation && <Error>{errors.sequentialMediation.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -189,7 +187,6 @@ const CloneForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Continue Parent</VSCodeCheckbox>
                         )}
                     />
-                    {errors.continueParent && <Error>{errors.continueParent.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -223,10 +220,9 @@ const CloneForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

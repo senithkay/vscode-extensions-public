@@ -121,12 +121,19 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="scriptLanguage"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Script Language" name="scriptLanguage" items={["js", "rb", "groovy", "nashornJs (Deprecated)", "rhinoJs (Deprecated)"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Script Language"
+                                name="scriptLanguage"
+                                items={["js", "rb", "groovy", "nashornJs", "rhinoJs"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.scriptLanguage?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.scriptLanguage && <Error>{errors.scriptLanguage.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -134,12 +141,19 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="scriptType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Script Type" name="scriptType" items={["INLINE", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Script Type"
+                                name="scriptType"
+                                items={["INLINE", "REGISTRY_REFERENCE"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.scriptType?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.scriptType && <Error>{errors.scriptType.message.toString()}</Error>}
                 </Field>
 
                 {watch("scriptType") == "INLINE" &&
@@ -148,10 +162,9 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="scriptBody"
                         control={control}
                         render={({ field }) => (
-                            <CodeTextArea {...field} label="Script Body" placeholder="" resize="vertical" growRange={{ start: 5, offset: 10 }} />
+                            <CodeTextArea {...field} label="Script Body" placeholder="" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.scriptBody?.message?.toString()} />
                         )}
                     />
-                    {errors.scriptBody && <Error>{errors.scriptBody.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -167,10 +180,11 @@ const ScriptForm = (props: AddMediatorProps) => {
                                 label="Script Key"
                                 allowItemCreate={true}
                                 onValueChange={field.onChange}
+                                required={false}
+                                errorMsg={errors?.scriptKey?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.scriptKey && <Error>{errors.scriptKey.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -180,10 +194,9 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="mediateFunction"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Mediate Function" size={50} placeholder="" />
+                            <TextField {...field} label="Mediate Function" size={50} placeholder="" required={false} errorMsg={errors?.mediateFunction?.message?.toString()} />
                         )}
                     />
-                    {errors.mediateFunction && <Error>{errors.mediateFunction.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -220,10 +233,9 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

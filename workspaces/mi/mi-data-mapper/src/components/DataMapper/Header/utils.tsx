@@ -10,10 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CallExpression, Node, SyntaxKind } from "ts-morph";
-
-import { View } from "../Views/DataMapperView";
+import { CallExpression, Node, SyntaxKind, ts } from "ts-morph";
+import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
+import { View } from "../Views/DataMapperView";
 
 export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, SearchTerm] {
     const inputFilter = INPUT_FIELD_FILTER_LABEL;
@@ -69,3 +69,77 @@ export function getFilterExpression(callExpr: CallExpression): Node | undefined 
 
     return filterExpr;
 }
+
+export function extractLastPartFromLabel(targetLabel: string): string | null {
+    const regexPatterns = [
+        /\.([^.\['"\]]+)$/, // Matches the last part after a dot
+        /\["([^"]+)"\]$/,   // Matches the last part inside double quotes brackets
+        /\['([^']+)'\]$/    // Matches the last part inside single quotes brackets
+    ];
+
+    for (const pattern of regexPatterns) {
+        const match = targetLabel.match(pattern);
+        if (match) {
+            return match[1];
+        }
+    }
+
+    return targetLabel;
+}
+
+export function filterCompletions(
+    entry: ts.CompletionEntry,
+    details: ts.CompletionEntryDetails,
+    localFunctionNames: string[]
+): CompletionItem {
+    if (
+        details.kind === ts.ScriptElementKind.parameterElement ||
+        details.kind === ts.ScriptElementKind.memberVariableElement
+    ) {
+        return {
+            label: entry.name,
+            description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
+            value: entry.name,
+            kind: details.kind as CompletionItemKind,
+        }
+    } else if (
+        details.kind === ts.ScriptElementKind.functionElement ||
+        details.kind === ts.ScriptElementKind.memberFunctionElement
+    ) {
+        if (details.sourceDisplay) {
+            const params: string[] = [];
+            let param: string = '';
+    
+            details.displayParts.forEach((part) => {
+                if (part.kind === 'parameterName' || part.text === '...') {
+                    param += part.text;
+                } else if (param && part.text === ':') {
+                    params.push(param);
+                    param = '';
+                }
+            });
+    
+            const action = details.codeActions?.[0].changes[0].textChanges[0].newText;
+            const itemTag = action.substring(0, action.length - 1);
+    
+            return {
+                tag: itemTag,
+                label: entry.name,
+                description: details.documentation?.[0]?.text,
+                value: action + entry.name,
+                kind: details.kind as CompletionItemKind,
+                args: params
+            }
+        } else if (localFunctionNames.includes(entry.name)) {
+            return  {
+                label: entry.name,
+                description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
+                value: entry.name,
+                kind: details.kind as CompletionItemKind,
+            }
+        }
+    }
+
+    return undefined;
+}
+

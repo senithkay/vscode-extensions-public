@@ -122,10 +122,11 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                                 label="Schema"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
+                                required={false}
+                                errorMsg={errors?.schema?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.schema && <Error>{errors.schema.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -159,10 +160,9 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

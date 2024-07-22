@@ -55,13 +55,13 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "Dropdown",
                         "label": "Property Action",
                         "defaultValue": "set",
-                        "isRequired": false,
+                        "isRequired": true,
                         "values": [
                             "set",
                             "remove"
@@ -71,7 +71,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "Dropdown",
                         "label": "Property Data Type",
                         "defaultValue": "STRING",
-                        "isRequired": false,
+                        "isRequired": true,
                         "values": [
                             "STRING",
                             "INTEGER",
@@ -97,7 +97,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "isExpression": false,
                             "value": ""
                         },
-                        "isRequired": false,
+                        "isRequired": true,
                         "canChange": true,
                         "enableCondition": [
                             "AND",
@@ -116,7 +116,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "OM",
                         "defaultValue": "",
-                        "isRequired": false,
+                        "isRequired": true,
                         "enableCondition": [
                             {
                                 "2": "OM"
@@ -127,7 +127,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "Dropdown",
                         "label": "Property Scope",
                         "defaultValue": "DEFAULT",
-                        "isRequired": false,
+                        "isRequired": true,
                         "values": [
                             "DEFAULT",
                             "TRANSPORT",
@@ -252,11 +252,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                     <Controller
                         name="description"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={true} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

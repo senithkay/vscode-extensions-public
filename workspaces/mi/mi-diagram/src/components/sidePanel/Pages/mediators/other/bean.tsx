@@ -108,13 +108,25 @@ const BeanForm = (props: AddMediatorProps) => {
                         <Controller
                             name="action"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <AutoComplete label="Action" name="action" items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Action"
+                                    name="action"
+                                    items={["CREATE", "REMOVE", "SET_PROPERTY", "GET_PROPERTY"]}
+                                    value={field.value}
+                                    required={true}
+                                    errorMsg={errors?.action?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.action && <Error>{errors.action.message.toString()}</Error>}
                     </Field>
 
                     {watch("action") == "CREATE" &&
@@ -122,11 +134,15 @@ const BeanForm = (props: AddMediatorProps) => {
                         <Controller
                             name="class"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Class" size={50} placeholder="" />
+                                <TextField {...field} label="Class" size={50} placeholder="" required={true} errorMsg={errors?.class?.message?.toString()} />
                             )}
                         />
-                        {errors.class && <Error>{errors.class.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -135,10 +151,9 @@ const BeanForm = (props: AddMediatorProps) => {
                             name="var"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Var" size={50} placeholder="" />
+                                <TextField {...field} label="Var" size={50} placeholder="" required={false} errorMsg={errors?.var?.message?.toString()} />
                             )}
                         />
-                        {errors.var && <Error>{errors.var.message.toString()}</Error>}
                     </Field>
 
                     {((watch("action") == "SET_PROPERTY") ||(watch("action") == "GET_PROPERTY") ) &&
@@ -146,11 +161,15 @@ const BeanForm = (props: AddMediatorProps) => {
                         <Controller
                             name="property"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Property" size={50} placeholder="" />
+                                <TextField {...field} label="Property" size={50} placeholder="" required={true} errorMsg={errors?.property?.message?.toString()} />
                             )}
                         />
-                        {errors.property && <Error>{errors.property.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -162,13 +181,25 @@ const BeanForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="valueType"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
-                                    <AutoComplete label="Value Type" name="valueType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }} />
+                                    <AutoComplete
+                                        label="Value Type"
+                                        name="valueType"
+                                        items={["LITERAL", "EXPRESSION"]}
+                                        value={field.value}
+                                        required={true}
+                                        errorMsg={errors?.valueType?.message?.toString()}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                    />
                                 )}
                             />
-                            {errors.valueType && <Error>{errors.valueType.message.toString()}</Error>}
                         </Field>
 
                         {watch("valueType") == "LITERAL" &&
@@ -176,11 +207,15 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="valueLiteral"
                                     control={control}
+                                    rules={
+                                        {
+                                            required: "This field is required",
+                                        }
+                                    }
                                     render={({ field }) => (
-                                        <TextField {...field} label="Value Literal" size={50} placeholder="" />
+                                        <TextField {...field} label="Value Literal" size={50} placeholder="" required={true} errorMsg={errors?.valueLiteral?.message?.toString()} />
                                     )}
                                 />
-                                {errors.valueLiteral && <Error>{errors.valueLiteral.message.toString()}</Error>}
                             </Field>
                         }
 
@@ -189,16 +224,27 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="valueExpression"
                                     control={control}
+                                    rules={
+                                        {
+                                            validate: (value) => {
+                                                if (!value?.value || value.value === "") {
+                                                    return "This field is required";
+                                                }
+                                                return true;
+                                            },
+                                        }
+                                    }
                                     render={({ field }) => (
                                         <ExpressionField
                                             {...field} label="Value Expression"
                                             placeholder=""
+                                            required={true}
+                                            errorMsg={errors?.valueExpression?.message?.toString()}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
                                     )}
                                 />
-                                {errors.valueExpression && <Error>{errors.valueExpression.message.toString()}</Error>}
                             </Field>
                         }
 
@@ -213,13 +259,25 @@ const BeanForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="targetType"
                                 control={control}
+                                rules={
+                                    {
+                                        required: "This field is required",
+                                    }
+                                }
                                 render={({ field }) => (
-                                    <AutoComplete label="Target Type" name="targetType" items={["LITERAL", "EXPRESSION"]} value={field.value} onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }} />
+                                    <AutoComplete
+                                        label="Target Type"
+                                        name="targetType"
+                                        items={["LITERAL", "EXPRESSION"]}
+                                        value={field.value}
+                                        required={true}
+                                        errorMsg={errors?.targetType?.message?.toString()}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                    />
                                 )}
                             />
-                            {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                         </Field>
 
                         {watch("targetType") == "LITERAL" &&
@@ -227,11 +285,15 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="targetLiteral"
                                     control={control}
+                                    rules={
+                                        {
+                                            required: "This field is required",
+                                        }
+                                    }
                                     render={({ field }) => (
-                                        <TextField {...field} label="Target Literal" size={50} placeholder="" />
+                                        <TextField {...field} label="Target Literal" size={50} placeholder="" required={true} errorMsg={errors?.targetLiteral?.message?.toString()} />
                                     )}
                                 />
-                                {errors.targetLiteral && <Error>{errors.targetLiteral.message.toString()}</Error>}
                             </Field>
                         }
 
@@ -240,16 +302,27 @@ const BeanForm = (props: AddMediatorProps) => {
                                 <Controller
                                     name="targetExpression"
                                     control={control}
+                                    rules={
+                                        {
+                                            validate: (value) => {
+                                                if (!value?.value || value.value === "") {
+                                                    return "This field is required";
+                                                }
+                                                return true;
+                                            },
+                                        }
+                                    }
                                     render={({ field }) => (
                                         <ExpressionField
                                             {...field} label="Target Expression"
                                             placeholder=""
+                                            required={true}
+                                            errorMsg={errors?.targetExpression?.message?.toString()}
                                             canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                         />
                                     )}
                                 />
-                                {errors.targetExpression && <Error>{errors.targetExpression.message.toString()}</Error>}
                             </Field>
                         }
 
@@ -261,10 +334,9 @@ const BeanForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

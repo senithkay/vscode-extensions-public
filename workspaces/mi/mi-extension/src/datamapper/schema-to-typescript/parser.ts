@@ -391,7 +391,7 @@ function parseSchema(
   let asts: TInterfaceParam[] = map(schema.properties, (value, key: string) => ({
     ast: parse(value, options, key, processed, usedNames),
     isPatternProperty: false,
-    isRequired: false,
+    isRequired: true,
     isUnreachableDefinition: false,
     keyName: key,
   }));
@@ -412,7 +412,7 @@ function parseSchema(
         return {
           ast,
           isPatternProperty: !singlePatternProperty,
-          isRequired: false,
+          isRequired: true,
           isUnreachableDefinition: false,
           keyName: singlePatternProperty ? '[k: string]' : key,
         }
@@ -430,7 +430,7 @@ function parseSchema(
         return {
           ast,
           isPatternProperty: false,
-          isRequired: false,
+          isRequired: true,
           isUnreachableDefinition: true,
           keyName: key,
         }

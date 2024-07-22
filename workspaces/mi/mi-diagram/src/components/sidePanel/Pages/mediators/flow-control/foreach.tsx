@@ -101,26 +101,36 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         name="forEachID"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="ForEach ID" size={50} placeholder="" />
+                            <TextField {...field} label="ForEach ID" size={50} placeholder="" required={false} errorMsg={errors?.forEachID?.message?.toString()} />
                         )}
                     />
-                    {errors.forEachID && <Error>{errors.forEachID.message.toString()}</Error>}
                 </Field>
 
                 <Field>
                     <Controller
                         name="forEachExpression"
                         control={control}
+                        rules={
+                            {
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="ForEach Expression"
                                 placeholder=""
+                                required={true}
+                                errorMsg={errors?.forEachExpression?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.forEachExpression && <Error>{errors.forEachExpression.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -131,12 +141,19 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                             name="sequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Sequence Type" name="sequenceType" items={["Anonymous", "Key"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Sequence Type"
+                                    name="sequenceType"
+                                    items={["Anonymous", "Key"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.sequenceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.sequenceType && <Error>{errors.sequenceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("sequenceType") == "Key" &&
@@ -151,10 +168,11 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
+                                    errorMsg={errors?.sequenceKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -165,10 +183,9 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

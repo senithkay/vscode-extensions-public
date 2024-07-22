@@ -110,6 +110,11 @@ const CallForm = (props: AddMediatorProps) => {
                     <Controller
                         name="endopint"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
@@ -120,10 +125,11 @@ const CallForm = (props: AddMediatorProps) => {
                                     openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
                                 }}
                                 onValueChange={field.onChange}
+                                required={true}
+                                errorMsg={errors?.endopint?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.endopint && <Error>{errors.endopint.message.toString()}</Error>}
                 </Field>
 
                 {watch("endopint") == "INLINE" &&
@@ -132,10 +138,9 @@ const CallForm = (props: AddMediatorProps) => {
                         name="inlineEndpoint"
                         control={control}
                         render={({ field }) => (
-                            <TextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" />
+                            <TextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} errorMsg={errors?.inlineEndpoint?.message?.toString()} />
                         )}
                     />
-                    {errors.inlineEndpoint && <Error>{errors.inlineEndpoint.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -145,10 +150,9 @@ const CallForm = (props: AddMediatorProps) => {
                         name="endpointRegistryKey"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Endpoint Registry Key" size={50} placeholder="Endpoint Registry Key" />
+                            <TextField {...field} label="Endpoint Registry Key" size={50} placeholder="Endpoint Registry Key" required={false} errorMsg={errors?.endpointRegistryKey?.message?.toString()} />
                         )}
                     />
-                    {errors.endpointRegistryKey && <Error>{errors.endpointRegistryKey.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -161,12 +165,13 @@ const CallForm = (props: AddMediatorProps) => {
                             <ExpressionField
                                 {...field} label="Endpoint Xpath"
                                 placeholder="Endpoint Xpath"
+                                required={false}
+                                errorMsg={errors?.endpointXpath?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.endpointXpath && <Error>{errors.endpointXpath.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -181,7 +186,6 @@ const CallForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Blocking Calls</VSCodeCheckbox>
                             )}
                         />
-                        {errors.enableBlockingCalls && <Error>{errors.enableBlockingCalls.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -192,7 +196,6 @@ const CallForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Initialize Axis2 Client Options</VSCodeCheckbox>
                             )}
                         />
-                        {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -200,12 +203,19 @@ const CallForm = (props: AddMediatorProps) => {
                             name="sourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Source Type"
+                                    name="sourceType"
+                                    items={["none", "body", "property", "inline", "custom"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.sourceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("sourceType") == "property" &&
@@ -214,10 +224,9 @@ const CallForm = (props: AddMediatorProps) => {
                             name="sourceProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Source Property" size={50} placeholder="Source Property" />
+                                <TextField {...field} label="Source Property" size={50} placeholder="Source Property" required={false} errorMsg={errors?.sourceProperty?.message?.toString()} />
                             )}
                         />
-                        {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -227,10 +236,9 @@ const CallForm = (props: AddMediatorProps) => {
                             name="contentType"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Content Type" size={50} placeholder="Content Type" />
+                                <TextField {...field} label="Content Type" size={50} placeholder="Content Type" required={false} errorMsg={errors?.contentType?.message?.toString()} />
                             )}
                         />
-                        {errors.contentType && <Error>{errors.contentType.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -240,10 +248,9 @@ const CallForm = (props: AddMediatorProps) => {
                             name="sourcePayload"
                             control={control}
                             render={({ field }) => (
-                                <TextArea {...field} label="Source Payload" placeholder="" />
+                                <TextArea {...field} label="Source Payload" placeholder="" required={false} errorMsg={errors?.sourcePayload?.message?.toString()} />
                             )}
                         />
-                        {errors.sourcePayload && <Error>{errors.sourcePayload.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -256,12 +263,13 @@ const CallForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Source XPath"
                                     placeholder="Source XPath"
+                                    required={false}
+                                    errorMsg={errors?.sourceXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -270,12 +278,19 @@ const CallForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["none", "body", "property"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Target Type"
+                                    name="targetType"
+                                    items={["none", "body", "property"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.targetType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                     </Field>
 
                     {watch("targetType") == "property" &&
@@ -284,10 +299,9 @@ const CallForm = (props: AddMediatorProps) => {
                             name="targetProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Property" size={50} placeholder="Target Property" />
+                                <TextField {...field} label="Target Property" size={50} placeholder="Target Property" required={false} errorMsg={errors?.targetProperty?.message?.toString()} />
                             )}
                         />
-                        {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -298,10 +312,9 @@ const CallForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

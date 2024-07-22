@@ -1651,3 +1651,11 @@ export interface MarkAsDefaultSequenceRequest {
     path: string;
     remove?: boolean;
 }
+
+export interface GetSubFoldersRequest {
+    path: string;
+}
+
+export interface GetSubFoldersResponse {
+    folders: string[];
+}

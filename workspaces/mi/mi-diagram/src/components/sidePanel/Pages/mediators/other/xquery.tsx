@@ -179,12 +179,19 @@ const XQueryForm = (props: AddMediatorProps) => {
                             name="scriptKeyType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Script Key Type" name="scriptKeyType" items={["Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Script Key Type"
+                                    name="scriptKeyType"
+                                    items={["Static", "Dynamic"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.scriptKeyType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.scriptKeyType && <Error>{errors.scriptKeyType.message.toString()}</Error>}
                     </Field>
 
                     {watch("scriptKeyType") == "Static" &&
@@ -199,10 +206,11 @@ const XQueryForm = (props: AddMediatorProps) => {
                                     label="Static Script Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
+                                    errorMsg={errors?.staticScriptKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.staticScriptKey && <Error>{errors.staticScriptKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -215,12 +223,13 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Dynamic Script Key"
                                     placeholder=""
+                                    required={false}
+                                    errorMsg={errors?.dynamicScriptKey?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.dynamicScriptKey && <Error>{errors.dynamicScriptKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -232,12 +241,13 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 <ExpressionField
                                     {...field} label="Target XPath"
                                     placeholder=""
+                                    required={false}
+                                    errorMsg={errors?.targetXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
-                        {errors.targetXPath && <Error>{errors.targetXPath.message.toString()}</Error>}
                     </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -276,10 +286,9 @@ const XQueryForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

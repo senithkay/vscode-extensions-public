@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { DMType, Range, DMOperator } from "@wso2-enterprise/mi-core";
+import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
@@ -45,14 +45,13 @@ export interface MIDataMapperProps {
     filePath: string;
     configName: string;
     applyModifications: () => Promise<void>;
-    operators: DMOperator[];
-};
+}
 
 enum ActionType {
     ADD_VIEW,
     SWITCH_VIEW,
     EDIT_VIEW
-};
+}
 
 type ViewState = View[];
 
@@ -78,7 +77,7 @@ function viewsReducer(state: ViewState, action: ViewAction) {
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, operators } = props;
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications } = props;
 
     const initialView = [{
         targetFieldFQN: "",
@@ -188,13 +187,12 @@ export function MIDataMapper(props: MIDataMapperProps) {
         <div className={classes.root}>
             {fnST && (
                 <DataMapperHeader
+                    filePath={filePath}
                     views={views}
                     switchView={switchView}
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
-                    inputNode={inputNode}
-                    operators={operators}
                 />
             )}
             {nodes.length > 0 && (

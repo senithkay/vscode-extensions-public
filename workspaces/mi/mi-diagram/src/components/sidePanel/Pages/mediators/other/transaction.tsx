@@ -99,12 +99,19 @@ const TransactionForm = (props: AddMediatorProps) => {
                             name="action"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Action" name="action" items={["Commit transaction", "Fault if no transaction", "Initiate new transaction", "Resume transaction", "Suspend transaction", "Rollback transaction", "Use existing or initiate transaction"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Action"
+                                    name="action"
+                                    items={["Commit transaction", "Fault if no transaction", "Initiate new transaction", "Resume transaction", "Suspend transaction", "Rollback transaction", "Use existing or initiate transaction"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.action?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.action && <Error>{errors.action.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -112,10 +119,9 @@ const TransactionForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

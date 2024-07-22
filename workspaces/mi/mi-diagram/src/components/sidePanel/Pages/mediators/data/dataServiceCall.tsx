@@ -182,10 +182,11 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                     label="Data Service Name"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
+                                    errorMsg={errors?.serviceName?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.serviceName && <Error>{errors.serviceName.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -193,12 +194,19 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="sourceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Source Type" name="sourceType" items={["INLINE", "BODY"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Source Type"
+                                    name="sourceType"
+                                    items={["INLINE", "BODY"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.sourceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -206,12 +214,19 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="operationType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Operation Type" name="operationType" items={["SINGLE", "BATCH", "REQUESTBOX"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Operation Type"
+                                    name="operationType"
+                                    items={["SINGLE", "BATCH", "REQUESTBOX"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.operationType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.operationType && <Error>{errors.operationType.message.toString()}</Error>}
                     </Field>
 
                     {watch("sourceType") == "INLINE" &&
@@ -256,12 +271,19 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["BODY", "PROPERTY"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Target Type"
+                                    name="targetType"
+                                    items={["BODY", "PROPERTY"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.targetType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                     </Field>
 
                     {watch("targetType") == "PROPERTY" &&
@@ -270,10 +292,9 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="targetProperty"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target Property" size={50} placeholder="" />
+                                <TextField {...field} label="Target Property" size={50} placeholder="" required={false} errorMsg={errors?.targetProperty?.message?.toString()} />
                             )}
                         />
-                        {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -282,10 +303,9 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

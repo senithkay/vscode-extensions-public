@@ -41,8 +41,14 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
 
     const { rpcClient } = useVisualizerContext();
 
+    const [dirContent, setDirContent] = useState([]);
+
     const schema = yup.object({
-        name: yup.string().required("Endpoint Name is required").matches(/^[a-zA-Z0-9]*$/, "Project name cannot contain spaces or special characters"),
+        name: yup.string().required("Project Name is required").matches(/^[a-zA-Z0-9]*$/, "Project name cannot contain spaces or special characters")
+            .test('validateFolderName',
+                'A subfolder with same name already exists', value => {
+                    return !dirContent.includes(value)
+                }),
         directory: yup.string().required("Project Directory is required"),
         groupID: yup.string().notRequired().default("com.microintegrator.projects").matches(/^[a-zA-Z0-9.]*$/, "Group id cannot contain spaces or special characters"),
         artifactID: yup.string().notRequired().matches(/^[a-zA-Z0-9]*$/, "Artifact id cannot contain spaces or special characters"),
@@ -77,6 +83,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const handleProjecDirSelection = async () => {
         const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
         setValue("directory", projectDirectory.path);
+        const response = await rpcClient.getMiDiagramRpcClient().getSubFolderNames({ path: projectDirectory.path });
+        setDirContent(response.folders);
     }
 
     const handleCreateProject = async (values: any) => {

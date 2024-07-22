@@ -158,11 +158,15 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         <Controller
                             name="groupId"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Group ID" size={50} placeholder="" />
+                                <TextField {...field} label="Group ID" size={50} placeholder="" required={true} errorMsg={errors?.groupId?.message?.toString()} />
                             )}
                         />
-                        {errors.groupId && <Error>{errors.groupId.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
@@ -175,12 +179,19 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Accept Branch Sequence Type" name="onAcceptBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="On Accept Branch Sequence Type"
+                                    name="onAcceptBranchSequenceType"
+                                    items={["ANONYMOUS", "REGISTRY_REFERENCE"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.onAcceptBranchsequenceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.onAcceptBranchsequenceType && <Error>{errors.onAcceptBranchsequenceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("onAcceptBranchsequenceType") == "REGISTRY_REFERENCE" &&
@@ -195,10 +206,11 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     label="On Accept Branch Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
+                                    errorMsg={errors?.onAcceptBranchsequenceKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.onAcceptBranchsequenceKey && <Error>{errors.onAcceptBranchsequenceKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -212,12 +224,19 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Reject Branch Sequence Type" name="onRejectBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="On Reject Branch Sequence Type"
+                                    name="onRejectBranchSequenceType"
+                                    items={["ANONYMOUS", "REGISTRY_REFERENCE"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.onRejectBranchsequenceType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.onRejectBranchsequenceType && <Error>{errors.onRejectBranchsequenceType.message.toString()}</Error>}
                     </Field>
 
                     {watch("onRejectBranchsequenceType") == "REGISTRY_REFERENCE" &&
@@ -232,10 +251,11 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     label="On Reject Branch Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
+                                    errorMsg={errors?.onRejectBranchsequenceKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.onRejectBranchsequenceKey && <Error>{errors.onRejectBranchsequenceKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -249,12 +269,19 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="policyType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Policy Type" name="policyType" items={["INLINE", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <AutoComplete
+                                    label="Policy Type"
+                                    name="policyType"
+                                    items={["INLINE", "REGISTRY_REFERENCE"]}
+                                    value={field.value}
+                                    required={false}
+                                    errorMsg={errors?.policyType?.message?.toString()}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
-                        {errors.policyType && <Error>{errors.policyType.message.toString()}</Error>}
                     </Field>
 
                     {watch("policyType") == "INLINE" &&
@@ -263,10 +290,9 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="maximumConcurrentAccess"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" required={false} errorMsg={errors?.maximumConcurrentAccess?.message?.toString()} />
                             )}
                         />
-                        {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -310,10 +336,11 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     label="Policy Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
+                                    required={false}
+                                    errorMsg={errors?.policyKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.policyKey && <Error>{errors.policyKey.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -324,10 +351,9 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

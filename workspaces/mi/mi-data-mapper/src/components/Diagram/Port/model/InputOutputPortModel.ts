@@ -40,7 +40,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public parentId: string,
 		public index?: number,
 		public typeWithValue?: DMTypeWithValue,
-		public fieldFQN?: string,
+		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
+		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: InputOutputPortModel,
 		public collapsed?: boolean,
 		public hidden?: boolean,
@@ -68,7 +69,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = this.getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+					const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
 					
 					if (targetPort) {

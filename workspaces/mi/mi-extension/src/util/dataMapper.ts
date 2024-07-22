@@ -6,9 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Block, FunctionDeclaration, Node, Project, SourceFile, Type, ts } from 'ts-morph';
+import { FunctionDeclaration, Node, SourceFile, Type, ts } from 'ts-morph';
 import * as path from 'path';
-import { DMType, TypeKind, DMOperator } from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMProject } from '../datamapper/DMProject';
 
 export function fetchIOTypes(filePath: string, functionName: string) {
     const inputTypes: DMType[] = [];
@@ -43,8 +44,8 @@ export function getSources(filePath: string) {
     let interfacesSource: string;
     try {
         const resolvedPath = path.resolve(filePath);
-        const project = new Project();
-        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+        const project = DMProject.getInstance(resolvedPath).getProject();
+        const sourceFile = project.getSourceFileOrThrow(resolvedPath);
 
         fileContent = sourceFile.getFullText();
         interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
@@ -67,56 +68,48 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
-export function fetchOperators(filePath: string): DMOperator[] {
-
-    const operators: DMOperator[] = [];
+export function fetchCompletions(filePath: string, fileContent: string, cursorPosition: number) {
+    const enrichedCompletions: { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[] = [];
     const resolvedPath = path.resolve(filePath);
-
-    const { completions, languageService } = getCompletions(resolvedPath);
+    const { completions, languageService } = getCompletions(resolvedPath, fileContent, cursorPosition);
 
     if (completions) {
-
         completions.entries.forEach(entry => {
-
-            const details = getCompletionEntryDetails(languageService, entry, filePath);
+            const details = getCompletionEntryDetails(languageService, entry, filePath, cursorPosition);
 
             if (details) {
-
-                const functionDetails = getImportedFuntionDetails(entry, details);
-
-                if (functionDetails)
-                    operators.push(functionDetails);
-
+                enrichedCompletions.push({ entry, details });
             }
         });
     }
 
-    return operators;
+    return enrichedCompletions;
 }
 
-function getCompletions(filePath: string) {
-    const project = new Project();
-    project.addSourceFileAtPath(filePath);
+function getCompletions(filePath: string, fileContent: string, cursorPosition: number) {
+    const project = DMProject.getInstance(filePath).getProject();
+    project.getSourceFileOrThrow(filePath).replaceWithText(fileContent);
 
     const completionOptions = {
-        includeExternalModuleExports: true,
-        includeInsertTextCompletions: true,
         includeCompletionsForModuleExports: true,
         includeCompletionsWithInsertText: true,
         includeAutomaticOptionalChainCompletions: true
     };
-
     const languageService = project.getLanguageService().compilerObject;
-
-    const completions = languageService.getCompletionsAtPosition(filePath, 0, completionOptions);
+    const completions = languageService.getCompletionsAtPosition(filePath, cursorPosition, completionOptions);
 
     return { completions, languageService };
 }
 
-function getCompletionEntryDetails(languageService: ts.LanguageService, entry: ts.CompletionEntry, filePath: string) {
+function getCompletionEntryDetails(
+    languageService: ts.LanguageService,
+    entry: ts.CompletionEntry,
+    filePath: string,
+    cursorPosition: number
+) {
     const details = languageService.getCompletionEntryDetails(
         filePath,
-        0,
+        cursorPosition,
         entry.name,
         {},
         entry.source,
@@ -129,44 +122,11 @@ function getCompletionEntryDetails(languageService: ts.LanguageService, entry: t
     return details;
 }
 
-function getImportedFuntionDetails(entry: ts.CompletionEntry, details: ts.CompletionEntryDetails) {
-
-    if (details.sourceDisplay != undefined) {
-
-        if (details.kind === ts.ScriptElementKind.functionElement || details.kind === ts.ScriptElementKind.memberFunctionElement) {
-            const params: string[] = [];
-            let param: string = '';
-
-            details.displayParts.forEach(part => {
-                if (part.kind === 'parameterName' || part.text === '...') {
-                    param += part.text;
-                } else if (param && part.text === ':') {
-                    params.push(param);
-                    param = '';
-                }
-            });
-
-            return {
-                label: entry.name,
-                args: params,
-                description: details.documentation?.[0]?.text,
-                src: entry.source,
-                action: details.codeActions?.[0].changes[0].textChanges[0].newText
-            };
-        }
-
-    }
-
-    return undefined;
-}
-
-
-
 function getDMFunction(filePath: string, functionName: string) {
     try {
         const resolvedPath = path.resolve(filePath);
-        const project = new Project();
-        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+        const project = DMProject.getInstance(resolvedPath).getProject();
+        const sourceFile = project.getSourceFileOrThrow(resolvedPath);
         return sourceFile.getFunctionOrThrow(functionName);
     } catch (error: any) {
         throw new Error("Transformation function not found. " + error.message);
@@ -182,11 +142,11 @@ function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
     } else if (typeNode.isObject()) {
         return getTypeInfoForObject(typeNode, sourceFile);
     } else if (typeNode.isString()) {
-        return { kind: TypeKind.String };
+        return { kind: TypeKind.String, optional: typeNode.isNullable() };
     } else if (typeNode.isBoolean()) {
-        return { kind: TypeKind.Boolean };
+        return { kind: TypeKind.Boolean, optional: typeNode.isNullable() };
     } else if (typeNode.isNumber()) {
-        return { kind: TypeKind.Number };
+        return { kind: TypeKind.Number, optional: typeNode.isNullable() };
     }
 
     return { kind: TypeKind.Unknown };
@@ -218,7 +178,8 @@ function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType
         if (Node.isPropertySignature(member)) {
             return {
                 ...getTypeInfo(member.getType()!, sourceFile),
-                fieldName: member.getName()
+                fieldName: member.getName(),
+                optional: !!member.getQuestionTokenNode()
             };
         }
     }).filter(Boolean) as DMType[];
@@ -226,7 +187,8 @@ function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType
     return {
         kind: TypeKind.Interface,
         typeName,
-        fields
+        fields,
+        optional: typeNode.isNullable()
     };
 }
 
@@ -234,7 +196,8 @@ function getTypeInfoForArray(typeNode: Type, sourceFile: SourceFile): DMType {
     const elementType = getTypeInfo(typeNode.getArrayElementType()!, sourceFile);
     return {
         kind: TypeKind.Array,
-        memberType: elementType
+        memberType: elementType,
+        optional: typeNode.isNullable()
     };
 }
 
@@ -248,7 +211,8 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
             if (Node.isPropertySignature(decl) || Node.isPropertyAssignment(decl)) {
                 return {
                     ...getTypeInfo(decl.getType()!, sourceFile),
-                    fieldName: decl.getName()
+                    fieldName: decl.getName(),
+                    optional: !!decl.getQuestionTokenNode()
                 };
             }
         }).filter(Boolean) as DMType[];
@@ -258,6 +222,7 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
     return {
         kind: TypeKind.Interface,
         typeName: 'Object',
-        fields
+        fields,
+        optional: typeNode.isNullable()
     };
 }

@@ -69,7 +69,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Evaluator Expression",
                         "defaultValue": "<equal  type='param' source='foo' value='bar'/>",
-                        "isRequired": false
+                        "isRequired": true
                     },
                 ]
             },
@@ -129,7 +129,6 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                                 <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Continue After Route</VSCodeCheckbox>
                             )}
                         />
-                        {errors.continueAfterRoute && <Error>{errors.continueAfterRoute.message.toString()}</Error>}
                     </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -163,10 +162,9 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

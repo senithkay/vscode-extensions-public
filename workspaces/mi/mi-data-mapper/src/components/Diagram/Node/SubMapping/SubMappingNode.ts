@@ -79,13 +79,13 @@ export class SubMappingNode extends DataMapperNodeModel {
                     const fields = type.fields;
                     fields.forEach(subField => {
                         this.numberOfFields += 1 + this.addPortsForInputField(
-                            subField, "OUT", varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
+                            subField, "OUT", varName, varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
                             parentPort, collapsedFields, parentPort.collapsed
                         );
                     });
                 } else {
                     this.numberOfFields += this.addPortsForInputField(
-                        type, "OUT", varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
+                        type, "OUT", varName, varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
                         parentPort, collapsedFields, parentPort.collapsed
                     );
                 }
