@@ -17,7 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { Keylookup } from '../../../../Form';
+import { FormKeylookup, Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
@@ -129,14 +129,18 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="onStoreSequence"
                         control={control}
                         render={({ field }) => (
-                            <Keylookup
-                                value={field.value}
+                            <FormKeylookup
+                                control={control}
+                                name='onStoreSequence'
+                                label='On Store Sequence'
                                 filterType='sequence'
-                                label="On Store Sequence"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
-                                required={false}
                                 errorMsg={errors?.onStoreSequence?.message?.toString()}
+                                required={true}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />

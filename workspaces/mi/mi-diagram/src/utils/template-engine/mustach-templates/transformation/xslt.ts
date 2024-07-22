@@ -15,7 +15,7 @@ import { transformNamespaces } from "../../../commons";
 export function getXsltMustacheTemplate() {
 
   return `
-    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{xsltSchemaKey}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} >
+    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{value}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{/sourceXPath}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} >
         {{#properties}}
         <property name="{{{propertyName}}}" {{#propertyValue}}value="{{{propertyValue}}}"{{/propertyValue}} {{#propertyExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/propertyExpression}} />
         {{/properties}}
@@ -50,8 +50,32 @@ export function getXsltXml(data: { [key: string]: any }) {
       resourceRegistryKey: resource[1]
     }
   });
+  if (data.xsltSchemaKey?.isExpression) {
+    data.xsltSchemaKey.value = "{" + data.xsltSchemaKey.value + "}";
+  }
+  data.namespaces = getNamespaces(data);
   const output = Mustache.render(getXsltMustacheTemplate(), data)?.trim();
   return output;
+}
+
+function getNamespaces(data: any) {
+
+  const combinedNamespaces = [
+    ...(data.xsltSchemaKey?.namespaces || []),
+    ...(data.sourceXPath?.namespaces || [])
+  ];
+
+  const uniqueNamespaces = new Map();
+
+  for (const namespace of combinedNamespaces) {
+    if (namespace && namespace.prefix) {
+      if (!uniqueNamespaces.has(namespace.prefix) ||
+        (namespace.uri && !uniqueNamespaces.get(namespace.prefix).uri)) {
+        uniqueNamespaces.set(namespace.prefix, namespace);
+      }
+    }
+  }
+  return Array.from(uniqueNamespaces.values());
 }
 
 export function getXsltFormDataFromSTNode(data: { [key: string]: any }, node: Xslt) {
@@ -62,11 +86,9 @@ export function getXsltFormDataFromSTNode(data: { [key: string]: any }, node: Xs
     const regex = /{([^}]*)}/;
     const match = node.key.match(regex);
     if (match && match.length > 1) {
-      data.xsltSchemaKeyType = "Dynamic";
-      data.xsltDynamicSchemaKey = match[1];
+      data.xsltSchemaKey = { isExpression: true, value: match[1], namespaces: transformNamespaces(node.namespaces) };
     } else {
-      data.xsltSchemaKeyType = "Static";
-      data.xsltStaticSchemaKey = node.key;
+      data.xsltSchemaKey = { isExpression: false, value: node.key, namespaces: transformNamespaces(node.namespaces) };
     }
   }
   if (node.property) {
