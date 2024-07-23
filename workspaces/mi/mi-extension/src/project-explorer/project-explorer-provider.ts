@@ -56,7 +56,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				this._data = await getProjectStructureData(this.context, langClient);
+				this._data = await getProjectStructureData(langClient);
 				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
@@ -114,7 +114,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 }
 
-async function getProjectStructureData(context: vscode.ExtensionContext, langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
 	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
 		const data: ProjectExplorerEntry[] = [];
 		if (!!langClient) {
@@ -156,7 +156,6 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		generateTreeDataOfArtifacts(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
 		generateTreeDataOfDataMappings(project, data, projectRoot);
-		generateTreeDataOfRegistry(project, data, projectRoot);
 		return projectRoot;
 	}
 }
@@ -291,53 +290,6 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
 		}
-	}
-}
-
-function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
-	const directoryMap = data.directoryMap;
-	const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
-	if (resources && resources['registry']) {
-		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-		const parentEntry = new ProjectExplorerEntry(
-			'Registry',
-			isCollapsibleState(Object.keys(resources['registry']).length > 0),
-			{ name: 'Registry', path: regPath, type: 'registry' },
-		);
-		parentEntry.contextValue = 'registry';
-		parentEntry.id = 'registry';
-		const gov = resources['registry']['gov'];
-		const conf = resources['registry']['conf'];
-		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
-		const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
-		if (gov) {
-			const govEntry = new ProjectExplorerEntry(
-				'gov',
-				isCollapsibleState(isCollapsibleGov),
-				{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
-				'registry'
-			);
-			govEntry.id = 'gov';
-			govEntry.contextValue = 'gov';
-			govEntry.children = genRegistryProjectStructureEntry(gov);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(govEntry);
-		}
-		if (conf) {
-			const confEntry = new ProjectExplorerEntry(
-				'conf',
-				isCollapsibleState(isCollapsibleConf),
-				{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
-				'registry'
-			);
-			confEntry.id = 'conf';
-			confEntry.contextValue = 'conf';
-			confEntry.children = genRegistryProjectStructureEntry(conf);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(confEntry);
-		}
-		projectRoot.children = projectRoot.children ?? [];
-		projectRoot.children.push(parentEntry);
 	}
 }
 
