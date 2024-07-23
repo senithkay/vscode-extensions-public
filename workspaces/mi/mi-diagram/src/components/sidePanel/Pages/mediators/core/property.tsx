@@ -225,7 +225,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                             <AutoComplete
                                 label="Property Scope"
                                 name="propertyScope"
-                                items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]}
+                                items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2-CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]}
                                 value={field.value}
                                 required={true}
                                 errorMsg={errors?.propertyScope?.message?.toString()}

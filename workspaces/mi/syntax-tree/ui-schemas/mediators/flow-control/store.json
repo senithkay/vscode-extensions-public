@@ -9,31 +9,11 @@
       "value": {
         "name": "messageStore",
         "displayName": "Message Store",
-        "inputType": "editableCombo",
+        "inputType": "keyOrExpression",
+        "keyType": "messageStore",
         "defaultValue": "",
         "required": false,
-        "helpTip": "",
-        "comboValues": [
-          "{workspace.messageStore}",
-          "{line.break}",
-          "Select Expresison"
-        ]
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
-        "name": "expression",
-        "displayName": "Expression",
-        "inputType": "expression",
-        "defaultValue": "",
-        "required": false,
-        "helpTip": "",
-        "enableCondition": [
-          {
-            "messageStore": "Select Expresison"
-          }
-        ]
+        "helpTip": ""
       }
     },
     {
@@ -41,7 +21,7 @@
       "value": {
         "name": "onStoreSequence",
         "displayName": "On Store Sequence",
-        "inputType": "keyOrExpression",
+        "inputType": "key",
         "defaultValue": "",
         "required": false,
         "helpTip": "",
