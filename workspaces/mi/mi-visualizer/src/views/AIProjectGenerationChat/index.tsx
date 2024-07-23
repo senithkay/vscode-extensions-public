@@ -153,7 +153,8 @@ export function AIProjectGenerationChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
-    const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [files, setFiles] = useState([]);
+    const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
 
     async function fetchBackendUrl() {
@@ -469,8 +470,7 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-        const stringifiedUploadedFiles = uploadedFiles.map(file => JSON.stringify(file));
-        const images = [];
+        const stringifiedUploadedFiles = files.map(file => JSON.stringify(file));
         let retryCount = 0;
         const maxRetries = 2;
 
@@ -481,7 +481,7 @@ export function AIProjectGenerationChat() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token.token}`,
                 },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: [] }),
+                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: images }),
                 signal: signal,
             });
 
@@ -520,8 +520,9 @@ export function AIProjectGenerationChat() {
         try {
             const response = await fetchWithRetry();
 
-            // Remove the user uploaded file after sending it to the backend
+            // Remove the user uploaded files and images after sending them to the backend.
             removeAllFiles();
+            removeAllImages();
             
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
@@ -752,30 +753,50 @@ export function AIProjectGenerationChat() {
 
     const handleFileAttach = (e: any) => {
         const file = e.target.files[0];
-        const validTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+        const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+        const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
 
-        if (file && validTypes.includes(file.type)) {
+        if (file && validFileTypes.includes(file.type)) {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const fileContents = event.target.result;
-                setUploadedFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
+                setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
                 setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
             };
             reader.readAsText(file);
-            e.target.value = '';
+        } else if (file && validImageTypes.includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+                const imageBase64 = event.target.result;
+                setImages(prevImages => [...prevImages, imageBase64]);
+                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
+            };
+            reader.readAsDataURL(file);
+
         } else {
-            setFileUploadStatus({ type: 'error', text: 'Please select a valid XML, JSON, YAML, or text file.' });
+            setFileUploadStatus({ type: 'error', text: 'File format not supported' });
         }
+        e.target.value = '';
     };
 
     const handleRemoveFile = (index: number) => {
-        setUploadedFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
+        setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setImages(prevImages => prevImages.filter((image, i) => i !== index));
     };
 
     const removeAllFiles = () => {
-        setUploadedFiles([]);
+        setFiles([]);
         setFileUploadStatus({ type: '', text: '' });
     }
+
+    const removeAllImages = () => {
+        setImages([]);
+        setFileUploadStatus({ type: '', text: '' });
+    }
+
     const openUpdateExtensionView = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension } });
     };
@@ -894,12 +915,23 @@ export function AIProjectGenerationChat() {
                     </div>
                 </>
                 ))}
-                {uploadedFiles.map((file, index) => (
+                {files.map((file, index) => (
                     <FlexRow style={{ alignItems: 'center' }} key={index}>
                         <span>{file.fileName}</span>
                         <Button
                             appearance="icon"
                             onClick={() => handleRemoveFile(index)}
+                        >
+                            <span className="codicon codicon-close"></span>
+                        </Button>
+                    </FlexRow>
+                ))}
+                {images.map((image, index) => (
+                    <FlexRow style={{ alignItems: 'center' }} key={index}>
+                        <span>Image</span>
+                        <Button
+                            appearance="icon"
+                            onClick={() => handleRemoveImage(index)}
                         >
                             <span className="codicon codicon-close"></span>
                         </Button>
