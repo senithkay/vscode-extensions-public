@@ -21,6 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block",
@@ -50,7 +51,7 @@ const CallForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             endopint: sidePanelContext?.formValues?.endopint || "",
-            inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "<inline/>",
+            inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "",
             endpointRegistryKey: sidePanelContext?.formValues?.endpointRegistryKey || "",
             endpointXpath: sidePanelContext?.formValues?.endpointXpath || {"isExpression":true,"value":""},
             enableBlockingCalls: sidePanelContext?.formValues?.enableBlockingCalls || false,
@@ -138,7 +139,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="inlineEndpoint"
                         control={control}
                         render={({ field }) => (
-                            <TextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} errorMsg={errors?.inlineEndpoint?.message?.toString()} />
+                            <CodeTextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.inlineEndpoint?.message?.toString()} />
                         )}
                     />
                 </Field>
