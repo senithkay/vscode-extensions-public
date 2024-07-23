@@ -11,7 +11,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import classnames from "classnames";
 import React, { type FC, type HTMLProps, type ReactNode } from "react";
 import { type Control, Controller } from "react-hook-form";
-import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { FormElementWrap } from "../FormElementWrap";
 
 interface Props {

@@ -10,8 +10,8 @@
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import classnames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { getShortenedHash } from "../../utilities/helpers";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	className?: HTMLProps<HTMLElement>["className"];

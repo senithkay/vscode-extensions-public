@@ -17,7 +17,7 @@ import {
 import classNames from "classnames";
 import React, { type FC } from "react";
 import { ContextMenu } from "../../components/ContextMenu";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	project?: Project;

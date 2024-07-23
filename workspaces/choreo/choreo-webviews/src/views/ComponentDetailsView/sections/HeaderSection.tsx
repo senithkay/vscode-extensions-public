@@ -13,7 +13,7 @@ import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { HeaderSection as HeaderSectionView } from "../../../components/HeaderSection";
-import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getComponentTypeText, getTypeForDisplayType } from "../utils";
 
 export const HeaderSection: FC<

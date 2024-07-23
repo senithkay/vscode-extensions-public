@@ -8,7 +8,7 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import {
 	ChoreoComponentType,
@@ -27,8 +27,9 @@ import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
 import { Divider } from "../../../components/Divider";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { useGetDeployedEndpoints, useGetDeploymentStatus } from "../../../hooks/use-queries";
 import { getTimeAgo, toTitleCase } from "../../../utilities/helpers";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getTypeForDisplayType } from "../utils";
 
 interface Props {
@@ -46,23 +47,7 @@ export const DeploymentsSection: FC<Props> = (props) => {
 	const { envs, loadingEnvs, deploymentTrack, component, organization, project, triggeredDeployment = {}, onLoadDeploymentStatus } = props;
 	const [hasInactiveEndpoints, setHasInactiveEndpoints] = useState(false);
 
-	const { data: endpoints = [], refetch: refetchEndpoints } = useQuery({
-		queryKey: [
-			"get-deployed-endpoints",
-			{
-				organization: organization.handle,
-				project: project.handler,
-				component: component.metadata.name,
-				deploymentTrackId: deploymentTrack?.id,
-			},
-		],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentEndpoints({
-				orgId: organization.id.toString(),
-				orgHandler: organization.handle,
-				componentId: component.metadata.id,
-				deploymentTrackId: deploymentTrack?.id,
-			}),
+	const { data: endpoints = [], refetch: refetchEndpoints } = useGetDeployedEndpoints(deploymentTrack, component, organization, {
 		enabled: !!deploymentTrack?.id && getTypeForDisplayType(component.spec.type) === ChoreoComponentType.Service,
 		onSuccess: (data = []) => setHasInactiveEndpoints(data.some((item) => item.state !== "Active")),
 		refetchInterval: hasInactiveEndpoints ? 10000 : false,
@@ -117,26 +102,7 @@ const EnvItem: FC<{
 		isLoading: loadingDeploymentStatus,
 		isFetching: fetchingDeploymentStatus,
 		refetch: refetchDeploymentStatus,
-	} = useQuery({
-		queryKey: [
-			"get-deployment-status",
-			{
-				organization: organization.handle,
-				project: project.handler,
-				component: component.metadata.name,
-				deploymentTrackId: deploymentTrack?.id,
-				envId: env.id,
-			},
-		],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentStatus({
-				orgId: organization.id.toString(),
-				orgUuid: organization.uuid,
-				orgHandler: organization.handle,
-				componentId: component.metadata.id,
-				deploymentTrackId: deploymentTrack?.id,
-				envId: env.id,
-			}),
+	} = useGetDeploymentStatus(deploymentTrack, component, organization, env, {
 		enabled: !!deploymentTrack?.id,
 		onSuccess: () => {
 			refetchEndpoint();

@@ -29,8 +29,9 @@ import { Dropdown } from "../../components/FormElements/Dropdown";
 import { PathSelect } from "../../components/FormElements/PathSelect";
 import { TextField } from "../../components/FormElements/TextField";
 import { HeaderSection } from "../../components/HeaderSection";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { useGetBuildPacks, useGetGitBranches, useGetGitRemotes } from "../../hooks/use-queries";
 import { makeURLSafe } from "../../utilities/helpers";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { type componentFormSchema, getComponentFormSchema } from "./componentFormSchema";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
@@ -86,14 +87,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 		enabled: selectedType === ChoreoComponentType.Service && !!selectedLang,
 	});
 
-	const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useQuery({
-		queryKey: ["build-packs", { selectedType, orgId: organization?.id }],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getBuildPacks({
-				componentType: selectedType,
-				orgUuid: organization.uuid,
-				orgId: organization.id.toString(),
-			}),
+	const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useGetBuildPacks(selectedType, organization, {
 		refetchOnWindowFocus: false,
 		enabled: !!selectedType,
 	});
@@ -108,12 +102,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 		}
 	}, [form, selectedLang, buildpacks]);
 
-	const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
-		queryKey: ["get-git-remotes", { directoryFsPath, subPath }],
-		queryFn: async () => {
-			const joinedPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
-			return ChoreoWebViewAPI.getInstance().getGitRemotes(joinedPath);
-		},
+	const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useGetGitRemotes(directoryFsPath, subPath, {
 		keepPreviousData: true,
 	});
 
@@ -123,13 +112,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 		}
 	}, [form, gitRemotes]);
 
-	const { isLoading: isLoadingBranches, data: branches = [] } = useQuery({
-		queryKey: ["get-git-branches", { repo: repoUrl, orgId: organization?.id }],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getRepoBranches({
-				repoUrl,
-				orgId: organization.id.toString(),
-			}),
+	const { isLoading: isLoadingBranches, data: branches = [] } = useGetGitBranches(repoUrl, organization, {
 		enabled: !!repoUrl,
 	});
 

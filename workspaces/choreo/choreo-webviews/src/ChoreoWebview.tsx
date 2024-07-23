@@ -16,8 +16,8 @@ import type {
 } from "@wso2-enterprise/choreo-core";
 import React from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { AuthContextProvider } from "./context/choreo-auth-ctx";
-import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
+import { AuthContextProvider } from "./providers/auth-ctx-provider";
+import { ChoreoWebviewQueryClientProvider } from "./providers/react-query-provider";
 import { ComponentDetailsView } from "./views/ComponentDetailsView";
 import { ComponentFormView } from "./views/ComponentFormView";
 import { ComponentListView } from "./views/ComponentListView";

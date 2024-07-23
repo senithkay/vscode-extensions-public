@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { type ComponentsDetailsWebviewProps, type DeploymentTrack, type Environment, WebviewQuickPickItemKind } from "@wso2-enterprise/choreo-core";
 import React, { type FC, useEffect, useState } from "react";
 import { Divider } from "../../components/Divider";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { useGetDeploymentTracks, useGetProjectEnvs } from "../../hooks/use-queries";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { BuildConfigsSection } from "./sections/BuildConfigsSection";
 import { BuildsSection } from "./sections/BuildsSection";
 import { DeploymentsSection } from "./sections/DeploymentsSection";
@@ -21,16 +22,7 @@ import { HeaderSection } from "./sections/HeaderSection";
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
 	const { component, project, organization, directoryPath } = props;
 
-	const { data: deploymentTracks = [] } = useQuery({
-		queryKey: ["get-deployment-tracks", { component: component.metadata.name, organization: organization.handle, project: project.handler }],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentTracks({
-				componentId: component.metadata.id,
-				orgHandler: organization.handle,
-				orgId: organization.id.toString(),
-				projectId: project.id,
-			}),
-	});
+	const { data: deploymentTracks = [] } = useGetDeploymentTracks(component, project, organization);
 
 	const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
 
@@ -59,15 +51,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		},
 	});
 
-	const { data: envs = [], isLoading: loadingEnvs } = useQuery({
-		queryKey: ["get-project-envs", { organization: organization.handle, project: project.handler }],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getEnvs({
-				orgId: organization.id.toString(),
-				orgUuid: organization.uuid,
-				projectId: project.id,
-			}),
-	});
+	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization);
 
 	const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>();
 	const onTriggerDeployment = (env: Environment, deploying: boolean) => {

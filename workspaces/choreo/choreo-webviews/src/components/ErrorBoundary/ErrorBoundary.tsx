@@ -10,7 +10,7 @@
 import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { Component, type ErrorInfo, type FC } from "react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { Banner } from "../Banner";
 
 interface ErrorBoundaryCProps {

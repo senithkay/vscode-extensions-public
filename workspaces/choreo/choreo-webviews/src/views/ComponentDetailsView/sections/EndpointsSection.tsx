@@ -12,7 +12,7 @@ import { ChoreoComponentType, type ComponentKind } from "@wso2-enterprise/choreo
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
-import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getTypeForDisplayType } from "../utils";
 import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 

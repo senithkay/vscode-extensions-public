@@ -8,7 +8,7 @@
  */
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import type { TestWebviewProps } from "@wso2-enterprise/choreo-core";
 import clipboardy from "clipboardy";
@@ -22,7 +22,8 @@ import { FormElementWrap } from "../../components/FormElements/FormElementWrap";
 import { HeaderSection } from "../../components/HeaderSection";
 import { SkeletonText } from "../../components/SkeletonText";
 import { SwaggerUI } from "../../components/SwaggerUI";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { useGetSwaggerSpec, useGetTestKey } from "../../hooks/use-queries";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 const MAX_RESPONSE_SIZE = 4 * 1024 * 1024;
 const INTERNAL_KEY_HEADER_NAME = "API-Key";
@@ -67,30 +68,15 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 		refetch: refetchTestKey,
 		isLoading: isLoadingTestKey,
 		isFetching: isFetchingTestKey,
-	} = useQuery({
-		queryKey: ["get-test-key", { selectedEndpoint, env, org }],
+	} = useGetTestKey(selectedEndpoint, env, org, {
 		enabled: !!selectedEndpoint,
 		refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getTestKey({
-				apimId: selectedEndpoint.apimId,
-				envName: env.name,
-				orgId: org.id.toString(),
-				orgUuid: org.uuid,
-			}),
 		cacheTime: 0,
 	});
 
-	const { data: swaggerSpec, isLoading: isLoadingSwagger } = useQuery({
-		queryKey: ["get-swagger-spec", { selectedEndpoint, org }],
+	const { data: swaggerSpec, isLoading: isLoadingSwagger } = useGetSwaggerSpec(selectedEndpoint, org, {
 		enabled: !!selectedEndpoint,
 		refetchOnWindowFocus: false,
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getSwaggerSpec({
-				apimRevisionId: selectedEndpoint.apimRevisionId,
-				orgId: org.id.toString(),
-				orgUuid: org.uuid,
-			}),
 	});
 
 	const securitySchemas = useMemo(() => {

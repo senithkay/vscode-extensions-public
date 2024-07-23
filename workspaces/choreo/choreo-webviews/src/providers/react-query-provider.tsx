@@ -10,11 +10,9 @@
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider, type PersistedClient, type Persister } from "@tanstack/react-query-persist-client";
 import React from "react";
-import { ChoreoWebViewAPI } from "./WebViewRpc";
+import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 
-/**
- * Persist data within vscode workspace cache
- */
+/** Persist data within vscode workspace cache  */
 const workspaceStatePersister = (queryBaseKey: string) => {
 	return {
 		persistClient: async (client: PersistedClient) => {
@@ -30,19 +28,19 @@ const workspaceStatePersister = (queryBaseKey: string) => {
 	} as Persister;
 };
 
-const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			cacheTime: 1000 * 60 * 60 * 24, // 24 hours
-			retry: false,
-		},
-	},
-});
-
 export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: string; children: React.ReactNode }) => {
 	return (
 		<PersistQueryClientProvider
-			client={queryClient}
+			client={
+				new QueryClient({
+					defaultOptions: {
+						queries: {
+							cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+							retry: false,
+						},
+					},
+				})
+			}
 			persistOptions={{
 				persister: workspaceStatePersister(`react-query-persister-${type}`),
 				buster: "choreo-webview-cache-v2",

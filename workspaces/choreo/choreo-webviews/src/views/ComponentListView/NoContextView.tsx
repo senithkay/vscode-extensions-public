@@ -12,7 +12,7 @@ import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import React, { type FC } from "react";
 import { Button } from "../../components/Button";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	loading?: boolean;

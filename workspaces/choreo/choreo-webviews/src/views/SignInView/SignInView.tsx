@@ -12,7 +12,7 @@ import { CommandIds } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 import { Button } from "../../components/Button";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {
 	className?: HTMLProps<HTMLElement>["className"];

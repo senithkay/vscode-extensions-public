@@ -31,8 +31,9 @@ import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
+import { getBuildList, getGetCommits, queryKeys } from "../../../hooks/use-queries";
 import { getShortenedHash, getTimeAgo } from "../../../utilities/helpers";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getTypeForDisplayType } from "../utils";
 
 interface Props {
@@ -51,23 +52,7 @@ export const BuildsSection: FC<Props> = (props) => {
 	const [buildListRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
 
-	const { isLoading: isLoadingCommits, data: commits = [] } = useQuery({
-		queryKey: [
-			"get-commits",
-			{
-				component: component.metadata.name,
-				organization: organization.handle,
-				project: project.handler,
-				branch: deploymentTrack?.branch,
-			},
-		],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getCommits({
-				componentId: component.metadata.id,
-				orgHandler: organization.handle,
-				orgId: organization.id.toString(),
-				branch: deploymentTrack.branch,
-			}),
+	const { isLoading: isLoadingCommits, data: commits = [] } = getGetCommits(deploymentTrack, component, organization, {
 		enabled: !!deploymentTrack,
 	});
 
@@ -76,23 +61,7 @@ export const BuildsSection: FC<Props> = (props) => {
 		isRefetching: isRefetchingBuilds,
 		data: builds = [],
 		refetch: refetchBuilds,
-	} = useQuery({
-		queryKey: [
-			"get-builds",
-			{
-				component: component.metadata.name,
-				organization: organization.handle,
-				project: project.handler,
-				branch: deploymentTrack?.branch,
-			},
-		],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getBuilds({
-				componentName: component.metadata.name,
-				deploymentTrackId: deploymentTrack?.id,
-				projectHandle: project.handler,
-				orgId: organization.id?.toString(),
-			}),
+	} = getBuildList(deploymentTrack, component, project, organization, {
 		onSuccess: (builds) => {
 			setHasOngoingBuilds(builds.some((item) => item.status?.conclusion === ""));
 		},
@@ -105,15 +74,7 @@ export const BuildsSection: FC<Props> = (props) => {
 			await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createBuild(params);
 		},
 		onSuccess: () => {
-			const buildQueryKey = [
-				"get-builds",
-				{
-					component: component.metadata.name,
-					organization: organization.handle,
-					project: project.handler,
-					branch: deploymentTrack?.branch,
-				},
-			];
+			const buildQueryKey = queryKeys.getBuilds(deploymentTrack, component, project, organization);
 			const currentBuilds: BuildKind[] = queryClient.getQueryData(buildQueryKey) ?? [];
 			queryClient.setQueryData(buildQueryKey, [{ status: { status: "Triggered" } } as BuildKind, ...currentBuilds]);
 			refetchBuilds();
@@ -285,16 +246,9 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 				projectHandle: project.handler,
 			};
 			if (getTypeForDisplayType(component?.spec?.type) === ChoreoComponentType.ScheduledTask) {
-				const deploymentData: ComponentDeployment | undefined = queryClient.getQueryData([
-					"get-deployment-status",
-					{
-						organization: organization.handle,
-						project: project.handler,
-						component: component.metadata.name,
-						deploymentTrackId: deploymentTrack?.id,
-						envId: params.env.id,
-					},
-				]);
+				const deploymentData: ComponentDeployment | undefined = queryClient.getQueryData(
+					queryKeys.getDeploymentStatus(deploymentTrack, component, organization, params.env),
+				);
 				const cronExpr = await ChoreoWebViewAPI.getInstance().showInputBox({
 					title: "Enter Cron Expression",
 					placeholder: "0 8 * * *",
@@ -337,27 +291,10 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 		},
 		onSuccess: (_, params) => {
 			queryClient.refetchQueries({
-				queryKey: [
-					"get-deployment-status",
-					{
-						organization: organization.handle,
-						project: project.handler,
-						component: component.metadata.name,
-						deploymentTrackId: deploymentTrack?.id,
-						envId: params.env.id,
-					},
-				],
+				queryKey: queryKeys.getDeploymentStatus(deploymentTrack, component, organization, params.env),
 			});
 			queryClient.refetchQueries({
-				queryKey: [
-					"get-deployed-endpoints",
-					{
-						organization: organization.handle,
-						project: project.handler,
-						component: component.metadata.name,
-						deploymentTrackId: deploymentTrack?.id,
-					},
-				],
+				queryKey: queryKeys.getDeployedEndpoints(deploymentTrack, component, organization),
 			});
 
 			ChoreoWebViewAPI.getInstance().showInfoMsg(

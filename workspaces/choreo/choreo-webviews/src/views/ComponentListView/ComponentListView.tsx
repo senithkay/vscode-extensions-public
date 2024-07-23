@@ -12,7 +12,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ComponentsListActivityViewProps } from "@wso2-enterprise/choreo-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import React, { type FC, useEffect } from "react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { ComponentListItem } from "./ComponentListItem";
 import { ComponentsEmptyView } from "./ComponentsEmptyView";
 import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
