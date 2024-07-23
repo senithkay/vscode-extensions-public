@@ -94,7 +94,7 @@ export function SequenceDiagram() {
             <Container>{!!st && 
                 <LowCodeDiagram syntaxTree={st} isReadOnly={false} onAddComponent={() => { setShowPanel(true) }} />
             }</Container>
-            <PanelContainer show={showPanel} onClose={() => { setShowPanel(false) }}>
+            <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
                 <NodeList categories={[]} onSelect={(id: string) => { }} />
             </PanelContainer>
         </>

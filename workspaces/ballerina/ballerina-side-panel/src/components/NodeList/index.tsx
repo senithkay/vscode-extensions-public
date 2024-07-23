@@ -141,7 +141,7 @@ export function NodeList(props: NodeListProps) {
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid>
             {nodes.map((node, index) => (
-                <Tooltip content={node.description} key={node.id + index}>
+                <Tooltip content={node.description} key={node.id + index + "tooltip"}>
                     <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
                         <div>{node.label}</div>
@@ -155,7 +155,7 @@ export function NodeList(props: NodeListProps) {
         <>
             {groups.map((group, index) => {
                 if (group.items.length === 0) {
-                    return <></>;
+                    return null;
                 }
                 return (
                     <S.CategoryRow key={group.title + index} showBorder={!isSubCategory}>
