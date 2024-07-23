@@ -203,20 +203,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
-
+            const { focusedST, views } = focusedNode.context;
+            
             let returnExpr: Expression;
 
             //Condition to check array mapping or not
-            if (focusedNode.context.views.length > 1) {
-                if (Node.isPropertyAssignment(focusedNode.context.focusedST)) {
-                    const propertyAssignment = focusedNode.context.focusedST as PropertyAssignment;
+            if (views.length > 1) {
+                if (Node.isPropertyAssignment(focusedST)) {
+                    const propertyAssignment = focusedST as PropertyAssignment;
                     const arrowFunction = propertyAssignment?.getInitializerIfKindOrThrow(SyntaxKind.CallExpression)
                         ?.getArguments()?.[0]
                         ?.asKindOrThrow(SyntaxKind.ArrowFunction);
                     const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
                     returnExpr = returnStatement?.getExpression();
-                } else if (Node.isReturnStatement(focusedNode.context.focusedST)) {
-                    const returnStatement = getMapFunctionReturnStatement(focusedNode.context.focusedST, focusedNode.context.views[focusedNode.context.views.length-1].mapFnIndex) as ReturnStatement;
+                } else if (Node.isReturnStatement(focusedST)) {
+                    const returnStatement = getMapFunctionReturnStatement(focusedST, views[views.length-1].mapFnIndex) as ReturnStatement;
                     returnExpr = returnStatement?.getExpression();
                 }
             } else {
