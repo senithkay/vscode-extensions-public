@@ -26,38 +26,41 @@ import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 export const queryKeys = {
 	getDeploymentTracks: (component: ComponentKind, project: Project, org: Organization) => [
 		"get-deployment-tracks",
-		{ component: component.metadata.name, organization: org.handle, project: project.handler },
+		{ component: component.metadata.id, organization: org.handle, project: project.handler },
 	],
 	getProjectEnvs: (project: Project, org: Organization) => ["get-project-envs", { organization: org.handle, project: project.handler }],
 	getTestKey: (selectedEndpoint: ComponentEP, env: Environment, org: Organization) => [
 		"get-test-key",
-		{ endpoint: selectedEndpoint.id, env: env.name, org: org.handle },
+		{ endpoint: selectedEndpoint.id, env: env.id, org: org.handle },
 	],
-	getSwaggerSpec: (selectedEndpoint: ComponentEP, org: Organization) => ["get-swagger-spec", { selectedEndpoint, org }],
+	getSwaggerSpec: (selectedEndpoint: ComponentEP, org: Organization) => [
+		"get-swagger-spec",
+		{ selectedEndpoint: selectedEndpoint.id, org: org.handle },
+	],
 	getBuildPacks: (selectedType: string, org: Organization) => ["build-packs", { selectedType, orgId: org?.id }],
 	getGitRemotes: (directoryFsPath: string, subPath: string) => ["get-git-remotes", { directoryFsPath, subPath }],
 	getGitBranches: (repoUrl: string, org: Organization) => ["get-git-branches", { repo: repoUrl, orgId: org?.id }],
 	getDeployedEndpoints: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
 		"get-deployed-endpoints",
-		{ organization: org.handle, component: component.metadata.name, deploymentTrackId: deploymentTrack?.id },
+		{ organization: org.handle, component: component.metadata.id, deploymentTrackId: deploymentTrack?.id },
 	],
 	getDeploymentStatus: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization, env: Environment) => [
 		"get-deployment-status",
 		{
 			organization: org.handle,
-			component: component.metadata.name,
+			component: component.metadata.id,
 			deploymentTrackId: deploymentTrack?.id,
 			envId: env.id,
 		},
 	],
 	getCommits: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
 		"get-commits",
-		{ organization: org.handle, component: component.metadata.name, deploymentTrackId: deploymentTrack?.id },
+		{ organization: org.handle, component: component.metadata.id, deploymentTrackId: deploymentTrack?.id },
 	],
 	getBuilds: (deploymentTrack: DeploymentTrack, component: ComponentKind, project: Project, org: Organization) => [
 		"get-builds",
 		{
-			component: component.metadata.name,
+			component: component.metadata.id,
 			organization: org.handle,
 			project: project.handler,
 			branch: deploymentTrack?.branch,
