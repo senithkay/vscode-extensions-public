@@ -17,9 +17,10 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { Keylookup } from '../../../../Form';
+import { FormKeylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelGoBack } from '../../..';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
@@ -174,14 +175,17 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="scriptKey"
                         control={control}
                         render={({ field }) => (
-                            <Keylookup
-                                value={field.value}
-                                filterType='registry'
+                            <FormKeylookup
+                                control={control}
+                                name='scriptKey'
                                 label="Script Key"
-                                allowItemCreate={true}
-                                onValueChange={field.onChange}
+                                filterType='registry'
+                                allowItemCreate={false}
                                 required={false}
                                 errorMsg={errors?.scriptKey?.message?.toString()}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
