@@ -1,7 +1,3 @@
-import { writeFileSync } from "fs";
-import * as os from "os";
-import * as path from "path";
-import { CommandIds, type ComponentKind, type Organization, type Project, type WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -10,6 +6,11 @@ import { CommandIds, type ComponentKind, type Organization, type Project, type W
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+import { writeFileSync } from "fs";
+import * as os from "os";
+import * as path from "path";
+import { CommandIds, type ComponentKind, type Organization, type Project, type WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

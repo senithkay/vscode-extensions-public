@@ -1,5 +1,3 @@
-import { basename } from "path";
-import { CommandIds, type ComponentKind, type Organization, type Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -8,6 +6,9 @@ import { CommandIds, type ComponentKind, type Organization, type Project, Worksp
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+import { basename } from "path";
+import { CommandIds, type ComponentKind, type Organization, type Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, ProgressLocation, QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";

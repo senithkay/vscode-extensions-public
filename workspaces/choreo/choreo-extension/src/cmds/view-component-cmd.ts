@@ -1,6 +1,3 @@
-import { existsSync } from "fs";
-import * as path from "path";
-import { CommandIds, type ViewComponentDetailsReq } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -9,6 +6,10 @@ import { CommandIds, type ViewComponentDetailsReq } from "@wso2-enterprise/chore
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+import { existsSync } from "fs";
+import * as path from "path";
+import { CommandIds, type ViewComponentDetailsReq } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";

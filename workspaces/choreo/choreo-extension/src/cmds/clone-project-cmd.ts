@@ -1,6 +1,3 @@
-import * as os from "os";
-import { join } from "path";
-import { CommandIds, type ComponentKind, GitProvider } from "@wso2-enterprise/choreo-core";
 /*
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -9,6 +6,10 @@ import { CommandIds, type ComponentKind, GitProvider } from "@wso2-enterprise/ch
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+import * as os from "os";
+import { join } from "path";
+import { CommandIds, type ComponentKind, GitProvider } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { initGit } from "../git/main";

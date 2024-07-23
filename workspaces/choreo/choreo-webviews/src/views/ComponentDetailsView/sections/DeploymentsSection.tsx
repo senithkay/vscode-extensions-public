@@ -1,16 +1,23 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import {
 	ChoreoComponentType,
-	CommitHistory,
 	type ComponentEP,
 	type ComponentKind,
 	type DeploymentTrack,
 	type Environment,
 	type Organization,
 	type Project,
-	WebviewQuickPickItemKind,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import clipboardy from "clipboardy";
@@ -21,7 +28,7 @@ import { CommitLink } from "../../../components/CommitLink";
 import { Divider } from "../../../components/Divider";
 import { SkeletonText } from "../../../components/SkeletonText";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { getShortenedHash, getTimeAgo, toTitleCase } from "../../../utilities/helpers";
+import { getTimeAgo, toTitleCase } from "../../../utilities/helpers";
 import { getTypeForDisplayType } from "../utils";
 
 interface Props {

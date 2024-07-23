@@ -1,32 +1,27 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
-import { type ConfigurationChangeEvent, Uri, commands, window, workspace } from "vscode";
+import { type ConfigurationChangeEvent, commands, window, workspace } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
+import { ChoreoRPCClient } from "./choreo-rpc";
 import { initRPCServer } from "./choreo-rpc/activate";
 import { activateCmds } from "./cmds";
 import { ext } from "./extensionVariables";
 import { getLogger, initLogger } from "./logger/logger";
+import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
+import { dataCacheStore } from "./stores/data-cache-store";
 import { activateTelemetry } from "./telemetry/telemetry";
 import { activateURIHandlers } from "./uri-handlers";
 import { activateActivityWebViews } from "./webviews/utils";
-
-import { CommandIds } from "@wso2-enterprise/choreo-core";
-import { ChoreoRPCClient } from "./choreo-rpc";
-import { authStore } from "./stores/auth-store";
-import { dataCacheStore } from "./stores/data-cache-store";
 
 export async function activate(context: vscode.ExtensionContext) {
 	activateTelemetry(context);

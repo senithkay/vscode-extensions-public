@@ -1,17 +1,3 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import * as os from "os";
-import * as path from "path";
-import {
-	ChoreoComponentType,
-	CommandIds,
-	type ComponentYamlContent,
-	EndpointYamlContent,
-	type ICreateComponentParams,
-	Project,
-	type SubmitComponentCreateReq,
-	type WorkspaceConfig,
-} from "@wso2-enterprise/choreo-core";
-import * as yaml from "js-yaml";
 /*
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -20,7 +6,20 @@ import * as yaml from "js-yaml";
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { type ExtensionContext, ProgressLocation, Uri, WorkspaceFolder, commands, window, workspace } from "vscode";
+
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import * as os from "os";
+import * as path from "path";
+import {
+	ChoreoComponentType,
+	CommandIds,
+	type ComponentYamlContent,
+	type ICreateComponentParams,
+	type SubmitComponentCreateReq,
+	type WorkspaceConfig,
+} from "@wso2-enterprise/choreo-core";
+import * as yaml from "js-yaml";
+import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";

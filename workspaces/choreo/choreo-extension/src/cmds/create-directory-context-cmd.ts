@@ -1,17 +1,18 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import * as os from "os";
-import * as path from "path";
-import { dirname } from "path";
-import { CommandIds, type ContextItem, type Organization, type Project, type UserInfo } from "@wso2-enterprise/choreo-core";
-import * as yaml from "js-yaml";
 /*
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
+import * as os from "os";
+import * as path from "path";
+import { dirname } from "path";
+import { CommandIds, type ContextItem, type Organization, type Project, type UserInfo } from "@wso2-enterprise/choreo-core";
+import * as yaml from "js-yaml";
 import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
