@@ -36,7 +36,6 @@ export enum PALETTE_COMMANDS {
     OPEN_IN_DIAGRAM = 'ballerina.openIn.diagram',
     SHOW_DIAGRAM = 'ballerina.show.diagram',
     SHOW_SOURCE = 'ballerina.show.source',
-    SHOW_VISUALIZER = 'ballerina.show.visualizer',
     SHOW_ARCHITECTURE_VIEW = 'ballerina.view.architectureView',
     SHOW_EXAMPLES = 'ballerina.showExamples',
     SHOW_CELL_VIEW = 'ballerina.view.cellView',
@@ -46,7 +45,6 @@ export enum PALETTE_COMMANDS {
     SHOW_ENTITY_DIAGRAM = 'ballerina.view.entityDiagram',
     SHOW_SERVICE_DESIGNER_VIEW = 'ballerina.view.serviceDesigner',
     SHOW_GRAPHQL_DESIGNER_VIEW = 'ballerina.view.graphqlDesigner'
-
 }
 
 

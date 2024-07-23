@@ -14,7 +14,6 @@ import * as path from 'path';
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
     errorCode: string | null;
-    isEggplant?: boolean;
 }
 
 export let history: History;
@@ -34,27 +33,30 @@ const stateMachine = createMachine<MachineContext>(
         states: {
             initialize: {
                 invoke: {
+                    src: checkForProjects,
+                    onDone: {
+                        target: "activateLS",
+                        actions: assign({
+                            isEggplant: (context, event) => event.data.isEggplant,
+                            projectUri: (context, event) => event.data.projectUri
+                        })
+                    },
+                    onError: {
+                        target: "activateLS"
+                    }
+                }
+            },
+            activateLS: {
+                invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "lsReady",
+                        target: "extensionReady",
                         actions: assign({
                             langClient: (context, event) => event.data
                         })
                     },
                     onError: {
-                        target: "lsError"
-                    }
-                }
-            },
-            lsReady: {
-                invoke: {
-                    src: checkForProjects,
-                    onDone: {
-                        target: "extensionReady",
-                        actions: assign({
-                            isEggplant: (context, event) => event.data.isEggplant,
-                            projectUri: (context, event) => event.data.projectUri
-                        })
+                        target: "extensionReady"
                     }
                 }
             },
@@ -185,7 +187,7 @@ const stateMachine = createMachine<MachineContext>(
         },
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
-                if (!context.view) {
+                if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
@@ -211,6 +213,13 @@ const stateMachine = createMachine<MachineContext>(
                 const historyStack = history.get();
                 const selectedEntry = historyStack[historyStack.length - 1];
 
+                if (!context.langClient) {
+                    if (!selectedEntry) {
+                        return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
+                    }
+                    return resolve({ ...selectedEntry.location, view: selectedEntry.location.view ? selectedEntry.location.view : MACHINE_VIEW.Overview });
+                }
+
                 if (selectedEntry && selectedEntry.location.view === MACHINE_VIEW.ERDiagram) {
                     return resolve(selectedEntry.location);
                 }
@@ -230,7 +239,7 @@ const stateMachine = createMachine<MachineContext>(
 
                 let selectedST;
 
-                if (node.parseSuccess) {
+                if (node?.parseSuccess) {
                     const fullST = node.syntaxTree;
                     if (!uid && position) {
                         const generatedUid = generateUid(position, fullST);
@@ -329,7 +338,7 @@ export const StateMachine = {
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLocation: VisualizerLocation) {
+export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 

@@ -1,6 +1,6 @@
 {
     "name": "eggplant-extension",
-    "displayName": "eggplant",
+    "displayName": "Eggplant",
     "description": "",
     "version": "0.0.1",
     "repository": {
@@ -30,7 +30,7 @@
         "viewsWelcome": [
             {
                 "view": "Eggplant.project-explorer",
-                "contents": "Welcome to Eggplant Integrator. You can open a folder containing a Eggplant project or create a new project.\n[Open Eggplant Project](command:Eggplant.openProject)\n[Create New Project](command:Eggplant.openWelcome)\nTo learn more about how to use Eggplant in VS Code [read our docs](https://ei.docs.wso2.com)."
+                "contents": "Welcome to Eggplant Integrator. You can open a folder containing a Eggplant project or create a new project.\n[Open Eggplant Project](command:vscode.openFolder)\n[Create New Project](command:ballerina.open.eggplant.welcome)\nTo learn more about how to use Eggplant in VS Code [read our docs](https://ei.docs.wso2.com)."
               }
         ],
         "views": {
@@ -42,6 +42,13 @@
             ]
         }
     },
+    "commands": [
+        {
+            "command": "ballerina.open.eggplant.welcome",
+            "title": "Open Welcome",
+            "category": "Eggplant"
+        }
+    ],
     "scripts": {
         "vscode:prepublish": "pnpm run compile",
         "compile": "webpack --mode production --stats-error-details",

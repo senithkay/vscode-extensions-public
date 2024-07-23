@@ -8,10 +8,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ExtendedLangClientInterface } from "@wso2-enterprise/ballerina-core";
 import { ExtensionContext } from "vscode";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;
+    public langClient!: ExtendedLangClientInterface;
 }
 
 export const extension = new ExtensionVariables();

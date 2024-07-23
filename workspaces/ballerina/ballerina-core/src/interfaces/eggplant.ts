@@ -98,3 +98,30 @@ export type TargetMetadata = {
     bottomNodeId?: string;
     linkLabel?: string;
 };
+
+export enum DIRECTORY_MAP {
+    SERVICES = 'services',
+    TASKS = 'tasks',
+    TRIGGERS = 'triggers',
+    CONNECTIONS = 'connections',
+    SCHEMAS = 'schemas',
+    CONFIGURATIONS = 'configurations'
+}
+
+export interface ProjectStructureResponse {
+    directoryMap: {
+        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[]
+        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[],
+    };
+}
+
+export interface ProjectStructureArtifactResponse {
+    name: string;
+    path: string;
+    type: string;
+    context?: string;
+}

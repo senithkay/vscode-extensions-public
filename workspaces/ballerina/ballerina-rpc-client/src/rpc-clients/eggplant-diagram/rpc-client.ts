@@ -9,11 +9,22 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateComponentRequest,
+    CreateComponentResponse,
+    CreateProjectRequest,
     EggplantDiagramAPI,
     EggplantModelResponse,
     Flow,
+    ProjectComponentsResponse,
+    ProjectStructureResponse,
     UpdateNodeRequest,
+    WorkspacesResponse,
+    createComponent,
+    createProject,
     getEggplantModel,
+    getProjectComponents,
+    getProjectStructure,
+    getWorkspaces,
     updateEggplantModel,
     updateNode
 } from "@wso2-enterprise/ballerina-core";
@@ -37,5 +48,25 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
 
     updateNode(params: UpdateNodeRequest): void {
         return this._messenger.sendNotification(updateNode, HOST_EXTENSION, params);
+    }
+
+    createProject(params: CreateProjectRequest): void {
+        return this._messenger.sendNotification(createProject, HOST_EXTENSION, params);
+    }
+
+    getWorkspaces(): Promise<WorkspacesResponse> {
+        return this._messenger.sendRequest(getWorkspaces, HOST_EXTENSION);
+    }
+
+    getProjectStructure(): Promise<ProjectStructureResponse> {
+        return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION);
+    }
+
+    getProjectComponents(): Promise<ProjectComponentsResponse> {
+        return this._messenger.sendRequest(getProjectComponents, HOST_EXTENSION);
+    }
+
+    createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+        return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
     }
 }

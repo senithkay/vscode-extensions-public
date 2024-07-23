@@ -12,7 +12,7 @@ import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, commands, window } from 'vscode';
 
 export function activateProjectExplorer(context: ExtensionContext) {
-	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
+	const projectExplorerDataProvider = new ProjectExplorerEntryProvider();
 	const projectTree = window.createTreeView(VIEWS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
 	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);

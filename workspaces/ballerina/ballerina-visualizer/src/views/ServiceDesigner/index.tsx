@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { Resource, ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, STModification } from "@wso2-enterprise/ballerina-core";
 import { ViewWrapper } from "../styles";
 
 interface ServiceDesignerProps {
@@ -22,16 +22,11 @@ interface ServiceDesignerProps {
 export function ServiceDesigner(props: ServiceDesignerProps) {
     const { model, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
-    const [documentUri, setDocumentUri] = useState<string>("");
-
-    useEffect(() => {
-        rpcClient.getVisualizerLocation().then(res => {
-            setDocumentUri(res.documentUri)
-        })
-    }, []);
 
     const handleOpenDiagram = (resource: Resource) => {
-        rpcClient.getVisualizerRpcClient().openView({ position: resource.position, documentUri })
+        rpcClient.getVisualizerLocation().then(res => {
+            rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: resource.position, documentUri: res.documentUri } })
+        })
     }
 
     return (

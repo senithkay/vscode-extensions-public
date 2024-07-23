@@ -35,7 +35,11 @@ export enum MACHINE_VIEW {
     ERDiagram = "ER Diagram",
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
-    EggplantDiagram = "Eggplant Diagram"
+    EggplantDiagram = "Eggplant Diagram",
+    EggplantWelcome = "Eggplant Welcome",
+    EggplantProjectForm = "Eggplant Project Form",
+    EggplantComponentView = "Eggplant Component View",
+    EggplantServiceForm = "Eggplant Service Form"
 }
 
 export interface MachineEvent {
@@ -56,6 +60,7 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: NodePosition;
     syntaxTree?: STNode;
+    isEggplant?: boolean;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

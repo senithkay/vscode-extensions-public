@@ -606,8 +606,10 @@ importers:
 
   ../../workspaces/ballerina/ballerina-visualizer:
     specifiers:
+      '@emotion/css': ^11.10.5
       '@emotion/react': ^11.9.3
-      '@emotion/styled': ^11.10.5
+      '@emotion/styled': ^11.11.0
+      '@headlessui/react': ~1.7.18
       '@tanstack/query-core': ^4.0.0-beta.1
       '@tanstack/react-query': 4.0.10
       '@types/react': ^18.2.33
@@ -647,8 +649,10 @@ importers:
       webpack: ^5.56.0
       webpack-dev-server: ^4.11.1
     dependencies:
+      '@emotion/css': 11.11.2
       '@emotion/react': 11.11.3_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_dyeqyavlplouzrsokk7bfa3ywm
+      '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
       '@tanstack/query-core': 4.36.1
       '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@types/vscode-webview': 1.57.5

@@ -9,19 +9,30 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateComponentRequest,
+    CreateComponentResponse,
+    CreateProjectRequest,
+    DIRECTORY_MAP,
     EggplantDiagramAPI,
     EggplantModelRequest,
     EggplantModelResponse,
     Flow,
     Node,
+    ProjectComponentsResponse,
+    ProjectStructureArtifactResponse,
+    ProjectStructureResponse,
     STModification,
     SyntaxTree,
     UpdateNodeRequest,
-    UpdateNodeResponse
+    UpdateNodeResponse,
+    WorkspaceFolder,
+    WorkspacesResponse,
 } from "@wso2-enterprise/ballerina-core";
-import { Uri } from "vscode";
+import { readdirSync, statSync, writeFileSync } from "fs";
+import { join } from "path";
+import { Uri, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
-import { writeFileSync } from "fs";
+import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getEggplantModel(): Promise<EggplantModelResponse> {
@@ -234,4 +245,93 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             }
         }
     }
+
+    async createProject(params: CreateProjectRequest): Promise<void> {
+        createEggplantProjectPure(params.projectName);
+    }
+
+    async getWorkspaces(): Promise<WorkspacesResponse> {
+        return new Promise(async (resolve) => {
+            const workspaces = workspace.workspaceFolders;
+            const response: WorkspaceFolder[] = (workspaces ?? []).map(space => ({
+                index: space.index,
+                fsPath: space.uri.fsPath,
+                name: space.name
+            }));
+            resolve({ workspaces: response });
+        });
+    }
+
+    async createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+        return new Promise(async (resolve) => {
+            switch (params.type) {
+                case DIRECTORY_MAP.SERVICES:
+                    createEggplantService(params);
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
+
+    async getProjectStructure(): Promise<ProjectStructureResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = StateMachine.context().projectUri;
+            const res: ProjectStructureResponse = this.buildProjectStructure(projectPath);
+            resolve(res);
+        });
+    }
+
+    private buildProjectStructure(dir: string): ProjectStructureResponse {
+        const result: ProjectStructureResponse = {
+            directoryMap: {
+                [DIRECTORY_MAP.SERVICES]: [],
+                [DIRECTORY_MAP.TASKS]: [],
+                [DIRECTORY_MAP.TRIGGERS]: [],
+                [DIRECTORY_MAP.CONNECTIONS]: [],
+                [DIRECTORY_MAP.SCHEMAS]: [],
+                [DIRECTORY_MAP.CONFIGURATIONS]: []
+            }
+        };
+
+        const projectItems = readdirSync(dir);
+        for (const item of projectItems) {
+            const folderPath = join(dir, item);
+            const stats = statSync(folderPath);
+
+            if (stats.isDirectory()) {
+                this.traverseDirectory(folderPath, result, item as DIRECTORY_MAP);
+            }
+        }
+
+        return result;
+    }
+
+    private traverseDirectory(dir: string, result: ProjectStructureResponse, folder: DIRECTORY_MAP) {
+        const items = readdirSync(dir);
+        for (const item of items) {
+            const fullPath = join(dir, item);
+            const stats = statSync(fullPath);
+            if (stats.isFile()) {
+                const artifact: ProjectStructureArtifactResponse = {
+                    name: item.replace(".bal", ""),
+                    path: fullPath,
+                    context: "HTTP Service",
+                    type: 'file'
+                };
+                result.directoryMap[folder].push(artifact);
+            }
+        }
+    }
+
+    async getProjectComponents(): Promise<ProjectComponentsResponse> {
+        return new Promise(async (resolve) => {
+            const components = await StateMachine.langClient().getBallerinaProjectComponents({
+                documentIdentifiers: [{ uri: StateMachine.context().projectUri }]
+            });
+            resolve({ components });
+        });
+    }
 }
+
+

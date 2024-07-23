@@ -56,3 +56,5 @@ export * from './components/Commons/ErrorBanner';
 export * from './components/Commons/RequiredInput';
 
 export * from './styles';
+
+export * from './components/Alert/Alert';

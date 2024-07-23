@@ -12,15 +12,15 @@ import {
     HistoryEntry,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
-    VisualizerLocation
+    OpenViewRequest
 } from "@wso2-enterprise/ballerina-core";
 import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
-    openView(params: VisualizerLocation): Promise<void> {
+    openView(params: OpenViewRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            openView("OPEN_VIEW", params);
+            openView(params.type, params.location);
             resolve();
         });
     }

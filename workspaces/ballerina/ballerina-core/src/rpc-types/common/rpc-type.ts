@@ -11,6 +11,8 @@
 import {
     BallerinaDiagnosticsRequest,
     BallerinaDiagnosticsResponse,
+    CommandsRequest,
+    CommandsResponse,
     GoToSourceRequest,
     TypeResponse,
     WorkspaceFileRequest,
@@ -23,3 +25,4 @@ export const getTypes: RequestType<void, TypeResponse> = { method: `${_preFix}/g
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const getWorkspaceFiles: RequestType<WorkspaceFileRequest, WorkspacesFileResponse> = { method: `${_preFix}/getWorkspaceFiles` };
 export const getBallerinaDiagnostics: RequestType<BallerinaDiagnosticsRequest, BallerinaDiagnosticsResponse> = { method: `${_preFix}/getBallerinaDiagnostics` };
+export const executeCommand: RequestType<CommandsRequest, CommandsResponse> = { method: `${_preFix}/executeCommand` };

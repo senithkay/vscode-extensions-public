@@ -9,9 +9,16 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateComponentRequest,
+    CreateProjectRequest,
     Flow,
     UpdateNodeRequest,
+    createComponent,
+    createProject,
     getEggplantModel,
+    getProjectComponents,
+    getProjectStructure,
+    getWorkspaces,
     updateEggplantModel,
     updateNode
 } from "@wso2-enterprise/ballerina-core";
@@ -23,4 +30,9 @@ export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
     messenger.onNotification(updateEggplantModel, (args: Flow) => rpcManger.updateEggplantModel(args));
     messenger.onNotification(updateNode, (args: UpdateNodeRequest) => rpcManger.updateNode(args));
+    messenger.onNotification(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
+    messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
+    messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
+    messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
+    messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
 }

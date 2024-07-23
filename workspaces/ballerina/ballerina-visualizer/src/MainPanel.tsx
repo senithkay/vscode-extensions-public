@@ -23,9 +23,9 @@ import { SequenceDiagram } from './views/SequenceDiagram';
 import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
+import { WelcomeView, ProjectForm, EggplantOverview, AddComponentView, ServiceForm } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
-import { Diagram } from '@wso2-enterprise/eggplant-diagram';
 import { URI } from 'vscode-uri';
 
 const globalStyles = css`
@@ -48,6 +48,7 @@ const ComponentViewWrapper = styled.div`
 const MainPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
+    const [navActive, setNavActive] = useState<boolean>(true);
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
@@ -74,12 +75,17 @@ const MainPanel = () => {
     };
 
     const fetchContext = () => {
+        setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
+                        if (value.isEggplant) {
+                            setViewComponent(<EggplantOverview stateUpdated />);
+                            break;
+                        }
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
@@ -111,7 +117,25 @@ const MainPanel = () => {
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(<SequenceDiagram />)
                         break;
+                    case MACHINE_VIEW.EggplantWelcome:
+                        setNavActive(false);
+                        setViewComponent(<WelcomeView />)
+                        break;
+                    case MACHINE_VIEW.EggplantWelcome:
+                        setNavActive(false);
+                        setViewComponent(<WelcomeView />)
+                        break;
+                    case MACHINE_VIEW.EggplantProjectForm:
+                        setViewComponent(<ProjectForm />)
+                        break;
+                    case MACHINE_VIEW.EggplantComponentView:
+                        setViewComponent(<AddComponentView />)
+                        break;
+                    case MACHINE_VIEW.EggplantServiceForm:
+                        setViewComponent(<ServiceForm />)
+                        break;
                     default:
+                        setNavActive(false);
                         setViewComponent(<LoadingRing />);
                 }
             }
@@ -137,7 +161,7 @@ const MainPanel = () => {
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
-                <NavigationBar />
+                {navActive && <NavigationBar />}
                 <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>

@@ -86,13 +86,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     ballerinaExtInstance.setContext(extension.context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
+    // Activate Subscription Commands
+    activateSubscriptions();
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         // <------------ CORE FUNCTIONS ----------->
         // Activate Library Browser
         activateLibraryBrowser(ballerinaExtInstance);
-
-        // Activate Subscription Commands
-        activateSubscriptions();
 
         // Enable Ballerina Project related features
         activateProjectFeatures();
@@ -136,12 +135,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
-            cmds.forEach((cmd) => {
-                const cmdID: string = cmd.command;
-                commands.registerCommand(cmdID, () => {
-                    ballerinaExtInstance.showMessageInstallBallerina();
-                });
-            });
+            // cmds.forEach((cmd) => {
+            //     const cmdID: string = cmd.command;
+            //     commands.registerCommand(cmdID, () => {
+            //         ballerinaExtInstance.showMessageInstallBallerina();
+            //     });
+            // });
         }
         // When plugins fails to start, provide a warning upon each command execution
         else if (!ballerinaExtInstance.langClient) {

@@ -11,11 +11,17 @@
  *  associated services.
  */
 
-import { Flow } from "../../interfaces/eggplant";
+import { Flow, ProjectStructureResponse } from "../../interfaces/eggplant";
 import { EggplantModelResponse, UpdateNodeRequest } from "../../interfaces/extended-lang-client";
+import { CreateComponentRequest, CreateComponentResponse, CreateProjectRequest, ProjectComponentsResponse, WorkspacesResponse } from "./interfaces";
 
 export interface EggplantDiagramAPI {
     getEggplantModel: () => Promise<EggplantModelResponse>;
     updateEggplantModel: (params: Flow) => void;
     updateNode: (params: UpdateNodeRequest) => void;
+    createProject: (params: CreateProjectRequest) => void;
+    getWorkspaces: () => Promise<WorkspacesResponse>;
+    getProjectStructure: () => Promise<ProjectStructureResponse>;
+    getProjectComponents: () => Promise<ProjectComponentsResponse>;
+    createComponent: (params: CreateComponentRequest) => Promise<CreateComponentResponse>;
 }
