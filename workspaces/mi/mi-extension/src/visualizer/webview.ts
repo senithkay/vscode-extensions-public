@@ -64,11 +64,7 @@ export class VisualizerWebview {
                 }
             } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
                 return;
-            } else if (document.languageId === 'typescript') {
-                const project = DMProject.getInstance(document.uri.fsPath).getProject();
-                const sourceFile = project.getSourceFileOrThrow(document.uri.fsPath);
-                sourceFile.replaceWithText(document.getText());
-            }
+            } 
             RPCLayer._messenger.sendNotification(
                 onDocumentSave,
                 { type: 'webview', webviewType: VisualizerWebview.viewType },
