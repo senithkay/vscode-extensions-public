@@ -140,71 +140,71 @@ export async function executeCopyTask(task: vscode.Task) {
 
 export async function executeBuildTask(serverPath: string, shouldCopyTarget: boolean = true) {
     return new Promise<void>(async (resolve, reject) => {
-        deleteCappAndLibs(serverPath).then(async () => {
-            const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
 
-            const buildCommand = getBuildCommand();
-            const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri });
-            showServerOutputChannel();
+        const buildCommand = getBuildCommand();
+        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri });
+        showServerOutputChannel();
 
-            buildProcess.stdout.on('data', (data) => {
-                serverLog(data.toString('utf8'));
-            });
+        buildProcess.stdout.on('data', (data) => {
+            serverLog(data.toString('utf8'));
+        });
 
-            if (shouldCopyTarget) {
+        if (shouldCopyTarget) {
 
-                buildProcess.on('exit', async (code) => {
-                    if (shouldCopyTarget && code === 0) {
-                        // Check if the target directory exists in the workspace
-                        const workspaceFolders = vscode.workspace.workspaceFolders;
-                        if (workspaceFolders && workspaceFolders.length > 0) {
-                            // copy all the jars present in deployement/libs
-                            const workspaceLibs = vscode.Uri.joinPath(workspaceFolders[0].uri, "deployment", "libs");
-                            if (fs.existsSync(workspaceLibs.fsPath)) {
-                                try {
-                                    const jars = await getDeploymentLibJars(workspaceLibs);
-                                    if (jars.length > 0) {
-                                        const targetLibs = path.join(serverPath, 'lib');
-                                        jars.forEach(jar => {
-                                            const destinationJar = path.join(targetLibs, path.basename(jar.fsPath));
-                                            fs.copyFileSync(jar.fsPath, destinationJar);
-                                        });
-                                    }
-                                } catch (err) {
-                                    reject(err);
+            buildProcess.on('exit', async (code) => {
+                if (shouldCopyTarget && code === 0) {
+                    if (!fs.existsSync(serverPath)) {
+                        reject(INCORRECT_SERVER_PATH_MSG);
+                    }
+                    // Check if the target directory exists in the workspace
+                    const workspaceFolders = vscode.workspace.workspaceFolders;
+                    if (workspaceFolders && workspaceFolders.length > 0) {
+                        // copy all the jars present in deployement/libs
+                        const workspaceLibs = vscode.Uri.joinPath(workspaceFolders[0].uri, "deployment", "libs");
+                        if (fs.existsSync(workspaceLibs.fsPath)) {
+                            try {
+                                const jars = await getDeploymentLibJars(workspaceLibs);
+                                if (jars.length > 0) {
+                                    const targetLibs = path.join(serverPath, 'lib');
+                                    jars.forEach(jar => {
+                                        const destinationJar = path.join(targetLibs, path.basename(jar.fsPath));
+                                        fs.copyFileSync(jar.fsPath, destinationJar);
+                                        DebuggerConfig.setCopiedLibs(destinationJar);
+                                    });
                                 }
-                            }
-                            const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                            if (fs.existsSync(targetDirectory.fsPath)) {
-                                try {
-                                    const sourceFiles = await getCarFiles(targetDirectory);
-                                    if (sourceFiles.length === 0) {
-                                        const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
-                                        logDebug(errorMessage, ERROR_LOG);
-                                        reject(errorMessage);
-                                    } else {
-                                        const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
-                                        sourceFiles.forEach(sourceFile => {
-                                            const destinationFile = path.join(targetPath, path.basename(sourceFile.fsPath));
-                                            fs.copyFileSync(sourceFile.fsPath, destinationFile);
-                                        });
-                                        logDebug('Build and copy tasks executed successfully', INFO_LOG);
-                                        resolve();
-                                    }
-                                } catch (err) {
-                                    reject(err);
-                                }
+                            } catch (err) {
+                                reject(err);
                             }
                         }
-                    } else {
-                        reject(`Build process failed`);
+                        const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                        if (fs.existsSync(targetDirectory.fsPath)) {
+                            try {
+                                const sourceFiles = await getCarFiles(targetDirectory);
+                                if (sourceFiles.length === 0) {
+                                    const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
+                                    logDebug(errorMessage, ERROR_LOG);
+                                    reject(errorMessage);
+                                } else {
+                                    const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
+                                    sourceFiles.forEach(sourceFile => {
+                                        const destinationFile = path.join(targetPath, path.basename(sourceFile.fsPath));
+                                        fs.copyFileSync(sourceFile.fsPath, destinationFile);
+                                        DebuggerConfig.setCopiedCapp(destinationFile);
+                                    });
+                                    logDebug('Build and copy tasks executed successfully', INFO_LOG);
+                                    resolve();
+                                }
+                            } catch (err) {
+                                reject(err);
+                            }
+                        }
                     }
-                });
-            }
-        }).catch((error) => {
-            logDebug(`Error deleting CApp files: ${error}`, ERROR_LOG);
-            reject(error);
-        });
+                } else {
+                    reject(`Build process failed`);
+                }
+            });
+        }
     });
 }
 
@@ -395,36 +395,31 @@ export async function deleteCapp(serverPath: string): Promise<void> {
     });
 }
 
-async function deleteFilesInDirectory(dirPath: string, fileExtension: string) {
+export async function deleteCopiedCapAndLibs() {
     try {
-        if (!fs.existsSync(dirPath)) {
-            reject(INCORRECT_SERVER_PATH_MSG);
-        } else {
-            const files = await fs.promises.readdir(dirPath);
+        const copiedCapp = DebuggerConfig.getCopiedCapp();
+        const copiedLibs = DebuggerConfig.getCopiedLibs();
 
-            for (const file of files) {
-                if (file.endsWith(fileExtension)) {
-                    const filePath = path.join(dirPath, file);
-                    await fs.promises.unlink(filePath);
-                }
-            }
-        }
+        await deleteSpecificFiles(copiedCapp);
+        await deleteSpecificFiles(copiedLibs);
+
     } catch (err) {
-        logDebug(`Failed to delete files in directory ${dirPath}: ${err}`, ERROR_LOG);
+        logDebug(`Failed to delete Capp and Libs: ${err}`, ERROR_LOG);
         throw err;
     }
 }
 
-export async function deleteCappAndLibs(serverPath: string): Promise<void> {
+export async function deleteSpecificFiles(filesToDelete: string[]): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        const cappPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
-        const libPath = path.join(serverPath, 'lib');
-
         try {
-            await deleteFilesInDirectory(cappPath, '.car');
-            await deleteFilesInDirectory(libPath, '.jar');
+            for (const fileUri of filesToDelete) {
+                if (await fs.promises.stat(fileUri).catch(() => false)) {
+                    await fs.promises.unlink(fileUri);
+                }
+            }
             resolve();
         } catch (err) {
+            logDebug(`Error deleting files: ${err}`, ERROR_LOG);
             reject(err);
         }
     });

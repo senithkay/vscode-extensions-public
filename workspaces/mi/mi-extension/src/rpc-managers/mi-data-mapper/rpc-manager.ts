@@ -23,10 +23,10 @@ import {
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
     UpdateDMUndoRedoMangerRequest,
-    GetOperatorsRequest,
-    GetOperatorsResponse
+    GetCompletionsRequest,
+    GetCompletionsResponse
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, fetchSubMappingTypes, fetchOperators } from "../../util/dataMapper";
+import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
@@ -40,7 +40,8 @@ import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
-import {DM_OPERATORS_FILE, DM_OPERATORS_IMPORT_NAME} from "../../constants";
+import { DMProject } from "../../datamapper/DMProject";
+import {DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME} from "../../constants";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -77,8 +78,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
     async updateFileContent(params: UpdateFileContentRequest): Promise<void> {
-        const project = new Project();
-        const sourceFile = project.addSourceFileAtPath(params.filePath);
+        const project = DMProject.getInstance(params.filePath).getProject();
+        const sourceFile = project.getSourceFileOrThrow(params.filePath);
         sourceFile.replaceWithText(params.fileContent);
         sourceFile.formatText();
         await sourceFile.save();
@@ -190,7 +191,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return new Promise(async (resolve, reject) => {
             try {
-                const dmContent = `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE}";\n/**\n* inputType:unknown\n*/\ninterface InputRoot {\n}\n\n/**\n* outputType:unknown\n*/\ninterface OutputRoot {\n}\n\nfunction mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
+                const dmContent = `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE_NAME}";\n/**\n* inputType:unknown\n*/\ninterface InputRoot {\n}\n\n/**\n* outputType:unknown\n*/\ninterface OutputRoot {\n}\n\nfunction mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
                 const { filePath, dmName } = params;
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
@@ -206,8 +207,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         fs.writeFileSync(tsFilePath, dmContent);
                     }
 
-                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", `${DM_OPERATORS_FILE}.lib`);
-                    const operatorsDstFilePath = path.join(dataMapperConfigFolder, DM_OPERATORS_FILE);
+                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", `${DM_OPERATORS_FILE_NAME}.ts.lib`);
+                    const operatorsDstFilePath = path.join(dataMapperConfigFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
                     fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
 
                     const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
@@ -290,11 +291,11 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
     }
 
-    async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
-
+    async getCompletions(params: GetCompletionsRequest): Promise<GetCompletionsResponse> {
         return new Promise(async (resolve, reject) => {
+            const { filePath, fileContent, cursorPosition } = params;
             try {
-                resolve({ operators: fetchOperators(params.filePath) });
+                resolve({ completions: fetchCompletions(filePath, fileContent, cursorPosition) });
             } catch (error) {
                 console.error(error);
                 reject(error);
@@ -303,3 +304,4 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
 }
+

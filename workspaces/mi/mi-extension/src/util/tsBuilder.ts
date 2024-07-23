@@ -14,7 +14,7 @@ import path = require("path");
 import { Uri, workspace } from "vscode";
 import { JSONSchema3or4 } from 'to-json-schema';
 import * as ts from "typescript";
-import {DM_OPERATORS_FILE, DM_OPERATORS_IMPORT_NAME} from "../constants";
+import {DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME} from "../constants";
 
 export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string): Promise<string> {
     const ts = compile(schema, "Schema", schemaTitle, {bannerComment: ""});
@@ -73,7 +73,7 @@ export async function updateDMC(dmName:string, sourcePath: string, schema: JSONS
                 return "";
             }
         }
-        tsContent += `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE}";\n`;
+        tsContent += `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE_NAME}";\n`;
         tsSources.forEach((source) => {
             tsContent += source.getFullText();
             tsContent += "\n\n";

@@ -8,25 +8,51 @@
  */
 
 import styled from '@emotion/styled';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Icon } from '../Icon/Icon';
-import { ExpressionEditor, ItemType } from './SearchBox';
+import { ExpressionEditor } from './ExpressionEditor';
 
 // Types
-export type ExpressionBarProps = {
-    autoFocus?: boolean;
-    functionNames: ItemType[];
+export const COMPLETION_ITEM_KIND = {
+    Function: 'function',
+    Method: 'method',
+    Parameter: 'parameter',
+    Property: 'property',
+} as const;
+
+export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMPLETION_ITEM_KIND];
+
+export type CompletionItem = {
+    tag?: string;
+    label: string;
     value: string;
+    description: string;
+    kind: CompletionItemKind;
+    args?: string[];
+};
+
+export type ExpressionBarBaseProps = {
+    autoFocus?: boolean;
+    disabled?: boolean;
+    value: string;
+    placeholder?: string;
     sx?: React.CSSProperties;
-    input?: string;
-    onChange: (value: string) => void;
+    onChange: (value: string) => Promise<void>;
     onFocus?: () => void;
     onBlur?: () => void;
+    onCompletionSelect: (value: string) => Promise<void>;
+    onSave: (value: string) => Promise<void>;
+    getCompletions: () => Promise<CompletionItem[]>;
+};
+
+export type ExpressionBarProps = ExpressionBarBaseProps & {
+    id?: string;
 };
 
 // Styled Components
 namespace Ex {
     export const Container = styled.div`
+        width: 100%;
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
@@ -46,23 +72,16 @@ namespace Ex {
     `;
 }
 
-export const ExpressionBar = (props: ExpressionBarProps) => {
-    const { functionNames, value, sx, input, onChange, ...rest } = props;
+export const ExpressionBar = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
+    const { id, ...rest } = props;
 
     return (
-        <Ex.Container>
+        <Ex.Container id={id}>
             <Icon name="function-icon" />
             <Ex.ExpressionBox>
-                <ExpressionEditor
-                    items={functionNames}
-                    value={value}
-                    sx={sx}
-                    input={input}
-                    onChange={onChange}
-                    {...rest}
-                />
+                <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
         </Ex.Container>
     );
-};
-
+});
+ExpressionBar.displayName = 'ExpressionBar';

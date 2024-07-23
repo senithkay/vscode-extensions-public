@@ -8,11 +8,11 @@
  */
 
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Alert, Codicon, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Alert, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Fragment, useEffect, useState } from 'react';
-import { EndpointTypes, TemplateTypes } from '../../constants';
+import { EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../../constants';
 
 const getIcon = (type: string, subType: string, defaultIcon: string) => {
     switch (type) {
@@ -36,6 +36,45 @@ const getIcon = (type: string, subType: string, defaultIcon: string) => {
                 case TemplateTypes.HTTP_ENDPOINT: return "http-endpoint-template";
                 case TemplateTypes.ADDRESS_ENDPOINT: return "address-endpoint-template";
                 case TemplateTypes.DEFAULT_ENDPOINT: return "default-endpoint-template";
+                default: return defaultIcon;
+            }
+        }
+        case "MESSAGE_PROCESSOR": {
+            switch (subType) {
+                case MessageProcessorTypes.MESSAGE_SAMPLING: return "message-sampling-processor";
+                case MessageProcessorTypes.SCHEDULED_MESSAGE_FORWARDING: return "scheduled-message-forwarding-processor";
+                case MessageProcessorTypes.SCHEDULED_FAILOVER_MESSAGE_FORWARDING: return "scheduled-failover-message-forwarding-processor";
+                case MessageProcessorTypes.CUSTOM: return "custom-message-processor";
+                default: return defaultIcon;
+            }
+        }
+        case "MESSAGE_STORE": {
+            switch (subType) {
+                case MessageStoreTypes.IN_MEMORY: return "in-memory-message-store";
+                case MessageStoreTypes.CUSTOM: return "custom-message-store";
+                case MessageStoreTypes.JMS: return "jms-message-store";
+                case MessageStoreTypes.RABBITMQ: return "rabbit-mq";
+                case MessageStoreTypes.WSO2_MB: return "wso2-mb";
+                case MessageStoreTypes.RESEQUENCE: return "resequence-message-store";
+                case MessageStoreTypes.JDBC: return "jdbc-message-store";
+                default: return defaultIcon;
+            }
+        }
+        case "INBOUND_ENDPOINT": {
+            switch (subType) {
+                case InboundEndpointTypes.CXF_WS_RM: return "cxf-ws-rm";
+                case InboundEndpointTypes.FILE: return "file";
+                case InboundEndpointTypes.HTTP: return "http";
+                case InboundEndpointTypes.HTTPS: return "https";
+                case InboundEndpointTypes.WSS: return "wss";
+                case InboundEndpointTypes.WS: return "ws";
+                case InboundEndpointTypes.KAFKA: return "kafka";
+                case InboundEndpointTypes.JMS: return "jms";
+                case InboundEndpointTypes.RABBITMQ: return "rabbit-mq";
+                case InboundEndpointTypes.MQTT: return "mqtt";
+                case InboundEndpointTypes.FEED: return "feed";
+                case InboundEndpointTypes.CUSTOM: return "custom-inbound-endpoint";
+                case InboundEndpointTypes.HL7: return "hl7";
                 default: return defaultIcon;
             }
         }

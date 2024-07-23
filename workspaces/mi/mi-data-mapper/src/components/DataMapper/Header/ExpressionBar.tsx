@@ -8,16 +8,18 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { AutoComplete, Icon, TextField } from '@wso2-enterprise/ui-toolkit';
-import { DMOperator } from "@wso2-enterprise/mi-core";
+import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
-import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
+import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
-import { getFnDeclStructure, operators } from '../Operators/operators';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
+import { filterCompletions } from './utils';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
+import { View } from '../Views/DataMapperView';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -35,59 +37,108 @@ const useStyles = () => ({
 });
 
 export interface ExpressionBarProps {
-    applyModifications: () => Promise<void>
-    operators: DMOperator[];
+    views: View[];
+    filePath: string;
+    applyModifications: () => Promise<void>;
 }
 
-export default function ExpressionBar(props: ExpressionBarProps) {
-    const { applyModifications, operators } = props;
+export default function ExpressionBarWrapper(props: ExpressionBarProps) {
+    const { views, filePath, applyModifications } = props;
+    const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
-
-    const [, setForceUpdate] = useState(false);
-
     const textFieldRef = useRef<HTMLInputElement>(null);
-    const expressionRef = useRef("");
+    const savedTextFieldValue = useRef<string>("");
+    const [textFieldValue, setTextFieldValue] = useState<string>("");
+    const [placeholder, setPlaceholder] = useState<string>();
 
-    const { focusedPort, focusedFilter, inputPort } = useDMExpressionBarStore(state => ({
+    const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
         focusedFilter: state.focusedFilter,
-        inputPort: state.inputPort
+        inputPort: state.inputPort,
+        resetInputPort: state.resetInputPort
     }));
 
-    const functionNames = operators.map(op => (op.action ?? "") + op.label);
+    const getCompletions = async (): Promise<CompletionItem[]> => {
+        if (!focusedPort && !focusedFilter) {
+            return [];
+        }
+
+        let nodeForSuggestions: Node;
+        if (focusedPort) {
+            nodeForSuggestions = focusedPort.typeWithValue.value ||
+            (focusedPort.getNode() as DataMapperNodeModel)?.context.functionST;
+        } else {
+            nodeForSuggestions = focusedFilter;
+        }
+
+        if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
+            const fileContent = nodeForSuggestions.getSourceFile().getText();
+            const cursorPosition = nodeForSuggestions.getEnd();
+            const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
+                filePath,
+                fileContent,
+                cursorPosition
+            });
+
+            if (!response.completions) {
+                return [];
+            }
+
+            const completions = response.completions as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
+
+            const localFunctionNames = nodeForSuggestions
+                .getSourceFile()
+                .getFunctions()
+                .map(fn => fn.getName())
+                .filter(name => name !== READONLY_MAPPING_FUNCTION_NAME);
+
+            const filteredCompletions: CompletionItem[] = [];
+            for (const completion of completions) {
+                const details = filterCompletions(completion.entry, completion.details, localFunctionNames);
+                if (details) {
+                    filteredCompletions.push(details);
+                }
+            }
+            
+            return filteredCompletions;
+        }
+
+        return [];
+    }
 
     useEffect(() => {
-        // Keep the text field focused when an input port is selected
-        if (textFieldRef.current) {
-            const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
-            if (focusedPort || focusedFilter) {
-                inputElement.focus();
-            } else {
-                inputElement.blur();
+        (async () => {
+            if (inputPort) {
+                // Keep the text field focused when an input port is selected
+                if (textFieldRef.current) {
+                    const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
+                    if (focusedPort || focusedFilter) {
+                        inputElement.focus();
+                    } else {
+                        inputElement.blur();
+                    }
+                    // Update the expression text when an input port is selected
+                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+                    const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
+                    const updatedText =
+                        textFieldValue.substring(0, cursorPosition) +
+                        inputAccessExpr +
+                        textFieldValue.substring(cursorPosition);
+                    await onChangeTextField(updatedText);
+                    resetInputPort();
+                }
             }
-        }
-        // Update the expression text when an input port is selected
-        if (inputPort && textFieldRef.current) {
-            const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
-            const cursorPosition = inputElement.selectionStart;
-            const currentText = expressionRef.current;
-            const beforeCursor = currentText.substring(0, cursorPosition);
-            const afterCursor = currentText.substring(cursorPosition);
-            const updatedText = `${beforeCursor}${inputPort.fieldFQN}${afterCursor}`;
-            expressionRef.current = updatedText;
-            inputElement.value = updatedText; // Update the text field's value
-            inputElement.setSelectionRange(cursorPosition + inputPort.fieldFQN.length, cursorPosition + inputPort.fieldFQN.length); // Set cursor position right after the inserted text
-            setForceUpdate(prev => !prev);
-        }
+        })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputPort]);
 
     const disabled = useMemo(() => {
         let value = "";
-        let disabled = true;
+        let disabled;
     
         if (focusedPort) {
+            setPlaceholder('Insert a value for the selected port.');
             const focusedNode = focusedPort.typeWithValue.value;
-    
             if (focusedNode && !focusedNode.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedNode)) {
                     value = focusedNode.getInitializer()?.getText();
@@ -110,85 +161,42 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
             disabled = false;
         } else if (textFieldRef.current) {
+            // If displaying a focused view
+            if (views.length > 1 && !views[views.length - 1].subMappingInfo) {
+                setPlaceholder('Click on an output field or a filter to add/edit expressions.');
+            } else {
+                setPlaceholder('Click on an output field to add/edit expressions.');
+            }
+
             textFieldRef.current.blur();
         }
     
-        expressionRef.current = value;
+        savedTextFieldValue.current = textFieldValue;
+        setTextFieldValue(value);
         return disabled;
-    }, [focusedPort, focusedFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [textFieldRef.current, focusedPort, focusedFilter, views]);
 
-    const onChangeTextField = (text: string) => {
-        expressionRef.current = text;
-
-        if (text === '') {
-            // Render auto-complete suggestions when the text field is empty
-            setForceUpdate(prev => !prev);
-        }
-    };
-
-    const onChangeAutoComplete = async (text: string) => {
-        let updatedText = text;
-        const fnName = text.split('(')[0];
-        const isFunctionName = functionNames.includes(text);
-        const hasFunctionName = functionNames.includes(fnName);
-        const isFunction = isFunctionName || hasFunctionName;
-
-        updatedText = isFunctionName ? `${text}(` : addClosingBracketIfNeeded(text);
-        expressionRef.current = updatedText;
-
-        await applyChanges();
-    };
-
-    const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-        // Apply the expression when the Enter key is pressed
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevents the default behavior of the Enter key
-            expressionRef.current = addClosingBracketIfNeeded(expressionRef.current);
-            await applyChanges();
-        }
-    };
-
-    const applyChanges = async () => {
-        if (focusedPort) {
-            applyChangesOnFocusedPort();
-        } else if (focusedFilter) {
-            applyChangesOnFocusedFilter();
-        }
-    };
-
-    const applyChangesOnFocusedPort = async () => {
+    const onChangeTextField = async (text: string) => {
+        setTextFieldValue(text);
         const focusedFieldValue = focusedPort?.typeWithValue.value;
-
-        
-
         if (focusedFieldValue) {
-            let targetExpr: Node;
-
-            if (Node.isPropertyAssignment(focusedFieldValue)) {
-                targetExpr = focusedFieldValue.getInitializer();
-
-                if (expressionRef.current !== '') {
-                    const parent = focusedFieldValue.getParent();
-                    const propName = focusedFieldValue.getName();
-
-                    focusedFieldValue.remove();
-                    parent.addPropertyAssignment({
-                        name: propName,
-                        initializer: expressionRef.current
-                    });
-                } else {
-                    focusedFieldValue.remove();
-                }
-            } else {
-                targetExpr = focusedFieldValue;
-                const replaceWith = expressionRef.current === ''
-                    ? getDefaultValue(focusedPort.typeWithValue.type.kind)
-                    : expressionRef.current;
-
-                targetExpr.replaceWithText(replaceWith);
+            if (focusedFieldValue.wasForgotten()) {
+                return;
             }
-
-            await applyModifications();
+            
+            if (Node.isPropertyAssignment(focusedFieldValue)) {
+                const parent = focusedFieldValue.getParent();
+                const propName = focusedFieldValue.getName();
+                focusedFieldValue.remove();
+                const propertyAssignment = parent.addPropertyAssignment({
+                    name: propName,
+                    initializer: text
+                });
+                focusedPort.typeWithValue.setValue(propertyAssignment);
+            }
+        } else if (focusedFilter) {
+            focusedFilter.replaceWithText(text);
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
@@ -202,79 +210,81 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                 objLitExpr = returnExpr;
             }
 
-            await createSourceForUserInput(
-                focusedPort?.typeWithValue, objLitExpr, expressionRef.current, fnBody, applyModifications
+            const propertyAssignment = await createSourceForUserInput(
+                focusedPort?.typeWithValue, objLitExpr, text, fnBody
             );
+            focusedPort.typeWithValue.setValue(propertyAssignment);
         }
     };
 
-    const applyChangesOnFocusedFilter = async () => {
-        const replaceWith = expressionRef.current;
-        focusedFilter.replaceWithText(replaceWith);
+    const handleExpressionSave = async (value: string) => {
+        if (savedTextFieldValue.current === value) {
+            return;
+        }
+        savedTextFieldValue.current = value;
+        await applyChanges(value);
+    }
 
+    const handleCompletionSelect = async (value: string) => {
+        if (savedTextFieldValue.current === value) {
+            return;
+        }
+        savedTextFieldValue.current = value;
+        await applyChanges(value);
+    }
+
+    const applyChanges = async (value: string) => {
+        if (focusedPort) {
+            await applyChangesOnFocusedPort(value);
+        } else if (focusedFilter) {
+            await applyChangesOnFocusedFilter();
+        }
+    };
+
+    const applyChangesOnFocusedPort = async (value: string) => {
+        const focusedFieldValue = focusedPort?.typeWithValue.value;
+        if (focusedFieldValue) {
+            if (focusedFieldValue.wasForgotten()) {
+                return;
+            }
+
+            let targetExpr: Node;
+            if (Node.isPropertyAssignment(focusedFieldValue)) {
+                if (value === '') {
+                    focusedFieldValue.remove();
+                }
+            } else {
+                targetExpr = focusedFieldValue;
+                const replaceWith = value === ''
+                    ? getDefaultValue(focusedPort.typeWithValue.type.kind)
+                    : value;
+
+                targetExpr.replaceWithText(replaceWith);
+            }
+
+        }
         await applyModifications();
     };
 
-    const addClosingBracketIfNeeded = (text: string) => {
-        let updatedText = text;
-
-        if (text.endsWith('(')) return updatedText;
-
-        const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
-
-        // Add a closing bracket if the expression has an opening bracket but no closing bracket
-        if (closingBracket) {
-            updatedText += ')';
-        } else {
-            const openBrackets = (updatedText.match(/\(/g) || []).length;
-            const closeBrackets = (updatedText.match(/\)/g) || []).length;
-            if (openBrackets > closeBrackets) {
-                updatedText += ')';
-            }
-        }
-
-        return updatedText;
-    }
+    const applyChangesOnFocusedFilter = async () => {
+        await applyModifications();
+    };
 
     return (
         <div className={classes.exprBarContainer}>
-            {focusedPort && expressionRef.current === "" ? (
-                // Hack to list down the operator suggestions whenever the expression is empty
-                <>
-                    <Icon
-                        name={"function-icon"}
-                        iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
-                        sx={{ margin: "5px 9px" }}
-                    />
-                    <AutoComplete
-                        sx={{ fontFamily: 'monospace', fontSize: '12px', height: 'auto' }}
-                        identifier='expression-bar-autocomplete'
-                        items={functionNames}
-                        allowItemCreate={true}
-                        hideDropdown={true}
-                        onValueChange={onChangeAutoComplete}
-                    />
-                </>
-            ) : (
-                <TextField
-                    ref={textFieldRef}
-                    sx={{ width: '100%' }}
-                    className={classes.textField}
-                    disabled={disabled}
-                    icon={{
-                        iconComponent: (
-                            <Icon
-                                name={"function-icon"}
-                                iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
-                            />
-                        ),
-                        position: "start"
-                    }}
-                    value={expressionRef.current}
-                    onTextChange={onChangeTextField}
-                    onKeyDown={onKeyDown}
-                />
-            )}
+            <ExpressionBar
+                id='expression-bar'
+                ref={textFieldRef}
+                disabled={disabled ?? false}
+                value={textFieldValue}
+                placeholder={placeholder}
+                onChange={onChangeTextField}
+                onCompletionSelect={handleCompletionSelect}
+                onSave={handleExpressionSave}
+                getCompletions={getCompletions}
+                sx={{ display: 'flex', alignItems: 'center' }}
+            />
         </div>
     );
 }
+
