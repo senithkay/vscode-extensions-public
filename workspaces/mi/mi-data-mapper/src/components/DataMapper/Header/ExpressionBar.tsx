@@ -13,7 +13,7 @@ import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, PropertyAssignment, ReturnStatement, ts, SyntaxKind, Expression } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
-import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
+import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
 import { filterCompletions } from './utils';
@@ -139,10 +139,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                         inputElement.blur();
                     }
                     // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart
-                    const updatedText = 
+                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+                    const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
+                    const updatedText =
                         textFieldValue.substring(0, cursorPosition) +
-                        inputPort.fieldFQN +
+                        inputAccessExpr +
                         textFieldValue.substring(cursorPosition);
                     await onChangeTextField(updatedText);
                     resetInputPort();

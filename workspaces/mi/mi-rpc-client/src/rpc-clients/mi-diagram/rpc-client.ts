@@ -305,7 +305,9 @@ import {
     markAsDefaultSequence,
     getSubFolderNames,
     GetSubFoldersResponse,
-    GetSubFoldersRequest
+    GetSubFoldersRequest,
+    FileRenameRequest,
+    renameFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -784,8 +786,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
     }
-
+  
     getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
         return this._messenger.sendRequest(getSubFolderNames, HOST_EXTENSION, params);
+    }
+  
+    renameFile(params: FileRenameRequest): Promise<void> {
+        return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
     }
 }

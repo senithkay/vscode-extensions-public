@@ -8,7 +8,7 @@
  */
 import { BezierCurve, Point } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Diagnostic, Node } from "ts-morph";
+import { Node, ts } from "ts-morph";
 
 import { IntermediatePortModel } from "../../Port";
 import { calculateControlPointOffset } from "../../utils/diagram-utils";
@@ -19,7 +19,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 
 	constructor(
 		public value?: Node,
-		public diagnostics: Diagnostic[] = [],
+		public diagnostics: ts.Diagnostic[] = [],
 		public isActualLink: boolean = false,
 		public notContainsLabel?: boolean
 	) {
@@ -69,6 +69,6 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 	}
 
 	public hasError(): boolean {
-		return this.diagnostics.length > 0 ;
+		return this.diagnostics.length > 0;
 	}
 }
