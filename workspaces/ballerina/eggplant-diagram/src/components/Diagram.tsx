@@ -10,6 +10,8 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
+import { cloneDeep } from "lodash";
+import { Switch } from "@wso2-enterprise/ui-toolkit";
 import {
     generateEngine,
     hasDiagramZoomAndPosition,
@@ -35,6 +37,8 @@ export interface DiagramProps {
 
 export function Diagram(props: DiagramProps) {
     const { model, onAddNode, onNodeChange } = props;
+    const [showErrorFlow, setShowErrorFlow] = useState(false);
+    const [hasErrorFlow, setHasErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
@@ -44,20 +48,23 @@ export function Diagram(props: DiagramProps) {
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
         }
-    }, [model]);
+    }, [model, showErrorFlow]);
 
     const getDiagramData = () => {
-
         // TODO: move to a separate function
         // get only do block
-        let flowModel = model;
-        const globalErrorHandleBlock = model.nodes.find((node)=> node.kind === "ERROR_HANDLER");
+        let flowModel = cloneDeep(model);
+        const globalErrorHandleBlock = model.nodes.find((node) => node.kind === "ERROR_HANDLER");
         if (globalErrorHandleBlock) {
-            const successFlow = globalErrorHandleBlock.branches.find((branch) => branch.label === "Body");
-            if (successFlow) {
+            setHasErrorFlow(true);
+            const branchLabel = showErrorFlow ? "On Fail" : "Body";
+            const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.label === branchLabel);
+            if (subFlow) {
                 // replace error handler block with success flow
-                flowModel.nodes = [model.nodes.at(0), ...successFlow.children];
+                flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
             }
+        } else {
+            setHasErrorFlow(false);
         }
 
         const initVisitor = new InitVisitor(flowModel);
@@ -87,8 +94,6 @@ export function Diagram(props: DiagramProps) {
         registerListeners(diagramEngine);
 
         setTimeout(() => {
-            // const dagreEngine = genDagreEngine();
-            // dagreEngine.redistribute(newDiagramModel);
             diagramEngine.setModel(newDiagramModel);
             // remove loader overlay layer
             const overlayLayer = diagramEngine
@@ -122,6 +127,10 @@ export function Diagram(props: DiagramProps) {
         setShowComponentPanel(true);
     };
 
+    const toggleDiagramFlow = () => {
+        setShowErrorFlow(!showErrorFlow);
+    };
+
     const context: DiagramContextState = {
         flow: model,
         componentPanel: {
@@ -135,6 +144,25 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
+            {hasErrorFlow && (
+                <Switch
+                    leftLabel="Flow"
+                    rightLabel="On Error"
+                    checked={showErrorFlow}
+                    checkedColor="var(--vscode-button-background)"
+                    enableTransition={true}
+                    onChange={toggleDiagramFlow}
+                    sx={{
+                        margin: "auto",
+                        position: "fixed",
+                        top: "52px",
+                        right: "20px",
+                        zIndex: "2",
+                        border: "unset",
+                    }}
+                    disabled={false}
+                />
+            )}
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>

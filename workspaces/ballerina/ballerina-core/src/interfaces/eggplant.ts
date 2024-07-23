@@ -126,3 +126,5 @@ export type NodeId = {
     library: string;
     call: string;
 };
+
+export type DiagramLabel = "On Fail" | "Body";
