@@ -38,7 +38,7 @@ const globalStyles = css`
 
 const VisualizerContainer = styled.div`
     width: 100%;
-    height: 100%;
+    /* height: 100%; */
 `;
 
 const ComponentViewWrapper = styled.div`
