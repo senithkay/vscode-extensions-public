@@ -17,7 +17,7 @@ export class PositionVisitor implements BaseVisitor {
     private lastNodeY = 200;
 
     constructor() {
-        console.log("position visitor started");
+        console.log(">>> position visitor started");
     }
 
     beginVisitEventHttpApi(node: Node, parent?: Node): void {
@@ -34,7 +34,6 @@ export class PositionVisitor implements BaseVisitor {
 
         const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
         node.viewState.x = centerX - node.viewState.w / 2;
-        console.log(">>> if node", { node, parent, centerX, diagramCenterX: this.diagramCenterX });
 
         const thenBranch = node.branches.find((branch) => branch.label === "Then");
         thenBranch.viewState.y = this.lastNodeY;
@@ -49,12 +48,10 @@ export class PositionVisitor implements BaseVisitor {
 
         thenBranch.viewState.x = centerX - (3 * thenWidth + elseWidth + 2 * gap) / 4;
         elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
-        console.log(">>> if node cont.", { thenWidth, elseWidth, gap, thenBranch, elseBranch });
     }
 
     endVisitIf(node: Node, parent?: Node): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
-        console.log(">>> if node end", { node });
     }
 
     beginVisitBlock(node: Branch, parent?: Node): void {
@@ -71,7 +68,6 @@ export class PositionVisitor implements BaseVisitor {
             const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
             node.viewState.x = centerX - node.viewState.w / 2;
 
-            console.log(">>> begin node", { node, parent, center: centerX, diagramCenterX: this.diagramCenterX });
         }
     }
 

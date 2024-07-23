@@ -41,7 +41,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
-        console.log("Add node clicked", (link.sourceNode as BaseNodeModel).node);
         const sourceNode = link.sourceNode as BaseNodeModel;
         if(sourceNode.node){
             onAddNode(sourceNode.node);

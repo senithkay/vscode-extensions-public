@@ -41,9 +41,7 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            console.log(">>> diagram data", { model });
             const { nodes, links } = getDiagramData();
-            console.log(">>> diagram data", { nodes, links });
             drawDiagram(nodes, links);
         }
     }, [model]);

@@ -25,7 +25,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     private lastNodeModel: NodeModel | undefined; // last visited flow node
 
     constructor() {
-        console.log("node factory visitor started");
+        console.log(">>> node factory visitor started");
     }
 
     private updateNodeLinks(node: Node, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {

@@ -15,7 +15,7 @@ export class InitVisitor implements BaseVisitor {
     private flow;
 
     constructor(model: Flow) {
-        console.log("init visitor started");
+        console.log(">>> init visitor started");
         this.flow = model;
     }
 
@@ -32,7 +32,6 @@ export class InitVisitor implements BaseVisitor {
     endVisitNode(node: Node, parent?: Node): void {
         // if this is last block in the flow, add empty node end of the block
         if (!node.returning && this.flow.nodes.at(-1).id === node.id) {
-            console.log(">>> last node", node);
             const emptyNode: Node = {
                 id: `${node.id}-last`,
                 kind: "EMPTY",
