@@ -31,7 +31,7 @@ interface SwaggerSecuritySchemas {
 	value: SwaggerSecuritySchemasValue;
 }
 
-export const serviceTestSchema = z.object({
+const serviceTestSchema = z.object({
 	endpoint: z.string().min(1, "Required"),
 });
 

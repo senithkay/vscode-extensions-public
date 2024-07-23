@@ -18,7 +18,7 @@ import React, { type FC, type ReactNode, useContext, useEffect } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignInView } from "../views/SignInView";
 
-export interface IAuthContext {
+interface IAuthContext {
 	userInfo: UserInfo | null;
 }
 
@@ -26,7 +26,7 @@ const defaultContext: IAuthContext = {
 	userInfo: null,
 };
 
-export const ChoreoAuthContext = React.createContext(defaultContext);
+const ChoreoAuthContext = React.createContext(defaultContext);
 
 export const useAuthContext = () => {
 	return useContext(ChoreoAuthContext);

@@ -1,5 +1,3 @@
-import { QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider, type PersistedClient, type Persister } from "@tanstack/react-query-persist-client";
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
@@ -12,6 +10,9 @@ import { PersistQueryClientProvider, type PersistedClient, type Persister } from
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider, type PersistedClient, type Persister } from "@tanstack/react-query-persist-client";
 import React from "react";
 import { ChoreoWebViewAPI } from "./WebViewRpc";
 

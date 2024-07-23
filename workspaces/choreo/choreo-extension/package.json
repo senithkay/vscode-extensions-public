@@ -290,14 +290,11 @@
   "devDependencies": {
     "@playwright/test": "~1.37.0",
     "@types/byline": "^4.2.33",
-    "@types/glob": "^8.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "~10.0.1",
     "@types/node": "^18.18.2",
     "@types/vscode": "^1.73.0",
     "@types/which": "^2.0.2",
-    "@types/chai": "^4.2.18",
-    "@vscode/test-electron": "^2.2.0",
     "@vscode/vsce": "^2.30.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "axios": "^1.7.2",
@@ -311,7 +308,8 @@
     "webpack-cli": "^4.10.0",
     "webpack-permissions-plugin": "^1.0.9",
     "copy-webpack-plugin": "^11.0.0",
-    "@biomejs/biome": "^1.8.3"
+    "@biomejs/biome": "^1.8.3",
+    "terser-webpack-plugin": "^5.3.10"
   },
   "dependencies": {
     "@vscode-logging/logger": "^1.2.3",
@@ -323,7 +321,6 @@
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",
     "byline": "^5.0.0",
-    "chai": "^4.3.4",
     "dotenv": "^16.0.3",
     "file-type": "^18.2.1",
     "js-yaml": "^4.1.0",
@@ -332,7 +329,6 @@
     "vscode-messenger-common": "^0.4.3",
     "which": "^3.0.0",
     "vscode-jsonrpc": "^6.0.0",
-    "vscode-languageserver-protocol": "^3.16.0",
     "zustand": "^4.5.2"
   }
 }

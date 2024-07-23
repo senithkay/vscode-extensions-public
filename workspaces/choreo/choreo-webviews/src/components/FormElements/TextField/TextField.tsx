@@ -1,11 +1,11 @@
 import type { TextFieldType } from "@vscode/webview-ui-toolkit";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import classnames from "classnames";
-import React, { ComponentProps, type FC, type HTMLProps, type ReactNode } from "react";
+import React, { type FC, type HTMLProps, type ReactNode } from "react";
 import { type Control, Controller } from "react-hook-form";
 import { FormElementWrap } from "../FormElementWrap";
 
-export interface Props {
+interface Props {
 	name?: string;
 	label?: string | ReactNode;
 	required?: boolean;

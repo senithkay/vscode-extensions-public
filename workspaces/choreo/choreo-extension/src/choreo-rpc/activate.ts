@@ -2,7 +2,7 @@ import * as fs from "fs";
 import { downloadCLI, getChoreoExecPath, getCliVersion } from "./cli-install";
 import { RPCClient } from "./client";
 
-export function isChoreoCliInstalled(): boolean {
+function isChoreoCliInstalled(): boolean {
 	const rpcPath = getChoreoExecPath();
 	if (fs.existsSync(rpcPath)) {
 		return true;

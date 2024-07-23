@@ -1,0 +1,4 @@
+{
+    "ignore": ["lib/**","build/**"],
+    "ignoreDependencies":["path"]
+  }

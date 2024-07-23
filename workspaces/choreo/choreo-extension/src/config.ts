@@ -9,13 +9,13 @@
 import type { GHAppConfig } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 
-export interface IChoreoEnvConfig {
+interface IChoreoEnvConfig {
 	ghApp: GHAppConfig;
 	choreoConsoleBaseUrl: string;
 	billingConsoleBaseUrl: string;
 }
 
-export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
+const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 	ghApp: {
 		installUrl: "https://github.com/apps/choreo-dev/installations/new",
 		authUrl: "https://github.com/login/oauth/authorize",
@@ -26,7 +26,7 @@ export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
 	billingConsoleBaseUrl: "https://subscriptions.wso2.com",
 };
 
-export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
+const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 	ghApp: {
 		installUrl: "https://github.com/apps/choreo-apps-stage/installations/new",
 		authUrl: "https://github.com/login/oauth/authorize",
@@ -37,7 +37,7 @@ export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
 	billingConsoleBaseUrl: "https://subscriptions.st.wso2.com",
 };
 
-export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
+const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 	ghApp: {
 		installUrl: "https://github.com/apps/choreo-apps-dev/installations/new",
 		authUrl: "https://github.com/login/oauth/authorize",
@@ -48,7 +48,7 @@ export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
 	billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com",
 };
 
-export class ChoreoEnvConfig {
+class ChoreoEnvConfig {
 	constructor(private _config: IChoreoEnvConfig = DEFAULT_CHOREO_ENV_CONFIG) {}
 
 	public getGHAppConfig(): GHAppConfig {

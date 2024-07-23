@@ -76,7 +76,7 @@ import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../utils";
 import { showComponentTestView } from "./ComponentTestView";
 
 // Register handlers
-export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
+function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
 	authStore.subscribe((store) => messenger.sendNotification(AuthStoreChangedNotification, BROADCAST, store.state));
 	webviewStateStore.subscribe((store) => messenger.sendNotification(WebviewStateChangedNotification, BROADCAST, store.state));
 	contextStore.subscribe((store) => messenger.sendNotification(ContextStoreChangedNotification, BROADCAST, store.state));

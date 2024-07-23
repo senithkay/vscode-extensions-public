@@ -10,7 +10,7 @@ import { EventEmitter } from "vscode";
 
 import type { Project } from "@wso2-enterprise/choreo-core";
 
-export interface IChoreoExtensionAPI {
+interface IChoreoExtensionAPI {
 	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
 	waitForLogin(): Promise<boolean>;
 	/** Deprecated function. Exists due to backward compatibility with Ballerina extension */
