@@ -398,7 +398,7 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(checkboxStr, indentation);
-                } else if (inputType === 'key' || inputType === 'keyOrExpression' || inputType === 'comboOrKey') {
+                } else if (inputType === 'key' || inputType === 'comboOrKey') {
                     const filterType = element.value.keyType;
 
                     let addNewStr = '';
@@ -421,6 +421,23 @@ const generateForm = (jsonData: any): string => {
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
+                } else if (inputType === 'keyOrExpression') {
+                    const filterType = element.value.keyType;
+
+                    const keyOrExpStr = `
+                        <FormKeylookup
+                        control={control}
+                        name='${element.value.name}'
+                        label="${element.value.displayName}"
+                        filterType='${filterType}'
+                        allowItemCreate={false}
+                        required={${element.value.required}}
+                        canChangeEx={true}
+                        exprToggleEnabled={true}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                    />`;
+                    fields +=
+                        fixIndentation(keyOrExpStr, indentation);
                 } else {
 
                     fields +=
@@ -535,6 +552,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
+import { FormKeylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue, FlexLabelContainer, Label, Link } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
