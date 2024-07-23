@@ -41,7 +41,7 @@
       "value": {
         "name": "onStoreSequence",
         "displayName": "On Store Sequence",
-        "inputType": "key",
+        "inputType": "keyOrExpression",
         "defaultValue": "",
         "required": false,
         "helpTip": "",
