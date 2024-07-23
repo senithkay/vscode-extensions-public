@@ -277,8 +277,21 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async getSourceCode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        console.log(">>> requesting eggplant source code from ls", params);
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getSourceCode(params)
+                .then((model) => {
+                    console.log(">>> eggplant source code from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching source code from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
     }
 
     async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
