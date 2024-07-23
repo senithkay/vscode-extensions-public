@@ -14,29 +14,25 @@ import {
     NodeList,
     Form,
     Category as PanelCategory,
-    Node as PanelNode,
-    Item as PanelItem,
     FormField,
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { Diagram } from "@wso2-enterprise/eggplant-diagram";
+import { EggplantAvailableNodesRequest, Flow, Node, Category, AvailableNode } from "@wso2-enterprise/ballerina-core";
 import {
-    EggplantAvailableNodesRequest,
-    Flow,
-    Node,
-    Category,
-    AvailableNode,
-    NodeProperties,
-    NodePropertyKey,
-} from "@wso2-enterprise/ballerina-core";
+    convertEggplantCategoriesToSidePanelCategories,
+    convertNodePropertiesToFormFields,
+    getContainerTitle,
+    updateNodeProperties,
+} from "./../../utils/eggplant";
 
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
 `;
 
-enum SidePanelView {
+export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
 }
@@ -69,7 +65,7 @@ export function EggplantDiagram() {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
         setFields([]);
-        selectedNodeRef.current = undefined
+        selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
     };
 
@@ -89,9 +85,7 @@ export function EggplantDiagram() {
             .getAvailableNodes(getNodeRequest)
             .then((response) => {
                 console.log(">>> Available nodes", response);
-                setCategories(
-                    convertEggplantCategoriesToSidePanelCategories(response.categories as Category[])
-                );
+                setCategories(convertEggplantCategoriesToSidePanelCategories(response.categories as Category[]));
             });
     };
 
@@ -115,9 +109,6 @@ export function EggplantDiagram() {
         if (selectedNodeRef.current && topNodeRef.current) {
             const updatedNodeProperties = updateNodeProperties(data, selectedNodeRef.current.nodeProperties);
             const updatedNode: Node = {
-                id: "0",
-                branches: [],
-                fixed: false,
                 ...selectedNodeRef.current,
                 lineRange: {
                     fileName: topNodeRef.current.lineRange.fileName,
@@ -166,86 +157,4 @@ export function EggplantDiagram() {
             </PanelContainer>
         </>
     );
-}
-
-// utils
-
-function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
-    return {
-        id: node.id.kind,
-        label: node.name,
-        description: node.description,
-        enabled: node.enabled,
-        metadata: node,
-    };
-}
-
-function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCategory {
-    const items: PanelItem[] = category.items.map((item) => {
-        if ("id" in item) {
-            return convertAvailableNodeToPanelNode(item as AvailableNode);
-        } else {
-            return convertDiagramCategoryToSidePanelCategory(item as Category);
-        }
-    });
-
-    return {
-        title: category.name,
-        description: category.description,
-        items: items,
-    };
-}
-
-function convertEggplantCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
-    return categories.map(convertDiagramCategoryToSidePanelCategory);
-}
-
-function convertNodePropertiesToFormFields(nodeProperties: NodeProperties): FormField[] {
-    const formFields: FormField[] = [];
-
-    for (const key in nodeProperties) {
-        if (nodeProperties.hasOwnProperty(key)) {
-            const expression = nodeProperties[key as NodePropertyKey];
-            if (expression) {
-                const formField: FormField = {
-                    key,
-                    label: expression.label,
-                    type: expression.type,
-                    optional: expression.optional,
-                    editable: expression.editable,
-                    documentation: expression.documentation,
-                    value: expression.value,
-                };
-                formFields.push(formField);
-            }
-        }
-    }
-
-    return formFields;
-}
-
-function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
-    const updatedNodeProperties: NodeProperties = { ...nodeProperties };
-
-    for (const key in values) {
-        if (values.hasOwnProperty(key) && updatedNodeProperties.hasOwnProperty(key)) {
-            const expression = updatedNodeProperties[key as NodePropertyKey];
-            if (expression) {
-                expression.value = values[key];
-            }
-        }
-    }
-
-    return updatedNodeProperties;
-}
-
-function getContainerTitle(view: SidePanelView): string {
-    switch (view) {
-        case SidePanelView.NODE_LIST:
-            return "Add Node";
-        case SidePanelView.FORM:
-            return "Node Properties";
-        default:
-            return "";
-    }
 }
