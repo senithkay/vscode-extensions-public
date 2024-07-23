@@ -9,7 +9,7 @@
 import React from "react";
 
 import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { Diagnostic } from "ts-morph";
+import { ts } from "ts-morph";
 
 import { useStyles } from "./style";
 import { getDiagnosticMessage } from "../utils/diagnostics-utils";
@@ -17,7 +17,7 @@ import { getDiagnosticMessage } from "../utils/diagnostics-utils";
 interface Props {
     placement: "top" | "bottom" | "left" | "right";
     children: React.ReactNode;
-    diagnostic: Diagnostic
+    diagnostic: ts.Diagnostic;
     value?: string
     onClick?: () => void;
 }
@@ -27,7 +27,7 @@ export const DiagnosticTooltipID = "data-mapper-diagnostic-tooltip";
 export function DiagnosticTooltip(props: Partial<Props>) {
     const { diagnostic, value, children, onClick } = props;
     const classes = useStyles();
-    const source = diagnostic.getSource() || value;
+    const source = diagnostic.source || value;
     const diagnosticMsg = getDiagnosticMessage(diagnostic);
 
     const Code = () => (
