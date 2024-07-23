@@ -82,7 +82,7 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
                     validateXML(fileContent);
                     break;
                 case 'JSONSCHEMA':
-                    validateJSONSchema(fileContent);
+                    validateJSON(fileContent);
                     break;
                 default:
                     break;
