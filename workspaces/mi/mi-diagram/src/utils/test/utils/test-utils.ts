@@ -93,7 +93,7 @@ export function normalizeXML(xml: string): string {
 export async function isValidMediatorXML(mediatorType: string, st: any): Promise<boolean> {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     
-    const mediatorData = getDataFromST(mediatorType, mediatorST);
+    const mediatorData = await getDataFromST(mediatorType, mediatorST);
     const generatedXml = getXML(mediatorType, mediatorData);
 
     // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
