@@ -41,7 +41,7 @@ export async function generateSchemaFromContent(ioType: string, content: string,
   });
   let schema = JSON.parse(response.schema);
   let schemaIOMetadataKey = ioType.toLowerCase() + 'Type';
-  let schemaIOMetadataValue = fileType === 'JSONSCHEMA' ? 'JSON' : fileType;
+  let schemaIOMetadataValue = fileType.toUpperCase() === 'JSONSCHEMA' ? 'JSON' : fileType;
   schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
 }
