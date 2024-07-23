@@ -178,7 +178,7 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 			parentEntry.children = parentEntry.children ?? [];
 			for (const folder of dataMapperResources.folders) {
 				for (const file of folder.files) {
-					if (!file.name.endsWith('.ts')) {
+					if (!file.name.endsWith('.ts') || file.name.substring(0, file.name.length - 3) !== folder.name) {
 						continue;
 					}
 					const configName = file.name.replace('.ts', '');
