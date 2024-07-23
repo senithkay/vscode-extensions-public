@@ -68,16 +68,16 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
 			<div className="container">
-				<div className="mx-auto max-w-6xl flex flex-col p-4">
+				<div className="mx-auto flex max-w-6xl flex-col p-4">
 					<HeaderSection
 						{...props}
 						deploymentTrack={deploymentTrack}
 						allDeploymentTracks={deploymentTracks}
 						onChangeDeploymentTrack={switchDeploymentTrack}
 					/>
-					<div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
+					<div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-0">
 						<Divider className="mt-4 block lg:hidden" />
-						<div className="relative flex flex-col gap-6 col-span-1 lg:col-span-3 lg:p-4 pt-6 lg:border-r-1 border-vsc-editorIndentGuide-background">
+						<div className="relative col-span-1 flex flex-col gap-6 border-vsc-editorIndentGuide-background pt-6 lg:col-span-3 lg:border-r-1 lg:p-4">
 							<BuildsSection {...props} deploymentTrack={deploymentTrack} envs={envs} onTriggerDeployment={(env) => onTriggerDeployment(env, true)} />
 							<DeploymentsSection
 								{...props}
@@ -88,7 +88,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 								onLoadDeploymentStatus={(env) => onTriggerDeployment(env, false)}
 							/>
 						</div>
-						<div className="flex flex-col order-first lg:order-last lg:p-4 pt-6 gap-6">
+						<div className="order-first flex flex-col gap-6 pt-6 lg:order-last lg:p-4">
 							<BuildConfigsSection component={component} />
 							<EndpointsSection component={component} directoryPath={directoryPath} />
 						</div>

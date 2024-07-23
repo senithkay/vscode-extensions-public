@@ -15,5 +15,5 @@ interface Props {
 }
 
 export const Divider: FC<Props> = ({ className }) => {
-	return <div className={classNames("border-t-1 border-vsc-editorIndentGuide-background w-full", className)} />;
+	return <div className={classNames("w-full border-vsc-editorIndentGuide-background border-t-1", className)} />;
 };

@@ -166,7 +166,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
 			<div className="container">
-				<div className="mx-auto max-w-5xl flex flex-col gap-4 p-4">
+				<div className="mx-auto flex max-w-5xl flex-col gap-4 p-4">
 					<HeaderSection title={`${env.name} Environment`} tags={headerLabels} />
 
 					{endpoints.length > 1 && (
@@ -180,7 +180,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 						/>
 					)}
 					<FormElementWrap label="Invoke URL" wrapClassName="max-w-sm">
-						<div className="flex gap-2 items-center">
+						<div className="flex items-center gap-2">
 							<span className="line-clamp-1 break-all">{selectedEndpoint.publicUrl}</span>
 							<Button appearance="icon" onClick={() => copyUrl({ value: selectedEndpoint.publicUrl, label: "Invocation URL" })}>
 								<Codicon name="chrome-restore" className="mr-1" /> Copy
@@ -188,9 +188,9 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 						</div>
 					</FormElementWrap>
 					<FormElementWrap label="Security Header" wrapClassName="max-w-md">
-						<div className="flex gap-2 items-center">
+						<div className="flex items-center gap-2">
 							{isLoadingTestKey || !testKeyResp?.apiKey ? (
-								<SkeletonText className="max-w-72 w-full" />
+								<SkeletonText className="w-full max-w-72" />
 							) : (
 								<span className="line-clamp-1 text-clip">{testKeyResp?.apiKey?.replace(/./g, "*")}</span>
 							)}

@@ -18,14 +18,14 @@ export const FormElementWrap: FC<Props> = (props) => {
 
 	const { label, required, errorMsg, loading, wrapClassName, labelWrapClassName, children } = props;
 	return (
-		<div className={classNames("w-full flex flex-col", wrapClassName)}>
+		<div className={classNames("flex w-full flex-col", wrapClassName)}>
 			<div className={classNames("flex justify-between gap-1", labelWrapClassName)} ref={labelWrapRef}>
 				<span className="flex gap-1">
 					<label className="font-light">{label}</label>
 					{required && <RequiredFormInput />}
 				</span>
 				{errorMsg && (
-					<label className="text-vsc-errorForeground text-right line-clamp-1" title={errorMsg}>
+					<label className="line-clamp-1 text-right text-vsc-errorForeground" title={errorMsg}>
 						{errorMsg}
 					</label>
 				)}

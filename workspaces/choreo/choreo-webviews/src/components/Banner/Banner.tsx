@@ -13,10 +13,10 @@ export const Banner: FC<Props> = ({ className, children, type }) => {
 		<div
 			className={classNames(
 				{
-					"flex gap-2 p-2 items-center border-1 rounded": true,
-					"bg-vsc-inputValidation-warningBackground border-vsc-list-warningForeground text-vsc-list-warningForeground": type === "warning",
-					"bg-vsc-inputValidation-errorBackground border-vsc-list-errorForeground text-vsc-list-errorForeground": type === "error",
-					"bg-vsc-inputValidation-infoBackground border-vsc-editorInfo-foreground text-vsc-editorInfo-foreground": type === "info",
+					"flex items-center gap-2 rounded border-1 p-2": true,
+					"border-vsc-list-warningForeground bg-vsc-inputValidation-warningBackground text-vsc-list-warningForeground": type === "warning",
+					"border-vsc-list-errorForeground bg-vsc-inputValidation-errorBackground text-vsc-list-errorForeground": type === "error",
+					"border-vsc-editorInfo-foreground bg-vsc-inputValidation-infoBackground text-vsc-editorInfo-foreground": type === "info",
 				},
 				className,
 			)}

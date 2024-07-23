@@ -20,6 +20,9 @@
 			"a11y": {
 				"noSvgWithoutTitle": "off",
 				"useKeyWithClickEvents": "off"
+			},
+			"nursery": {
+				"useSortedClasses": "warn"
 			}
 		}
 	},

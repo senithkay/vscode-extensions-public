@@ -64,7 +64,7 @@ export const HeaderSection: FC<
 					onClick={() => onDeleteComponent()}
 					disabled={deletingComponent}
 					title="Delete Component"
-					className="hover:text-vsc-errorForeground duration-200 text-vsc-descriptionForeground"
+					className="text-vsc-descriptionForeground duration-200 hover:text-vsc-errorForeground"
 				>
 					<Codicon name="trash" />
 				</Button>

@@ -18,9 +18,9 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex gap-2">
-				<div className="flex items-center flex-wrap gap-3 md:mb-1 flex-1">
-					<h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
-					<h2 className="text-2xl md:text-3xl font-thin opacity-30 hidden sm:block">{secondaryTitle}</h2>
+				<div className="flex flex-1 flex-wrap items-center gap-3 md:mb-1">
+					<h1 className="font-bold text-2xl md:text-3xl">{title}</h1>
+					<h2 className="hidden font-thin text-2xl opacity-30 sm:block md:text-3xl">{secondaryTitle}</h2>
 				</div>
 				<span className="mt-1">{secondaryIcon}</span>
 			</div>
@@ -39,7 +39,7 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 								)}
 							</div>
 							{index !== tags.length - 1 && (
-								<div key={`separator-${item.label}`} className="font-thin hidden md:block opacity-50">
+								<div key={`separator-${item.label}`} className="hidden font-thin opacity-50 md:block">
 									|
 								</div>
 							)}
@@ -48,7 +48,7 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 				</div>
 			)}
 			{buttons.length > 0 && (
-				<div className="flex flex-wrap gap-2 mb-4">
+				<div className="mb-4 flex flex-wrap gap-2">
 					{buttons.map((item) => (
 						<Button key={item.label} appearance="secondary" onClick={item.onClick}>
 							{item.label}

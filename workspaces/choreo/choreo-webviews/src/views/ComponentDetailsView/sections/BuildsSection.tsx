@@ -151,8 +151,8 @@ export const BuildsSection: FC<Props> = (props) => {
 
 	return (
 		<div>
-			<div className="flex items-center gap-1 mb-3">
-				<h3 className="text-base lg:text-lg flex-1">Builds</h3>
+			<div className="mb-3 flex items-center gap-1">
+				<h3 className="flex-1 text-base lg:text-lg">Builds</h3>
 				<Button
 					onClick={() => refetchBuilds()}
 					appearance="icon"
@@ -169,7 +169,7 @@ export const BuildsSection: FC<Props> = (props) => {
 				)}
 			</div>
 
-			<div className="grid-cols-2 md:grid-cols-4 md:grid hidden py-2 font-light text-xs">
+			<div className="hidden grid-cols-2 py-2 font-light text-xs md:grid md:grid-cols-4">
 				<div>Build ID</div>
 				<div>Commit</div>
 				<div>Started</div>
@@ -181,14 +181,14 @@ export const BuildsSection: FC<Props> = (props) => {
 						{Array.from(new Array(5)).map((_, index) => (
 							<LoadingBuildRow key={index} />
 						))}
-						<div className="h-10 hidden lg:block" />
+						<div className="hidden h-10 lg:block" />
 					</>
 				) : (
 					<>
 						{builds.length === 0 ? (
 							<>
-								<div className="flex flex-col items-center justify-center gap-3 lg:min-h-44 p-8">
-									<p className="text-center opacity-40 font-light text-sm">There aren't any builds available</p>
+								<div className="flex flex-col items-center justify-center gap-3 p-8 lg:min-h-44">
+									<p className="text-center font-light text-sm opacity-40">There aren't any builds available</p>
 									<Codicon name="inbox" className="!text-4xl opacity-20" />
 								</div>
 							</>
@@ -204,7 +204,7 @@ export const BuildsSection: FC<Props> = (props) => {
 									</>
 								))}
 								{builds.length > visibleBuildCount && (
-									<div className="flex flex-row justify-end mt-2">
+									<div className="mt-2 flex flex-row justify-end">
 										<Button appearance="icon" onClick={() => setVisibleBuildCount((v) => v + 5)}>
 											View More
 										</Button>
@@ -221,12 +221,12 @@ export const BuildsSection: FC<Props> = (props) => {
 
 const LoadingBuildRow = () => {
 	return (
-		<div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background duration-200">
+		<div className="grid grid-cols-2 py-1 duration-200 hover:bg-vsc-editorHoverWidget-background md:grid-cols-4">
 			<GridColumnItem label="Build ID" index={0}>
 				<SkeletonText className="w-20" />
 			</GridColumnItem>
 			<GridColumnItem label="Commit" index={1}>
-				<div className="w-full flex justify-end md:justify-start">
+				<div className="flex w-full justify-end md:justify-start">
 					<SkeletonText className="w-12" />
 				</div>
 			</GridColumnItem>
@@ -234,7 +234,7 @@ const LoadingBuildRow = () => {
 				<SkeletonText className="w-20" />
 			</GridColumnItem>
 			<GridColumnItem label="Status" index={3}>
-				<div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
+				<div className="flex flex-row-reverse items-center justify-start gap-2 md:flex-row md:justify-between">
 					<SkeletonText className="w-12" />
 					<SkeletonText className="w-10" />
 				</div>
@@ -371,7 +371,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 
 	let status: ReactNode = item.status?.conclusion;
 	if (item.status?.conclusion === "") {
-		status = <span className="text-vsc-charts-orange animate-pulse capitalize">{item.status?.status?.replaceAll("_", " ")}</span>;
+		status = <span className="animate-pulse text-vsc-charts-orange capitalize">{item.status?.status?.replaceAll("_", " ")}</span>;
 	} else {
 		if (item.status?.conclusion === "success") {
 			status = <span className="text-vsc-charts-green capitalize">{status}</span>;
@@ -381,7 +381,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 	}
 
 	return (
-		<div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background duration-200">
+		<div className="grid grid-cols-2 py-1 duration-200 hover:bg-vsc-editorHoverWidget-background md:grid-cols-4">
 			<GridColumnItem label="Build ID" index={0}>
 				{item.status?.runId || "-"}
 			</GridColumnItem>
@@ -396,7 +396,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 				{getTimeAgo(item.status?.startedAt)}
 			</GridColumnItem>
 			<GridColumnItem label="Status" index={3}>
-				<div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
+				<div className="flex flex-row-reverse items-center justify-start gap-2 md:flex-row md:justify-between">
 					<div>{status}</div>
 					<div className="flex gap-1">
 						{item.status?.conclusion === "success" && (
@@ -417,8 +417,8 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 };
 
 const GridColumnItem: FC<{ label: string; index?: number; children?: ReactNode }> = ({ label, index, children }) => (
-	<div className={classNames("flex flex-col", index % 2 === 1 && "md:items-start items-end")}>
-		<div className="block md:hidden text-[9px] font-light">{label}</div>
+	<div className={classNames("flex flex-col", index % 2 === 1 && "items-end md:items-start")}>
+		<div className="block font-light text-[9px] md:hidden">{label}</div>
 		<div className={classNames("w-full", index % 2 === 1 && "text-right md:text-left")}>{children}</div>
 	</div>
 );

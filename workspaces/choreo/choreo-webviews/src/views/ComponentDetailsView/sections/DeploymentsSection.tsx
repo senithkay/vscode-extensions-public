@@ -205,8 +205,8 @@ const EnvItem: FC<{
 		<>
 			<Divider />
 			<div>
-				<div className="flex items-center gap-1 mb-3">
-					<h3 className="text-base lg:text-lg flex-1">{env.name} Environment</h3>
+				<div className="mb-3 flex items-center gap-1">
+					<h3 className="flex-1 text-base lg:text-lg">{env.name} Environment</h3>
 					<Button
 						onClick={() => refetchDeploymentStatus()}
 						appearance="icon"
@@ -218,7 +218,7 @@ const EnvItem: FC<{
 					</Button>
 				</div>
 				<div className="flex flex-col gap-3 ">
-					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 gap-x-5" ref={envDetailsRef}>
+					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3" ref={envDetailsRef}>
 						{loadingDeploymentStatus ? (
 							<>
 								<GridColumnItem label="Status">
@@ -236,11 +236,11 @@ const EnvItem: FC<{
 								<GridColumnItem label="Status">
 									<span
 										className={classNames({
-											"text-vsc-errorForeground font-medium": deploymentStatus?.deploymentStatusV2 === "ERROR",
+											"font-medium text-vsc-errorForeground": deploymentStatus?.deploymentStatusV2 === "ERROR",
 											"text-vsc-charts-lines": deploymentStatus?.deploymentStatusV2 === "SUSPENDED",
 											"text-vsc-foreground": deploymentStatus?.deploymentStatusV2 === "NOT_DEPLOYED",
-											"text-vsc-charts-green font-medium": deploymentStatus?.deploymentStatusV2 === "ACTIVE",
-											"text-vsc-charts-orange animate-pulse": deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS" || triggeredDeployment,
+											"font-medium text-vsc-charts-green": deploymentStatus?.deploymentStatusV2 === "ACTIVE",
+											"animate-pulse text-vsc-charts-orange": deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS" || triggeredDeployment,
 										})}
 									>
 										{getStatusText()}
@@ -343,7 +343,7 @@ const EnvItemSkeleton: FC = () => {
 		<>
 			<Divider />
 			<div>
-				<div className="flex items-center gap-1 mb-3">
+				<div className="mb-3 flex items-center gap-1">
 					<SkeletonText className="w-52" />
 					<div className="flex-1" />
 					<Button disabled appearance="icon" className="opacity-50">
@@ -354,7 +354,7 @@ const EnvItemSkeleton: FC = () => {
 					</Button>
 				</div>
 				<div className="flex flex-col gap-3 ">
-					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+					<div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
 						<GridColumnItem label="Status">
 							<SkeletonText className="w-24" />
 						</GridColumnItem>
@@ -372,9 +372,9 @@ const EnvItemSkeleton: FC = () => {
 };
 
 const GridColumnItem: FC<{ label: string; children?: ReactNode }> = ({ label, children }) => (
-	<div className="flex flex-col hover:bg-vsc-editorHoverWidget-background duration-200">
-		<div className="text-[9px] md:text-xs opacity-75 font-light">{label}</div>
-		<div className="w-full line-clamp-1">{children}</div>
+	<div className="flex flex-col duration-200 hover:bg-vsc-editorHoverWidget-background">
+		<div className="font-light text-[9px] opacity-75 md:text-xs">{label}</div>
+		<div className="line-clamp-1 w-full">{children}</div>
 	</div>
 );
 

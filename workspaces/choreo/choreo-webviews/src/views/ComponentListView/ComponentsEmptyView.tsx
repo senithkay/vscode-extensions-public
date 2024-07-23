@@ -15,7 +15,7 @@ export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => 
 	return (
 		<>
 			{loading && <ProgressIndicator />}
-			<div className="w-full flex flex-col px-6 py-2 gap-[10px]">
+			<div className="flex w-full flex-col gap-[10px] px-6 py-2">
 				<p>Choreo component directories associated with project {selected.project?.name}, are not detected within the current workspace.</p>
 				<p>Create a new component.</p>
 				<Button

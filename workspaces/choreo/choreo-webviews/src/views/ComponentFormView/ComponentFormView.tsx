@@ -287,7 +287,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 						? "Choreo lacks access to this repository. Please grant access by clicking"
 						: "Please authorize Choreo to access your GitHub repositories by clicking"}{" "}
 					<VSCodeLink
-						className="text-vsc-list-warningForeground font-bold"
+						className="font-bold text-vsc-list-warningForeground"
 						onClick={
 							isRepoAuthorizedResp?.retrievedRepos
 								? () => ChoreoWebViewAPI.getInstance().triggerGithubInstallFlow(organization.id?.toString())
@@ -314,7 +314,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
 			<div className="container">
-				<form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
+				<form className="mx-auto flex max-w-4xl flex-col gap-2 p-4">
 					<HeaderSection
 						title="Create New Component"
 						tags={[
@@ -322,8 +322,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 							{ label: "Organization", value: organization.name },
 						]}
 					/>
-					<div className="flex flex-col gap-6 mt-4" ref={formSections}>
-						<div className="grid md:grid-cols-2 gap-4" ref={compDetailsSections}>
+					<div className="mt-4 flex flex-col gap-6" ref={formSections}>
+						<div className="grid gap-4 md:grid-cols-2" ref={compDetailsSections}>
 							<TextField label="Name" required name="name" placeholder="component-name" control={form.control} />
 							<Dropdown
 								label="Type"
@@ -356,7 +356,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 						</div>
 						<div>
 							<FormSectionHeader title="Component Source" />
-							<div className="grid md:grid-cols-2 gap-4">
+							<div className="grid gap-4 md:grid-cols-2">
 								<PathSelect
 									name="subPath"
 									label={selectedLang === ChoreoBuildPackNames.Docker ? "Docker Context" : "Directory"}
@@ -368,7 +368,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 									promptTitle="Select Component Directory"
 									wrapClassName="col-span-full"
 								/>
-								<div className="grid md:grid-cols-2 gap-4 col-span-full" ref={sourceDetailsSections}>
+								<div className="col-span-full grid gap-4 md:grid-cols-2" ref={sourceDetailsSections}>
 									{gitRemotes?.length > 0 && (
 										<Dropdown label="Repository" required name="repoUrl" control={form.control} items={gitRemotes} loading={isLoadingRemotes} />
 									)}
@@ -394,7 +394,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 						{buildConfigs.length > 0 && (
 							<div>
 								<FormSectionHeader title="Build Configurations" />
-								<div className="grid md:grid-cols-2 gap-4" ref={buildConfigSections}>
+								<div className="grid gap-4 md:grid-cols-2" ref={buildConfigSections}>
 									{buildConfigs}
 								</div>
 							</div>
@@ -402,11 +402,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 						{endpointConfigs.length > 0 && (
 							<div>
 								<FormSectionHeader title="Endpoint Configurations" />
-								<div className="grid md:grid-cols-2 gap-4">{endpointConfigs}</div>
+								<div className="grid gap-4 md:grid-cols-2">{endpointConfigs}</div>
 							</div>
 						)}
 					</div>
-					<div className="flex gap-3 justify-end pt-8 pb-4">
+					<div className="flex justify-end gap-3 pt-8 pb-4">
 						<Button onClick={() => ChoreoWebViewAPI.getInstance().closeWebView()} appearance="secondary">
 							Cancel
 						</Button>
@@ -426,9 +426,9 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
 const FormSectionHeader = ({ title }: { title: string }) => {
 	return (
-		<div className="flex items-center sm:gap-4 gap-2 mb-2">
+		<div className="mb-2 flex items-center gap-2 sm:gap-4">
 			<Divider className="flex-1" />
-			<h1 className="text-base opacity-50 font-light">{title}</h1>
+			<h1 className="font-light text-base opacity-50">{title}</h1>
 		</div>
 	);
 };

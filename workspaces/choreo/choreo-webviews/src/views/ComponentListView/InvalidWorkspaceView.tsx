@@ -19,7 +19,7 @@ export const InvalidWorkspaceView: FC<Props> = ({ loading }) => {
 	return (
 		<>
 			{loading && <ProgressIndicator />}
-			<div className="w-full flex flex-col px-6 py-2 gap-[10px]">
+			<div className="flex w-full flex-col gap-[10px] px-6 py-2">
 				<p>To use the Choreo extension, please open a folder in VS Code.</p>
 				<Button className="w-full max-w-80 self-center sm:self-start" onClick={openFolder}>
 					Open Folder

@@ -55,15 +55,15 @@ export const PathSelect: FC<Props> = (props) => {
 						<div
 							onClick={isLoading ? undefined : () => handleClick((selectedPath) => field.onChange(selectedPath))}
 							className={classnames(
-								"bg-vsc-input-background w-full min-h-[26px] rounded cursor-pointer overflow-hidden flex items-stretch border-1 border-vsc-menu-border",
-								isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer opacity-100",
+								"flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-1 border-vsc-menu-border bg-vsc-input-background",
+								isLoading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100",
 							)}
 							ref={field.ref}
 						>
-							<div className="hidden sm:block bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground border-r-2 border-vsc-menu-border">
-								<p className="h-full px-3 flex items-center justify-center">Choose {type}</p>
+							<div className="hidden border-vsc-menu-border border-r-2 bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground sm:block">
+								<p className="flex h-full items-center justify-center px-3">Choose {type}</p>
 							</div>
-							<div className="flex-1 flex items-center px-2 break-all">{joinedPath}</div>
+							<div className="flex flex-1 items-center break-all px-2">{joinedPath}</div>
 						</div>
 					</FormElementWrap>
 				);

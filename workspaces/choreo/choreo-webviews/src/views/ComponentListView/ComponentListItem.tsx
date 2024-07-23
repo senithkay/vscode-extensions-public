@@ -37,8 +37,8 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened, org,
 			})}
 			onClick={viewComponentDetails}
 		>
-			<div className="flex-1 flex flex-col gap-0.5 pl-5 py-3 break-all">
-				<h3 className="text-sm font-bold line-clamp-1">{item?.component?.metadata?.displayName}</h3>
+			<div className="flex flex-1 flex-col gap-0.5 break-all py-3 pl-5">
+				<h3 className="line-clamp-1 font-bold text-sm">{item?.component?.metadata?.displayName}</h3>
 				<p className="text-xs">
 					Path: {item.workspaceName}/{item.componentRelativePath}
 				</p>

@@ -13,7 +13,7 @@ export const NoContextView: FC<Props> = ({ loading }) => {
 	return (
 		<>
 			{loading && <ProgressIndicator />}
-			<div className="w-full flex flex-col px-6 py-2 gap-[10px]">
+			<div className="flex w-full flex-col gap-[10px] px-6 py-2">
 				<p>Choreo project/component directories are not detected within the current workspace.</p>
 				<p>Create a new component.</p>
 				<Button

@@ -14,7 +14,7 @@ export const SignInView: FC<Props> = ({ className }) => {
 		mutationFn: async () => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.SignIn),
 	});
 	return (
-		<div className={classNames("w-full flex flex-col px-6 py-2 gap-[10px]", className)}>
+		<div className={classNames("flex w-full flex-col gap-[10px] px-6 py-2", className)}>
 			<p>Sign in to Choreo to get started.</p>
 			<Button className="w-full max-w-80 self-center sm:self-start" onClick={() => signInCmd()} disabled={isInitSignIn}>
 				Sign In

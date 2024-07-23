@@ -52,7 +52,7 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
 	return (
 		<>
 			{(isLoading || linkedDirState.loading) && <ProgressIndicator />}
-			<div className="w-full flex flex-col py-2" ref={componentListRef}>
+			<div className="flex w-full flex-col py-2" ref={componentListRef}>
 				{linkedDirState?.components?.map((item, index) => (
 					<div key={item.component?.metadata?.id}>
 						<ComponentListItem

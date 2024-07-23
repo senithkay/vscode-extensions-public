@@ -6,5 +6,5 @@ interface Props {
 }
 
 export const SkeletonText: FC<Props> = ({ className }) => {
-	return <div className={classnames("animate-pulse h-4 my-0.5 bg-vsc-button-secondaryBackground rounded", className)} />;
+	return <div className={classnames("my-0.5 h-4 animate-pulse rounded bg-vsc-button-secondaryBackground", className)} />;
 };
