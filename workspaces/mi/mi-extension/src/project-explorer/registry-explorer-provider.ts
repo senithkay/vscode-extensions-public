@@ -158,13 +158,6 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 	const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
 	if (resources && resources['registry']) {
 		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-		const parentEntry = new RegistryExplorerEntry(
-			'Registry',
-			isCollapsibleState(Object.keys(resources['registry']).length > 0),
-			{ name: 'Registry', path: regPath, type: 'registry' },
-		);
-		parentEntry.contextValue = 'registry';
-		parentEntry.id = 'registry';
 		const gov = resources['registry']['gov'];
 		const conf = resources['registry']['conf'];
 		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
@@ -178,8 +171,8 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 			govEntry.id = 'gov';
 			govEntry.contextValue = 'gov';
 			govEntry.children = genRegistryProjectStructureEntry(gov);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(govEntry);
+			projectRoot.children = projectRoot.children ?? [];
+			projectRoot.children.push(govEntry);
 		}
 		if (conf) {
 			const confEntry = new RegistryExplorerEntry(
@@ -190,11 +183,9 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 			confEntry.id = 'conf';
 			confEntry.contextValue = 'conf';
 			confEntry.children = genRegistryProjectStructureEntry(conf);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(confEntry);
+			projectRoot.children = projectRoot.children ?? [];
+			projectRoot.children.push(confEntry);
 		}
-		projectRoot.children = projectRoot.children ?? [];
-		projectRoot.children.push(parentEntry);
 	}
 }
 
