@@ -27,10 +27,3 @@ export enum TypeKind {
     Unknown = 'unknown'
 }
 
-export interface DMOperator {
-    label: string;
-    args?: string[];
-    description?: string;
-    src?: string;
-    action?: string;
-}

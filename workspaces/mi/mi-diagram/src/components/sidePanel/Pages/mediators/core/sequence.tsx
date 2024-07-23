@@ -17,8 +17,9 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { Keylookup } from '../../../../Form';
-import { sidepanelGoBack } from '../../..';
+import { FormKeylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -97,17 +98,20 @@ const SequenceForm = (props: AddMediatorProps) => {
                         name="referingSequence"
                         control={control}
                         render={({ field }) => (
-                            <Keylookup
-                                value={field.value}
-                                filterType='sequence'
+                            <FormKeylookup
+                                control={control}
+                                name='referingSequence'
                                 label="Refering Sequence"
-                                allowItemCreate={true}
-                                onValueChange={field.onChange}
+                                filterType='sequence'
+                                allowItemCreate={false}
                                 required={false}
+                                errorMsg={errors?.referingSequence?.message?.toString()}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.referingSequence && <Error>{errors.referingSequence.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -115,10 +119,9 @@ const SequenceForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

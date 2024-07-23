@@ -299,6 +299,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             const handlersXML = getXML(ARTIFACT_TEMPLATES.EDIT_HANDLERS, { show: handlers.length > 0, handlers });
             const editAPIParams = {
                 documentUri: path,
+                apiName: values.apiName,
                 xmlData: xml,
                 handlersXmlData: handlersXML,
                 apiRange: apiData.apiRange,
@@ -306,10 +307,17 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             };
             await rpcClient.getMiDiagramRpcClient().editAPI(editAPIParams);
             rpcClient.getMiVisualizerRpcClient().log({ message: `Updated API: ${apiData.apiName}.` });
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path }
-            });
+            if (pathLib.basename(path).split('.')[0] !== values.apiName) {
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: EVENT_TYPE.OPEN_VIEW,
+                    location: { view: MACHINE_VIEW.Overview }
+                });
+            } else {
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: EVENT_TYPE.OPEN_VIEW,
+                    location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path }
+                });
+            }
         }
     };
 

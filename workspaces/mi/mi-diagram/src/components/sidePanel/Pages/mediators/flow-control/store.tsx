@@ -17,7 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { Keylookup } from '../../../../Form';
+import { FormKeylookup, Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
@@ -100,10 +100,9 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="messageStore"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} errorMsg={errors?.messageStore?.message?.toString()} />
                         )}
                     />
-                    {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
                 </Field>
 
                 {watch("messageStore") == "Select Expresison" &&
@@ -116,12 +115,12 @@ const StoreForm = (props: AddMediatorProps) => {
                                 {...field} label="Expression"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.expression?.message?.toString()}
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.expression && <Error>{errors.expression.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -130,17 +129,21 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="onStoreSequence"
                         control={control}
                         render={({ field }) => (
-                            <Keylookup
-                                value={field.value}
+                            <FormKeylookup
+                                control={control}
+                                name='onStoreSequence'
+                                label='On Store Sequence'
                                 filterType='sequence'
-                                label="On Store Sequence"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
-                                required={false}
+                                errorMsg={errors?.onStoreSequence?.message?.toString()}
+                                required={true}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.onStoreSequence && <Error>{errors.onStoreSequence.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -148,10 +151,9 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

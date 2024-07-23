@@ -50,7 +50,7 @@ export class ReferenceNodeModel extends BaseNodeModel {
     }
 
     async openDataMapperView(rpcClient: RpcClient) {
-        const formData = getDataFromST(
+        const formData = await getDataFromST(
             this.mediatorName,
             this.stNode
         );

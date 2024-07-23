@@ -27,4 +27,8 @@ export class DMTypeWithValue {
 	public hasValue() {
 		return !!this.value;
 	}
+
+	public setValue(value: Node) {
+		this.value = value;
+	}
 }

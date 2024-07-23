@@ -94,23 +94,23 @@ export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): Prop
     }
 
     return resolvedNode;
+}
 
-    function getMapFunctionReturnStatement(
-        resolvedNode: PropertyAssignment | ReturnStatement,
-        index: number
-    ): PropertyAssignment | ReturnStatement {
+export function getMapFunctionReturnStatement(
+    resolvedNode: PropertyAssignment | ReturnStatement,
+    index: number
+): PropertyAssignment | ReturnStatement {
 
-        // Constraint: In focused views, return statements are only allowed at map functions
-        const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+    // Constraint: In focused views, return statements are only allowed at map functions
+    const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
 
-        if (returnStmts.length >= index) {
-            return returnStmts.filter(stmt => {
-                const returnExpr = stmt.getExpression();
-                return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
-            })[index - 1];
-        }
-        return resolvedNode;
+    if (returnStmts.length >= index) {
+        return returnStmts.filter(stmt => {
+            const returnExpr = stmt.getExpression();
+            return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
+        })[index - 1];
     }
+    return resolvedNode;
 }
 
 export function getFocusedSubMapping(subMappingIndex: number, fnST: FunctionDeclaration): VariableStatement {
@@ -118,4 +118,3 @@ export function getFocusedSubMapping(subMappingIndex: number, fnST: FunctionDecl
     const variableStatements = fnBlock.getVariableStatements();
     return variableStatements[subMappingIndex];
 }
-

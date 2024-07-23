@@ -102,10 +102,9 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="executor"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Executor" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Executor" size={50} placeholder="" required={false} errorMsg={errors?.executor?.message?.toString()} />
                             )}
                         />
-                        {errors.executor && <Error>{errors.executor.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -118,10 +117,9 @@ const EnqueueForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <TextField {...field} label="Priority" size={50} placeholder="" required={true} />
+                                <TextField {...field} label="Priority" size={50} placeholder="" required={true} errorMsg={errors?.priority?.message?.toString()} />
                             )}
                         />
-                        {errors.priority && <Error>{errors.priority.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -136,10 +134,10 @@ const EnqueueForm = (props: AddMediatorProps) => {
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
                                     required={false}
+                                    errorMsg={errors?.sequenceKey?.message?.toString()}
                                 />
                             )}
                         />
-                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -147,10 +145,9 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                                <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                             )}
                         />
-                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>

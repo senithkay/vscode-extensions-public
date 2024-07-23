@@ -9,18 +9,27 @@
 
 import { Store } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getStoreMustacheTemplate() {
-    return `<store {{#messageStore}}messageStore="{{messageStore}}" {{/messageStore}}{{#onStoreSequence}}sequence="{{{onStoreSequence}}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
+    return `<store {{#messageStore}}messageStore="{{messageStore}}" {{/messageStore}}{{#onStoreSequence}}sequence="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
 }
 
 export function getStoreXml(data: { [key: string]: any }) {
 
+    if (data.onStoreSequence?.isExpression) {
+        data.onStoreSequence.value = "{" + data.onStoreSequence.value + "}";
+    }
     return Mustache.render(getStoreMustacheTemplate(), data).trim();
 
 }
 
 export function getStoreFormDataFromSTNode(data: { [key: string]: any }, node: Store) {
 
+    if (node.sequence?.startsWith("{") && node.sequence?.endsWith("}")) {
+        data.onStoreSequence = { isExpression: true, value: node.sequence?.substring(1, node.sequence?.length - 1), namespaces: transformNamespaces(node.namespaces) };
+    } else {
+        data.onStoreSequence = { isExpression: false, value: node.sequence };
+    }
     return data;
 }
