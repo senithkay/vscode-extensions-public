@@ -266,7 +266,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <goal>config-mapper-parser</goal>
                 </goals>
                 <configuration>
-                  <miVersion>4.2.0</miVersion>
+                  <miVersion>4.3.0</miVersion>
                   <executeCipherTool>\${ciphertool.enable}</executeCipherTool>
                   <keystoreName>\${keystore.name}</keystoreName>
                   <keystoreAlias>\${keystore.alias}</keystoreAlias>
@@ -358,7 +358,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <keystore.password>wso2carbon</keystore.password>
     <keystore.alias>wso2carbon</keystore.alias>
     <ciphertool.enable>true</ciphertool.enable>
-    <dockerfile.base.image>wso2/wso2mi:4.2.0</dockerfile.base.image>
+    <dockerfile.base.image>wso2/wso2mi:4.3.0</dockerfile.base.image>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
