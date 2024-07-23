@@ -21,7 +21,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { View } from '../Views/DataMapperView';
 import { isMapFunction } from '../../../components/Diagram/utils/common-utils';
-
+import { getMapFunctionReturnStatement} from '../../../components/Diagram/utils/st-utils';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -44,24 +44,6 @@ export interface ExpressionBarProps {
     applyModifications: () => Promise<void>;
     
 }
-
-function getMapFunctionReturnStatement(
-    resolvedNode: PropertyAssignment | ReturnStatement,
-    index: number
-): ReturnStatement | undefined {
-
-    // Constraint: In focused views, return statements are only allowed at map functions
-    const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
-
-    if (returnStmts.length >= index) {
-        return returnStmts.filter(stmt => {
-            const returnExpr = stmt.getExpression();
-            return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
-        })[index - 1];
-    }
-    return undefined;
-}
-
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { views, filePath, applyModifications } = props;
@@ -234,7 +216,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
                     returnExpr = returnStatement?.getExpression();
                 } else if (Node.isReturnStatement(focusedNode.context.focusedST)) {
-                    const returnStatement = getMapFunctionReturnStatement(focusedNode.context.focusedST, focusedNode.context.views[1].mapFnIndex);
+                    const returnStatement = getMapFunctionReturnStatement(focusedNode.context.focusedST, focusedNode.context.views[focusedNode.context.views.length-1].mapFnIndex) as ReturnStatement;
                     returnExpr = returnStatement?.getExpression();
                 }
             } else {
