@@ -243,9 +243,7 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-const glob = require('glob');
 const AdmZip = require('adm-zip');
-// const globPromise = promisify(glob);
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
