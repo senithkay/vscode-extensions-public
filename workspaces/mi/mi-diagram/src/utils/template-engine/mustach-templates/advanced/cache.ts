@@ -145,7 +145,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         if (cacheData.isCollector) {
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
             }
         } else {
             editRange = {
@@ -173,7 +173,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         if (range) {
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
             }
         } else {
             editRange = {
@@ -195,7 +195,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let range = defaultValues.ranges.onCacheHit;
         let editRange;
         if (range) {
-            editRange = { start: range.startTagRange.start, end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end };
+            editRange = { start: range.startTagRange.start, end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end };
         } else {
             let cacheRange = defaultValues.ranges.cache;
             editRange = {
@@ -217,7 +217,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let range = defaultValues.ranges.implementation;
         let editRange: Range = {
             start: range.startTagRange.start,
-            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
         }
         let edit = {
             text: output,

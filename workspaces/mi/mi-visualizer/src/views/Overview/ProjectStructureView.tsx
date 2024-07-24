@@ -14,73 +14,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Fragment, useEffect, useState } from 'react';
 import { EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../../constants';
 
-const getIcon = (type: string, subType: string, defaultIcon: string) => {
-    switch (type) {
-        case "ENDPOINT": {
-            switch (subType) {
-                case EndpointTypes.ADDRESS_ENDPOINT: return "address-endpoint";
-                case EndpointTypes.DEFAULT_ENDPOINT: return "default-endpoint";
-                case EndpointTypes.HTTP_ENDPOINT: return "http-endpoint";
-                case EndpointTypes.LOAD_BALANCE_ENDPOINT: return "load-balance-endpoint";
-                case EndpointTypes.WSDL_ENDPOINT: return "wsdl-endpoint";
-                case EndpointTypes.FAILOVER_ENDPOINT: return "failover-endpoint";
-                case EndpointTypes.RECIPIENT_ENDPOINT: return "recipient-list-endpoint";
-                case EndpointTypes.TEMPLATE_ENDPOINT: return "template-endpoint";
-                default: return defaultIcon;
-            }
-        }
-        case "TEMPLATE": {
-            switch (subType) {
-                case TemplateTypes.SEQUENCE_ENDPOINT: return "sequence-template";
-                case TemplateTypes.WSDL_ENDPOINT: return "wsdl-endpoint-template";
-                case TemplateTypes.HTTP_ENDPOINT: return "http-endpoint-template";
-                case TemplateTypes.ADDRESS_ENDPOINT: return "address-endpoint-template";
-                case TemplateTypes.DEFAULT_ENDPOINT: return "default-endpoint-template";
-                default: return defaultIcon;
-            }
-        }
-        case "MESSAGE_PROCESSOR": {
-            switch (subType) {
-                case MessageProcessorTypes.MESSAGE_SAMPLING: return "message-sampling-processor";
-                case MessageProcessorTypes.SCHEDULED_MESSAGE_FORWARDING: return "scheduled-message-forwarding-processor";
-                case MessageProcessorTypes.SCHEDULED_FAILOVER_MESSAGE_FORWARDING: return "scheduled-failover-message-forwarding-processor";
-                case MessageProcessorTypes.CUSTOM: return "custom-message-processor";
-                default: return defaultIcon;
-            }
-        }
-        case "MESSAGE_STORE": {
-            switch (subType) {
-                case MessageStoreTypes.IN_MEMORY: return "in-memory-message-store";
-                case MessageStoreTypes.CUSTOM: return "custom-message-store";
-                case MessageStoreTypes.JMS: return "jms-message-store";
-                case MessageStoreTypes.RABBITMQ: return "rabbit-mq";
-                case MessageStoreTypes.WSO2_MB: return "wso2-mb";
-                case MessageStoreTypes.RESEQUENCE: return "resequence-message-store";
-                case MessageStoreTypes.JDBC: return "jdbc-message-store";
-                default: return defaultIcon;
-            }
-        }
-        case "INBOUND_ENDPOINT": {
-            switch (subType) {
-                case InboundEndpointTypes.CXF_WS_RM: return "cxf-ws-rm";
-                case InboundEndpointTypes.FILE: return "file";
-                case InboundEndpointTypes.HTTP: return "http";
-                case InboundEndpointTypes.HTTPS: return "https";
-                case InboundEndpointTypes.WSS: return "wss";
-                case InboundEndpointTypes.WS: return "ws";
-                case InboundEndpointTypes.KAFKA: return "kafka";
-                case InboundEndpointTypes.JMS: return "jms";
-                case InboundEndpointTypes.RABBITMQ: return "rabbit-mq";
-                case InboundEndpointTypes.MQTT: return "mqtt";
-                case InboundEndpointTypes.FEED: return "feed";
-                case InboundEndpointTypes.CUSTOM: return "custom-inbound-endpoint";
-                case InboundEndpointTypes.HL7: return "hl7";
-                default: return defaultIcon;
-            }
-        }
-        default: return defaultIcon;
-    }
-}
+
 
 interface ArtifactType {
     title: string;
@@ -213,21 +147,100 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         setConnectorData(connectorDataResponse.data);
     };
 
-    useEffect(() => {
-        fetchConnectors();
-    }, []);
-
     function getConnectorIconUrl(connectorName: string): string | undefined {
         const connector = connectorData.find(c => c.name === connectorName);
         return connector?.icon_url;
     }
 
-    const goToView = async (documentUri: string, view: MACHINE_VIEW) => {
+    useEffect(() => {
+        fetchConnectors();
+    }, []);
+
+    const getIcon = (type: string, subType: string, defaultIcon: string, connectorName: string) => {
+        switch (type) {
+            case "ENDPOINT": {
+                switch (subType) {
+                    case EndpointTypes.ADDRESS_ENDPOINT: return "address-endpoint";
+                    case EndpointTypes.DEFAULT_ENDPOINT: return "default-endpoint";
+                    case EndpointTypes.HTTP_ENDPOINT: return "http-endpoint";
+                    case EndpointTypes.LOAD_BALANCE_ENDPOINT: return "load-balance-endpoint";
+                    case EndpointTypes.WSDL_ENDPOINT: return "wsdl-endpoint";
+                    case EndpointTypes.FAILOVER_ENDPOINT: return "failover-endpoint";
+                    case EndpointTypes.RECIPIENT_ENDPOINT: return "recipient-list-endpoint";
+                    case EndpointTypes.TEMPLATE_ENDPOINT: return "template-endpoint";
+                    default: return defaultIcon;
+                }
+            }
+            case "TEMPLATE": {
+                switch (subType) {
+                    case TemplateTypes.SEQUENCE_ENDPOINT: return "sequence-template";
+                    case TemplateTypes.WSDL_ENDPOINT: return "wsdl-endpoint-template";
+                    case TemplateTypes.HTTP_ENDPOINT: return "http-endpoint-template";
+                    case TemplateTypes.ADDRESS_ENDPOINT: return "address-endpoint-template";
+                    case TemplateTypes.DEFAULT_ENDPOINT: return "default-endpoint-template";
+                    default: return defaultIcon;
+                }
+            }
+            case "MESSAGE_PROCESSOR": {
+                switch (subType) {
+                    case MessageProcessorTypes.MESSAGE_SAMPLING: return "message-sampling-processor";
+                    case MessageProcessorTypes.SCHEDULED_MESSAGE_FORWARDING: return "scheduled-message-forwarding-processor";
+                    case MessageProcessorTypes.SCHEDULED_FAILOVER_MESSAGE_FORWARDING: return "scheduled-failover-message-forwarding-processor";
+                    case MessageProcessorTypes.CUSTOM: return "custom-message-processor";
+                    default: return defaultIcon;
+                }
+            }
+            case "MESSAGE_STORE": {
+                switch (subType) {
+                    case MessageStoreTypes.IN_MEMORY: return "in-memory-message-store";
+                    case MessageStoreTypes.CUSTOM: return "custom-message-store";
+                    case MessageStoreTypes.JMS: return "jms-message-store";
+                    case MessageStoreTypes.RABBITMQ: return "rabbit-mq";
+                    case MessageStoreTypes.WSO2_MB: return "wso2-mb";
+                    case MessageStoreTypes.RESEQUENCE: return "resequence-message-store";
+                    case MessageStoreTypes.JDBC: return "jdbc-message-store";
+                    default: return defaultIcon;
+                }
+            }
+            case "INBOUND_ENDPOINT": {
+                switch (subType) {
+                    case InboundEndpointTypes.CXF_WS_RM: return "cxf-ws-rm";
+                    case InboundEndpointTypes.FILE: return "file";
+                    case InboundEndpointTypes.HTTP: return "http";
+                    case InboundEndpointTypes.HTTPS: return "https";
+                    case InboundEndpointTypes.WSS: return "wss";
+                    case InboundEndpointTypes.WS: return "ws";
+                    case InboundEndpointTypes.KAFKA: return "kafka";
+                    case InboundEndpointTypes.JMS: return "jms";
+                    case InboundEndpointTypes.RABBITMQ: return "rabbit-mq";
+                    case InboundEndpointTypes.MQTT: return "mqtt";
+                    case InboundEndpointTypes.FEED: return "feed";
+                    case InboundEndpointTypes.CUSTOM: return "custom-inbound-endpoint";
+                    case InboundEndpointTypes.HL7: return "hl7";
+                    default: return defaultIcon;
+                }
+            }
+            case "localEntry": {
+                if (connectorName) {
+                    return getConnectorIconUrl(connectorName)
+                }
+                return defaultIcon;
+            }
+            default: return defaultIcon;
+        }
+    }
+
+    const goToView = async (documentUri: string, view: MACHINE_VIEW, name: string) => {
         const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
         if (view === MACHINE_VIEW.EndPointForm || view === MACHINE_VIEW.TemplateForm) {
             view = await getView(documentUri);
         }
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
+
+        if (view === MACHINE_VIEW.ConnectionForm) {
+            goToConnectionView(documentUri, view, name);
+        } else {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
+        }
     };
 
     const goToConnectionView = async (documentUri: string, view: MACHINE_VIEW, connectionName: string) => {
@@ -313,59 +326,21 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                 <div>
                                     <h3>{artifactTypeMap[key].title}</h3>
                                     {Object.entries(value).map(([_, entry]) => (
-                                        entry.path ? (
+                                        entry.path && (
                                             <Entry
                                                 key={entry.name}
                                                 isCodicon={artifactTypeMap[key].isCodicon}
-                                                icon={getIcon(entry.type, entry.subType, artifactTypeMap[key].icon)}
+                                                icon={getIcon(entry.type, entry.subType, artifactTypeMap[key].icon, entry.connectorName)}
                                                 iconSx={artifactTypeMap[key].iconSx}
                                                 name={entry.name}
                                                 description={artifactTypeMap[key].description(entry)}
-                                                onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
-                                                goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                                onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view, entry.name)}
+                                                goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view, entry.name)}
                                                 goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
                                                 deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
                                                 isMainSequence={entry.isMainSequence}
                                                 markAsDefaultSequence={artifactTypeMap[key].title == "Sequences" ? () => markAsDefaultSequence(artifactTypeMap[key].path(entry), entry.isMainSequence) : undefined}
                                             />
-                                        ) : (
-                                            (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
-                                                if (Array.isArray(value)) {
-                                                    key = "connections"
-                                                    return (
-                                                        <div>
-                                                            {value.map(connectionEntry => (
-                                                                connectionEntry.type === "localEntry" && (
-                                                                    <Entry
-                                                                        key={connectionEntry.name}
-                                                                        icon={getConnectorIconUrl(connectionEntry.connectorName)}
-                                                                        name={connectionEntry.name}
-                                                                        description={artifactTypeMap[key].description(connectionEntry)}
-                                                                        onClick={() =>
-                                                                            goToConnectionView(
-                                                                                artifactTypeMap[key].path(connectionEntry),
-                                                                                artifactTypeMap[key].view,
-                                                                                connectionEntry.name)
-                                                                        }
-                                                                        goToView={() =>
-                                                                            goToConnectionView(
-                                                                                artifactTypeMap[key].path(connectionEntry),
-                                                                                artifactTypeMap[key].view,
-                                                                                connectionEntry.name)
-                                                                        }
-                                                                        goToSource={() =>
-                                                                            goToSource(artifactTypeMap[key].path(connectionEntry))
-                                                                        }
-                                                                        deleteArtifact={() =>
-                                                                            deleteArtifact(artifactTypeMap[key].path(connectionEntry))
-                                                                        }
-                                                                    />
-                                                                )
-                                                            ))}
-                                                        </div>
-                                                    )
-                                                }
-                                            })
                                         )
                                     ))}
                                 </div>

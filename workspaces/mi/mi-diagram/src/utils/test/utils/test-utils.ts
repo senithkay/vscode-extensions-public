@@ -106,8 +106,8 @@ export async function isValidMediatorXML(mediatorType: string, st: any): Promise
  * @param st The syntax tree of the mediator.
  * @param expectedDescription The expected description of the mediator.
  */
-export async function isValidMediatorDescription(mediatorType: string, st: any, expectedDescription: string) {
+export async function getMediatorDescription(mediatorType: string, st: any) {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     const description = getNodeDescription(mediatorType, mediatorST);
-    return description === expectedDescription;
+    return description;
 }
