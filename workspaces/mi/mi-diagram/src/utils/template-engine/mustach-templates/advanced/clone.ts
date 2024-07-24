@@ -164,7 +164,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
                 targetData.removeSequence = defaultValues.targets[i][0] == "ANONYMOUS" && targetData.isRegistrySeqAndEndpoint;
                 let range = defaultValues.ranges.targets[i];
                 if (!targetData.addSequence && !targetData.removeSequence) {
-                    targetData.selfClosed = range.endTagRange.end ? false : true;
+                    targetData.selfClosed = range?.endTagRange?.end ? false : true;
                     editRange = {
                         start: range.startTagRange.start,
                         end: range.startTagRange.end
@@ -172,7 +172,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
                 } else {
                     editRange = {
                         start: range.startTagRange.start,
-                        end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                        end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
                     }
                 }
             }

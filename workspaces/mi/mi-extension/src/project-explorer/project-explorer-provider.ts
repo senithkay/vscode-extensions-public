@@ -9,8 +9,8 @@
 
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
-import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse } from '@wso2-enterprise/mi-core';
-import { COMMANDS, EndpointTypes, TemplateTypes } from '../constants';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse, getInboundEndpoint, getMessageProcessor } from '@wso2-enterprise/mi-core';
+import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
@@ -229,8 +229,10 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'localEntries':
 					icon = 'local-entry';
 					label = 'Local Entries';
-					connectionEntry = generateConnectionEntry(artifacts[key]);
-					connectionEntry.info = artifacts[key];
+					break;
+				case 'connections':
+					icon = 'vm-connect';
+					label = 'Connections';
 					break;
 				case 'messageStores':
 					icon = 'message-store';
@@ -285,8 +287,6 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			parentEntry.children = children;
 			parentEntry.contextValue = key;
 			parentEntry.id = `${project.name}/${key}`;
-
-			connectionEntry ? parentEntry.children?.push(connectionEntry) : null;
 
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
@@ -430,6 +430,103 @@ function getTemplateIcon(templateType: string): string {
 	return icon;
 }
 
+function getInboundEndpointIcon(endpointType: InboundEndpointTypes): string {
+	let icon = 'inbound-endpoint';
+	// Replace above with switch case when more endpoint types are added
+	switch (endpointType) {
+		case InboundEndpointTypes.CXF_WS_RM:
+			icon = 'cxf-ws-rm-endpoint';
+			break;
+		case InboundEndpointTypes.FILE:
+			icon = 'file-endpoint';
+			break;
+		case InboundEndpointTypes.HL7:
+			icon = 'hl7-endpoint';
+			break;
+		case InboundEndpointTypes.JMS:
+			icon = 'jms-endpoint';
+			break;
+		case InboundEndpointTypes.MQTT:
+			icon = 'mqtt-endpoint';
+			break;
+		case InboundEndpointTypes.WS:
+			icon = 'ws-endpoint';
+			break;
+		case InboundEndpointTypes.FEED:
+			icon = 'feed-endpoint';
+			break;
+		case InboundEndpointTypes.HTTPS:
+			icon = 'https-endpoint';
+			break;
+		case InboundEndpointTypes.HTTP:
+			icon = 'http-inbound-endpoint';
+			break;
+		case InboundEndpointTypes.KAFKA:
+			icon = 'kafka-endpoint';
+			break;
+		case InboundEndpointTypes.WSS:
+			icon = 'wss-endpoint';
+			break;
+		case InboundEndpointTypes.CUSTOM:
+			icon = 'user-defined-endpoint';
+			break;
+		case InboundEndpointTypes.RABBITMQ:
+			icon = 'rabbitmq-endpoint';
+			break;
+	}
+	return icon;
+}
+
+function getMessageProcessorIcon(messageProcessorType: MessageProcessorTypes): string {
+	let icon = 'message-processor';
+	// Replace above with switch case when more endpoint types are added
+	switch (messageProcessorType) {
+		case MessageProcessorTypes.MESSAGE_SAMPLING:
+			icon = 'message-sampling-processor';
+			break;
+		case MessageProcessorTypes.SCHEDULED_MESSAGE_FORWARDING:
+			icon = 'scheduled-message-forwarding-processor';
+			break;
+		case MessageProcessorTypes.SCHEDULED_FAILOVER_MESSAGE_FORWARDING:
+			icon = 'scheduled-failover-message-forwarding-processor';
+			break;
+		case MessageProcessorTypes.CUSTOM:
+			icon = 'custom-message-processor';
+			break;
+	}
+	return icon;
+}
+
+function getMesaaageStoreIcon(messageStoreType: MessageStoreTypes): string {
+	let icon = 'message-store';
+	// Replace above with switch case when more endpoint types are added
+	switch (messageStoreType) {
+		case MessageStoreTypes.IN_MEMORY:
+			icon = 'in-memory-message-store';
+			break;
+		case MessageStoreTypes.CUSTOM:
+			icon = 'custom-message-store';
+			break;
+		case MessageStoreTypes.JMS:
+			icon = 'jms-message-store';
+			break;
+		case MessageStoreTypes.RABBITMQ:
+			icon = 'rabbit-mq';
+			break;
+		case MessageStoreTypes.WSO2_MB:
+			icon = 'wso2-mb-message-store';
+			break;
+		case MessageStoreTypes.RESEQUENCE:
+			icon = 'resequence-message-store';
+			break;
+		case MessageStoreTypes.JDBC:
+			icon = 'jdbc-message-store';
+			break;
+	}
+	return icon;
+}
+
+
 function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplorerEntry[] {
 	const result: ProjectExplorerEntry[] = [];
 
@@ -489,7 +586,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-processor');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getMessageProcessorIcon(entry.subType as MessageProcessorTypes));
 			explorerEntry.contextValue = 'message-processor';
 			explorerEntry.command = {
 				"title": "Show Message Processor",
@@ -522,11 +619,11 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
 				"title": "Show Task",
-				"command": COMMANDS.SHOW_TASK,
+				"command": COMMANDS.SHOW_TASK_VIEW,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'inbound-endpoint');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getInboundEndpointIcon(entry.subType as InboundEndpointTypes));
 			explorerEntry.contextValue = 'inboundEndpoint';
 			explorerEntry.command = {
 				"title": "Show Inbound Endpoint",
@@ -535,7 +632,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 		}
 		else if (entry.type === "MESSAGE_STORE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-store');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getMesaaageStoreIcon(entry.subType as MessageStoreTypes));
 			explorerEntry.contextValue = 'messageStore';
 			explorerEntry.command = {
 				"title": "Show Message Store",
@@ -554,6 +651,24 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"title": "Show Local Entry",
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
+			};
+
+		}
+		// TODO: Update type to connections
+		else if (entry.type === "localEntry") {
+			explorerEntry = new ProjectExplorerEntry(
+				entry.name,
+				isCollapsibleState(false),
+				entry,
+				'code',
+				true
+			);
+			explorerEntry.contextValue = 'connection';
+			explorerEntry.id = entry.name;
+			explorerEntry.command = {
+				"title": "Show Connection",
+				"command": COMMANDS.SHOW_CONNECTION,
+				"arguments": [vscode.Uri.file(entry.path), entry.name, false]
 			};
 		}
 		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
@@ -584,64 +699,6 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	}
 
 	return result;
-}
-
-function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
-	const connectionsEntry = new ProjectExplorerEntry(
-		"Connections",
-		isCollapsibleState(true),
-		connectionsData,
-		'vm-connect',
-		true
-	);
-	connectionsEntry.contextValue = 'connections';
-	connectionsEntry.id = 'connections';
-
-	for (const entry of connectionsData) {
-		if (!entry.type) {
-			for (const [key, connectionsArray] of Object.entries(entry)) {
-				const connectionTypeEntry = new ProjectExplorerEntry(
-					key,
-					isCollapsibleState((connectionsArray as any[]).length > 0),
-					{
-						name: key,
-						type: 'connections',
-						path: (connectionsArray as any)[0].path
-					},
-					'link-external',
-					true
-				);
-				connectionTypeEntry.contextValue = key;
-				connectionTypeEntry.id = key;
-
-				for (const connection of (connectionsArray as any)) {
-					const connectionEntry = new ProjectExplorerEntry(
-						connection.name,
-						isCollapsibleState(false),
-						connection,
-						'code',
-						true
-					);
-					connectionEntry.contextValue = 'connection';
-					connectionEntry.id = connection.name;
-
-					connectionEntry.command = {
-						"title": "Show Connection",
-						"command": COMMANDS.SHOW_CONNECTION,
-						"arguments": [vscode.Uri.file(connection.path), connection.name, false]
-					};
-
-					connectionTypeEntry.children = connectionTypeEntry.children ?? [];
-					connectionTypeEntry.children.push(connectionEntry);
-
-				}
-				connectionsEntry.children = connectionsEntry.children ?? [];
-				connectionsEntry.children.push(connectionTypeEntry);
-			}
-		}
-	}
-
-	return connectionsEntry;
 }
 
 function checkExistanceOfRegistryResource(registryPath: string): boolean {
