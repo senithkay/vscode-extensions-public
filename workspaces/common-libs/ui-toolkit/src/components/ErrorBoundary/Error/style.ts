@@ -43,5 +43,9 @@ export const useStyles = () => ({
             color: "var(--vscode-editor-selectionBackground)",
             textDecoration: "underline",
         }
-    })
+    }),
+    iconContainer: css({
+        display: "flex",
+        flexDirection: "row"
+    }),
 });

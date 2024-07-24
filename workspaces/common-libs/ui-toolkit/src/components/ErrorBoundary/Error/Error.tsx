@@ -18,6 +18,7 @@ import { Icon } from "../../Icon/Icon";
 export interface ErrorProps {
     errorMsg?: string;
     issueUrl?: string;
+    goHome?: () => void;
 }
 
 export function ErrorScreen(props: ErrorProps) {
@@ -31,9 +32,16 @@ export function ErrorScreen(props: ErrorProps) {
             <Typography variant="h4" className={classes.errorTitle}>
                 {props.errorMsg ? props.errorMsg : "A problem occurred."}
             </Typography>
-            <Button appearance="icon" onClick={resetBoundary}>
-                <Icon name="refresh" isCodicon sx={{ width: 24, height: 24 }} iconSx={{ fontSize: 24 }} />
-            </Button>
+            <div className={classes.iconContainer}>
+                <Button appearance="icon" onClick={resetBoundary}>
+                    <Icon name="refresh" isCodicon sx={{ width: 24, height: 24 }} iconSx={{ fontSize: 24 }} />
+                </Button>
+                {props.goHome && (
+                    <Button appearance="icon" onClick={() => props.goHome() }>
+                        <Icon name="home" isCodicon sx={{ width: 24, height: 24 }} iconSx={{ fontSize: 24 }} />
+                    </Button>
+                )}
+            </div>
             <Typography variant="body2" className={classes.errorMsg}>
                 Please raise an issue in our <a href={issueUrl}>issue tracker</a>
             </Typography>
