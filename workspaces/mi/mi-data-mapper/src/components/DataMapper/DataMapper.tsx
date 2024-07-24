@@ -44,7 +44,7 @@ export interface MIDataMapperProps {
     fileContent: string;
     filePath: string;
     configName: string;
-    applyModifications: () => Promise<void>;
+    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 enum ActionType {

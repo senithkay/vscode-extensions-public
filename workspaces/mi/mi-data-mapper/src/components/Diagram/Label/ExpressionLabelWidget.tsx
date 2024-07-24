@@ -217,8 +217,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayToArrayMappingWithFn(linkModelValue.getText(), targetType, isSourceOptional);
 
-            targetExpr.replaceWithText(mapFnSrc);
-            await context.applyModifications();
+                const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
+                await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
     };
 
