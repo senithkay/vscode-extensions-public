@@ -75,7 +75,7 @@
               "displayName": "Property Value",
               "inputType": "stringOrExpression",
               "defaultValue": "",
-              "required": true,
+              "required": false,
               "helpTip": "Value",
               "enableCondition": [
                 "AND",
@@ -98,7 +98,7 @@
               "displayName": "OM",
               "inputType": "string",
               "defaultValue": "",
-              "required": true,
+              "required": false,
               "helpTip": "Value",
               "enableCondition": [
                 {
@@ -118,7 +118,7 @@
                 "DEFAULT",
                 "TRANSPORT",
                 "AXIS2",
-                "AXIS2_CLIENT",
+                "AXIS2-CLIENT",
                 "OPERATION",
                 "REGISTRY",
                 "SYSTEM",
@@ -190,7 +190,7 @@
         "displayName": "Description",
         "inputType": "string",
         "defaultValue": "",
-        "required": true,
+        "required": false,
         "helpTip": "Description"
       }
     }
