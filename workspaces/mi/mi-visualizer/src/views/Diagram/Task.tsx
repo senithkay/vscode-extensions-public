@@ -35,6 +35,12 @@ export const TaskView = ({ path, model, diagnostics }: TaskViewProps) => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.TaskForm, documentUri: path } });
     }
 
+    useEffect(() => {
+        if (model && model.sequence === undefined) {
+            handleEditTask();
+        }
+    }, [model]);
+
     return (
         <View>
             {model && model.name &&

@@ -62,6 +62,7 @@ const initialInboundEndpoint: InputsFields = {
     invokeHandlers: false,
     format: "soap12",
     injectTo: "sequence",
+    message: "<message></message>",
 };
 
 function generateSequenceName(taskName: string) {
@@ -75,7 +76,7 @@ export function TaskForm(props: TaskFormProps) {
     const [savedTaskName, setSavedTaskName] = useState<string>("");
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
-    const [messageIsXML, setMessageIsXML] = useState(false);
+    const [messageIsXML, setMessageIsXML] = useState(true);
     const [xmlErrors, setXmlErrors] = useState({
         code: "",
         col: 0,
@@ -122,7 +123,7 @@ export function TaskForm(props: TaskFormProps) {
             otherwise: (schema) => schema.notRequired().default(''),
         }),
         format: yup.mixed().oneOf(["soap11", "soap12", "pox", "get"]).default("soap12"),
-        to: yup.string().matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in the URL").notRequired(),
+        // to: yup.string().matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in the URL").notRequired(),
         injectTo: yup.mixed().oneOf(["proxy", "sequence"]).default("sequence"),
         proxyName: yup.string().when('injectTo', {
             is: 'proxy',
@@ -318,7 +319,7 @@ export function TaskForm(props: TaskFormProps) {
                 <Dropdown
                     id="injectTo"
                     label="Message inject destination"
-                    items={[{ value: "main" }, { value: "sequence" }, { value: "proxy" }]}
+                    items={[{ value: "sequence" }, { value: "proxy" }]}
                     {...register("injectTo")}
                 />
                 {watch("injectTo") === 'main' && (<>
