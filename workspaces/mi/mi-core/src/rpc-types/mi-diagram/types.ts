@@ -889,6 +889,7 @@ export interface CreateTaskRequest {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
+    sequence: CreateSequenceRequest | undefined;
 }
 
 export interface taskProperty {

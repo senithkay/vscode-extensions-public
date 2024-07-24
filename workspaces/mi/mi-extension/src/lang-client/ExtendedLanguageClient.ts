@@ -111,9 +111,10 @@ export interface RangeFormatParams {
 }
 
 export class ExtendedLanguageClient extends LanguageClient {
+
     constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
         super(id, name, serverOptions, clientOptions);
-        
+
         this.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
             // Notify the visualizer
             RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
@@ -189,7 +190,7 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getAvailableResources(req: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
         let uri: string | undefined;
-        if(req.documentIdentifier){
+        if (req.documentIdentifier) {
             uri = Uri.file(req.documentIdentifier).toString();
         }
         return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: uri }, "resourceType": req.resourceType });
@@ -253,5 +254,22 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
         return this.sendRequest("synapse/testDBConnection", req);
+    }
+
+    async getSequencePath(sequenceName: string): Promise<string | undefined> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const resp = await this.getProjectStructure(rootPath);
+                const sequences = resp.directoryMap.src.main.wso2mi.artifacts.sequences;
+                const match = sequences.find((sequence: any) => sequence.name === sequenceName);
+                resolve(match ? match.path : undefined);
+            }
+
+            resolve(undefined);
+        });
     }
 }

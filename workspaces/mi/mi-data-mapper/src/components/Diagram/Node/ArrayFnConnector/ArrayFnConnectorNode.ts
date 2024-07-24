@@ -291,11 +291,11 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     }
                 });
             } else {
-                this.value.replaceWithText(getDefaultValue(dmNode.dmType.kind));
+                this.setValue(this.value.replaceWithText(getDefaultValue(dmNode.dmType.kind)) as CallExpression);
             }
         }
 
-        await this.context.applyModifications();
+        await this.context.applyModifications(this.value.getSourceFile().getFullText());
     }
 
     private extractSourceExprFromChain(callExpression: CallExpression): SourceExprType {
@@ -318,5 +318,9 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         }
     
         return undefined;
+    }
+
+    public setValue(value: CallExpression): void {
+        this.value = value;
     }
 }

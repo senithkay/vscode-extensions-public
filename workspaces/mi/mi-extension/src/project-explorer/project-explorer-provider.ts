@@ -619,7 +619,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
 				"title": "Show Task",
-				"command": COMMANDS.SHOW_TASK,
+				"command": COMMANDS.SHOW_TASK_VIEW,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {

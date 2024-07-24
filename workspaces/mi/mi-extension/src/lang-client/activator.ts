@@ -22,7 +22,12 @@ import {
 } from 'vscode';
 import * as path from 'path';
 import {
-    LanguageClientOptions
+    CloseAction,
+    CloseHandlerResult,
+    ErrorAction,
+    ErrorHandlerResult,
+    LanguageClientOptions,
+    Message
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
 import { DidChangeConfigurationNotification } from 'vscode-languageserver-protocol';
@@ -133,7 +138,7 @@ export class MILanguageClient {
             if (JAVA_HOME) {
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
                 let schemaPath = this.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
-                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));                
+                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));
 
                 let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
                 const args: string[] = [schemaPathArg, '-cp', langServerCP];
@@ -181,6 +186,35 @@ export class MILanguageClient {
                         log(error.toString());
                         this.updateErrors(ERRORS.LANG_CLIENT_START);
                         return false;
+                    },
+                    errorHandler: {
+                        error: (error: Error, message: Message | undefined, count: number | undefined): ErrorHandlerResult | Promise<ErrorHandlerResult> => {
+                            console.error("Language Client Error:", error);
+                            if (count && count >= 3) {
+                                window.showWarningMessage(
+                                    "The language server is returning errors. Please restart the editor.",
+                                    "Reload",
+                                    "Cancel"
+                                ).then(selection => {
+                                    if (selection === "Reload") {
+                                        commands.executeCommand("workbench.action.reloadWindow");
+                                    }
+                                }); return { action: ErrorAction.Shutdown };
+                            }
+                            return { action: ErrorAction.Continue };
+                        },
+                        closed: (): CloseHandlerResult => {
+                            window.showWarningMessage(
+                                "The language client has closed unexpectedly. Please restart the editor.",
+                                "Reload",
+                                "Cancel"
+                            ).then(selection => {
+                                if (selection === "Reload") {
+                                    commands.executeCommand("workbench.action.reloadWindow");
+                                }
+                            });
+                            return { action: CloseAction.DoNotRestart };
+                        }
                     }
                 };
 

@@ -3265,6 +3265,7 @@ importers:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       '@babel/core': ^7.24.4
       '@babel/plugin-transform-typescript': ^7.16.1
+      '@iarna/toml': ^2.2.5
       '@playwright/test': ~1.37.1
       '@types/fs-extra': ~11.0.4
       '@types/json-schema': 7.0.15
@@ -3308,7 +3309,6 @@ importers:
       rimraf: ~5.0.5
       tmp: ~0.2.3
       to-json-schema: 0.2.4
-      toml: ^3.0.0
       tree-kill: ~1.2.2
       ts-loader: ^9.4.4
       ts-morph: ^22.0.0
@@ -3331,6 +3331,7 @@ importers:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       '@babel/core': 7.24.4
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.4
+      '@iarna/toml': 2.2.5
       '@playwright/test': 1.37.1
       '@types/fs-extra': 11.0.4
       '@types/json-schema': 7.0.15
@@ -3361,7 +3362,6 @@ importers:
       recast: 0.20.5
       tmp: 0.2.3
       to-json-schema: 0.2.4
-      toml: 3.0.0
       tree-kill: 1.2.2
       unzipper: 0.10.14
       uuid: 9.0.1
@@ -8645,6 +8645,10 @@ packages:
 
   /@humanwhocodes/object-schema/2.0.2:
     resolution: {integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==}
+
+  /@iarna/toml/2.2.5:
+    resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
+    dev: false
 
   /@isaacs/cliui/8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
