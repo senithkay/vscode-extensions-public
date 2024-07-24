@@ -114,7 +114,7 @@
               "defaultValue": "ANONYMOUS",
               "comboValues": [
                 "ANONYMOUS",
-                "REGISTRY_REFERENCE"
+                "REGISTRY REFERENCE"
               ],
               "required": false,
               "helpTip": ""
@@ -129,10 +129,10 @@
               "keyType": "sequence",
               "enableCondition": [
                 {
-                  "sequenceType": "REGISTRY_REFERENCE"
+                  "sequenceType": "REGISTRY REFERENCE"
                 }
               ],
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           }
