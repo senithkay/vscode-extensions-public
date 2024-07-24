@@ -93,30 +93,30 @@ export function Diagram(props: DiagramProps) {
         setDiagramModel(newDiagramModel);
         registerListeners(diagramEngine);
 
-        setTimeout(() => {
-            diagramEngine.setModel(newDiagramModel);
-            // remove loader overlay layer
-            const overlayLayer = diagramEngine
-                .getModel()
-                .getLayers()
-                .find((layer) => layer instanceof OverlayLayerModel);
-            if (overlayLayer) {
-                diagramEngine.getModel().removeLayer(overlayLayer);
-            }
+        // setTimeout(() => {
+        diagramEngine.setModel(newDiagramModel);
+        // remove loader overlay layer
+        const overlayLayer = diagramEngine
+            .getModel()
+            .getLayers()
+            .find((layer) => layer instanceof OverlayLayerModel);
+        if (overlayLayer) {
+            diagramEngine.getModel().removeLayer(overlayLayer);
+        }
 
-            const hasPreviousPosition = hasDiagramZoomAndPosition();
-            if (hasPreviousPosition) {
-                // reset canvas position to previous position
-                loadDiagramZoomAndPosition(diagramEngine);
-            } else {
-                // change canvas position to first node
-                const firstNode = newDiagramModel.getNodes().at(0);
-                diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
-            }
-            diagramEngine.repaintCanvas();
-            // update the diagram model state
-            setDiagramModel(newDiagramModel);
-        }, 500);
+        const hasPreviousPosition = hasDiagramZoomAndPosition();
+        if (hasPreviousPosition) {
+            // reset canvas position to previous position
+            loadDiagramZoomAndPosition(diagramEngine);
+        } else {
+            // change canvas position to first node
+            const firstNode = newDiagramModel.getNodes().at(0);
+            diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
+        }
+        diagramEngine.repaintCanvas();
+        // update the diagram model state
+        setDiagramModel(newDiagramModel);
+        // }, 100);
     };
 
     const handleCloseComponentPanel = () => {

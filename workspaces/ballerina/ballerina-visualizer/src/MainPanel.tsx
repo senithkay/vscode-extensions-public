@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { KeyboardNavigationManager, MachineStateValue, STModification, Flow } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, STModification } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
@@ -25,7 +25,6 @@ import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
-import { Diagram } from '@wso2-enterprise/eggplant-diagram';
 import { URI } from 'vscode-uri';
 
 const globalStyles = css`
@@ -91,7 +90,7 @@ const MainPanel = () => {
                         );
                         break;
                     case "EggplantDiagram":
-                        setViewComponent(<EggplantDiagram />);
+                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree}/>);
                         break;
                     case "ERDiagram":
                         setViewComponent(<ERDiagram />);
@@ -138,9 +137,9 @@ const MainPanel = () => {
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
-                <ComponentViewWrapper>
+                {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
-                </ComponentViewWrapper>
+                </ComponentViewWrapper>}
             </VisualizerContainer>
         </>
     );
