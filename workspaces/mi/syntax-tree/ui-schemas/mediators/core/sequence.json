@@ -7,8 +7,8 @@
     {
       "type": "attribute",
       "value": {
-        "name": "referingSequence",
-        "displayName": "Refering Sequence",
+        "name": "referringSequence",
+        "displayName": "Referring Sequence",
         "inputType": "keyOrExpression",
         "required": false,
         "helpTip": "",

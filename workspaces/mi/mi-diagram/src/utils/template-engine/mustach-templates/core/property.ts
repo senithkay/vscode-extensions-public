@@ -65,7 +65,7 @@ export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node
         data.propertyAction = node.action;
     }
     if (node.scope) {
-        data.propertyScope = node.scope;
+        data.propertyScope = node.scope.toUpperCase();
     }
     if (node.pattern) {
         data.valueStringPattern = node.pattern;

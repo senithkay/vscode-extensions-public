@@ -1,4 +1,4 @@
-<aggregate id="AggregateID" >
+<aggregate id="AggregateID">
 <correlateOn expression="Cor Exp" />
         <completeCondition timeout="0">
             <messageCount max="-1" min="-1" />

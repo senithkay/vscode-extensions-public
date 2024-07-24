@@ -306,7 +306,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'template':
 			case 'dataSource':
 			case 'dataService':
-			case 'data-mapper':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
 					if (!fileUri) {
@@ -329,7 +328,31 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					}
 					break;
 				}
+			case 'data-mapper':
+				{
+					const fileUri = item.command?.arguments?.[0];
+					if (!fileUri) {
+						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete Datamapper ${item.label} and its related contents?`,
+						{ modal: true },
+						'Yes'
+					);
 
+					if (confirmation === 'Yes') {
+						try {
+							// delete the file and the residing folder
+							const folderPath = path.dirname(fileUri);
+							await workspace.fs.delete(Uri.parse(folderPath), { recursive: true, useTrash: true });
+							window.showInformationMessage(`${item.label} has been deleted.`);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
+						}
+					}
+					break;
+				}
 			case 'resource':
 				{
 					const resourceId = item.command?.arguments?.[1];

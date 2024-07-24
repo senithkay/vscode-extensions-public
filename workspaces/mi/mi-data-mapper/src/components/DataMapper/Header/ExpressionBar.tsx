@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, PropertyAssignment, ReturnStatement, ts, SyntaxKind, Expression } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
@@ -20,6 +20,8 @@ import { filterCompletions } from './utils';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { View } from '../Views/DataMapperView';
+import { isMapFunction } from '../../../components/Diagram/utils/common-utils';
+import { getMapFunctionReturnStatement} from '../../../components/Diagram/utils/st-utils';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -40,6 +42,7 @@ export interface ExpressionBarProps {
     views: View[];
     filePath: string;
     applyModifications: () => Promise<void>;
+    
 }
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
@@ -150,7 +153,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (textFieldRef.current) {
                 textFieldRef.current.focus();
             }
-    
+
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
@@ -200,10 +203,28 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
+            const { focusedST, views } = focusedNode.context;
+            
+            let returnExpr: Expression;
 
-            const returnExpr = (fnBody.getStatements().find((statement) =>
-                Node.isReturnStatement(statement)
-            ) as ReturnStatement)?.getExpression();
+            //Condition to check array mapping or not
+            if (views.length > 1) {
+                if (Node.isPropertyAssignment(focusedST)) {
+                    const propertyAssignment = focusedST as PropertyAssignment;
+                    const arrowFunction = propertyAssignment?.getInitializerIfKindOrThrow(SyntaxKind.CallExpression)
+                        ?.getArguments()?.[0]
+                        ?.asKindOrThrow(SyntaxKind.ArrowFunction);
+                    const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
+                    returnExpr = returnStatement?.getExpression();
+                } else if (Node.isReturnStatement(focusedST)) {
+                    const returnStatement = getMapFunctionReturnStatement(focusedST, views[views.length-1].mapFnIndex) as ReturnStatement;
+                    returnExpr = returnStatement?.getExpression();
+                }
+            } else {
+                returnExpr = (fnBody.getStatements().find((statement) =>
+                    Node.isReturnStatement(statement)
+                ) as ReturnStatement)?.getExpression();
+            }
 
             let objLitExpr: ObjectLiteralExpression;
             if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
