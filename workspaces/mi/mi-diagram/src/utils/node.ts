@@ -16,6 +16,7 @@ import { getSwitchDescription } from "./template-engine/mustach-templates/filter
 import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
 import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
 import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
+import { getAggregateDescription } from "./template-engine/mustach-templates/eip/aggregate";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -66,6 +67,9 @@ export function getNodeDescription(name: string, stNode: any): string {
         }
         case (MEDIATORS.DATASERVICECALL): {
             return getDSCallDescription(stNode);
+        }
+        case (MEDIATORS.AGGREGATE): {
+            return getAggregateDescription(stNode);
         }
         default:
             return;

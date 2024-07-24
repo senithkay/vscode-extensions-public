@@ -185,3 +185,10 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
     data.onCompleteSelfClosed = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.selfClosed;
     return data;
 }
+
+export function getAggregateDescription(node: Aggregate) {
+    const onComplete = node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+    const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+    return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
+}
