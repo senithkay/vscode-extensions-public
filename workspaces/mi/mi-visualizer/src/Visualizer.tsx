@@ -66,8 +66,12 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
         }
     }, []);
 
+    const goHome = () => {
+        rpcClient.getMiVisualizerRpcClient().goHome();
+    };
+
     return (
-        <ErrorBoundary errorMsg="An error occurred in the MI Diagram" issueUrl="https://github.com/wso2/mi-vscode/issues" ref={errorBoundaryRef}>
+        <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl="https://github.com/wso2/mi-vscode/issues" ref={errorBoundaryRef}>
             {(() => {
                 switch (mode) {
                     case MODES.VISUALIZER:
