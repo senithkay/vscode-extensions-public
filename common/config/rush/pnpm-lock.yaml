@@ -588,6 +588,7 @@ importers:
       lodash: ~4.17.21
       react: ~18.2.0
       react-dom: ~18.2.0
+      react-hook-form: ~7.52.1
       typescript: ^4.3.5
     dependencies:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
@@ -596,6 +597,7 @@ importers:
       lodash: 4.17.21
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      react-hook-form: 7.52.1_react@18.2.0
     devDependencies:
       '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
       '@types/lodash': 4.14.202
@@ -36111,6 +36113,15 @@ packages:
     engines: {node: '>=12.22.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18
+    dev: false
+
+  /react-hook-form/7.52.1_react@18.2.0:
+    resolution: {integrity: sha512-uNKIhaoICJ5KQALYZ4TOaOLElyM+xipord+Ha3crEFhTntdLvWZqVY49Wqd/0GiVCA/f9NjemLeiNPjG7Hpurg==}
+    engines: {node: '>=12.22.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-icons/4.12.0_react@17.0.2:

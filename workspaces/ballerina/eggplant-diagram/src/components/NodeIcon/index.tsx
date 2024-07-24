@@ -26,6 +26,7 @@ export default function NodeIcon(props: NodeIconProps) {
             return <CodeIcon />;
         case "HTTP_API_GET_CALL":
         case "HTTP_API_POST_CALL":
+        case "ACTION_CALL":
             return <CallIcon />;
         case "RETURN":
             return <ReturnIcon />;

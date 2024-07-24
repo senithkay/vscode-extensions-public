@@ -7,13 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./icons/nodes/BranchIcon";
-export * from "./icons/nodes/CallIcon";
-export * from "./icons/nodes/CodeIcon";
-export * from "./icons/nodes/CallIcon";
-export * from "./icons/nodes/LogIcon";
-export * from "./icons/nodes/SendIcon";
-export * from "./icons/nodes/MoreVertIcon";
-export * from "./icons/nodes/PlusIcon";
-export * from "./icons/nodes/CloseIcon";
-export * from "./icons/nodes/BackIcon";
+export type FormValues = {
+    [key: string]: any;
+};
+
+export type FormField = {
+    key: string;
+    label: string;
+    type: null | string;
+    optional: boolean;
+    editable: boolean;
+    documentation: string;
+    value: string;
+};

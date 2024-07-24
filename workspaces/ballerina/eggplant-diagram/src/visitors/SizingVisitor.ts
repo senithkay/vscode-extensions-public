@@ -17,6 +17,7 @@ import {
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
+    VSCODE_MARGIN,
 } from "../resources/constants";
 import { Branch, Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -25,7 +26,7 @@ export class SizingVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
 
     constructor() {
-        console.log("sizing visitor started");
+        console.log(">>> sizing visitor started");
     }
 
     private setNodeSize(
@@ -86,7 +87,8 @@ export class SizingVisitor implements BaseVisitor {
         // add if node width and height
         height += IF_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
 
-        this.setNodeSize(node, IF_NODE_WIDTH, IF_NODE_WIDTH, width, height);
+        const ifNodeWidth = IF_NODE_WIDTH + VSCODE_MARGIN;
+        this.setNodeSize(node, ifNodeWidth, ifNodeWidth, width, height);
     }
 
     endVisitBlock(node: Branch, parent?: Node): void {
@@ -113,6 +115,10 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     endVisitHttpApiPostCall(node: Node, parent?: Node): void {
+        this.createApiCallNode(node);
+    }
+
+    endVisitActionCall(node: Node, parent?: Node): void {
         this.createApiCallNode(node);
     }
 

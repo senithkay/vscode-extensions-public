@@ -16,3 +16,7 @@ export * from "./icons/nodes/SendIcon";
 export * from "./icons/nodes/MoreVertIcon";
 export * from "./icons/nodes/PlusIcon";
 export * from "./icons/nodes/CloseIcon";
+export * from "./icons/nodes/HttpIcon";
+export * from "./icons/nodes/DatabaseIcon";
+export * from "./icons/nodes/ApiIcon";
+

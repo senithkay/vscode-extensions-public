@@ -24,7 +24,7 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH / 3}px;
+        width: ${NODE_WIDTH / 3}px;
         min-height: ${NODE_HEIGHT / 1.5}px;
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid

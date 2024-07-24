@@ -13,9 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
 import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
-import NodeIcon from "../../NodeIcon";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
