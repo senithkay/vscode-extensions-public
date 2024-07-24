@@ -27,6 +27,7 @@ export const COMMANDS = {
     SHOW_SEQUENCE_TEMPLATE_VIEW: "MI.show.sequence_template-view",
     SHOW_PROXY_VIEW: "MI.show.proxy-view",
     SHOW_TASK: "MI.show.task",
+    SHOW_TASK_VIEW: "MI.show.task-view",
     SHOW_INBOUND_ENDPOINT: "MI.show.inbound-endpoint",
     SHOW_SOURCE: "MI.show.source",
     SHOW_XML: "MI.show.xml",
