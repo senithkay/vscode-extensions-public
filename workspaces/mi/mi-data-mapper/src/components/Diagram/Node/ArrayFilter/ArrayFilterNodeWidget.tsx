@@ -131,13 +131,13 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
 
         const updatedExpression = targetExpr.getText() + newFilter;
         const updatedTargetExpr = targetExpr.replaceWithText(updatedExpression);
-        await applyModifications(updatedTargetExpr.getSourceFile().getFullText());
 
         if (isCollapsed) {
             setIsCollapsed(false);
         }
 
         setAddedNewFilter(true);
+        await applyModifications(updatedTargetExpr.getSourceFile().getFullText());
     }
 
     const handleExpand = () => {

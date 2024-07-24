@@ -22,7 +22,7 @@ import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Controller, useForm } from 'react-hook-form';
 
 import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
-import { Block, FunctionDeclaration, VariableStatement } from "ts-morph";
+import { Block, FunctionDeclaration, Node, VariableStatement } from "ts-morph";
 import { SourceNodeType, View } from "../../Views/DataMapperView";
 import { getDefaultValue } from "../../../Diagram/utils/common-utils";
 import { DataMapperNodeModel } from "../../../Diagram/Node/commons/DataMapperNode";
@@ -111,18 +111,19 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             updatedName = mappingName;
         }
 
+        let updatedNode: Node;
         if (mappingType !== prevMappingType && mappingType !== "object" && varDecl) {
             const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);
             if (typeNode) {
-                const updatedTypeNode = typeNode.replaceWithText(typeDesc);
-                await applyModifications(updatedTypeNode.getSourceFile().getFullText());
+                updatedNode = typeNode.replaceWithText(typeDesc);
+                await applyModifications(updatedNode.getSourceFile().getFullText());
             } else {
                 varDecl.setType(typeDesc);
             }
-            const updatedInitializer = varDecl.getInitializer().replaceWithText(defaultValue);
-            await applyModifications(updatedInitializer.getSourceFile().getFullText());
+            updatedNode = varDecl.getInitializer().replaceWithText(defaultValue);
+            await applyModifications(updatedNode.getSourceFile().getFullText());
             updatedType = typeDesc;
         }
 
@@ -136,6 +137,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             }
         });
 
+        await applyModifications(updatedNode.getSourceFile().getFullText());
         resetSubMappingConfig();
         reset();
     };
