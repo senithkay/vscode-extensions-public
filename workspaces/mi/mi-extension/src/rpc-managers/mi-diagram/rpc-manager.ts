@@ -208,7 +208,6 @@ import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
 import { isEqual } from "lodash";
-import fetch from 'node-fetch';
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
