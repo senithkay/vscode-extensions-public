@@ -108,7 +108,7 @@
                     "DEFAULT",
                     "TRANSPORT",
                     "AXIS2",
-                    "AXIS2_CLIENT",
+                    "AXIS2-CLIENT",
                     "OPERATION",
                     "REGISTRY",
                     "SYSTEM",

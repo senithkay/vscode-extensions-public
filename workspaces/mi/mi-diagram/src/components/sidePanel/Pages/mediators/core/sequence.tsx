@@ -48,7 +48,7 @@ const SequenceForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            referingSequence: sidePanelContext?.formValues?.referingSequence || "",
+            referringSequence: sidePanelContext?.formValues?.referringSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -95,17 +95,17 @@ const SequenceForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <Controller
-                        name="referingSequence"
+                        name="referringSequence"
                         control={control}
                         render={({ field }) => (
                             <FormKeylookup
                                 control={control}
-                                name='referingSequence'
-                                label="Refering Sequence"
+                                name='referringSequence'
+                                label="Referring Sequence"
                                 filterType='sequence'
                                 allowItemCreate={false}
                                 required={false}
-                                errorMsg={errors?.referingSequence?.message?.toString()}
+                                errorMsg={errors?.referringSequence?.message?.toString()}
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}

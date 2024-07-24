@@ -48,6 +48,9 @@ const KeyTextWrapper = styled.div`
 const Key= styled.div`
     cursor: pointer;
     margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const IconTextWrapper = styled.div`
@@ -58,6 +61,12 @@ const IconTextWrapper = styled.div`
     width: 150px;
     background-color: var(--vscode-inputValidation-infoBackground);
     height: 100%;
+`;
+
+const KeyWrapper = styled.div`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const ValueTextWrapper = styled.div`
@@ -222,7 +231,7 @@ export function ParamItem(props: ParamItemProps) {
                 {icon ? (
                     <IconTextWrapper>
                         <IconWrapper> {icon} </IconWrapper>
-                        {params.key}
+                        <KeyWrapper> {params.key} </KeyWrapper>
                     </IconTextWrapper>
                 ) : (
                     <KeyTextWrapper>

@@ -14,7 +14,7 @@ import { checkAttributesExist, transformNamespaces } from "../../../commons";
 export function getAggregateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <aggregate id="{{aggregateID}}" >
+    <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
 {{#correlationExpression}}<correlateOn expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}/>{{/correlationExpression}}
         <completeCondition timeout="{{completionTimeout}}">
             <messageCount {{#completionMax}}max="{{{completionMax}}}" {{/completionMax}}{{#completionMin}}min="{{{completionMin}}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/messageCountNamespaces}}/>
@@ -29,7 +29,7 @@ export function getAggregateMustacheTemplate() {
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editAggregate}}
-    <aggregate id="{{aggregateID}}" >
+    <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
     {{/editAggregate}}
     {{#editCorrelateOn}}
     {{#correlationExpression}}<correlateOn expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}/>{{/correlationExpression}}
