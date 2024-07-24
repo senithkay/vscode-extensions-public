@@ -321,8 +321,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     .find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
                 targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
             }
-            targetExpr.addElement(defaultValue);
-            await context.applyModifications();
+            const updatedTargetExpr = targetExpr.addElement(defaultValue);
+            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         } finally {
             setIsAddingElement(false);
         }
