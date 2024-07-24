@@ -96,7 +96,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let range = defaultValues.ranges.target;
         let editRange = {
             start: range.startTagRange.start,
-            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
         }
         let output = Mustache.render(getIterateMustacheTemplate(), dataCopy)?.trim();
         let edit = {
