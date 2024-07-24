@@ -173,6 +173,13 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         }
     }
 
+    const onClick = (e: any) => {
+        if (node.stNode.tag === "target") {
+            return;
+        }
+        node.onClicked(e, node, rpcClient, sidePanelContext);
+    }
+
     const TooltipEl = useMemo(() => {
         return () => (
             <S.TooltipContent style={{ textWrap: "wrap" }}>
@@ -190,7 +197,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                     hovered={isHovered}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
+                    onClick={onClick}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
