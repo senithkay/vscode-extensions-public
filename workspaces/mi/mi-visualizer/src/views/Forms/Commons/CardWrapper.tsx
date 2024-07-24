@@ -191,7 +191,6 @@ const CardWrapper = (props: CardWrapperProps) => {
                     title={card.title}
                     description={card.description}
                     onClick={() => props.setType(card.title)}
-                    badgeText={props.cardsType === "INBOUND_ENDPOINT" ? "inBuilt" : ""}
                 />
             ))}
         </CardContainer>
