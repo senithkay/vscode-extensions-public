@@ -451,7 +451,7 @@ export type EggplantFlowModelResponse = {
 };
 
 export interface EggplantSourceCodeRequest {
-    flowNode: Node;
+    diagramNode: Node;
 }
 
 export type EggplantSourceCodeResponse = {

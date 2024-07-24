@@ -26,6 +26,7 @@ import {
     getContainerTitle,
     updateNodeProperties,
 } from "./../../utils/eggplant";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 const Container = styled.div`
     width: 100%;
@@ -37,7 +38,11 @@ export enum SidePanelView {
     FORM = "FORM",
 }
 
-export function EggplantDiagram() {
+export interface EggplantDiagramProps {
+    syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
+}
+
+export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
@@ -50,7 +55,7 @@ export function EggplantDiagram() {
 
     useEffect(() => {
         getSequenceModel();
-    }, []);
+    }, [param.syntaxTree]);
 
     const getSequenceModel = () => {
         rpcClient
@@ -70,6 +75,7 @@ export function EggplantDiagram() {
     };
 
     const handleOnAddNode = (parent: Node) => {
+        console.log(">>> opening panel...");
         setShowSidePanel(true);
         setSidePanelView(SidePanelView.NODE_LIST);
         topNodeRef.current = parent;
@@ -121,16 +127,19 @@ export function EggplantDiagram() {
 
             rpcClient
                 .getEggplantDiagramRpcClient()
-                .getSourceCode({ flowNode: updatedNode })
+                .getSourceCode({ diagramNode: updatedNode })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
-                    // update the model
+                    if (response.textEdits) {
+                        // clear memory
+                        setFields([]);
+                        selectedNodeRef.current = undefined;
+                        handleOnCloseSidePanel();
+                    } else {
+                        console.error(">>> Error updating source code", response);
+                        // handle error
+                    }
                 });
-
-            // clear memory
-            setFields([]);
-            selectedNodeRef.current = undefined;
-            handleOnCloseSidePanel();
         }
     };
 
