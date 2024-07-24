@@ -18,7 +18,8 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
-import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { FormKeylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
@@ -49,7 +50,6 @@ const StoreForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             messageStore: sidePanelContext?.formValues?.messageStore || "",
-            expression: sidePanelContext?.formValues?.expression || {"isExpression":true,"value":""},
             onStoreSequence: sidePanelContext?.formValues?.onStoreSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -100,29 +100,21 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="messageStore"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} errorMsg={errors?.messageStore?.message?.toString()} />
-                        )}
-                    />
-                </Field>
-
-                {watch("messageStore") == "Select Expresison" &&
-                <Field>
-                    <Controller
-                        name="expression"
-                        control={control}
-                        render={({ field }) => (
-                            <ExpressionField
-                                {...field} label="Expression"
-                                placeholder=""
+                            <FormKeylookup
+                                control={control}
+                                name='messageStore'
+                                label="Message Store"
+                                filterType='messageStore'
+                                allowItemCreate={false}
                                 required={false}
-                                errorMsg={errors?.expression?.message?.toString()}
-                                canChange={false}
+                                errorMsg={errors?.messageStore?.message?.toString()}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
                 </Field>
-                }
 
                 <Field>
                     <Controller

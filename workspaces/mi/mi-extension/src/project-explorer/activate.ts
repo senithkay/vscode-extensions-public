@@ -35,7 +35,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			}
 		});
-
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
@@ -209,6 +208,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	});
+	commands.registerCommand(COMMANDS.SHOW_TASK_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskView, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
 	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
@@ -306,7 +309,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'template':
 			case 'dataSource':
 			case 'dataService':
-			case 'data-mapper':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
 					if (!fileUri) {
@@ -329,7 +331,31 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					}
 					break;
 				}
+			case 'data-mapper':
+				{
+					const fileUri = item.command?.arguments?.[0];
+					if (!fileUri) {
+						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete Datamapper ${item.label} and its related contents?`,
+						{ modal: true },
+						'Yes'
+					);
 
+					if (confirmation === 'Yes') {
+						try {
+							// delete the file and the residing folder
+							const folderPath = path.dirname(fileUri);
+							await workspace.fs.delete(Uri.parse(folderPath), { recursive: true, useTrash: true });
+							window.showInformationMessage(`${item.label} has been deleted.`);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
+						}
+					}
+					break;
+				}
 			case 'resource':
 				{
 					const resourceId = item.command?.arguments?.[1];

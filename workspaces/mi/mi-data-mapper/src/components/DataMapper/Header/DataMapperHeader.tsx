@@ -20,7 +20,7 @@ export interface DataMapperHeaderProps {
     switchView: (index: number) => void;
     hasEditDisabled: boolean;
     onClose?: () => void;
-    applyModifications: () => Promise<void>;
+    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {

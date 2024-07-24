@@ -228,8 +228,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     async updateSource(suffix: string): Promise<void> {
         this.value = `${this.value} + ${suffix}`;
-        this.innerNode.replaceWithText(this.value);
-        await this.context.applyModifications();
+        this.setInnerNode(this.innerNode.replaceWithText(this.value));
+        await this.context.applyModifications(this.innerNode.getSourceFile().getFullText());
     }
 
     public updatePosition() {
@@ -259,7 +259,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             if (Node.isVariableStatement) {
                 targetNode = this.innerNode;
             }
-            targetNode.replaceWithText(defaultValue);
+            const updatedTargetNode = targetNode.replaceWithText(defaultValue);
+            await applyModifications(updatedTargetNode.getSourceFile().getFullText());
         } else {
             let rootExpr = this.parentNode;
             if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
@@ -285,8 +286,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     node.replaceWithText('');
                 }
             });
+            await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
         }
+    }
 
-        await applyModifications();
+    public setInnerNode(innerNode: Node): void {
+        this.innerNode = innerNode;
     }
 }

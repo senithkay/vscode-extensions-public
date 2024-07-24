@@ -13,6 +13,7 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
+import { miServerRunStateChanged } from '@wso2-enterprise/mi-core';
 
 export class RuntimeServicesWebview {
     public static currentPanel: RuntimeServicesWebview | undefined;
@@ -24,6 +25,15 @@ export class RuntimeServicesWebview {
         this._panel = RuntimeServicesWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
+        this._panel?.onDidChangeViewState(() => {
+            if (this._panel?.active) {
+                RPCLayer._messenger.sendNotification(
+                    miServerRunStateChanged,
+                    { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' },
+                    extension.isServerStarted ? 'Running' : 'Stopped');
+            }
+        });
+
         RPCLayer.create(this._panel);
     }
 

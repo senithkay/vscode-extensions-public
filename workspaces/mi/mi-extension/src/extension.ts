@@ -18,18 +18,9 @@ import { RPCLayer } from './RPCLayer';
 import { activateDebugger } from './debugger/activate';
 import { activateMigrationSupport } from './migration';
 import { activateRuntimeService } from './runtime-services-panel/activate';
-import { latestMICopilotRootUrl } from "./constants";
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
-			
-	// Update the MI copilot root URL if it is not the latest
-	const config = vscode.workspace.getConfiguration('MI');
-	const currentRootUrl = config.get<string>('rootUrl');
-	if (currentRootUrl !== latestMICopilotRootUrl) {
-		await config.update('rootUrl', latestMICopilotRootUrl, vscode.ConfigurationTarget.Global);
-	}
-
 	RPCLayer.init();
 	activateHistory();
 

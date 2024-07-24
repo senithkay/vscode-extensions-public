@@ -20,6 +20,7 @@ import { navigate, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
+import { DMProject } from '../datamapper/DMProject';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -54,6 +55,7 @@ export class VisualizerWebview {
         }, extension.context);
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
+            const projectUri = StateMachine.context().projectUri!;
             if (SWAGGER_LANG_ID === document.languageId) {
                 // Check if the saved document is a swagger file
                 const relativePath = vscode.workspace.asRelativePath(document.uri);
@@ -62,7 +64,7 @@ export class VisualizerWebview {
                 }
             } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
                 return;
-            }
+            } 
             RPCLayer._messenger.sendNotification(
                 onDocumentSave,
                 { type: 'webview', webviewType: VisualizerWebview.viewType },

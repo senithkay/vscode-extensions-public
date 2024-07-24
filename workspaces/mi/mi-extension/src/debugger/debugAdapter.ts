@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { checkServerReadiness, deleteCopiedCapAndLibs, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, stopServer } from './debugHelper';
+import { checkServerReadiness, deleteCopiedCapAndLibs, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, setManagementCredentials, stopServer } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -23,6 +23,11 @@ import { EVENT_TYPE, miServerRunStateChanged } from '@wso2-enterprise/mi-core';
 import { DebuggerConfig } from './config';
 import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
 import { RPCLayer } from '../RPCLayer';
+
+interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
+    /** Env variables setup through launch.json */
+    env?: any;
+}
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -138,8 +143,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         // make VS Code use 'evaluate' when hovering over source
         response.body.supportsEvaluateForHovers = true;
 
-        response.body.supportsRestartRequest = true;
-
         // make VS Code support data breakpoints
         response.body.supportsDataBreakpoints = true;
 
@@ -251,7 +254,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
 
     private currentServerPath;
-    protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args?: ILaunchRequestArguments, request?: DebugProtocol.Request): void {
         this._configurationDone.wait().then(() => {
             getServerPath().then((serverPath) => {
                 if (!serverPath) {
@@ -261,10 +264,12 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 } else {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !args?.noDebug ?? true;
-                    readPortOffset(serverPath).then((portOffset) => {
-                        if (portOffset !== undefined) {
-                            DebuggerConfig.setPortOffset(portOffset);
-                        }
+                    readPortOffset(serverPath).then(async (portOffset) => {
+                        DebuggerConfig.setPortOffset(portOffset);
+
+                        DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
+
+                        await setManagementCredentials(serverPath);
 
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
@@ -272,6 +277,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview();
                                         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
+                                        extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
 
                                         response.success = true;
@@ -284,6 +290,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
                                         openRuntimeServicesWebview();
                                         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
+                                        extension.isServerStarted = true;
                                         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
                                         response.success = true;
                                         this.sendResponse(response);
@@ -309,37 +316,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-
-    protected async restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        const lauchArgs: DebugProtocol.LaunchRequestArguments = args.arguments as DebugProtocol.LaunchRequestArguments;
-        const isDebugAllowed = !lauchArgs?.noDebug ?? true;
-
-        if (isDebugAllowed) {
-            vscode.debug.stopDebugging().then(() => {
-                vscode.debug.startDebugging(undefined, {
-                    name: "MI: Run and Debug",
-                    request: "launch",
-                    type: "mi"
-                });
-
-                this.sendResponse(response);
-            });
-        } else {
-            executeBuildTask(this.currentServerPath).then(async () => {
-                response.success = true;
-                this.sendResponse(response);
-            }).catch(error => {
-                const completeError = `Error while executing build task: ${error}`;
-                if (error === INCORRECT_SERVER_PATH_MSG) {
-                    this.showErrorAndExecuteChangeServerPath(completeError);
-                } else {
-                    vscode.window.showErrorMessage(completeError);
-                }
-                this.sendError(response, 2, completeError);
-            });
-        }
-    }
-
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         this.debuggerHandler?.closeDebugger();
         try {
@@ -362,6 +338,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         }
 
         DebuggerConfig.resetCappandLibs();
+        extension.isServerStarted = false;
         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
     }

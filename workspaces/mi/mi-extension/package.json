@@ -62,7 +62,17 @@
           "SynapseXml"
         ],
         "configurationAttributes": {
-          "launch": {}
+          "launch": {
+            "properties": {
+              "env": {
+                "type": "object",
+                "description": "Environment variables to set for the MI server",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         },
         "initialConfigurations": [
           {
@@ -723,7 +733,7 @@
     "xml2js": "0.6.2",
     "tmp": "~0.2.3",
     "fs-extra": "~11.2.0",
-    "toml": "^3.0.0",
+    "@iarna/toml": "^2.2.5",
     "@types/tmp": "~0.2.6",
     "@types/fs-extra": "~11.0.4",
     "json-schema-to-ts": "3.0.1",

@@ -208,7 +208,6 @@ import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
 import { isEqual } from "lodash";
-import fetch from 'node-fetch';
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
@@ -447,7 +446,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (path.basename(documentUri).split('.')[0] !== apiName) {
-                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${apiName}.xml`)});
+                this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${apiName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${apiName}.xml`);
             }
 
@@ -1286,7 +1285,6 @@ ${endpointAttributes}
             } else {
                 const filePath = path.join(directory, `${name}.xml`);
                 await replaceFullContentToFile(filePath, xmlData);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ filePath: filePath, fileContent: "" });
             }
         });
@@ -1334,8 +1332,11 @@ ${endpointAttributes}
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
             const filePath = this.getFilePath(directory, templateParams.name);
+            if (params.sequence) {
+                await this.createSequence(params.sequence);
+            }
             await replaceFullContentToFile(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskView, documentUri: filePath });
             resolve({ path: filePath });
         });
     }
@@ -2303,6 +2304,11 @@ ${endpointAttributes}
 
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
+            // if vscode format on save is enable do not do range format 
+            if (workspace.getConfiguration('editor').get('formatOnSave')) {
+                resolve({ status: true });
+                return;
+            }
             const uri = Uri.file(req.uri);
             const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
@@ -2433,24 +2439,24 @@ ${endpointAttributes}
                         }];
 
                     const ScheduledMessageForwardingProcessor = {
-                            'client.retry.interval': 'retryInterval',
-                            'member.count': 'taskCount',
-                            'message.processor.reply.sequence': 'replySequence',
-                            'axis2.config': 'axis2Config',
-                            'quartz.conf': 'quartzConfigPath',
-                            'non.retry.status.codes': 'statusCodes',
-                            'message.processor.deactivate.sequence': 'deactivateSequence',
-                            'is.active': 'processorState',
-                            'axis2.repo': 'clientRepository',
-                            cronExpression: 'cron',
-                            'max.delivery.attempts': 'maxRedeliveryAttempts',
-                            'message.processor.fault.sequence': 'faultSequence',
-                            'store.connection.retry.interval': 'connectionAttemptInterval',
-                            'max.store.connection.attempts': 'maxConnectionAttempts',
-                            'max.delivery.drop': 'dropMessageOption',
-                            interval: 'forwardingInterval',
-                            'message.processor.failMessagesStore': 'failMessageStoreType'
-                        },
+                        'client.retry.interval': 'retryInterval',
+                        'member.count': 'taskCount',
+                        'message.processor.reply.sequence': 'replySequence',
+                        'axis2.config': 'axis2Config',
+                        'quartz.conf': 'quartzConfigPath',
+                        'non.retry.status.codes': 'statusCodes',
+                        'message.processor.deactivate.sequence': 'deactivateSequence',
+                        'is.active': 'processorState',
+                        'axis2.repo': 'clientRepository',
+                        cronExpression: 'cron',
+                        'max.delivery.attempts': 'maxRedeliveryAttempts',
+                        'message.processor.fault.sequence': 'faultSequence',
+                        'store.connection.retry.interval': 'connectionAttemptInterval',
+                        'max.store.connection.attempts': 'maxConnectionAttempts',
+                        'max.delivery.drop': 'dropMessageOption',
+                        interval: 'forwardingInterval',
+                        'message.processor.failMessagesStore': 'failMessageStoreType'
+                    },
                         ScheduledFailoverMessageForwardingProcessor = {
                             'client.retry.interval': 'retryInterval',
                             cronExpression: 'cron',
@@ -3055,23 +3061,15 @@ ${endpointAttributes}
 
     async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
         return new Promise(async (resolve) => {
-            const file = fs.readFileSync(params.documentUri, "utf8");
-
-            const start = params.range.start;
-            const end = params.range.end;
-            const lines = file.split("\n");
-            const text = lines.slice(start.line, end.line + 1).map((line, index) => {
-                if (index === 0 && start.line === end.line) {
-                    return line.substring(start.character, end.character);
-                } else if (index === 0) {
-                    return line.substring(start.character);
-                } else if (index === end.line - start.line) {
-                    return line.substring(0, end.character);
-                } else {
-                    return line;
-                }
-            }).join("\n");
-            resolve({ text });
+            const document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+            const range = params.range;
+            if (document) {
+                const text = document.getText(new Range(
+                    range.start.line, range.start.character, range.end.line, range.end.character));
+                resolve({ text: text });
+            } else {
+                resolve({ text: '' });
+            }
         });
     }
 
@@ -4379,7 +4377,7 @@ ${endpointAttributes}
             resolve({ folders: subFolders });
         });
     }
-  
+
     renameFile(params: FileRenameRequest): void {
         try {
             fs.renameSync(params.existingPath, params.newPath);
@@ -4388,19 +4386,19 @@ ${endpointAttributes}
         }
     }
 
-     getFilePath(directory: string, fileName: string): string {
-         let filePath: string;
-         if (directory.endsWith('.xml')) {
-             if (path.basename(directory).split('.')[0] !== fileName) {
-                 fs.unlinkSync(directory);
-                 filePath = path.join(path.dirname(directory), `${fileName}.xml`);
-             } else {
-                 filePath = directory;
-             }
-         } else {
-             filePath = path.join(directory, `${fileName}.xml`);
-         }
-         return filePath;
+    getFilePath(directory: string, fileName: string): string {
+        let filePath: string;
+        if (directory.endsWith('.xml')) {
+            if (path.basename(directory).split('.')[0] !== fileName) {
+                fs.unlinkSync(directory);
+                filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+            } else {
+                filePath = directory;
+            }
+        } else {
+            filePath = path.join(directory, `${fileName}.xml`);
+        }
+        return filePath;
     }
 }
 

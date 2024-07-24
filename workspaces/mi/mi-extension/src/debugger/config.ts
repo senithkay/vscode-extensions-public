@@ -18,12 +18,26 @@ export class DebuggerConfig {
     private static managementPort: number = 9164;
     private static host: string = 'localhost';
     private static internalOffset = 10;
+    private static envVariables: { [key: string]: string } = {};
 
     //Capps and Libs copied to the MI server
     private static copiedCappUri: string[] = [];
     private static copiedLibs: string[] = [];
 
+    // Management API username and password
+    private static managementUserName: string = "admin";
+    private static managementPassword: string = "admin";
+
     private static portOffset: number | undefined;
+
+    public static getEnvVariables(): { [key: string]: string } {
+        return this.envVariables;
+    }
+
+    public static setEnvVariables(envVariables: { [key: string]: string }): void {
+        this.envVariables = envVariables;
+    }
+
 
     public static getCommandPort(): number {
         return this.commandPort;
@@ -33,7 +47,7 @@ export class DebuggerConfig {
         return this.eventPort;
     }
 
-    public static setPortOffset(offset: number): void {
+    public static setPortOffset(offset: number | undefined): void {
         this.portOffset = offset;
     }
 
@@ -89,5 +103,21 @@ export class DebuggerConfig {
 
     public static getHost(): string {
         return this.host;
+    }
+
+    public static getManagementUserName(): string {
+        return this.managementUserName;
+    }
+
+    public static getManagementPassword(): string {
+        return this.managementPassword;
+    }
+
+    public static setManagementUserName(userName: string): void {
+        this.managementUserName = userName;
+    }
+
+    public static setManagementPassword(password: string): void {
+        this.managementPassword = password;
     }
 }
