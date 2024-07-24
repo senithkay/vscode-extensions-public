@@ -164,8 +164,12 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     const handleOnClickEndpoint = (e: any) => {
         if (node.endpoint) {
-            setIsEndpointSelected(true);
-            node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
+            if (node.endpoint.key) {
+                setIsEndpointSelected(true);
+                node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
+            } else {
+                node.onClicked(e, node, rpcClient, sidePanelContext);
+            }
         }
     }
 

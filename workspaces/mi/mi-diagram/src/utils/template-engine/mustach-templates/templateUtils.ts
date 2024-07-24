@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks, Throttle, Rewrite } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks, Throttle, Rewrite, FilterSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate, getHeaderXml } from "./core/header";
@@ -74,6 +74,7 @@ import { getDBReportFormDataFromSTNode, getDBReportMustacheTemplate, getDbReport
 import { getDSInputMappingsFromSTNode, getDSOutputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode } from "./dataservice/ds";
 import { Query } from "@wso2-enterprise/mi-syntax-tree/src";
 import { getDssQueryXml, getDssResourceQueryParamsXml, getDssResourceSelfClosingXml, getDssResourceXml } from "./dataservice/ds-templates";
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -356,7 +357,7 @@ export function getNewSubSequenceXml(name: string, st: STNode) {
     }
 }
 
-export function getDataFromST(name: string, node: STNode) {
+export async function getDataFromST(name: string, node: STNode, documentUri?: string, rpcClient?: RpcClient) {
     const template = getMustacheTemplate(name);
     const formData = reverseMustache(template, node);
 
@@ -374,7 +375,7 @@ export function getDataFromST(name: string, node: STNode) {
             return getDataServiceCallFormDataFromSTNode(formData, node as DataServiceCall)
         //Core
         case MEDIATORS.CALL:
-            return getCallFormDataFromSTNode(formData, node as Call);
+            return await getCallFormDataFromSTNode(formData, node as Call, documentUri, rpcClient);
         case MEDIATORS.CALLOUT:
             return getCalloutFormDataFromSTNode(formData, node as Callout);
         case MEDIATORS.HEADER:
@@ -440,7 +441,7 @@ export function getDataFromST(name: string, node: STNode) {
         case MEDIATORS.SCRIPT:
             return getScriptFormDataFromSTNode(formData, node as Script);
         case MEDIATORS.SEQUENCE:
-            return getSequenceDataFromSTNode(formData);
+            return getSequenceDataFromSTNode(formData, node as FilterSequence);
         //Other Mediators
         case MEDIATORS.BAM:
             return getBamFormDataFromSTNode(formData, node as Bam);

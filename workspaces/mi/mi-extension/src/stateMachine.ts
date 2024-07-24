@@ -31,6 +31,7 @@ import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
+import { DMProject } from './datamapper/DMProject';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -388,7 +389,7 @@ const stateMachine = createMachine<MachineContext>({
                     if (context.documentUri) {
                         const filePath = context.documentUri;
                         const functionName = DM_FUNCTION_NAME;
-
+                        DMProject.refreshProject(filePath);
                         const [fnSource, interfacesSrc] = getSources(filePath);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,

@@ -100,10 +100,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const diagnostic = propertyAssignment && getDiagnostics(propertyAssignment)[0];
 
     const connectedViaLink = useMemo(() => {
-        if (hasValue) {
-            return isConnectedViaLink(initializer);
-        }
-        return false;
+        return hasValue && isConnectedViaLink(initializer);
     }, [field]);
 
     const handleAddValue = async () => {
@@ -200,7 +197,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     {typeName || ''}
                 </span>
             )}
-            {(hasValue || hasDefaultValue) && !connectedViaLink && (
+            {(hasValue || hasDefaultValue) && !connectedViaLink && !portIn.descendantHasValue && (
                 <span className={classes.outputNodeValueBase}>
                     {diagnostic ? (
                         <DiagnosticTooltip

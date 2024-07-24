@@ -18,7 +18,8 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
-import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { FormKeylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
@@ -49,7 +50,6 @@ const StoreForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             messageStore: sidePanelContext?.formValues?.messageStore || "",
-            expression: sidePanelContext?.formValues?.expression || {"isExpression":true,"value":""},
             onStoreSequence: sidePanelContext?.formValues?.onStoreSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -100,30 +100,21 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="messageStore"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Message Store" size={50} placeholder="" required={false} />
-                        )}
-                    />
-                    {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
-                </Field>
-
-                {watch("messageStore") == "Select Expresison" &&
-                <Field>
-                    <Controller
-                        name="expression"
-                        control={control}
-                        render={({ field }) => (
-                            <ExpressionField
-                                {...field} label="Expression"
-                                placeholder=""
+                            <FormKeylookup
+                                control={control}
+                                name='messageStore'
+                                label="Message Store"
+                                filterType='messageStore'
+                                allowItemCreate={false}
                                 required={false}
-                                canChange={false}
+                                errorMsg={errors?.messageStore?.message?.toString()}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.expression && <Error>{errors.expression.message.toString()}</Error>}
                 </Field>
-                }
 
                 <Field>
                     <Controller
@@ -137,10 +128,10 @@ const StoreForm = (props: AddMediatorProps) => {
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}
                                 required={false}
+                                errorMsg={errors?.onStoreSequence?.message?.toString()}
                             />
                         )}
                     />
-                    {errors.onStoreSequence && <Error>{errors.onStoreSequence.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -148,10 +139,9 @@ const StoreForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

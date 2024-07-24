@@ -62,7 +62,17 @@
           "SynapseXml"
         ],
         "configurationAttributes": {
-          "launch": {}
+          "launch": {
+            "properties": {
+              "env": {
+                "type": "object",
+                "description": "Environment variables to set for the MI server",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         },
         "initialConfigurations": [
           {

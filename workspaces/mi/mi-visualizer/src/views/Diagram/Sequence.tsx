@@ -15,6 +15,8 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateSequenceData, onSequenceEdit } from "../../utils/form";
 import { EditSequenceForm, EditSequenceFields } from "../Forms/EditForms/EditSequenceForm";
+import path from "path";
+import {EVENT_TYPE, MACHINE_VIEW} from "@wso2-enterprise/mi-core";
 
 export interface SequenceViewProps {
     model: NamedSequence;
@@ -33,8 +35,19 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
     }
 
     const onSave = (data: EditSequenceFields) => {
-        onSequenceEdit(data, model.range.startTagRange, documentUri, rpcClient);
-        setFormOpen(false);
+        let artifactNameChanged = false;
+        let documentPath = documentUri;
+        if (path.basename(documentUri).split('.')[0] !== data.name) {
+            rpcClient.getMiDiagramRpcClient().renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${data.name}.xml`)});
+            artifactNameChanged = true;
+            documentPath = path.join(path.dirname(documentUri), `${data.name}.xml`);
+        }
+        onSequenceEdit(data, model.range.startTagRange, documentPath, rpcClient);
+        if (artifactNameChanged) {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        } else {
+            setFormOpen(false);
+        }
     }
 
     return (

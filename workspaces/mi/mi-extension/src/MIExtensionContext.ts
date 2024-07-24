@@ -15,6 +15,7 @@ export class MIExtensionContext {
     public webviewReveal!: boolean;
     public initialPrompt?: string;
     public preserveActivity!: boolean;
+    public isServerStarted!: boolean;
 }
 
 export const extension = new MIExtensionContext();

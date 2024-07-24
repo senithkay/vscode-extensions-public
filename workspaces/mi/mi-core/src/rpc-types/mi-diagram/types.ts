@@ -40,6 +40,7 @@ export interface CreateAPIRequest {
 
 export interface EditAPIRequest {
     documentUri: string;
+    apiName: string;
     xmlData: string;
     handlersXmlData: string;
     apiRange: Range;
@@ -1667,4 +1668,9 @@ export interface GetSubFoldersRequest {
 
 export interface GetSubFoldersResponse {
     folders: string[];
+}
+
+export interface FileRenameRequest {
+    existingPath: string;
+    newPath: string;
 }

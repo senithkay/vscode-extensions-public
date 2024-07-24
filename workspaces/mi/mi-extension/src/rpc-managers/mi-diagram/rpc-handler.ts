@@ -215,7 +215,9 @@ import {
     updateTestCase,
     updateTestSuite,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    FileRenameRequest,
+    renameFile
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -341,4 +343,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));
     messenger.onNotification(markAsDefaultSequence, (args: MarkAsDefaultSequenceRequest) => rpcManger.markAsDefaultSequence(args));
     messenger.onRequest(getSubFolderNames, (args: GetSubFoldersRequest) => rpcManger.getSubFolderNames(args));
+    messenger.onRequest(renameFile, (args: FileRenameRequest) => rpcManger.renameFile(args));
 }
