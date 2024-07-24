@@ -3003,7 +3003,7 @@ ${endpointAttributes}
     }
 
     async downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
-        const { url } = params;
+        const { url, isInBuilt } = params;
         try {
             const workspaceFolders = workspace.workspaceFolders;
             if (!workspaceFolders) {
@@ -3055,12 +3055,18 @@ ${endpointAttributes}
 
                         const zipNameWithoutExtension = path.basename(zipName, '.zip');
 
-                        // Copy the jar file to libs
-                        const jarFileName = `${zipNameWithoutExtension}.jar`;
-                        const jarPath = path.join(extractPath, zipNameWithoutExtension, jarFileName);
-                        const destinationPath = path.join(libDirectory, jarFileName);
-                        await copy(jarPath, destinationPath);
-
+                        if (!isInBuilt) {
+                            // Copy the jar file to libs
+                            const jarFileName = `${zipNameWithoutExtension}.jar`;
+                            const jarPath = path.join(extractPath, zipNameWithoutExtension, jarFileName);
+                            const destinationPath = path.join(libDirectory, jarFileName);
+                            if (fs.existsSync(jarPath)) {
+                                await copy(jarPath, destinationPath);
+                            } else {
+                                console.log(`Jar file does not exist at path: ${jarPath}`);
+                            }
+                        }
+                        
                         // Retrieve uiSchema
                         const uischemaPath = path.join(extractPath, zipNameWithoutExtension, 'resources', 'uischema.json');
                         fs.readFile(uischemaPath, 'utf8', async (err, data) => {

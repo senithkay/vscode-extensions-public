@@ -16,6 +16,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
 import { FormKeylookup } from '@wso2-enterprise/mi-diagram';
 import FormGenerator from '../Commons/FormGenerator';
+import { useEffect } from 'react';
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -28,6 +29,7 @@ export interface AddInboundConnectorProps {
     changeConnector?: () => void;
     formData: any;
     parameters?: {};
+    data?: {};
     path: string;
     setType: (type: string) => void;
     handleCreateInboundEP: (values: any) => void;
@@ -52,8 +54,24 @@ type InboundEndpoint = {
 
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
-    const { formData, handleCreateInboundEP } = props;
-    const { control, handleSubmit, register, formState: { errors } } = useForm<any>();
+    const { formData, handleCreateInboundEP, parameters, data } = props;
+    const { control, handleSubmit, register, formState: { errors }, setValue } = useForm<any>();
+
+    useEffect(() => {
+        if (parameters && data) {
+            Object.entries(parameters).forEach(([key, value]) => {
+                setValue(key, value);
+            });
+
+            Object.entries(data).forEach(([key, value]) => {
+                setValue(key, value);
+            });
+        }
+    }, [parameters]);
+
+    function getOriginalName(name: string) {
+        return name.replace('__dot__', '.');
+    }
 
     const renderProps = (fieldName: keyof InboundEndpoint) => {
         return {
@@ -64,23 +82,28 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     };
 
     const handleCreateInboundConnector = async (values: any) => {
-        const { name, type, sequence, errorSequence, suspend, trace, statistics, class: className, behavior,
-            interval, sequential, coordination, ...rest } = values;
+        const { name, type, sequence, errorSequence, suspend, trace, statistics, behavior,
+            sequential, coordination, ...rest } = values;
+
+        // Transform the keys of the rest object
+        const transformedParameters = Object.fromEntries(
+            Object.entries(rest).map(([key, value]) => [getOriginalName(key), value])
+        );
 
         const inboundConnector: InboundEndpoint = {
             name,
-            type: "custom",
+            type: formData.name,
             sequence,
             errorSequence,
             suspend,
             trace,
             statistics,
-            class: className,
+            class: values.class,
             behavior,
-            interval,
+            interval: values.interval,
             sequential,
             coordination,
-            parameters: rest
+            parameters: transformedParameters
         };
 
         handleCreateInboundEP(inboundConnector);
@@ -147,12 +170,12 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 title={`${formData.title} Properties`}
                 isCollapsed={false}
             >
-                <FormGenerator formData={formData} control={control} errors={errors} />
+                <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
             </FormGroup>
             <FormGroup
                 key={"advanced"}
                 title={"Advanced"}
-                isCollapsed={true}
+                isCollapsed={false}
             >
                 <TextField
                     required

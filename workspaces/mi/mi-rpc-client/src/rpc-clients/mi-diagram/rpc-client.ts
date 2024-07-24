@@ -310,7 +310,12 @@ import {
     DownloadInboundConnectorResponse,
     DownloadInboundConnectorRequest,
     FileRenameRequest,
-    renameFile
+    renameFile,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse,
+    getInboundEPUischema,
+    saveInboundEPUischema
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -672,6 +677,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectionForm(params: GetConnectionFormRequest): Promise<GetConnectionFormResponse> {
         return this._messenger.sendRequest(getConnectionForm, HOST_EXTENSION, params);
+    }
+
+    saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+        return this._messenger.sendRequest(saveInboundEPUischema, HOST_EXTENSION, params);
+    }
+
+    getInboundEPUischema(params: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
+        return this._messenger.sendRequest(getInboundEPUischema, HOST_EXTENSION, params);
     }
 
     createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {

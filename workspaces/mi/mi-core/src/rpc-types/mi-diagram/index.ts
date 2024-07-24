@@ -187,7 +187,10 @@ import {
     GetSubFoldersRequest,
     DownloadInboundConnectorRequest,
     DownloadInboundConnectorResponse,
-    FileRenameRequest
+    FileRenameRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -280,6 +283,8 @@ export interface MiDiagramAPI {
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
+    saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => void;
+    getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;

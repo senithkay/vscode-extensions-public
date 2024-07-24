@@ -1382,6 +1382,7 @@ export interface DownloadConnectorResponse {
 
 export interface DownloadInboundConnectorRequest {
     url: string;
+    isInBuilt?: boolean;
 }
 
 export interface DownloadInboundConnectorResponse {

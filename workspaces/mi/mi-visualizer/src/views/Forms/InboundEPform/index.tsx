@@ -171,8 +171,12 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
             if (!isNewInboundEndpoint) {
                 const { parameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
-                data.type = data.type.toUpperCase();
+                const uiSchema = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
+                    connectorName: data.type
+                });
 
+                data.type = data.type.toUpperCase();
+                
                 if (sequenceList.data[1].includes(data.sequence)) {
                     handleSequenceChange("sequence", data.sequence, false);
                 }
@@ -181,6 +185,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 }
 
                 readyForm(data.type);
+                setConnectorSchema(uiSchema);
 
                 if (data.type.toLowerCase() === 'custom') {
                     const { coordination, sequential, interval, ...rest } = parameters;
@@ -401,6 +406,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
                     url: connector.download_url
                 });
+                await rpcClient.getMiDiagramRpcClient().saveInboundEPUischema({
+                    connectorName: uischema.uischema.name,
+                    uiSchema: JSON.stringify(uischema.uischema)
+                })
                 setInboundEndpointType(connector.name);
                 setConnectorSchema(uischema);
                 downloadSuccess = true;
@@ -410,6 +419,9 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             }
         }
 
+        const ui = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
+            connectorName: uischema.uischema.name
+        });
         setIsDownloading(false);
     }
 
@@ -454,7 +466,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 ) : (
                     <>
                         <span>Please select an inbound endpoint.</span>
-                        <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} />
                         <SampleGrid>
                             {connectors ?
                                 connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
@@ -483,85 +494,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     </>
                 )
             ) : (
-                connectorSchema ? (
+                connectorSchema?.uischema && (
                     <AddInboundConnector formData={connectorSchema.uischema} path={props.path} setType={setInboundEndpointType}
                         handleCreateInboundEP={handleCreateInboundEP} />
-                ) : (
-                    <FormProvider {...formMethods}>
-                        <TypeChip type={watch('type')} onClick={setInboundEndpointType} showButton={isNewInboundEndpoint} />
-                        <TextField
-                            required
-                            autoFocus
-                            label="Name"
-                            placeholder="Name"
-                            {...renderProps("name")}
-                        />
-                        <div>
-                            <FormKeylookup
-                                required
-                                control={control}
-                                label="Sequence"
-                                name="sequence"
-                                filterType="sequence"
-                                path={props.path}
-                                errorMsg={errors.sequence?.message.toString()}
-                                {...register("sequence")}
-                            />
-                        </div>
-                        <div>
-                            <FormKeylookup
-                                required
-                                control={control}
-                                label="Error Sequence"
-                                name="errorSequence"
-                                filterType="sequence"
-                                path={props.path}
-                                errorMsg={errors.errorSequence?.message.toString()}
-                                additionalItems={["fault"]}
-                                {...register("errorSequence")}
-                            />
-                        </div>
-                        <CheckboxGroup>
-                            <FormCheckBox
-                                name="suspend"
-                                label="Suspend"
-                                control={control}
-                            />
-                            <FormCheckBox
-                                name="trace"
-                                label="Trace Enabled"
-                                control={control}
-                            />
-                            <FormCheckBox
-                                name="statistics"
-                                label="Statistics Enabled"
-                                control={control}
-                            />
-                        </CheckboxGroup>
-                        {watch('type') && <ParamForm params={selectedParams} />}
-                        {watch('type').toLowerCase() === 'custom' && (
-                            <ParamManager
-                                paramConfigs={customParams}
-                                readonly={false}
-                                onChange={handleCustomParams}
-                            />
-                        )}
-                        <FormActions>
-                            <Button
-                                appearance="primary"
-                                onClick={handleSubmit(handleCreateInboundEP)}
-                                disabled={!isDirty}
-                            >
-                                {isNewInboundEndpoint ? "Create" : "Save Changes"}
-                            </Button>
-                            <Button
-                                appearance="secondary"
-                                onClick={openOverview}
-                            >
-                                Cancel
-                            </Button>
-                        </FormActions>
-                    </FormProvider>)
+                )
             )}
         </FormView>
     );

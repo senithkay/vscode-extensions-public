@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, ComponentCard, FormCheckBox, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
@@ -30,6 +30,7 @@ export interface FormGeneratorProps {
     formData: any;
     control: any;
     errors: any;
+    setValue: any;
 }
 
 interface Element {
@@ -48,25 +49,30 @@ interface ExpressionValueWithSetter {
     setValue: (value: ExpressionFieldValue) => void;
 };
 
+
 export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
 
-    const { formData, control, errors } = props;
+    const { formData, control, errors, setValue } = props;
+
+    function getNameForController(name: string | number) {
+        return String(name).replace('.', '__dot__');
+    }
 
     const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
 
-        return expressionEditorField !== element.name ? (
+        return expressionEditorField !== getNameForController(element.name) ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
                 placeholder={element.helpTip}
                 canChange={true}
                 required={element.required === 'true'}
-                errorMsg={errors[element.name] && errors[element.name].message.toString()}
+                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(String(element.name));
+                    setExpressionEditorField(getNameForController(element.name));
                 }}
             />
         ) : (
@@ -103,7 +109,15 @@ export function FormGenerator(props: FormGeneratorProps) {
                         size={50}
                         placeholder={element.helpTip}
                         required={element.required === 'true'}
-                        errorMsg={errors[element.name] && errors[element.name].message.toString()}
+                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                    />
+                );
+            case 'boolean':
+                return (
+                    <FormCheckBox
+                        name={getNameForController(element.name)}
+                        label={element.displayName}
+                        control={control}
                     />
                 );
             case 'stringOrExpression':
@@ -119,9 +133,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                 const allowItemCreate = element.inputType === 'comboOrExpression';
                 return (
                     <AutoComplete
-                        name={element.name as string}
+                        name={getNameForController(element.name)}
                         label={element.displayName}
-                        errorMsg={errors[element.name] && errors[element.name].message.toString()}
+                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                         items={items}
                         value={field.value}
                         onValueChange={(e: any) => {
@@ -139,8 +153,11 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
             if (element.type === 'attribute') {
+                if (element.value.hidden) {
+                    setValue(element.value.name, element.value.defaultValue ?? "");
+                }
                 return <Controller
-                    name={element.value.name as string}
+                    name={getNameForController(element.value.name)}
                     control={control}
                     defaultValue={element.value.defaultValue ?? ""}
                     rules={
