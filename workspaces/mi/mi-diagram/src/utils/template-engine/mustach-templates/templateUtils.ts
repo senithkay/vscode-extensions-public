@@ -74,6 +74,7 @@ import { getDBReportFormDataFromSTNode, getDBReportMustacheTemplate, getDbReport
 import { getDSInputMappingsFromSTNode, getDSOutputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode } from "./dataservice/ds";
 import { Query } from "@wso2-enterprise/mi-syntax-tree/src";
 import { getDssQueryXml, getDssResourceQueryParamsXml, getDssResourceSelfClosingXml, getDssResourceXml } from "./dataservice/ds-templates";
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -356,7 +357,7 @@ export function getNewSubSequenceXml(name: string, st: STNode) {
     }
 }
 
-export function getDataFromST(name: string, node: STNode) {
+export async function getDataFromST(name: string, node: STNode, documentUri?: string, rpcClient?: RpcClient) {
     const template = getMustacheTemplate(name);
     const formData = reverseMustache(template, node);
 
@@ -374,7 +375,7 @@ export function getDataFromST(name: string, node: STNode) {
             return getDataServiceCallFormDataFromSTNode(formData, node as DataServiceCall)
         //Core
         case MEDIATORS.CALL:
-            return getCallFormDataFromSTNode(formData, node as Call);
+            return await getCallFormDataFromSTNode(formData, node as Call, documentUri, rpcClient);
         case MEDIATORS.CALLOUT:
             return getCalloutFormDataFromSTNode(formData, node as Callout);
         case MEDIATORS.HEADER:
