@@ -635,14 +635,20 @@ export class NodeFactoryVisitor implements Visitor {
 
     //EIP Mediators
     beginVisitAggregate(node: Aggregate): void {
-        const isSequnceReference = node.correlateOnOrCompleteConditionOrOnComplete.onComplete.sequenceAttribute !== undefined;
+        const onComplete = node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+        const isSequnceReference = onComplete.sequenceAttribute !== undefined;
 
-        this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: isSequnceReference ? NodeTypes.MEDIATOR_NODE : NodeTypes.GROUP_NODE }))
+        if (isSequnceReference) {
+            this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: onComplete.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } }))
+
+        } else {
+            this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.GROUP_NODE }))
+        }
 
         this.parents.push(node);
         if (!isSequnceReference) {
             this.visitSubSequences(node, MEDIATORS.AGGREGATE, {
-                OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete,
+                OnComplete: onComplete,
             }, NodeTypes.GROUP_NODE, false)
         }
         this.skipChildrenVisit = true;
