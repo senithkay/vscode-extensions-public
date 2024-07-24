@@ -109,7 +109,7 @@ export class PositionVisitor implements Visitor {
         const subSequenceKeys = Object.keys(subSequences);
 
         const sequenceOffsets = subSequenceKeys.length > 1 ? subSequences[subSequenceKeys[0]].viewState.l + subSequences[subSequenceKeys[subSequenceKeys.length - 1]].viewState.r : node.viewState.fw;
-        const branchesWidth = node.viewState.fw - sequenceOffsets - ((canAddSubSequences && !addNewSequenceBefore) ? NODE_GAP.BRANCH_X : 0);
+        const branchesWidth = Math.max(node.viewState.fw - sequenceOffsets - ((canAddSubSequences && !addNewSequenceBefore) ? NODE_GAP.BRANCH_X : 0), 0);
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
