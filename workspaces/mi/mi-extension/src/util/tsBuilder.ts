@@ -159,24 +159,18 @@ function separateInterfacesWithComments(sourceFile: ts.SourceFile): ts.SourceFil
   }
 
   function getInputTitleFromComment(sources: ts.SourceFile[]): string {
-    let title = "Root";
     for (let source of sources) {
-      const commentRange = ts.getTrailingCommentRanges(source.getFullText(), 0);
+      const commentText = source.getFullText();
+      const commentRange = ts.getTrailingCommentRanges(commentText, 0);
       if (commentRange) {
-        const comment = source.getFullText().substring(commentRange[0].pos, commentRange[0].end);
-        if (comment.includes("inputType") && comment.includes("title")) {
-          const lines = comment.split("\n");
-          for (let line of lines) {
-            if (line.includes("title")) {
-              title = line.replace("title : ", "").replace(/"/g, "").trim();
-              break;
-            }
-          }
-          break;
+        const comment = commentText.substring(commentRange[0].pos, commentRange[0].end);
+        const titleMatch = comment.match(/title\s*:\s*"([^"]+)"/);
+        if (titleMatch) {
+          return titleMatch[1].trim();
         }
       }
     }
-    return title;
+    return "Root";
   }
 
   function getFunctionFromSource(source: ts.SourceFile, functionName: string): ts.FunctionDeclaration | undefined {
@@ -200,19 +194,10 @@ function separateInterfacesWithComments(sourceFile: ts.SourceFile): ts.SourceFil
     let inputInterfaceName = "Root";
     let outputInterfaceName = "OutputRoot";
 
-    let isInputArray = functionSource?.parameters[0].type?.kind === ts.SyntaxKind.ArrayType;
-    let isOutputArray = functionSource?.type?.kind === ts.SyntaxKind.ArrayType;
+    const isInputArray = isSchemaArray && ioType === "input" || functionSource?.parameters[0].type?.kind === ts.SyntaxKind.ArrayType;
+    const isOutputArray = isSchemaArray && ioType === "output" || functionSource?.type?.kind === ts.SyntaxKind.ArrayType;
 
-    if (isSchemaArray) {
-        if (ioType === "input") {
-            isInputArray = true;
-        }
-        if (ioType === "output") {
-            isOutputArray = true;
-        }
-    }
-  
-    for (let source of tsSources) {
+    tsSources.forEach(source => {
       const commentRange = ts.getTrailingCommentRanges(source.getFullText(), 0);
       if (commentRange) {
         const comment = source.getFullText().substring(commentRange[0].pos, commentRange[0].end);
@@ -222,8 +207,6 @@ function separateInterfacesWithComments(sourceFile: ts.SourceFile): ts.SourceFil
           outputInterfaceName = getInterfaceNameFromSource(source);
         }
       }
-    }
-    let functionDeclaration = `export function mapFunction(input: ${inputInterfaceName}${isInputArray ? "[]" : ""}): ${outputInterfaceName}${isOutputArray ? "[]" : ""} {\n`;
-    functionDeclaration += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`; 
-    return functionDeclaration;
-  }
+    });
+    return `export function mapFunction(input: ${inputInterfaceName}${isInputArray ? "[]" : ""}): ${outputInterfaceName}${isOutputArray ? "[]" : ""} {\n\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`;
+}
