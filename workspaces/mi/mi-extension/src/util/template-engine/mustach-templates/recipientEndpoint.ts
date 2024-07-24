@@ -28,11 +28,11 @@ export function getRecipientEPMustacheTemplate() {
 <endpoint name="{{name}}" xmlns="http://ws.apache.org/ns/synapse">
     <recipientlist>
         {{#endpoints}}
-        {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{{value}}}"/>{{/static}}
+        {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{value}}"/>{{/static}}
         {{/endpoints}}
     </recipientlist>
     {{#properties}}
-    <property name="{{{name}}}" {{#scope}}scope="{{scope}}" {{/scope}}value="{{{value}}}"/>
+    <property name="{{name}}" {{#scope}}scope="{{scope}}" {{/scope}}value="{{value}}"/>
     {{/properties}}
     <description>{{description}}</description>
 </endpoint>`;
