@@ -104,7 +104,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             trace: st.trace ? true : false,
             handlers: st.handlers?.handler.map((handler: any) => ({
                 name: handler.clazz,
-                properties: handler.property.map((property: any) => ({
+                properties: handler.property?.map((property: any) => ({
                     name: property.name,
                     value: property.value,
                 }))

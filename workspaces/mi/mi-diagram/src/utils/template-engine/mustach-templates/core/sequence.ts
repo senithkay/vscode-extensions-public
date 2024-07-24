@@ -12,15 +12,15 @@ import Mustache from "mustache";
 import { transformNamespaces } from "../../../commons";
 
 export function getSequenceMustacheTemplate() {
-    return `<sequence {{#referingSequence}}key="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/referingSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
+    return `<sequence {{#referringSequence}}key="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/referringSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
 }
 
 export function getSequenceXml(data: { [key: string]: any }) {
 
-    if (data.referingSequence?.isExpression) {
-        data.referingSequence.value = "{" + data.referingSequence.value + "}";
+    if (data.referringSequence?.isExpression) {
+        data.referringSequence.value = "{" + data.referringSequence.value + "}";
     } else {
-        data.referingSequence.value = data.referingSequence.value;
+        data.referringSequence.value = data.referringSequence.value;
     }
     return Mustache.render(getSequenceMustacheTemplate(), data);
 }
@@ -31,7 +31,7 @@ export function getSequenceDataFromSTNode(data: { [key: string]: any }, node: Fi
     if (isExpression) {
         value = node.key?.substring(1, node.key?.length - 1);
     }
-    data.referingSequence = { isExpression: isExpression, value: value, namespaces: transformNamespaces(node.namespaces) };
+    data.referringSequence = { isExpression: isExpression, value: value, namespaces: transformNamespaces(node.namespaces) };
     return data;
 }
 

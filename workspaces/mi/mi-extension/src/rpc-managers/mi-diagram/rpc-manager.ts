@@ -208,7 +208,6 @@ import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
 import { isEqual } from "lodash";
-import fetch from 'node-fetch';
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
@@ -3055,23 +3054,15 @@ ${endpointAttributes}
 
     async getTextAtRange(params: GetTextAtRangeRequest): Promise<GetTextAtRangeResponse> {
         return new Promise(async (resolve) => {
-            const file = fs.readFileSync(params.documentUri, "utf8");
-
-            const start = params.range.start;
-            const end = params.range.end;
-            const lines = file.split("\n");
-            const text = lines.slice(start.line, end.line + 1).map((line, index) => {
-                if (index === 0 && start.line === end.line) {
-                    return line.substring(start.character, end.character);
-                } else if (index === 0) {
-                    return line.substring(start.character);
-                } else if (index === end.line - start.line) {
-                    return line.substring(0, end.character);
-                } else {
-                    return line;
-                }
-            }).join("\n");
-            resolve({ text });
+            const document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+            const range = params.range;
+            if (document) {
+                const text = document.getText(new Range(
+                    range.start.line, range.start.character, range.end.line, range.end.character));
+                resolve({ text: text });
+            } else {
+                resolve({ text: '' });
+            }
         });
     }
 
