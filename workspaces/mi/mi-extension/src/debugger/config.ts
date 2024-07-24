@@ -24,6 +24,10 @@ export class DebuggerConfig {
     private static copiedCappUri: string[] = [];
     private static copiedLibs: string[] = [];
 
+    // Management API username and password
+    private static managementUserName: string = "admin";
+    private static managementPassword: string = "admin";
+
     private static portOffset: number | undefined;
 
     public static getEnvVariables(): { [key: string]: string } {
@@ -33,6 +37,7 @@ export class DebuggerConfig {
     public static setEnvVariables(envVariables: { [key: string]: string }): void {
         this.envVariables = envVariables;
     }
+
 
     public static getCommandPort(): number {
         return this.commandPort;
@@ -98,5 +103,21 @@ export class DebuggerConfig {
 
     public static getHost(): string {
         return this.host;
+    }
+
+    public static getManagementUserName(): string {
+        return this.managementUserName;
+    }
+
+    public static getManagementPassword(): string {
+        return this.managementPassword;
+    }
+
+    public static setManagementUserName(userName: string): void {
+        this.managementUserName = userName;
+    }
+
+    public static setManagementPassword(password: string): void {
+        this.managementPassword = password;
     }
 }
