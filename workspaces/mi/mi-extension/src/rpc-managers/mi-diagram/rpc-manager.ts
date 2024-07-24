@@ -360,6 +360,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 artifactDir,
                 xmlData,
                 name,
+                version,
                 saveSwaggerDef,
                 swaggerDefPath,
                 wsdlType,
@@ -371,7 +372,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const ext = path.extname(swaggerDefPath);
                 return `${name}${ext}`;
             };
-
+            let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
@@ -392,10 +393,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         wsdlEndpointName
                     });
                 }
+                fileName = name;
+            } else {
+                fileName = `${name}${version ? `_v${version}` : ''}`;
             }
 
             const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
-            const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
+            const filePath = path.join(artifactDir, 'apis', `${fileName}.xml`);
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -440,14 +444,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
         return new Promise(async (resolve) => {
-            let { documentUri, apiName, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+            let { documentUri, apiName, version, xmlData, handlersXmlData, apiRange, handlersRange } = params;
 
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (path.basename(documentUri).split('.')[0] !== apiName) {
-                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${apiName}.xml`)});
-                documentUri = path.join(path.dirname(documentUri), `${apiName}.xml`);
+            let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
+            if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`)});
+                documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
@@ -1285,7 +1290,6 @@ ${endpointAttributes}
             } else {
                 const filePath = path.join(directory, `${name}.xml`);
                 await replaceFullContentToFile(filePath, xmlData);
-                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ filePath: filePath, fileContent: "" });
             }
         });
@@ -1333,8 +1337,11 @@ ${endpointAttributes}
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
             const filePath = this.getFilePath(directory, templateParams.name);
+            if (params.sequence) {
+                await this.createSequence(params.sequence);
+            }
             await replaceFullContentToFile(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskView, documentUri: filePath });
             resolve({ path: filePath });
         });
     }
@@ -2302,6 +2309,11 @@ ${endpointAttributes}
 
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
+            // if vscode format on save is enable do not do range format 
+            if (workspace.getConfiguration('editor').get('formatOnSave')) {
+                resolve({ status: true });
+                return;
+            }
             const uri = Uri.file(req.uri);
             const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
@@ -2432,24 +2444,24 @@ ${endpointAttributes}
                         }];
 
                     const ScheduledMessageForwardingProcessor = {
-                            'client.retry.interval': 'retryInterval',
-                            'member.count': 'taskCount',
-                            'message.processor.reply.sequence': 'replySequence',
-                            'axis2.config': 'axis2Config',
-                            'quartz.conf': 'quartzConfigPath',
-                            'non.retry.status.codes': 'statusCodes',
-                            'message.processor.deactivate.sequence': 'deactivateSequence',
-                            'is.active': 'processorState',
-                            'axis2.repo': 'clientRepository',
-                            cronExpression: 'cron',
-                            'max.delivery.attempts': 'maxRedeliveryAttempts',
-                            'message.processor.fault.sequence': 'faultSequence',
-                            'store.connection.retry.interval': 'connectionAttemptInterval',
-                            'max.store.connection.attempts': 'maxConnectionAttempts',
-                            'max.delivery.drop': 'dropMessageOption',
-                            interval: 'forwardingInterval',
-                            'message.processor.failMessagesStore': 'failMessageStoreType'
-                        },
+                        'client.retry.interval': 'retryInterval',
+                        'member.count': 'taskCount',
+                        'message.processor.reply.sequence': 'replySequence',
+                        'axis2.config': 'axis2Config',
+                        'quartz.conf': 'quartzConfigPath',
+                        'non.retry.status.codes': 'statusCodes',
+                        'message.processor.deactivate.sequence': 'deactivateSequence',
+                        'is.active': 'processorState',
+                        'axis2.repo': 'clientRepository',
+                        cronExpression: 'cron',
+                        'max.delivery.attempts': 'maxRedeliveryAttempts',
+                        'message.processor.fault.sequence': 'faultSequence',
+                        'store.connection.retry.interval': 'connectionAttemptInterval',
+                        'max.store.connection.attempts': 'maxConnectionAttempts',
+                        'max.delivery.drop': 'dropMessageOption',
+                        interval: 'forwardingInterval',
+                        'message.processor.failMessagesStore': 'failMessageStoreType'
+                    },
                         ScheduledFailoverMessageForwardingProcessor = {
                             'client.retry.interval': 'retryInterval',
                             cronExpression: 'cron',
@@ -4370,7 +4382,7 @@ ${endpointAttributes}
             resolve({ folders: subFolders });
         });
     }
-  
+
     renameFile(params: FileRenameRequest): void {
         try {
             fs.renameSync(params.existingPath, params.newPath);
@@ -4379,19 +4391,19 @@ ${endpointAttributes}
         }
     }
 
-     getFilePath(directory: string, fileName: string): string {
-         let filePath: string;
-         if (directory.endsWith('.xml')) {
-             if (path.basename(directory).split('.')[0] !== fileName) {
-                 fs.unlinkSync(directory);
-                 filePath = path.join(path.dirname(directory), `${fileName}.xml`);
-             } else {
-                 filePath = directory;
-             }
-         } else {
-             filePath = path.join(directory, `${fileName}.xml`);
-         }
-         return filePath;
+    getFilePath(directory: string, fileName: string): string {
+        let filePath: string;
+        if (directory.endsWith('.xml')) {
+            if (path.basename(directory).split('.')[0] !== fileName) {
+                fs.unlinkSync(directory);
+                filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+            } else {
+                filePath = directory;
+            }
+        } else {
+            filePath = path.join(directory, `${fileName}.xml`);
+        }
+        return filePath;
     }
 }
 
