@@ -45,7 +45,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
             location: { viewId: VIEWS.PROJECT_EXPLORER },
             title: 'Loading project structure'
         }, async () => {
-            await getProjectStructureData()
+        await getProjectStructureData()
                 .then(data => {
                     this._data = data;
                 })

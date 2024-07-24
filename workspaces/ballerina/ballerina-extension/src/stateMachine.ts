@@ -187,7 +187,7 @@ const stateMachine = createMachine<MachineContext>(
         },
         findView(context, event): Promise<void> {
             return new Promise(async (resolve, reject) => {
-                if (!context.view && context.langClient) {
+                if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();

@@ -353,7 +353,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                     startColumn: comp.startColumn,
                     startLine: comp.startLine
                 }
-            }
+            };
             entries.push(fileEntry);
         }
         return entries;

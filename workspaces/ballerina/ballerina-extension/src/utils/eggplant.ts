@@ -11,7 +11,7 @@ import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import path from "path";
 import { CreateComponentRequest, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { StateMachine, openView } from "../stateMachine";
+import { StateMachine, history, openView, updateView } from "../stateMachine";
 
 export function openEggplantProject() {
     window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open Eggplant Project' })
@@ -99,7 +99,7 @@ eggplant = true
 }
 
 
-export function createEggplantService(params: CreateComponentRequest) {
+export async function createEggplantService(params: CreateComponentRequest) {
     const fooBalContent = `
 import ballerina/http;
 
@@ -109,12 +109,15 @@ service ${params.path} on new http:Listener(${params.port}) {
     }
 }
     `;
-    const servicesDir = path.join(StateMachine.context().projectUri, DIRECTORY_MAP.SERVICES);
+    const servicesDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const fooBalPath = path.join(servicesDir, `${params.name}.bal`);
     fs.writeFileSync(fooBalPath, fooBalContent.trim());
     console.log('Service Created.', `${params.name}.bal`);
-    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    history.clear();
+    updateView();
     commands.executeCommand("Eggplant.project-explorer.refresh");
 }
 
