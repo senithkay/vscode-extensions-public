@@ -15,19 +15,19 @@ export function getCacheMustacheTemplate() {
     return `
     {{#isNewMediator}}
     {{#isCollector}}
-    <cache collector="true" {{#description}}description="{{{description}}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
+    <cache collector="true" {{#description}}description="{{description}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
     {{/isCollector}}
     {{^isCollector}}
     {{#is611Compatible}}
-    <cache collector="false" {{#description}}description="{{{description}}}"{{/description}} hashGenerator="{{{hashGeneratorAttribute}}}" id="{{id}}" maxMessageSize="{{maxMessageSize}}" scope="{{scope}}" timeout="{{cacheTimeout}}">
-        <onCacheHit {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} />
+    <cache collector="false" {{#description}}description="{{description}}"{{/description}} hashGenerator="{{hashGeneratorAttribute}}" id="{{id}}" maxMessageSize="{{maxMessageSize}}" scope="{{scope}}" timeout="{{cacheTimeout}}">
+        <onCacheHit {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} />
         <implementation maxSize="{{maxEntryCount}}" type="{{implementationType}}" />
     </cache>
     {{/is611Compatible}}
     {{^is611Compatible}}
-    <cache collector="false" {{#description}}description="{{{description}}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
+    <cache collector="false" {{#description}}description="{{description}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
         {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
-        {{^isAnonymousSequence}}<onCacheHit sequence="{{{sequenceKey}}}" />{{/isAnonymousSequence}}
+        {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
         {{^isCollector}}
         {{^is611Compatible}}
         <protocol type="{{cacheProtocolType}}">
@@ -51,7 +51,7 @@ export function getCacheMustacheTemplate() {
     {{^isNewMediator}}
     {{#isEditCache}}
     {{#isCollector}}
-    <cache collector="true" {{#description}}description="{{{description}}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
+    <cache collector="true" {{#description}}description="{{description}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
     {{/isCollector}}
     {{^isCollector}}
     {{#is611Compatible}}
@@ -86,7 +86,7 @@ export function getCacheMustacheTemplate() {
     {{/isEditImplementation}}
     {{#isEditOnCacheHit}}
     {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
-    {{^isAnonymousSequence}}<onCacheHit sequence="{{{sequenceKey}}}" />{{/isAnonymousSequence}}
+    {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
     {{/isEditOnCacheHit}}
     {{/isNewMediator}}
     `;

@@ -14,8 +14,8 @@ import { transformNamespaces } from "../../../commons";
 export function getSmooksMustacheTemplate() {
     return `
     <smooks config-key="{{configurationKey}}" description="{{description}}" >
-        <input {{#inputExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/inputExpression}} {{#inputType}}type="{{inputType}}"{{/inputType}} />
-        <output {{#outputAction}}action="{{outputAction}}"{{/outputAction}} {{#outputExpression}}expression="{{{outputExpression}}}"{{/outputExpression}} {{#outputProperty}}property="{{{outputProperty}}}"{{/outputProperty}} type="{{outputType}}" />
+        <input {{#inputExpression}}expression="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/inputExpression}} {{#inputType}}type="{{inputType}}"{{/inputType}} />
+        <output {{#outputAction}}action="{{outputAction}}"{{/outputAction}} {{#outputExpression}}expression="{{outputExpression}}"{{/outputExpression}} {{#outputProperty}}property="{{outputProperty}}"{{/outputProperty}} type="{{outputType}}" />
     </smooks>
     `;
 }

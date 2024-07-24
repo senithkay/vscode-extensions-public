@@ -15,7 +15,7 @@ export function getThrottleMustacheTemplate() {
 
     return `
     {{#newMediator}}
-        <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{{onAcceptBranchsequenceKey}}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{{onRejectBranchsequenceKey}}}"{{/onRejectBranchsequenceKey}} >
+        <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{onAcceptBranchsequenceKey}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{onRejectBranchsequenceKey}}"{{/onRejectBranchsequenceKey}} >
             {{#policyKey}}<policy key="{{policyKey}}"/>{{/policyKey}}
             {{#hasPolicyEntries}}
             <policy>
@@ -48,10 +48,10 @@ export function getThrottleMustacheTemplate() {
     {{^newMediator}}
         {{#editThrottle}}
             {{#selfClosed}}
-                <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{{onAcceptBranchsequenceKey}}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{{onRejectBranchsequenceKey}}}"{{/onRejectBranchsequenceKey}} />
+                <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{onAcceptBranchsequenceKey}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{onRejectBranchsequenceKey}}"{{/onRejectBranchsequenceKey}} />
             {{/selfClosed}}
             {{^selfClosed}}
-                <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{{onAcceptBranchsequenceKey}}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{{onRejectBranchsequenceKey}}}"{{/onRejectBranchsequenceKey}} >
+                <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{onAcceptBranchsequenceKey}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{onRejectBranchsequenceKey}}"{{/onRejectBranchsequenceKey}} >
             {{/selfClosed}}
             {{/editThrottle}}
         {{#editPolicy}}

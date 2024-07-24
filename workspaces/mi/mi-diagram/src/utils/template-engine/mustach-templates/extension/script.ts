@@ -5,14 +5,14 @@ import { transformNamespaces } from "../../../commons";
 export function getScriptMustacheTemplate() {
     return `{{#isRegistry}}
     {{#hasScriptKeys}}
-    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptKey}}key="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} {{/scriptKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}} >
+    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptKey}}key="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/scriptKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}} >
         {{#scriptKeys}}
         <include {{#keyName}}key="{{keyName}}"{{/keyName}} />
         {{/scriptKeys}}
     </script>
     {{/hasScriptKeys}}
     {{^hasScriptKeys}}
-    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptKey}}key="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} {{/scriptKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}}/>
+    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptKey}}key="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/scriptKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}}/>
     {{/hasScriptKeys}}
     {{/isRegistry}}
     {{^isRegistry}}
