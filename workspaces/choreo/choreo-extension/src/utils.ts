@@ -40,11 +40,6 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
 	}
 };
 
-// sanitize the component display name to make it url friendly
-export function makeURLSafe(input: string): string {
-	return input.trim().replace(/\s+/g, "-").toLowerCase();
-}
-
 export const isSubpath = (parent: string, sub: string): boolean => {
 	const normalizedParent = path.normalize(parent).toLowerCase();
 	const normalizedSub = path.normalize(sub).toLowerCase();

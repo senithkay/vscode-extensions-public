@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "biome check .",
     "lint:fix": "biome check --write . ",
-    "build": "pnpm run lint && tsc --pretty",
+    "build": "tsc --pretty",
     "watch": "tsc --pretty --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm publish"

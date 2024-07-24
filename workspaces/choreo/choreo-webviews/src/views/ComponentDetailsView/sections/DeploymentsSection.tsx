@@ -18,6 +18,8 @@ import {
 	type Environment,
 	type Organization,
 	type Project,
+	getTimeAgo,
+	toTitleCase,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import clipboardy from "clipboardy";
@@ -28,7 +30,6 @@ import { CommitLink } from "../../../components/CommitLink";
 import { Divider } from "../../../components/Divider";
 import { SkeletonText } from "../../../components/SkeletonText";
 import { useGetDeployedEndpoints, useGetDeploymentStatus } from "../../../hooks/use-queries";
-import { getTimeAgo, toTitleCase } from "../../../utilities/helpers";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getTypeForDisplayType } from "../utils";
 

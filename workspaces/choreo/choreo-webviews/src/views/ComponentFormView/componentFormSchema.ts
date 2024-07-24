@@ -14,9 +14,9 @@ import {
 	type ComponentKind,
 	GoogleProviderBuildPackNames,
 	WebAppSPATypes,
+	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
 import { z } from "zod";
-import { makeURLSafe } from "../../utilities/helpers";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 export const componentFormSchema = z.object({

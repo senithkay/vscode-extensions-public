@@ -38,6 +38,8 @@ class ComponentTestView {
 			{ enableScripts: true, retainContextWhenHidden: true },
 		);
 
+		panel.iconPath = vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", "choreo-2.svg");
+
 		return panel;
 	}
 

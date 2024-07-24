@@ -14,11 +14,7 @@ export interface Organization {
 	uuid: string;
 	handle: string;
 	name: string;
-	owner: {
-		id: string;
-		idpId: string;
-		createdAt: Date;
-	};
+	owner: { id: string; idpId: string; createdAt: Date };
 }
 
 export interface UserInfo {
@@ -126,17 +122,8 @@ export interface Buildpack {
 	versionEnvVariable: string;
 	iconUrl: string;
 	provider: string;
-	builder: {
-		id: string;
-		builderImage: string;
-		displayName: string;
-		imageHash: string;
-	};
-	componentTypes: {
-		id: string;
-		displayName: string;
-		type: string;
-	}[];
+	builder: { id: string; builderImage: string; displayName: string; imageHash: string };
+	componentTypes: { id: string; displayName: string; type: string }[];
 }
 
 export interface BuildKind {
@@ -154,17 +141,8 @@ export interface BuildKind {
 		status: string;
 		startedAt: string;
 		completedAt: string;
-		images: {
-			id: string;
-			createdAt: string;
-			updatedAt: string;
-		}[];
-		gitCommit: {
-			message: string;
-			author: string;
-			date: string;
-			email: string;
-		};
+		images: { id: string; createdAt: string; updatedAt: string }[];
+		gitCommit: { message: string; author: string; date: string; email: string };
 	};
 }
 
@@ -277,12 +255,7 @@ export interface ComponentDeployment {
 		buildId: string;
 		deployedAt: string;
 		commit: {
-			author: {
-				name: string;
-				date: string;
-				email: string;
-				avatarUrl: string;
-			};
+			author: { name: string; date: string; email: string; avatarUrl: string };
 			sha: string;
 			message: string;
 			isLatest: boolean;
@@ -324,8 +297,5 @@ export interface StateReason {
 }
 
 export interface WorkspaceConfig {
-	folders: {
-		name: string;
-		path: string;
-	}[];
+	folders: { name: string; path: string }[];
 }

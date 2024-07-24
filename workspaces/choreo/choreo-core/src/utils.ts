@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
+
 export const getShortenedHash = (hash: string) => hash?.substring(0, 8);
 
 export const getTimeAgo = (timestamp: string): string => {
@@ -45,5 +47,3 @@ export const toTitleCase = (str: string): string => {
 		?.toLowerCase()
 		?.replace(/\b\w/g, (char) => char.toUpperCase());
 };
-
-export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");

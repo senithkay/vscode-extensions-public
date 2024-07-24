@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { ComponentKind, DataCacheState, Organization, Project } from "@wso2-enterprise/choreo-core";
+import type { CommitHistory, ComponentKind, DataCacheState, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { getGlobalStateStore } from "./store-utils";
@@ -19,9 +19,10 @@ interface DataCacheStore {
 	getProjects: (orgHandle: string) => Project[];
 	setComponents: (orgHandle: string, projectHandle: string, components: ComponentKind[]) => void;
 	getComponents: (orgHandle: string, projectHandle: string) => ComponentKind[];
+	setCommits: (orgHandle: string, projectHandle: string, componentHandle: string, branch: string, commits: CommitHistory[]) => void;
+	getCommits: (orgHandle: string, projectHandle: string, componentHandle: string, branch: string) => CommitHistory[];
 }
 
-// TODO: verify whether caching is working as expected
 export const dataCacheStore = createStore(
 	persist<DataCacheStore>(
 		(set, get) => ({
@@ -37,7 +38,7 @@ export const dataCacheStore = createStore(
 				const updatedProjects: {
 					[projectHandle: string]: {
 						data?: Project;
-						components?: { [componentHandle: string]: { data?: ComponentKind } };
+						components?: { [componentHandle: string]: { data?: ComponentKind; commits?: { [branch: string]: CommitHistory[] } } };
 					};
 				} = {};
 				projects.forEach((item) => {
@@ -61,9 +62,11 @@ export const dataCacheStore = createStore(
 				return projectList as Project[];
 			},
 			setComponents: (orgHandle, projectHandle, components) => {
-				const newComponents: { [componentHandle: string]: { data?: ComponentKind } } = {};
+				const newComponents: { [componentHandle: string]: { data?: ComponentKind; commits?: { [branch: string]: CommitHistory[] } } } = {};
+				const prevComponents = get().state.orgs?.[orgHandle]?.projects?.[projectHandle]?.components ?? {};
 				components.forEach((item) => {
-					newComponents[item.metadata.name] = { data: item };
+					const matchingItem = prevComponents[item.metadata.name];
+					newComponents[item.metadata.name] = { ...matchingItem, data: item };
 				});
 
 				const updatedOrgs = {
@@ -87,6 +90,36 @@ export const dataCacheStore = createStore(
 					.filter((item) => item.data)
 					.map((item) => item.data);
 				return componentList as ComponentKind[];
+			},
+			setCommits: (orgHandle, projectHandle, componentHandle, branch, commits) => {
+				const updatedOrgs = {
+					...(get().state?.orgs ?? {}),
+					[orgHandle]: {
+						...(get().state?.orgs?.[orgHandle] ?? {}),
+						projects: {
+							...(get().state?.orgs?.[orgHandle]?.projects ?? {}),
+							[projectHandle]: {
+								...(get().state?.orgs?.[orgHandle]?.projects?.[projectHandle] ?? {}),
+								components: {
+									...(get().state?.orgs?.[orgHandle]?.projects?.[projectHandle]?.components ?? {}),
+									[componentHandle]: {
+										...(get().state?.orgs?.[orgHandle]?.projects?.[projectHandle]?.components?.[componentHandle] ?? {}),
+										commits: {
+											...(get().state?.orgs?.[orgHandle]?.projects?.[projectHandle]?.components?.[componentHandle]?.commits ?? {}),
+											[branch]: commits,
+										},
+									},
+								},
+							},
+						},
+					},
+				};
+
+				set(({ state }) => ({ state: { ...state, orgs: updatedOrgs } }));
+			},
+			getCommits: (orgHandle, projectHandle, componentHandle, branch) => {
+				const commitList = get().state.orgs?.[orgHandle]?.projects?.[projectHandle]?.components?.[componentHandle]?.commits?.[branch] ?? [];
+				return commitList;
 			},
 		}),
 		getGlobalStateStore("data-cache-zustand-storage-v1"),

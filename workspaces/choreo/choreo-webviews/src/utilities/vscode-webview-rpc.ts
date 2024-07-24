@@ -13,6 +13,7 @@ import {
 	ChoreoRpcWebview,
 	ClearWebviewCache,
 	CloseWebViewNotification,
+	type CommitHistory,
 	type ComponentKind,
 	ContextStoreChangedNotification,
 	type ContextStoreState,
@@ -37,6 +38,8 @@ import {
 	ReadServiceEndpoints,
 	RefreshContextState,
 	RestoreWebviewCache,
+	SelectCommitToBuild,
+	type SelectCommitToBuildReq,
 	SendTelemetryEventNotification,
 	type SendTelemetryEventParams,
 	SendTelemetryExceptionNotification,
@@ -226,6 +229,10 @@ export class ChoreoWebViewAPI {
 
 	public async goToSource(filePath: string): Promise<void> {
 		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
+	}
+
+	public async selectCommitToBuild(params: SelectCommitToBuildReq): Promise<CommitHistory | undefined> {
+		return this._messenger.sendRequest(SelectCommitToBuild, HOST_EXTENSION, params);
 	}
 
 	public async openExternal(url: string): Promise<void> {

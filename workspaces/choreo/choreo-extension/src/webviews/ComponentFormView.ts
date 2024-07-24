@@ -9,6 +9,7 @@
 
 import type { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
+import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
@@ -40,6 +41,8 @@ export class ComponentFormView {
 			enableScripts: true,
 			retainContextWhenHidden: true,
 		});
+
+		panel.iconPath = vscode.Uri.joinPath(ext.context.extensionUri, "resources", "icons", "choreo-2.svg");
 
 		return panel;
 	}

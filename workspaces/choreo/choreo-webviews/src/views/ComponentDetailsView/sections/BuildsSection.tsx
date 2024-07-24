@@ -8,11 +8,10 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	type BuildKind,
 	ChoreoComponentType,
-	type CommitHistory,
 	type ComponentDeployment,
 	type ComponentKind,
 	type CreateBuildReq,
@@ -23,6 +22,7 @@ import {
 	type Project,
 	type WebviewQuickPickItem,
 	WebviewQuickPickItemKind,
+	getTimeAgo,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type ReactNode, useState } from "react";
@@ -31,8 +31,7 @@ import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { getBuildList, getGetCommits, queryKeys } from "../../../hooks/use-queries";
-import { getShortenedHash, getTimeAgo } from "../../../utilities/helpers";
+import { queryKeys, useGetBuildList } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getTypeForDisplayType } from "../utils";
 
@@ -52,16 +51,12 @@ export const BuildsSection: FC<Props> = (props) => {
 	const [buildListRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
 
-	const { isLoading: isLoadingCommits, data: commits = [] } = getGetCommits(deploymentTrack, component, organization, {
-		enabled: !!deploymentTrack,
-	});
-
 	const {
 		isLoading: isLoadingBuilds,
 		isRefetching: isRefetchingBuilds,
 		data: builds = [],
 		refetch: refetchBuilds,
-	} = getBuildList(deploymentTrack, component, project, organization, {
+	} = useGetBuildList(deploymentTrack, component, project, organization, {
 		onSuccess: (builds) => {
 			setHasOngoingBuilds(builds.some((item) => item.status?.conclusion === ""));
 		},
@@ -84,26 +79,16 @@ export const BuildsSection: FC<Props> = (props) => {
 
 	const { mutate: selectCommitForBuild } = useMutation({
 		mutationFn: async () => {
-			const latestCommit = commits?.find((item) => item.isLatest);
-			const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
-				title: `Select Commit from branch ${deploymentTrack.branch}, to Build`,
-				items: [
-					{ kind: WebviewQuickPickItemKind.Separator, label: "Latest Commit" },
-					{
-						label: "Build Latest",
-						alwaysShow: true,
-						detail: latestCommit.message,
-						description: getShortenedHash(latestCommit.sha),
-						item: latestCommit,
-						picked: true,
-					},
-					{ kind: WebviewQuickPickItemKind.Separator, label: "Previous Commits" },
-					...commits?.filter((item) => !item.isLatest)?.map((item) => ({ label: item.message, description: getShortenedHash(item.sha), item })),
-				],
+			const pickedItem = await ChoreoWebViewAPI.getInstance().selectCommitToBuild({
+				component,
+				deploymentTrack,
+				org: organization,
+				project,
 			});
-			if (pickedItem?.item) {
+
+			if (pickedItem) {
 				triggerBuild({
-					commitHash: (pickedItem?.item as CommitHistory)?.sha,
+					commitHash: pickedItem.sha,
 					componentName: component.metadata.name,
 					deploymentTrackId: deploymentTrack?.id,
 					projectHandle: project.handler,
@@ -133,7 +118,7 @@ export const BuildsSection: FC<Props> = (props) => {
 					<Codicon name="refresh" />
 				</Button>
 				{!isLoadingBuilds && (
-					<Button disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()}>
+					<Button disabled={isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()}>
 						{isTriggeringBuild ? "Triggering Build" : buildInProgress ? "Building Component" : "Build Component"}
 					</Button>
 				)}

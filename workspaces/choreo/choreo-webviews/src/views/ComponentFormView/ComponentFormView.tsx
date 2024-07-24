@@ -17,6 +17,7 @@ import {
 	type NewComponentWebviewProps,
 	type SubmitComponentCreateReq,
 	WebAppSPATypes,
+	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
 import React, { type FC, type ReactNode, useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -30,7 +31,6 @@ import { PathSelect } from "../../components/FormElements/PathSelect";
 import { TextField } from "../../components/FormElements/TextField";
 import { HeaderSection } from "../../components/HeaderSection";
 import { useGetBuildPacks, useGetGitBranches, useGetGitRemotes } from "../../hooks/use-queries";
-import { makeURLSafe } from "../../utilities/helpers";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { type componentFormSchema, getComponentFormSchema } from "./componentFormSchema";
 

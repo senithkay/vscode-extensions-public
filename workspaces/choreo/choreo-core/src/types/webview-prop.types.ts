@@ -29,11 +29,7 @@ export interface NewComponentWebviewProps {
 	organization: Organization;
 	project: Project;
 	existingComponents: ComponentKind[];
-	initialValues?: {
-		type?: string;
-		buildPackLang?: string;
-		subPath?: string;
-	};
+	initialValues?: { type?: string; buildPackLang?: string; subPath?: string };
 }
 
 export interface ComponentsDetailsWebviewProps {

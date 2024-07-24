@@ -35,7 +35,7 @@ export const NoContextView: FC<Props> = ({ loading }) => {
 				<p>Link a directory with an existing project.</p>
 				<Button
 					className="w-full max-w-80 self-center sm:self-start"
-					onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageDirectoryContext)}
+					onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.CreateDirectoryContext)}
 					title="Create a context.yaml file in within your workspace directory in order to associate the directory with your project."
 				>
 					Link Directory

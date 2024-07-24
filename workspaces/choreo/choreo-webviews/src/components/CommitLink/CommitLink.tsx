@@ -8,9 +8,9 @@
  */
 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { getShortenedHash } from "@wso2-enterprise/choreo-core";
 import classnames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
-import { getShortenedHash } from "../../utilities/helpers";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 interface Props {

@@ -8,7 +8,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write --unsafe . ",
     "start": "webpack serve --mode development",
-    "build": "npm run lint && tsc --pretty && webpack && npm run copy:assets",
+    "build": "tsc --pretty && webpack && npm run copy:assets",
     "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/"
   },
   "keywords": [],

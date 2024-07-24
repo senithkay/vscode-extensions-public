@@ -17,6 +17,7 @@ import {
 	type ICreateComponentParams,
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
+	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
@@ -25,7 +26,7 @@ import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
-import { getSubPath, makeURLSafe } from "../utils";
+import { getSubPath } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";

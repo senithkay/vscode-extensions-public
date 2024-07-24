@@ -243,38 +243,26 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	}
 }
 
-export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = {
-	method: "rpc/project/getProjects",
-};
+export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: "rpc/project/getProjects" };
 export const ChoreoRpcGetComponentsRequest: RequestType<GetComponentsReq, ComponentKind[]> = { method: "rpc/component/getList" };
 export const ChoreoRpcGetComponentItemRequest: RequestType<GetComponentItemReq, ComponentKind> = { method: "rpc/component/getItem" };
 export const ChoreoRpcCreateProjectRequest: RequestType<CreateProjectReq, Project> = { method: "rpc/project/create" };
 export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, ComponentKind> = { method: "rpc/component/create" };
-export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = {
-	method: "rpc/component/getBuildPacks",
-};
+export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = { method: "rpc/component/getBuildPacks" };
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: "rpc/repo/getBranches" };
-export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, IsRepoAuthorizedResp> = {
-	method: "rpc/repo/isRepoAuthorized",
-};
+export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, IsRepoAuthorizedResp> = { method: "rpc/repo/isRepoAuthorized" };
 export const ChoreoRpcDeleteComponentRequest: RequestType<DeleteCompReq, void> = { method: "rpc/component/delete" };
 export const ChoreoRpcCreateBuildRequest: RequestType<CreateBuildReq, BuildKind> = { method: "rpc/build/create" };
 export const ChoreoRpcGetDeploymentTracksRequest: RequestType<GetDeploymentTracksReq, DeploymentTrack[]> = {
 	method: "rpc/component/getDeploymentTracks",
 };
 export const ChoreoRpcGetBuildsRequest: RequestType<GetBuildsReq, BuildKind[]> = { method: "rpc/build/getList" };
-export const ChoreoRpcGetCommitsRequest: RequestType<GetCommitsReq, CommitHistory[]> = {
-	method: "rpc/component/getCommits",
-};
+export const ChoreoRpcGetCommitsRequest: RequestType<GetCommitsReq, CommitHistory[]> = { method: "rpc/component/getCommits" };
 export const ChoreoRpcGetEnvsRequest: RequestType<GetProjectEnvsReq, Environment[]> = { method: "rpc/project/getEnvs" };
-export const ChoreoRpcGetEndpointsRequest: RequestType<GetComponentEndpointsReq, ComponentEP[]> = {
-	method: "rpc/component/getEndpoints",
-};
+export const ChoreoRpcGetEndpointsRequest: RequestType<GetComponentEndpointsReq, ComponentEP[]> = { method: "rpc/component/getEndpoints" };
 export const ChoreoRpcGetDeploymentStatusRequest: RequestType<GetDeploymentStatusReq, ComponentDeployment | null> = {
 	method: "rpc/component/getDeploymentStatus",
 };
 export const ChoreoRpcCreateDeploymentRequest: RequestType<CreateDeploymentReq, void> = { method: "rpc/deployment/create" };
 export const ChoreoRpcGetTestKeyRequest: RequestType<GetTestKeyReq, GetTestKeyResp> = { method: "rpc/apim/getTestKey" };
-export const ChoreoRpcGetSwaggerRequest: RequestType<GetSwaggerSpecReq, object> = {
-	method: "rpc/apim/getSwaggerSpec",
-};
+export const ChoreoRpcGetSwaggerRequest: RequestType<GetSwaggerSpecReq, object> = { method: "rpc/apim/getSwaggerSpec" };

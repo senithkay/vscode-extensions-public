@@ -9,7 +9,16 @@
 
 import type { NotificationType, RequestType } from "vscode-messenger-common";
 import type { CreateComponentReq } from "./cli-rpc.types";
-import type { ComponentEP, ComponentKind, DeploymentTrack, Environment, Organization, Project, WebviewQuickPickItem } from "./common.types";
+import type {
+	CommitHistory,
+	ComponentEP,
+	ComponentKind,
+	DeploymentTrack,
+	Environment,
+	Organization,
+	Project,
+	WebviewQuickPickItem,
+} from "./common.types";
 import type { Endpoint } from "./config-file.types";
 import type { AuthState, ContextStoreState, WebviewState } from "./store.types";
 
@@ -20,13 +29,7 @@ export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: "
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "openDialog" };
 export const GetGitRemotes: RequestType<string, string[]> = { method: "getGitRemotes" };
 export const JoinFilePaths: RequestType<string[], string> = { method: "joinFilePaths" };
-export const GetSubPath: RequestType<
-	{
-		subPath: string;
-		parentPath: string;
-	},
-	string | null
-> = { method: "getSubPath" };
+export const GetSubPath: RequestType<{ subPath: string; parentPath: string }, string | null> = { method: "getSubPath" };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: "setWebviewCache" };
 export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: "restoreWebviewCache" };
 export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: "clearWebviewCache" };
@@ -37,23 +40,20 @@ export const RefreshContextState: NotificationType<void> = { method: "refreshCon
 export const DeleteFile: RequestType<string, void> = { method: "deleteFile" };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: "showConfirmMessage" };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: "showQuickPicks" };
-export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = {
-	method: "showWebviewInputBoxReq",
-};
+export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: "showWebviewInputBoxReq" };
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: "readServiceEndpoints" };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: "viewBuildLogs" };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: "viewRuntimeLogs" };
 export const TriggerGithubAuthFlow: RequestType<string, void> = { method: "triggerGithubAuthFlow" };
-export const TriggerGithubInstallFlow: RequestType<string, void> = {
-	method: "triggerGithubInstallFlow",
-};
+export const TriggerGithubInstallFlow: RequestType<string, void> = { method: "triggerGithubInstallFlow" };
 export const SubmitComponentCreate: RequestType<SubmitComponentCreateReq, ComponentKind> = { method: "submitComponentCreate" };
 export const GetDirectoryFileNames: RequestType<string, string[]> = { method: "getDirectoryFileNames" };
 export const FileExists: RequestType<string, boolean> = { method: "fileExists" };
 export const OpenTestView: RequestType<OpenTestViewReq, void> = { method: "openTestView" };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: "executeCommand" };
 export const OpenExternal: RequestType<string, void> = { method: "openExternal" };
-export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "showOpenDialog" };
+export const ShowOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "showOpenDialog" };
+export const SelectCommitToBuild: RequestType<SelectCommitToBuildReq, CommitHistory | undefined> = { method: "selectCommitToBuild" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -64,21 +64,13 @@ const NotificationMethods = {
 export const WebviewNotificationsMethodList = Object.values(NotificationMethods);
 
 // Notification types
-export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = {
-	method: "sendProjectTelemetryEvent",
-};
+export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: "sendProjectTelemetryEvent" };
 export const SendTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: "sendTelemetryEvent" };
 export const SendTelemetryExceptionNotification: NotificationType<SendTelemetryExceptionParams> = { method: "sendTelemetryException" };
 export const CloseWebViewNotification: NotificationType<void> = { method: "close" };
-export const AuthStoreChangedNotification: NotificationType<AuthState> = {
-	method: NotificationMethods.onAuthStateChanged,
-};
-export const WebviewStateChangedNotification: NotificationType<WebviewState> = {
-	method: NotificationMethods.onWebviewStateChanged,
-};
-export const ContextStoreChangedNotification: NotificationType<ContextStoreState> = {
-	method: NotificationMethods.onContextStateChanged,
-};
+export const AuthStoreChangedNotification: NotificationType<AuthState> = { method: NotificationMethods.onAuthStateChanged };
+export const WebviewStateChangedNotification: NotificationType<WebviewState> = { method: NotificationMethods.onWebviewStateChanged };
+export const ContextStoreChangedNotification: NotificationType<ContextStoreState> = { method: NotificationMethods.onContextStateChanged };
 
 export interface OpenTestViewReq {
 	component: ComponentKind;
@@ -156,6 +148,13 @@ export interface ShowWebviewInputBoxReq {
 		expression: RegExp;
 		message: string;
 	};
+}
+
+export interface SelectCommitToBuildReq {
+	org: Organization;
+	component: ComponentKind;
+	project: Project;
+	deploymentTrack: DeploymentTrack;
 }
 
 export interface SetWebviewCacheRequestParam {

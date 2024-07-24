@@ -53,10 +53,6 @@ export const queryKeys = {
 			envId: env.id,
 		},
 	],
-	getCommits: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
-		"get-commits",
-		{ organization: org.handle, component: component.metadata.id, deploymentTrackId: deploymentTrack?.id },
-	],
 	getBuilds: (deploymentTrack: DeploymentTrack, component: ComponentKind, project: Project, org: Organization) => [
 		"get-builds",
 		{
@@ -190,25 +186,7 @@ export const useGetDeploymentStatus = (
 		options,
 	);
 
-export const getGetCommits = (
-	deploymentTrack: DeploymentTrack,
-	component: ComponentKind,
-	org: Organization,
-	options?: UseQueryOptions<CommitHistory[]>,
-) =>
-	useQuery<CommitHistory[]>(
-		queryKeys.getCommits(deploymentTrack, component, org),
-		() =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getCommits({
-				componentId: component.metadata.id,
-				orgHandler: org.handle,
-				orgId: org.id.toString(),
-				branch: deploymentTrack.branch,
-			}),
-		options,
-	);
-
-export const getBuildList = (
+export const useGetBuildList = (
 	deploymentTrack: DeploymentTrack,
 	component: ComponentKind,
 	project: Project,

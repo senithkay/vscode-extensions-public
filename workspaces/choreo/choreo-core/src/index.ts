@@ -15,3 +15,4 @@ export * from "./types/messenger-rpc.types";
 export * from "./types/cli-rpc.types";
 export * from "./constants";
 export * from "./enums";
+export * from "./utils";
