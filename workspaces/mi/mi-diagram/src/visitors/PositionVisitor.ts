@@ -292,12 +292,18 @@ export class PositionVisitor implements Visitor {
 
     //EIP Mediators
     beginVisitAggregate = (node: Aggregate): void => {
-        this.setAdvancedMediatorPosition(node, {
-            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
-            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
-        }, NodeTypes.GROUP_NODE);
+        const isSequnceReference = node.correlateOnOrCompleteConditionOrOnComplete.onComplete.sequenceAttribute !== undefined;
+        if (isSequnceReference) {
+            this.setBasicMediatorPosition(node);
+        } else {
+            this.setAdvancedMediatorPosition(node, {
+                // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
+                OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
+            }, NodeTypes.GROUP_NODE);
+        }
     }
     endVisitAggregate = (node: Aggregate): void => this.setSkipChildrenVisit(false);
+
     beginVisitIterate = (node: Iterate): void => {
         this.setAdvancedMediatorPosition(node, {
             Target: node.target.sequence

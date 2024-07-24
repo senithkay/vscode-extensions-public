@@ -375,14 +375,23 @@ export class SizingVisitor implements Visitor {
 
     //EIP Mediators
     endVisitAggregate = (node: Aggregate): void => {
-        if (node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.mediatorList) {
-            traversNode(node.correlateOnOrCompleteConditionOrOnComplete.onComplete, this);
+        const onComplete = node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+        const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+        if (isSequnceReference) {
+            this.calculateBasicMediator(node, NODE_DIMENSIONS.REFERENCE.WIDTH, NODE_DIMENSIONS.REFERENCE.HEIGHT);
+            return;
         }
+
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
+        if (onComplete?.mediatorList) {
+            traversNode(onComplete, this);
+        }
         this.calculateAdvancedMediator(node, {
-            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
+            OnComplete: onComplete
         }, NodeTypes.GROUP_NODE);
     }
+
     endVisitIterate = (node: Iterate): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
