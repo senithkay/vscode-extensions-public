@@ -203,7 +203,10 @@ import {
     getSTRequest,
     getSTResponse,
     onSwaggerSpecReceived,
-    FileRenameRequest
+    FileRenameRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3388,6 +3391,28 @@ ${endpointAttributes}
             }
         });
 
+    }
+
+    async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.saveInboundEPUischema({
+                connectorName: params.connectorName,
+                uiSchema: params.uiSchema
+            });
+
+            resolve(res);
+        });
+    }
+
+    async getInboundEPUischema(params: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getInboundEPUischema({
+                connectorName: params.connectorName
+            });
+            resolve(res);
+        });
     }
 
     async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {

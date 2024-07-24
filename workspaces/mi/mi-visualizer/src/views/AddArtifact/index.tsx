@@ -277,6 +277,7 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("localEntries")}
                                     />
                                     <Card
+                                        isCodicon={true}
                                         icon="vm-connect"
                                         title="Connections"
                                         description="Create resuable connections."
