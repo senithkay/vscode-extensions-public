@@ -471,7 +471,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                                 connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
                                     <Card
                                         key={connector.name}
-                                        icon={connector.icon_url}
+                                        icon="inbound-endpoint"
                                         title={connector.name}
                                         description={connector.description}
                                         onClick={() => selectConnector(connector)}

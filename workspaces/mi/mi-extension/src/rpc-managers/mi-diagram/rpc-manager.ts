@@ -1103,8 +1103,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const filePath = this.getFilePath(directory, templateParams.name);
 
             const xmlData = getInboundEndpointXmlWrapper(templateParams);
+
+            const sequenceList = (await this.getEndpointsAndSequences()).data[1];
+
+            let sequencePath = "";
+            if (params.sequence) {
+                if (!(sequenceList.includes(params.sequence))) {
+                    const sequenceDir = path.join(directory, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
+                    const sequenceRequest: CreateSequenceRequest = {
+                        name: params.sequence,
+                        directory: sequenceDir,
+                        endpoint: "",
+                        onErrorSequence: "",
+                        getContentOnly: false,
+                        statistics: false,
+                        trace: false
+                    };
+                    const response = await this.createSequence(sequenceRequest);
+                    sequencePath = response.filePath;
+                } else {
+                    sequencePath = path.join(directory, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${params.sequence}.xml`);
+                }
+            }
+
             await replaceFullContentToFile(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: sequencePath });
             resolve({ path: filePath });
         });
     }
@@ -3066,7 +3089,7 @@ ${endpointAttributes}
                                 console.log(`Jar file does not exist at path: ${jarPath}`);
                             }
                         }
-                        
+
                         // Retrieve uiSchema
                         const uischemaPath = path.join(extractPath, zipNameWithoutExtension, 'resources', 'uischema.json');
                         fs.readFile(uischemaPath, 'utf8', async (err, data) => {
