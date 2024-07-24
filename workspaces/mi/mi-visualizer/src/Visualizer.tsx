@@ -19,6 +19,7 @@ import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";
 import { RuntimeServicePanel } from "./RuntimeServicesPanel";
 import { SwaggerPanel } from "./SwaggerPanel";
+import { gitIssueUrl } from "./constants";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -71,7 +72,7 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
     };
 
     return (
-        <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl="https://github.com/wso2/mi-vscode/issues" ref={errorBoundaryRef}>
+        <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl={gitIssueUrl} ref={errorBoundaryRef}>
             {(() => {
                 switch (mode) {
                     case MODES.VISUALIZER:
