@@ -662,7 +662,7 @@
     "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
     "copyDMUtils": "copyfiles -f ./node_modules/@wso2-enterprise/mi-data-mapper-utils/src/* ./resources/data-mapper-utils/",
-    "renameDMUtils":"node -e \"require('fs').rename('./resources/data-mapper-utils/dm-utils.ts', './resources/data-mapper-utils/dm-utils.ts.lib', function(err) { if (err) console.log(err); else console.log('DMUtils successfully renamed!') })\"",
+    "renameDMUtils": "node -e \"require('fs').rename('./resources/data-mapper-utils/dm-utils.ts', './resources/data-mapper-utils/dm-utils.ts.lib', function(err) { if (err) console.log(err); else console.log('DMUtils successfully renamed!') })\"",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
     "postbuild": "pnpm run copyVSIX"
@@ -734,6 +734,7 @@
     "json-schema": "0.4.0",
     "portfinder": "^1.0.32",
     "cors-anywhere": "^0.4.4",
-    "@apidevtools/json-schema-ref-parser": "11.6.1"
+    "@apidevtools/json-schema-ref-parser": "11.6.1",
+    "adm-zip": "~0.5.14"
   }
 }

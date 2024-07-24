@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, TextField, FormCheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormCheckBox, FormView, FormActions, Card } from "@wso2-enterprise/ui-toolkit";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -19,7 +19,10 @@ import { TypeChip } from "../Commons";
 import CardWrapper from "../Commons/CardWrapper";
 import ParamForm from "./ParamForm";
 import { Paramater, defaultParameters, inboundEndpointParams } from "./ParamTemplate";
-import {FormKeylookup, ParamConfig, ParamManager} from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import AddInboundConnector from "./inboundConnectorForm";
+import { APIS } from "../../../constants";
+import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -27,6 +30,29 @@ const CheckboxGroup = styled.div({
     gap: "10px",
     marginBottom: "20px",
 });
+
+const SampleGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+    gap: 20px;
+`;
+
+const LoaderWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 15px;
+    height: 100px;
+    width: 100%;
+`;
+
+const ProgressRing = styled(VSCodeProgressRing)`
+    height: 50px;
+    width: 50px;
+    margin-top: auto;
+    padding: 4px;
+`;
 
 export interface Region {
     label: string;
@@ -93,6 +119,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const [sequences, setSequences] = useState([]);
     const [schemaParams, setSchemaParams] = useState({});
     const [customParams, setCustomParams] = useState(paramConfigs);
+    const [connectors, setConnectors] = useState(undefined);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isFetchingConnectors, setIsFetchingConnectors] = useState(false);
+    const [connectorSchema, setConnectorSchema] = useState(undefined);
 
     const [selected, setSelected] = useState({
         sequence: customSequenceType.value,
@@ -130,6 +160,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     useEffect(() => {
         (async () => {
+            fetchConnectors();
             const sequenceList = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             const newSequenceList = sequenceList.data[1].map((seq: string) => {
                 seq = seq.replace(".xml", "");
@@ -198,9 +229,21 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         })();
     }, [props.path]);
 
+    const fetchConnectors = async () => {
+        setIsFetchingConnectors(true);
+        try {
+            const response = await fetch(APIS.CONNECTOR);
+            const data = await response.json();
+            setConnectors(data['inbound-connector-data'])
+        } catch (e) {
+            console.error("Error fetching connectors", e);
+        }
+        setIsFetchingConnectors(false);
+    };
+
     const formTitle = isNewInboundEndpoint
-        ? "Create new Inbound Endpoint"
-        : "Edit Inbound Endpoint : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+        ? "Create new Listener"
+        : "Edit Listener : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
     const handleCustomParams = (params: any) => {
         const modifiedParams = {
@@ -346,6 +389,30 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         readyForm(type);
     }
 
+    const selectConnector = async (connector: any) => {
+        // Download connector from store
+        setIsDownloading(true);
+        let downloadSuccess = false;
+        let attempts = 0;
+        let uischema;
+
+        while (!downloadSuccess && attempts < 3) {
+            try {
+                uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
+                    url: connector.download_url
+                });
+                setInboundEndpointType(connector.name);
+                setConnectorSchema(uischema);
+                downloadSuccess = true;
+            } catch (error) {
+                console.error('Error occurred while downloading connector:', error);
+                attempts++;
+            }
+        }
+
+        setIsDownloading(false);
+    }
+
     const handleSequenceChange = (field: 'sequence' | 'errorSequence', value: string, shouldDirty: boolean = true) => {
         setSelected((prev) => ({
             ...prev,
@@ -358,10 +425,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         const createInboundEPParams = {
             directory: props.path,
             ...values,
-            type: values.type.toLowerCase(),
+            type: values.type?.toLowerCase() ?? "custom",
             parameters: {
                 ...transformParams(values.parameters, true),
-                ...((values.type.toLowerCase() === 'custom') ? getCustomParams() : {})
+                ...((values.type?.toLowerCase() === 'custom') ? getCustomParams() : {})
             }
         }
         await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
@@ -378,82 +445,123 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     return (
         <FormView title={formTitle} onClose={handleOnClose}>
-            {isNewInboundEndpoint && watch('type') === '' ? <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} /> : (
-                <FormProvider {...formMethods}>
-                    <TypeChip type={watch('type')} onClick={setInboundEndpointType} showButton={isNewInboundEndpoint} />
-                    <TextField
-                        required
-                        autoFocus
-                        label="Name"
-                        placeholder="Name"
-                        {...renderProps("name")}
-                    />
-                    <div>
-                        <FormKeylookup
+            {isNewInboundEndpoint && watch('type') === '' ? (
+                isDownloading ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                        Downloading connector...
+                    </LoaderWrapper>
+                ) : (
+                    <>
+                        <span>Please select an inbound endpoint.</span>
+                        <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} />
+                        <SampleGrid>
+                            {connectors ?
+                                connectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                                    <Card
+                                        key={connector.name}
+                                        icon={connector.icon_url}
+                                        title={connector.name}
+                                        description={connector.description}
+                                        onClick={() => selectConnector(connector)}
+                                    />
+                                )) : (
+                                    isFetchingConnectors ? (
+                                        <LoaderWrapper>
+                                            <ProgressRing />
+                                            Fetching connectors...
+                                        </LoaderWrapper>
+                                    ) : (
+                                        <LoaderWrapper>
+                                            <span>
+                                                Failed to fetch store connectors. Please <VSCodeLink onClick={fetchConnectors}>retry</VSCodeLink>
+                                            </span>
+                                        </LoaderWrapper>
+                                    )
+                                )}
+                        </SampleGrid>
+                    </>
+                )
+            ) : (
+                connectorSchema ? (
+                    <AddInboundConnector formData={connectorSchema.uischema} path={props.path} setType={setInboundEndpointType}
+                        handleCreateInboundEP={handleCreateInboundEP} />
+                ) : (
+                    <FormProvider {...formMethods}>
+                        <TypeChip type={watch('type')} onClick={setInboundEndpointType} showButton={isNewInboundEndpoint} />
+                        <TextField
                             required
-                            control={control}
-                            label="Sequence"
-                            name="sequence"
-                            filterType="sequence"
-                            path={props.path}
-                            errorMsg={errors.sequence?.message.toString()}
-                            {...register("sequence")}
+                            autoFocus
+                            label="Name"
+                            placeholder="Name"
+                            {...renderProps("name")}
                         />
-                    </div>
-                    <div>
-                        <FormKeylookup
-                            required
-                            control={control}
-                            label="Error Sequence"
-                            name="errorSequence"
-                            filterType="sequence"
-                            path={props.path}
-                            errorMsg={errors.errorSequence?.message.toString()}
-                            additionalItems={["fault"]}
-                            {...register("errorSequence")}
-                        />
-                    </div>
-                    <CheckboxGroup>
-                        <FormCheckBox
-                            name="suspend"
-                            label="Suspend"
-                            control={control}
-                        />
-                        <FormCheckBox
-                            name="trace"
-                            label="Trace Enabled"
-                            control={control}
-                        />
-                        <FormCheckBox
-                            name="statistics"
-                            label="Statistics Enabled"
-                            control={control}
-                        />
-                    </CheckboxGroup>
-                    {watch('type') && <ParamForm params={selectedParams} />}
-                    {watch('type').toLowerCase() === 'custom' && (
-                        <ParamManager
-                            paramConfigs={customParams}
-                            readonly={false}
-                            onChange={handleCustomParams}
-                        />
-                    )}
-                    <FormActions>
-                        <Button
-                            appearance="primary"
-                            onClick={handleSubmit(handleCreateInboundEP)}
-                            disabled={!isDirty}
-                        >
-                            {isNewInboundEndpoint ? "Create" : "Save Changes"}
-                        </Button>
-                        <Button
-                            appearance="secondary"
-                            onClick={openOverview}
-                        >
-                            Cancel
-                        </Button>
-                    </FormActions>
-                </FormProvider>
+                        <div>
+                            <FormKeylookup
+                                required
+                                control={control}
+                                label="Sequence"
+                                name="sequence"
+                                filterType="sequence"
+                                path={props.path}
+                                errorMsg={errors.sequence?.message.toString()}
+                                {...register("sequence")}
+                            />
+                        </div>
+                        <div>
+                            <FormKeylookup
+                                required
+                                control={control}
+                                label="Error Sequence"
+                                name="errorSequence"
+                                filterType="sequence"
+                                path={props.path}
+                                errorMsg={errors.errorSequence?.message.toString()}
+                                additionalItems={["fault"]}
+                                {...register("errorSequence")}
+                            />
+                        </div>
+                        <CheckboxGroup>
+                            <FormCheckBox
+                                name="suspend"
+                                label="Suspend"
+                                control={control}
+                            />
+                            <FormCheckBox
+                                name="trace"
+                                label="Trace Enabled"
+                                control={control}
+                            />
+                            <FormCheckBox
+                                name="statistics"
+                                label="Statistics Enabled"
+                                control={control}
+                            />
+                        </CheckboxGroup>
+                        {watch('type') && <ParamForm params={selectedParams} />}
+                        {watch('type').toLowerCase() === 'custom' && (
+                            <ParamManager
+                                paramConfigs={customParams}
+                                readonly={false}
+                                onChange={handleCustomParams}
+                            />
+                        )}
+                        <FormActions>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(handleCreateInboundEP)}
+                                disabled={!isDirty}
+                            >
+                                {isNewInboundEndpoint ? "Create" : "Save Changes"}
+                            </Button>
+                            <Button
+                                appearance="secondary"
+                                onClick={openOverview}
+                            >
+                                Cancel
+                            </Button>
+                        </FormActions>
+                    </FormProvider>)
             )}
         </FormView>
     );

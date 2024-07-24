@@ -51,46 +51,46 @@ const CARD_WRAPPER_DATA = {
                 icon: 'rabbit-mq',
                 description: 'RabbitMQ messaging',
             },
-            {
-                title: 'HL7',
-                icon: 'hl7',
-                description: 'Healthcare messaging',
-            },
-            {
-                title: 'MQTT',
-                icon: 'mqtt',
-                description: 'MQTT messaging',
-            },
-            {
-                title: 'WS',
-                icon: 'ws',
-                description: 'Web Services',
-            },
-            {
-                title: 'WSO2_MB',
-                icon: 'wso2-mb',
-                description: 'WSO2 Message Broker',
-            },
-            {
-                title: 'WSS',
-                icon: 'wss',
-                description: 'Secure Web Services',
-            },
-            {
-                title: 'CXF_WS_RM',
-                icon: 'cxf-ws-rm',
-                description: 'CXF with WS-RM',
-            },
-            {
-                title: 'Feed',
-                icon: 'feed',
-                description: 'RSS/Atom feed',
-            },
-            {
-                title: 'Custom',
-                icon: 'user-defined-endpoint',
-                description: 'User-defined endpoint',
-            },
+            // {
+            //     title: 'HL7',
+            //     icon: 'hl7',
+            //     description: 'Healthcare messaging',
+            // },
+            // {
+            //     title: 'MQTT',
+            //     icon: 'mqtt',
+            //     description: 'MQTT messaging',
+            // },
+            // {
+            //     title: 'WS',
+            //     icon: 'ws',
+            //     description: 'Web Services',
+            // },
+            // {
+            //     title: 'WSO2_MB',
+            //     icon: 'wso2-mb',
+            //     description: 'WSO2 Message Broker',
+            // },
+            // {
+            //     title: 'WSS',
+            //     icon: 'wss',
+            //     description: 'Secure Web Services',
+            // },
+            // {
+            //     title: 'CXF_WS_RM',
+            //     icon: 'cxf-ws-rm',
+            //     description: 'CXF with WS-RM',
+            // },
+            // {
+            //     title: 'Feed',
+            //     icon: 'feed',
+            //     description: 'RSS/Atom feed',
+            // },
+            // {
+            //     title: 'Custom',
+            //     icon: 'user-defined-endpoint',
+            //     description: 'User-defined endpoint',
+            // },
         ]
     },
     MESSAGE_PROCESSOR: {
@@ -265,6 +265,7 @@ const CardWrapper = (props: CardWrapperProps) => {
                     title={card.title}
                     description={card.description}
                     onClick={() => props.setType(card.title)}
+                    badgeText={props.cardsType === "INBOUND_ENDPOINT" ? "inBuilt" : ""}
                 />
             ))}
         </CardContainer>
