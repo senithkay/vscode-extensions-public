@@ -432,6 +432,7 @@ const generateForm = (jsonData: any): string => {
                         filterType='${filterType}'
                         allowItemCreate={false}
                         required={${element.value.required}}
+                        errorMsg={errors?.${element.value.name}?.message?.toString()}
                         canChangeEx={true}
                         exprToggleEnabled={true}
                         openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
