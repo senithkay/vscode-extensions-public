@@ -15,6 +15,7 @@ import { COMMANDS } from '../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import { getViewCommand } from '../project-explorer/project-explorer-provider';
+import { log } from '../util/logger';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -37,8 +38,16 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         commands.registerCommand(COMMANDS.SHOW_GRAPHICAL_VIEW, async (file: vscode.Uri) => {
             extension.webviewReveal = true;
 
-            const langClient = StateMachine.context().langClient!;
-            const projectUri = StateMachine.context().projectUri!;
+            const langClient = StateMachine.context().langClient;
+            const projectUri = StateMachine.context().projectUri;
+
+            if (!langClient || !projectUri) {
+                const errorMsg = 'The extension is still initializing. Please wait a moment and try again.';
+                vscode.window.showErrorMessage(errorMsg);
+                log(errorMsg);
+                return;
+            }
+
             const { directoryMap } = await langClient.getProjectStructure(projectUri);
             const artifacts = directoryMap.src.main.wso2mi.artifacts;
             for (const artifactType in artifacts) {
