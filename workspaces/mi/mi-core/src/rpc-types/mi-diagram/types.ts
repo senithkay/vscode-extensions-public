@@ -31,6 +31,7 @@ export interface CreateAPIRequest {
     artifactDir: string;
     name: string;
     xmlData?: string;
+    version?: string;
     saveSwaggerDef?: boolean;
     swaggerDefPath?: string;
     wsdlType?: "file" | "url";
@@ -41,6 +42,7 @@ export interface CreateAPIRequest {
 export interface EditAPIRequest {
     documentUri: string;
     apiName: string;
+    version?: string;
     xmlData: string;
     handlersXmlData: string;
     apiRange: Range;
@@ -889,6 +891,7 @@ export interface CreateTaskRequest {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
+    sequence: CreateSequenceRequest | undefined;
 }
 
 export interface taskProperty {

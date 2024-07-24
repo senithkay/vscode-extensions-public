@@ -37,26 +37,28 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
             overflowX: 'hidden',
             maxHeight: !hideClose ? 'calc(100vh - 22px)' : 'fit-content',
         }} className="form-view">
-            <div style={{ maxWidth: '50em', margin: '0 auto' }}>
-                <div style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1,
-                    backgroundColor: 'var(--background)',
-                    boxShadow: isScrolling ? '0 4px 2px -2px rgba(0,0,0,0.2)' : 'none',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }}>
-                    <Typography variant="h2" sx={{ flexGrow: 1 }}>{title}</Typography>
-                    {!hideClose &&
-                        <Button appearance="icon" onClick={onClose} tooltip="Close">
-                            <Codicon name='close' />
-                        </Button>
-                    }
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {children}
+            <div style={{ maxWidth: '52em', margin: '0 auto' }}>
+                <div style={{ margin: '0 15px' }}>
+                    <div style={{
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 1,
+                        backgroundColor: 'var(--background)',
+                        boxShadow: isScrolling ? '0 4px 2px -2px rgba(0,0,0,0.2)' : 'none',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}>
+                        <Typography variant="h2" sx={{ flexGrow: 1 }}>{title}</Typography>
+                        {!hideClose &&
+                            <Button appearance="icon" onClick={onClose} tooltip="Close">
+                                <Codicon name='close' />
+                            </Button>
+                        }
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,13 +98,14 @@ export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollaps
     return (
         <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={toggleCollapse}>
-                <Typography variant="h3">{title}</Typography>
+                <Typography variant="h2" sx={{ fontWeight: 'lighter', margin: '0px' }}>{title}</Typography>
+                <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-editorIndentGuide-background)' }} />
                 <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
                     <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
                 </Button>
             </div>
             {!collapsed &&
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px' }}>
                     {children}
                 </div>
             }
