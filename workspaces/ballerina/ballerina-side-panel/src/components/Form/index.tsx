@@ -7,18 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { TextField, Button } from "@wso2-enterprise/ui-toolkit";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { TextField, Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
 
 namespace S {
-    export const Container = styled.div<{}>`
-        display: flex;
-        flex-direction: column;
+    export const Container = styled(SidePanelBody)`
         gap: 12px;
-        width: 100%;
     `;
 
     export const Row = styled.div<{}>`

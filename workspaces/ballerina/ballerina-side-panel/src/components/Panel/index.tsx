@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { Button, SidePanel, SidePanelBody, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanel, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon } from "../../resources";
@@ -62,7 +62,7 @@ export function PanelContainer(props: PanelContainerProps) {
                     <CloseIcon />
                 </S.StyledButton>
             </SidePanelTitleContainer>
-            <SidePanelBody>{children}</SidePanelBody>
+            {children}
         </SidePanel>
     );
 }

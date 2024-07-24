@@ -88,7 +88,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
 export function getContainerTitle(view: SidePanelView): string {
     switch (view) {
         case SidePanelView.NODE_LIST:
-            return "Add Node";
+            return "Add Construct";
         case SidePanelView.FORM:
             return "Node Properties";
         default:

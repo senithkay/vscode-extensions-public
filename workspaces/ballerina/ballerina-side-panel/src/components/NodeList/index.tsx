@@ -8,16 +8,28 @@
  */
 
 import React, { useState } from "react";
-import { SearchBox, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { SearchBox, SidePanelBody, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
 import { Category, Node } from "./types";
-import { debounce } from "lodash";
+import { cloneDeep, debounce } from "lodash";
 
 namespace S {
     export const Container = styled.div<{}>`
         width: 100%;
+    `;
+
+    export const HeaderContainer = styled.div<{}>`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px;
+    `;
+
+    export const PanelBody = styled(SidePanelBody)`
+        height: calc(100vh - 150px);
+        padding-top: 0;
     `;
 
     export const StyledSearchInput = styled(SearchBox)`
@@ -31,7 +43,8 @@ namespace S {
         align-items: flex-start;
         width: 100%;
         margin-top: 8px;
-        padding-bottom: 12px;
+        margin-bottom: ${({ showBorder }) => (showBorder ? "20px" : "12px")};
+        padding-bottom: 8px;
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
     `;
 
@@ -57,7 +70,6 @@ namespace S {
     export const Title = styled.div<{}>`
         font-size: 14px;
         font-family: GilmerBold;
-        margin-top: 12px;
         text-wrap: nowrap;
         &:first {
             margin-top: 0;
@@ -125,7 +137,10 @@ interface NodeListProps {
 export function NodeList(props: NodeListProps) {
     const { categories, onSelect, onSearchTextChange } = props;
 
+    console.log(">>> categories", { categories });
+
     const [searchText, setSearchText] = useState<string>("");
+    const [showConnectionPanel, setShowConnectionPanel] = useState(false);
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
@@ -154,7 +169,7 @@ export function NodeList(props: NodeListProps) {
     const getCategoryContainer = (groups: Category[], isSubCategory = false) => (
         <>
             {groups.map((group, index) => {
-                if (group.items.length === 0) {
+                if (!group || group.items.length === 0) {
                     return null;
                 }
                 return (
@@ -177,12 +192,35 @@ export function NodeList(props: NodeListProps) {
         </>
     );
 
+    // HACK: This is a temporary solution to render node list
+    const firstCategory = [cloneDeep(categories.at(0))];
+    const lastCategory = [categories.at(2), categories.at(3)];
+
     return (
         <S.Container>
-            <S.Row>
-                <S.StyledSearchInput value={searchText} autoFocus={true} onChange={handleOnSearch} size={60} />
-            </S.Row>
-            {getCategoryContainer(categories)}
+            <S.HeaderContainer>
+                <Switch
+                    leftLabel="Nodes"
+                    rightLabel="Connections"
+                    checked={showConnectionPanel}
+                    checkedColor="var(--vscode-button-background)"
+                    enableTransition={true}
+                    onChange={() => {
+                        setShowConnectionPanel(!showConnectionPanel);
+                    }}
+                    sx={{
+                        margin: "auto",
+                        zIndex: "2",
+                        border: "unset",
+                    }}
+                    disabled={false}
+                />
+                <S.Row>
+                    <S.StyledSearchInput value={searchText} autoFocus={true} onChange={handleOnSearch} size={60} />
+                </S.Row>
+            </S.HeaderContainer>
+            {!showConnectionPanel && <S.PanelBody>{getCategoryContainer(firstCategory)}</S.PanelBody>}
+            {showConnectionPanel && <S.PanelBody>{getCategoryContainer(lastCategory)}</S.PanelBody>}
         </S.Container>
     );
 }
