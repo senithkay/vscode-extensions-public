@@ -61,7 +61,7 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const { functionST, sourceFile } = useMemo(() => {
+    const functionST = useMemo(() => {
 
         const project = new Project({
             useInMemoryFileSystem: true,
@@ -100,15 +100,12 @@ export function DataMapperView(props: DataMapperViewProps) {
             });
         }
 
-        return {
-            functionST: fnST,
-            sourceFile: sourceFile,
-        };
+        return fnST;
 
     }, [rpcClient, filePath, fileContent, functionName]);
 
-    const applyModifications = async () => {
-        await updateFileContent(sourceFile.getFullText());
+    const applyModifications = async (fileContent: string) => {
+        await updateFileContent(fileContent);
     };
 
     return (
