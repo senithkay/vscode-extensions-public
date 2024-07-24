@@ -16,6 +16,8 @@ import { executeBuildTask, getServerPath } from './debugHelper';
 import { getDockerTask } from './tasks';
 import { navigate } from '../stateMachine';
 import { SELECTED_SERVER_PATH } from './constants';
+import * as fs from 'fs';
+import * as path from 'path';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -89,13 +91,44 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
-        vscode.debug.startDebugging(undefined, {
-            type: 'mi',
-            name: 'MI: Run',
-            request: 'launch',
-        },
-            { noDebug: true }
-        );
+
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+
+        if (workspaceFolder) {
+            const launchJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'launch.json');
+            let config: vscode.DebugConfiguration | undefined = undefined;
+
+            if (fs.existsSync(launchJsonPath)) {
+                // Read the configurations from launch.json
+                const configurations = vscode.workspace.getConfiguration('launch', workspaceFolder.uri);
+                const allConfigs = configurations.get<vscode.DebugConfiguration[]>('configurations');
+
+                if (allConfigs) {
+                    config = allConfigs.find(c => c.name === 'MI: Run and Debug') || allConfigs[0];
+                }
+            }
+
+            if (config === undefined) {
+                // Default configuration if no launch.json or no matching config
+                config = {
+                    type: 'mi',
+                    name: 'MI: Run',
+                    request: 'launch',
+                    noDebug: true,
+                };
+            } else {
+                config.name = 'MI: Run';
+                config.noDebug = true;
+            }
+
+            try {
+                await vscode.debug.startDebugging(undefined, config);
+            } catch (err) {
+                vscode.window.showErrorMessage(`Failed to run without debugging: ${err}`);
+            }
+        } else {
+            vscode.window.showErrorMessage('No workspace folder found');
+        }
     }));
 
 
