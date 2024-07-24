@@ -102,7 +102,7 @@ export enum EndpointTypes {
     HTTP_ENDPOINT = "HTTP_ENDPOINT",
     WSDL_ENDPOINT = "WSDL_ENDPOINT",
     LOAD_BALANCE_ENDPOINT = "LOAD_BALANCE_ENDPOINT",
-    FAILOVER_ENDPOINT = "FAILOVER_ENDPOINT",
+    FAILOVER_ENDPOINT = "FAIL_OVER_ENDPOINT",
     TEMPLATE_ENDPOINT = "TEMPLATE_ENDPOINT",
     RECIPIENT_ENDPOINT = "RECIPIENT_ENDPOINT",
 };
@@ -115,15 +115,38 @@ export enum TemplateTypes {
     SEQUENCE_ENDPOINT = "SEQUENCE"
 };
 
-// export enum TemplateTypes {
-//     INBOUND_ENDPOINT = "INBOUND_ENDPOINT",
-//     LOCAL_ENTRY = "LOCAL_ENTRY",
-//     MESSAGE_PROCESSOR = "MESSAGE_PROCESSOR",
-//     MESSAGE_STORE = "MESSAGE_STORE",
-//     SEQUENCE = "SEQUENCE",
-//     TASK = "TASK",
-//     TEMPLATE = "TEMPLATE",
-// };
+export enum InboundEndpointTypes {
+    CXF_WS_RM = "CXF_WS_RM",
+    FILE = "FILE",
+    HL7 = "HL7",
+    JMS = "JMS",
+    MQTT = "MQTT",
+    WS = "WS",
+    FEED = "Feed",
+    HTTPS = "HTTPS",
+    HTTP = "HTTP",
+    KAFKA = "KAFKA",
+    WSS = "WSS",
+    CUSTOM = "CUSTOM",
+    RABBITMQ = "rabbit-mq"
+};
+
+export enum MessageProcessorTypes {
+    MESSAGE_SAMPLING = "MESSAGE_SAMPLING",
+    SCHEDULED_MESSAGE_FORWARDING = "SCHEDULED_MESSAGE_FORWARDING",
+    SCHEDULED_FAILOVER_MESSAGE_FORWARDING = "SCHEDULED_FAILOVER_MESSAGE_FORWARDING",
+    CUSTOM = "CUSTOM"
+};
+
+export enum MessageStoreTypes {
+    IN_MEMORY = "IN_MEMORY",
+    CUSTOM = "CUSTOM",
+    JMS = "JMS",
+    RABBITMQ = "RABBITMQ",
+    WSO2_MB = "WSO2_MB",
+    RESEQUENCE = "RESEQUENCE",
+    JDBC = "JDBC"
+};
 
 export * from "./swagger";
 
@@ -133,5 +156,3 @@ export const APIS = {
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";
 export const DM_OPERATORS_IMPORT_NAME="dmUtils";
-
-export 	const latestMICopilotRootUrl = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
