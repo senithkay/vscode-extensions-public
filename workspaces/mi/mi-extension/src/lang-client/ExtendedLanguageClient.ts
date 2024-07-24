@@ -139,7 +139,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
-        return this.sendRequest('synapse/directoryTree', { uri: Uri.file(path).toString() });
+        return this.sendRequest('synapse/directoryTree', { uri: Uri.file(path).fsPath });
     }
 
     async getRegistryFiles(req: string): Promise<string[]> {
