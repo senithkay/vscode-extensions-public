@@ -20,7 +20,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
     let color: string;
 
     // get icon color
-    switch (mediator.toLowerCase()) {
+    switch (mediator?.toLowerCase()) {
         case MEDIATORS.CALL.toLowerCase():
         case MEDIATORS.LOG.toLowerCase():
         case MEDIATORS.RESPOND.toLowerCase():
@@ -103,7 +103,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
     }
 
     // get Mediators
-    switch (mediator.toLowerCase()) {
+    switch (mediator?.toLowerCase()) {
         case MEDIATORS.AGGREGATE.toLowerCase():
             icon = (<Icon name="Aggregate" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
