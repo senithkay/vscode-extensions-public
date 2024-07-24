@@ -115,12 +115,8 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 then: schema => schema.transform(() => undefined),
             })
             .when("versionType", {
-                is: "context",
+                is: (value: string) => value === "context" || value === "url",
                 then: schema => schema.matches(/^(\d+\.\d+\.\d+)$/, "Invalid version format"),
-            })
-            .when("versionType", {
-                is: "url",
-                then: schema => schema.matches(/^https?:\/\/.*/, "Invalid URL format"),
             }),
         apiCreateOption: yup.string().oneOf(["create-api", "swagger-to-api", "wsdl-to-api"] as const).defined(),
         swaggerDefPath: yup.string().when('apiCreateOption', {
@@ -271,7 +267,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     versionType: (values.versionType !== "none" && values.version) && values.versionType,
                 }
                 const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
-                createAPIParams = { ...createAPIParams, xmlData: xml }
+                createAPIParams = { ...createAPIParams, xmlData: xml, version: values.version }
             }
 
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
@@ -300,14 +296,17 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             const editAPIParams = {
                 documentUri: path,
                 apiName: values.apiName,
+                version: values.version,
                 xmlData: xml,
                 handlersXmlData: handlersXML,
                 apiRange: apiData.apiRange,
                 handlersRange: apiData.handlersRange
             };
-            await rpcClient.getMiDiagramRpcClient().editAPI(editAPIParams);
+            const ediResponse = await rpcClient.getMiDiagramRpcClient().editAPI(editAPIParams);
+            path = ediResponse.path;
             rpcClient.getMiVisualizerRpcClient().log({ message: `Updated API: ${apiData.apiName}.` });
-            if (pathLib.basename(path).split('.')[0] !== values.apiName) {
+            let apiName = `${values.apiName}${values.version ? `_v${values.version}` : ''}`;
+            if (pathLib.basename(path).split('.xml')[0] !== apiName) {
                 rpcClient.getMiVisualizerRpcClient().openView({
                     type: EVENT_TYPE.OPEN_VIEW,
                     location: { view: MACHINE_VIEW.Overview }
@@ -457,7 +456,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 {versionType !== "none" && (
                     <TextField
                         label="Version"
-                        placeholder={versionType === "context" ? "0.0.1" : "https://example.com"}
+                        placeholder={"0.0.1"}
                         {...renderProps("version")}
                     />
                 )}

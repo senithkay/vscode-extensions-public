@@ -103,20 +103,12 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         description: (entry: any) => `API Context: ${entry.context}`,
         path: (entry: any) => entry.path,
     },
-    endpoints: {
-        title: "Endpoints",
-        command: "MI.project-explorer.add-endpoint",
-        view: MACHINE_VIEW.EndPointForm,
-        icon: "endpoint",
-        description: (entry: any) => `Type: ${entry.subType}`,
-        path: (entry: any) => entry.path,
-    },
-    sequences: {
-        title: "Sequences",
-        command: "MI.project-explorer.add-sequence",
-        view: MACHINE_VIEW.SequenceView,
-        icon: "Sequence",
-        description: (entry: any) => `Reusable sequence`,
+    tasks: {
+        title: "Tasks",
+        command: "MI.project-explorer.add-task",
+        view: MACHINE_VIEW.TaskView,
+        icon: "task",
+        description: (entry: any) => "Task",
         path: (entry: any) => entry.path,
     },
     proxyServices: {
@@ -136,6 +128,30 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         description: (entry: any) => "Inbound Endpoint",
         path: (entry: any) => entry.path,
     },
+    endpoints: {
+        title: "Endpoints",
+        command: "MI.project-explorer.add-endpoint",
+        view: MACHINE_VIEW.EndPointForm,
+        icon: "endpoint",
+        description: (entry: any) => `Type: ${entry.subType}`,
+        path: (entry: any) => entry.path,
+    },
+    connections: {
+        title: "Connections",
+        command: "MI.project-explorer.add-connection",
+        view: MACHINE_VIEW.ConnectionForm,
+        icon: "link",
+        description: (entry: any) => "Connection",
+        path: (entry: any) => entry.path,
+    },
+    sequences: {
+        title: "Sequences",
+        command: "MI.project-explorer.add-sequence",
+        view: MACHINE_VIEW.SequenceView,
+        icon: "Sequence",
+        description: (entry: any) => `Reusable sequence`,
+        path: (entry: any) => entry.path,
+    },
     messageStores: {
         title: "Message Stores",
         command: "MI.project-explorer.add-message-store",
@@ -150,14 +166,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.MessageProcessorForm,
         icon: "message-processor",
         description: (entry: any) => "Message Processor",
-        path: (entry: any) => entry.path,
-    },
-    tasks: {
-        title: "Tasks",
-        command: "MI.project-explorer.add-task",
-        view: MACHINE_VIEW.TaskForm,
-        icon: "task",
-        description: (entry: any) => "Task",
         path: (entry: any) => entry.path,
     },
     localEntries: {
@@ -190,14 +198,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.DataSourceForm,
         icon: "data-source",
         description: (entry: any) => "Data Source",
-        path: (entry: any) => entry.path,
-    },
-    connections: {
-        title: "Connections",
-        command: "MI.project-explorer.add-connection",
-        view: MACHINE_VIEW.ConnectionForm,
-        icon: "link",
-        description: (entry: any) => "Connection",
         path: (entry: any) => entry.path,
     }
     // Add more artifact types as needed

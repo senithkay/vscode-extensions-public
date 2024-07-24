@@ -149,6 +149,8 @@ export interface Task extends STNode {
     name: string;
     group: string;
     pinnedServers: string;
+    sequence: NamedSequence | undefined;
+    sequenceURI: string | undefined;
 }
 
 export interface FilterElse extends STNode {
