@@ -184,8 +184,8 @@ import {
     TestDbConnectionRequest,
     TestDbConnectionResponse,
     MarkAsDefaultSequenceRequest,
-    GetSubFoldersRequest,
     GetSubFoldersResponse,
+    GetSubFoldersRequest,
     FileRenameRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -310,3 +310,4 @@ export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnec
 export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
 export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_preFix}/renameFile` };
+export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };

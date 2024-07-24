@@ -275,6 +275,7 @@ import {
     openDependencyPom,
     openDiagram,
     openFile,
+    openUpdateExtensionPage,
     rangeFormat,
     redo,
     refreshAccessToken,
@@ -793,5 +794,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
   
     renameFile(params: FileRenameRequest): Promise<void> {
         return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
+    }
+
+    openUpdateExtensionPage(): void {
+        return this._messenger.sendNotification(openUpdateExtensionPage, HOST_EXTENSION);
     }
 }

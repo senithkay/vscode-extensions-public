@@ -34,8 +34,8 @@ const WideVSCodeButton = styled(VSCodeButton)`
 export const UpdateMIExtension = () => {
     const { rpcClient } = useVisualizerContext();
 
-    const openExtensionUpdatePage = () => {
-        // TODO: Implement a way to open the extension update page
+    const openExtensionUpdatePage = async () => {
+        await rpcClient.getMiDiagramRpcClient().openUpdateExtensionPage();
     };
 
     return (

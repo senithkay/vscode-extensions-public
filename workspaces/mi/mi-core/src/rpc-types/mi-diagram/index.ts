@@ -308,4 +308,5 @@ export interface MiDiagramAPI {
     markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => Promise<void>;
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
     renameFile: (params: FileRenameRequest) => void;
+    openUpdateExtensionPage: () => void;
 }
