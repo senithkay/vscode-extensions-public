@@ -22,7 +22,7 @@ export interface IDataMapperContext {
     subMappingTypes: Record<string, DMType>;
     addView: (view: View) => void;
     goToSource: (range: Range) => void;
-    applyModifications: () => Promise<void>;
+    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -36,6 +36,6 @@ export class DataMapperContext implements IDataMapperContext {
         public subMappingTypes: Record<string, DMType>,
         public addView: (view: View) => void,
         public goToSource: (range: Range) => void,
-        public applyModifications: () => Promise<void>
+        public applyModifications: (fileContent: string) => Promise<void>
     ){}
 }

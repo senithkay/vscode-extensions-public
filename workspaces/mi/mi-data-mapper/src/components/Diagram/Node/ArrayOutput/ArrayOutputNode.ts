@@ -206,7 +206,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             });
         }
 
-        await this.context.applyModifications();
+        await this.context.applyModifications(field.getSourceFile().getFullText());
     }
 
     public updatePosition() {

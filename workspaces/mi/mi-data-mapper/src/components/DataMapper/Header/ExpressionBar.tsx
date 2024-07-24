@@ -41,8 +41,7 @@ const useStyles = () => ({
 export interface ExpressionBarProps {
     views: View[];
     filePath: string;
-    applyModifications: () => Promise<void>;
-    
+    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
@@ -282,13 +281,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
                 targetExpr.replaceWithText(replaceWith);
             }
-
+            await applyModifications(focusedFieldValue.getSourceFile().getFullText());
         }
-        await applyModifications();
     };
 
     const applyChangesOnFocusedFilter = async () => {
-        await applyModifications();
+        await applyModifications(focusedFilter.getSourceFile().getFullText());
     };
 
     return (
