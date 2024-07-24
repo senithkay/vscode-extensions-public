@@ -494,7 +494,7 @@ export function AIProjectGenerationChat() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: [] }),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: images }),
                     signal: signal,
                 });
                 if (!response.ok) {

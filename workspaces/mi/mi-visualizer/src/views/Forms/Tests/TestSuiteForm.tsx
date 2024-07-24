@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
@@ -129,7 +129,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
         try {
 
-            let token;
+            let token: GetUserAccessTokenResponse;
             try {
                 token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
             } catch (error) {
@@ -148,35 +148,52 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 context.push(response);
             });
 
-            let response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.token}`
-                },
-                body: JSON.stringify({ context: context[0].artifacts, test_file_name: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
-            });
+            let retryCount = 0;
+            const maxRetries = 2;
 
-            if (response.status === 401) {
-                // Retrieve a new token
-                await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
-                const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-
-                // Make the request again with the new token
-                response = await fetch(url, {
+            const fetchUnitTests = async (): Promise<Response> => {
+                let response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`
                     },
-                    body: JSON.stringify({ context: context[0].artifacts, testFileName: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
+                    body: JSON.stringify({ context: context[0].artifacts, test_file_name: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
                 });
-            } else if (response.status === 404) {
-                openUpdateExtensionView()
+
+                if (response.status === 401) {
+                    // Retrieve a new token
+                    await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+                    const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+    
+                    // Make the request again with the new token
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token.token}`
+                        },
+                        body: JSON.stringify({ context: context[0].artifacts, testFileName: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
+                    });
+                } else if (response.status === 404) {
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchUnitTests(); // Retry the request
+                    } else {
+                        openUpdateExtensionView();
+                        return response; // Exit the function if maximum retries reached
+                    }                
+                }
+
+                if (!response.ok) {
+                    throw new Error('Failed to create unit tests');
+                }
+                return response;
             }
-            if (!response.ok) {
-                throw new Error('Failed to create unit tests');
-            }
+
+            const response = await fetchUnitTests();
             const data = await response.json() as UnitTestApiResponse;
             if (data.event === "test_generation_success") {
                 // Extract xml from the response

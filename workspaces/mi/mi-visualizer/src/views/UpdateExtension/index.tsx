@@ -35,7 +35,7 @@ export const UpdateMIExtension = () => {
     const { rpcClient } = useVisualizerContext();
 
     const openExtensionUpdatePage = () => {
-        // Implement a way to open the extension update page
+        // TODO: Implement a way to open the extension update page
     };
 
     return (
