@@ -114,8 +114,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 end: st.range.startTagRange.end,
             },
             handlersRange: {
-                start: st.handlers?.range.startTagRange.start ?? st.range.endTagRange.start,
-                end: st.handlers?.range.endTagRange.end ?? st.range.endTagRange.start,
+                start: st.handlers?.range?.startTagRange?.start ?? st.range.endTagRange.start,
+                end: st.handlers?.range?.endTagRange?.end ?? st.range.endTagRange.start,
             },
         };
         setServiceData(serviceData);
