@@ -249,8 +249,8 @@ export function getCacheFormDataFromSTNode(data: { [key: string]: any }, node: C
     data.headersToIncludeInHash = node.protocol?.headersToIncludeInHash?.textNode
     data.headersToExcludeInHash = node.protocol?.headersToExcludeInHash?.textNode;
     data.responseCodes = node.protocol?.responseCodes?.textNode;
-    data.enableCacheControl = Boolean(node.protocol?.enableCacheControl?.textNode);
-    data.includeAgeHeader = Boolean(node.protocol?.includeAgeHeader?.textNode);
+    data.enableCacheControl = node.protocol?.enableCacheControl?.textNode == "true";
+    data.includeAgeHeader = node.protocol?.includeAgeHeader?.textNode == "true";
     data.maxEntryCount = node.implementation?.maxSize;
     data.cacheMediatorImplementation = node.protocol ? "Default" : "611 Compatible";
     data.cacheType = node.collector ? "COLLECTOR" : "FINDER";
