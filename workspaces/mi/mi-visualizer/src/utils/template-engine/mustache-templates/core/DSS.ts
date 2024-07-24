@@ -26,7 +26,7 @@ export function getAddOperationTemplate() {
 }
 
 export function getAddQuery() {
-    return `<query id="{{name}}">
+    return `<query id="{{name}}" useConfig="{{dbName}}">
 <sql></sql>
 </query>`
 }
