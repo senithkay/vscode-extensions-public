@@ -81,7 +81,7 @@ export default function ArrayFilterItem(props: FilterBarItemProps) {
     const isEmptyExpr = filterExpr && filterExpr.getText() === "";
     const hasDiagnostics = diagnostics && diagnostics.length > 0;
     const diagnosticMsg = hasDiagnostics
-        ? diagnostics[0].getMessageText()
+        ? diagnostics[0].messageText
         : isEmptyExpr ? "Expression expected." : "";
     const showDeleteBtn = isFocused || isHovered;
 

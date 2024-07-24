@@ -8,7 +8,7 @@
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { Diagnostic, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { ElementAccessExpression, Identifier, Node, PropertyAccessExpression, ts } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -42,7 +42,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public outPort: IntermediatePortModel;
 
     public value: string;
-    public diagnostics: Diagnostic[];
+    public diagnostics: ts.Diagnostic[];
     public hidden: boolean;
     public hasInitialized: boolean;
     public innerNode: Node;

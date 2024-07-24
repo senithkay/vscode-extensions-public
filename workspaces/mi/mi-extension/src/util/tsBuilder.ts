@@ -23,18 +23,38 @@ export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schem
 
 export async function updateDMC(dmName:string, sourcePath: string, schema: JSONSchema3or4, ioType: string): Promise<string> {
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
+    ioType = ioType.toLowerCase();
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
             workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
         const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
         const tsSource = getTsAST(tsFilepath);
-        const tsSources:ts.SourceFile[] = separateInterfacesWithComments(tsSource);
+        const tsSources = separateInterfacesWithComments(tsSource);
         const functionSource = getFunctionFromSource(tsSource, "mapFunction");
         let tsContent = "";
-        const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string) => {
+
+        const getInputSchemaTitle = (tsSources: ts.SourceFile[]): string => {
+            let inputSchemaTitle = "Root";
+            tsSources.forEach((source) => {
+                const commentRange = ts.getTrailingCommentRanges(source.getFullText(), 0);
+                if (commentRange) {
+                    const comment = source.getFullText().substring(commentRange[0].pos, commentRange[0].end);
+                    if (comment.includes("inputType")) {
+                      inputSchemaTitle = getInterfaceNameFromSource(source);
+                    }
+                }
+            });
+            return inputSchemaTitle ;
+        };
+        const inputSchemaTitle = getInputTitleFromComment(tsSources);
+        const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string, ioType: string, inputSchemaTitle: string) => {
             const isSchemaArray = schema.type === "array";
-            const schemaTitle = schema.title;
+            let schemaTitle = schema.title;
             schema.title = schema.title ? formatTitle(schema.title) : defaultTitle;
+            if (ioType === 'output' && inputSchemaTitle === schemaTitle) {
+              // to differentiate between input and output interfaces if both have same title
+              schema.title = `Output${schema.title}`;
+            }
             if (schema.type === "array" && schema.items && schema.items.length > 0) {
                 schema.type = "object";
                 schema.properties = schema.items[0].properties;
@@ -48,7 +68,7 @@ export async function updateDMC(dmName:string, sourcePath: string, schema: JSONS
             tsInterfaces, 
             isSchemaArray, 
             schemaTitle
-        } = await readAndConvertSchema(schema, "Root");
+        } = await readAndConvertSchema(schema, (ioType === "input") ? "Root" : "OutputRoot", ioType.toLowerCase(), inputSchemaTitle);
         function findIndexByComment(tsSources, type) {
             for (let i = 0; i < tsSources.length; i++) {
                 const source = tsSources[i];
@@ -64,16 +84,15 @@ export async function updateDMC(dmName:string, sourcePath: string, schema: JSONS
         }
         
         let index = 0;
-        const type = ioType.toLowerCase();
-        if (type === "input" || type === "output") {
-            index = findIndexByComment(tsSources, type);
+        if (ioType === "input" || ioType === "output") {
+            index = findIndexByComment(tsSources, ioType);
             if (index !== -1) {
                 tsSources.splice(index, 1, ts.createSourceFile(`${schemaTitle}.ts`, tsInterfaces, ts.ScriptTarget.Latest, true));
             } else {
                 return "";
             }
         }
-        tsContent += `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE_NAME}";\n`;
+        tsContent += `import * as ${DM_OPERATORS_IMPORT_NAME} from "./${DM_OPERATORS_FILE_NAME}";\n\n`;
         tsSources.forEach((source) => {
             tsContent += source.getFullText();
             tsContent += "\n\n";
@@ -139,6 +158,27 @@ function separateInterfacesWithComments(sourceFile: ts.SourceFile): ts.SourceFil
     return interfaceName;
   }
 
+  function getInputTitleFromComment(sources: ts.SourceFile[]): string {
+    let title = "Root";
+    for (let source of sources) {
+      const commentRange = ts.getTrailingCommentRanges(source.getFullText(), 0);
+      if (commentRange) {
+        const comment = source.getFullText().substring(commentRange[0].pos, commentRange[0].end);
+        if (comment.includes("inputType") && comment.includes("title")) {
+          const lines = comment.split("\n");
+          for (let line of lines) {
+            if (line.includes("title")) {
+              title = line.replace("title : ", "").replace(/"/g, "").trim();
+              break;
+            }
+          }
+          break;
+        }
+      }
+    }
+    return title;
+  }
+
   function getFunctionFromSource(source: ts.SourceFile, functionName: string): ts.FunctionDeclaration | undefined {
     let functionNode: ts.FunctionDeclaration | undefined;
   
@@ -183,7 +223,7 @@ function separateInterfacesWithComments(sourceFile: ts.SourceFile): ts.SourceFil
         }
       }
     }
-    let functionDeclaration = `function mapFunction(input: ${inputInterfaceName}${isInputArray ? "[]" : ""}): ${outputInterfaceName}${isOutputArray ? "[]" : ""} {\n`;
+    let functionDeclaration = `export function mapFunction(input: ${inputInterfaceName}${isInputArray ? "[]" : ""}): ${outputInterfaceName}${isOutputArray ? "[]" : ""} {\n`;
     functionDeclaration += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`; 
     return functionDeclaration;
   }

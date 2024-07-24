@@ -28,5 +28,9 @@ export class DMProject {
     public getProject(): Project {
         return this._project;
     }
+
+    public static refreshProject(filePath: string, options?: ProjectOptions){
+        this._instance = new DMProject(filePath, options);
+    }
 }
 

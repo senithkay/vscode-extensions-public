@@ -355,6 +355,7 @@ function structureQuery(query: Query) {
         keyColumns: query.keyColumns ?? "",
         returnUpdatedRowCount: query.returnUpdatedRowCount ?? false,
         sqlQuery: query.sql !== undefined ? query.sql.textNode : query.expression !== undefined ? query.expression.textNode : "",
+        expression: query.expression !== undefined ? true : false,
         queryParams: queryParams,
         result: result,
         queryProperties: queryProperties ?? [],
