@@ -58,14 +58,14 @@ export function getForeachXml(data: { [key: string]: any }, dirtyFields?: any, d
         if (defaultValues.sequenceType == "Anonymous" && data.sequenceType == "Key") {
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.endTagRange.start
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.endTagRange.start
             }
         } else if (defaultValues.sequenceType == "Key" && data.sequenceType == "Anonymous") {
             data.isAnnonymousSequence = true;
             data.addSequence = true;
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.endTagRange.start
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.endTagRange.start
             }
         }
         const output = Mustache.render(getForeachMustacheTemplate(), data)?.trim();

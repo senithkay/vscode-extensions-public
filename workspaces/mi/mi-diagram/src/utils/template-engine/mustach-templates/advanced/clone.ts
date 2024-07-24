@@ -172,7 +172,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
                 } else {
                     editRange = {
                         start: range.startTagRange.start,
-                        end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                        end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
                     }
                 }
             }
