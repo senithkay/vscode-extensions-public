@@ -360,6 +360,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 artifactDir,
                 xmlData,
                 name,
+                version,
                 saveSwaggerDef,
                 swaggerDefPath,
                 wsdlType,
@@ -371,7 +372,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const ext = path.extname(swaggerDefPath);
                 return `${name}${ext}`;
             };
-
+            let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
@@ -392,10 +393,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         wsdlEndpointName
                     });
                 }
+                fileName = name;
+            } else {
+                fileName = `${name}${version ? `_v${version}` : ''}`;
             }
 
             const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
-            const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
+            const filePath = path.join(artifactDir, 'apis', `${fileName}.xml`);
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -440,14 +444,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
         return new Promise(async (resolve) => {
-            let { documentUri, apiName, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+            let { documentUri, apiName, version, xmlData, handlersXmlData, apiRange, handlersRange } = params;
 
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (path.basename(documentUri).split('.')[0] !== apiName) {
-                this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${apiName}.xml`) });
-                documentUri = path.join(path.dirname(documentUri), `${apiName}.xml`);
+            let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
+            if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`)});
+                documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
