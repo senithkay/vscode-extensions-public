@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 export type Flow = {
     nodes: Node[];
     name: string;
@@ -124,4 +126,5 @@ export interface ProjectStructureArtifactResponse {
     path: string;
     type: string;
     context?: string;
+    position?: NodePosition;
 }

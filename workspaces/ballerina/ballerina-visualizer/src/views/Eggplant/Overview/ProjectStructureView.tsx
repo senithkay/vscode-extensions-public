@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { EVENT_TYPE, ProjectStructureResponse, MACHINE_VIEW, DIRECTORY_MAP, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { EVENT_TYPE, ProjectStructureResponse, MACHINE_VIEW, DIRECTORY_MAP, SHARED_COMMANDS, ProjectStructureArtifactResponse } from '@wso2-enterprise/ballerina-core';
 import { ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -22,7 +22,7 @@ interface ArtifactType {
     iconSx?: any;
     isCodicon?: boolean;
     description: (entry: any) => string;
-    path: (entry: any) => string;
+    path: (entry: any) => any;
     isMainSequence?: boolean;
 }
 
@@ -33,7 +33,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "APIResource",
         description: (description: string) => `API Context: ${description}`,
-        path: (entry: any) => entry.path,
+        path: (entry: any) => entry,
     },
     [DIRECTORY_MAP.TASKS]: {
         title: "Tasks",
@@ -41,7 +41,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "endpoint",
         description: (entry: any) => `Type: ${entry.subType}`,
-        path: (entry: any) => entry.path,
+        path: (entry: any) => entry,
     },
     [DIRECTORY_MAP.TRIGGERS]: {
         title: "Triggers",
@@ -49,7 +49,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "Sequence",
         description: (entry: any) => `Reusable sequence`,
-        path: (entry: any) => entry.path,
+        path: (entry: any) => entry,
     },
     [DIRECTORY_MAP.CONNECTIONS]: {
         title: "Connections",
@@ -58,7 +58,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         isCodicon: true,
         icon: "arrow-swap",
         description: (entry: any) => "Proxy Service",
-        path: (entry: any) => entry.path,
+        path: (entry: any) => entry,
     },
     [DIRECTORY_MAP.SCHEMAS]: {
         title: "Schemas",
@@ -66,7 +66,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "inbound-endpoint",
         description: (entry: any) => "Inbound Endpoint",
-        path: (entry: any) => entry.path,
+        path: (entry: any) => entry,
     },
     [DIRECTORY_MAP.CONFIGURATIONS]: {
         title: "Configurations",
@@ -74,7 +74,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "message-store",
         description: (entry: any) => "Message Store",
-        path: (entry: any) => entry.path,
+        path: (entry: any) => entry,
     },
     // Add more artifact types as needed
 };
@@ -83,8 +83,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const goToView = async (documentUri: string, view: MACHINE_VIEW) => {
-        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri } });
+    const goToView = async (res: ProjectStructureArtifactResponse) => {
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: res.path, position: res.position } });
     };
 
     const goToSource = (filePath: string) => {
@@ -141,8 +141,8 @@ const ProjectStructureView = (props: { projectStructure: ProjectStructureRespons
                                                 iconSx={artifactTypeMap[key].iconSx}
                                                 name={entry.name}
                                                 description={artifactTypeMap[key].description(entry.context)}
-                                                onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
-                                                goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                                onClick={() => goToView(entry)}
+                                                goToView={() => goToView(entry)}
                                                 goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
                                                 deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
                                             />

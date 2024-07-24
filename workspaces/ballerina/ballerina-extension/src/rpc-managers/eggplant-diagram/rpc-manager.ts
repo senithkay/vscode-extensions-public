@@ -9,6 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaProjectComponents,
+    ComponentInfo,
     CreateComponentRequest,
     CreateComponentResponse,
     CreateProjectRequest,
@@ -21,6 +23,7 @@ import {
     ProjectComponentsResponse,
     ProjectStructureArtifactResponse,
     ProjectStructureResponse,
+    SHARED_COMMANDS,
     STModification,
     SyntaxTree,
     UpdateNodeRequest,
@@ -30,7 +33,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { readdirSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Uri, workspace } from "vscode";
+import { TreeItemCollapsibleState, Uri, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
 
@@ -277,12 +280,12 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getProjectStructure(): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
             const projectPath = StateMachine.context().projectUri;
-            const res: ProjectStructureResponse = this.buildProjectStructure(projectPath);
+            const res: ProjectStructureResponse = await this.buildProjectStructure(projectPath);
             resolve(res);
         });
     }
 
-    private buildProjectStructure(dir: string): ProjectStructureResponse {
+    private async buildProjectStructure(dir: string): Promise<ProjectStructureResponse> {
         const result: ProjectStructureResponse = {
             directoryMap: {
                 [DIRECTORY_MAP.SERVICES]: [],
@@ -293,44 +296,67 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 [DIRECTORY_MAP.CONFIGURATIONS]: []
             }
         };
-
-        const projectItems = readdirSync(dir);
-        for (const item of projectItems) {
-            const folderPath = join(dir, item);
-            const stats = statSync(folderPath);
-
-            if (stats.isDirectory()) {
-                this.traverseDirectory(folderPath, result, item as DIRECTORY_MAP);
-            }
-        }
-
+        const components = await StateMachine.langClient().getBallerinaProjectComponents({
+            documentIdentifiers: [{ uri: Uri.file(dir).toString() }]
+        });
+        this.traverseComponents(components, result);
         return result;
     }
 
-    private traverseDirectory(dir: string, result: ProjectStructureResponse, folder: DIRECTORY_MAP) {
-        const items = readdirSync(dir);
-        for (const item of items) {
-            const fullPath = join(dir, item);
-            const stats = statSync(fullPath);
-            if (stats.isFile()) {
-                const artifact: ProjectStructureArtifactResponse = {
-                    name: item.replace(".bal", ""),
-                    path: fullPath,
-                    context: "HTTP Service",
-                    type: 'file'
-                };
-                result.directoryMap[folder].push(artifact);
-            }
-        }
-    }
+    // private traverseDirectory(dir: string, result: ProjectStructureResponse, folder: DIRECTORY_MAP) {
+    //     const items = readdirSync(dir);
+    //     for (const item of items) {
+    //         const fullPath = join(dir, item);
+    //         const stats = statSync(fullPath);
+    //         if (stats.isFile()) {
+    //             const artifact: ProjectStructureArtifactResponse = {
+    //                 name: item.replace(".bal", ""),
+    //                 path: fullPath,
+    //                 context: "HTTP Service",
+    //                 type: 'file'
+    //             };
+    //             result.directoryMap[folder].push(artifact);
+    //         }
+    //     }
+    // }
 
     async getProjectComponents(): Promise<ProjectComponentsResponse> {
         return new Promise(async (resolve) => {
             const components = await StateMachine.langClient().getBallerinaProjectComponents({
-                documentIdentifiers: [{ uri: StateMachine.context().projectUri }]
+                documentIdentifiers: [{ uri: Uri.file(StateMachine.context().projectUri).toString() }]
             });
             resolve({ components });
         });
+    }
+
+    private traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse) {
+        for (const pkg of components.packages) {
+            for (const module of pkg.modules) {
+                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...this.getComponents(module.services, pkg.filePath));
+                response.directoryMap[DIRECTORY_MAP.TASKS].push(...this.getComponents(module.functions, pkg.filePath));
+            }
+        }
+    }
+
+    private getComponents(components: ComponentInfo[], projectPath: string): ProjectStructureArtifactResponse[] {
+        const entries: ProjectStructureArtifactResponse[] = [];
+        for (const comp of components) {
+            const componentFile = Uri.joinPath(Uri.parse(projectPath), comp.filePath).fsPath;
+            const fileEntry: ProjectStructureArtifactResponse = {
+                name: comp.name,
+                path: componentFile,
+                type: '',
+                context: comp.name,
+                position: {
+                    endColumn: comp.endColumn,
+                    endLine: comp.endLine,
+                    startColumn: comp.startColumn,
+                    startLine: comp.startLine
+                }
+            }
+            entries.push(fileEntry);
+        }
+        return entries;
     }
 }
 

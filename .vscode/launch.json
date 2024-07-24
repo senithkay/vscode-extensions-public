@@ -21,7 +21,8 @@
                 "BALLERINA_STAGE_CENTRAL": "false"
             },
             "outFiles": [
-                "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
+                "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js",
+                "${workspaceFolder}/workspaces/eggplant/eggplant-extension/out/**/*.js"
             ],
             "preLaunchTask": "watch-all"
         },
@@ -43,7 +44,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/eggplant/eggplant-extension/out/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-eggplant"
+            "preLaunchTask": "watch-eggplant"
         },
         {
             "name": "Ballerina Extension",

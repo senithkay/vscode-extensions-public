@@ -3,10 +3,10 @@
     "tasks": [
         {
             "label": "watch-all",
-            "dependsOn": ["watch", "watch-eggplant"]
+            "dependsOn": ["watch-ballerina", "watch-eggplant"]
         },
         {
-            "label": "watch",
+            "label": "watch-ballerina",
             "type": "npm",
             "script": "watch",
             "path": "workspaces/ballerina/ballerina-extension",
