@@ -8,6 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import * as vscode from 'vscode';
 import {
     AIVisualizerLocation,
     ColorThemeKind,
@@ -332,6 +333,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 resolve(runtimeServicesResponse);
             } else {
                 log(`Error while login to MI management api: ${response.statusText}`);
+                vscode.window.showErrorMessage(`Error while login into the MI Management API: ${response.statusText}`);
             }
         });
     }
