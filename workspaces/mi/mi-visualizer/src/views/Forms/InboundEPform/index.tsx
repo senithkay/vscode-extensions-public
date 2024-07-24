@@ -171,6 +171,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
             if (!isNewInboundEndpoint) {
                 const { parameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
+                
+                // Fix LS API on saving ui schema
                 const uiSchema = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
                     connectorName: data.type
                 });
@@ -185,7 +187,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 }
 
                 readyForm(data.type);
-                setConnectorSchema(uiSchema);
+                // setConnectorSchema(uiSchema);
 
                 if (data.type.toLowerCase() === 'custom') {
                     const { coordination, sequential, interval, ...rest } = parameters;
