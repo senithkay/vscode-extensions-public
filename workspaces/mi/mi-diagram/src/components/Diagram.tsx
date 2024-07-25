@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import {
     traversNode,
@@ -55,8 +55,6 @@ interface DiagramData {
     model: STNode;
 }
 
-
-
 namespace S {
     export const Container = styled.div`
         height: 100vh;
@@ -73,6 +71,29 @@ export function Diagram(props: DiagramProps) {
     const { model, diagnostics, isFaultFlow, isFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
+    const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
+    const scrollRef = useRef();
+
+    const handleScroll = (e: any) => {
+        if (!diagramViewStateKey || diagramViewStateKey === "") {
+            return
+        }
+        localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop }));
+    };
+
+    useEffect(() => {
+        if (!diagramViewStateKey || diagramViewStateKey === "") {
+            return
+        }
+        const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
+        if (storedScrollPosition) {
+            const { scrollPosition: prevScrollPosition } = JSON.parse(storedScrollPosition);
+            if (scrollRef.current && 'scrollTop' in scrollRef.current) {
+                (scrollRef.current as any).scrollTop = prevScrollPosition;
+            }
+        }
+    }, [diagramViewStateKey, canvasDimensions]);
+
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -133,6 +154,12 @@ export function Diagram(props: DiagramProps) {
             model: modelCopy
         });
         updateDiagramData(flows);
+
+        rpcClient.getVisualizerState().then((state) => {
+            if (state && state.identifier !== undefined && state.identifier !== "") {
+                setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier}`);
+            }
+        });
 
         const mouseTrapClient = KeyboardNavigationManager.getClient();
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
@@ -275,7 +302,7 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            <S.Container>
+            <S.Container ref={scrollRef} onScroll={handleScroll}>
                 <SidePanelProvider value={{
                     ...sidePanelState,
                     setSidePanelState,
