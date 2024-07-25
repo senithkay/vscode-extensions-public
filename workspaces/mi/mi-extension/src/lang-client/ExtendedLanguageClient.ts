@@ -34,7 +34,10 @@ import {
     SwaggerFromAPIRequest,
     TestDbConnectionRequest,
     TestDbConnectionResponse,
-    SchemaGenFromContentRequest
+    SchemaGenFromContentRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -139,7 +142,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
-        return this.sendRequest('synapse/directoryTree', { uri: Uri.file(path).toString() });
+        return this.sendRequest('synapse/directoryTree', { uri: Uri.file(path).fsPath });
     }
 
     async getRegistryFiles(req: string): Promise<string[]> {
@@ -211,6 +214,14 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getConnectorConnections(req: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this.sendRequest("synapse/connectorConnections", { documentIdentifier: { uri: Uri.file(req.documentUri).toString() }, "connectorName": req.connectorName });
+    }
+
+    async saveInboundEPUischema(req: SaveInboundEPUischemaRequest): Promise<void> {
+        return this.sendRequest("synapse/saveInboundConnectorSchema", { "connectorName": req.connectorName, "uiSchema": req.uiSchema});
+    }
+
+    async getInboundEPUischema(req: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
+        return this.sendRequest("synapse/getInboundConnectorSchema", { "connectorName": req.connectorName });
     }
 
     async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {

@@ -15,10 +15,10 @@ export function getEntitlementMustacheTemplate() {
     return `
     {{#newMediator}}
     {{#selfClosed}}
-    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{{password}}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{{onAcceptSequenceKey}}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{{onRejectSequenceKey}}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{{obligationsSequenceKey}}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{{adviceSequenceKey}}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}/>
+    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}/>
     {{/selfClosed}}
     {{^selfClosed}}
-    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{{password}}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{{onAcceptSequenceKey}}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{{onRejectSequenceKey}}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{{obligationsSequenceKey}}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{{adviceSequenceKey}}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}>
+    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}>
         {{^onRejectSequenceKey}}<onReject></onReject>{{/onRejectSequenceKey}}
         {{^onAcceptSequenceKey}}<onAccept></onAccept>{{/onAcceptSequenceKey}}
         {{^obligationsSequenceKey}}<obligations></obligations>{{/obligationsSequenceKey}}
@@ -28,7 +28,7 @@ export function getEntitlementMustacheTemplate() {
     {{/newMediator}}
     {{^newMediator}}
     {{#editEntitlement}}
-    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{{password}}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{{onAcceptSequenceKey}}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{{onRejectSequenceKey}}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{{obligationsSequenceKey}}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{{adviceSequenceKey}}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}>
+    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}>
     {{/editEntitlement}}
     {{#addOnReject}}
     <onReject></onReject>
@@ -153,7 +153,7 @@ function getEdit(prefix: string, key: string, data: { [key: string]: any }, defa
     if (range) {
         editRange = {
             start: range.startTagRange.start,
-            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+            end: editStartTagOnly ? range.startTagRange.end : (range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end)
         }
     } else {
         let entitlementRange = defaultValues.ranges.entitlement;

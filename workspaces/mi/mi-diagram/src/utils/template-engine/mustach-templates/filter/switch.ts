@@ -15,9 +15,9 @@ export function getSwitchMustacheTemplate() {
 
   return `
     {{#isNewMediator}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} >
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} >
         {{#caseBranches}}
-        <case regex="{{{caseRegex}}}"></case>
+        <case regex="{{caseRegex}}"></case>
         {{/caseBranches}}
         <default></default>
     </switch>
@@ -25,21 +25,21 @@ export function getSwitchMustacheTemplate() {
     {{^isNewMediator}}
     {{#editSwitch}}
     {{#switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} />
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} />
     {{/switchSelfClosed}}
     {{^switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}}>
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}}>
     {{/switchSelfClosed}}
     {{/editSwitch}}
     {{#newCase}}
-    <case regex="{{{caseRegex}}}"></case>
+    <case regex="{{caseRegex}}"></case>
     {{/newCase}}
     {{#editCase}}
     {{#caseSelfClosed}}
-    <case regex="{{{caseRegex}}}"></case>
+    <case regex="{{caseRegex}}"></case>
     {{/caseSelfClosed}}
     {{^caseSelfClosed}}
-    <case regex="{{{caseRegex}}}" >
+    <case regex="{{caseRegex}}" >
     {{/caseSelfClosed}}
     {{/editCase}}
     {{/isNewMediator}}    

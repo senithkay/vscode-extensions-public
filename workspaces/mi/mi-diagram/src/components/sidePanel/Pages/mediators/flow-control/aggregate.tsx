@@ -245,7 +245,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                 <AutoComplete
                                     label="Sequence Type"
                                     name="sequenceType"
-                                    items={["ANONYMOUS", "REGISTRY_REFERENCE"]}
+                                    items={["ANONYMOUS", "REGISTRY REFERENCE"]}
                                     value={field.value}
                                     required={false}
                                     errorMsg={errors?.sequenceType?.message?.toString()}
@@ -257,11 +257,16 @@ const AggregateForm = (props: AddMediatorProps) => {
                         />
                     </Field>
 
-                    {watch("sequenceType") == "REGISTRY_REFERENCE" &&
+                    {watch("sequenceType") == "REGISTRY REFERENCE" &&
                     <Field>
                         <Controller
                             name="sequenceKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
@@ -269,7 +274,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.sequenceKey?.message?.toString()}
                                 />
                             )}

@@ -338,12 +338,12 @@ const proxyRange = (model:Proxy,tag:string):Range => {
             }
         case "target":
             return {
-                start: model.target?.range.startTagRange.start ?? model.range.endTagRange.start,
+                start: model.target?.range?.startTagRange?.start ?? model.range.endTagRange.start,
                 end: model.target?.range.startTagRange.end ?? model.range.endTagRange.start,
             }
         case "other":
             return {
-                start: model.target?.range.endTagRange.end ?? model.range.endTagRange.start,
+                start: model.target?.range?.endTagRange?.end ?? model.range.endTagRange.start,
                 end: model.range.endTagRange.start ?? model.range.endTagRange.start,
             }    
         default:

@@ -36,7 +36,7 @@ export const generateOperationData = (model: DSSOperation): OperationType => {
     return operationData;
 };
 
-export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
+export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient, dbName: string) => {
 
     const queryName = uuidv4();
 
@@ -49,7 +49,7 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
         query: queryName
     };
 
-    const queryContent = getXML(DSS_TEMPLATES.ADD_QUERY, {name: queryName});
+    const queryContent = getXML(DSS_TEMPLATES.ADD_QUERY, { name: queryName, dbName: dbName });
     const resourceContent = getXML(DSS_TEMPLATES.ADD_RESOURCE, formValues);
     rpcClient.getMiDiagramRpcClient().applyEdit({
         text: queryContent + resourceContent,
@@ -67,7 +67,7 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
     });
 };
 
-export const onOperationCreate = (data: OperationFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
+export const onOperationCreate = (data: OperationFormData, range: Range, documentUri: string, rpcClient: RpcClient, dbName: string) => {
 
     const queryName = uuidv4();
 
@@ -78,7 +78,7 @@ export const onOperationCreate = (data: OperationFormData, range: Range, documen
         query: queryName
     };
 
-    const queryContent = getXML(DSS_TEMPLATES.ADD_QUERY, {name: queryName});
+    const queryContent = getXML(DSS_TEMPLATES.ADD_QUERY, { name: queryName, dbName: dbName });
     const operationContent = getXML(DSS_TEMPLATES.ADD_OPERATION, formValues);
     rpcClient.getMiDiagramRpcClient().applyEdit({
         text: queryContent + operationContent,

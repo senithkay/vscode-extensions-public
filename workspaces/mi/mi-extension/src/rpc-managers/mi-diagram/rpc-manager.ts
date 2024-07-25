@@ -63,6 +63,8 @@ import {
     Dependency,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DownloadInboundConnectorRequest,
+    DownloadInboundConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
     EditAPIRequest,
@@ -201,7 +203,10 @@ import {
     getSTRequest,
     getSTResponse,
     onSwaggerSpecReceived,
-    FileRenameRequest
+    FileRenameRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -213,6 +218,7 @@ import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
+import { remove } from 'fs-extra';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
@@ -240,6 +246,7 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -360,6 +367,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 artifactDir,
                 xmlData,
                 name,
+                version,
                 saveSwaggerDef,
                 swaggerDefPath,
                 wsdlType,
@@ -371,7 +379,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const ext = path.extname(swaggerDefPath);
                 return `${name}${ext}`;
             };
-
+            let fileName: string;
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
@@ -392,10 +400,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         wsdlEndpointName
                     });
                 }
+                fileName = name;
+            } else {
+                fileName = `${name}${version ? `_v${version}` : ''}`;
             }
 
             const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
-            const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
+            const filePath = path.join(artifactDir, 'apis', `${fileName}.xml`);
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -440,14 +451,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
         return new Promise(async (resolve) => {
-            let { documentUri, apiName, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+            let { documentUri, apiName, version, xmlData, handlersXmlData, apiRange, handlersRange } = params;
 
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (path.basename(documentUri).split('.')[0] !== apiName) {
-                this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${apiName}.xml`) });
-                documentUri = path.join(path.dirname(documentUri), `${apiName}.xml`);
+            let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
+            if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
+                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`)});
+                documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
             }
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
@@ -1096,8 +1108,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const filePath = this.getFilePath(directory, templateParams.name);
 
             const xmlData = getInboundEndpointXmlWrapper(templateParams);
+
+            const sequenceList = (await this.getEndpointsAndSequences()).data[1];
+
+            let sequencePath = "";
+            if (params.sequence) {
+                if (!(sequenceList.includes(params.sequence))) {
+                    const sequenceDir = path.join(directory, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
+                    const sequenceRequest: CreateSequenceRequest = {
+                        name: params.sequence,
+                        directory: sequenceDir,
+                        endpoint: "",
+                        onErrorSequence: "",
+                        getContentOnly: false,
+                        statistics: false,
+                        trace: false
+                    };
+                    const response = await this.createSequence(sequenceRequest);
+                    sequencePath = response.filePath;
+                } else {
+                    sequencePath = path.join(directory, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${params.sequence}.xml`);
+                }
+            }
+
             await replaceFullContentToFile(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: sequencePath });
             resolve({ path: filePath });
         });
     }
@@ -2995,6 +3030,103 @@ ${endpointAttributes}
         }
     }
 
+    async downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
+        const { url, isInBuilt } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const metadataDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'metadata');
+            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+
+            if (!fs.existsSync(metadataDirectory)) {
+                fs.mkdirSync(metadataDirectory, { recursive: true });
+            }
+
+            // Extract the zip name from the URL
+            const zipName = path.basename(url);
+            const zipPath = path.join(metadataDirectory, zipName);
+
+            if (!fs.existsSync(zipPath)) {
+                const response = await axios.get(url, {
+                    responseType: 'stream',
+                    headers: {
+                        'User-Agent': 'My Client'
+                    }
+                });
+
+                // Create a temporary file
+                const tmpobj = tmp.fileSync();
+                const writer = fs.createWriteStream(tmpobj.name);
+
+                response.data.pipe(writer);
+
+                return new Promise((resolve, reject) => {
+                    writer.on('finish', async () => {
+                        writer.close();
+                        // Copy the file from the temp location to the metadata folder
+                        await copy(tmpobj.name, zipPath);
+                        tmpobj.removeCallback();
+
+                        // Extract the ZIP file
+                        const zip = new AdmZip(zipPath);
+                        const extractPath = path.join(metadataDirectory, '_extracted');
+
+                        if (fs.existsSync(extractPath)) {
+                            fs.rmSync(extractPath, { recursive: true });
+                        }
+
+                        zip.extractAllTo(extractPath, true);
+
+                        const zipNameWithoutExtension = path.basename(zipName, '.zip');
+
+                        if (!isInBuilt) {
+                            // Copy the jar file to libs
+                            const jarFileName = `${zipNameWithoutExtension}.jar`;
+                            const jarPath = path.join(extractPath, zipNameWithoutExtension, jarFileName);
+                            const destinationPath = path.join(libDirectory, jarFileName);
+                            if (fs.existsSync(jarPath)) {
+                                await copy(jarPath, destinationPath);
+                            } else {
+                                console.log(`Jar file does not exist at path: ${jarPath}`);
+                            }
+                        }
+
+                        // Retrieve uiSchema
+                        const uischemaPath = path.join(extractPath, zipNameWithoutExtension, 'resources', 'uischema.json');
+                        fs.readFile(uischemaPath, 'utf8', async (err, data) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                try {
+                                    const uischema = JSON.parse(data);
+
+                                    // Delete zip and extracted folder
+                                    await remove(extractPath);
+                                    await remove(zipPath);
+                                    resolve({ uischema });
+                                } catch (parseError) {
+                                    reject(parseError); // Handle JSON parsing error
+                                }
+                            }
+                        });
+                    });
+                    writer.on('error', reject);
+                });
+            }
+
+            return new Promise((resolve, reject) => {
+                resolve({ uischema: '' });
+            });
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
     async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
@@ -3300,6 +3432,28 @@ ${endpointAttributes}
             }
         });
 
+    }
+
+    async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.saveInboundEPUischema({
+                connectorName: params.connectorName,
+                uiSchema: params.uiSchema
+            });
+
+            resolve(res);
+        });
+    }
+
+    async getInboundEPUischema(params: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getInboundEPUischema({
+                connectorName: params.connectorName
+            });
+            resolve(res);
+        });
     }
 
     async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
