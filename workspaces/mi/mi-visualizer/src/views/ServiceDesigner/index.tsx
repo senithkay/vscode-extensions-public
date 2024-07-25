@@ -92,7 +92,9 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
 
     useEffect(() => {
         const st = syntaxTree;
-
+        if (!st) { // TODO: Remove this once the bug is fixed
+            return;
+        }
         // Set metadata for the service
         const serviceData: APIData = {
             apiName: st.name,
