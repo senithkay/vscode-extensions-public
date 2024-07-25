@@ -259,7 +259,7 @@ export interface MiDiagramAPI {
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
-    initUndoRedoManager: (params: UndoRedoParams) => void;
+    initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
     undo: (params: UndoRedoParams) => void;
     redo: (params: UndoRedoParams) => void;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;

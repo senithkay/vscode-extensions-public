@@ -36,7 +36,9 @@ export async function saveToRegistry(rpcClient: RpcClient, path: string, registr
     const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
 }
 
-export function formatRegistryPath(path: string, registryType: string, fileName: string): string {
+export function formatRegistryPath(path: string, registryType: string, fileName: string): string | undefined {
+    if (!path || !fileName) return undefined;
+
     let regPath = '';
     if (registryType === 'gov') {
         regPath = regPath + 'gov';

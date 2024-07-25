@@ -501,12 +501,14 @@
         {
           "command": "MI.show.graphical-view",
           "when": "MI.status == 'projectLoaded' && resourceLangId == SynapseXml",
-          "group": "navigation@3"
+          "group": "navigation@3",
+          "title": "Show Graphical View"
         },
         {
           "command": "MI.show.source",
           "when": "isVisualizerActive && showGoToSource",
-          "group": "navigation@3"
+          "group": "navigation@3",
+          "title": "Show Source"
         }
       ],
       "view/item/context": [
