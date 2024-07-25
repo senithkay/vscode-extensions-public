@@ -225,7 +225,11 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
     const handleResourceCreate = (formData: ResourceFormData) => {
         switch (formData.mode) {
             case "create":
-                onResourceCreate(formData, resourceBodyRange, documentUri, rpcClient);
+                let dbName = "";
+                if (syntaxTree.data.configs !== undefined && syntaxTree.data.configs !== null && syntaxTree.data.configs.length > 0) {
+                    dbName = syntaxTree.data.configs[0].id;
+                }
+                onResourceCreate(formData, resourceBodyRange, documentUri, rpcClient, dbName);
                 break;
             case "edit":
                 onResourceEdit(formData, selectedResource, documentUri, rpcClient);
@@ -237,7 +241,11 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
     const handleOperationCreate = (formData: OperationFormData) => {
         switch (formData.mode) {
             case "create":
-                onOperationCreate(formData, operationBodyRange, documentUri, rpcClient);
+                let dbName = "";
+                if (syntaxTree.data.configs !== undefined && syntaxTree.data.configs !== null && syntaxTree.data.configs.length > 0) {
+                    dbName = syntaxTree.data.configs[0].id;
+                }
+                onOperationCreate(formData, operationBodyRange, documentUri, rpcClient, dbName);
                 break;
             case "edit":
                 onOperationEdit(formData, selectedOperation, documentUri, rpcClient);
