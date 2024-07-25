@@ -133,6 +133,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             otherwise: () =>
                 yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                 }),
         }),

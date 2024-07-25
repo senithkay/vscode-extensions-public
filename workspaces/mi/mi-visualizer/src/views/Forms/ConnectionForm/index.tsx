@@ -208,6 +208,7 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                         fetchLocalConnectorData();
                     }
                 } else {
+                    fetchLocalConnectorData();
                     console.log(status.message);
                 }
             } catch (error) {

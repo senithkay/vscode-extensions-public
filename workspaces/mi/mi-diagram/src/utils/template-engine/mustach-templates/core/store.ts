@@ -12,7 +12,7 @@ import Mustache from "mustache";
 import { transformNamespaces } from "../../../commons";
 
 export function getStoreMustacheTemplate() {
-    return `<store {{#messageStore}}messageStore="{{value}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} {{/messageStore}}{{#onStoreSequence}}sequence="{{{onStoreSequence}}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
+    return `<store {{#messageStore}}messageStore="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/messageStore}}{{#onStoreSequence}}sequence="{{onStoreSequence}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
 }
 
 export function getStoreXml(data: { [key: string]: any }) {

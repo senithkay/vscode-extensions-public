@@ -770,7 +770,7 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 	return result;
 }
 
-function getViewCommand(endpointType?: string) {
+export function getViewCommand(endpointType?: string) {
 	let viewCommand = COMMANDS.SHOW_TEMPLATE;
 	if (endpointType === 'HTTP_ENDPOINT') {
 		viewCommand = COMMANDS.SHOW_HTTP_ENDPOINT;

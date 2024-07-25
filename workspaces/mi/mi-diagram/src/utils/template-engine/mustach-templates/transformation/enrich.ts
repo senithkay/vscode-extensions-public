@@ -16,15 +16,15 @@ export function getEnrichMustacheTemplate() {
     <enrich description="{{description}}" >
         {{#isSourceInlined}}
         {{#inlineRegistryKey}}
-        <source clone="{{cloneSource}}" key="{{{inlineRegistryKey}}}" type="{{sourceType}}" />{{/inlineRegistryKey}}
+        <source clone="{{cloneSource}}" key="{{inlineRegistryKey}}" type="{{sourceType}}" />{{/inlineRegistryKey}}
         {{^inlineRegistryKey}}
         <source clone="{{cloneSource}}" type="{{sourceType}}">
             {{{sourceXML}}}
         </source>
         {{/inlineRegistryKey}}
         {{/isSourceInlined}}
-        {{^isSourceInlined}}<source clone="{{cloneSource}}" {{#sourceProperty}}property="{{sourceProperty}}"{{/sourceProperty}} type="{{sourceType}}" {{#sourceXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} />{{/isSourceInlined}}
-        <target {{#targetAction}}action="{{targetAction}}"{{/targetAction}}  {{#targetType}}type="{{targetType}}"{{/targetType}} {{#targetProperty}}property="{{targetProperty}}"{{/targetProperty}} {{#targetXPathJsonPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/targetXPathJsonPath}}/>
+        {{^isSourceInlined}}<source clone="{{cloneSource}}" {{#sourceProperty}}property="{{sourceProperty}}"{{/sourceProperty}} type="{{sourceType}}" {{#sourceXPath}}xpath="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} />{{/isSourceInlined}}
+        <target {{#targetAction}}action="{{targetAction}}"{{/targetAction}}  {{#targetType}}type="{{targetType}}"{{/targetType}} {{#targetProperty}}property="{{targetProperty}}"{{/targetProperty}} {{#targetXPathJsonPath}}xpath="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetXPathJsonPath}}/>
     </enrich>
     `;
 }

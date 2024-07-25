@@ -33,7 +33,7 @@ export function getLoadBalanceEPMustacheTemplate() {
 <endpoint name="{{name}}" xmlns="http://ws.apache.org/ns/synapse">
     <loadbalance algorithm="{{algorithm}}" {{#buildMessage}}buildMessage="true"{{/buildMessage}} {{#failover}}failover="false"{{/failover}}>
         {{#endpoints}}
-        {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{{value}}}"/>{{/static}}
+        {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{value}}"/>{{/static}}
         {{/endpoints}}
     </loadbalance>
     {{#sessionManagement}}
@@ -42,7 +42,7 @@ export function getLoadBalanceEPMustacheTemplate() {
     </session>
     {{/sessionManagement}}
     {{#properties}}
-    <property name="{{{name}}}" {{#scope}}scope="{{scope}}" {{/scope}}value="{{{value}}}"/>
+    <property name="{{name}}" {{#scope}}scope="{{scope}}" {{/scope}}value="{{value}}"/>
     {{/properties}}
     <description>{{description}}</description>
 </endpoint>`;
