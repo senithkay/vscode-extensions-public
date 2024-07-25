@@ -88,11 +88,12 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
             Object.entries(rest).map(([key, value]) => [getOriginalName(key), value])
+            .filter(([_, value]) => typeof value !== 'object' || value === null)
         );
 
         const inboundConnector: InboundEndpoint = {
             name,
-            type: formData.name,
+            type: "",
             sequence,
             errorSequence,
             suspend,
@@ -116,102 +117,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     return (
         <>
             <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={true} />
-            <TextField
-                required
-                autoFocus
-                label="Name"
-                placeholder="Name"
-                {...renderProps("name")}
-            />
-            <div>
-                <FormKeylookup
-                    required
-                    control={control}
-                    label="Sequence"
-                    name="sequence"
-                    filterType="sequence"
-                    path={props.path}
-                    errorMsg={errors.sequence?.message.toString()}
-                    {...register("sequence")}
-                />
-            </div>
-            <div>
-                <FormKeylookup
-                    required
-                    control={control}
-                    label="Error Sequence"
-                    name="errorSequence"
-                    filterType="sequence"
-                    path={props.path}
-                    errorMsg={errors.errorSequence?.message.toString()}
-                    additionalItems={["fault"]}
-                    {...register("errorSequence")}
-                />
-            </div>
-            <CheckboxGroup>
-                <FormCheckBox
-                    name="suspend"
-                    label="Suspend"
-                    control={control}
-                />
-                <FormCheckBox
-                    name="trace"
-                    label="Trace Enabled"
-                    control={control}
-                />
-                <FormCheckBox
-                    name="statistics"
-                    label="Statistics Enabled"
-                    control={control}
-                />
-            </CheckboxGroup>
-            <FormGroup
-                key={formData.name}
-                title={`${formData.title} Properties`}
-                isCollapsed={false}
-            >
-                <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
-            </FormGroup>
-            <FormGroup
-                key={"advanced"}
-                title={"Advanced"}
-                isCollapsed={false}
-            >
-                <TextField
-                    required
-                    label="Class"
-                    placeholder="Class"
-                    defaultValue={"org.wso2.carbon.inbound.kafka.KafkaMessageConsumer"}
-                    {...renderProps("class")}
-                />
-                <AutoComplete
-                    name={"behaviour"}
-                    label={"Behavior (Select the behavior of the inbound endpoint)"}
-                    items={["Polling Inbound Endpoint", "Listening Inbound Endpoint", "Event Based Inbound Endpoint"]}
-                    required={true}
-                    allowItemCreate={false}
-                    {...renderProps("behavior")}
-                />
-                <TextField
-                    required
-                    label="Interval"
-                    placeholder="Interval"
-                    defaultValue={"1000"}
-                    {...renderProps("interval")}
-                />
-                <CheckboxGroup>
-                    <FormCheckBox
-                        name="sequential"
-                        label="Sequential (Enable sequential processing)"
-                        control={control}
-                    />
-                    <FormCheckBox
-                        name="coordination"
-                        label="Coordination"
-                        control={control}
-                    />
-                </CheckboxGroup>
-            </FormGroup>
+            <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
             <FormActions>
                 <Button
                     appearance="primary"
