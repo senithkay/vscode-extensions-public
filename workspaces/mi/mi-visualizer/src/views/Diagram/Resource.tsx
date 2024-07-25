@@ -40,7 +40,7 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
     const { rpcClient } = useVisualizerContext();
     const model = resourceModel as APIResource;
     const data = generateResourceData(model) as ResourceType;
-    const flowStateKey = `flowState-${documentUri}`;
+    const flowStateKey = `flowState-${documentUri}-${model.uriTemplate || model.urlMapping}`;
     const [isFaultFlow, setFlow] = React.useState<boolean>(localStorage.getItem(flowStateKey) === 'true' ? true : false);
     const [isFormOpen, setFormOpen] = React.useState(false);
 
