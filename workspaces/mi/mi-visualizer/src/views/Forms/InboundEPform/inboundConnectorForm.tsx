@@ -82,7 +82,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     };
 
     const handleCreateInboundConnector = async (values: any) => {
-        const { name, type, sequence, errorSequence, suspend, trace, statistics, behavior,
+        const { name, type, sequence, onError, suspend, trace, statistics, behavior,
             sequential, coordination, ...rest } = values;
 
         // Transform the keys of the rest object
@@ -95,7 +95,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
             name,
             type: "",
             sequence,
-            errorSequence,
+            errorSequence: onError,
             suspend,
             trace,
             statistics,
