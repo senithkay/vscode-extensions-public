@@ -283,7 +283,7 @@ export class NodeFactoryVisitor implements Visitor {
                 } else if (sequence.sequenceAttribute) {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
                     sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
-                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, data: { referenceName: sequence.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, name: MEDIATORS.SEQUENCE, data: { referenceName: sequence.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
                 } else if (sequence.tag === "endpoint") {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
@@ -296,9 +296,10 @@ export class NodeFactoryVisitor implements Visitor {
 
                 // add the end node for each sub flow in group node
                 if (type === NodeTypes.GROUP_NODE) {
-                    sequence.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
-                    sequence.viewState.x = startNode.viewState.x;
-                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.END_NODE });
+                    const endNode = structuredClone(sequence);
+                    endNode.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
+                    endNode.viewState.x = startNode.viewState.x;
+                    this.createNodeAndLinks({ node: endNode, type: NodeTypes.END_NODE });
                 }
             }
         }

@@ -39,7 +39,7 @@ export function getInboundEndpointMustacheTemplate() {
 export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
     const { parameters, ...mainData } = data;
     const protocol =
-        data.type === 'custom' ? false : data.type === 'wso2_mb' ? 'jms' : data.type;
+        data.type === 'wso2_mb' ? 'jms' : data.type;
 
     let classAttr = '';
     let params: Parameter[] = [];
