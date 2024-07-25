@@ -57,7 +57,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const { formData, control, errors, setValue } = props;
 
     function getNameForController(name: string | number) {
-        return String(name).replace('.', '__dot__');
+        return String(name).replace(/\./g, '__dot__');
     }
 
     const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {

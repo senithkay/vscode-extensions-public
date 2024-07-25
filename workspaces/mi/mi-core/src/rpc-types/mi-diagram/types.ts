@@ -189,14 +189,8 @@ export interface GetTemplateEPResponse {
 
 export interface CreateInboundEndpointRequest {
     directory: string;
-    name: string;
-    type: string;
-    sequence: string;
-    errorSequence: string;
-    suspend?: boolean;
-    trace?: boolean;
-    statistics?: boolean;
-    parameters?: { [key: string]: string | number | boolean };
+    attributes: { [name: string]: string | number | boolean };
+    parameters: { [key: string]: string | number | boolean };
 }
 
 export interface CreateInboundEndpointResponse {
