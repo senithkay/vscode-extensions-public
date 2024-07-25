@@ -109,7 +109,7 @@ export class PositionVisitor implements Visitor {
         const subSequenceKeys = Object.keys(subSequences);
 
         const sequenceOffsets = subSequenceKeys.length > 1 ? subSequences[subSequenceKeys[0]].viewState.l + subSequences[subSequenceKeys[subSequenceKeys.length - 1]].viewState.r : node.viewState.fw;
-        const branchesWidth = node.viewState.fw - sequenceOffsets - ((canAddSubSequences && !addNewSequenceBefore) ? NODE_GAP.BRANCH_X : 0);
+        const branchesWidth = Math.max(node.viewState.fw - sequenceOffsets - ((canAddSubSequences && !addNewSequenceBefore) ? NODE_GAP.BRANCH_X : 0), 0);
 
         this.position.x = centerX - (branchesWidth / 2);
         for (let i = 0; i < subSequenceKeys.length; i++) {
@@ -292,12 +292,18 @@ export class PositionVisitor implements Visitor {
 
     //EIP Mediators
     beginVisitAggregate = (node: Aggregate): void => {
-        this.setAdvancedMediatorPosition(node, {
-            // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
-            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
-        }, NodeTypes.GROUP_NODE);
+        const isSequnceReference = node.correlateOnOrCompleteConditionOrOnComplete.onComplete.sequenceAttribute !== undefined;
+        if (isSequnceReference) {
+            this.setBasicMediatorPosition(node);
+        } else {
+            this.setAdvancedMediatorPosition(node, {
+                // OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete?.mediators
+                OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete
+            }, NodeTypes.GROUP_NODE);
+        }
     }
     endVisitAggregate = (node: Aggregate): void => this.setSkipChildrenVisit(false);
+
     beginVisitIterate = (node: Iterate): void => {
         this.setAdvancedMediatorPosition(node, {
             Target: node.target.sequence

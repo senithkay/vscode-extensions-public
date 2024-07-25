@@ -13,7 +13,7 @@ import Mustache from "mustache";
 export function getNtlmMustacheTemplate() {
 
     return `
-    <NTLM {{#description}}description="{{description}}"{{/description}} domain="{{{domain}}}" host="{{{host}}}" ntlmVersion="{{{ntlmVersion}}}" password="{{{password}}}" username="{{{username}}}"/>
+    <NTLM {{#description}}description="{{description}}"{{/description}} domain="{{domain}}" host="{{host}}" ntlmVersion="{{ntlmVersion}}" password="{{password}}" username="{{username}}"/>
     `;
 }
 

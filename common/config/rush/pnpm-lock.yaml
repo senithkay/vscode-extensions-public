@@ -3265,6 +3265,7 @@ importers:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       '@babel/core': ^7.24.4
       '@babel/plugin-transform-typescript': ^7.16.1
+      '@iarna/toml': ^2.2.5
       '@playwright/test': ~1.37.1
       '@types/fs-extra': ~11.0.4
       '@types/json-schema': 7.0.15
@@ -3286,6 +3287,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
+      adm-zip: ~0.5.14
       await-notify: ^1.0.1
       axios: ~1.5.1
       copyfiles: ^2.4.1
@@ -3307,7 +3309,6 @@ importers:
       rimraf: ~5.0.5
       tmp: ~0.2.3
       to-json-schema: 0.2.4
-      toml: ^3.0.0
       tree-kill: ~1.2.2
       ts-loader: ^9.4.4
       ts-morph: ^22.0.0
@@ -3330,6 +3331,7 @@ importers:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       '@babel/core': 7.24.4
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.4
+      '@iarna/toml': 2.2.5
       '@playwright/test': 1.37.1
       '@types/fs-extra': 11.0.4
       '@types/json-schema': 7.0.15
@@ -3343,6 +3345,7 @@ importers:
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
+      adm-zip: 0.5.14
       axios: 1.5.1
       copyfiles: 2.4.1
       cors-anywhere: 0.4.4
@@ -3359,7 +3362,6 @@ importers:
       recast: 0.20.5
       tmp: 0.2.3
       to-json-schema: 0.2.4
-      toml: 3.0.0
       tree-kill: 1.2.2
       unzipper: 0.10.14
       uuid: 9.0.1
@@ -3486,8 +3488,8 @@ importers:
       webpack: ~5.88.2
       webpack-cli: ~5.1.4
       webpack-dev-server: ~4.15.1
-      yaml: ~2.4.3
       xmlbuilder2: ~3.1.1
+      yaml: ~2.4.3
       yup: ~1.4.0
     dependencies:
       '@codemirror/lang-xml': 6.0.2
@@ -8643,6 +8645,10 @@ packages:
 
   /@humanwhocodes/object-schema/2.0.2:
     resolution: {integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==}
+
+  /@iarna/toml/2.2.5:
+    resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
+    dev: false
 
   /@isaacs/cliui/8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -23929,6 +23935,11 @@ packages:
       loader-utils: 2.0.4
       regex-parser: 2.3.0
     dev: true
+
+  /adm-zip/0.5.14:
+    resolution: {integrity: sha512-DnyqqifT4Jrcvb8USYjp6FHtBpEIz1mnXu6pTRHZ0RL69LbQYiO+0lDFg5+OKA7U29oWSs3a/i8fhn8ZcceIWg==}
+    engines: {node: '>=12.0'}
+    dev: false
 
   /agent-base/5.1.1:
     resolution: {integrity: sha512-TMeqbNl2fMW0nMjTEPOwe3J/PRFP4vqeoNuQMG0HlMrtm5QxKqdvAkZ1pRBQ/ulIyDD5Yq0nJ7YbdD8ey0TO3g==}

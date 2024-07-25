@@ -31,6 +31,7 @@ export interface CreateAPIRequest {
     artifactDir: string;
     name: string;
     xmlData?: string;
+    version?: string;
     saveSwaggerDef?: boolean;
     swaggerDefPath?: string;
     wsdlType?: "file" | "url";
@@ -41,6 +42,7 @@ export interface CreateAPIRequest {
 export interface EditAPIRequest {
     documentUri: string;
     apiName: string;
+    version?: string;
     xmlData: string;
     handlersXmlData: string;
     apiRange: Range;
@@ -889,6 +891,7 @@ export interface CreateTaskRequest {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
+    sequence: CreateSequenceRequest | undefined;
 }
 
 export interface taskProperty {
@@ -1378,6 +1381,16 @@ export interface DownloadConnectorRequest {
 export interface DownloadConnectorResponse {
     path: string;
 }
+
+export interface DownloadInboundConnectorRequest {
+    url: string;
+    isInBuilt?: boolean;
+}
+
+export interface DownloadInboundConnectorResponse {
+    uischema: any;
+}
+
 export interface GetAvailableConnectorRequest {
     documentUri: string;
     connectorName: string | null;
@@ -1490,6 +1503,19 @@ export interface GetConnectorConnectionsRequest {
 
 export interface GetConnectorConnectionsResponse {
     connections?: ConnectorConnection[]
+}
+
+export interface SaveInboundEPUischemaRequest {
+    connectorName:string;
+    uiSchema:string
+}
+
+export interface GetInboundEPUischemaRequest {
+    connectorName:string;
+}
+
+export interface GetInboundEPUischemaResponse {
+    data: any
 }
 
 export interface GetAllRegistryPathsRequest {

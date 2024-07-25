@@ -12,7 +12,7 @@ import Mustache from "mustache";
 import { transformNamespaces } from "../../../commons";
 
 export function getSequenceMustacheTemplate() {
-    return `<sequence {{#referringSequence}}key="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/referringSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
+    return `<sequence {{#referringSequence}}key="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/referringSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
 }
 
 export function getSequenceXml(data: { [key: string]: any }) {
@@ -38,7 +38,6 @@ export function getSequenceDataFromSTNode(data: { [key: string]: any }, node: Fi
 export function getSequenceDescription(data: { [key: string]: any }) {
     const description = data.staticReferenceKey || data.dynamicReferenceKey || data.key;
     if (description) {
-        const match = description.match(/\/([^\/]+)\.xml$/);
-        return match ? match[1] : null;
+        return description.split(".")[0];
     }
 }

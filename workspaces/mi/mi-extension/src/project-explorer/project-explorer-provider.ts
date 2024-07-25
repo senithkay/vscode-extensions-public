@@ -229,8 +229,10 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'localEntries':
 					icon = 'local-entry';
 					label = 'Local Entries';
-					connectionEntry = generateConnectionEntry(artifacts[key]);
-					connectionEntry.info = artifacts[key];
+					break;
+				case 'connections':
+					icon = 'vm-connect';
+					label = 'Connections';
 					break;
 				case 'messageStores':
 					icon = 'message-store';
@@ -285,8 +287,6 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			parentEntry.children = children;
 			parentEntry.contextValue = key;
 			parentEntry.id = `${project.name}/${key}`;
-
-			connectionEntry ? parentEntry.children?.push(connectionEntry) : null;
 
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
@@ -619,7 +619,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
 				"title": "Show Task",
-				"command": COMMANDS.SHOW_TASK,
+				"command": COMMANDS.SHOW_TASK_VIEW,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
@@ -652,6 +652,24 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
+
+		}
+		// TODO: Update type to connections
+		else if (entry.type === "localEntry") {
+			explorerEntry = new ProjectExplorerEntry(
+				entry.name,
+				isCollapsibleState(false),
+				entry,
+				'code',
+				true
+			);
+			explorerEntry.contextValue = 'connection';
+			explorerEntry.id = entry.name;
+			explorerEntry.command = {
+				"title": "Show Connection",
+				"command": COMMANDS.SHOW_CONNECTION,
+				"arguments": [vscode.Uri.file(entry.path), entry.name, false]
+			};
 		}
 		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 		else if (entry.type === "DATA_SOURCE") {
@@ -681,64 +699,6 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	}
 
 	return result;
-}
-
-function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
-	const connectionsEntry = new ProjectExplorerEntry(
-		"Connections",
-		isCollapsibleState(true),
-		connectionsData,
-		'vm-connect',
-		true
-	);
-	connectionsEntry.contextValue = 'connections';
-	connectionsEntry.id = 'connections';
-
-	for (const entry of connectionsData) {
-		if (!entry.type) {
-			for (const [key, connectionsArray] of Object.entries(entry)) {
-				const connectionTypeEntry = new ProjectExplorerEntry(
-					key,
-					isCollapsibleState((connectionsArray as any[]).length > 0),
-					{
-						name: key,
-						type: 'connections',
-						path: (connectionsArray as any)[0].path
-					},
-					'link-external',
-					true
-				);
-				connectionTypeEntry.contextValue = key;
-				connectionTypeEntry.id = key;
-
-				for (const connection of (connectionsArray as any)) {
-					const connectionEntry = new ProjectExplorerEntry(
-						connection.name,
-						isCollapsibleState(false),
-						connection,
-						'code',
-						true
-					);
-					connectionEntry.contextValue = 'connection';
-					connectionEntry.id = connection.name;
-
-					connectionEntry.command = {
-						"title": "Show Connection",
-						"command": COMMANDS.SHOW_CONNECTION,
-						"arguments": [vscode.Uri.file(connection.path), connection.name, false]
-					};
-
-					connectionTypeEntry.children = connectionTypeEntry.children ?? [];
-					connectionTypeEntry.children.push(connectionEntry);
-
-				}
-				connectionsEntry.children = connectionsEntry.children ?? [];
-				connectionsEntry.children.push(connectionTypeEntry);
-			}
-		}
-	}
-
-	return connectionsEntry;
 }
 
 function checkExistanceOfRegistryResource(registryPath: string): boolean {
