@@ -57,7 +57,7 @@
                 </xs:element>
                 <xs:element name="onComplete" minOccurs="1" maxOccurs="1">
                     <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="0" />
+                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
                         <xs:attribute name="expression" type="xs:string" use="required" />
                         <xs:attribute name="sequence" type="xs:string" use="optional">
                             <xs:annotation>

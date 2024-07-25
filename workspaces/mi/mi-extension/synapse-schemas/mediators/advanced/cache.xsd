@@ -60,7 +60,7 @@
                         <xs:attribute name="type" type="xs:string" fixed="HTTP" use="required" />
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="implementation" minOccurs="1" maxOccurs="1">
+                <xs:element name="implementation" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
                             The cache implementation type and configurations
