@@ -3283,6 +3283,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-data-mapper-utils': workspace:*
+      '@wso2-enterprise/mi-diagram': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
@@ -3342,6 +3343,7 @@ importers:
       '@vscode/vsce': 2.21.1
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-diagram': link:../mi-diagram
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
@@ -28072,7 +28074,7 @@ packages:
       postcss-value-parser: 4.2.0
       schema-utils: 3.3.0
       semver: 7.6.0
-      webpack: 5.90.1
+      webpack: 5.90.1_webpack-cli@4.10.0
     dev: true
 
   /css-loader/6.10.0_webpack@5.90.1:
@@ -39131,6 +39133,7 @@ packages:
   /node-sass/4.14.1:
     resolution: {integrity: sha512-sjCuOlvGyCJS40R8BscF5vhVlQjNN069NtQ1gSxyK1u9iqvn6tf7O1R4GNowVZfiZUCRt5MmMs1xd+4V/7Yr0g==}
     engines: {node: '>=0.10.0'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     hasBin: true
     requiresBuild: true
     dependencies:
@@ -46050,7 +46053,7 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 2.7.1
-      webpack: 5.90.1
+      webpack: 5.90.1_webpack-cli@4.10.0
 
   /style-loader/2.0.0_webpack@5.90.1:
     resolution: {integrity: sha512-Z0gYUJmzZ6ZdRUqpg1r8GsaFKypE+3xAzuFeMuoHgjc9KZv3wMyCRjQIWEbhoFSq7+7yoHXySDJyyWQaPajeiQ==}
@@ -49487,7 +49490,7 @@ packages:
       mime-types: 2.1.35
       range-parser: 1.2.1
       schema-utils: 4.2.0
-      webpack: 5.90.1
+      webpack: 5.90.1_webpack-cli@4.10.0
 
   /webpack-dev-middleware/6.1.1_webpack@5.90.1:
     resolution: {integrity: sha512-y51HrHaFeeWir0YO4f0g+9GwZawuigzcAdRNon6jErXy/SqV/+O6eaVAzDqE6t3e3NpGeR5CS+cCDaTC+V3yEQ==}
@@ -50076,6 +50079,7 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
+    dev: true
 
   /webpack/5.90.1_3clqhuk7joege5kgsufjdgrc4q:
     resolution: {integrity: sha512-SstPdlAC5IvgFnhiRok8hqJo/+ArAbNv7rhU4fnWGHNVfN59HSQFaxZDSAL3IFG2YmqxuRs+IU33milSxbPlog==}

@@ -56,7 +56,10 @@ import axios from "axios";
 import * as https from "https";
 import { DebuggerConfig } from "../../debugger/config";
 import { SwaggerServer } from "../../swagger/server";
+import Mustache from "mustache";
+import { escapeXml } from "@wso2-enterprise/mi-diagram/lib/utils/commons"
 
+Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
         return new Promise(async (resolve) => {
