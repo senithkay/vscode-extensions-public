@@ -157,7 +157,7 @@ export function isObjectOrArrayLiteralExpression(node: Node): boolean {
         || Node.isArrayLiteralExpression(node);
 }
 
-function hasFields(type: DMType): boolean {
+export function hasFields(type: DMType): boolean {
     if (type.kind === TypeKind.Interface) {
         return type.fields && type.fields.length > 0;
     } else if (type.kind === TypeKind.Array) {

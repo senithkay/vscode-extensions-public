@@ -87,14 +87,14 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
 
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
         const defaultValue = getDefaultValue(typeKind);
-        const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
+        const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType !== "object" && mappingType);
         const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}`: ''} = ${defaultValue};`;
         (functionST.getBody() as Block).insertStatements(nextSubMappingIndex, varStmt);
 
-        await applyModifications(functionST.getSourceFile().getFullText());
-
         resetSubMappingConfig();
         reset();
+
+        await applyModifications(functionST.getSourceFile().getFullText());
     };
 
     const onEdit = async (data: SMConfigFormData) => {
@@ -194,25 +194,23 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                         )}
                     />
                 </Field>
-                {watch("mappingType") !== undefined &&
-                    <Field>
-                        <Controller
-                            name="isArray"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox
-                                    checked={field.value}
-                                    onClick={(e: any) => field.onChange(e.target.checked)}
-                                    onBlur={field.onBlur}
-                                    name={field.name}
-                                    ref={field.ref}
-                                >
-                                    Is Array
-                                </VSCodeCheckbox>
-                            )}
-                        />
-                    </Field>
-                }
+                <Field>
+                    <Controller
+                        name="isArray"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox
+                                checked={field.value}
+                                onClick={(e: any) => field.onChange(e.target.checked)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                            >
+                                Is Array
+                            </VSCodeCheckbox>
+                        )}
+                    />
+                </Field>
                 {!isEdit && (
                     <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                         <Button
