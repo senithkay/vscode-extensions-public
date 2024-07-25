@@ -179,7 +179,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element.type === 'attribute') {
                 if (element.value.hidden) {
                     setValue(element.value.name, element.value.defaultValue ?? "");
-                    return(<></>);
+                    return;
                 }
                 return <Controller
                     name={getNameForController(element.value.name)}
