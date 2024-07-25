@@ -11,6 +11,7 @@
  *  associated services.
  */
 
+import { ProjectStructureResponse } from "../../interfaces/eggplant";
 import {
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
@@ -20,6 +21,7 @@ import {
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
 } from "../../interfaces/extended-lang-client";
+import { CreateProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse } from "./interfaces";
 
 export interface EggplantDiagramAPI {
     getFlowModel: () => Promise<EggplantFlowModelResponse>;

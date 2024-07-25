@@ -9,6 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateComponentRequest,
+    CreateComponentResponse,
+    CreateProjectRequest,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantDiagramAPI,
@@ -17,10 +20,18 @@ import {
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
+    ProjectComponentsResponse,
+    ProjectStructureResponse,
+    WorkspacesResponse,
+    createComponent,
+    createProject,
     getAvailableNodes,
     getFlowModel,
     getNodeTemplate,
-    getSourceCode
+    getProjectComponents,
+    getProjectStructure,
+    getSourceCode,
+    getWorkspaces
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";

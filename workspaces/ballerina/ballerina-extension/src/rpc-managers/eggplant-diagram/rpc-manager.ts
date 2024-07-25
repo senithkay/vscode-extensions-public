@@ -27,18 +27,13 @@ import {
     ProjectComponentsResponse,
     ProjectStructureArtifactResponse,
     ProjectStructureResponse,
-    SHARED_COMMANDS,
     STModification,
     SyntaxTree,
-    UpdateNodeRequest,
-    UpdateNodeResponse,
     WorkspaceFolder,
-    WorkspacesResponse,
+    WorkspacesResponse
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
-import { readdirSync, statSync, writeFileSync } from "fs";
-import { join } from "path";
-import { TreeItemCollapsibleState, Uri, workspace } from "vscode";
+import { Uri, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
 
@@ -146,40 +141,6 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 //TODO: notify to diagram
             }
         }
-    }
-
-    async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getAvailableNodes(params)
-                .then((model) => {
-                    console.log(">>> eggplant available nodes from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching available nodes from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
-        });
-    }
-
-    async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
-        return new Promise((resolve) => {
-            StateMachine.langClient()
-                .getNodeTemplate(params)
-                .then((model) => {
-                    console.log(">>> eggplant node template from ls", model);
-                    resolve(model);
-                })
-                .catch((error) => {
-                    console.log(">>> error fetching node template from ls", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                });
-        });
     }
 
     async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
@@ -326,5 +287,3 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         return entries;
     }
 }
-
-
