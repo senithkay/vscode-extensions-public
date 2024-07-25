@@ -20,7 +20,7 @@ export function getCallMustacheTemplate() {
   {{/sourceOrTargetOrEndpoint}}
   {{#sourceOrTargetOrEndpoint}}
   <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}} {{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
-  {{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{{endpointRegistryKey}}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+  {{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
   {{#bodySource}}
     <source type="body"/>
     {{/bodySource}}
@@ -31,7 +31,7 @@ export function getCallMustacheTemplate() {
     <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
     {{/inlineSource}}
     {{#customSource}}
-    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{{value}}}{{/sourceXPath}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
     {{/customSource}}
     {{#bodyTarget}}
     <target type="{{targetType}}"/>
@@ -53,7 +53,7 @@ export function getCallMustacheTemplate() {
 {{/editCall}}
 {{#editEndpoint}} {{#inlineEndpoint}}
 {{{inlineEndpoint}}}{{/inlineEndpoint}}
-{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{{endpointRegistryKey}}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
 {{/editEndpoint}}
 {{#editSource}}
 {{#bodySource}}
@@ -66,7 +66,7 @@ export function getCallMustacheTemplate() {
   <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
 {{/inlineSource}}
 {{#customSource}}
-  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{{value}}}{{/sourceXPath}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
 {{/customSource}}
 {{/editSource}}
 {{#editTarget}}

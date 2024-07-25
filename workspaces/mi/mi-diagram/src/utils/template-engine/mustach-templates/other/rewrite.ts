@@ -18,7 +18,7 @@ export function getRewriteMustacheTemplate() {
         <rewriterule>
             <condition>{{{condition}}}</condition>
             {{#rewriteRuleAction}}
-                <action fragment="{{ruleFragment}}" {{#actionRegex}}regex="{{actionRegex}}"{{/actionRegex}} type="{{ruleAction}}" {{#actionValue}}value="{{actionValue}}"{{/actionValue}} {{#actionExpression}}xpath="{{actionExpression}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/actionExpression}} />   
+                <action fragment="{{ruleFragment}}" {{#actionRegex}}regex="{{actionRegex}}"{{/actionRegex}} type="{{ruleAction}}" {{#actionValue}}value="{{actionValue}}"{{/actionValue}} {{#actionExpression}}xpath="{{actionExpression}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/actionExpression}} />   
             {{/rewriteRuleAction}}
         </rewriterule>
     {{/urlRewriteRules}}

@@ -18,7 +18,7 @@ export function getDataServiceCallMustacheTemplate() {
             {{#operations}}
             <operation name="{{operationName}}">
                 {{#DSSProperties}}
-                <param name="{{propertyName}}" {{#propertyValue}}value="{{{propertyValue}}}"{{/propertyValue}} {{#propertyExpression}}expression="{{{propertyExpression}}}" evaluator="xml"{{/propertyExpression}} />
+                <param name="{{propertyName}}" {{#propertyValue}}value="{{propertyValue}}"{{/propertyValue}} {{#propertyExpression}}expression="{{propertyExpression}}" evaluator="xml"{{/propertyExpression}} />
                 {{/DSSProperties}}
             </operation>
             {{/operations}}

@@ -12,6 +12,10 @@ import deepEqual from 'deep-equal';
 import { getNodeDescription } from '../../node';
 import { getDataFromST, getXML } from '../../template-engine/mustach-templates/templateUtils';
 import path from 'path';
+import Mustache from 'mustache';
+import { escapeXml } from '../../commons';
+
+Mustache.escape = escapeXml;
 
 const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
 
