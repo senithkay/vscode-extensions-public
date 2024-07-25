@@ -69,20 +69,21 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = this.getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+					const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
 					
 					if (targetPort) {
 						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
 						const expr = typeWithValue.value;
 
+						let updatedExpr;
 						if (Node.isPropertyAssignment(expr)) {
-							expr.setInitializer(sourceInputAccessExpr);
+							updatedExpr = expr.setInitializer(sourceInputAccessExpr);
 						} else {
-							expr.replaceWithText(sourceInputAccessExpr);
+							updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
 						}
 
-						await targetNode.context.applyModifications();
+						await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
 					}
 				} else if (targetPortHasLinks) {
 					await modifySourceForMultipleMappings(lm);

@@ -15,12 +15,12 @@ export function getFaultMustacheTemplate() {
     return `
     <makefault {{#serializeResponse}}response="{{markAsResponse}}"{{/serializeResponse}} description="{{description}}" version="{{soapVersion}}" >
         <code value="{{soapVersion}}Env:{{code}}" xmlns:{{soapVersion}}Env="http://schemas.xmlsoap.org/soap/envelope/" />
-        <reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/reasonExpression}} />
-        {{#actor}}<role>{{{actor}}}</role>{{/actor}}
-        {{#node}}<node>{{{node}}}</node>{{/node}}
-        {{#role}}<role>{{{role}}}</role>{{/role}}
-        {{#detailValue}}<detail>{{{detailValue}}}</detail>{{/detailValue}}
-        {{#detailExpression}}<detail expression="{{{value}}}" {{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} />{{/detailExpression}}
+        <reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/reasonExpression}} />
+        {{#actor}}<role>{{actor}}</role>{{/actor}}
+        {{#node}}<node>{{node}}</node>{{/node}}
+        {{#role}}<role>{{role}}</role>{{/role}}
+        {{#detailValue}}<detail>{{detailValue}}</detail>{{/detailValue}}
+        {{#detailExpression}}<detail expression="{{value}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} />{{/detailExpression}}
     </makefault>
     `;
 }

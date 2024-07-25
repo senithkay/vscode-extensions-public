@@ -130,14 +130,14 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
         }
 
         const updatedExpression = targetExpr.getText() + newFilter;
-        targetExpr.replaceWithText(updatedExpression);
+        const updatedTargetExpr = targetExpr.replaceWithText(updatedExpression);
 
         if (isCollapsed) {
             setIsCollapsed(false);
         }
 
         setAddedNewFilter(true);
-        await applyModifications();
+        await applyModifications(updatedTargetExpr.getSourceFile().getFullText());
     }
 
     const handleExpand = () => {

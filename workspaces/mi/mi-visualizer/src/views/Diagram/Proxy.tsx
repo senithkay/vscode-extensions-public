@@ -16,6 +16,7 @@ import { EditProxyForm, ProxyProps } from "../Forms/EditForms/EditProxyForm";
 import { generateProxyData, onProxyEdit } from "../../utils/form";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import path from "path";
 
 export interface ProxyViewProps {
     model: Proxy;
@@ -38,8 +39,19 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
         setFormOpen(true);
     }
     const onSave = (data: EditProxyForm) => {
-        onProxyEdit(data, model, documentUri, rpcClient);
-        setFormOpen(false);
+        let artifactNameChanged = false;
+        let documentPath = documentUri;
+        if (path.basename(documentUri).split('.')[0] !== data.name) {
+            rpcClient.getMiDiagramRpcClient().renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${data.name}.xml`)});
+            artifactNameChanged = true;
+            documentPath = path.join(path.dirname(documentUri), `${data.name}.xml`);
+        }
+        onProxyEdit(data, model, documentPath, rpcClient);
+        if (artifactNameChanged) {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        } else {
+            setFormOpen(false);
+        }
     }
     
     return (

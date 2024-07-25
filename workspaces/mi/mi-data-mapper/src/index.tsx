@@ -12,7 +12,7 @@ import React, { useMemo } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType, DMOperator } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2-enterprise/mi-core";
 import { Project, SyntaxKind } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
@@ -44,9 +44,8 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
-    updateFileContent: (fileContent: string) => Promise<void>;
     configName: string;
-    operators: DMOperator[];
+    updateFileContent: (fileContent: string) => Promise<void>;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
@@ -57,13 +56,12 @@ export function DataMapperView(props: DataMapperViewProps) {
         inputTrees,
         outputTree,
         updateFileContent,
-        configName,
-        operators
+        configName
     } = props;
 
     const { rpcClient } = useVisualizerContext();
 
-    const { functionST, sourceFile } = useMemo(() => {
+    const functionST = useMemo(() => {
 
         const project = new Project({
             useInMemoryFileSystem: true,
@@ -102,15 +100,12 @@ export function DataMapperView(props: DataMapperViewProps) {
             });
         }
 
-        return {
-            functionST: fnST,
-            sourceFile: sourceFile,
-        };
+        return fnST;
 
     }, [rpcClient, filePath, fileContent, functionName]);
 
-    const applyModifications = async () => {
-        await updateFileContent(sourceFile.getFullText());
+    const applyModifications = async (fileContent: string) => {
+        await updateFileContent(fileContent);
     };
 
     return (
@@ -125,7 +120,6 @@ export function DataMapperView(props: DataMapperViewProps) {
                     applyModifications={applyModifications}
                     filePath={filePath}
                     configName={configName}
-                    operators={operators}
                 />
             </QueryClientProvider>
         </ErrorBoundary>

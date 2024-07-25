@@ -26,8 +26,7 @@
             "value": {
                 "name": "inlineEndpoint",
                 "displayName": "Inline Endpoint",
-                "inputType": "textArea",
-                "defaultValue": "<inline/>",
+                "inputType": "codeTextArea",
                 "required": false,
                 "helpTip": "Define your endpoint as an XML",
                 "enableCondition": [

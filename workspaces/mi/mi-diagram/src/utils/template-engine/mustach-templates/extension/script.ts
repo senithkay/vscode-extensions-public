@@ -1,26 +1,31 @@
 import { Script } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getScriptMustacheTemplate() {
-    return `{{#hasScriptKey}}
-    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptStaticKey}}key="{{scriptStaticKey}}" {{/scriptStaticKey}}{{#scriptDynamicKey}}key="{{{scriptDynamicKey}}}" {{/scriptDynamicKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}} >
+    return `{{#isRegistry}}
+    {{#hasScriptKeys}}
+    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptKey}}key="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/scriptKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}} >
         {{#scriptKeys}}
         <include {{#keyName}}key="{{keyName}}"{{/keyName}} />
         {{/scriptKeys}}
-</script>
-    {{/hasScriptKey}}
-    {{^hasScriptKey}}
+    </script>
+    {{/hasScriptKeys}}
+    {{^hasScriptKeys}}
+    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptKey}}key="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/scriptKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}}/>
+    {{/hasScriptKeys}}
+    {{/isRegistry}}
+    {{^isRegistry}}
     <script {{#description}}description="{{description}}" {{/description}}{{#scriptLanguage}}language="{{scriptLanguage}}" {{/scriptLanguage}}><![CDATA[{{#scriptBody}}{{{scriptBody}}}{{/scriptBody}}]]></script>
-    {{/hasScriptKey}}`;
+    {{/isRegistry}}`;
 }
 
 export function getScriptXml(data: { [key: string]: any }) {
 
-    if (data.scriptType == "INLINE") {
-
-    } else {
+    if (data.scriptType !== "INLINE") {
+        data.isRegistry = true
         if (data.scriptKeys && data.scriptKeys.length > 0) {
-            data.hasScriptKey = true;
+            data.hasScriptKeys = true;
             data.scriptKeys = data.scriptKeys.map((key: string[]) => {
                 return {
                     keyName: key[0],
@@ -29,8 +34,8 @@ export function getScriptXml(data: { [key: string]: any }) {
             });
         }
 
-        if (data.scriptDynamicKey && !data.scriptDynamicKey.startsWith("{")) {
-            data.scriptDynamicKey = "{" + data.scriptDynamicKey + "}";
+        if (data.scriptKey?.isExpression) {
+            data.scriptKey.value = "{" + data.scriptKey.value + "}";
         }
     }
 
@@ -50,17 +55,15 @@ export function getScriptFormDataFromSTNode(data: { [key: string]: any }, node: 
         });
     }
     data.scriptType = "REGISTRY_REFERENCE";
-    if (!node.function && (!node.include || node.include.length == 0)) {
+    if (!node.key) {
         data.scriptType = "INLINE";
     }
     data.scriptLanguage = node.language;
 
-    if (node.key && node.key.startsWith("{")) {
-        data.keyType = "DYNAMIC_KEY";
-        data.scriptDynamicKey = node.key
+    if (node.key?.startsWith("{") && node.key?.endsWith("}")) {
+        data.scriptKey = { isExpression: true, value: node.key?.substring(1, node.key?.length - 1), namespaces: transformNamespaces(node.namespaces) };
     } else {
-        data.keyType = "STATIC_KEY";
-        data.scriptStaticKey = node.key
+        data.scriptKey = { isExpression: false, value: node.key };
     }
     data.description = node.description;
     data.mediateFunction = node.function;

@@ -40,7 +40,7 @@ const PanelViewMore = styled.div({
 
 const HorizontalCardContainer = styled.div({
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gridAutoRows: "minmax(80px, auto)",
     gap: "20px",
 });
@@ -195,32 +195,25 @@ export function AddArtifactView() {
                     </AddPanel>
                     <AddPanel>
                         <Typography variant="h3" sx={{ margin: 0 }}>
-                            Entry Points
+                            Create an Integration
                         </Typography>
                         <HorizontalCardContainer>
                             <Card
                                 icon="APIResource"
                                 title="API"
-                                description="Create an HTTP API with a defined interface."
+                                description="Create a HTTP Service with a defined interface."
                                 onClick={() => handleClick("apis")}
                             />
                             <Card
-                                icon="arrow-swap"
-                                isCodicon
-                                title="Proxy"
-                                description="Create a proxy service to process and route messages."
-                                onClick={() => handleClick("proxyServices")}
-                            />
-                            <Card
                                 icon="task"
-                                title="Task"
-                                description="Create a task that can be run periodically."
+                                title="Schedule Task"
+                                description="Set up a task to run at scheduled intervals."
                                 onClick={() => handleClick("tasks")}
                             />
                             <Card
                                 icon="inbound-endpoint"
-                                title="Inbound Endpoint"
-                                description="Mediate messages sent via events."
+                                title="Listener"
+                                description="Create a listener to handle and mediate incoming event messages."
                                 onClick={() => handleClick("inboundEndpoints")}
                             />
                         </HorizontalCardContainer>
@@ -277,10 +270,17 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("localEntries")}
                                     />
                                     <Card
+                                        isCodicon={true}
                                         icon="vm-connect"
                                         title="Connections"
                                         description="Create resuable connections."
                                         onClick={() => handleClick("connections")}
+                                    />
+                                    <Card 
+                                        icon="arrow-swap"
+                                        title="Proxy"
+                                        description="Create a proxy service to process and route messages."
+                                        onClick={() => handleClick("proxyServices")}
                                     />
                                 </HorizontalCardContainer>
                             </PanelViewMore>

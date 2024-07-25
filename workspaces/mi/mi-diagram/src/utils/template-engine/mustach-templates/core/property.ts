@@ -13,10 +13,10 @@ import { transformNamespaces } from "../../../commons";
 
 export function getPropertyMustacheTemplate() {
     return `{{#isOM}}
-    <property {{#propertyName}}name="{{{propertyName}}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{{value}}}" {{/value}}{{#valueStringPattern}}pattern="{{{valueStringPattern}}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}>{{{OMValue}}}</property>    
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}>{{{OMValue}}}</property>    
     {{/isOM}}
     {{^isOM}}
-    <property {{#propertyName}}name="{{{propertyName}}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{{value}}}" {{/value}}{{#valueStringPattern}}pattern="{{{valueStringPattern}}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
     {{/isOM}}`;
 }
 
@@ -65,7 +65,7 @@ export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node
         data.propertyAction = node.action;
     }
     if (node.scope) {
-        data.propertyScope = node.scope;
+        data.propertyScope = node.scope.toUpperCase();
     }
     if (node.pattern) {
         data.valueStringPattern = node.pattern;

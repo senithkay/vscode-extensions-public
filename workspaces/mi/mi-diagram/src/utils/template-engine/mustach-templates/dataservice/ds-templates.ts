@@ -107,7 +107,7 @@ export function getDssQueryXml(data: { [key: string]: any }) {
         }
         data.result.useColumnNumbers = data.result.useColumnNumbers ? data.result.useColumnNumbers : null;
         data.result.escapeNonPrintableChar = data.result.escapeNonPrintableChar ? data.result.escapeNonPrintableChar : null;
-        data.result.outputType = data.result.outputType === 'XML' ? null : data.result.outputType.toLowercase();
+        data.result.outputType = data.result.outputType === 'XML' ? null : data.result.outputType.toLowerCase();
     }
     data.returnGeneratedKeys = data.returnGeneratedKeys ? data.returnGeneratedKeys : null;
     data.returnUpdatedRowCount = data.returnUpdatedRowCount ? data.returnUpdatedRowCount : null;

@@ -9,7 +9,7 @@
 
 import path from "path";
 import { LanguageClient } from "./lang-service/client";
-import { isValidMediatorDescription, isValidMediatorXML } from "./utils/test-utils";
+import { getMediatorDescription, isValidMediatorXML } from "./utils/test-utils";
 
 const dataRoot = path.join(__dirname, "data");
 
@@ -19,7 +19,7 @@ export interface MediatorTestCase {
     expectedDefaultDescription: string | undefined;
 }
 
-export const mediatorTestCases : MediatorTestCase[] = [
+export const mediatorTestCases: MediatorTestCase[] = [
     {
         type: "Filter",
         expectedDescription: "Filter Description",
@@ -124,7 +124,7 @@ export const mediatorTestCases : MediatorTestCase[] = [
     {
         type: "Call Sequence",
         expectedDescription: "Call Sequence Description",
-        expectedDefaultDescription: null
+        expectedDefaultDescription: "defseq"
     },
     {
         type: "CallTemplate",
@@ -281,7 +281,7 @@ describe('Test MI Mediators', () => {
         const client = new LanguageClient();
         await client.start();
         langClient = client;
-    }, 100000); 
+    }, 100000);
 
     afterAll(async () => {
         await langClient.stop();
@@ -316,11 +316,11 @@ describe('Test MI Mediators', () => {
                 if (!syntaxTree) {
                     throw new Error("Syntax tree is undefined");
                 }
-                const res = await isValidMediatorDescription(type, syntaxTree, expectedDefaultDescription);
-                expect(res).toBeTruthy();
+                const res = await getMediatorDescription(type, syntaxTree);
+                expect(res).toEqual(expectedDefaultDescription);
                 done();
-            } catch (error) {
-                console.error('Error:', error);
+            } catch (e) {
+                done.fail(e as string);
             }
         }, 20000);
 
@@ -336,11 +336,11 @@ describe('Test MI Mediators', () => {
                     if (!syntaxTree) {
                         throw new Error("Syntax tree is undefined");
                     }
-                    const res = await isValidMediatorDescription(type, syntaxTree, expectedDescription);
-                    expect(res).toBeTruthy();
+                    const res = await getMediatorDescription(type, syntaxTree);
+                    expect(res).toEqual(expectedDescription);
                     done();
-                } catch (error) {
-                    console.error('Error:', error);
+                } catch (e) {
+                    done.fail(e as string);
                 }
             }, 20000);
         }

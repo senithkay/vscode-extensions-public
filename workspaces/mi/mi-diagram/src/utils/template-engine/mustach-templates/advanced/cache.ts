@@ -15,19 +15,19 @@ export function getCacheMustacheTemplate() {
     return `
     {{#isNewMediator}}
     {{#isCollector}}
-    <cache collector="true" {{#description}}description="{{{description}}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
+    <cache collector="true" {{#description}}description="{{description}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
     {{/isCollector}}
     {{^isCollector}}
     {{#is611Compatible}}
-    <cache collector="false" {{#description}}description="{{{description}}}"{{/description}} hashGenerator="{{{hashGeneratorAttribute}}}" id="{{id}}" maxMessageSize="{{maxMessageSize}}" scope="{{scope}}" timeout="{{cacheTimeout}}">
-        <onCacheHit {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} />
+    <cache collector="false" {{#description}}description="{{description}}"{{/description}} hashGenerator="{{hashGeneratorAttribute}}" id="{{id}}" maxMessageSize="{{maxMessageSize}}" scope="{{scope}}" timeout="{{cacheTimeout}}">
+        <onCacheHit {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} />
         <implementation maxSize="{{maxEntryCount}}" type="{{implementationType}}" />
     </cache>
     {{/is611Compatible}}
     {{^is611Compatible}}
-    <cache collector="false" {{#description}}description="{{{description}}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
+    <cache collector="false" {{#description}}description="{{description}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
         {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
-        {{^isAnonymousSequence}}<onCacheHit sequence="{{{sequenceKey}}}" />{{/isAnonymousSequence}}
+        {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
         {{^isCollector}}
         {{^is611Compatible}}
         <protocol type="{{cacheProtocolType}}">
@@ -51,7 +51,7 @@ export function getCacheMustacheTemplate() {
     {{^isNewMediator}}
     {{#isEditCache}}
     {{#isCollector}}
-    <cache collector="true" {{#description}}description="{{{description}}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
+    <cache collector="true" {{#description}}description="{{description}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
     {{/isCollector}}
     {{^isCollector}}
     {{#is611Compatible}}
@@ -86,7 +86,7 @@ export function getCacheMustacheTemplate() {
     {{/isEditImplementation}}
     {{#isEditOnCacheHit}}
     {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
-    {{^isAnonymousSequence}}<onCacheHit sequence="{{{sequenceKey}}}" />{{/isAnonymousSequence}}
+    {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
     {{/isEditOnCacheHit}}
     {{/isNewMediator}}
     `;
@@ -145,7 +145,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         if (cacheData.isCollector) {
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
             }
         } else {
             editRange = {
@@ -173,7 +173,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         if (range) {
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
             }
         } else {
             editRange = {
@@ -195,7 +195,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let range = defaultValues.ranges.onCacheHit;
         let editRange;
         if (range) {
-            editRange = { start: range.startTagRange.start, end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end };
+            editRange = { start: range.startTagRange.start, end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end };
         } else {
             let cacheRange = defaultValues.ranges.cache;
             editRange = {
@@ -217,7 +217,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let range = defaultValues.ranges.implementation;
         let editRange: Range = {
             start: range.startTagRange.start,
-            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
         }
         let edit = {
             text: output,
@@ -249,8 +249,8 @@ export function getCacheFormDataFromSTNode(data: { [key: string]: any }, node: C
     data.headersToIncludeInHash = node.protocol?.headersToIncludeInHash?.textNode
     data.headersToExcludeInHash = node.protocol?.headersToExcludeInHash?.textNode;
     data.responseCodes = node.protocol?.responseCodes?.textNode;
-    data.enableCacheControl = Boolean(node.protocol?.enableCacheControl?.textNode);
-    data.includeAgeHeader = Boolean(node.protocol?.includeAgeHeader?.textNode);
+    data.enableCacheControl = node.protocol?.enableCacheControl?.textNode == "true";
+    data.includeAgeHeader = node.protocol?.includeAgeHeader?.textNode == "true";
     data.maxEntryCount = node.implementation?.maxSize;
     data.cacheMediatorImplementation = node.protocol ? "Default" : "611 Compatible";
     data.cacheType = node.collector ? "COLLECTOR" : "FINDER";

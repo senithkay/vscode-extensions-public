@@ -164,15 +164,19 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
 
     const handleOnClickEndpoint = (e: any) => {
         if (node.endpoint) {
-            setIsEndpointSelected(true);
-            node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
+            if (node.endpoint.key) {
+                setIsEndpointSelected(true);
+                node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
+            } else {
+                node.onClicked(e, node, rpcClient, sidePanelContext);
+            }
         }
     }
 
     const handleOnDeleteEndpoint = () => {
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: node.documentUri,
-            range: { start: node.endpoint.range.startTagRange.start, end: node.endpoint.range.endTagRange.end ?? node.endpoint.range.startTagRange.end },
+            range: { start: node.endpoint.range.startTagRange.start, end: node.endpoint.range?.endTagRange?.end ?? node.endpoint.range.startTagRange.end },
             text: "",
         });
     };

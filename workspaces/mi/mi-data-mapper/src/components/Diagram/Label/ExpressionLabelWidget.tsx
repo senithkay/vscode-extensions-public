@@ -115,7 +115,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     const classes = useStyles();
     const { field, link, value, valueNode, context, deleteLink } = props.model;
-    const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
+    const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
         if (link) {
@@ -217,8 +217,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayToArrayMappingWithFn(linkModelValue.getText(), targetType, isSourceOptional);
 
-            targetExpr.replaceWithText(mapFnSrc);
-            await context.applyModifications();
+                const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
+                await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
     };
 

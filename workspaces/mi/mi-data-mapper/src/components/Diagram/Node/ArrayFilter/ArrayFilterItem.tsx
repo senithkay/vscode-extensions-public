@@ -59,7 +59,7 @@ export interface FilterBarItemProps {
     index: number;
     filterNode: CallExpression;
     justAdded: boolean;
-    applyModifications: () => Promise<void>;
+    applyModifications: (fileContent: string) => Promise<void>;
 };
 
 export default function ArrayFilterItem(props: FilterBarItemProps) {
@@ -81,7 +81,7 @@ export default function ArrayFilterItem(props: FilterBarItemProps) {
     const isEmptyExpr = filterExpr && filterExpr.getText() === "";
     const hasDiagnostics = diagnostics && diagnostics.length > 0;
     const diagnosticMsg = hasDiagnostics
-        ? diagnostics[0].getMessageText()
+        ? diagnostics[0].messageText
         : isEmptyExpr ? "Expression expected." : "";
     const showDeleteBtn = isFocused || isHovered;
 
@@ -117,8 +117,8 @@ export default function ArrayFilterItem(props: FilterBarItemProps) {
         }
 
         const srcAfterDelete = exprAfterDelete.getText();
-        filterNode.replaceWithText(srcAfterDelete);
-        await applyModifications();
+        const updatedFilterNode = filterNode.replaceWithText(srcAfterDelete);
+        await applyModifications(updatedFilterNode.getSourceFile().getFullText());
         resetExprBarFocus();
     };
 

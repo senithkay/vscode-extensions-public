@@ -8,26 +8,23 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-
 import styled from "@emotion/styled";
-
 import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
+import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
-import ExpressionBar from "./ExpressionBar";
-import { DMOperator } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
+    filePath: string;
     views: View[];
     switchView: (index: number) => void;
     hasEditDisabled: boolean;
     onClose?: () => void;
-    applyModifications: () => Promise<void>;
-    operators: DMOperator[];
+    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications, operators } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
 
     return (
         <HeaderContainer>
@@ -50,18 +47,14 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBar
-                    applyModifications={applyModifications}
-                    operators={operators}
-                />
+                <ExpressionBarWrapper views={views} filePath={filePath} applyModifications={applyModifications} />
             </ExpressionContainer>
         </HeaderContainer>
     );
 }
 
 const HeaderContainer = styled.div`
-    height: auto;
-    min-height: 66px;
+    height: 72px;
     width: 100%;
     display: flex;
     flex-direction: column;

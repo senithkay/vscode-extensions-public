@@ -140,7 +140,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
             if (inPort && mappedOutPort) {
                 const diagnostics = getDiagnostics(otherVal || value);
-                const lm = new DataMapperLinkModel(value, diagnostics, true);
+                const lm = new DataMapperLinkModel(value, diagnostics, true, undefined);
                 const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
                 const keepDefault = ((
                         mappedField
@@ -217,7 +217,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             });
         }
 
-        await this.context.applyModifications();
+        await this.context.applyModifications(field.getSourceFile().getFullText());
     }
 
     public updatePosition() {

@@ -10,6 +10,7 @@
 import Mustache from "mustache";
 import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { checkAttributesExist, transformNamespaces } from "../../../commons";
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export function getCallMustacheTemplate() {
   return `
@@ -19,7 +20,7 @@ export function getCallMustacheTemplate() {
   {{/sourceOrTargetOrEndpoint}}
   {{#sourceOrTargetOrEndpoint}}
   <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}} {{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
-  {{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{{endpointRegistryKey}}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+  {{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
   {{#bodySource}}
     <source type="body"/>
     {{/bodySource}}
@@ -30,7 +31,7 @@ export function getCallMustacheTemplate() {
     <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
     {{/inlineSource}}
     {{#customSource}}
-    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{{value}}}{{/sourceXPath}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
     {{/customSource}}
     {{#bodyTarget}}
     <target type="{{targetType}}"/>
@@ -50,8 +51,9 @@ export function getCallMustacheTemplate() {
 <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
 {{/sourceOrTargetOrEndpoint}}
 {{/editCall}}
-{{#editEndpoint}}
-{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{{endpointRegistryKey}}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+{{#editEndpoint}} {{#inlineEndpoint}}
+{{{inlineEndpoint}}}{{/inlineEndpoint}}
+{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
 {{/editEndpoint}}
 {{#editSource}}
 {{#bodySource}}
@@ -64,7 +66,7 @@ export function getCallMustacheTemplate() {
   <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
 {{/inlineSource}}
 {{#customSource}}
-  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{{value}}}{{/sourceXPath}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
 {{/customSource}}
 {{/editSource}}
 {{#editTarget}}
@@ -109,9 +111,12 @@ export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defa
     data.registryOrXpathEndpoint = true;
   }
   if (data.endopint) {
-    delete data.endpointXpath;
-    data.registryOrXpathEndpoint = true;
-    data.endpointRegistryKey = data.endopint;
+    if (data.endopint !== "INLINE") {
+      delete data.endpointXpath;
+      delete data.inlineEndpoint;
+      data.registryOrXpathEndpoint = true;
+      data.endpointRegistryKey = data.endopint;
+    }
   }
   if (data.endpointType == "XPATH") {
     delete data.endpointRegistryKey;
@@ -140,7 +145,7 @@ function getNewMediator(data: { [key: string]: any }) {
 function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
 
   let callTagAttributes = ["enableBlockingCalls", "initAxis2ClientOptions", "description"];
-  let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey", "endopint"];
+  let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey", "endopint", "inlineEndpoint"];
   let sourceTagAttributes = ["sourceType", "contentType", "sourceProperty", "sourcePayload", "sourceXPath"];
   let targetTagAttributes = ["targetType", "targetProperty"];
   let dirtyKeys = Object.keys(dirtyFields);
@@ -172,7 +177,7 @@ function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, 
   if (range) {
     editRange = {
       start: range.startTagRange.start,
-      end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+      end: editStartTagOnly ? range.startTagRange.end : (range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end)
     }
   } else {
     let callRange = defaultValues.ranges.call;
@@ -188,7 +193,28 @@ function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, 
   return edit;
 }
 
-export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Call) {
+export async function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Call, documentUri: string, rpcClient: RpcClient) {
+  const endpoint = node.endpoint;
+  if (endpoint?.key == undefined) {
+    data.endopint = "INLINE";
+
+    const xml = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
+      documentUri,
+      range: {
+        start: endpoint.spaces.startingTagSpace.leadingSpace.range.start,
+        end: endpoint.range.endTagRange.end
+      }
+    });
+    const leadingSpaces = xml.text.match(/^(\s+)<endpoint>/)[1].replace(/\n/g, '').replaceAll('\t', '    ');
+    data.inlineEndpoint = xml.text
+      .split('\n')
+      .map(line => line.length > 0 ? line.replace(/^(\s+)/, (match, p1) => p1.replaceAll('\t', '    ').replace(leadingSpaces, '')) : '')
+      .join('\n')
+      .trim();
+  } else {
+    data.endopint = endpoint?.key;
+  }
+
   data.enableBlockingCalls = node.blocking;
   data.description = node.description;
   data.contentType = node.source?.contentType;
@@ -203,21 +229,20 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.targetType = node.target?.type;
   data.targetProperty = node.target?.textNode;
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;
-  data.endpointXpath = { isExpression: true, value: node.endpoint?.keyExpression, namespaces: transformNamespaces(node.endpoint?.namespaces) };
-  data.endpointRegistryKey = node.endpoint?.key;
-  data.endopint = node.endpoint?.key;
+  data.endpointXpath = { isExpression: true, value: endpoint?.keyExpression, namespaces: transformNamespaces(endpoint?.namespaces) };
+  data.endpointRegistryKey = endpoint?.key;
   if (data.endpointXpath) {
     data.endpointType = "XPATH";
   } else if (data.endpointRegistryKey) {
     data.endpointType = "REGISTRYKEY";
-  } else if (node.endpoint) {
+  } else if (endpoint) {
     data.endpointType = "INLINE";
   } else {
     data.endpointType = "NONE";
   }
   data.ranges = {
     call: node.range,
-    endpoint: node.endpoint?.range,
+    endpoint: endpoint?.range,
     source: node.source?.range,
     target: node.target?.range
   }

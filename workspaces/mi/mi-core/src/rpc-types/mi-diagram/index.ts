@@ -183,6 +183,14 @@ import {
     TestDbConnectionRequest,
     TestDbConnectionResponse,
     MarkAsDefaultSequenceRequest,
+    GetSubFoldersResponse,
+    GetSubFoldersRequest,
+    DownloadInboundConnectorRequest,
+    DownloadInboundConnectorResponse,
+    FileRenameRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -269,11 +277,14 @@ export interface MiDiagramAPI {
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
+    downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
+    saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => void;
+    getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
@@ -303,4 +314,6 @@ export interface MiDiagramAPI {
     getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
     testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
     markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => Promise<void>;
+    getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
+    renameFile: (params: FileRenameRequest) => void;
 }

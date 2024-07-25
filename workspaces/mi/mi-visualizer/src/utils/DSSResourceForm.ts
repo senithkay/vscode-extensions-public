@@ -36,7 +36,7 @@ export const generateOperationData = (model: DSSOperation): OperationType => {
     return operationData;
 };
 
-export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
+export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient, dbName: string) => {
 
     const queryName = uuidv4();
 
@@ -49,9 +49,10 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
         query: queryName
     };
 
-    let xml = getXML(DSS_TEMPLATES.ADD_QUERY, {name: queryName});
+    const queryContent = getXML(DSS_TEMPLATES.ADD_QUERY, { name: queryName, dbName: dbName });
+    const resourceContent = getXML(DSS_TEMPLATES.ADD_RESOURCE, formValues);
     rpcClient.getMiDiagramRpcClient().applyEdit({
-        text: xml,
+        text: queryContent + resourceContent,
         documentUri: documentUri,
         range: {
             start: {
@@ -63,26 +64,10 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
                 character: range.end.character,
             }
         }
-    }).then(async () => {
-        xml = getXML(DSS_TEMPLATES.ADD_RESOURCE, formValues);
-        await rpcClient.getMiDiagramRpcClient().applyEdit({
-            text: xml,
-            documentUri: documentUri,
-            range: {
-                start: {
-                    line: range.end.line + 3,
-                    character: range.end.character,
-                },
-                end: {
-                    line: range.end.line + 3,
-                    character: range.end.character,
-                }
-            }
-        });
-    })
+    });
 };
 
-export const onOperationCreate = (data: OperationFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
+export const onOperationCreate = (data: OperationFormData, range: Range, documentUri: string, rpcClient: RpcClient, dbName: string) => {
 
     const queryName = uuidv4();
 
@@ -93,9 +78,10 @@ export const onOperationCreate = (data: OperationFormData, range: Range, documen
         query: queryName
     };
 
-    let xml = getXML(DSS_TEMPLATES.ADD_QUERY, {name: queryName});
+    const queryContent = getXML(DSS_TEMPLATES.ADD_QUERY, { name: queryName, dbName: dbName });
+    const operationContent = getXML(DSS_TEMPLATES.ADD_OPERATION, formValues);
     rpcClient.getMiDiagramRpcClient().applyEdit({
-        text: xml,
+        text: queryContent + operationContent,
         documentUri: documentUri,
         range: {
             start: {
@@ -107,23 +93,7 @@ export const onOperationCreate = (data: OperationFormData, range: Range, documen
                 character: range.end.character,
             }
         }
-    }).then(async () => {
-        xml = getXML(DSS_TEMPLATES.ADD_OPERATION, formValues);
-        await rpcClient.getMiDiagramRpcClient().applyEdit({
-            text: xml,
-            documentUri: documentUri,
-            range: {
-                start: {
-                    line: range.end.line + 3,
-                    character: range.end.character,
-                },
-                end: {
-                    line: range.end.line + 3,
-                    character: range.end.character,
-                }
-            }
-        });
-    })
+    });
 };
 
 export const onResourceEdit = (data: ResourceFormData, selectedResource: any, documentUri: string, rpcClient: RpcClient) => {

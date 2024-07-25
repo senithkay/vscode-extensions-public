@@ -12,6 +12,10 @@ import deepEqual from 'deep-equal';
 import { getNodeDescription } from '../../node';
 import { getDataFromST, getXML } from '../../template-engine/mustach-templates/templateUtils';
 import path from 'path';
+import Mustache from 'mustache';
+import { escapeXml } from '../../commons';
+
+Mustache.escape = escapeXml;
 
 const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
 
@@ -93,7 +97,7 @@ export function normalizeXML(xml: string): string {
 export async function isValidMediatorXML(mediatorType: string, st: any): Promise<boolean> {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     
-    const mediatorData = getDataFromST(mediatorType, mediatorST);
+    const mediatorData = await getDataFromST(mediatorType, mediatorST);
     const generatedXml = getXML(mediatorType, mediatorData);
 
     // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
@@ -106,8 +110,8 @@ export async function isValidMediatorXML(mediatorType: string, st: any): Promise
  * @param st The syntax tree of the mediator.
  * @param expectedDescription The expected description of the mediator.
  */
-export async function isValidMediatorDescription(mediatorType: string, st: any, expectedDescription: string) {
+export async function getMediatorDescription(mediatorType: string, st: any) {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     const description = getNodeDescription(mediatorType, mediatorST);
-    return description === expectedDescription;
+    return description;
 }

@@ -107,12 +107,19 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="soapVersion"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="SOAP Version" name="soapVersion" items={["soap11", "soap12", "POX"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="SOAP Version"
+                                name="soapVersion"
+                                items={["soap11", "soap12", "POX"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.soapVersion?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.soapVersion && <Error>{errors.soapVersion.message.toString()}</Error>}
                 </Field>
 
                 {watch("soapVersion") == "soap11" &&
@@ -121,12 +128,19 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="soap11"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="SOAP11" name="soap11" items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="SOAP11"
+                                name="soap11"
+                                items={["VersionMismatch", "MustUnderstand", "Client", "Server"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.soap11?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.soap11 && <Error>{errors.soap11.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -136,12 +150,19 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="code"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Code" name="code" items={["VersionMismatch", "MustUnderstand", "DataEncordingUnknown", "Sender", "Reciever"]} value={field.value} required={false} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
+                            <AutoComplete
+                                label="Code"
+                                name="code"
+                                items={["VersionMismatch", "MustUnderstand", "DataEncordingUnknown", "Sender", "Reciever"]}
+                                value={field.value}
+                                required={false}
+                                errorMsg={errors?.code?.message?.toString()}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                            />
                         )}
                     />
-                    {errors.code && <Error>{errors.code.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -151,10 +172,9 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="Role"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Role" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Role" size={50} placeholder="" required={false} errorMsg={errors?.Role?.message?.toString()} />
                         )}
                     />
-                    {errors.Role && <Error>{errors.Role.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -164,10 +184,9 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="node"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Node" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Node" size={50} placeholder="" required={false} errorMsg={errors?.node?.message?.toString()} />
                         )}
                     />
-                    {errors.node && <Error>{errors.node.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -177,10 +196,9 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="actor"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Actor" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Actor" size={50} placeholder="" required={false} errorMsg={errors?.actor?.message?.toString()} />
                         )}
                     />
-                    {errors.actor && <Error>{errors.actor.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -192,7 +210,6 @@ const FaultForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Serialize Response</VSCodeCheckbox>
                         )}
                     />
-                    {errors.serializeResponse && <Error>{errors.serializeResponse.message.toString()}</Error>}
                 </Field>
 
                 {watch("serializeResponse") == true &&
@@ -204,7 +221,6 @@ const FaultForm = (props: AddMediatorProps) => {
                             <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Mark As Response</VSCodeCheckbox>
                         )}
                     />
-                    {errors.markAsResponse && <Error>{errors.markAsResponse.message.toString()}</Error>}
                 </Field>
                 }
 
@@ -217,12 +233,12 @@ const FaultForm = (props: AddMediatorProps) => {
                                 {...field} label="Detail"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.detail?.message?.toString()}
                                 canChange={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.detail && <Error>{errors.detail.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -234,12 +250,12 @@ const FaultForm = (props: AddMediatorProps) => {
                                 {...field} label="Reason"
                                 placeholder=""
                                 required={false}
+                                errorMsg={errors?.reason?.message?.toString()}
                                 canChange={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
-                    {errors.reason && <Error>{errors.reason.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -247,10 +263,9 @@ const FaultForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" required={false} />
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
 

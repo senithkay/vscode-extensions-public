@@ -63,20 +63,21 @@ const TransformationForm = (props: AddMediatorProps) => {
             outputType: values.outputType,
             useColumnNumbers: values.useColumnNumbers,
             escapeNonPrintableChar: values.escapeNonPrintableCharacters,
-            defaultNamespace: values.rowNamespace,
-            xsltPath: values.xsltPath,
-            rdfBaseURI: values.rdfBaseUri,
-            element: values.groupedElement,
-            rowName: values.rowName,
-            elements: existingResult?.elements ?? [],
-            attributes: existingResult?.attributes ?? [],
-            queries: existingResult?.queries ?? [],
-            complexElements: existingResult?.complexElements ?? []
+            defaultNamespace: values.outputType === "JSON" ? "" : values.rowNamespace,
+            xsltPath: values.outputType === "JSON" ? "" : values.xsltPath,
+            rdfBaseURI: values.outputType === "RDF" ? values.rdfBaseUri : "",
+            element: values.outputType === "XML" ? values.groupedElement : "",
+            rowName: values.outputType === "XML" ? values.rowName : "",
+            elements: values.outputType === "JSON" ? [] : existingResult?.elements ?? [],
+            attributes: values.outputType === "JSON" ? [] : existingResult?.attributes ?? [],
+            queries: values.outputType === "JSON" ? [] : existingResult?.queries ?? [],
+            complexElements: values.outputType === "JSON" ? [] : existingResult?.complexElements ?? []
         }
         const updatedQuery = sidePanelContext?.formValues.queryObject;
         updatedQuery.result = updatedResult;
+        const queryType = sidePanelContext?.formValues.queryObject.expression ? "expression" : "sql";
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery);
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,

@@ -104,7 +104,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             trace: st.trace ? true : false,
             handlers: st.handlers?.handler.map((handler: any) => ({
                 name: handler.clazz,
-                properties: handler.property.map((property: any) => ({
+                properties: handler.property?.map((property: any) => ({
                     name: property.name,
                     value: property.value,
                 }))
@@ -114,8 +114,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 end: st.range.startTagRange.end,
             },
             handlersRange: {
-                start: st.handlers?.range.startTagRange.start ?? st.range.endTagRange.start,
-                end: st.handlers?.range.endTagRange.end ?? st.range.endTagRange.start,
+                start: st.handlers?.range?.startTagRange?.start ?? st.range.endTagRange.start,
+                end: st.handlers?.range?.endTagRange?.end ?? st.range.endTagRange.start,
             },
         };
         setServiceData(serviceData);

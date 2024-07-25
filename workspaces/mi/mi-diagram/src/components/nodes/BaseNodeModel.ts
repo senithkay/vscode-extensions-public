@@ -98,9 +98,11 @@ export class BaseNodeModel extends NodeModel {
                 range: nodeRange,
             });
 
-            const formData = getDataFromST(
+            const formData = await getDataFromST(
                 operationName,
-                stNode
+                stNode,
+                this.documentUri,
+                rpcClient
             );
 
             await new Promise(resolve => setTimeout(resolve, 1));
