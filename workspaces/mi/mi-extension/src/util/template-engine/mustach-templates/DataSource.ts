@@ -80,9 +80,9 @@ export function getDatasourceTemplate() {
             {{/isExternal}}
             {{^isExternal}}
             <driverClassName>{{driver}}</driverClassName>
-            <url>{{{url}}}</url>
-            <username>{{{username}}}</username>
-            <password>{{{password}}}</password>
+            <url>{{url}}</url>
+            <username>{{username}}</username>
+            <password>{{password}}</password>
             {{/isExternal}}
         </configuration>
     </definition>

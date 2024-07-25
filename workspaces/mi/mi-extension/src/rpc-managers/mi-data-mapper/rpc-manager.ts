@@ -161,7 +161,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const dmConfigs: string[] = [];
                 for (const folder of fs.readdirSync(dataMapperConfigFolder)) {
                     if (fs.lstatSync(path.join(dataMapperConfigFolder, folder)).isDirectory() &&
-                        fs.existsSync(path.join(dataMapperConfigFolder, folder, `${folder}.dmc`))) {
+                        fs.existsSync(path.join(dataMapperConfigFolder, folder, `${folder}.ts`))) {
                         dmConfigs.push(folder);
                     }
                 }

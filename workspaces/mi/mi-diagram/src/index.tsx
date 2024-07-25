@@ -10,3 +10,7 @@
 export { Diagram } from "./components/Diagram";
 export * from "./components/Form";
 export { getParamManagerValues, getParamManagerFromValues } from "./components/sidePanel/Pages/mediators/common";
+import Mustache from "mustache";
+import { escapeXml } from "./utils/commons";
+
+Mustache.escape = escapeXml;

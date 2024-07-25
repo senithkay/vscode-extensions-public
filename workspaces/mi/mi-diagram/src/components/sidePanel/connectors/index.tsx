@@ -318,6 +318,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                     if (status.connector === connector.name && status.isSuccess) {
                         generateForm(connector, operation);
                     } else {
+                        fetchLocalConnectorData();
                         console.log(status.message);
                     }
                 } catch (error) {

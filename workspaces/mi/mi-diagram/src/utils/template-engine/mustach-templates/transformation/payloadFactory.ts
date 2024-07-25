@@ -22,7 +22,7 @@ export function getPayloadMustacheTemplate() {
     {{/isInlined}}
     <args>
         {{#args}}
-        <arg {{#literal}}literal="{{{literal}}}"{{/literal}} {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{value}}}" evaluator="{{evaluator}}" {{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} {{/expression}} />
+        <arg {{#literal}}literal="{{literal}}"{{/literal}} {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{value}}" evaluator="{{evaluator}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
         {{/args}}
     </args>
 </payloadFactory>`;
