@@ -217,3 +217,7 @@ export function getNewCloneTargetXml() {
     <sequence></sequence>
 </target>`
 }
+
+export function getTargetDescription(node: any) {
+    return node.sequenceAttribute;
+}

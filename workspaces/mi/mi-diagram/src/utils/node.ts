@@ -17,6 +17,7 @@ import { getSequenceDescription } from "./template-engine/mustach-templates/core
 import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
 import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
 import { getAggregateDescription } from "./template-engine/mustach-templates/eip/aggregate";
+import { getTargetDescription } from "./template-engine/mustach-templates/advanced/clone";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -57,6 +58,10 @@ export function getNodeDescription(name: string, stNode: any): string {
             return getPropertyDescription(stNode);
         }
         case (MEDIATORS.SEQUENCE): {
+            if (stNode.tag === "target") {
+                return getTargetDescription(stNode);
+            }
+
             return getSequenceDescription(stNode);
         }
         case (MEDIATORS.SWITCH): {
