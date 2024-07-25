@@ -56,7 +56,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				this._data = await getProjectStructureData(this.context, langClient);
+				this._data = await getProjectStructureData(langClient);
 				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
@@ -114,7 +114,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 }
 
-async function getProjectStructureData(context: vscode.ExtensionContext, langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
 	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
 		const data: ProjectExplorerEntry[] = [];
 		if (!!langClient) {
@@ -156,7 +156,6 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		generateTreeDataOfArtifacts(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
 		generateTreeDataOfDataMappings(project, data, projectRoot);
-		generateTreeDataOfRegistry(project, data, projectRoot);
 		return projectRoot;
 	}
 }
@@ -291,53 +290,6 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
 		}
-	}
-}
-
-function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
-	const directoryMap = data.directoryMap;
-	const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
-	if (resources && resources['registry']) {
-		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-		const parentEntry = new ProjectExplorerEntry(
-			'Registry',
-			isCollapsibleState(Object.keys(resources['registry']).length > 0),
-			{ name: 'Registry', path: regPath, type: 'registry' },
-		);
-		parentEntry.contextValue = 'registry';
-		parentEntry.id = 'registry';
-		const gov = resources['registry']['gov'];
-		const conf = resources['registry']['conf'];
-		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
-		const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
-		if (gov) {
-			const govEntry = new ProjectExplorerEntry(
-				'gov',
-				isCollapsibleState(isCollapsibleGov),
-				{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
-				'registry'
-			);
-			govEntry.id = 'gov';
-			govEntry.contextValue = 'gov';
-			govEntry.children = genRegistryProjectStructureEntry(gov);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(govEntry);
-		}
-		if (conf) {
-			const confEntry = new ProjectExplorerEntry(
-				'conf',
-				isCollapsibleState(isCollapsibleConf),
-				{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
-				'registry'
-			);
-			confEntry.id = 'conf';
-			confEntry.contextValue = 'conf';
-			confEntry.children = genRegistryProjectStructureEntry(conf);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(confEntry);
-		}
-		projectRoot.children = projectRoot.children ?? [];
-		projectRoot.children.push(parentEntry);
 	}
 }
 
@@ -698,75 +650,6 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		result.push(explorerEntry);
 	}
 
-	return result;
-}
-
-function checkExistanceOfRegistryResource(registryPath: string): boolean {
-	if (registryDetails.artifacts) {
-		for (const artifact of registryDetails.artifacts) {
-			let transformedPath = artifact.path.replace("/_system/governance", '/gov').replace("/_system/config", '/conf');
-			if (!artifact.isCollection) {
-				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
-			}
-			if (transformedPath === registryPath) {
-				return true;
-			}
-		}
-		return false;
-	}
-	return false;
-}
-
-function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
-	const result: ProjectExplorerEntry[] = [];
-	const regPathPrefix = path.join("wso2mi", "resources", "registry");
-	if (data) {
-		if (data.files) {
-			for (const entry of data.files) {
-				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
-					name: entry.name,
-					type: 'resource',
-					path: `${entry.path}`
-				}, 'code', true);
-				explorerEntry.id = entry.path;
-				explorerEntry.command = {
-					"title": "Edit Registry Resource",
-					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
-					"arguments": [vscode.Uri.file(entry.path)]
-				};
-				result.push(explorerEntry);
-				const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
-				const registryPath = entry.path.substring(lastIndex);
-				if (checkExistanceOfRegistryResource(registryPath)) {
-					explorerEntry.contextValue = "registry-with-metadata";
-				} else {
-					explorerEntry.contextValue = "registry-without-metadata";
-				}
-			}
-		}
-		if (data.folders) {
-			for (const entry of data.folders) {
-				if (entry.name !== ".meta") {
-					const explorerEntry = new ProjectExplorerEntry(entry.name,
-						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
-						{
-							name: entry.name,
-							type: 'resource',
-							path: `${entry.path}`
-						}, 'folder', true);
-					explorerEntry.children = genRegistryProjectStructureEntry(entry);
-					result.push(explorerEntry);
-					const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
-					const registryPath = entry.path.substring(lastIndex);
-					if (checkExistanceOfRegistryResource(registryPath)) {
-						explorerEntry.contextValue = "registry-with-metadata";
-					} else {
-						explorerEntry.contextValue = "registry-without-metadata";
-					}
-				}
-			}
-		}
-	}
 	return result;
 }
 

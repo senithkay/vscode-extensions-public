@@ -93,6 +93,12 @@ export interface ProjectStructureEntry {
     isRegistryResource?: boolean
 }
 
+export interface RegistryStructureEntry {
+    type: string,
+    name: string,
+    path: string,
+}
+
 export interface ResourceStructureEntry {
     uriTemplate: string,
     urlMapping: string,
