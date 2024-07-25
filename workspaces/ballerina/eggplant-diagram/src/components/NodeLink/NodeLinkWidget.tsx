@@ -14,6 +14,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
 import { Colors } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
+import { BaseNodeModel } from "../nodes/BaseNode";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -33,23 +34,16 @@ const fadeInZoomIn = keyframes`
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const {
-        componentPanel,
-        addNode: { setTargetMetadata },
-    } = useDiagramContext();
+    const { onAddNode } = useDiagramContext();
+
+    const linkColor = isHovered ? Colors.PRIMARY : Colors.ON_SURFACE;
 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
-        setTargetMetadata &&
-            setTargetMetadata({
-                topNodeId: link.sourceNode.getID(),
-                bottomNodeId: link.targetNode.getID(),
-                linkLabel: link.label,
-            });
-        componentPanel.show();
-        if (link.onAddClick) {
-            link.onAddClick();
+        const sourceNode = link.sourceNode as BaseNodeModel;
+        if (sourceNode.node) {
+            onAddNode(sourceNode.node);
         }
     };
 
@@ -66,7 +60,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 id={link.getID()}
                 d={link.getSVGPath()}
                 fill={"none"}
-                stroke={link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                stroke={link.showAddButton && linkColor}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
                 markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
@@ -87,9 +81,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 justifyContent: "center",
                                 alignItems: "center",
                                 borderRadius: "20px",
-                                border: `1.5px solid ${
-                                    link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE
-                                }`,
+                                border: `1.5px solid ${link.showAddButton && linkColor}`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                 padding: "2px 10px",
                                 boxSizing: "border-box",
@@ -98,7 +90,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                         >
                             <span
                                 style={{
-                                    color: link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
+                                    color: link.showAddButton && linkColor,
                                     fontSize: "14px",
                                     userSelect: "none",
                                 }}
@@ -149,10 +141,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     orient="auto"
                     id={`${link.getID()}-arrow-head`}
                 >
-                    <polygon
-                        points="0,4 0,0 4,2"
-                        fill={link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
-                    ></polygon>
+                    <polygon points="0,4 0,0 4,2" fill={link.showAddButton && linkColor}></polygon>
                 </marker>
             </defs>
         </g>

@@ -9,30 +9,21 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    CreateComponentRequest,
-    CreateProjectRequest,
-    Flow,
-    UpdateNodeRequest,
-    createComponent,
-    createProject,
-    getEggplantModel,
-    getProjectComponents,
-    getProjectStructure,
-    getWorkspaces,
-    updateEggplantModel,
-    updateNode
+    EggplantAvailableNodesRequest,
+    EggplantNodeTemplateRequest,
+    EggplantSourceCodeRequest,
+    getAvailableNodes,
+    getFlowModel,
+    getNodeTemplate,
+    getSourceCode
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { EggplantDiagramRpcManager } from "./rpc-manager";
 
 export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     const rpcManger = new EggplantDiagramRpcManager();
-    messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
-    messenger.onNotification(updateEggplantModel, (args: Flow) => rpcManger.updateEggplantModel(args));
-    messenger.onNotification(updateNode, (args: UpdateNodeRequest) => rpcManger.updateNode(args));
-    messenger.onNotification(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
-    messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
-    messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
-    messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
-    messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
+    messenger.onRequest(getFlowModel, () => rpcManger.getFlowModel());
+    messenger.onRequest(getSourceCode, (args: EggplantSourceCodeRequest) => rpcManger.getSourceCode(args));
+    messenger.onRequest(getAvailableNodes, (args: EggplantAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
+    messenger.onRequest(getNodeTemplate, (args: EggplantNodeTemplateRequest) => rpcManger.getNodeTemplate(args));
 }

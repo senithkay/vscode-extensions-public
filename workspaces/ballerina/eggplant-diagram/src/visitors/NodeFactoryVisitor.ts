@@ -13,7 +13,7 @@ import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { EMPTY_NODE_WIDTH } from "../resources/constants";
+import { EMPTY_NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, Node, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -25,7 +25,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     private lastNodeModel: NodeModel | undefined; // last visited flow node
 
     constructor() {
-        console.log("node factory visitor started");
+        console.log(">>> node factory visitor started");
     }
 
     private updateNodeLinks(node: Node, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {
@@ -123,7 +123,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         // create branches OUT links
         const endIfEmptyNode = this.createEmptyNode(
             `${node.id}-endif`,
-            node.viewState.x + node.viewState.w / 2 - EMPTY_NODE_WIDTH / 2,
+            node.viewState.x + (node.viewState.w - VSCODE_MARGIN) / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
         ); // TODO: move position logic to position visitor
 
@@ -210,6 +210,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitHttpApiPostCall(node: Node, parent?: Node): void {
+        if (node.id) {
+            this.createApiCallNode(node);
+        }
+    }
+
+    beginVisitActionCall(node: Node, parent?: Node): void {
         if (node.id) {
             this.createApiCallNode(node);
         }

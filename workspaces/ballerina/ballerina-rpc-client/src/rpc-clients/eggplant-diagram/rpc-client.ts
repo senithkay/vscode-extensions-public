@@ -9,24 +9,18 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    CreateComponentRequest,
-    CreateComponentResponse,
-    CreateProjectRequest,
+    EggplantAvailableNodesRequest,
+    EggplantAvailableNodesResponse,
     EggplantDiagramAPI,
-    EggplantModelResponse,
-    Flow,
-    ProjectComponentsResponse,
-    ProjectStructureResponse,
-    UpdateNodeRequest,
-    WorkspacesResponse,
-    createComponent,
-    createProject,
-    getEggplantModel,
-    getProjectComponents,
-    getProjectStructure,
-    getWorkspaces,
-    updateEggplantModel,
-    updateNode
+    EggplantFlowModelResponse,
+    EggplantNodeTemplateRequest,
+    EggplantNodeTemplateResponse,
+    EggplantSourceCodeRequest,
+    EggplantSourceCodeResponse,
+    getAvailableNodes,
+    getFlowModel,
+    getNodeTemplate,
+    getSourceCode
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -38,16 +32,20 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
         this._messenger = messenger;
     }
 
-    getEggplantModel(): Promise<EggplantModelResponse> {
-        return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
+    getFlowModel(): Promise<EggplantFlowModelResponse> {
+        return this._messenger.sendRequest(getFlowModel, HOST_EXTENSION);
     }
 
-    updateEggplantModel(params: Flow): void {
-        return this._messenger.sendNotification(updateEggplantModel, HOST_EXTENSION, params);
+    getSourceCode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        return this._messenger.sendRequest(getSourceCode, HOST_EXTENSION, params);
     }
 
-    updateNode(params: UpdateNodeRequest): void {
-        return this._messenger.sendNotification(updateNode, HOST_EXTENSION, params);
+    getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
+        return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
+    }
+
+    getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
+        return this._messenger.sendRequest(getNodeTemplate, HOST_EXTENSION, params);
     }
 
     createProject(params: CreateProjectRequest): void {

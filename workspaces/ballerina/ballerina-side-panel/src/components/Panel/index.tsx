@@ -8,49 +8,63 @@
  */
 
 import React from "react";
-import { Button, SidePanel, SidePanelBody, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanel, SidePanelTitleContainer } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources/constants";
 import styled from "@emotion/styled";
-import { CloseIcon } from "../../resources";
+import { BackIcon, CloseIcon } from "../../resources";
 
-export interface ComponentPanelProps {
+export interface PanelContainerProps {
     children?: React.ReactNode;
+    title: string;
     show: boolean;
     onClose(): void;
+    onBack?(): void;
 }
 
 namespace S {
+    export const Row = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+    `;
+
     export const StyledButton = styled(Button)`
         border-radius: 5px;
     `;
 }
 
-export function ComponentPanel(props: ComponentPanelProps) {
-    const { children, show, onClose } = props;
+export function PanelContainer(props: PanelContainerProps) {
+    const { children, title, show, onClose, onBack } = props;
 
     return (
         <SidePanel
             isOpen={show}
             alignmanet="right"
             sx={{
-                // top: "calc(50% - 300px)",
-                // left: "calc(50% - 250px)",
-                // width: "500px",
                 width: "400px",
-                // height: "600px",
-                // borderRadius: "10px",
                 fontFamily: "GilmerRegular",
                 backgroundColor: Colors.SURFACE_DIM,
                 boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
             }}
         >
             <SidePanelTitleContainer>
-                <div>Components</div>
+                <S.Row>
+                    {onBack && (
+                        <S.StyledButton appearance="icon" onClick={onBack}>
+                            <BackIcon />
+                        </S.StyledButton>
+                    )}
+                    {title}
+                </S.Row>
                 <S.StyledButton appearance="icon" onClick={onClose}>
                     <CloseIcon />
                 </S.StyledButton>
             </SidePanelTitleContainer>
-            <SidePanelBody>{children}</SidePanelBody>
+            {children}
         </SidePanel>
     );
 }
+
+export default PanelContainer;

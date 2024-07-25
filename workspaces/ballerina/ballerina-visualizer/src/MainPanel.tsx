@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { KeyboardNavigationManager, MachineStateValue, STModification, Flow, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
@@ -38,7 +38,7 @@ const globalStyles = css`
 
 const VisualizerContainer = styled.div`
     width: 100%;
-    height: 100%;
+    /* height: 100%; */
 `;
 
 const ComponentViewWrapper = styled.div`
@@ -97,7 +97,7 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.EggplantDiagram:
-                        setViewComponent(<EggplantDiagram />);
+                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree}/>);
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
@@ -162,9 +162,9 @@ const MainPanel = () => {
             <Global styles={globalStyles} />
             <VisualizerContainer>
                 {navActive && <NavigationBar />}
-                <ComponentViewWrapper>
+                {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
-                </ComponentViewWrapper>
+                </ComponentViewWrapper>}
             </VisualizerContainer>
         </>
     );

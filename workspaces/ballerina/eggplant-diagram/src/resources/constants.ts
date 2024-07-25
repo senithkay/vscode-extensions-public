@@ -101,3 +101,6 @@ export const NODE_GAP_X = 60;
 export const IF_NODE_WIDTH = 65;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
+
+// HACK
+export const VSCODE_MARGIN = 20;

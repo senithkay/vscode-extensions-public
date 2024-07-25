@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NODE_GAP_X, NODE_GAP_Y } from "../resources/constants";
+import { NODE_GAP_X, NODE_GAP_Y, VSCODE_MARGIN } from "../resources/constants";
 import { Branch, Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -17,7 +17,7 @@ export class PositionVisitor implements BaseVisitor {
     private lastNodeY = 200;
 
     constructor() {
-        console.log("position visitor started");
+        console.log(">>> position visitor started");
     }
 
     beginVisitEventHttpApi(node: Node, parent?: Node): void {
@@ -32,7 +32,7 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        const centerX = parent ? parent.viewState.x + parent.viewState.cw / 2 : this.diagramCenterX;
+        const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
         node.viewState.x = centerX - node.viewState.w / 2;
 
         const thenBranch = node.branches.find((branch) => branch.label === "Then");
@@ -65,9 +65,24 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         if (!node.viewState.x) {
-            const center = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
-            node.viewState.x = center - node.viewState.w / 2;
+            const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
+            node.viewState.x = centerX - node.viewState.w / 2;
+
         }
+    }
+
+    beginVisitEmpty(node: Node, parent?: Node): void {
+        // add empty node end of the block
+        if (node.id.endsWith("-last")) {
+            node.viewState.y = this.lastNodeY;
+            const centerX = parent
+                ? parent.viewState.x + (parent.viewState.w - VSCODE_MARGIN) / 2
+                : this.diagramCenterX;
+            node.viewState.x = centerX - node.viewState.w / 2;
+            return;
+        }
+        // normal node flow
+        this.beginVisitNode(node, parent);
     }
 
     skipChildren(): boolean {

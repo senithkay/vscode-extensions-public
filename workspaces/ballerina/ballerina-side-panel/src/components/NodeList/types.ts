@@ -7,5 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./ComponentPanel";
-export * from "./ComponentList";
+export type Item = Category | Node;
+
+export type Category = {
+    title: string;
+    description: string;
+    items: Item[];
+};
+
+export type Node = {
+    id: string;
+    label: string;
+    description: string;
+    icon?: React.ReactElement<SVGElement>;
+    enabled?: boolean;
+    metadata?: any;
+};

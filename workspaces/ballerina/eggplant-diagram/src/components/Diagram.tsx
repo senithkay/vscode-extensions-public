@@ -10,58 +10,72 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
+import { cloneDeep } from "lodash";
+import { Switch } from "@wso2-enterprise/ui-toolkit";
 import {
-    createNodesLink,
-    genDagreEngine,
     generateEngine,
     hasDiagramZoomAndPosition,
     loadDiagramZoomAndPosition,
     registerListeners,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeKind, NodeModel, TargetMetadata, Node } from "../utils/types";
+import { Flow, NodeModel, Node } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
-import { EmptyNodeModel } from "./nodes/EmptyNode";
-import { ComponentList, ComponentPanel } from "./ComponentPanel";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode?: (kind: NodeKind, target: TargetMetadata) => void;
+    onAddNode?: (parent: Node) => void;
     onNodeChange?: (node: Node) => void;
 }
 
 export function Diagram(props: DiagramProps) {
     const { model, onAddNode, onNodeChange } = props;
+    const [showErrorFlow, setShowErrorFlow] = useState(false);
+    const [hasErrorFlow, setHasErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
 
     useEffect(() => {
         if (diagramEngine) {
-            console.log(">>> diagram data", { model });
             const { nodes, links } = getDiagramData();
-            console.log(">>> diagram data", { nodes, links });
             drawDiagram(nodes, links);
         }
-    }, [model]);
+    }, [model, showErrorFlow]);
 
     const getDiagramData = () => {
-        const initVisitor = new InitVisitor(model);
-        traverseFlow(model, initVisitor);
+        // TODO: move to a separate function
+        // get only do block
+        let flowModel = cloneDeep(model);
+        const globalErrorHandleBlock = model.nodes.find((node) => node.kind === "ERROR_HANDLER");
+        if (globalErrorHandleBlock) {
+            setHasErrorFlow(true);
+            const branchLabel = showErrorFlow ? "On Fail" : "Body";
+            const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.label === branchLabel);
+            if (subFlow) {
+                // replace error handler block with success flow
+                flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
+            }
+        } else {
+            setHasErrorFlow(false);
+        }
+
+        const initVisitor = new InitVisitor(flowModel);
+        traverseFlow(flowModel, initVisitor);
         const sizingVisitor = new SizingVisitor();
-        traverseFlow(model, sizingVisitor);
+        traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
-        traverseFlow(model, positionVisitor);
+        traverseFlow(flowModel, positionVisitor);
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
-        traverseFlow(model, nodeVisitor);
+        traverseFlow(flowModel, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
@@ -79,32 +93,30 @@ export function Diagram(props: DiagramProps) {
         setDiagramModel(newDiagramModel);
         registerListeners(diagramEngine);
 
-        setTimeout(() => {
-            // const dagreEngine = genDagreEngine();
-            // dagreEngine.redistribute(newDiagramModel);
-            diagramEngine.setModel(newDiagramModel);
-            // remove loader overlay layer
-            const overlayLayer = diagramEngine
-                .getModel()
-                .getLayers()
-                .find((layer) => layer instanceof OverlayLayerModel);
-            if (overlayLayer) {
-                diagramEngine.getModel().removeLayer(overlayLayer);
-            }
+        // setTimeout(() => {
+        diagramEngine.setModel(newDiagramModel);
+        // remove loader overlay layer
+        const overlayLayer = diagramEngine
+            .getModel()
+            .getLayers()
+            .find((layer) => layer instanceof OverlayLayerModel);
+        if (overlayLayer) {
+            diagramEngine.getModel().removeLayer(overlayLayer);
+        }
 
-            const hasPreviousPosition = hasDiagramZoomAndPosition();
-            if (hasPreviousPosition) {
-                // reset canvas position to previous position
-                loadDiagramZoomAndPosition(diagramEngine);
-            } else {
-                // change canvas position to first node
-                const firstNode = newDiagramModel.getNodes().at(0);
-                diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
-            }
-            diagramEngine.repaintCanvas();
-            // update the diagram model state
-            setDiagramModel(newDiagramModel);
-        }, 500);
+        const hasPreviousPosition = hasDiagramZoomAndPosition();
+        if (hasPreviousPosition) {
+            // reset canvas position to previous position
+            loadDiagramZoomAndPosition(diagramEngine);
+        } else {
+            // change canvas position to first node
+            const firstNode = newDiagramModel.getNodes().at(0);
+            diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
+        }
+        diagramEngine.repaintCanvas();
+        // update the diagram model state
+        setDiagramModel(newDiagramModel);
+        // }, 100);
     };
 
     const handleCloseComponentPanel = () => {
@@ -115,9 +127,8 @@ export function Diagram(props: DiagramProps) {
         setShowComponentPanel(true);
     };
 
-    const handleAddNode = (kind: NodeKind, target: TargetMetadata) => {
-        console.log("Add node", { kind, target });
-        onAddNode && onAddNode(kind, target);
+    const toggleDiagramFlow = () => {
+        setShowErrorFlow(!showErrorFlow);
     };
 
     const context: DiagramContextState = {
@@ -127,20 +138,36 @@ export function Diagram(props: DiagramProps) {
             show: handleShowComponentPanel,
             hide: handleCloseComponentPanel,
         },
-        addNode: {},
+        onAddNode: onAddNode,
         onNodeUpdate: onNodeChange,
     };
 
     return (
         <>
+            {hasErrorFlow && (
+                <Switch
+                    leftLabel="Flow"
+                    rightLabel="On Error"
+                    checked={showErrorFlow}
+                    checkedColor="var(--vscode-button-background)"
+                    enableTransition={true}
+                    onChange={toggleDiagramFlow}
+                    sx={{
+                        margin: "auto",
+                        position: "fixed",
+                        top: "52px",
+                        right: "20px",
+                        zIndex: "2",
+                        border: "unset",
+                    }}
+                    disabled={false}
+                />
+            )}
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
                     </DiagramCanvas>
-                    <ComponentPanel show={showComponentPanel} onClose={handleCloseComponentPanel}>
-                        <ComponentList onAddNode={handleAddNode} />
-                    </ComponentPanel>
                 </DiagramContextProvider>
             )}
         </>

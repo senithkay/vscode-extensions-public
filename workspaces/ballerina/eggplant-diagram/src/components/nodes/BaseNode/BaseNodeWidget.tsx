@@ -27,7 +27,7 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH}px;
+        width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
@@ -44,6 +44,7 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
+        gap: 2px;
         width: 100%;
         padding: 8px;
     `;
@@ -83,11 +84,15 @@ export namespace NodeStyles {
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
+        max-width: ${NODE_WIDTH - 80}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        color: ${Colors.ON_SURFACE};
+        opacity: 0.7;
     `;
 
     export const Row = styled.div`
@@ -134,7 +139,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                        {model.node.description || "Lorem ipsum dolor sit amet"}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>

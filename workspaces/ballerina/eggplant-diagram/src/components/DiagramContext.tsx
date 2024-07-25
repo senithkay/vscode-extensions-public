@@ -17,12 +17,7 @@ export interface DiagramContextState {
         show(): void;
         hide(): void;
     };
-    addNode: {
-        targetMetadata?: TargetMetadata;
-        kind?: NodeKind;
-        setTargetMetadata?(metadata: TargetMetadata): void;
-        setKind?(kind: NodeKind): void;
-    };
+    onAddNode: (parent: Node) => void;
     onNodeUpdate: (node: Node) => void;
 }
 
@@ -33,7 +28,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         show: () => { },
         hide: () => { },
     },
-    addNode: {},
+    onAddNode: () => { },
     onNodeUpdate: () => { },
 });
 
@@ -46,12 +41,6 @@ export function DiagramContextProvider(props: { children: React.ReactNode; value
     // enrich context with optional states
     const ctx = {
         ...props.value,
-        addNode: {
-            targetMetadata: addNodeTargetMetadata,
-            kind: addNodeKind,
-            setTargetMetadata: setAddNodeTargetMetadata,
-            setKind: setAddNodeKind,
-        },
     };
 
     return <DiagramContext.Provider value={ctx}>{props.children}</DiagramContext.Provider>;
