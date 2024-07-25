@@ -42,8 +42,8 @@ export function getProxyServiceMustacheTemplate() {
         {{^customProxy}}
         {{#endpointName}}
         <endpoint name="{{endpointName}}">
-            {{#wsdlProxy}}<wsdl port="{{wsdlPort}}" service="{{wsdlService}}" uri="{{{wsdlUri}}}">{{/wsdlProxy}}
-            {{^wsdlProxy}}<address uri="{{{endpoint}}}">{{/wsdlProxy}}
+            {{#wsdlProxy}}<wsdl port="{{wsdlPort}}" service="{{wsdlService}}" uri="{{wsdlUri}}">{{/wsdlProxy}}
+            {{^wsdlProxy}}<address uri="{{endpoint}}">{{/wsdlProxy}}
                 <suspendOnFailure>
                     <initialDuration>-1</initialDuration>
                     <progressionFactor>1</progressionFactor>
@@ -56,7 +56,7 @@ export function getProxyServiceMustacheTemplate() {
         </endpoint>
         {{/endpointName}}
         {{^endpointName}}
-        <endpoint key="{{{endpoint}}}"/>
+        <endpoint key="{{endpoint}}"/>
         {{/endpointName}}
         {{/customProxy}}
         {{#loggingProxy}}
@@ -87,10 +87,10 @@ export function getProxyServiceMustacheTemplate() {
         {{/secureProxy}}
         {{#transformerProxy}}
         <inSequence>
-            <xslt key="{{{requestXslt}}}"/>
+            <xslt key="{{requestXslt}}"/>
         </inSequence>
         <outSequence>
-            {{#transformResponse}}<xslt key="{{{responseXslt}}}"/>{{/transformResponse}}
+            {{#transformResponse}}<xslt key="{{responseXslt}}"/>{{/transformResponse}}
             <send/>
         </outSequence>
         <faultSequence/>
@@ -106,7 +106,7 @@ export function getProxyServiceMustacheTemplate() {
     {{#secureProxy}}
     <enableSec/>
     {{/secureProxy}}
-    {{#publishContract}}<publishWSDL preservePolicy="true" uri="{{{wsdlUri}}}"/>{{/publishContract}}
+    {{#publishContract}}<publishWSDL preservePolicy="true" uri="{{wsdlUri}}"/>{{/publishContract}}
 </proxy>`;
 }
 

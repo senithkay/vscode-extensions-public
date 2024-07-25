@@ -28,15 +28,15 @@ export function getTemplateMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">
     {{#sequenceTemplate}}
-    {{#params}}<parameter {{#default}}defaultValue="{{{default}}}"{{/default}} isMandatory="{{isMandatory}}" name="{{{name}}}"/>{{/params}}
+    {{#params}}<parameter {{#default}}defaultValue="{{default}}"{{/default}} isMandatory="{{isMandatory}}" name="{{name}}"/>{{/params}}
     <sequence {{#stats}}statistics="enable"{{/stats}} {{#trace}}trace="enable"{{/trace}}>
     </sequence>{{/sequenceTemplate}}
     {{^sequenceTemplate}}
     <endpoint name="{{endpointName}}">
-        {{#addressTemplate}}<address uri="{{{address}}}">{{/addressTemplate}}
+        {{#addressTemplate}}<address uri="{{address}}">{{/addressTemplate}}
         {{#defaultTemplate}}<default>{{/defaultTemplate}}
-        {{#wsdlTemplate}}<wsdl port="{{wsdlPort}}" service="{{wsdlService}}" uri="{{{wsdlUri}}}">{{/wsdlTemplate}}
-        {{#httpTemplate}}<http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} uri-template="{{{uriTemplate}}}">{{/httpTemplate}}
+        {{#wsdlTemplate}}<wsdl port="{{wsdlPort}}" service="{{wsdlService}}" uri="{{wsdlUri}}">{{/wsdlTemplate}}
+        {{#httpTemplate}}<http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} uri-template="{{uriTemplate}}">{{/httpTemplate}}
             <suspendOnFailure>
                 <progressionFactor>1</progressionFactor>
             </suspendOnFailure>

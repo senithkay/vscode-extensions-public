@@ -702,6 +702,7 @@
     "@wso2-enterprise/mi-visualizer": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "@wso2-enterprise/mi-data-mapper-utils": "workspace:*",
+    "@wso2-enterprise/mi-diagram": "workspace:*",
     "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1",
     "yaml": "~2.4.3"
@@ -752,6 +753,7 @@
     "portfinder": "^1.0.32",
     "cors-anywhere": "^0.4.4",
     "@apidevtools/json-schema-ref-parser": "11.6.1",
-    "adm-zip": "~0.5.14"
+    "adm-zip": "~0.5.14",
+    "@wso2-enterprise/mi-diagram": "workspace:*"
   }
 }
