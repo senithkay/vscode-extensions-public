@@ -72,7 +72,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             const deleteAction: Item = {
                 id: "delete",
                 label: "Delete",
-                onClick: () => handleResourceDelete(resource, prevResource, parentTagEndPosition),
+                onClick: () => handleResourceDelete(resource, prevResource, parentTagEndPosition, index),
             };
             const moreActions: Item[] = [goToSourceAction, editAction, deleteAction];
             return {
@@ -230,7 +230,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const handleResourceDelete = (
         currentResource: APIResource,
         prevResource: APIResource | undefined,
-        parentTagEndPosition: Position
+        parentTagEndPosition: Position,
+        index: number
     ) => {
         const position: Position = parentTagEndPosition;
         let startPosition;
@@ -257,6 +258,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 },
             },
         });
+
+        localStorage.removeItem(`diagramViewState-${documentUri}-${index}`);
     };
 
     const handleResourceClick = (resource: Resource) => {
