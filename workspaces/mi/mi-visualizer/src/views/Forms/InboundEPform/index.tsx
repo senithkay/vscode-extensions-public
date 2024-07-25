@@ -420,10 +420,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 attempts++;
             }
         }
-
-        const ui = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
-            connectorName: uischema.uischema.name
-        });
         setIsDownloading(false);
     }
 
