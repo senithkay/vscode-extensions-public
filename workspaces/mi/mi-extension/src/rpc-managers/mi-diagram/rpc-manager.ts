@@ -1136,7 +1136,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             await replaceFullContentToFile(filePath, xmlData);
-            // openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: sequencePath });
             resolve({ path: sequencePath });
         });
     }
