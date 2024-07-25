@@ -441,12 +441,20 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 ...((values.type?.toLowerCase() === 'custom') ? getCustomParams() : {})
             }
         }
-        await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
-        openOverview();
+        const response = await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
+        if (response.path) {
+            openSequence(response.path);
+        } else {
+            openOverview();
+        }
     };
 
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
+
+    const openSequence = (sequencePath: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceView, documentUri: sequencePath } });
     };
 
     const handleOnClose = () => {

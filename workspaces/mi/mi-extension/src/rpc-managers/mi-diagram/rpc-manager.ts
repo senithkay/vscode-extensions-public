@@ -1109,12 +1109,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = getInboundEndpointXmlWrapper(templateParams);
 
-            const sequenceList = (await this.getEndpointsAndSequences()).data[1];
+            const endpointsAndSequences = await this.getEndpointsAndSequences();
+
+            const sequenceList = endpointsAndSequences.data[1];
+            const projectDir = ( await this.getProjectRoot({ path: directory })).path;
 
             let sequencePath = "";
             if (params.sequence) {
                 if (!(sequenceList.includes(params.sequence))) {
-                    const projectDir = ( await this.getProjectRoot({ path: directory })).path;
+                    
                     const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
                     const sequenceRequest: CreateSequenceRequest = {
                         name: params.sequence,
@@ -1128,13 +1131,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     const response = await this.createSequence(sequenceRequest);
                     sequencePath = response.filePath;
                 } else {
-                    sequencePath = path.join(directory, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${params.sequence}.xml`);
+                    sequencePath = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${params.sequence}.xml`);
                 }
             }
 
             await replaceFullContentToFile(filePath, xmlData);
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: sequencePath });
-            resolve({ path: filePath });
+            resolve({ path: sequencePath });
         });
     }
 
