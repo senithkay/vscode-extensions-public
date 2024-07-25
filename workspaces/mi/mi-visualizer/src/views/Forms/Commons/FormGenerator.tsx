@@ -120,6 +120,30 @@ export function FormGenerator(props: FormGeneratorProps) {
                         control={control}
                     />
                 );
+            case 'checkbox':
+                return (
+                    <FormCheckBox
+                        name={getNameForController(element.name)}
+                        label={element.displayName}
+                        control={control}
+                    />
+                );
+            case 'combo':
+                const comboitems = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
+                return (
+                    <AutoComplete
+                        name={getNameForController(element.name)}
+                        label={element.displayName}
+                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                        items={comboitems}
+                        value={field.value}
+                        onValueChange={(e: any) => {
+                            field.onChange(e);
+                        }}
+                        required={element.required === 'true'}
+                        allowItemCreate={false}
+                    />
+                );
             case 'stringOrExpression':
             case 'stringOrExpresion':
             case 'textOrExpression':
