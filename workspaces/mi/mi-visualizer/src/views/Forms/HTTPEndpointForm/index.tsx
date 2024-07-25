@@ -146,6 +146,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             otherwise: () =>
                 yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                    if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                 }),
         }),

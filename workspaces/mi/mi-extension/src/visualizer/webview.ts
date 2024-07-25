@@ -77,7 +77,9 @@ export class VisualizerWebview {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
             vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
 
-            if(this._panel?.active) refreshDiagram();
+            if(this._panel?.active && StateMachine.context().view === MACHINE_VIEW.DataMapperView) {
+                refreshDiagram();
+            } 
         });
     }
 
