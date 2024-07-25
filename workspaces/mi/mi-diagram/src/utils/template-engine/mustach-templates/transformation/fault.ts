@@ -58,7 +58,7 @@ export function getFaultXml(data: { [key: string]: any }) {
 
     if (data.serializeResponse == true && data.markAsResponse != true) {
         data.markAsResponse = false;
-    } else {
+    } else if (data.serializeResponse == false) {
         delete data.markAsResponse;
     }
 
