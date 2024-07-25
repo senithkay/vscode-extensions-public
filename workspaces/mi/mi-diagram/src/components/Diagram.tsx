@@ -75,7 +75,7 @@ export function Diagram(props: DiagramProps) {
     const scrollRef = useRef();
 
     const handleScroll = (e: any) => {
-        if (!diagramViewStateKey || diagramViewStateKey === "") {
+        if (!diagramViewStateKey || diagramViewStateKey === "" || !e?.target?.scrollTop) {
             return
         }
         localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop }));
@@ -88,7 +88,7 @@ export function Diagram(props: DiagramProps) {
         const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
         if (storedScrollPosition) {
             const { scrollPosition: prevScrollPosition } = JSON.parse(storedScrollPosition);
-            if (scrollRef.current && 'scrollTop' in scrollRef.current) {
+            if (scrollRef.current && 'scrollTop' in scrollRef.current && prevScrollPosition !== undefined) {
                 (scrollRef.current as any).scrollTop = prevScrollPosition;
             }
         }
