@@ -11,7 +11,7 @@ import { Datamapper } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export function getDatamapperMustacheTemplate() {
     return `
-    <datamapper{{#configurationLocalPath}} config="{{{configurationLocalPath}}}"{{/configurationLocalPath}}{{#inputSchemaLocalPath}} inputSchema="{{{inputSchemaLocalPath}}}"{{/inputSchemaLocalPath}}{{#inputType}} inputType="{{inputType}}"{{/inputType}}{{#outputSchemaLocalPath}} outputSchema="{{{outputSchemaLocalPath}}}"{{/outputSchemaLocalPath}}{{#outputType}} outputType="{{outputType}}"{{/outputType}} {{#description}} description="{{description}}"{{/description}}/>
+    <datamapper{{#configurationLocalPath}} config="{{configurationLocalPath}}"{{/configurationLocalPath}}{{#inputSchemaLocalPath}} inputSchema="{{inputSchemaLocalPath}}"{{/inputSchemaLocalPath}}{{#inputType}} inputType="{{inputType}}"{{/inputType}}{{#outputSchemaLocalPath}} outputSchema="{{outputSchemaLocalPath}}"{{/outputSchemaLocalPath}}{{#outputType}} outputType="{{outputType}}"{{/outputType}} {{#description}} description="{{description}}"{{/description}}/>
     `;
 }
 
