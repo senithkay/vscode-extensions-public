@@ -9,7 +9,6 @@
 
 import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
-// import { activate as activateDiagram } from './views/diagram';
 import { activate as activateBBE } from './views/bbe';
 import {
     activate as activateTelemetryListener, CMP_EXTENSION_CORE, sendTelemetryEvent,
@@ -21,8 +20,6 @@ import { activate as activateEditorSupport } from './features/editor-support';
 import { activate as activateTesting } from './features/testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
-// import { activate as activatePerformanceForecaster } from './views/forecaster';
-// import { activate as activateTryIt } from './views/tryIt/tryit';
 import { activate as activateNotebook } from './views/notebook';
 import { activate as activateLibraryBrowser } from './features/library-browser';
 import { activate as activateERDiagram } from './views/persist-layer-diagram';
@@ -75,7 +72,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export async function activate(context: ExtensionContext) { 
+export async function activate(context: ExtensionContext) {
     extension.context = context;
     // Wait for the ballerina extension to be ready
     await StateMachine.initialize();
@@ -89,30 +86,38 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     ballerinaExtInstance.setContext(extension.context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
+    // Activate Subscription Commands
+    activateSubscriptions();
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
+        // <------------ CORE FUNCTIONS ----------->
+        // Activate Library Browser
         activateLibraryBrowser(ballerinaExtInstance);
-        activateSubscriptions();
-        // start the features.
-        // Enable Ballerina diagram
-        // activateDiagram(ballerinaExtInstance);
-        // Enable Ballerina by examples
-        activateBBE(ballerinaExtInstance);
-        // Enable Ballerina Debug Config Provider
-        activateDebugConfigProvider(ballerinaExtInstance);
+
         // Enable Ballerina Project related features
         activateProjectFeatures();
+
+        // Enable Ballerina Debug Config Provider
+        activateDebugConfigProvider(ballerinaExtInstance);
+
+        // Activate editor support
         activateEditorSupport(ballerinaExtInstance);
-        // Enable performance forecaster
-        // activatePerformanceForecaster(ballerinaExtInstance);
-        // Enable try it views
-        // activateTryIt(ballerinaExtInstance);
-        // Enable Ballerina Telemetry listener
-        activateTelemetryListener(ballerinaExtInstance);
+
+        // Activate Ballerina Testing
         activateTesting(ballerinaExtInstance);
-        // // Enable Ballerina Notebook
+
+        // <------------ MAIN FEATURES ----------->
+        // Enable Ballerina by examples
+        activateBBE(ballerinaExtInstance);
+
+        // Enable Ballerina Notebook
         activateNotebook(ballerinaExtInstance);
+
         // activateDesignDiagramView(ballerinaExtInstance);
         activateERDiagram(ballerinaExtInstance);
+
+        // <------------ OTHER FEATURES ----------->
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
@@ -130,12 +135,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
-            cmds.forEach((cmd) => {
-                const cmdID: string = cmd.command;
-                commands.registerCommand(cmdID, () => {
-                    ballerinaExtInstance.showMessageInstallBallerina();
-                });
-            });
+            // cmds.forEach((cmd) => {
+            //     const cmdID: string = cmd.command;
+            //     commands.registerCommand(cmdID, () => {
+            //         ballerinaExtInstance.showMessageInstallBallerina();
+            //     });
+            // });
         }
         // When plugins fails to start, provide a warning upon each command execution
         else if (!ballerinaExtInstance.langClient) {

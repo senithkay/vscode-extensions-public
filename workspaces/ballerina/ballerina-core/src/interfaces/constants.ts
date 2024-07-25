@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const BALLERINA_COMMANDS = {
-    SHOW_VISUALIZER: 'ballerina.show.visualizer',
-};
+export enum SHARED_COMMANDS {
+    SHOW_VISUALIZER = 'ballerina.show.visualizer',
+    OPEN_EGGPLANT_WELCOME = 'ballerina.open.eggplant.welcome',
+    OPEN_SERVICE_FORM = 'ballerina.open.service.form',
+}

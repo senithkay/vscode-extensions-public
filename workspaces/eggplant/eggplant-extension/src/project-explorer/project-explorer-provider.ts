@@ -12,7 +12,9 @@ import { window } from 'vscode';
 import path = require('path');
 import * as fs from 'fs';
 import { VIEWS } from '../constants';
-import { BALLERINA_COMMANDS } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProjectComponents, ComponentInfo, SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
+import { extension } from "../eggplantExtentionContext";
+import { NodePosition } from '../../../../ballerina/syntax-tree/lib';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
     children: ProjectExplorerEntry[] | undefined;
@@ -43,7 +45,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
             location: { viewId: VIEWS.PROJECT_EXPLORER },
             title: 'Loading project structure'
         }, async () => {
-            await getProjectStructureData(this.context)
+        await getProjectStructureData()
                 .then(data => {
                     this._data = data;
                 })
@@ -56,7 +58,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor(private context: vscode.ExtensionContext) {
+    constructor() {
         this._data = [];
         this.refresh();
     }
@@ -105,24 +107,29 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
     }
 }
 
-async function getProjectStructureData(context: vscode.ExtensionContext): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
     if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
         const data: ProjectExplorerEntry[] = [];
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        for (const workspace of workspaceFolders) {
-            const projectTree = generateTreeData(workspace);
-            if (projectTree) {
-                data.push(projectTree);
-            }
-        };
-        if (data.length > 0) {
+        if (extension.langClient) {
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            for (const workspace of workspaceFolders) {
+                const rootPath = workspace.uri.fsPath;
+                const resp = await extension.langClient.getBallerinaProjectComponents({
+                    documentIdentifiers: [{ uri: vscode.Uri.file(rootPath).toString() }]
+                }) as BallerinaProjectComponents;
+                const projectTree = generateTreeData(workspace, resp);
+                if (projectTree) {
+                    data.push(projectTree);
+                }
+            };
             return data;
         }
     }
     return [];
+
 }
 
-function generateTreeData(project: vscode.WorkspaceFolder): ProjectExplorerEntry | undefined {
+function generateTreeData(project: vscode.WorkspaceFolder, components: BallerinaProjectComponents): ProjectExplorerEntry | undefined {
     const projectRootPath = project.uri.fsPath;
     const projectRootEntry = new ProjectExplorerEntry(
         `Project ${project.name}`,
@@ -133,7 +140,13 @@ function generateTreeData(project: vscode.WorkspaceFolder): ProjectExplorerEntry
 
     projectRootEntry.contextValue = 'eggplant-project';
 
-    const children = getEntries(projectRootPath);
+    projectRootEntry.command = {
+        "title": "Visualize",
+        "command": SHARED_COMMANDS.SHOW_VISUALIZER,
+        "arguments": [vscode.Uri.parse(projectRootPath), false]
+    };
+
+    const children = getEntriesEggplant(components);
     projectRootEntry.children = children;
 
     return projectRootEntry;
@@ -161,19 +174,74 @@ function getEntries(directoryPath: string): ProjectExplorerEntry[] {
             }
         } else if (stat.isFile() && item.endsWith('.bal')) {
             const fileEntry = new ProjectExplorerEntry(
-                item,
+                item.replace('.bal', ''),
                 vscode.TreeItemCollapsibleState.None,
                 itemPath,
                 'file'
             );
             fileEntry.command = {
                 "title": "Visualize",
-                "command": BALLERINA_COMMANDS.SHOW_VISUALIZER,
+                "command": SHARED_COMMANDS.SHOW_VISUALIZER,
                 "arguments": [vscode.Uri.parse(itemPath), false]
             };
             entries.push(fileEntry);
         }
     }
 
+    return entries;
+}
+
+function getEntriesEggplant(components: BallerinaProjectComponents): ProjectExplorerEntry[] {
+    const entries: ProjectExplorerEntry[] = [];
+    for (const pkg of components.packages) {
+        for (const module of pkg.modules) {
+            const serviceChildren = getComponents(module.services, pkg.filePath);
+            const serviceEntry = new ProjectExplorerEntry(
+                "Services",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                pkg.filePath,
+                'folder'
+            );
+            serviceEntry.children = serviceChildren;
+            entries.push(serviceEntry);
+
+            const folderChildren = getComponents(module.functions, pkg.filePath);
+            const folderEntry = new ProjectExplorerEntry(
+                "Task",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                pkg.filePath,
+                'folder'
+            );
+            folderEntry.children = folderChildren;
+            entries.push(folderEntry);
+        }
+    }
+
+    return entries;
+}
+
+function getComponents(components: ComponentInfo[], projectPath: string): ProjectExplorerEntry[] {
+    const entries: ProjectExplorerEntry[] = [];
+    for (const comp of components) {
+        const componentFile = vscode.Uri.joinPath(vscode.Uri.parse(projectPath), comp.filePath).fsPath;
+        const fileEntry = new ProjectExplorerEntry(
+            comp.name,
+            vscode.TreeItemCollapsibleState.None,
+            componentFile,
+            'file'
+        );
+        const position: NodePosition = {
+            endColumn: comp.endColumn,
+            endLine: comp.endLine,
+            startColumn: comp.startColumn,
+            startLine: comp.startLine
+        };
+        fileEntry.command = {
+            "title": "Visualize",
+            "command": SHARED_COMMANDS.SHOW_VISUALIZER,
+            "arguments": [vscode.Uri.parse(componentFile), position]
+        };
+        entries.push(fileEntry);
+    }
     return entries;
 }

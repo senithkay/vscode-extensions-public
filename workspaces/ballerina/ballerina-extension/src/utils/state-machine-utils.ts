@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { EggplantModelRequest, HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { EggplantModelRequest, HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
@@ -28,7 +28,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
                 return {
                     location: {
-                        view: "GraphQLDiagram",
+                        view: MACHINE_VIEW.GraphQLDiagram,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
                         position: position
@@ -37,7 +37,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             } else {
                 return {
                     location: {
-                        view: "ServiceDesigner",
+                        view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
                         position: position
@@ -50,7 +50,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         ) {
             return {
                 location: {
-                    view: "DataMapper",
+                    view: MACHINE_VIEW.DataMapper,
                     identifier: node.syntaxTree.functionName.value,
                     documentUri: documentUri,
                     position: position
@@ -64,7 +64,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             if (StateMachine.context().isEggplant) {
                 return {
                     location: {
-                        view: "EggplantDiagram",
+                        view: MACHINE_VIEW.EggplantDiagram,
                         documentUri: documentUri,
                         position: position
                     },
@@ -73,7 +73,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             }
             return {
                 location: {
-                    view: "SequenceDiagram",
+                    view: MACHINE_VIEW.SequenceDiagram,
                     documentUri: documentUri,
                     position: position
                 },
@@ -83,7 +83,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         }
     }
 
-    return { location: { view: "Overview", documentUri: documentUri } };
+    return { location: { view: MACHINE_VIEW.Overview, documentUri: documentUri } };
 }
 
 export function getComponentIdentifier(node: STNode): string {

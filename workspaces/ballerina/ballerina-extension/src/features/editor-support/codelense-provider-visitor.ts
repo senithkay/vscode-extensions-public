@@ -21,6 +21,7 @@ import {
 import { PALETTE_COMMANDS } from "../project";
 import { CodeLens, Range, Uri } from "vscode";
 import { checkIsPersistModelFile } from "../../views/persist-layer-diagram/activator";
+import { SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
 
 export class CodeLensProviderVisitor implements Visitor {
     activeEditorUri: Uri;
@@ -78,7 +79,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "Visualize code block",
-            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
+            command: SHARED_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, position]
         };
         this.codeLenses.push(codeLens);
@@ -94,7 +95,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "Visualize code block",
-            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
+            command: SHARED_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, position]
         };
         this.codeLenses.push(codeLens);
@@ -110,7 +111,7 @@ export class CodeLensProviderVisitor implements Visitor {
         codeLens.command = {
             title: "Visualize",
             tooltip: "View this entity in the Entity Relationship diagram",
-            command: PALETTE_COMMANDS.SHOW_VISUALIZER,
+            command: SHARED_COMMANDS.SHOW_VISUALIZER,
             arguments: [this.activeEditorUri.fsPath, recordName]
         };
         this.codeLenses.push(codeLens);

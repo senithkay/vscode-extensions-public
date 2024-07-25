@@ -9,13 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { HistoryEntry } from "../../history";
-import { VisualizerLocation } from "../../state-machine-types";
-import { UpdateUndoRedoMangerRequest } from "./interfaces";
+import { OpenViewRequest, UpdateUndoRedoMangerRequest } from "./interfaces";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
-export const openView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openView` };
-export const getHistory: RequestType<void, HistoryEntry[]> = { method: `${_preFix}/getHistory` };
+export const openView: NotificationType<OpenViewRequest> = { method: `${_preFix}/openView` };
+export const getHistory: NotificationType<void> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };

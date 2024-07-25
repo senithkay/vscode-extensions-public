@@ -38,7 +38,7 @@ export enum HTTP_METHOD {
 
 export function generateNewResourceFunction(data: ResourceDefinition): string {
     // Your Handlebars template
-    const templateString = `resource function {{{ METHOD }}} {{{ PATH }}} ( {{{ PARAMETERS }}} ) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}} {}`;
+    const templateString = `resource function {{{ METHOD }}} {{{ PATH }}} ( {{{ PARAMETERS }}} ) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}|http:InternalServerError {{/if}} {do {} on fail error e { return http:INTERNAL_SERVER_ERROR; }}`;
     // Compile the template
     const compiledTemplate = Handlebars.compile(templateString);
     // Apply data to the template
@@ -48,7 +48,7 @@ export function generateNewResourceFunction(data: ResourceDefinition): string {
 
 export function updateResourceFunction(data: ResourceDefinition): string {
     // Your Handlebars template
-    const templateString = `{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}}`;
+    const templateString = `{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}|http:InternalServerError {{/if}}`;
     // Compile the template
     const compiledTemplate = Handlebars.compile(templateString);
     // Apply data to the template

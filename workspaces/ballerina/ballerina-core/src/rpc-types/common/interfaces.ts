@@ -43,3 +43,11 @@ export interface BallerinaDiagnosticsRequest {
 export interface BallerinaDiagnosticsResponse {
     diagnostics: Diagnostic[];
 }
+
+export interface CommandsRequest {
+    commands: any[];
+}
+
+export interface CommandsResponse {
+    data: string;
+}

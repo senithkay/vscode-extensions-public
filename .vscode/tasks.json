@@ -2,6 +2,11 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "watch-all",
+            "dependsOn": ["watch-ballerina", "watch-eggplant"]
+        },
+        {
+            "label": "watch-ballerina",
             "type": "npm",
             "script": "watch",
             "path": "workspaces/ballerina/ballerina-extension",
@@ -43,6 +48,7 @@
             }
         },
         {
+            "label": "watch-eggplant",
             "type": "npm",
             "script": "watch-eggplant",
             "path": "workspaces/eggplant/eggplant-extension",

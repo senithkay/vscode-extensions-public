@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const ballerinaExt = vscode.extensions.getExtension('wso2.ballerina');
 	if (ballerinaExt) {
 		extension.context = context;
+		extension.langClient = ballerinaExt.exports.langClient;
 		StateMachine.initialize();
 		return;
 	}

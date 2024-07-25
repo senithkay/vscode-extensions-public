@@ -26,6 +26,7 @@ interface InputProps {
 
 export interface TextFieldProps extends ComponentProps<"input"> {
     label?: string;
+    labelAdornment?: ReactNode;
     id?: string;
     autoFocus?: boolean;
     icon?: IconProps;
@@ -62,7 +63,8 @@ const Description = styled.div<ContainerProps>`
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
-        placeholder, description, validationMessage, errorMsg, sx, InputProps, onTextChange, ...rest
+        placeholder, description, validationMessage, errorMsg, sx, InputProps, onTextChange,
+        labelAdornment, ...rest
     } = props;
 
     const [, setIsFocused] = React.useState(false);
@@ -117,15 +119,17 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                 onChange={handleChange}
                 onInput={handleChange}
-                value={props.value || ""}
             >
                 {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
-                <LabelContainer>
-                    <div style={{color: "var(--vscode-editor-foreground	)"}}>
-                        <label htmlFor={`${id}-label`}>{label}</label>
-                    </div>
-                    {(required && label) && (<RequiredFormInput />)}
-                </LabelContainer>
+                {label && (
+                    <LabelContainer>
+                        <div style={{color: "var(--vscode-editor-foreground	)"}}>
+                            <label htmlFor={`${id}-label`}>{label}</label>
+                        </div>
+                        {(required && label) && (<RequiredFormInput />)}
+                        {labelAdornment && labelAdornment}
+                    </LabelContainer>
+                )}
                 {description && (
                     <Description>
                         {description}

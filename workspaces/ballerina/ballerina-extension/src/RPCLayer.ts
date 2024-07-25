@@ -60,7 +60,14 @@ export class RPCLayer {
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
-        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, position: context.position, syntaxTree: context.syntaxTree });
+        resolve({
+            documentUri: context.documentUri,
+            view: context.view,
+            identifier: context.identifier,
+            position: context.position,
+            syntaxTree: context.syntaxTree,
+            isEggplant: context.isEggplant
+        });
     });
 }
 

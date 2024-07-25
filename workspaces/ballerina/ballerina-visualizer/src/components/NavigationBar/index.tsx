@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 import { NavButtonGroup } from "./NavButtonGroup";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { Breadcrumbs, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 interface NavigationBarProps {
@@ -34,7 +34,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const [history, setHistory] = useState<HistoryEntry[]>();
     rpcClient.getVisualizerRpcClient().getHistory().then(history => setHistory(history));
     
-    const fromDataMapper = history && history.length > 0 && history[history.length - 1].location.view === "DataMapper";
+    const fromDataMapper = history && history.length > 0 && history[history.length - 1].location.view === MACHINE_VIEW.DataMapper;
 
     const [activeLink, links] = useMemo(() => {
         if (fromDataMapper && history[history.length - 1].dataMapperDepth < history.length) {

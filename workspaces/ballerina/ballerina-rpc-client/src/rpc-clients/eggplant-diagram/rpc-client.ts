@@ -9,6 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateComponentRequest,
+    CreateComponentResponse,
+    CreateProjectRequest,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantDiagramAPI,
@@ -17,10 +20,18 @@ import {
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
+    ProjectComponentsResponse,
+    ProjectStructureResponse,
+    WorkspacesResponse,
+    createComponent,
+    createProject,
     getAvailableNodes,
     getFlowModel,
     getNodeTemplate,
-    getSourceCode
+    getProjectComponents,
+    getProjectStructure,
+    getSourceCode,
+    getWorkspaces
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -46,5 +57,25 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
 
     getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
         return this._messenger.sendRequest(getNodeTemplate, HOST_EXTENSION, params);
+    }
+
+    createProject(params: CreateProjectRequest): void {
+        return this._messenger.sendNotification(createProject, HOST_EXTENSION, params);
+    }
+
+    getWorkspaces(): Promise<WorkspacesResponse> {
+        return this._messenger.sendRequest(getWorkspaces, HOST_EXTENSION);
+    }
+
+    getProjectStructure(): Promise<ProjectStructureResponse> {
+        return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION);
+    }
+
+    getProjectComponents(): Promise<ProjectComponentsResponse> {
+        return this._messenger.sendRequest(getProjectComponents, HOST_EXTENSION);
+    }
+
+    createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+        return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
     }
 }

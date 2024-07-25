@@ -551,6 +551,10 @@
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 },
                 {
+                    "command": "ballerina.show.visualizer",
+                    "when": "editorLangId == ballerina"
+                },
+                {
                     "command": "ballerina.source.debug",
                     "when": "editorLangId != ballerina && !isBallerinaDiagram"
                 },
