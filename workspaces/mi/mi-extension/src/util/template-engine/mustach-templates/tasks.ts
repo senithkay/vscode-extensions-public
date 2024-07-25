@@ -36,7 +36,7 @@ export function getTaskMustacheTemplate() {
     <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{key}}" value="{{value}}"/>
     {{/isLiteral}}
     {{^isLiteral}}
-    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{key}}">{{value}}</property>
+    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{key}}">{{{value}}}</property>
     {{/isLiteral}}
     {{/key}}
     {{/taskProperties}}
