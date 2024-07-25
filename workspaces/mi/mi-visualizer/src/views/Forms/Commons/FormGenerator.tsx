@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, ComponentCard, FormCheckBox, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
@@ -183,10 +183,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                     <>
                         {element.value.groupName === "General" ? renderForm(element.value.elements) :
                             <>
-                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                <FormGroup
+                                    key={element.value.groupName}
+                                    title={`${element.value.groupName} Properties`}
+                                    isCollapsed={(element.value.groupName === "Advanced") ? true : false}
+                                >
                                     {renderForm(element.value.elements)}
-                                </ComponentCard>
+                                </FormGroup>
                             </>
                         }
                     </>

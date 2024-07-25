@@ -18,12 +18,18 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
+import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
+
+	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
+	await registryExplorerDataProvider.refresh(lsClient);
+	const registryTree = window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
+
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
@@ -214,7 +220,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	});
 	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+		const uri = Uri.file(documentUri?.fsPath);
+		workspace.openTextDocument(uri).then((document) => {
+			window.showTextDocument(document);
+		});
 	});
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;

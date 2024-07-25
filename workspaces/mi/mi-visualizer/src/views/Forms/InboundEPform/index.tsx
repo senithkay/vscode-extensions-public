@@ -439,7 +439,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         const createInboundEPParams = {
             directory: props.path,
             ...values,
-            type: values.type?.toLowerCase() ?? "custom",
+            type: values.type?.toLowerCase(),
             parameters: {
                 ...transformParams(values.parameters, true),
                 ...((values.type?.toLowerCase() === 'custom') ? getCustomParams() : {})

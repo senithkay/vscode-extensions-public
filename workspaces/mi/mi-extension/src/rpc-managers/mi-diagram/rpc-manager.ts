@@ -1114,7 +1114,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let sequencePath = "";
             if (params.sequence) {
                 if (!(sequenceList.includes(params.sequence))) {
-                    const sequenceDir = path.join(directory, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
+                    const projectDir = ( await this.getProjectRoot({ path: directory })).path;
+                    const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
                     const sequenceRequest: CreateSequenceRequest = {
                         name: params.sequence,
                         directory: sequenceDir,
