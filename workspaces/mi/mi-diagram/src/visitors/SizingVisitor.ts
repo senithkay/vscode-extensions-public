@@ -128,7 +128,7 @@ export class SizingVisitor implements Visitor {
                     subSequenceR = Math.max(subSequenceR, subSequenceWidth / 2);
                 } else if (subSequence.sequenceAttribute) {
                     subSequenceWidth = NODE_DIMENSIONS.REFERENCE.WIDTH;
-                    subSequenceHeight += NODE_DIMENSIONS.REFERENCE.HEIGHT;
+                    subSequenceHeight += NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
                     subSequenceL = NODE_DIMENSIONS.REFERENCE.WIDTH / 2;
                     subSequenceR = NODE_DIMENSIONS.REFERENCE.WIDTH / 2;
                 } else {
