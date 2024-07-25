@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import { ProjectStructureResponse, RegistryStructureEntry, RegistryResourcesFolder, ListRegistryArtifactsResponse } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
-import path = require('path');
+import * as path from 'path';
 import { getAvailableRegistryResources } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 
