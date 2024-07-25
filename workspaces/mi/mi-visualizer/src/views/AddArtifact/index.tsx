@@ -278,6 +278,7 @@ export function AddArtifactView() {
                                     />
                                     <Card 
                                         icon="arrow-swap"
+                                        isCodicon
                                         title="Proxy"
                                         description="Create a proxy service to process and route messages."
                                         onClick={() => handleClick("proxyServices")}

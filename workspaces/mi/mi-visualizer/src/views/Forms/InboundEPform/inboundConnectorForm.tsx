@@ -40,6 +40,7 @@ type InboundEndpoint = {
     name: string;
     type: string;
     sequence?: string;
+    protocol?: string;
     errorSequence?: string;
     suspend?: boolean;
     trace?: boolean;
@@ -83,7 +84,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     const handleCreateInboundConnector = async (values: any) => {
         const { name, type, sequence, onError, suspend, trace, statistics, behavior,
-            sequential, coordination, ...rest } = values;
+            sequential, coordination, protocol, ...rest } = values;
 
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
@@ -93,13 +94,14 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
         const inboundConnector: InboundEndpoint = {
             name,
-            type: "",
+            type,
             sequence,
             errorSequence: onError,
             suspend,
             trace,
             statistics,
             class: values.class,
+            protocol,
             behavior,
             interval: values.interval,
             sequential,
