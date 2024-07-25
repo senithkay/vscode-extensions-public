@@ -153,7 +153,7 @@ function getEdit(prefix: string, key: string, data: { [key: string]: any }, defa
     if (range) {
         editRange = {
             start: range.startTagRange.start,
-            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+            end: editStartTagOnly ? range.startTagRange.end : (range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end)
         }
     } else {
         let entitlementRange = defaultValues.ranges.entitlement;

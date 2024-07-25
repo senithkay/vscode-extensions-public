@@ -175,7 +175,7 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
     data.enclosingElementProperty = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.enclosingElementProperty;
     data.aggregationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression, namespaces: transformNamespaces(node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.namespaces) };
     data.sequenceKey = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.sequenceAttribute;
-    data.sequenceType = data.sequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.sequenceType = data.sequenceKey ? "REGISTRY REFERENCE" : "ANONYMOUS";
     data.ranges = {
         aggregate: node.range,
         correlateOn: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.range,
@@ -184,4 +184,11 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
     }
     data.onCompleteSelfClosed = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.selfClosed;
     return data;
+}
+
+export function getAggregateDescription(node: Aggregate) {
+    const onComplete = node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+    const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+    return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
 }

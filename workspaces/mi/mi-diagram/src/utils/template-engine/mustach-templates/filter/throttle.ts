@@ -166,7 +166,7 @@ function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, 
     if (range) {
         editRange = {
             start: range.startTagRange.start,
-            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+            end: editStartTagOnly ? range.startTagRange.end : (range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end)
         }
     } else {
         let throttleRange = defaultValues.ranges.throttle;

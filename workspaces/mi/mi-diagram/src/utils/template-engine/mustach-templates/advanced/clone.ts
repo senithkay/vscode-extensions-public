@@ -164,7 +164,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
                 targetData.removeSequence = defaultValues.targets[i][0] == "ANONYMOUS" && targetData.isRegistrySeqAndEndpoint;
                 let range = defaultValues.ranges.targets[i];
                 if (!targetData.addSequence && !targetData.removeSequence) {
-                    targetData.selfClosed = range.endTagRange.end ? false : true;
+                    targetData.selfClosed = range?.endTagRange?.end ? false : true;
                     editRange = {
                         start: range.startTagRange.start,
                         end: range.startTagRange.end
@@ -216,4 +216,8 @@ export function getNewCloneTargetXml() {
     return `<target>
     <sequence></sequence>
 </target>`
+}
+
+export function getTargetDescription(node: any) {
+    return node.sequenceAttribute;
 }

@@ -11,8 +11,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ReferenceNodeModel } from "./ReferenceNodeModel";
-import { Colors, MEDIATORS, NODE_DIMENSIONS } from "../../../resources/constants";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Colors, MEDIATORS, NODE_DIMENSIONS, OPEN_SEQUENCE_VIEW } from "../../../resources/constants";
+import { Aggregate, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -91,20 +91,30 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const description = getNodeDescription(node.mediatorName, node.stNode);
 
     useEffect(() => {
-        if (node.mediatorName === MEDIATORS.SEQUENCE) {
-            getDefinition();
-        } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
+        if (node.mediatorName === MEDIATORS.DATAMAPPER) {
             setCanOpenView(true);
+        } else {
+            getDefinition();
         }
     }, []);
 
     const getDefinition = async () => {
+        let range;
+        if (node.mediatorName === MEDIATORS.SEQUENCE) {
+            range = node.stNode.range.startTagRange
+        } else if (node.mediatorName === MEDIATORS.AGGREGATE) {
+            range = (node.stNode as Aggregate)?.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.range?.startTagRange;
+        }
+
+        if (!range) {
+            return;
+        }
         const text = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
             documentUri: node.documentUri,
-            range: node.stNode.range.startTagRange,
+            range
         });
 
-        const regex = /\s*(?:key|inSequence|outSequence|serviceName)\s*=\s*(['"])(.*?)\1/;
+        const regex = /\s*(?:key|inSequence|outSequence|serviceName|sequence)\s*=\s*(['"])(.*?)\1/;
         const match = text.text.match(regex);
         if (match) {
             const keyPart = match[0].split("=")[0];
@@ -122,10 +132,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 charPosition = valueLines[valueLines.length - 1].length;
             }
             const definitionPosition = {
-                line: node.stNode.range.startTagRange.start.line + keyLines.length - 1 + valueLines.length - 1,
+                line: range.start.line + keyLines.length - 1 + valueLines.length - 1,
                 character: keyLines.length > 1 || valueLines.length > 1 ?
                     charPosition :
-                    node.stNode.range.startTagRange.start.character + offsetBeforeKey + match[0].length,
+                    range.start.character + offsetBeforeKey + match[0].length,
             };
 
             const definition = await rpcClient.getMiDiagramRpcClient().getDefinition({
@@ -154,15 +164,20 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const handleOpenView = async (e?: any) => {
         if (e) e.stopPropagation();
 
-        if (node.mediatorName === MEDIATORS.SEQUENCE) {
-            if (definition) {
-                node.openSequenceDiagram(rpcClient, definition.uri);
-            }
-        } else if (node.mediatorName === MEDIATORS.DATASERVICECALL) {
+        if (node.mediatorName === MEDIATORS.DATASERVICECALL) {
             node.openDSSServiceDesigner(rpcClient, definition.uri);
         } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
             node.openDataMapperView(rpcClient);
+        } else if (definition && node.openViewName === OPEN_SEQUENCE_VIEW) {
+            node.openSequenceDiagram(rpcClient, definition.uri);
         }
+    }
+
+    const onClick = (e: any) => {
+        if (node.stNode.tag === "target") {
+            return;
+        }
+        node.onClicked(e, node, rpcClient, sidePanelContext);
     }
 
     const TooltipEl = useMemo(() => {
@@ -182,7 +197,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                     hovered={isHovered}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
+                    onClick={onClick}
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>

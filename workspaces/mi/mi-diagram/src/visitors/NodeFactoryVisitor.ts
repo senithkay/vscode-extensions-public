@@ -189,6 +189,7 @@ export class NodeFactoryVisitor implements Visitor {
             case NodeTypes.DATA_SERVICE_NODE:
                 diagramNode = new DataServiceNodeModel(node, name, this.documentUri);
                 break;
+            case NodeTypes.MEDIATOR_NODE:
             default:
                 type = NodeTypes.MEDIATOR_NODE;
                 diagramNode = new MediatorNodeModel(NodeTypes.MEDIATOR_NODE, node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
@@ -282,7 +283,7 @@ export class NodeFactoryVisitor implements Visitor {
                 } else if (sequence.sequenceAttribute) {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
                     sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
-                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, data: { referenceName: sequence.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, name: MEDIATORS.SEQUENCE, data: { referenceName: sequence.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
                 } else if (sequence.tag === "endpoint") {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
@@ -295,9 +296,10 @@ export class NodeFactoryVisitor implements Visitor {
 
                 // add the end node for each sub flow in group node
                 if (type === NodeTypes.GROUP_NODE) {
-                    sequence.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
-                    sequence.viewState.x = startNode.viewState.x;
-                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.END_NODE });
+                    const endNode = structuredClone(sequence);
+                    endNode.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
+                    endNode.viewState.x = startNode.viewState.x;
+                    this.createNodeAndLinks({ node: endNode, type: NodeTypes.END_NODE });
                 }
             }
         }
@@ -634,12 +636,22 @@ export class NodeFactoryVisitor implements Visitor {
 
     //EIP Mediators
     beginVisitAggregate(node: Aggregate): void {
-        this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.GROUP_NODE }))
-        this.parents.push(node);
+        const onComplete = node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+        const isSequnceReference = onComplete.sequenceAttribute !== undefined;
 
-        this.visitSubSequences(node, MEDIATORS.AGGREGATE, {
-            OnComplete: node.correlateOnOrCompleteConditionOrOnComplete.onComplete,
-        }, NodeTypes.GROUP_NODE, false)
+        if (isSequnceReference) {
+            this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: onComplete.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } }))
+
+        } else {
+            this.createNodeAndLinks(({ node, name: MEDIATORS.AGGREGATE, type: NodeTypes.GROUP_NODE }))
+        }
+
+        this.parents.push(node);
+        if (!isSequnceReference) {
+            this.visitSubSequences(node, MEDIATORS.AGGREGATE, {
+                OnComplete: onComplete,
+            }, NodeTypes.GROUP_NODE, false)
+        }
         this.skipChildrenVisit = true;
     }
     endVisitAggregate(node: Aggregate): void {
