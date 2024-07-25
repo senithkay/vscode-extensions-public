@@ -1100,7 +1100,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return new Promise(async (resolve) => {
             let { directory, ...templateParams } = params;
-            templateParams.type = templateParams.type.toLowerCase();
+            templateParams.type = templateParams?.type?.toLowerCase();
 
             if (directory.includes('inboundEndpoints')) {
                 directory = directory.replace('inboundEndpoints', 'inbound-endpoints');
