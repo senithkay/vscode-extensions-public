@@ -104,7 +104,7 @@ export function checkServerReadiness(): Promise<void> {
                             setTimeout(checkReadiness, retryInterval);
                         } else {
                             logDebug('Timeout reached while checking server readiness', ERROR_LOG);
-                            reject('CApp has encountered deployment issues. Please refer to the terminal for error logs.');
+                            reject('CApp has encountered deployment issues. Please refer to the ouput for error logs.');
                         }
                     }
                 })
@@ -114,7 +114,7 @@ export function checkServerReadiness(): Promise<void> {
                         setTimeout(checkReadiness, retryInterval);
                     } else {
                         logDebug(`Error while checking for Server readiness: ${error}`, ERROR_LOG);
-                        reject(`CApp has encountered deployment issues. Please refer to the terminal for error logs.`);
+                        reject(`CApp has encountered deployment issues. Please refer to the output for error logs.`);
                     }
                 });
         };

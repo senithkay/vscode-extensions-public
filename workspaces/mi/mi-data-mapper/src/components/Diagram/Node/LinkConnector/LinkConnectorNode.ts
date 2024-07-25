@@ -81,6 +81,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
+        const prevSourcePorts = this.sourcePorts;
         this.sourcePorts = [];
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
@@ -93,7 +94,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
             if (inputNode) {
-                this.sourcePorts.push(getInputPort(inputNode, field));
+                const inputPort = getInputPort(inputNode, field);
+                if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
+                    this.sourcePorts.push(inputPort);
+                }
             }
         })
 
@@ -129,7 +133,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                         );
                         const previouslyHidden = this.hidden;
                         this.hidden = this.targetMappedPort?.portName !== this.targetPort?.portName;
-                        if (this.hidden !== previouslyHidden) {
+                        if (this.hidden !== previouslyHidden
+                            || (prevSourcePorts.length !== this.sourcePorts.length
+                                || prevSourcePorts.map(port => port.getID()).join('')
+                                    !== this.sourcePorts.map(port => port.getID()).join('')))
+                        {
                             this.hasInitialized = false;
                         }
                     }
