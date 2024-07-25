@@ -15,7 +15,7 @@ export interface APIResourceArgs {
 }
 
 function getAPIResourceMustacheTemplate() {
-    return `<resource methods="{{methods}}"{{#uriTemplate}} uri-template="{{{uriTemplate}}}"{{/uriTemplate}}>
+    return `<resource methods="{{methods}}"{{#uriTemplate}} uri-template="{{uriTemplate}}"{{/uriTemplate}}>
     <inSequence>
     </inSequence>
     <faultSequence>

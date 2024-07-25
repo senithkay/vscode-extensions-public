@@ -147,11 +147,11 @@ export function getMessageStoreMustacheTemplate() {
     <messageStore name="{{name}}" class="{{className}}" xmlns="http://ws.apache.org/ns/synapse">  
     {{#params}}
         {{#value}}
-        <parameter name="{{{key}}}">{{{value}}}</parameter>
+        <parameter name="{{key}}">{{value}}</parameter>
         {{/value}}   
     {{/params}}
         {{#isResequence}}
-        <parameter expression="{{{xPath}}}" name="store.resequence.id.path" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}/>
+        <parameter expression="{{xPath}}" name="store.resequence.id.path" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>
         {{/isResequence}}    
     </messageStore>`;
 }
