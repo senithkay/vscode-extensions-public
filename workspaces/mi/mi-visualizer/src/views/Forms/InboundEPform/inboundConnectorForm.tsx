@@ -37,20 +37,8 @@ export interface AddInboundConnectorProps {
 }
 
 type InboundEndpoint = {
-    name: string;
-    type: string;
-    sequence?: string;
-    protocol?: string;
-    errorSequence?: string;
-    suspend?: boolean;
-    trace?: boolean;
-    statistics?: boolean;
     parameters: {};
-    class: string;
-    behavior: string;
-    interval: string;
-    sequential: boolean;
-    coordination: boolean;
+    attributes: {};
 };
 
 export function AddInboundConnector(props: AddInboundConnectorProps) {
@@ -71,7 +59,31 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     }, [parameters]);
 
     function getOriginalName(name: string) {
-        return name.replace('__dot__', '.');
+        return name.replace(new RegExp("__dot__", 'g'), '.');
+    }
+
+    function getGenericAttributeNames(jsonData: any) {
+        const genericGroup = jsonData.elements.find((element: any) =>
+            element.type === "attributeGroup" && element.value.groupName === "Generic"
+        );
+        if (genericGroup) {
+            return genericGroup.value.elements
+                .filter((element: any) => element.type === "attribute")
+                .map((attribute: any) => attribute.value.name);
+        }
+        return [];
+    }
+
+    function extractProperties(values: any, attributeNames: string[]) {
+        const attrFields: any = {};
+        const paramFields = { ...values };
+        attributeNames.forEach(name => {
+            if (paramFields.hasOwnProperty(name)) {
+                attrFields[name] = paramFields[name];
+                delete paramFields[name];
+            }
+        });
+        return { attrFields, paramFields };
     }
 
     const renderProps = (fieldName: keyof InboundEndpoint) => {
@@ -83,29 +95,17 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     };
 
     const handleCreateInboundConnector = async (values: any) => {
-        const { name, type, sequence, onError, suspend, trace, statistics, behavior,
-            sequential, coordination, protocol, ...rest } = values;
+        const attributeNames = getGenericAttributeNames(formData);
+        const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
-            Object.entries(rest).map(([key, value]) => [getOriginalName(key), value])
+            Object.entries(paramFields).map(([key, value]) => [getOriginalName(key), value])
             .filter(([_, value]) => typeof value !== 'object' || value === null)
         );
 
         const inboundConnector: InboundEndpoint = {
-            name,
-            type,
-            sequence,
-            errorSequence: onError,
-            suspend,
-            trace,
-            statistics,
-            class: values.class,
-            protocol,
-            behavior,
-            interval: values.interval,
-            sequential,
-            coordination,
+            attributes: attrFields,
             parameters: transformedParameters
         };
 
