@@ -31,6 +31,10 @@ inputs:
     description: 'Is API Chat'    
     type: boolean
     default: false 
+  mi:
+    description: 'Is MI'    
+    type: boolean
+    default: false 
   commonLibs:
     description: 'Is Common Lib'    
     type: boolean
@@ -70,6 +74,11 @@ runs:
         if: ${{ inputs.apiChat == 'true' }}
         shell: bash
         run: git add workspaces/api-chat/*/*.json
+        
+      - name: Add MI git changes
+        if: ${{ inputs.mi == 'true' }}
+        shell: bash
+        run: git add workspaces/mi/*/*.json
 
       - name: Commit version
         shell: bash
