@@ -567,7 +567,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TASK") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, entry.type);
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
 				"title": "Show Task",
@@ -593,11 +593,13 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
-			let icon = 'code';
+			let icon = 'local-entry';
+			let isCodicon = false;
 			if (entry.isRegistryResource) {
 				icon = 'file-code';
+				isCodicon = true;
 			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
 			explorerEntry.contextValue = 'localEntry';
 			explorerEntry.command = {
 				"title": "Show Local Entry",
@@ -612,7 +614,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				entry.name,
 				isCollapsibleState(false),
 				entry,
-				'code',
+				'vm-connect',
 				true
 			);
 			explorerEntry.contextValue = 'connection';
@@ -625,7 +627,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		}
 		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 		else if (entry.type === "DATA_SOURCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, "data-source");
 			explorerEntry.contextValue = 'dataSource';
 			explorerEntry.command = {
 				"title": "Show Data Source",
@@ -633,7 +635,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "DATA_SERVICE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, "data-service");
 			explorerEntry.contextValue = 'data-service';
 			explorerEntry.command = {
 				"title": "Show Data Service",
