@@ -145,7 +145,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
-		if (viewLocation.documentUri && viewLocation.projectUri && data) {
+		if (viewLocation.documentUri && viewLocation.projectUri && data && projectTree.visible) {
 			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
 			if (project) {
 				projectTree.reveal(project, { select: true });

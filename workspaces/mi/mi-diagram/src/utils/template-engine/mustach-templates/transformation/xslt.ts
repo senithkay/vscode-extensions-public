@@ -53,6 +53,8 @@ export function getXsltXml(data: { [key: string]: any }) {
   if (data.xsltSchemaKey?.isExpression) {
     data.xsltSchemaKey.value = "{" + data.xsltSchemaKey.value + "}";
   }
+  if ((!data.sourceXPath.expression || data.sourceXPath.expression == "") &&
+     (!data.sourceXPath.value || data.sourceXPath.value == "")) delete data.sourceXPath;
   data.namespaces = getNamespaces(data);
   const output = Mustache.render(getXsltMustacheTemplate(), data)?.trim();
   return output;

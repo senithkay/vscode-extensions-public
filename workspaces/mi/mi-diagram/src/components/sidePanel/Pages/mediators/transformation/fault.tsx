@@ -245,11 +245,21 @@ const FaultForm = (props: AddMediatorProps) => {
                     <Controller
                         name="reason"
                         control={control}
+                        rules={
+                            {
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
                         render={({ field }) => (
                             <ExpressionField
                                 {...field} label="Reason"
                                 placeholder=""
-                                required={false}
+                                required={true}
                                 errorMsg={errors?.reason?.message?.toString()}
                                 canChange={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
