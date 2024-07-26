@@ -49,6 +49,7 @@ on:
 
 jobs:
   Build:
+    name: Build branch - ${{ github.ref_name }}
     uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
@@ -167,10 +168,12 @@ jobs:
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ref_name: ${{ github.ref_name }}
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           apk: ${{ inputs.apk }}
           apiChat: ${{ inputs.api-chat }}
+          mi: ${{ inputs.mi }}
 
   Notify:
     needs: [Release]

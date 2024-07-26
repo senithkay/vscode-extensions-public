@@ -14,7 +14,7 @@ import { transformNamespaces } from "../../../commons";
 export function getFaultMustacheTemplate() {
     return `
     <makefault {{#serializeResponse}}response="{{markAsResponse}}"{{/serializeResponse}} description="{{description}}" version="{{soapVersion}}" >
-        {{^isPox}}<code value="{{soapVersion}}Env:{{code}}" xmlns:{{soapVersion}}Env="http://schemas.xmlsoap.org/soap/envelope/" />{{/isPox}}
+        {{^isPox}}<code value="{{soapVersion}}Env:{{code}}" xmlns:{{soapVersion}}Env="{{soapUri}}" />{{/isPox}}
         {{#hasReason}}<reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/reasonExpression}} />{{/hasReason}}
         {{#actor}}<role>{{actor}}</role>{{/actor}}
         {{#node}}<node>{{node}}</node>{{/node}}
@@ -42,12 +42,13 @@ export function getFaultXml(data: { [key: string]: any }) {
     data.hasReason = data.reasonValue || data.reasonExpression;
     data.soapVersion = data.soapVersion.toLowerCase();
     if (data.soapVersion == "soap11") {
+        data.soapUri = "http://schemas.xmlsoap.org/soap/envelope/";
         data.code = data.soap11;
         delete data.Role;
         delete data.node;
     }
     else if (data.soapVersion == "soap12") {
-        data.code = data.soap12;
+        data.soapUri = "http://www.w3.org/2003/05/soap-envelope";
         delete data.actor;
     } else if (data.soapVersion == "pox") {
         delete data.actor;

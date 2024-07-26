@@ -189,6 +189,7 @@ const CallForm = (props: AddMediatorProps) => {
                         />
                     </Field>
 
+                    {watch("enableBlockingCalls") == true &&
                     <Field>
                         <Controller
                             name="initAxis2ClientOptions"
@@ -198,6 +199,7 @@ const CallForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </Field>
+                    }
 
                     <Field>
                         <Controller
