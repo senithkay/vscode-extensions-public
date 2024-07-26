@@ -168,6 +168,7 @@ jobs:
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ref_name: ${{ github.ref_name }}
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           apk: ${{ inputs.apk }}

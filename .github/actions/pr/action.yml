@@ -19,6 +19,9 @@ inputs:
     description: 'Is Choreo'
     type: boolean
     default: false
+  ref_name:
+    description: 'Branch name'
+    required: true  
   ballerina:
     description: 'Is Ballerina'    
     type: boolean
@@ -90,6 +93,7 @@ runs:
           git tag ${{ inputs.version }}
           git push origin "refs/heads/${{ inputs.version }}" "refs/tags/${{ inputs.version }}"
           pr=$(gh pr create -B main -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into main' --body '$subject')
+          gh pr create -B "${{ inputs.ref_name }}" -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into "${{ inputs.ref_name }}"' --body '$subject'
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ inputs.bot_token }}
