@@ -65,7 +65,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     documentPath: props.path
                 });
 
-                setConnectorSchema(response.uiSchema);
+                setConnectorSchema(response?.uiSchema);
             } else {
                 fetchConnectors();
             }
@@ -166,7 +166,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     return (
         <FormView title={formTitle} onClose={handleOnClose}>
-
             {connectorSchema ? (
                 <AddInboundConnector formData={connectorSchema} path={props.path} setType={changeType}
                     handleCreateInboundEP={handleCreateInboundEP} model={props?.model} />
