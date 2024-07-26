@@ -7,6 +7,7 @@
         "build:bbe": "rush build -o @ballerina/ballerina-by-examples",
         "build:choreoClient": "rush build -o @wso2-enterprise/choreo-client",
         "build:choreoWebviews": "rush build -o @wso2-enterprise/choreo-vscode-webviews",
+        "build:cellDiagram": "rush build -o @wso2-enterprise/cell-diagram",
         "build:configEditor": "rush build -o @wso2-enterprise/ballerina-configurable-editor",
         "build:dataMapper": "rush build -o @wso2-enterprise/ballerina-data-mapper",
         "build:expressionEditor": "rush build -o @wso2-enterprise/ballerina-expression-editor",
@@ -14,6 +15,8 @@
         "build:lcd": "rush build -o @wso2-enterprise/ballerina-low-code-diagram",
         "build:lced": "rush build -o @wso2-enterprise/ballerina-low-code-editor-distribution",
         "build:lce": "rush build -o @wso2-enterprise/ballerina-low-code-editor",
+        "build:visualizer": "rush build -o @wso2-enterprise/ballerina-visualizer",
+        "build:overview": "rush build -o @wso2-enterprise/overview-view",
         "build:lcec": "rush build -o @wso2-enterprise/ballerina-low-code-edtior-commons",
         "build:lcTests": "rush build -o @wso2-enterprise/ballerina-low-code-integration-tests",
         "build:lceUi": "rush build -o @wso2-enterprise/ballerina-low-code-edtior-ui-components",
@@ -26,7 +29,11 @@
         "build:variableView": "rush build -o variableview-lib",
         "build:choreoExtention": "rush build -o choreo",
         "build:ballerinExtension": "rush build -o ballerina",
+        "build:fhirToolsExtension": "rush build -o fhir-tools",
         "build": "rush build",
+        "build:ballerina": "rush build --to ballerina",
+        "build:choreo": "rush build --to choreo",
+        "build:mi": "rush build --to micro-integrator",
         "setup-e2e-test-debug": "workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver",
         "ui-toolkit-stories": "npm run --prefix ./workspaces/common-libs/ui-toolkit serve-storybook"
     }

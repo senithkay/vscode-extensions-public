@@ -15,14 +15,14 @@ import { join } from "path";
 
 export const CHOREO_PROJECTS_PATH = join(__dirname, '..', '..', '..', '..','src', 'tests', 'e2e-tests', 'test-projects');
 
-export const ARCHITECTURE_VIEW_COMMAND = 'Ballerina: Architecture View';
-export const CELL_VIEW_COMMAND = 'Ballerina: Cell View';
+export const CELL_VIEW_COMMAND = 'Choreo: View Choreo Cell Diagram';
 export const ADD_CHOREO_COMPONENT_COMMAND = 'Choreo: Create New Component';
 export const SIGN_IN_COMMAND =  'Choreo: Sign In';
 export const SIGN_OUT_COMMAND =  'Choreo: Sign Out';
 export const SIGN_IN_WITH_AUTH_CODE = 'Sign In with Auth Code';
 export const ADD_CHOREO_PROJECT_COMMAND = 'Choreo: Create New Project';
 export const STAGE_CHANGES_COMMAND = 'Git: Stage All Changes';
+export const GIT_REFRESH_COMMAND = 'Git: Refresh';
 export const COMMIT_STAGED_COMMAND = 'Git: Commit Staged';
 export const GIT_PUSH_COMMAND = 'Git: Push';
 export const DELETE_PROJECT = "Choreo: Delete Choreo Project";

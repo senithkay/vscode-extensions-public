@@ -1,0 +1,344 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { useEffect, useState } from "react";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { Button, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { initialEndpoint, InputsFields, paramTemplateConfigs, propertiesConfigs, oauthPropertiesConfigs } from "./Types";
+import { TypeChip } from "../Commons";
+import Form from "./Form";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
+
+export interface HttpEndpointWizardProps {
+    path: string;
+    type: string;
+    isPopup?: boolean;
+}
+
+export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
+
+    const schema = yup.object({
+        endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+                .test('validateEndpointName',
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                    })
+                .test('validateEndpointArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                    }) :
+            yup.string().required("Endpoint Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+        traceEnabled: yup.string(),
+        statisticsEnabled: yup.string(),
+        uriTemplate: yup.string().required("URI template is required")
+            .matches(/^\$.+$|^\{.+\}$|^\w\w+:\/.*|file:.*|mailto:.*|vfs:.*|jdbc:.*/, "Invalid URI format"),
+        httpMethod: yup.string().required("HTTP method is required"),
+        description: yup.string(),
+        requireProperties: yup.boolean(),
+        properties: yup.array(),
+        authType: yup.string(),
+        basicAuthUsername: yup.string().when('authType', {
+            is: 'Basic Auth',
+            then: (schema) => schema.required('Basic Auth Username is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        basicAuthPassword: yup.string().when('authType', {
+            is: 'Basic Auth',
+            then: (schema) => schema.required('Basic Auth Password is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        authMode: yup.string(),
+        grantType: yup.string(),
+        clientId: yup.string().when('authType', {
+            is: 'OAuth',
+            then: (schema) => schema.required('Client ID is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        clientSecret: yup.string().when('authType', {
+            is: 'OAuth',
+            then: (schema) => schema.required('Client Secret is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        tokenUrl: yup.string().when('authType', {
+            is: 'OAuth',
+            then: (schema) => schema.required('Token URL is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        refreshToken: yup.string().when(['authType', 'grantType'], {
+            is: (authType: any, grantType: any) => grantType === 'Authorization Code' && authType === 'OAuth',
+            then: (schema) => schema.required('Refresh token is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        username: yup.string().when('grantType', {
+            is: 'Password',
+            then: (schema) => schema.required('Username is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        password: yup.string().when('grantType', {
+            is: 'Password',
+            then: (schema) => schema.required('Password is required'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        requireOauthParameters: yup.boolean(),
+        oauthProperties: yup.array(),
+        addressingEnabled: yup.string(),
+        addressingVersion: yup.string(),
+        addressListener: yup.string(),
+        securityEnabled: yup.string(),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
+        suspendErrorCodes: yup.string(),
+        initialDuration: yup.number().typeError('Initial Duration must be a number'),
+        maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
+        progressionFactor: yup.number().typeError('Progression Factor must be a number'),
+        retryErrorCodes: yup.string(),
+        retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0"),
+        retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay must be greater than or equal to 0"),
+        timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
+        timeoutAction: yup.string(),
+        templateName: props.type === 'template' ? yup.string().required("Template Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Template Name")
+                .test('validateTemplateName',
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                    })
+                .test('validateTemplateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                    }) :
+            yup.string().notRequired().default(""),
+        requireTemplateParameters: yup.boolean(),
+        templateParameters: yup.array(),
+        saveInReg: yup.boolean(),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                    if (formattedPath === undefined) return true;
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"])
+    });
+
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        setValue,
+        control,
+        getValues
+    } = useForm({
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+    const { rpcClient } = useVisualizerContext();
+    const isNewEndpoint = !props.path.endsWith(".xml");
+    const isTemplate = props.type === 'template';
+    const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
+    const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
+    const [additionalOauthParams, setAdditionalOauthParams] = useState(oauthPropertiesConfigs);
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            if (!isNewEndpoint) {
+                const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getHttpEndpoint({ path: props.path });
+                setTemplateParams((prev: any) => ({
+                    paramFields: prev.paramFields,
+                    paramValues: existingEndpoint.templateParameters.map((param: any, index: number) => ({
+                        id: prev.paramValues.length + index,
+                        paramValues: [{ value: param}],
+                        key: index + 1,
+                        value: param,
+                    }))
+                }));
+
+                setAdditionalParams((prev: any) => ({
+                    paramFields: prev.paramFields,
+                    paramValues: existingEndpoint.properties.map((param: any, index: number) => ({
+                        id: prev.paramValues.length + index,
+                        paramValues: [
+                            { value: param.name },
+                            { value: param.value },
+                            { value: param.scope }
+                        ],
+                        key: param.name,
+                        value: "value:" + param.value + "; scope:" + param.scope + ";",
+                    }))
+                }));
+
+                setAdditionalOauthParams((prev: any) => ({
+                    paramFields: prev.paramFields,
+                    paramValues: existingEndpoint.oauthProperties.map((param: any, index: number) => ({
+                        id: prev.paramValues.length + index,
+                        paramValues: [
+                            { value: param.key },
+                            { value: param.value }
+                        ],
+                        key: param.key,
+                        value: param.value,
+                    }))
+                }));
+                reset(existingEndpoint);
+                setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
+                setValue('saveInReg', false);
+                setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
+                    existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1)
+                );
+            } else {
+                reset(initialEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
+            }
+
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
+    }, [props.path]);
+
+    const handleUpdateHttpEndpoint = async (values: any) => {
+        const updateHttpEndpointParams: UpdateHttpEndpointRequest = {
+            directory: props.path,
+            getContentOnly: watch("saveInReg"),
+            ...values,
+        }
+
+        const result = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
+        if (watch("saveInReg")) {
+            await saveToRegistry(rpcClient, props.path, values.registryType,
+                isTemplate ? values.templateName : values.endpointName,
+                result.content, values.registryPath, values.artifactName);
+        }
+        openOverview();
+    };
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
+
+    const changeType = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: isTemplate ? MACHINE_VIEW.TemplateForm : MACHINE_VIEW.EndPointForm,
+                documentUri: props.path,
+                customProps: { type: isTemplate ? 'template' : 'endpoint' }
+            },
+            isPopup: props.isPopup
+        });
+    }
+
+    const openOverview = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.Overview },
+            isPopup: props.isPopup
+        });
+    };
+
+    return (
+        <FormView
+            title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
+            onClose={openOverview}
+            hideClose={props.isPopup}
+        >
+            <TypeChip
+                type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
+            />
+            <Form
+                renderProps={renderProps}
+                register={register}
+                watch={watch}
+                setValue={setValue}
+                control={control}
+                path={props.path}
+                errors={errors}
+                isTemplate={isTemplate}
+                templateParams={templateParams}
+                setTemplateParams={setTemplateParams}
+                additionalParams={additionalParams}
+                setAdditionalParams={setAdditionalParams}
+                additionalOauthParams={additionalOauthParams}
+                setAdditionalOauthParams={setAdditionalOauthParams}
+            />
+            {isNewEndpoint && (
+                <>
+                    <FormCheckBox
+                        label="Save the sequence in registry"
+                        {...register("saveInReg")}
+                        control={control}
+                    />
+                    {watch("saveInReg") && (<>
+                        <AddToRegistry path={props.path}
+                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                            register={register} errors={errors} getValues={getValues} />
+                    </>)}
+                </>
+            )}
+            <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleUpdateHttpEndpoint)}
+                    disabled={!isDirty}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
+                <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+            </FormActions>
+        </FormView>
+    );
+}

@@ -117,7 +117,6 @@ export interface LowCodeEditorAPI {
     }
     webView: {
         showTryitView: (serviceName: string) => void;
-        showDocumentationView?: (url: string) => void;
     }
     project: {
         run: (args: any[]) => void;

@@ -75,16 +75,14 @@ export function getDiagramProviderProps(
     navigateUptoParent: (position: NodePosition) => void,
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
-    const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+    const {
+        langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
+        getLibrariesData, getLibrariesList, getLibraryData
+    } = props;
 
 
     async function showTryitView(serviceName: string) {
         runCommand(PALETTE_COMMANDS.TRY_IT, [focusFile, serviceName]);
-    }
-
-    async function showDocumentationView(url: string) {
-        runCommand(PALETTE_COMMANDS.DOCUMENTATION_VIEW, [url]);
     }
 
     async function run(args: any[]) {
@@ -237,8 +235,7 @@ export function getDiagramProviderProps(
             //     zoomOut
             // },
             webView: {
-                showTryitView,
-                showDocumentationView
+                showTryitView
             },
             project: {
                 run

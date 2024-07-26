@@ -1,19 +1,14 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
-import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 
 export enum WizardTypes {
   projectCreation = "ProjectCreateForm",
@@ -26,10 +21,10 @@ export class WebviewWizard {
   private _disposables: vscode.Disposable[] = [];
   private _rpcHandler: WebViewPanelRpc;
 
-  constructor(extensionUri: vscode.Uri, type: WizardTypes, mode?: ComponentCreateMode, private _orgId?: string) {
+  constructor(extensionUri: vscode.Uri, type: WizardTypes, private _orgId?: string) {
     this._panel = WebviewWizard.createWebview(type);
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type, mode);
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type);
     this._rpcHandler = new WebViewPanelRpc(this._panel);
   }
 
@@ -46,7 +41,7 @@ export class WebviewWizard {
     return this._panel;
   }
 
-  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, wizardType: WizardTypes, mode?: ComponentCreateMode) {
+  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, wizardType: WizardTypes) {
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, [
       "resources",
@@ -83,7 +78,7 @@ export class WebviewWizard {
                   "${this._orgId}", 
                   0,  
                   "" , 
-                  "${mode}"
+                  ""
                 );
               }
               render();

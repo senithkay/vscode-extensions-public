@@ -24,15 +24,15 @@ import {
 } from "react-icons/vsc";
 
 import {
-    CompletionResponse,
-    getFilteredDiagnostics,
+    Completion,
     getSelectedDiagnostics,
     LinePosition,
     ParameterInfo,
     STModification,
     STSymbolInfo,
     SymbolDocumentation
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { getFilteredDiagnostics } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     Minutiae, ModuleVarDecl,
     NodePosition,
@@ -47,7 +47,6 @@ import {
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import * as expressionTypeComponents from '../components/ExpressionTypes';
-import * as formComponents from '../components/Forms/Form';
 import { INPUT_EDITOR_PLACEHOLDERS } from "../components/InputEditor/constants";
 import * as statementTypeComponents from '../components/Statements';
 import {
@@ -148,16 +147,6 @@ export function getStatementTypeComponent(
     return (
         <StatementTypeComponent
             model={model}
-        />
-    );
-}
-
-export function getFormComponent(type: string, model: STNode, completions: SuggestionItem[]): ReactNode {
-    const FormComponent = (formComponents as any)[type];
-    return (
-        <FormComponent
-            model={model}
-            completions={completions}
         />
     );
 }
@@ -525,7 +514,7 @@ export function getSuggestionIconStyle(suggestionType: number, isReference: bool
     };
 }
 
-export function sortSuggestions(x: CompletionResponse, y: CompletionResponse) {
+export function sortSuggestions(x: Completion, y: Completion) {
     if (!!x.sortText && !!y.sortText) {
         return x.sortText.localeCompare(y.sortText);
     }

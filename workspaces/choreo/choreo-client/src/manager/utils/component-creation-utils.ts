@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import child_process from "child_process";
@@ -153,14 +149,22 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                 }
             };
             let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);
-            if (args.displayType.toString().startsWith("byoc")) {
+            if (args.displayType.toString().startsWith("byoc") || args.displayType.toString().startsWith("buildpack")) {
                 const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
                 let srcGitRepoUrl = `https://github.com/${repoInfo.org}/${repoInfo.repo}`;
                 if (repositoryInfo.gitProvider === "bitbucket") {
                     srcGitRepoUrl = `https://bitbucket.org/${repoInfo.org}/${repoInfo.repo}`;
                 }
 
-                if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess) {
+                if (args.displayType.toString().startsWith("buildpack") && args.buildPackId && args.languageVersion) {
+                    metadata.buildpackConfig = {
+                        srcGitRepoBranch: repoInfo.branch,
+                        srcGitRepoUrl: srcGitRepoUrl,
+                        buildContext: repoInfo.subPath,
+                        buildpackId: args.buildPackId,
+                        languageVersion: args.languageVersion
+                    }
+                } else if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess) {
                     metadata.byocWebAppsConfig = {
                         ...webAppConfig,
                         srcGitRepoBranch: repoInfo.branch,
@@ -179,13 +183,15 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     metadata.port = port;
                 }
 
-                if (repoInfo.dockerContext) {
+                if (args.displayType.toString().startsWith("buildpack") && repositoryInfo.subPath) {
+                    componentPath = join(componentPath, repositoryInfo.subPath);
+                } else if (repoInfo.dockerContext) {
                     componentPath = join(componentPath, repoInfo.dockerContext);
                 } else if (webAppConfig?.dockerContext) {
                     componentPath = join(componentPath, webAppConfig.dockerContext);
                 } else if (webAppConfig?.webAppOutputDirectory) {
                     componentPath = join(componentPath, webAppConfig.webAppOutputDirectory);
-                } else {
+                } else if (repoInfo.dockerFile) {
                     componentPath = dirname(join(componentPath, repoInfo.dockerFile))
                 }
             } else {

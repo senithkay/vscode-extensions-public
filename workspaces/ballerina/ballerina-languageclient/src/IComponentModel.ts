@@ -1,5 +1,23 @@
 import { LinePosition } from "./IBallerinaLanguageClient";
 
+export interface Project {
+    id: string;
+    name: string;
+    components: ComponentModel[];
+    version?: string;
+}
+
+export enum BuildPack {
+    Ballerina = "ballerina",
+    Java = "java",
+    Go = "go",
+    NodeJs = "nodejs",
+    Python = "python",
+    Ruby = "ruby",
+    Rust = "rust",
+    Other = "other"
+}
+
 export interface ComponentModel {
     id: string;
     orgName: string;
@@ -7,6 +25,8 @@ export interface ComponentModel {
     modelVersion: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
+    type?: ComponentType;
+    buildPack?: string;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
@@ -82,6 +102,7 @@ export interface CMAnnotation extends CMNode {
 export interface CMDependency extends CMNode {
     id: string;
     type: string;
+    onPlatform?: boolean;
     serviceLabel?: string;
 }
 
@@ -142,4 +163,36 @@ export interface CMDeploymentMetadata {
             isExposed: boolean;
         }
     }
+}
+
+export enum ComponentType {
+    SERVICE = "service",
+    WEB_APP = "web-app",
+    SCHEDULED_TASK = "scheduled-task",
+    MANUAL_TASK = "manual-task",
+    API_PROXY = "api-proxy",
+    WEB_HOOK = "web-hook",
+    EVENT_HANDLER = "event-handler",
+    TEST = "test",
+}
+
+export declare enum ComponentDisplayType {
+    RestApi = "restAPI",
+    ManualTrigger = "manualTrigger",
+    ScheduledTask = "scheduledTask",
+    Webhook = "webhook",
+    Websocket = "webSocket",
+    Proxy = "proxy",
+    ByocCronjob = "byocCronjob",
+    ByocJob = "byocJob",
+    GraphQL = "graphql",
+    ByocWebApp = "byocWebApp",
+    ByocWebAppDockerLess = "byocWebAppsDockerfileLess",
+    ByocRestApi = "byocRestApi",
+    ByocWebhook = "byocWebhook",
+    MiRestApi = "miRestApi",
+    MiEventHandler = "miEventHandler",
+    Service = "ballerinaService",
+    ByocService = "byocService",
+    MiApiService = "miApiService"
 }

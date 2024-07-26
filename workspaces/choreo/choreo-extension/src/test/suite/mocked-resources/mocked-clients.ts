@@ -1,21 +1,17 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import { randomUUID } from "crypto";
 import { join } from "path";
 import {
     AccessToken, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams,
-    GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, GetComponentBuildStatusParams
+    GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, GetComponentBuildStatusParams, CreateBuildpackComponentParams, CreateMiComponentParams
 } from "@wso2-enterprise/choreo-client";
 import { BuildStatus, Component, ComponentCount, Deployment, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
@@ -102,6 +98,14 @@ export class MockOrgClient implements IChoreoOrgClient {
 
 export class MockProjectClient implements IChoreoProjectClient {
     createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        throw new Error("Method not implemented.");
+    }
+
+    createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component> {
+        throw new Error("Method not implemented.");
+    }
+
+    createMiComponent(params: CreateMiComponentParams): Promise<Component> {
         throw new Error("Method not implemented.");
     }
     

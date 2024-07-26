@@ -12,7 +12,7 @@
  */
 
 import { ActivityBar, By, ScmView, VSBrowser, Workbench } from "vscode-extension-tester";
-import { GIT_PUSH_COMMAND, STAGE_CHANGES_COMMAND } from "./constants";
+import { GIT_PUSH_COMMAND, GIT_REFRESH_COMMAND, STAGE_CHANGES_COMMAND } from "./constants";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { CommonUtils } from "./CommonUtils";
 
@@ -33,6 +33,9 @@ export class GitUtils {
             throw new Error("Git provider not found");
         }
 
+        const workbench = new Workbench();
+        await workbench.executeCommand(GIT_REFRESH_COMMAND);
+
         let changesCount = 0;
         try {
             changesCount = (await CommonUtils.waitUntilElements(By.className("resource"))).length;
@@ -42,7 +45,6 @@ export class GitUtils {
 
         if (changesCount) {
             console.log(`${changesCount} changes found to commit and push`);
-            const workbench = new Workbench();
             await workbench.executeCommand(STAGE_CHANGES_COMMAND);
             console.log("Waiting until changes are staged");
             await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);

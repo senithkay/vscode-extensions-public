@@ -23,20 +23,23 @@ const CodiconContainer = styled.div<CodiconContainerProps>`
 `;
 
 export interface CodiconProps {
+    id?: string;
+    className?: string;
 	name: string; // Identifier for the icon
     sx?: any;
-    onClick?: () => void;
+    iconSx?: any;
+    onClick?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 }
 
 export const Codicon: React.FC<CodiconProps> = (props: CodiconProps) => {
-    const { name, sx, onClick } = props;
-    const handleComponentClick = () => {
-        onClick();
+    const { id, className, name, sx, iconSx, onClick } = props;
+    const handleComponentClick = (event?: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        onClick && onClick(event);
     }
-    const icon = (<i className={`codicon codicon-${name}`} />);
+    const icon = (<i style= {iconSx} className={`codicon codicon-${name}`} />);
     
     return (
-        <CodiconContainer sx={sx} onClick={handleComponentClick}>
+        <CodiconContainer id={id} className={className} sx={sx} onClick={handleComponentClick}>
             {icon}
         </CodiconContainer>
     );

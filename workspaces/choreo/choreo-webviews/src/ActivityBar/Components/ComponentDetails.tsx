@@ -18,8 +18,7 @@ import { useComponentDeploymentStatus } from "../../hooks/use-component-deployme
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
-import { ErrorBanner, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeDataGrid, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+import { ErrorBanner, HorizontalGrid, LeftAllignGridRow, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
   display: flex;
@@ -32,6 +31,8 @@ const Container = styled.div`
 
 const DataGridWrapper = styled.div`
     padding-left: 21px;
+    flex-direction: row;
+    width: calc(100% - 21px);
 `
 
 const ErrorBannerWrap = styled.div`
@@ -57,16 +58,16 @@ export const ComponentDetails = (props: {
                 </ErrorBannerWrap>
             )}
             <DataGridWrapper>
-                <VSCodeDataGrid aria-label="Components">
-                    <VSCodeDataGridRow>
+                <HorizontalGrid aria-label="Components">
+                    <LeftAllignGridRow>
                         <TruncatedGridTitleCell gridColumn="1">
                             Version
                         </TruncatedGridTitleCell>
                         <TruncatedGridCell gridColumn="2">
                             {component.version}
                         </TruncatedGridCell>
-                    </VSCodeDataGridRow>
-                    <VSCodeDataGridRow>
+                    </LeftAllignGridRow>
+                    <LeftAllignGridRow>
                         <TruncatedGridTitleCell gridColumn="1">
                             Build
                         </TruncatedGridTitleCell>
@@ -78,8 +79,8 @@ export const ComponentDetails = (props: {
                                 localComponent={props.component.local}
                             />
                         </TruncatedGridCell>
-                    </VSCodeDataGridRow>
-                    <VSCodeDataGridRow>
+                    </LeftAllignGridRow>
+                    <LeftAllignGridRow>
                         <TruncatedGridTitleCell gridColumn="1">
                             Deployment
                         </TruncatedGridTitleCell>
@@ -91,8 +92,8 @@ export const ComponentDetails = (props: {
                                 localComponent={props.component.local}
                             />
                         </TruncatedGridCell>
-                    </VSCodeDataGridRow>
-                    <VSCodeDataGridRow>
+                    </LeftAllignGridRow>
+                    <LeftAllignGridRow>
                         <TruncatedGridTitleCell gridColumn="1">
                             Action
                         </TruncatedGridTitleCell>
@@ -103,8 +104,8 @@ export const ComponentDetails = (props: {
                                 loading={loading}
                             />
                         </TruncatedGridCell>
-                    </VSCodeDataGridRow>
-                </VSCodeDataGrid>
+                    </LeftAllignGridRow>
+                </HorizontalGrid>
             </DataGridWrapper>
         </Container>
     );

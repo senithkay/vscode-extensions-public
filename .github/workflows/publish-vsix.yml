@@ -10,7 +10,10 @@ on:
         default: 'ballerina'
         options:
           - 'ballerina'
-          - 'choreo' 
+          - 'choreo'
+          - 'api-chat'
+          - 'apk'
+          - 'micro-integrator'
       isPreRelease:
         required: true
         type: boolean 
@@ -53,7 +56,7 @@ jobs:
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
-          node-version: 16.x
+          node-version: 18.x
 
       - run: | 
           npm install -g vsce

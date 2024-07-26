@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Workbench, VSBrowser } from "vscode-extension-tester";
+import { Workbench, VSBrowser, By } from "vscode-extension-tester";
 import { ADD_CHOREO_COMPONENT_COMMAND } from "./constants";
 import { CommonUtils } from "./CommonUtils";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
@@ -26,17 +26,16 @@ export class ComponentWizardView {
         console.log(`Creating new component: ${componentName}`);
         await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_COMPONENT_COMMAND);
-        await CommonUtils.setQuickInputFieldValue({ inputValue: "From scratch", title: "Create Component" });
-
         await CommonUtils.waitForIFrameCount(3);
         await CommonUtils.switchToIFrame("Create New Component");
         await CommonUtils.waitUntilById("card-select-service");
         await CommonUtils.waitAndClickById("wizard-next-btn");
-        await CommonUtils.waitUntilById("card-select-REST");
-        await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndTypeById("component-name-input", componentName);
+        await CommonUtils.waitUntilById("card-select-ballerina");
         await CommonUtils.waitAndClickById("wizard-next-btn");
-        await CommonUtils.waitUntilById("directory-select-input");
+        await CommonUtils.waitAndTypeById("directory-select-input", componentName);
+        await CommonUtils.waitAndClickById("init-component-dir");
+        await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndClickById("wizard-save-btn");
         await CommonUtils.switchToDefaultFrame();
 

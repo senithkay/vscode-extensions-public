@@ -26,7 +26,7 @@ import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVers
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
-    BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
+    ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
     ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH
 }
     from "./preferences";
@@ -115,6 +115,7 @@ export class BallerinaExtension {
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
+    public isPersist?: boolean;
     private sdkVersion: StatusBarItem;
     private documentContext: DocumentContext;
     private codeServerContext: CodeServerContext;
@@ -127,6 +128,7 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
+        this.isPersist = false;
         this.showStatusBarItem();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -311,7 +313,7 @@ export class BallerinaExtension {
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
-                params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
+                params.affectsConfiguration(ENABLE_DEBUG_LOG)
                 || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
                 params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES) ||
                 params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)) {
@@ -476,6 +478,10 @@ export class BallerinaExtension {
         window.showErrorMessage(INVALID_PROJECT);
     }
 
+    getPersistDiagramStatus(): boolean {
+        return this.isPersist;
+    }
+
     /**
      * Get ballerina home path.
      *
@@ -581,11 +587,6 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_ALL_CODELENS);
     }
 
-    public isBallerinaLowCodeMode(): boolean {
-        return <boolean>workspace.getConfiguration().get(BALLERINA_LOW_CODE_MODE) ||
-            process.env.LOW_CODE_MODE === 'true';
-    }
-
     public isCodeServerEnv(): boolean {
         return process.env.CODE_SERVER_ENV === 'true';
     }
@@ -631,8 +632,11 @@ export class BallerinaExtension {
         if (textEditor?.document) {
             const fileUri: Uri = textEditor.document.uri;
             if (checkIsPersistModelFile(fileUri)) {
+                this.isPersist = true;
                 commands.executeCommand('setContext', 'isPersistModelActive', true);
                 return;
+            } else {
+                this.isPersist = false;
             }
         }
         commands.executeCommand('setContext', 'isPersistModelActive', false);

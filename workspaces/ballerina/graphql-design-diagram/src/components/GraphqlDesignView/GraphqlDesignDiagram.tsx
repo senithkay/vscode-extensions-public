@@ -28,8 +28,9 @@ import { GraphqlUnsupportedOverlay } from "./GraphqlUnsupportedOverlay";
 export interface GraphqlDesignDiagramProps {
     model?: STNode;
     targetPosition?: NodePosition;
-    langClientPromise: Promise<IBallerinaLangClient>;
+    langClientPromise?: Promise<IBallerinaLangClient>;
     filePath: string;
+    graphqlModelResponse: GraphqlDesignServiceResponse;
     currentFile?: {
         content: string,
         path: string,
@@ -63,7 +64,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         onDelete,
         fullST,
         goToSource,
-        recordEditor
+        recordEditor,
+        graphqlModelResponse
     } = props;
 
     const [modelData, setModelData] = useState<GraphqlModelData>(undefined);
@@ -71,25 +73,13 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const [filteredNode, setFilteredNode] = useState<NodeType>(undefined);
 
     useEffect(() => {
-        if (fullST) {
-            (async () => {
-                await getGraphqlDesignModel();
-            })();
+        if (graphqlModelResponse) {
+            setModelData({
+                designModel: graphqlModelResponse?.graphqlDesignModel,
+                isIncompleteModel: graphqlModelResponse?.isIncompleteModel
+            });
         }
-    }, []);
-
-    const getGraphqlDesignModel = async () => {
-        const request: GraphqlDesignServiceRequest = {
-            filePath: currentFile.path,
-            startLine: { line: targetPosition.startLine, offset: targetPosition.startColumn },
-            endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn }
-        };
-        const graphqlModel: GraphqlDesignServiceResponse = await getModelForGraphqlService(request, langClientPromise);
-        setModelData({
-            designModel: graphqlModel.graphqlDesignModel,
-            isIncompleteModel: graphqlModel.isIncompleteModel
-        });
-    };
+    }, [graphqlModelResponse]);
 
     const setSelectedNode = (node: string) => {
         setSelectedDiagramNode(node);
@@ -116,10 +106,11 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         filteredNode
     };
 
+    // TODO: temporary removed FullST check when rendering the GraphqlDiagramContainer, need to add with form rendering
     return (
         <>
             <GraphqlDiagramContext {...ctxt}>
-                {modelData?.designModel && fullST && <GraphqlDiagramContainer designModel={modelData.designModel} />}
+                {modelData?.designModel && <GraphqlDiagramContainer designModel={modelData.designModel} />}
             </GraphqlDiagramContext>
             {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
             {!modelData?.designModel &&

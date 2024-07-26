@@ -12,7 +12,7 @@ import { Divider, DeviderProps } from "./Divider";
 
 const Template: ComponentStory<typeof Divider> = (args: DeviderProps) => <Divider {...args} />;
 
-export const ProgressBar = Template.bind();
-ProgressBar.args = {};
+export const DividerComp = Template.bind();
+DividerComp.args = {};
 
-export default { component: ProgressBar, title: "Divider" };
+export default { component: DividerComp, title: "Divider" };

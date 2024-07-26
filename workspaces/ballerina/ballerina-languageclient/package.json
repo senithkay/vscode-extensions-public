@@ -34,7 +34,7 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "@types/vscode": "^1.73.0",
+    "@types/vscode": "^1.83.1",
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "isomorphic-ws": "^4.0.1",
     "prepend-transform": "^0.0.1019",

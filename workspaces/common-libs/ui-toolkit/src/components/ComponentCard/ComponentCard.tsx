@@ -6,13 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
 
 interface CardContainerProps {
-	sx?: any;
+    sx?: any;
+    isSelected?: boolean;
+    disbaleHoverEffect?: boolean;
 }
 
 const CardContainer = styled.div<CardContainerProps>`
@@ -25,17 +27,21 @@ const CardContainer = styled.div<CardContainerProps>`
     // End Flex Props
     // Sizing Props
     width: 120px;
-    padding: 5px;
+    padding: 3px 6px 6px;
     // End Sizing Props
     // Border Props
-    border-radius: 3px;
+    border-radius: 6px;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--vscode-panel-border);
+    border-color:  ${(props: CardContainerProps) => props.isSelected ? "var(--vscode-focusBorder)" : "var(--vscode-dropdown-border)"};
+    color: var(--vscode-editor-foreground);
     cursor: pointer;
-    &:hover, &.active {
-        border-color: var(--vscode-focusBorder);
-    };
+    ${(props: CardContainerProps) => props.disbaleHoverEffect ? "" :
+        "\
+    &:hover, &.active {\
+        background: var(--vscode-welcomePage-tileHoverBackground);\
+    };\
+    "};
 	&.not-allowed {
     	cursor: not-allowed;
   	};
@@ -43,25 +49,26 @@ const CardContainer = styled.div<CardContainerProps>`
 `;
 
 export interface ComponentCardProps {
-	id?: string; // Identifier for the component
+    id?: string; // Identifier for the component
     tooltip?: string;
     isSelected?: boolean;
     disabled?: boolean;
+    disbaleHoverEffect?: boolean;
     sx?: any;
-    children?: React.ReactNode;
     onClick?: (value: string) => void;
 }
 
-export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
+export const ComponentCard: React.FC<PropsWithChildren<ComponentCardProps>> = 
+    (props: PropsWithChildren<ComponentCardProps>) => {
+        const { id, sx, tooltip, isSelected, disabled, disbaleHoverEffect, children, onClick } = props;
 
-    const handleComponentClick = () => {
-        onClick(id);
+        const handleComponentClick = () => {
+            onClick && onClick(id);
+        };
+
+        return (
+            <CardContainer disbaleHoverEffect= {disbaleHoverEffect} id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
+                {children}
+            </CardContainer>
+        );
     };
-
-    return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} onClick={handleComponentClick} title={tooltip}>
-            {children}
-        </CardContainer>
-    );
-};

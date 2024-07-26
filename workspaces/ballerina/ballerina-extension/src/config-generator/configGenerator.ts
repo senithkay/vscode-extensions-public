@@ -168,7 +168,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
         result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
     }
 
-    const docLink = "https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax";
+    const docLink = "https://ballerina.io/learn/provide-values-to-configurable-variables/#provide-via-toml-syntax";
     if (isCommand || result === openConfigButton) {
         if (!existsSync(configFile)) {
             openSync(configFile, 'w');

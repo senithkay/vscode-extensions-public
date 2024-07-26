@@ -1,0 +1,213 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { DiagramService, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Diagnostic } from "vscode-languageserver-types";
+import { NotificationType, RequestType } from "vscode-messenger-common";
+
+export enum ColorThemeKind {
+    Light = 1,
+    Dark = 2,
+    HighContrast = 3,
+    HighContrastLight = 4
+}
+
+export enum MACHINE_VIEW {
+    Welcome = "Welcome to MI",
+    ADD_ARTIFACT = "Add Artifact",
+    Overview = "MI Overview",
+    UnsupportedProject = "Unsupported Project",
+    Disabled = "MI Extension",
+    Diagram = "MI Diagram",
+    ResourceView = "Resource View",
+    SequenceView = "Sequence View",
+    SequenceTemplateView = "Sequence Template View",
+    ProxyView = "Proxy View",
+    DataServiceView = "DataService View",
+    ServiceDesigner = "Service Designer",
+    DataMapperView = "Data Mapper View",
+    APIForm = "API Form",
+    EndPointForm = "Endpoint Form",
+    LoadBalanceEndPointForm = "Load Balance Endpoint Form",
+    FailoverEndPointForm = "Failover Endpoint Form",
+    RecipientEndPointForm = "Recipient Endpoint Form",
+    TemplateEndPointForm = "Template Endpoint Form",
+    SequenceForm = "Sequence Form",
+    InboundEPForm = "Inbound EP Form",
+    MessageProcessorForm = "Message Processor Form",
+    ProxyServiceForm = "Proxy Service Form",
+    TaskForm = "Task Form",
+    TaskView = "Task View",
+    TemplateForm = "Template Form",
+    HttpEndpointForm = "Http Endpoint Form",
+    AddressEndpointForm = "Address Endpoint Form",
+    WsdlEndpointForm = "Wsdl Endpoint Form",
+    DefaultEndpointForm = "Default Endpoint Form",
+    DataServiceForm = "Data Service Form",
+    DssDataSourceForm = "DSS Data Source Form",
+    DSSServiceDesigner = "DSS Service Designer",
+    ProjectCreationForm = "Project Creation Form",
+    ImportProjectForm = "Import Project Form",
+    LocalEntryForm = "Local Entry Form",
+    RegistryResourceForm = "Registry Resource Creation Form",
+    RegistryMetadataForm = "Registry Metadata Form",
+    MessageStoreForm = "Message Store Form",
+    ClassMediatorForm = "ClassMediator Creation Form",
+    DataSourceForm = "Data Source Creation Form",
+    AddDriverPopup = "Add Driver Popup",
+    Samples = "Samples",
+    ImportProject = "Import Project",
+    ConnectorStore = "Connector Store Form",
+    ConnectionForm = "Connection Creation Form",
+    TestSuite = "Test Suite",
+    TestCase = "Test Cases",
+    AITestGen = "AI Test Generation",
+    MockService = "Mock Service",
+    LoggedOut = "Logged Out",
+}
+
+export enum AI_MACHINE_VIEW {
+    AIOverview = "AI Overview",
+    AIArtifact = "AI Artifact",
+    AIChat = "AI Chat",
+}
+
+export type MachineStateValue =
+    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
+    | { ready: 'viewReady' } | { ready: 'viewEditing' }
+    | { newProject: 'viewReady' };
+
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+
+export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
+
+export type MiServerRunStatus = 'Running' | 'Stopped';
+
+export enum AI_EVENT_TYPE {
+    LOGIN = "LOGIN",
+    SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
+    LOGOUT = "LOGOUT",
+    EXECUTE = "EXECUTE",
+    CLEAR = "CLEAR",
+    CLEAR_PROMPT = "CLEAR_PROMPT",
+    DISPOSE = "DISPOSE",
+    CANCEL = "CANCEL",
+    RETRY = "RETRY",
+}
+
+export enum EVENT_TYPE {
+    OPEN_VIEW = "OPEN_VIEW",
+    REPLACE_VIEW = "REPLACE_VIEW",
+    CLEAR_PROMPT = "CLEAR_PROMPT",
+    FILE_EDIT = "FILE_EDIT",
+    EDIT_DONE = "EDIT_DONE",
+}
+
+export enum POPUP_EVENT_TYPE {
+    OPEN_VIEW = "OPEN_VIEW",
+    CLOSE_VIEW = "CLOSE_VIEW"
+}
+
+export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
+
+export interface MachineEvent {
+    type: EVENT_TYPE;
+}
+
+export interface CommandProps {
+    command: VoidCommands;
+    projectName?: string;
+    isService?: boolean
+}
+
+export interface ErrorType {
+    title: string;
+    message: string;
+}
+
+interface DataMapperProps {
+    filePath: string;
+    functionName?: string;
+    fileContent?: string;
+    interfacesSource?: string;
+    configName: string;
+}
+
+// State Machine context values
+export interface VisualizerLocation {
+    view: MACHINE_VIEW | null;
+    stNode?: STNode | DiagramService;
+    diagnostics?: Diagnostic[]
+    errors?: ErrorType[];
+    documentUri?: string;
+    projectUri?: string;
+    pathSeparator?: string;
+    identifier?: string;
+    position?: any;
+    projectOpened?: boolean;
+    isOldProject?: boolean;
+    displayOverview?: boolean;
+    customProps?: any;
+    dataMapperProps?: DataMapperProps;
+    type?: string;
+    connectorData?: any[];
+}
+
+export interface PopupVisualizerLocation extends VisualizerLocation {
+    recentIdentifier?: string;
+}
+
+export interface AIVisualizerLocation {
+    view?: AI_MACHINE_VIEW | null;
+    initialPrompt?: string;
+    state?: AIMachineStateValue;
+    userTokens?: AIUserTokens;
+}
+
+export interface AIUserTokens {
+    max_usage: number;
+    remaining_tokens: number;
+    time_to_reset: number;
+}
+
+export interface ParentPopupData {
+    recentIdentifier: string;
+}
+
+export interface SwaggerData {
+    generatedSwagger: any;
+    port: number;
+}
+
+export interface ConnectorStatus {
+    connector: string;
+    isSuccess: boolean;
+    message: string;
+}
+
+export interface Document {
+    uri: string;
+}
+
+export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
+export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
+export const themeChanged: NotificationType<ColorThemeKind> = { method: 'themeChanged' };
+export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
+export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
+export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
+export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
+export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
+export const webviewReady: NotificationType<void> = { method: `webviewReady` };
+export const onSwaggerSpecReceived: NotificationType<SwaggerData> = { method: `onSwaggerSpecReceived` };
+export const miServerRunStateChanged: NotificationType<MiServerRunStatus> = { method: `miServerRunStateChanged` };
+export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
+export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` };
+export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };

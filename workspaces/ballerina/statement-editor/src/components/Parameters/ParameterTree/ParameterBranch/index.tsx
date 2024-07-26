@@ -9,8 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, List, ListItem } from "@material-ui/core";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TypeField } from "@wso2-enterprise/ballerina-core";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "..";
 import { useStmtEditorHelperPanelStyles } from "../../../styles";
@@ -19,7 +19,7 @@ import { isAnyFieldSelected, isRequiredParam } from "../utils";
 import * as Types from "./../Types";
 
 export interface ParameterBranchProps {
-    parameters: FormField[];
+    parameters: TypeField[];
     depth: number;
     onChange: () => void;
 }
@@ -33,7 +33,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
     const requiredParams: JSX.Element[] = [];
     const optionalParams: JSX.Element[] = [];
 
-    parameters?.forEach((param: FormField, index: number) => {
+    parameters?.forEach((param: TypeField, index: number) => {
         let TypeComponent = (Types as any)[param.typeName];
         const typeProps: TypeProps = {
             param,
@@ -55,10 +55,10 @@ export function ParameterBranch(props: ParameterBranchProps) {
     }
 
     return (
-        <List data-testid="parameter-branch">
+        <div data-testid="parameter-branch">
             {requiredParams}
             {optionalParams.length > 0 && (
-                <ListItem className={stmtEditorHelperClasses.listOptionalWrapper}>
+                <div className={stmtEditorHelperClasses.listOptionalWrapper}>
                     <div className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </div>
                     <Button
                         data-testid="optional-toggle-button"
@@ -67,10 +67,10 @@ export function ParameterBranch(props: ParameterBranchProps) {
                     >
                         {showOptionalParams ? "Hide" : "Show"}
                     </Button>
-                </ListItem>
+                </div>
             )}
             {showOptionalParams && optionalParams.length > 0 && optionalParams}
-        </List>
+        </div>
     );
 }
 

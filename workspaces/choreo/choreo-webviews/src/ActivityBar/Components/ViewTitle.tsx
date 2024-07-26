@@ -21,6 +21,10 @@ const Title = styled.div`
     color: var(--vscode-descriptionForeground)
 `;
 
-export const ViewTitle: React.FC = (props) => (
+interface ViewTitleProps {
+    children?: React.ReactNode;
+}
+
+export const ViewTitle: React.FC<ViewTitleProps> = (props: ViewTitleProps) => (
     <Title>{props.children}</Title>
 );

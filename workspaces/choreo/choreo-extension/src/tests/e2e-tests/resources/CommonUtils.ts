@@ -207,8 +207,7 @@ export class CommonUtils {
             | "Project"
             | "Create New Project"
             | "Create New Component"
-            | "Architecture View"
-            | "Cell View"
+            | "Cell Diagram"
     ) {
         console.log(`Switching to iframe: ${frameName}`);
         await this.switchToDefaultFrame();

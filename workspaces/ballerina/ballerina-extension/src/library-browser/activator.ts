@@ -10,7 +10,12 @@
 import https from "https";
 import { debug } from "../utils";
 import { BallerinaExtension } from "../core";
-import { LibrariesListResponse, LibraryDataResponse, LibraryKind, LibrarySearchResponse } from "./model";
+import {
+	LibraryDataResponse,
+	LibrariesListResponse,
+	LibraryKind,
+	LibrarySearchResponse
+} from '@wso2-enterprise/ballerina-core';
 
 export const cachedLibrariesList = new Map<string, LibrariesListResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
@@ -159,4 +164,34 @@ export function getLibraryData(orgName: string, moduleName: string, version: str
 
         req.end();
     });
+}
+
+export function fetchAndCacheLibraryData() {
+    // Cache the lang lib list
+	getLibrariesList(LibraryKind.langLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the std lib list
+	getLibrariesList(LibraryKind.stdLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the distribution lib list (lang libs + std libs)
+	getLibrariesList().then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(DIST_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the library search data
+	getAllResources().then((data) => {
+		if (data && data.modules.length > 0) {
+			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
+		}
+	});
 }

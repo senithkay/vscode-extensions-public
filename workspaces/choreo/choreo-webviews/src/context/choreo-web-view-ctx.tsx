@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { FC, useContext, useEffect, useMemo } from "react";
+import React, { FC, ReactNode, useContext, useEffect, useMemo } from "react";
 import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -44,6 +44,7 @@ export const useChoreoWebViewContext = () => {
 };
 
 interface Props {
+    children: ReactNode;
     choreoUrl?: string;
     ctxOrgId?: string;
 }

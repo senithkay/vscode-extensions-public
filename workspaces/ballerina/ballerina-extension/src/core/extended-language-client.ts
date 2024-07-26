@@ -21,7 +21,8 @@ import {
     GetComponentModelRequest,
     GetComponentModelResponse,
     GetPersistERModelRequest,
-    GetPersistERModelResponse
+    GetPersistERModelResponse,
+    BallerinaFunctionSTRequest
 } from "@wso2-enterprise/ballerina-languageclient";
 import {
     BallerinaConnectorsRequest,
@@ -85,7 +86,8 @@ enum EXTENDED_APIS {
     GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
     DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName',
     DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition',
-    PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels'
+    PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels',
+    DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -609,6 +611,12 @@ export class ExtendedLangClient extends LanguageClient {
     async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DEFINITION_POSITION);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DEFINITION_POSITION, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
+    async getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_BY_RANGE);
+        return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_BY_RANGE, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 

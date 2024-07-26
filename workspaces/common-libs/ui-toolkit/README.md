@@ -12,9 +12,6 @@
 ```
 ui-toolkit/
   src/
-   assets/
-    images/
-    icons/
    components/ 
     Component1
      Component1.tsx
@@ -22,6 +19,9 @@ ui-toolkit/
     Component2
      Component2.tsx
      Component2.stories.tsx
+  styles/
+    Sample.tsx
+  index.ts
 ```
 
 ### How to add styles
@@ -34,3 +34,6 @@ ui-toolkit/
 
 - Run `npm run storybook` from the root directory.
 It will open the storybook in `http://localhost:6006/`
+- If you get the error '0308010C:digital envelope routines::unsupported' add the following line 
+'export NODE_OPTIONS=--openssl-legacy-provider'
+

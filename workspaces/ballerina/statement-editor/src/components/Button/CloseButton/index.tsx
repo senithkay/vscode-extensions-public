@@ -8,8 +8,7 @@
  */
 import React from "react";
 
-import { CloseRounded } from "@material-ui/icons";
-import { ButtonWithIcon } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit"
 
 interface CloseButtonProps {
     onCancel: () => void;
@@ -18,10 +17,12 @@ interface CloseButtonProps {
 export function CloseButton(props: CloseButtonProps) {
     const { onCancel } = props;
     return (
-        <ButtonWithIcon
+        <Button
+            appearance="icon"
             className="panel-close-button"
             onClick={onCancel}
-            icon={<CloseRounded fontSize="small" />}
-        />
+        >
+            <Codicon name="close" />
+        </Button>
     );
 }

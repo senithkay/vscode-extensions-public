@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { GHAppConfig } from "@wso2-enterprise/choreo-client/lib/github";
 
@@ -46,6 +42,8 @@ export interface IChoreoEnvConfig {
         projectAPI: string;
         componentManageAPI: string;
         userMgtAPI: string;
+        declarativeAPI: string;
+        devopsAPI: string;
     },
     apimEnvScopes: string;
     choreoConsoleBaseUrl: string;
@@ -79,6 +77,8 @@ export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.choreo.dev/component-mgt/1.0.0/orgs",
         userMgtAPI: "https://apis.choreo.dev/user-mgt/1.0.0",
+        declarativeAPI: "https://apis.choreo.dev/declarative-api/v1.0",
+        devopsAPI: "https://apis.choreo.dev/devops/1.0.0"
     },
     
     choreoConsoleBaseUrl: "https://console.choreo.dev",
@@ -112,6 +112,8 @@ export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
         projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.st.choreo.dev/component-mgt/1.0.0/orgs",
         userMgtAPI: "https://apis.st.choreo.dev/user-mgt/1.0.0",
+        declarativeAPI: "https://apis.st.choreo.dev/declarative-api/v1.0",
+        devopsAPI: "https://apis.st.choreo.dev/user-mgt/devops/1.0.0"
     },
 
     choreoConsoleBaseUrl: "https://console.st.choreo.dev",
@@ -146,6 +148,8 @@ export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
         projectAPI: "https://apis.preview-dv.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.preview-dv.choreo.dev/component-mgt/1.0.0/orgs",
         userMgtAPI: "https://apis.preview-dv.choreo.dev/user-mgt/1.0.0",
+        declarativeAPI: "https://apis.preview-dv.choreo.dev/declarative-api/v1.0",
+        devopsAPI: "https://apis.preview-dv.choreo.dev/devops/1.0.0"
     },
 
     choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
@@ -233,7 +237,15 @@ export class ChoreoEnvConfig {
         return this._config.apis.userMgtAPI;
     }
 
+    public getDeclarativeUrl(): string {
+        return this._config.apis.declarativeAPI;
+    }
+
     public getApimEnvScopes(): string {
         return this._config.apimEnvScopes;
+    }
+
+    public getDevopsUrl(): string {
+        return this._config.apis.devopsAPI;
     }
 }

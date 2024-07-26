@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
 
@@ -26,7 +22,6 @@ const StepContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
-    min-height: calc(100vh - 160px);
 `;
 
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
@@ -56,17 +51,14 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
             description: "Create programs that trigger via events. E.g., Business automation tasks.",
             value: ChoreoComponentType.Webhook,
             icon: WebhookIcon
-        }
-    ];
-
-    if(formData.mode === 'fromExisting'){
-        items.push({
+        },
+        {
             label: "Web Application",
             value: ChoreoComponentType.WebApplication,
             description: "Create and manage web applications in Choreo",
             icon: WebAppIcon
-        });
-    }
+        }
+    ];
 
     const description = items.find(item => item.value === formData.type).description;
 
@@ -74,7 +66,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
         <StepContainer>
             <SectionWrapper>
                 <Typography variant="h3">Component Type</Typography>
-                <ConfigCardList 
+                <ConfigCardList
                     formKey='type'
                     formData={formData}
                     onFormDataChange={onFormDataChange}

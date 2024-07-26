@@ -77,8 +77,9 @@ export const ComponentsCard = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create");
     };
 
-    const handleRefreshComponentsClick = () => {
+    const handleRefreshComponentsClick = async () => {
         refreshComponents();
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view.refresh");
     };
 
     const componentsView = (

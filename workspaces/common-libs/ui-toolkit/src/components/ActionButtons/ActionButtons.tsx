@@ -22,6 +22,8 @@ interface ButtonContainerProps {
 }
 
 export interface ActionButtonsProps {
+    id?: string;
+    className?: string;
     primaryButton: ButtonProps;
     secondaryButton: ButtonProps;
     sx?: any;
@@ -38,16 +40,16 @@ const ButtonWrapper = styled.div`
 `;
 
 export const ActionButtons = (props: ActionButtonsProps) => {
-    const { primaryButton, secondaryButton, sx } = props;
+    const { id, className, primaryButton, secondaryButton, sx } = props;
     const { tooltip: pTooltip, text: pText, onClick: pOnClick, disabled: pDisabled } = primaryButton;
     const { tooltip: sTooltip, text: sText, onClick: sOnClick, disabled: sDisabled } = secondaryButton;
 
     return (
-        <ButtonContainer sx={sx}>
-            <VSCodeButton appearance="secondary" onClick={sOnClick} title={sTooltip} disabled={sDisabled} style={{marginRight: 8}}>
+        <ButtonContainer id={id} className={className} sx={sx}>
+            <VSCodeButton appearance="secondary" onClick={sOnClick} title={sTooltip} disabled={(sDisabled ? true : undefined)} style={{marginRight: 8}}>
                 <ButtonWrapper style={{minWidth: "50px"}}>{sText}</ButtonWrapper>
             </VSCodeButton>
-            <VSCodeButton appearance="primary" onClick={pOnClick} title={pTooltip} disabled={pDisabled}>
+            <VSCodeButton appearance="primary" onClick={pOnClick} title={pTooltip} disabled={(pDisabled ? true : undefined)}>
                 <ButtonWrapper style={{minWidth: "50px"}}>{pText}</ButtonWrapper>
             </VSCodeButton>
         </ButtonContainer>

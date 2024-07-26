@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -172,11 +168,11 @@ export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
                         <BBRepoSelectorContainer>
                             <BBRepoSelectorOrgContainer>
                                 <label htmlFor="org-drop-down">Workspace</label>
-                                <AutoComplete items={bborgs ?? []} selectedItem={selectedRepo?.org} onChange={handleBBOrgChange} id="bitbucket-workspace-select" />
+                                <AutoComplete identifier="workspace" items={bborgs ?? []} value={selectedRepo?.org} onValueChange={handleBBOrgChange} id="bitbucket-workspace-select" />
                             </BBRepoSelectorOrgContainer>
                             <BBRepoSelectorRepoContainer>
                                 <label htmlFor="repo-drop-down">Repository</label>
-                                <AutoComplete items={bbrepos ?? []} selectedItem={selectedRepo?.repo} onChange={handleBBRepoChange} id="bitbucket-repo-select" />
+                                <AutoComplete identifier="repository" items={bbrepos ?? []} value={selectedRepo?.repo} onValueChange={handleBBRepoChange} id="bitbucket-repo-select" />
                             </BBRepoSelectorRepoContainer>
                             <RefreshBtn
                                 appearance="icon"

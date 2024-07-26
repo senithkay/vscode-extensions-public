@@ -13,6 +13,8 @@ extractedDistribution
 .npmrc
 test-resources
 **/resources/font-wso2-vscode
+.env
+.hintrc
 
 # gradle
 .gradle
@@ -63,3 +65,12 @@ common/deploy/
 common/temp/
 common/autoinstallers/*/.npmrc
 **/.rush/temp/
+
+# Playwright
+playwright-report/
+# ignore storybook build
+**/.out/
+
+# storybook
+.storybook-out/
+**/storybook-static/

@@ -1,17 +1,13 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams } from './types';
+import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams, CreateBuildpackComponentParams, CreateMiComponentParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region, repository, credentialId, branch } = params;
@@ -80,7 +76,7 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
 export function getCreateBYOCComponentMutation(params: CreateByocComponentParams) {
     const { name, displayName, componentType, description, orgId, orgHandle, projectId,
         accessibility, byocConfig, port } = params;
-    if(!byocConfig){
+    if (!byocConfig) {
         throw new Error('byocConfig not found')
     }
     const { dockerfilePath, dockerContext, srcGitRepoUrl, srcGitRepoBranch } = byocConfig;
@@ -112,17 +108,17 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
 export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponentParams) {
     const { name, displayName, componentType, description, orgId, orgHandle, projectId,
         accessibility, byocWebAppsConfig } = params;
-    if(!byocWebAppsConfig){
+    if (!byocWebAppsConfig) {
         throw new Error('byocWebAppsConfig not found');
     }
-    const { 
-        dockerContext, 
-        srcGitRepoUrl, 
-        srcGitRepoBranch, 
-        webAppBuildCommand, 
-        webAppOutputDirectory, 
-        webAppPackageManagerVersion, 
-        webAppType 
+    const {
+        dockerContext,
+        srcGitRepoUrl,
+        srcGitRepoBranch,
+        webAppBuildCommand,
+        webAppOutputDirectory,
+        webAppPackageManagerVersion,
+        webAppType
     } = byocWebAppsConfig;
     return gql`mutation
         { createByocComponent(component: {  
@@ -145,6 +141,69 @@ export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponent
                     webAppPackageManagerVersion: "${webAppPackageManagerVersion}"
                     webAppOutputDirectory: "${webAppOutputDirectory}"
                 }
+            })
+            {  id, organizationId, projectId, handle }
+        }
+    `;
+}
+
+export function getCreateBuildpackComponentMutation(params: CreateBuildpackComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId, port,
+        accessibility, bitbucketCredentialId, buildpackConfig } = params;
+    const {
+        buildContext,
+        buildpackId,
+        languageVersion,
+        srcGitRepoBranch,
+        srcGitRepoUrl,
+    } = buildpackConfig;
+    return gql`mutation
+        { createBuildpackComponent(component: {  
+            name: "${displayName}",
+            displayName: "${name.trim()}",
+            description: "${description}",
+            orgId: ${orgId},
+            orgHandler: "${orgHandle}",
+            projectId: "${projectId}",
+            labels: "",
+            componentType: "${componentType}",
+            port: ${port ?? 80},
+            oasFilePath: "",
+            accessibility: "${accessibility}",
+            buildpackConfig: {
+              buildContext:"${buildContext}",
+              srcGitRepoUrl:"${srcGitRepoUrl}",
+              srcGitRepoBranch: "${srcGitRepoBranch}",
+              languageVersion: "${languageVersion}",
+              buildpackId:"${buildpackId}"
+              }
+            secretRef: "${bitbucketCredentialId}",
+            })
+            {  id, organizationId, projectId, handle }
+        }
+    `;
+}
+
+export function getCreateMiComponentMutation(params: CreateMiComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId,
+        accessibility, bitbucketCredentialId, repositorySubPath, srcGitRepoBranch, srcGitRepoUrl } = params;
+    return gql`mutation
+        { createIntegrationComponent(component: {  
+            name: "${name}",
+            displayName: "${displayName}",
+            description:  "${description}",
+            orgId:  ${orgId},
+            orgHandler: "${orgHandle}",
+            projectId: "${projectId}",
+            labels: "",
+            componentType: "${componentType}",
+            accessibility: "${accessibility}",
+            srcGitRepoUrl: "${srcGitRepoUrl}",
+            srcGitRepoBranch: "${srcGitRepoBranch}",
+            repositorySubPath: "${repositorySubPath}",,
+            oasFilePath: "",
+            version: "1.0.0",
+            secretRef: "${bitbucketCredentialId}"
             })
             {  id, organizationId, projectId, handle }
         }

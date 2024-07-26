@@ -1,150 +1,142 @@
-name: 'Release vsix to github and notify'
-inputs: 
+name: "Release vsix to github and notify"
+inputs:
   isPreRelease:
     default: true
-    type: boolean  
+    type: boolean
   enableCache:
     default: true
-    type: boolean  
+    type: boolean
   ballerina:
     description: Update Ballerina extension version
     type: boolean
     required: false
-    default: true
+    default: false
   choreo:
     description: Update Choreo extension version
     type: boolean
     required: false
-    default: true      
+    default: false
+  api-chat:
+    description: Update API Chat extension version
+    type: boolean
+    required: false
+    default: false
+  apk:
+    description: Update APK extension version
+    type: boolean
+    required: false
+    default: false
+  eggplant:
+    description: Update EggPlant extension version
+    type: boolean
+    required: false
+    default: false
+  mi:
+    description: Update MI extension version
+    type: boolean
+    required: false
+    default: false
   version:
-    default: 'N/A'
+    default: "N/A"
     type: string
     required: false
   balVersion:
     default: 2201.7.1
-    type: string 
+    type: string
+  API_CHAT_API_KEY:
+    type: string
+    required: true
+  token:
+    type: string
+    required: false
 
 runs:
   using: "composite"
   steps:
-    - name: Cache env
-      if: ${{ inputs.enableCache == 'true' }}
-      uses: gigara/rush-cache@v2
-
-    - uses: actions/setup-node@v3
+    - name: Setup Rush
+      uses: gigara/setup-rush@v1
       with:
-        node-version: 16.x
-
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 7.26.3
-
-    - name: Cache Rush
-      if: ${{ inputs.enableCache == 'true' }}
-      uses: actions/cache@v2
-      with:
-        path: |
-          common/temp/install-run
-          ~/.rush 
-        key: Rush-cache-${{ hashFiles('rush.json') }}
-
-    - name: Cache pnpm
-      if: ${{ inputs.enableCache == 'true' }}
-      uses: actions/cache@v3
-      with:
-        path: |
-          common/temp/pnpm-store
-          ~/.cache/Cypress   
-        key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+        pnpm: 7.26.3
+        node: 16.x
+        cache-rush: ${{ inputs.enableCache }}
+        cache-pnpm: ${{ inputs.enableCache }}
+        set-env: ${{ inputs.enableCache }}
 
     - uses: ballerina-platform/setup-ballerina@v1
       name: Install Ballerina
       with:
         version: ${{ inputs.balVersion }}
 
-    - name: Remove timestamp - balleina
-      shell: bash
+    - name: Update version - Balleina
       if: ${{ inputs.ballerina == 'true' }}
-      run: |
-        cd workspaces/ballerina/ballerina-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        if [[ ${#currentVersion} -ge 8 ]]; then
-          currentVersionWOPreId=${currentVersion%-*}
-          currentVersionNo=${currentVersionWOPreId:0:-8}
-          if [[ $currentVersionNo != *?[0-9] ]]; then
-            currentVersionNo=${currentVersionNo}0
-          fi
-          npm version $currentVersionNo --preid beta --no-git-tag-version
-        fi
-    - name: Remove timestamp - choreo
-      shell: bash
+      uses: ./.github/actions/updateVersion
+      with:
+        path: "ballerina/ballerina-extension"
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+
+    - name: Update version - Choreo
       if: ${{ inputs.choreo == 'true' }}
-      run: |
-        cd workspaces/choreo/choreo-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        if [[ ${#currentVersion} -ge 8 ]]; then
-          currentVersionWOPreId=${currentVersion%-*}
-          currentVersionNo=${currentVersionWOPreId:0:-8}
-          if [[ $currentVersionNo != *?[0-9] ]]; then
-            currentVersionNo=${currentVersionNo}0
-          fi            
-          npm version $currentVersionNo --preid beta --no-git-tag-version
-        fi
+      uses: ./.github/actions/updateVersion
+      with:
+        path: "choreo/choreo-extension"
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
 
-    - name: Update ballerina extension versions
-      shell: bash
-      if: ${{ inputs.version != 'N/A' && inputs.ballerina == 'true' }}
-      run: |
-        cd workspaces/ballerina/ballerina-extension
-        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+    - name: Update version - API Chat
+      if: ${{ inputs.api-chat == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: "api-chat/extension"
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
 
-    - name: Update choreo extension versions
-      shell: bash
-      if: ${{ inputs.version != 'N/A' && inputs.choreo == 'true' }}
-      run: |
-        cd workspaces/choreo/choreo-extension
-        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+    - name: Update version - APK
+      if: ${{ inputs.apk == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: "apk/apk-extension"
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
 
-    - name: Get timestamp
-      shell: bash
-      id: timestamp
-      run: |
-        timestamp=$(date '+%y%m%d%H')
-        echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
+    - name: Update version - EggPlant
+      if: ${{ inputs.eggplant == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: "eggplant/egglant-extension"
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
 
-    - name: Set prerelase version - ballerina
+    - name: Update version - MI
+      if: ${{ inputs.mi == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: "mi/mi-extension"
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+
+    - name: Download MI language server
       shell: bash
-      if: ${{ inputs.isPreRelease == 'true' && inputs.ballerina == 'true' }}
       run: |
-        cd workspaces/ballerina/ballerina-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
-        echo $newVersion
-        npm version $newVersion --preid beta --no-git-tag-version
-        
-    - name: Set prerelase version - choreo
-      shell: bash
-      if: ${{ inputs.isPreRelease == 'true' && inputs.choreo == 'true' }}
-      run: |
-        cd workspaces/choreo/choreo-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
-        echo $newVersion
-        npm version $newVersion --preid beta --no-git-tag-version
+        asset_id=$(curl -L GET -H "Accept: application/vnd.github.v3+json" -H "Authorization:token ${{ inputs.token }}" \
+        https://api.github.com/repos/wso2-enterprise/mi-language-server/releases/latest | jq -r '.assets[] | select(.name | contains("org.eclipse.lemminx-")) | .id')
+        wget -q --auth-no-challenge --header='Accept:application/octet-stream' https://${{ inputs.token }}:@api.github.com/repos/wso2-enterprise/mi-language-server/releases/assets/$asset_id  -O mi-language-server.zip
+        unzip -j mi-language-server.zip -d workspaces/mi/mi-extension/ls
+        rm mi-language-server.zip
 
     - name: Build repo
       shell: bash
       id: build
       run: |
-        node common/scripts/install-run-rush.js install
         node common/scripts/install-run-rush.js build --verbose
       env:
         isPreRelease: ${{ inputs.isPreRelease == 'true' }}
+        API_CHAT_API_KEY: ${{ inputs.API_CHAT_API_KEY }}
 
     - name: Compress build
       shell: bash
       run: |
-        zip -r build.zip ./ -x 'common/temp*' -y
+        zip -r build.zip ./ -x 'common/temp*' -x '**/node_modules/*' -y
         zip VSIX.zip *.vsix
 
     - name: Save build

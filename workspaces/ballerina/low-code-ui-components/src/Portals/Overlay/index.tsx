@@ -44,7 +44,7 @@ export interface DiagramOverlayContainerProps {
     divId?: string;
 }
 
-export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
+export function DiagramOverlayContainer(props: DiagramOverlayContainerProps): any {
     const { children, forceRender, divId = `canvas-overlay` } = props;
 
     if (!forceRender) {
@@ -54,6 +54,7 @@ export function DiagramOverlayContainer(props: DiagramOverlayContainerProps) {
     const overlayDiv = document.getElementById(divId);
 
     if (overlayDiv) {
+        // @ts-ignore
         return ReactDOM.createPortal(children, overlayDiv);
     } else {
         return null;

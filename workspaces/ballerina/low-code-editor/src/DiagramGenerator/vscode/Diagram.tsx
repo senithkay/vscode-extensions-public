@@ -80,8 +80,7 @@ export interface EditorAPI {
 
 export enum PALETTE_COMMANDS {
     RUN = 'ballerina.project.run',
-    TRY_IT = 'ballerina.tryit',
-    DOCUMENTATION_VIEW = 'ballerina.documentationView.open'
+    TRY_IT = 'ballerina.tryit'
 }
 
 export type EditorProps = EditorState & EditorAPI;

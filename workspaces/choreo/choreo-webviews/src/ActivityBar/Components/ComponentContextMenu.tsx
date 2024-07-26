@@ -19,7 +19,7 @@ import {
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
 import {
-    ContextMenu, MenuItem,
+    ContextMenu, Item,
 } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
@@ -54,7 +54,7 @@ export const ComponentContextMenu = (props: {
     }, [componentBaseUrl]);
 
 
-    const menuItems: MenuItem[] = [];
+    const menuItems: Item[] = [];
 
     if (component.endpointsPath) {
         menuItems.push({

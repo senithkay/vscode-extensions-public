@@ -14,7 +14,7 @@
 - To view the generated icons, use the following command:
   ```bash
   npm run start
-- To use the generated font add `@wso2-enterprise/font-wso2-vscode` as dependency to your package.
+- To use the generated font add `@wso2-enterprise/font-wso2-vscode` as a dependency to your package.
 
 ### How use the Font
 
@@ -34,3 +34,8 @@
   ````
   $(<IconName>);
   ````
+
+### Limitations with the font generation
+- Icons with black and white colors are supported by the font library. If you want to add colors, please override the color style property.
+- Icons with `.svg` format are supported here.
+- Please try to use simple graphics when adding icons. Please refer to the samples from [codicons](https://microsoft.github.io/vscode-codicons/dist/codicon.html).

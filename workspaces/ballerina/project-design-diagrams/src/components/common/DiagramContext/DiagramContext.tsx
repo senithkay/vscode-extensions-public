@@ -10,7 +10,8 @@
 import React, { createContext, ReactNode, useState } from 'react';
 import { CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { EntryNodeModel, ServiceNodeModel } from '../../service-interaction';
-import { ConsoleView, EditLayerAPI, Views } from '../../../resources';
+import { ConsoleView, Views } from '../../../resources';
+import { ProjectDesignDiagramAPI } from '@wso2-enterprise/ballerina-core';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -21,11 +22,11 @@ interface DiagramContextProps {
     workspaceFolders: number;
     setCurrentView: (view: Views) => void;
     refreshDiagram: () => void;
-    showChoreoProjectOverview: (() => Promise<void>) | undefined;
+    showChoreoProjectOverview: (() => void) | undefined;
     getTypeComposition: (entityID: string) => void;
     setConnectorTarget?: (source: EntryPoint | Service) => void;
-    editLayerAPI: EditLayerAPI | undefined;
-    deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
+    editLayerAPI: ProjectDesignDiagramAPI | undefined;
+    deleteComponent: (location: Location, deletePkg: boolean) => void;
     consoleView: ConsoleView;
     addComponent?: () => void;
     focusedNodeId?: string;
@@ -43,13 +44,13 @@ interface IDiagramContext {
     setIsMultiRootWs: (status: boolean) => void;
     setCurrentView: (view: Views) => void;
     getTypeComposition: (entityID: string) => void;
-    editLayerAPI?: EditLayerAPI;
+    editLayerAPI?: ProjectDesignDiagramAPI;
     newComponentID?: string;
     newLinkNodes?: LinkedNodes;
     setNewComponentID?: (name: string | undefined) => void;
     setNewLinkNodes?: (nodes: LinkedNodes) => void;
     setConnectorTarget?: (source: EntryPoint | Service) => void;
-    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
+    deleteComponent?: (location: Location, deletePkg: boolean) => void | undefined;
     addComponent?: () => void;
     focusedNodeId?: string;
     setFocusedNodeId?: (id: string) => void;

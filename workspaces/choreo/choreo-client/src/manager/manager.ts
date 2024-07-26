@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import {
@@ -18,8 +14,6 @@ import {
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { basename, dirname, join } from "path";
 import { commands, workspace } from "vscode";
-import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { BAL_FORMAT_SERVICE_CMD, buildWebhookTemplate, getBallerinaExtensionInstance, writeWebhookTemplate } from "./utils/webhook-utils";
 import { addDisplayAnnotation, addToWorkspace, createBallerinaPackage, processTomlFiles, runCommand } from "./utils/component-creation-utils";
 
 interface CmdResponse {
@@ -49,7 +43,7 @@ export class ChoreoProjectManager implements IProjectManager {
     private balVersion: string | undefined;
 
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
-        const { displayType, org, repositoryInfo, trigger } = args;
+        const { displayType, org, repositoryInfo } = args;
         if (workspace.workspaceFile) {
             const workspaceFilePath = workspace.workspaceFile.fsPath;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
@@ -59,15 +53,6 @@ export class ChoreoProjectManager implements IProjectManager {
             const resp: CmdResponse = await createBallerinaPackage(basename(pkgPath), dirname(pkgPath), displayType);
             if (!resp.error) {
                 processTomlFiles(pkgPath, org.name);
-                if (displayType === ComponentDisplayType.Webhook && trigger && trigger.id) {
-                    const webhookTemplate: string = await buildWebhookTemplate(pkgPath, trigger, await this.getBalVersion());
-                    if (webhookTemplate) {
-                        writeWebhookTemplate(pkgPath, webhookTemplate);
-                        await runCommand(BAL_FORMAT_SERVICE_CMD, pkgPath);
-                    } else {
-                        throw new Error("Error: Could not create Webhook template.");
-                    }
-                }
                 if (displayType === ComponentDisplayType.Service) {
                     addDisplayAnnotation(pkgPath, displayType);
                 }
@@ -210,22 +195,6 @@ export class ChoreoProjectManager implements IProjectManager {
             content.folders[index].metadata = undefined;
             writeFileSync(workspaceFilePath, JSON.stringify(content, null, 4));
         }
-    }
-
-    async fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
-        const ballerinaExtInstance = await getBallerinaExtensionInstance();
-        if (ballerinaExtInstance && ballerinaExtInstance.langClient) {
-            return ballerinaExtInstance.langClient.getTriggers({ query: "" });
-        }
-        return undefined;
-    }
-
-    async fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse | undefined> {
-        const ballerinaExtInstance = await getBallerinaExtensionInstance();
-        if (ballerinaExtInstance && ballerinaExtInstance.langClient) {
-            return ballerinaExtInstance.langClient.getTrigger({ id: triggerId });
-        }
-        return undefined;
     }
 
     async getBalVersion(): Promise<string> {

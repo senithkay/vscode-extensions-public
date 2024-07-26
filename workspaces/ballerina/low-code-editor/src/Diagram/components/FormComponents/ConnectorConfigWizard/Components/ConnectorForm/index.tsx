@@ -105,8 +105,7 @@ export function ConnectorForm(props: FormGeneratorProps) {
     const {
         api: {
             code: { modifyDiagram },
-            insights: { onEvent },
-            webView: { showDocumentationView },
+            insights: { onEvent }
         },
         props: { stSymbolInfo, isMutationProgress },
     } = useContext(Context);
@@ -368,18 +367,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
         onEvent(event);
     };
 
-    const openDocPanel = () => {
-        if (connectorInfo?.package) {
-            const { organization, name } = connectorInfo?.package;
-            if (organization && name) {
-                const docURL = generateDocUrl(organization, name, "", connectorInfo?.name, environment);
-                if (docURL) {
-                    showDocumentationView(docURL);
-                }
-            }
-        }
-    };
-
     // TODO: fix AI suggestion issue with vscode implementation
     // useEffect(() => {
     //     if (connector) {
@@ -411,9 +398,6 @@ export function ConnectorForm(props: FormGeneratorProps) {
                     <Typography className={wizardClasses.configTitle} variant="h4">
                         {connectorName}
                     </Typography>
-                    <IconButton onClick={openDocPanel}>
-                        <img src={DocIcon} />
-                    </IconButton>
                 </div>
                 <Divider variant="fullWidth" />
             </div>

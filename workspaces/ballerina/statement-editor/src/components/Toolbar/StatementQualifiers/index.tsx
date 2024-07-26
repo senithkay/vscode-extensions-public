@@ -16,7 +16,7 @@ import {
     ListItemText,
     Menu
 } from "@material-ui/core";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarDropdownArrow from "../../../assets/icons/ToolbarDropdownArrow";
@@ -87,7 +87,7 @@ export default function StatementQualifiers() {
 
     return (
         <>
-            <StatementEditorHint content={"Statement-qualifiers"}>
+            {/* <StatementEditorHint content={"Statement-qualifiers"}> */}
                 <IconButton
                     onClick={handleClick}
                     data-testid="toolbar-qualifier-options"
@@ -99,7 +99,7 @@ export default function StatementQualifiers() {
                     <ToolbarQualifierIcon/>
                     <ToolbarDropdownArrow/>
                 </IconButton>
-            </StatementEditorHint>
+            {/* </StatementEditorHint> */}
             <Menu
                 elevation={0}
                 anchorEl={anchorEl}

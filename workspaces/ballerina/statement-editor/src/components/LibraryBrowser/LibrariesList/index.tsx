@@ -9,10 +9,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { List } from "@material-ui/core";
-import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-core";
+import { Grid } from '@wso2-enterprise/ui-toolkit';
 
-import { useStmtEditorHelperPanelStyles } from "../../styles";
+import { SUGGESTION_COLUMN_SIZE } from '../../../constants';
 import { Library } from '../Library';
 
 interface LibrariesListProps {
@@ -22,11 +22,10 @@ interface LibrariesListProps {
 }
 
 export function LibrariesList(props: LibrariesListProps) {
-    const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraries, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
 
     return (
-        <List className={stmtEditorHelperClasses.libraryListBlock} data-testid="library-list-block">
+        <Grid columns={SUGGESTION_COLUMN_SIZE}>
             {libraries.map((library: LibraryInfo, index: number) => (
                 <Library
                     libraryInfo={library}
@@ -35,6 +34,6 @@ export function LibrariesList(props: LibrariesListProps) {
                     libraryDataFetchingHandler={libraryDataFetchingHandler}
                 />
             ))}
-        </List>
+        </Grid>
     );
 }

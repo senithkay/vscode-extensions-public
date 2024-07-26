@@ -28,7 +28,7 @@ const RightSign = styled.div`
 `;
 
 export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
-    <StepCard>
+    <StepCard id={props.id} className={props.className}>
         {props.titleAlignment === "right" ? (
             <>
                 <StepCircle color={colors.textLinkForeground}>

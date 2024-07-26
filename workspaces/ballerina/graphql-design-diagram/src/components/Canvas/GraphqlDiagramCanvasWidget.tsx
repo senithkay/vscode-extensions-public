@@ -11,7 +11,6 @@
 import React, { useEffect, useState } from "react";
 
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { toJpeg } from 'html-to-image';
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
@@ -21,6 +20,7 @@ import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
+import { NavigationWrapperCanvasWidget } from "./DiagramNavigationWrapper/NavigationWrapperCanvasWidget";
 
 interface DiagramCanvasProps {
     model: DiagramModel;

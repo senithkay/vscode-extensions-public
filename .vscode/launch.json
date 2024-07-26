@@ -5,6 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Eggplant Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/eggplant/eggplant-extension"
+            ],
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
+                "BALLERINA_STAGE_CENTRAL": "false"
+            },
+            "outFiles": [
+                "${workspaceFolder}/workspaces/eggplant/eggplant-extension/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-eggplant"
+        },
+        {
             "name": "Ballerina Extension",
             "type": "extensionHost",
             "request": "launch",
@@ -22,7 +42,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: watch-ballerina"
         },
         {
             "name": "Ballerina Extension Tests",
@@ -48,7 +68,9 @@
             "request": "launch",
             "env": {
                 "WEB_VIEW_DEV_MODE": "true",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+                "CELL_VIEW_DEV_MODE": "true",
+                "CELL_VIEW_DEV_HOST": "http://localhost:3001/cellDiagram.js"
             },
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo/choreo-extension"
@@ -95,27 +117,104 @@
             "envFile": "${workspaceFolder}/workspaces/choreo/choreo-extension/.env",
             "env": {
                 "WEB_VIEW_DEV_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
             },
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "preLaunchTask": "compile:choreo-tests"
         },
         {
-			"name": "Debug Choreo Playwright-E2E Tests",
-			"type": "node",
-			"program": "${workspaceFolder}/workspaces/choreo/choreo-extension/node_modules/mocha/bin/_mocha",
-			"args": [
+            "name": "Debug Choreo Playwright-E2E Tests",
+            "type": "node",
+            "program": "${workspaceFolder}/workspaces/choreo/choreo-extension/node_modules/mocha/bin/_mocha",
+            "args": [
                 "--config",
                 "${workspaceFolder}/workspaces/choreo/choreo-extension/src/tests/e2e-playwright/.mocharc.js",
-				"${workspaceFolder}/workspaces/choreo/choreo-extension/dist/tests/e2e-playwright/suite/**/*.test.js"
-			],
+                "${workspaceFolder}/workspaces/choreo/choreo-extension/dist/tests/e2e-playwright/suite/**/*.test.js"
+            ],
+            "request": "launch",
+            "outFiles": [
+                "${workspaceFolder}/workspaces/choreo/choreo-extension/dist/**/*.js"
+            ],
+            "console": "integratedTerminal",
+            "preLaunchTask": "compile:choreo-tests"
+        },
+        {
+            "name": "MI Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_WATCH_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-mi"
+        },
+        {
+            "name": "MI Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension",
+                "--extensionTestsPath=${workspaceFolder}/workspaces/mi/mi-extension/dist/test/suite/index"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "watch-mi-tests"
+        },
+        {
+            "name": "APIChat Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/api-chat/extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/api-chat/extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-api-chat"
+        },
+        {
+			"name": "APK Extension",
+			"type": "extensionHost",
 			"request": "launch",
-			"outFiles": [
-				"${workspaceFolder}/workspaces/choreo/choreo-extension/dist/**/*.js"
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
 			],
-			"console": "integratedTerminal",
-			"preLaunchTask": "compile:choreo-tests"
-		}
+			"outFiles": [
+				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+			],
+			"preLaunchTask": "npm: watch-apk"
+		},
+        {
+            "name": "FHIR Tools Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension"
+            ],
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "WEB_VIEW_DEV_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
+                "BALLERINA_STAGE_CENTRAL": "false"
+            },
+            "outFiles": [
+                "${workspaceFolder}/workspaces/fhir-tools/fhir-tools-extension/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-fhir-tools"
+        },
     ]
 }

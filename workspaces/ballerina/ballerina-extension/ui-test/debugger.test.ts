@@ -7,21 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar } from "vscode-extension-tester";
-import { wait, waitForBallerina, waitUntilTextContains } from "./util";
+import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar, Workbench } from "vscode-extension-tester";
+import { wait, waitUntilTextContains } from "./util";
 import { join } from "path";
 import { expect } from "chai";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 import { fail } from "assert";
-import { PROJECT_RUN_TIME } from "./constants";
+import { FOCUS_DEBUG_CONSOLE_COMMAND } from "./constants";
 
-const expectedOut = "Listening for transport dt_socket at address: 501";
+const expectedOut = "Running executable";
+let workbench: Workbench;
 
 describe('Debugger UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
 
     beforeEach(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_service.bal`);
+        workbench = new Workbench();
         await VSBrowser.instance.waitForWorkbench();
     });
 
@@ -46,15 +48,15 @@ describe('Debugger UI Tests', () => {
 });
 
 async function verifyDebugOutput() {
-    await wait(PROJECT_RUN_TIME);
-    const terminal = await new BottomBarPanel().openTerminalView();
+    await workbench.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
+    const terminal = await new BottomBarPanel().openDebugConsoleView();
 
-    await waitUntilTextContains(terminal, expectedOut, 30000).catch((e) => {
+    await waitUntilTextContains(terminal, expectedOut, 60000).catch((e) => {
         fail(e);
     }).finally(async () => {
         const bar = await DebugToolbar.create();
         await bar.stop();
-        await terminal.executeCommand('clear');
+        await wait(2000); // wait for debug session to end
     });
 }
 

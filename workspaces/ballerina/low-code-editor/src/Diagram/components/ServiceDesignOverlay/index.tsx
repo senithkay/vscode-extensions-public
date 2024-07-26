@@ -11,9 +11,11 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentViewInfo,
     ConfigOverlayFormStatus,
     NavigationBarDetailContainer,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ServiceDesigner } from "@wso2-enterprise/ballerina-service-designer";
 import {
     NodePosition,
     ServiceDeclaration,
@@ -22,8 +24,9 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
+import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
+import { RecordEditor } from "../FormComponents/ConfigForms/RecordEditor";
 import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
-import { ServiceDesign } from "../ServiceDesign";
 
 import { ServiceDesignStyles } from "./style";
 
@@ -37,11 +40,13 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
     const { onCancel: onClose, model } = props;
 
     const serviceDesignClasses = ServiceDesignStyles();
-
+    const { history } = useHistoryContext();
     const {
-        props: { currentFile },
+        props: { currentFile, fullST },
         api: {
-            ls: { getDiagramEditorLangClient },
+            code: { gotoSource, modifyDiagram, },
+            ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
+            navigation: { updateSelectedComponent }
         },
     } = useContext(Context);
 
@@ -83,9 +88,18 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
         setIsFormOpen(true);
     };
 
+    const handleResourceDefInternalNav = (resourceModel: STNode) => {
+        const currentElementInfo = history[history.length - 1];
+        const componentViewInfo: ComponentViewInfo = {
+            filePath: currentElementInfo.file,
+            position: resourceModel.position
+        }
+        updateSelectedComponent(componentViewInfo);
+    }
+
     return (
         <div className={serviceDesignClasses.container}>
-            <ServiceDesign
+            <ServiceDesigner
                 model={serviceST}
                 langClientPromise={
                     getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
@@ -93,6 +107,13 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
                 currentFile={currentFile}
                 onClose={onClose}
                 handleDiagramEdit={handleFormEdit}
+                recordEditor={RecordEditor}
+                fullST={fullST}
+                getDiagramEditorLangClient={getDiagramEditorLangClient}
+                getExpressionEditorLangClient={getExpressionEditorLangClient}
+                gotoSource={gotoSource}
+                handleResourceDefInternalNav={handleResourceDefInternalNav}
+                modifyDiagram={modifyDiagram}
             />
             {isFormOpen && (
                 <FormGenerator {...formConfig} />

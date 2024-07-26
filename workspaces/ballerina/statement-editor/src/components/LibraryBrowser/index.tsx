@@ -10,28 +10,17 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import {
-    Box,
-    CircularProgress, FormControl,
-    Grid,
-    IconButton,
-    Input,
-    InputAdornment,
-    Typography
-} from "@material-ui/core";
-import { ArrowBack } from "@material-ui/icons";
-import {
     LibraryDataResponse,
-    LibraryKind,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
+import { Button, Codicon, Icon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import debounce from "lodash.debounce";
 
-import LibraryModuleIcon from "../../assets/icons/LibraryModuleIcon";
-import LibrarySearchIcon from "../../assets/icons/LibrarySearchIcon";
-import { LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER } from "../../constants";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../styles";
+import { DiagnosticsPaneId } from "../Diagnostics";
+import { useStmtEditorHelperPanelStyles } from "../styles";
 
+import { useLibrariesList, useLibrarySearchData } from "./Hooks";
 import { LibrariesList } from "./LibrariesList";
 import { SearchResult } from "./SearchResult";
 import { filterByKeyword } from "./utils";
@@ -51,57 +40,48 @@ const DEFAULT_SEARCH_SCOPE = "distribution";
 export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const statementEditorClasses = useStatementEditorStyles();
-    const {
-        library: {
-            getLibrariesList,
-            getLibrariesData
-        }
-    } = useContext(StatementEditorContext);
+    const { libraryBrowserRpcClient } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [searchScope, setSearchScope] = useState(DEFAULT_SEARCH_SCOPE);
-    const [librariesSearchData, setLibrariesSearchData] = useState<LibrarySearchResponse>();
-    const [libraries, setLibraries] = useState([]);
     const [filteredSearchData, setFilteredSearchData] = useState<LibrarySearchResponse>();
     const [libraryData, setLibraryData] = useState<LibraryDataResponse>();
     const [moduleTitle, setModuleTitle] = useState('');
     const [moduleSelected, setModuleSelected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [diagnosticsHeight, setDiagnosticsHeight] = useState(0);
+
+    const { librariesSearchData, isFetchingSearchData } = useLibrarySearchData(libraryBrowserRpcClient);
+    const { libraries, isFetchingLibList } = useLibrariesList(libraryBrowserRpcClient, libraryType);
+
+    const {
+        statementCtx: {
+            diagnostics,
+            errorMsg
+        }
+    } = useContext(StatementEditorContext);
 
     useEffect(() => {
-        (async () => {
-            const response = await getLibrariesData();
-            if (response) {
-                setLibrariesSearchData(response);
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
-        (async () => {
-            libraryDataFetchingHandler(true);
-            let response;
-            if (libraryType === LANG_LIBS_IDENTIFIER) {
-                response = await getLibrariesList(LibraryKind.langLib);
-            } else if (libraryType === STD_LIBS_IDENTIFIER) {
-                response = await getLibrariesList(LibraryKind.stdLib);
-            } else {
-                response = await getLibrariesList();
-            }
-
-            if (response) {
-                setLibraries(response.librariesList);
-            }
-
-            setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
-            setSearchScope(DEFAULT_SEARCH_SCOPE);
-            setModuleTitle('');
-            setModuleSelected(false);
-            resetKeyword();
-            libraryDataFetchingHandler(false);
-        })();
+        setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
+        setSearchScope(DEFAULT_SEARCH_SCOPE);
+        setModuleTitle('');
+        setModuleSelected(false);
+        resetKeyword();
+        libraryDataFetchingHandler(false);
     }, [libraryType]);
+
+    // A workaround for https://github.com/microsoft/vscode-webview-ui-toolkit/issues/464
+    useEffect(() => {
+        const handleResize = () => {
+            const diagnosticsElement = document.getElementById(DiagnosticsPaneId);
+            if (diagnosticsElement) {
+                const height = diagnosticsElement.offsetHeight;
+                setDiagnosticsHeight(height);
+            }
+        };
+        handleResize();
+    }, [diagnostics, errorMsg]);
 
     const libraryBrowsingHandler = (data: LibraryDataResponse) => {
         setLibraryData(data);
@@ -136,31 +116,25 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     }
 
     const loadingScreen = (
-        <Grid sm={12} item={true} container={true} className={stmtEditorHelperClasses.loadingContainer}>
-            <Grid item={true} sm={12}>
-                <Box display="flex" justifyContent="center">
-                    <CircularProgress />
-                </Box>
-                <Box display="flex" justifyContent="center" mt={2}>
-                    <Typography variant="body1">Loading...</Typography>
-                </Box>
-            </Grid>
-        </Grid>
+        <div className={stmtEditorHelperClasses.loadingContainer}>
+            <ProgressRing sx={{height: '35px', width: '35px', marginBottom: '12px'}} />
+            <Typography variant="body2">Loading...</Typography>
+        </div>
     );
 
-    const searchLibrary = (event: React.ChangeEvent<HTMLInputElement>) => {
-        libraryDataFetchingHandler(true)
-        const searchValue: string = event.target.value;
+    const searchLibrary = (value: string) => {
+        setSearchValue(value);
+        libraryDataFetchingHandler(true);
 
-        if (searchValue === '' && !moduleSelected) {
+        if (value === '' && !moduleSelected) {
             setLibraryBrowserMode(LibraryBrowserMode.LIB_LIST);
             setSearchScope(DEFAULT_SEARCH_SCOPE);
         } else {
             let filteredData;
             if (librariesSearchData && searchScope === DEFAULT_SEARCH_SCOPE) {
-                filteredData = filterByKeyword(librariesSearchData, searchValue);
+                filteredData = filterByKeyword(librariesSearchData, value);
             } else if (libraryData && searchScope !== DEFAULT_SEARCH_SCOPE) {
-                filteredData = filterByKeyword(libraryData.searchData, searchValue);
+                filteredData = filterByKeyword(libraryData.searchData, value);
             }
             setLibraryBrowserMode(LibraryBrowserMode.LIB_SEARCH);
             setFilteredSearchData(filteredData);
@@ -176,37 +150,41 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             <div className={stmtEditorHelperClasses.libraryBrowserHeader}>
                 {(libraryBrowserMode !== LibraryBrowserMode.LIB_LIST || searchScope !== DEFAULT_SEARCH_SCOPE) && (
                     <>
-                        <IconButton onClick={onClickOnReturnIcon} className={stmtEditorHelperClasses.libraryReturnIcon}>
-                            <ArrowBack className={stmtEditorHelperClasses.arrowBack} />
-                        </IconButton>
+                        <Button
+                            appearance="icon"
+                            onClick={onClickOnReturnIcon}
+                            className={stmtEditorHelperClasses.libraryReturnIcon}
+                            data-testid="search-return"
+                        >
+                            <Codicon name="arrow-left" />
+                        </ Button>
                         {moduleTitle && (
                             <>
-                                <div className={stmtEditorHelperClasses.libraryModuleIcon}>
-                                    <LibraryModuleIcon/>
-                                </div>
+                                <Icon
+                                    name="module-icon"
+                                    sx={{fontSize: "16px"}}
+                                />
                                 <div className={stmtEditorHelperClasses.moduleTitle}>{moduleTitle}</div>
                             </>
                         )}
                     </>
                 )}
-                <FormControl style={{ width: 'inherit' }}>
-                    <Input
-                        id={"searchKeyword"}
-                        className={stmtEditorHelperClasses.librarySearchBox}
-                        autoFocus={true}
-                        placeholder={`search in ${searchScope}`}
-                        onChange={debounceLibrarySearch}
-                        endAdornment={(
-                            <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                                <LibrarySearchIcon />
-                            </InputAdornment>
-                        )}
-                    />
-                </FormControl>
+                <SearchBox
+                    id={'searchKeyword'}
+                    autoFocus={true}
+                    placeholder={`Search in ${searchScope}`}
+                    value={searchValue}
+                    onChange={debounceLibrarySearch}
+                    size={100}
+                    data-testid="library-searchbar"
+                />
             </div>
-            {isLoading ? loadingScreen : (
+            {isLoading || isFetchingSearchData || isFetchingLibList ? loadingScreen : (
                 <>
-                    <div className={stmtEditorHelperClasses.libraryWrapper}>
+                    <div
+                        className={stmtEditorHelperClasses.libraryWrapper}
+                        style={{maxHeight: `calc(100vh - ${ 305 + diagnosticsHeight}px)`}}
+                    >
                         {libraryBrowserMode === LibraryBrowserMode.LIB_LIST && !moduleTitle && (
                             <LibrariesList
                                 libraries={libraries}
@@ -224,9 +202,12 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
                         {libraryBrowserMode === LibraryBrowserMode.LIB_SEARCH && filteredSearchData &&
                         (isEmptyFilteredList ?
                             (
-                                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                                    <p>No result found for the searched keyword</p>
-                                </div>
+                                <Typography
+                                    variant="body3"
+                                    sx={{marginTop: '15px'}}
+                                >
+                                    No result found for the searched keyword
+                                </Typography>
                             ) :
                             (
                                 <SearchResult

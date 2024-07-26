@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Project, Component, Repository, Deployment, BuildStatus, ComponentWizardWebAppConfig } from "@wso2-enterprise/choreo-core";
 
@@ -62,6 +58,37 @@ export interface CreateByocComponentParams extends ChoreoOrgIdParams {
         srcGitRepoBranch: string;
     },
     byocWebAppsConfig?: ComponentWizardWebAppConfig
+}
+
+export interface CreateBuildpackComponentParams extends ChoreoOrgIdParams {
+    name: string;
+    displayName: string;
+    description: string;
+    projectId: string;
+    accessibility: string;
+    componentType: string;
+    port?: number;
+    bitbucketCredentialId?: string; 
+    buildpackConfig: {
+        buildContext: string;
+        buildpackId: string;
+        languageVersion: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+    };
+}
+
+export interface CreateMiComponentParams extends ChoreoOrgIdParams {
+    name: string;
+    displayName: string;
+    componentType: string;
+    description: string;
+    projectId: string;
+    accessibility: string;
+    repositorySubPath: string;
+    srcGitRepoBranch: string;
+    srcGitRepoUrl: string;
+    bitbucketCredentialId: string;
 }
 
 export interface GetProjectEnvParams extends ChoreoOrgIdParams {
@@ -168,6 +195,8 @@ export interface IChoreoProjectClient {
     createProject(params: CreateProjectParams): Promise<Project>;
     createComponent(params: ComponentMutationParams): Promise<Component>;
     createByocComponent(params: CreateByocComponentParams): Promise<Component>;
+    createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component>;
+    createMiComponent(params: CreateMiComponentParams): Promise<Component>;
     deleteComponent(params: DeleteComponentParams): Promise<void>;
     linkRepo(params: LinkRepoMutationParams): Promise<Repository>;
 }

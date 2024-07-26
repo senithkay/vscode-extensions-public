@@ -24,9 +24,19 @@
     "strictNullChecks": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "paths": {
+      "react": [
+          "./node_modules/@types/react"
+      ]
+    },
     "typeRoots": [
       "node_modules/@types"
-    ]
+    ],
+    "paths": {
+      "react": [
+        "./node_modules/@types/react"
+      ]
+    }
   },
   "include": [
     "src/index.tsx",

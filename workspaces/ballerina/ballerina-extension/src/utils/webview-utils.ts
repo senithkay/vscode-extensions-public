@@ -74,6 +74,9 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
     const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
     const resourceRoot = isCodeServer ? RESOURCES_CDN : getVSCodeResourceURI(getWebViewResourceRoot(), webView);
 
+    const codiconUri = webView.asWebviewUri(Uri.joinPath((ballerinaExtInstance.context as ExtensionContext).extensionUri, "resources", "codicons", "codicon.css"));
+    const fontsUri = webView.asWebviewUri(Uri.joinPath((ballerinaExtInstance.context as ExtensionContext).extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+
     return `
             <!DOCTYPE html>
             <html>
@@ -81,6 +84,8 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
                 <meta charset="utf-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
+                <link rel="stylesheet" href="${codiconUri}">
+                <link rel="stylesheet" href="${fontsUri}">
                 ${externalStyles}
                 <style>
                     /* use this class for loader that are shown until the module js is loaded */

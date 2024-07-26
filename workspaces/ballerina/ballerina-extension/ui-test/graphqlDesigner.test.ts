@@ -9,8 +9,10 @@
 
 import { before, describe } from "mocha";
 import { join } from "path";
-import { By, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
+import { By, EditorView, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
 import { GraphqlDesignerView } from "./utils/GraphqlDesignerView";
+import { clickOnActivity, wait } from "./util";
+import { EXPLORER_ACTIVITY } from "./constants";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'starwars');
@@ -22,8 +24,9 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     before(async () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
-        webview = new WebView();
+        await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
     it('Verify nodes and fields in Graphql Visualizer', async () => {
@@ -103,6 +106,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify filtering of operations', async () => {
+        webview = new WebView();
         await GraphqlDesignerView.clickOperationFilterOption(webview, "Mutations");
 
         await GraphqlDesignerView.verifyFieldsInNode("graphql-root-node-/graphql2", ["remote-identifier-createReview"]);
@@ -124,7 +128,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify subGraph filtering', async () => {
-        await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true);
+        await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true); 
         await GraphqlDesignerView.clickOperationFilterOption(webview, "All Operations");
 
         await GraphqlDesignerView.verifyNodeHeader("union-head-SearchResult");

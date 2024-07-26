@@ -10,7 +10,7 @@
 import React from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 
-import { Box, Typography } from "@material-ui/core";
+// import { Box, Typography } from "@material-ui/core";
 
 import { useStyles } from "../style";
 
@@ -27,11 +27,11 @@ export function FormTitle(props: FormTitleProps) {
     return (
         <div className={formClasses.formTitleWrapper}>
             <div className={formClasses.mainTitleWrapper}>
-                <Typography variant="h4">
-                    <Box paddingTop={"19px"} paddingBottom={"16px"}>
-                        <FormattedMessage id={formTitle} defaultMessage={defaultMessage} />
-                    </Box>
-                </Typography>
+                <h4>
+                    <div>
+                        {defaultMessage}
+                    </div>
+                </h4>
             </div>
         </div>
     );

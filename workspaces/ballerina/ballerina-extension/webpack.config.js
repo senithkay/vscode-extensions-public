@@ -47,7 +47,6 @@ module.exports = {
     new MergeIntoSingleFile({
       files: {
         [path.join('..', 'resources', 'jslibs', 'webviewCommons.js')]: [
-          path.resolve('resources', 'utils', 'messaging.js'),
           path.resolve('resources', 'utils', 'undo-redo.js'),
           path.resolve('node_modules', 'pako', 'dist', 'pako.min.js'),
         ],

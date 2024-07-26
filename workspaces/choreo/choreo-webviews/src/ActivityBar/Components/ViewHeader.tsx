@@ -21,6 +21,10 @@ const Header = styled.div`
     gap: 10px;
 `;
 
-export const ViewHeader: React.FC = (props) => (
+interface ViewHeaderProps {
+    children?: React.ReactNode;
+}
+
+export const ViewHeader: React.FC<ViewHeaderProps> = (props: ViewHeaderProps) => (
     <Header>{props.children}</Header>
 );

@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "workspaces/mi/mi-core"
+		},
+		{
+			"path": "workspaces/mi/mi-extension"
+		},
+		{
+			"path": "workspaces/mi/syntax-tree"
+		},
+		{
+			"path": "workspaces/mi/mi-diagram"
+		},
+		{
+			"path": "workspaces/mi/mi-visualizer"
+		},
+		{
+			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/common-libs/service-designer"
+		}
+	]
+}

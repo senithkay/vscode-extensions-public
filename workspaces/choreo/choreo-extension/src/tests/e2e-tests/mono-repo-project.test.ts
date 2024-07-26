@@ -55,9 +55,9 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
         });
     });
 
-    it("Verify component in Architecture & Cell view", async () => {
+    it("Verify component in Cell view", async () => {
         await CommonUtils.closeAllEditors();
-        await ProjectView.verifyComponentWithinArchitectureView(COMPONENT_NAME);
+        // Checking whether the name from ballerina toml is available in cell diagram
         await ProjectView.verifyComponentWithinCellView(COMPONENT_NAME);
         await CommonUtils.closeAllEditors();
     });

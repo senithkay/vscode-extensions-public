@@ -43,7 +43,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     inputlabel: {
       padding: 0,
-      color: "#1D2028 !important",
+      color: "var(--vscode-editor-foreground) !important",
       fontSize: "13px !important",
       margin: '0 !important',
       textTransform: 'capitalize',
@@ -61,7 +61,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       border: '1px solid #DEE0E7',
       fontFamily: 'inherit',
-      color: '#1D2028',
+      color: 'var(--vscode-editor-foreground)',
       // marginTop: '0.5rem',
       lineHeight: '22px',
       '&::placeholder': {
@@ -80,7 +80,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       bordeRadius: "5px",
       background: 'rgba(234,76,77,0.05)',
       boxShadow: 'inset 0 0 0 1px #EA4C4D, inset 0 1px 1px 0 rgba(0,0,0,0.07), 0 0 0 0 rgba(50,50,77,0.07) !important',
-      color: "#1d202882",
+      color: "var(--vscode-editor-foreground)",
       '& .MuiOutlinedInput-input': {
         borderRadius: 5,
         borderColor: "#trasnparent !important",
@@ -119,7 +119,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     chipLabel: {
       textTransform: 'capitalize',
       fontSize: "13px",
-      color: "#1D2028",
+      color: "var(--vscode-editor-foreground)",
       transform: "scale(1, 1)"
     },
     chip: {

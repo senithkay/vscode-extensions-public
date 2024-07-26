@@ -23,7 +23,7 @@ export const ConfigCardList = (props: {
     items: Pick<ComponentTypeCardProps, "label" | "description" | "value" | "icon">[];
 }) => (
     <CardContainer>
-        {props.items.map((item) => (
+        {props.items?.map((item) => (
             <ComponentTypeCard
                 {...item}
                 formKey={props.formKey}

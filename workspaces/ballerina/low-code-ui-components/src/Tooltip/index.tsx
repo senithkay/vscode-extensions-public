@@ -195,7 +195,7 @@ export function Tooltip(props: Partial<TooltipPropsExtended>) {
         );
 
     }
-
+    // @ts-ignore
     return <TooltipComponentRef {...restProps} title={tooltipTitle}>{children}</TooltipComponentRef>
 }
 

@@ -1,17 +1,20 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from 'vscode';
-import { ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
+import {
+    ChoreoProjectClient,
+    IReadOnlyTokenStorage,
+    ChoreoSubscriptionClient,
+    ComponentManagementClient,
+    ChoreoCellViewClient,
+    ChoreoDevopsClient
+} from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
 import { CHOREO_ENV_CONFIG_DEV, CHOREO_ENV_CONFIG_STAGE, ChoreoEnvConfig, IChoreoEnvConfig, DEFAULT_CHOREO_ENV_CONFIG } from "./config";
@@ -58,8 +61,13 @@ export async function activateClients(): Promise<void> {
         }
     };
 
-    const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(),
-        choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
+    const projectClient = new ChoreoProjectClient(
+        readonlyTokenStore,
+        choreoEnvConfig.getProjectAPI(),
+        choreoAIConfig.getPerfAPI(),
+        choreoAIConfig.getSwaggerExamplesAPI(),
+        choreoEnvConfig.getDeclarativeUrl()
+    );
 
     const githubAppClient = new ChoreoGithubAppClient(
         readonlyTokenStore, choreoEnvConfig.getProjectAPI(), choreoEnvConfig.getGHAppConfig());
@@ -68,11 +76,16 @@ export async function activateClients(): Promise<void> {
 
     const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoEnvConfig.getComponentManagementUrl());
 
+    const devopsClient = new ChoreoDevopsClient(readonlyTokenStore, choreoEnvConfig.getDevopsUrl());
+    const cellViewClient = new ChoreoCellViewClient(projectClient);
+
     ext.clients = {
         githubAppClient,
         projectClient,
         subscriptionClient,
-        componentManagementClient
+        componentManagementClient,
+        devopsClient,
+        cellViewClient
     };
 }
 

@@ -1,21 +1,16 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import React from "react";
 import { render } from "react-dom";
 import styled from "@emotion/styled";
 import ChoreoWebview from "./ChoreoWebview";
-import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -31,11 +26,10 @@ export function renderChoreoWebViews(
 	orgName?: string,
 	componentLimit?: number,
 	choreoUrl?: string,
-	componentCreateMode?: ComponentCreateMode
 ) {
 	render(
 		<React.StrictMode>
-			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl, componentCreateMode }} />
+			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl }} />
 		</React.StrictMode>,
 		target
 	);

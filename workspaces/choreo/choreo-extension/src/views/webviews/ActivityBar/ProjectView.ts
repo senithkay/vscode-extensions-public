@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from 'vscode';
 import { WebViewViewRPC } from "../rpc/WebviewRPC";
@@ -59,14 +55,14 @@ export class ProjectView implements vscode.WebviewViewProvider {
 	private _getWebviewContent(webview: vscode.Webview) {
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, ext.context.extensionUri, [
-		  "resources",
-		  "jslibs",
-		  "main.js"
+			"resources",
+			"jslibs",
+			"main.js"
 		]);
-	
+
 		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
 		const fontsUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
-	
+
 		return /*html*/ `
 			  <!DOCTYPE html>
 			  <html lang="en">
@@ -97,5 +93,5 @@ export class ProjectView implements vscode.WebviewViewProvider {
 				</script>
 			  </html>
 			`;
-	  }
+	}
 }

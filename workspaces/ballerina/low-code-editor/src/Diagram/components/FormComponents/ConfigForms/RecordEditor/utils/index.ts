@@ -136,7 +136,7 @@ export function getAvailableCreatedRecords(recordNames: RecordItemModel[], synta
 
 export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefinition {
     return (modulePartSt.members.find(record => (STKindChecker.isTypeDefinition(record)
-        && (record.typeName.value === name)))) as TypeDefinition;
+        && (record.typeName.value.replace(/\\/g, '') === name)))) as TypeDefinition;
 }
 
 export async function getModulePartST(partialSTRequest: PartialSTRequest, lsUrl: string, ls?: any): Promise<STNode> {
