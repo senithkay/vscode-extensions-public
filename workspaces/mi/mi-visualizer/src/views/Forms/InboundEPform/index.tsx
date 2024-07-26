@@ -141,7 +141,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             }
         }
         const response = await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
-        if (response.path) {
+        if (response.path && !props.model) {
             openSequence(response.path);
         } else {
             openOverview();

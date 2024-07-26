@@ -32,7 +32,6 @@ export interface AddInboundConnectorProps {
     path: string;
     setType: (type: string) => void;
     handleCreateInboundEP: (values: any) => void;
-    isEdit?: boolean;
 }
 
 type InboundEndpoint = {
@@ -131,7 +130,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.isEdit ? "Update" : "Add"}
+                    {props.model ? "Update" : "Add"}
                 </Button>
                 <Button
                     appearance="secondary"
