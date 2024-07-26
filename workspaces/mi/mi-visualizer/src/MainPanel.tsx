@@ -29,7 +29,7 @@ import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm/index";
 import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { APIResource, NamedSequence, Proxy, Template, MockService, UnitTest, Task } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource, NamedSequence, Proxy, Template, MockService, UnitTest, Task, InboundEndpoint } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
@@ -254,7 +254,7 @@ const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => 
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.InboundEPForm:
-                    setViewComponent(<InboundEPWizard path={machineView.documentUri} />);
+                    setViewComponent(<InboundEPWizard path={machineView.documentUri} model={(machineView.stNode as InboundEndpoint)} />);
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
                     setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);

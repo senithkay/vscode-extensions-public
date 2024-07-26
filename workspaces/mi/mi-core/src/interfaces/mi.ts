@@ -7,7 +7,7 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { API, Datamapper, NamedSequence, Proxy, Template, Task } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { API, Datamapper, NamedSequence, Proxy, Template, Task, InboundEndpoint } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export enum DIAGRAM_KIND {
     API = "api",
@@ -15,7 +15,8 @@ export enum DIAGRAM_KIND {
     PROXY = "proxy",
     DATA_MAPPER = "data_mapper",
     TEMPLATE = "template",
-    TASK = "task"
+    TASK = "task",
+    INBOUND_ENDPOINT = "inboundEndpoint",
 }
 
 export type SyntaxTreeMi = {
@@ -25,4 +26,5 @@ export type SyntaxTreeMi = {
     [DIAGRAM_KIND.DATA_MAPPER]: Datamapper;
     [DIAGRAM_KIND.TEMPLATE]: Template;
     [DIAGRAM_KIND.TASK]: Task;
+    [DIAGRAM_KIND.INBOUND_ENDPOINT]: InboundEndpoint;
 }

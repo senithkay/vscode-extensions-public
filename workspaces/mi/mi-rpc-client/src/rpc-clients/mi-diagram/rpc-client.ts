@@ -679,7 +679,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getConnectionForm, HOST_EXTENSION, params);
     }
 
-    saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+    saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInboundEPUischema, HOST_EXTENSION, params);
     }
 

@@ -216,12 +216,12 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/connectorConnections", { documentIdentifier: { uri: Uri.file(req.documentUri).toString() }, "connectorName": req.connectorName });
     }
 
-    async saveInboundEPUischema(req: SaveInboundEPUischemaRequest): Promise<void> {
-        return this.sendRequest("synapse/saveInboundConnectorSchema", { "connectorName": req.connectorName, "uiSchema": req.uiSchema});
+    async saveInboundEPUischema(req: SaveInboundEPUischemaRequest): Promise<boolean> {
+        return this.sendRequest("synapse/saveInboundConnectorSchema", { connectorName: req.connectorName, uiSchema: req.uiSchema});
     }
 
     async getInboundEPUischema(req: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
-        return this.sendRequest("synapse/getInboundConnectorSchema", { "connectorName": req.connectorName });
+        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorName: req.connectorName  });
     }
 
     async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {

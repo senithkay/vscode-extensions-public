@@ -3453,7 +3453,7 @@ ${endpointAttributes}
 
     }
 
-    async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+    async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.saveInboundEPUischema({
@@ -3469,7 +3469,8 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getInboundEPUischema({
-                connectorName: params.connectorName
+                connectorName: params.connectorName,
+                documentPath: params.documentPath
             });
             resolve(res);
         });
