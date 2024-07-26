@@ -447,11 +447,123 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "MI.project-explorer.add-api",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-endpoint",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-sequence",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-inbound-endpoint",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-local-entry",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-connection",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-registry-resource",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.edit-reg-metadata",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-class-mediator",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-message-processor",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-proxy-service",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-task",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-message-store",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-data-source",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-template",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-data-service",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.open-dss-service-designer",
+          "when": "false"
+        },
+        {
           "command": "MI.project-explorer.open-service-designer",
           "when": "false"
         },
         {
+          "command": "MI.project-explorer.delete",
+          "when": "false"
+        },
+        {
+          "command": "MI.show.source",
+          "when": "false"
+        },
+        {
           "command": "MI.show.graphical-view",
+          "when": "false"
+        },
+        {
+          "command": "MI.build-and-run",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.add.suite",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.edit.suite",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.add.case",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.edit.case",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.add.mock-service",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.edit.mock-service",
+          "when": "false"
+        },
+        {
+          "command": "MI.test.refresh.mock-services",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add",
           "when": "false"
         }
       ],

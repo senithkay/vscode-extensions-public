@@ -259,6 +259,11 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
 
     const deleteArtifact = (path: string) => {
         rpcClient.getMiDiagramRpcClient().deleteArtifact({ path, enableUndo: true });
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(`flowState-${path}-`)) {
+                localStorage.removeItem(key);
+            }
+        });
     }
 
     const markAsDefaultSequence = (path: string, remove: boolean) => {
