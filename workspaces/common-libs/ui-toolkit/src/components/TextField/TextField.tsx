@@ -19,7 +19,7 @@ interface IconProps {
     onClick?: () => void;
 }
 
-interface InputProps {
+export interface InputProps {
     startAdornment?: string | ReactNode;
     endAdornment?: string | ReactNode;
 }
@@ -38,7 +38,7 @@ export interface TextFieldProps extends ComponentProps<"input"> {
     validationMessage?: string;
     sx?: any;
     onTextChange?: (text: string) => void;
-    InputProps?: InputProps;
+    inputProps?: InputProps;
 }
 
 interface ContainerProps {
@@ -63,7 +63,7 @@ const Description = styled.div<ContainerProps>`
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
-        placeholder, description, validationMessage, errorMsg, sx, InputProps, onTextChange,
+        placeholder, description, validationMessage, errorMsg, sx, inputProps, onTextChange,
         labelAdornment, ...rest
     } = props;
 
@@ -78,19 +78,19 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
         props.onChange && props.onChange(e);
     };
 
-    const startAdornment = InputProps?.startAdornment ? (
-        typeof InputProps.startAdornment === "string" ? (
-            <Typography variant="body1">{InputProps.startAdornment}</Typography>
+    const startAdornment = inputProps?.startAdornment ? (
+        typeof inputProps.startAdornment === "string" ? (
+            <Typography variant="body1">{inputProps.startAdornment}</Typography>
         ) : (
-            InputProps.startAdornment
+            inputProps.startAdornment
         )
     ) : undefined;
 
-    const endAdornment = InputProps?.endAdornment ? (
-        typeof InputProps.endAdornment === "string" ? (
-            <Typography variant="body1">{InputProps.endAdornment}</Typography>
+    const endAdornment = inputProps?.endAdornment ? (
+        typeof inputProps.endAdornment === "string" ? (
+            <Typography variant="body1">{inputProps.endAdornment}</Typography>
         ) : (
-            InputProps.endAdornment
+            inputProps.endAdornment
         )
     ) : undefined;
 
