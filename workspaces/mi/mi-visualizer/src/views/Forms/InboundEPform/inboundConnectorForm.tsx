@@ -54,7 +54,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 }
             });
 
-            model.parameters[0].parameter.forEach((param: any) => {
+            model.parameters[0]?.parameter?.forEach((param: any) => {
                 setValue(getNameForController(param.name), param.content);
             });
         }
