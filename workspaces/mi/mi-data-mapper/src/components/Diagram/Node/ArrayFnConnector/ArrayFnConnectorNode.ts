@@ -185,7 +185,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         const previouslyHidden = this.hidden;
         this.hidden = this.targetPort?.hidden;
     
-        if (this.hidden !== previouslyHidden || this.prevSourcePort.getID() !== this.sourcePort.getID()) {
+        if (this.hidden !== previouslyHidden || this.prevSourcePort?.getID() !== this.sourcePort?.getID()) {
             this.hasInitialized = false;
         }
         while (this.targetPort && this.targetPort.hidden){
