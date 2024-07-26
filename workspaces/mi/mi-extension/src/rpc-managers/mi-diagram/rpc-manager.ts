@@ -1134,6 +1134,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             }
 
+            if (attributes.onError) {
+                if (!(sequenceList.includes(attributes.onError as string))) {
+
+                    const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
+                    const sequenceRequest: CreateSequenceRequest = {
+                        name: attributes.onError as string,
+                        directory: sequenceDir,
+                        endpoint: "",
+                        onErrorSequence: "",
+                        getContentOnly: false,
+                        statistics: false,
+                        trace: false
+                    };
+                    await this.createSequence(sequenceRequest);
+                }
+            }
+
             await replaceFullContentToFile(filePath, xmlData);
             resolve({ path: sequencePath });
         });
