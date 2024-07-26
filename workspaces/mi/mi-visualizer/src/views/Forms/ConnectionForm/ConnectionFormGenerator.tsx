@@ -264,7 +264,6 @@ export function AddConnection(props: AddConnectionProps) {
         const template = create();
         const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
         root.ele('connectionType').txt(getValues("connectionType"));
-        root.ele('name').txt(getValues("name"));
 
         if (errors && Object.keys(errors).length > 0) {
             console.error("Errors in saving connection form", errors);
