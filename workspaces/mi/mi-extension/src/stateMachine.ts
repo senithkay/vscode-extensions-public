@@ -382,7 +382,8 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
-                if (context.view?.includes("Form")) {
+
+                if (context.view?.includes("Form") && context.view !== MACHINE_VIEW.InboundEPForm) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -459,6 +460,9 @@ const stateMachine = createMachine<MachineContext>({
                                     break;
                                 case !!node["mock-service"]:
                                     viewLocation.stNode = node["mock-service"] as MockService;
+                                    break;
+                                case !!node.inboundEndpoint:
+                                    viewLocation.stNode = node.inboundEndpoint;
                                     break;
                                 default:
                                     // Handle default case

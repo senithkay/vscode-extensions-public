@@ -13,103 +13,41 @@ interface Parameter {
     [key: string]: string | number | boolean;
 }
 
-export interface GetInboundTemplatesArgs {
+interface NameValuePair {
     name: string;
-    type: string;
-    sequence: string;
-    errorSequence: string;
-    suspend?: boolean;
-    trace?: boolean;
-    statistics?: boolean;
-    description?: string;
-    parameters?: Parameter;
+    value: string | boolean | number;
+}
+
+export interface GetInboundTemplatesArgs {
+    attributes: {};
+    parameters: {};
 }
 
 export function getInboundEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<inboundEndpoint name="{{name}}" {{#classAttr}}class="{{classAttr}}" {{/classAttr}}onError="{{errorSequence}}" sequence="{{sequence}}" {{#protocol}}protocol="{{protocol}}" {{/protocol}}{{#statistics}}statistics="enable" {{/statistics}}{{#suspend}}suspend="{{suspend}}" {{/suspend}}{{#trace}}trace="enable" {{/trace}}xmlns="http://ws.apache.org/ns/synapse">
-    <parameters>
+<inboundEndpoint{{#attributes}} {{name}}="{{value}}"{{/attributes}}>
+    <parameters xmlns="http://ws.apache.org/ns/synapse">
     {{#params}}
-        {{^custom}}<parameter name="{{key}}">{{value}}</parameter>{{/custom}}{{#custom}}{{{custom}}}{{/custom}}
+        <parameter name="{{name}}">{{value}}</parameter>
     {{/params}}
     </parameters>
 </inboundEndpoint>`;
 }
 
 export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
-    const { parameters, ...mainData } = data;
-    const protocol =
-        data.type === 'wso2_mb' ? 'jms' : data.type;
-
-    let classAttr = '';
-    let params: Parameter[] = [];
-    Object.entries(parameters ?? {}).map(([key, value]) => {
-        if (value !== undefined && value !== '' && value !== null) {
-            params.push({ key, value });
-        }
-    });
-
-    if (data.type === 'rabbitmq') {
-        const qosType = params.find((param) => param.key === 'rabbitmq.channel.consumer.qos.type');
-        const qos = params.find((param) => param.key === 'rabbitmq.channel.consumer.qos');
-        if (qosType?.value === 'registry') {
-            params.map((param) => {
-                if (param.key === 'rabbitmq.channel.consumer.qos') {
-                    param.custom = `<parameter key="${qos?.value}" name="rabbitmq.channel.consumer.qos"/>`;
-                }
-            });
-        }
-        params = params.filter((param) => param.key !== 'rabbitmq.channel.consumer.qos.type');
-
-        ['rabbitmq.queue.autodeclare', 'rabbitmq.exchange.autodeclare'].map((key) => {
-            const parameter = params.find((param) => param.key === key);
-            if (parameter?.value === 'true') {
-                params = params.filter((param) => param.key !== key);
-            }
-            else {
-                params.push({ key, value: 'false' });
-            }
-        });
-    } else if (data.type === 'wso2_mb') {
-        const factoryType = params.find((param) => param.key === 'transport.jms.ConnectionFactoryType');
-        const url = params.find((param) => param.key === 'mb.connection.url')?.value ?? '';
-        if (factoryType?.value) {
-            const type = factoryType.value === 'queue' ? 'Queue' : 'Topic';
-            params.push({ key: `connectionfactory.${type}ConnectionFactory`, value: url });
-            params = params.filter((param) => param.key !== `connectionfactory.${type === 'Topic' ? 'Queue' : 'Topic'}ConnectionFactory`);
-        }
-        params = params.filter((param) => param.key !== 'mb.connection.url');
-    } else if (data.type === 'kafka') {
-        const topics = params.find((param) => param.key === 'topics');
-        const topicName = params.find((param) => param.key === 'topic.name');
-        if (topics?.value && topics?.value !== 'topics') {
-            params = params.filter((param) => param.key !== 'topic.name');
-            params = params.filter((param) => param.key !== 'topics');
-            params.push({ key: 'topics', value: topicName?.value ?? 'sampleTopic' });
-        } else if (topics?.value && topics?.value !== 'topic.filter') {
-            params = params.filter((param) => param.key !== 'topic.name');
-            params = params.filter((param) => param.key !== 'topics');
-            params.push({ key: 'topic.filter', value: topicName?.value ?? 'sample-topic-filter' });
-            params.push({ key: 'filter.from.whitelist', value: 'true' });
-        }
-    }
-
-    const classParam = params.find((param) => param.key === 'class');
-    if (classParam?.value) {
-        classAttr = classParam.value as string;
-        params = params.filter((param) => param.key !== 'class');
-    }
+    const { parameters, attributes } = data;
 
     const modifiedData = {
-        ...mainData,
-        classAttr,
-        isCustomType: data.type === 'custom',
-        protocol,
-        statistics: mainData?.statistics ? 'enable' : undefined,
-        trace: mainData?.trace ? 'enable' : undefined,
-        suspend: mainData?.suspend ? 'true' : 'false',
-        params
+        attributes: transformJsonObject(attributes),
+        params: transformJsonObject(parameters)
     };
 
     return render(getInboundEndpointMustacheTemplate(), modifiedData);
+}
+
+function transformJsonObject(obj: { [key: string]: string | boolean | number }): NameValuePair[] {
+    return Object.entries(obj).map(([key, value]) => ({
+        name: key,
+        value: value
+    }));
 }

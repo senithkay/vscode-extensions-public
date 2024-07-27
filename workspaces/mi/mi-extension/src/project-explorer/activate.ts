@@ -145,7 +145,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
-		if (viewLocation.documentUri && viewLocation.projectUri && data) {
+		if (viewLocation.documentUri && viewLocation.projectUri && data && projectTree.visible) {
 			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
 			if (project) {
 				projectTree.reveal(project, { select: true });
@@ -220,10 +220,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	});
 	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		const uri = Uri.file(documentUri?.fsPath);
-		workspace.openTextDocument(uri).then((document) => {
-			window.showTextDocument(document);
-		});
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	});
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;

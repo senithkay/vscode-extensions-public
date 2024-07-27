@@ -238,8 +238,6 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
 
         if (view === MACHINE_VIEW.ConnectionForm) {
             goToConnectionView(documentUri, view, name);
-        } else if (view === MACHINE_VIEW.InboundEPForm) {
-            rpcClient.getMiVisualizerRpcClient().goToSource({ filePath: documentUri });
         } else {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
         }

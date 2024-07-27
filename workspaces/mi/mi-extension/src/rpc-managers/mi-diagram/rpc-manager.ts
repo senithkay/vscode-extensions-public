@@ -458,7 +458,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
-                this.renameFile({existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`)});
+                this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
             }
 
@@ -1099,28 +1099,27 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createInboundEndpoint(params: CreateInboundEndpointRequest): Promise<CreateInboundEndpointResponse> {
         return new Promise(async (resolve) => {
-            let { directory, ...templateParams } = params;
-            templateParams.type = templateParams?.type?.toLowerCase();
+            let { attributes, parameters, directory } = params;
 
             if (directory.includes('inboundEndpoints')) {
                 directory = directory.replace('inboundEndpoints', 'inbound-endpoints');
             }
-            const filePath = this.getFilePath(directory, templateParams.name);
+            const filePath = this.getFilePath(directory, attributes.name as string);
 
-            const xmlData = getInboundEndpointXmlWrapper(templateParams);
+            const xmlData = getInboundEndpointXmlWrapper({ attributes, parameters });
 
             const endpointsAndSequences = await this.getEndpointsAndSequences();
 
             const sequenceList = endpointsAndSequences.data[1];
-            const projectDir = ( await this.getProjectRoot({ path: directory })).path;
+            const projectDir = (await this.getProjectRoot({ path: directory })).path;
 
             let sequencePath = "";
-            if (params.sequence) {
-                if (!(sequenceList.includes(params.sequence))) {
-                    
+            if (attributes.sequence) {
+                if (!(sequenceList.includes(attributes.sequence as string))) {
+
                     const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
                     const sequenceRequest: CreateSequenceRequest = {
-                        name: params.sequence,
+                        name: attributes.sequence as string,
                         directory: sequenceDir,
                         endpoint: "",
                         onErrorSequence: "",
@@ -1131,7 +1130,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     const response = await this.createSequence(sequenceRequest);
                     sequencePath = response.filePath;
                 } else {
-                    sequencePath = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${params.sequence}.xml`);
+                    sequencePath = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${attributes.sequence as string}.xml`);
+                }
+            }
+
+            if (attributes.onError) {
+                if (!(sequenceList.includes(attributes.onError as string))) {
+
+                    const sequenceDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences').toString();
+                    const sequenceRequest: CreateSequenceRequest = {
+                        name: attributes.onError as string,
+                        directory: sequenceDir,
+                        endpoint: "",
+                        onErrorSequence: "",
+                        getContentOnly: false,
+                        statistics: false,
+                        trace: false
+                    };
+                    await this.createSequence(sequenceRequest);
                 }
             }
 
@@ -3437,7 +3453,7 @@ ${endpointAttributes}
 
     }
 
-    async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+    async saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.saveInboundEPUischema({
@@ -3453,7 +3469,8 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getInboundEPUischema({
-                connectorName: params.connectorName
+                connectorName: params.connectorName,
+                documentPath: params.documentPath
             });
             resolve(res);
         });

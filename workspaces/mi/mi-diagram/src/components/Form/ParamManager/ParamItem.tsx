@@ -70,12 +70,20 @@ const KeyWrapper = styled.div`
 `;
 
 const ValueTextWrapper = styled.div`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`;
+
+const ValueWrapper = styled.div`
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
     padding: 0 10px;
     height: 100%;
+    white-space: nowrap;
+    overflow: hidden;
 `;
 
 export const headerLabelStyles = cx(css`
@@ -238,7 +246,11 @@ export function ParamItem(props: ParamItemProps) {
                         <Key> {params.key} </Key>
                     </KeyTextWrapper>
                 )}
-                <ValueTextWrapper> {params.value} </ValueTextWrapper>
+                <ValueWrapper>
+                    <ValueTextWrapper> 
+                        {params.value}
+                    </ValueTextWrapper>
+                </ValueWrapper>
             </ContentWrapper>
             <ActionWrapper>
                 {!readonly && (

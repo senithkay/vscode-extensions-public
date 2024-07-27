@@ -424,6 +424,7 @@ export interface InboundEndpoint extends STNode {
     clazz: string;
     statistics: string;
     trace: string;
+    interval: string;
 }
 
 export interface SmooksOutput extends STNode {

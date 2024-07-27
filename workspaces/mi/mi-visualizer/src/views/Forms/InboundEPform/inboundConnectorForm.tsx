@@ -28,50 +28,67 @@ const CheckboxGroup = styled.div({
 export interface AddInboundConnectorProps {
     changeConnector?: () => void;
     formData: any;
-    parameters?: {};
-    data?: {};
+    model: any;
     path: string;
     setType: (type: string) => void;
     handleCreateInboundEP: (values: any) => void;
-    isEdit?: boolean;
 }
 
 type InboundEndpoint = {
-    name: string;
-    type: string;
-    sequence?: string;
-    protocol?: string;
-    errorSequence?: string;
-    suspend?: boolean;
-    trace?: boolean;
-    statistics?: boolean;
     parameters: {};
-    class: string;
-    behavior: string;
-    interval: string;
-    sequential: boolean;
-    coordination: boolean;
+    attributes: {};
 };
 
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
-    const { formData, handleCreateInboundEP, parameters, data } = props;
+    const { formData, handleCreateInboundEP, model } = props;
     const { control, handleSubmit, register, formState: { errors }, setValue } = useForm<any>();
 
     useEffect(() => {
-        if (parameters && data) {
-            Object.entries(parameters).forEach(([key, value]) => {
-                setValue(key, value);
+        if (model) {
+            const attributeNames = getGenericAttributeNames(formData);
+            attributeNames.forEach((attributeName: string) => {
+                if (model.hasOwnProperty(attributeName)) {
+                    setValue(getNameForController(attributeName), model[attributeName]);
+                }
             });
 
-            Object.entries(data).forEach(([key, value]) => {
-                setValue(key, value);
+            model.parameters[0]?.parameter?.forEach((param: any) => {
+                setValue(getNameForController(param.name), param.content);
             });
         }
-    }, [parameters]);
+    }, [model]);
+
+    function getNameForController(name: string | number) {
+        return String(name).replace(/\./g, '__dot__');
+    }
 
     function getOriginalName(name: string) {
-        return name.replace('__dot__', '.');
+        return name.replace(new RegExp("__dot__", 'g'), '.');
+    }
+
+    function getGenericAttributeNames(jsonData: any) {
+        const genericGroup = jsonData.elements.find((element: any) =>
+            element.type === "attributeGroup" && element.value.groupName === "Generic"
+        );
+        if (genericGroup) {
+            return genericGroup.value.elements
+                .filter((element: any) => element.type === "attribute")
+                .map((attribute: any) => attribute.value.name);
+        }
+        return [];
+    }
+
+    function extractProperties(values: any, attributeNames: string[]) {
+        const attrFields: any = {};
+        const paramFields = { ...values };
+        attributeNames.forEach(name => {
+            if (paramFields.hasOwnProperty(name)) {
+                attrFields[name] = paramFields[name];
+                delete paramFields[name];
+            }
+        });
+        return { attrFields, paramFields };
     }
 
     const renderProps = (fieldName: keyof InboundEndpoint) => {
@@ -83,29 +100,17 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     };
 
     const handleCreateInboundConnector = async (values: any) => {
-        const { name, type, sequence, onError, suspend, trace, statistics, behavior,
-            sequential, coordination, protocol, ...rest } = values;
+        const attributeNames = getGenericAttributeNames(formData);
+        const { attrFields, paramFields } = extractProperties(values, attributeNames);
 
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
-            Object.entries(rest).map(([key, value]) => [getOriginalName(key), value])
-            .filter(([_, value]) => typeof value !== 'object' || value === null)
+            Object.entries(paramFields).map(([key, value]) => [getOriginalName(key), value])
+                .filter(([_, value]) => value && typeof value !== 'object') 
         );
 
         const inboundConnector: InboundEndpoint = {
-            name,
-            type,
-            sequence,
-            errorSequence: onError,
-            suspend,
-            trace,
-            statistics,
-            class: values.class,
-            protocol,
-            behavior,
-            interval: values.interval,
-            sequential,
-            coordination,
+            attributes: attrFields,
             parameters: transformedParameters
         };
 
@@ -118,14 +123,14 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     return (
         <>
-            <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={true} />
+            <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={!props.model} />
             <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
             <FormActions>
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.isEdit ? "Update" : "Add"}
+                    {props.model ? "Update" : "Add"}
                 </Button>
                 <Button
                     appearance="secondary"

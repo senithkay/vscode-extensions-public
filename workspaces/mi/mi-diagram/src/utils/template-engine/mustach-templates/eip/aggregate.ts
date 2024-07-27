@@ -16,14 +16,14 @@ export function getAggregateMustacheTemplate() {
     {{#isNewMediator}}
     <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
 {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
-        <completeCondition timeout="{{completionTimeout}}">
+        <completeCondition{{#completionTimeout}} timeout="{{completionTimeout}}"{{/completionTimeout}}>
             <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
         </completeCondition>
         {{#sequenceKey}}
-        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}}/>
+        <onComplete{{#aggregateElementType}} aggregateElementType="{{aggregateElementType}}"{{/aggregateElementType}} {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}}/>
         {{/sequenceKey}}
         {{^sequenceKey}}
-        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}></onComplete>
+        <onComplete{{#aggregateElementType}} aggregateElementType="{{aggregateElementType}}"{{/aggregateElementType}} {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}></onComplete>
         {{/sequenceKey}}
     </aggregate>
     {{/isNewMediator}}
@@ -35,7 +35,7 @@ export function getAggregateMustacheTemplate() {
     {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
     {{/editCorrelateOn}}
     {{#editCompleteCondition}}
-    <completeCondition timeout="{{completionTimeout}}">
+    <completeCondition{{#completionTimeout}} timeout="{{completionTimeout}}"{{/completionTimeout}}>
         <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
     </completeCondition>
     {{/editCompleteCondition}}
