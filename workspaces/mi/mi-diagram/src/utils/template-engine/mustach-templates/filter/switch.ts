@@ -64,6 +64,8 @@ export function getSwitchXml(data: { [key: string]: any }, dirtyFields?: any, de
 function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
   let edits: { [key: string]: any }[] = [];
   let dataCopy;
+
+  //Edit switch tag.
   if (dirtyFields.sourceXPath || dirtyFields.description) {
     dataCopy = { ...data }
     dataCopy.editSwitch = true;
@@ -74,15 +76,19 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
       text: output
     });
   }
+
+  // Add or update existing cases.
   if (dirtyFields.caseBranches) {
     for (let i = 0; i < data.caseBranches.length; i++) {
       dataCopy = { ...data };
       dataCopy.caseRegex = data.caseBranches[i][0];
+      let oldIndex = data.caseBranches[i][1];
       let editRange;
-      if (defaultValues.caseBranchesData[i]) {
+      if (oldIndex != undefined) {
         dataCopy.editCase = true;
-        dataCopy.caseSelfClosed = defaultValues.caseBranchesData[i][2];
-        editRange = defaultValues.caseBranchesData[i][1].startTagRange
+        let oldCaseData = getOldCaseData(defaultValues.caseBranchesData, oldIndex);
+        dataCopy.caseSelfClosed = oldCaseData[3];
+        editRange = oldCaseData[2].startTagRange
       } else {
         dataCopy.newCase = true;
         editRange = {
@@ -95,11 +101,44 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         range: editRange,
         text: output
       });
+    }
 
+    // Delete removed cases from xml
+    const removedCases = filterRemovedElements(defaultValues.caseBranchesData, data.caseBranches);
+    for (let i = 0; i < removedCases.length; i++) {
+      let removedCase = removedCases[i];
+      let selfClosed = removedCase[3];
+      let editRange;
+      if (selfClosed) {
+        editRange = removedCase[2].startTagRange;
+      } else {
+        editRange = { start: removedCase[2].startTagRange.start, end: removedCase[2].endTagRange.end };
+        edits.push({
+          range: editRange,
+          text: ""
+        });
+      }
     }
   }
+
   edits.sort((a, b) => b.range.start.line - a.range.start.line);
   return edits;
+}
+
+function getOldCaseData(caseBranchesData: any, index: number) {
+  for (let i = 0; i < caseBranchesData.length; i++) {
+    if (caseBranchesData[i][1] == index) {
+      return caseBranchesData[i];
+    }
+  }
+}
+
+function filterRemovedElements(arr1: any[], arr2: any[]): any[] {
+  // Create a Set of stringified key pairs from the second array for efficient lookup
+  const set2 = new Set(arr2.map(pair => JSON.stringify([pair[0], pair[1]])));
+
+  // Filter arr1 to keep only elements not present in arr2
+  return arr1.filter(pair => !set2.has(JSON.stringify([pair[0], pair[1]])));
 }
 
 export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: Switch) {
@@ -108,10 +147,10 @@ export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: 
   data.description = node.description;
   if (node._case) {
     data.caseBranches = node._case.map((_case) => {
-      return [_case.regex];
+      return [_case.regex, node._case.indexOf(_case)];
     });
     data.caseBranchesData = node._case.map((_case) => {
-      return [_case.regex, _case.range, _case.selfClosed];
+      return [_case.regex, node._case.indexOf(_case), _case.range, _case.selfClosed];
     });
   }
   data.ranges = {
