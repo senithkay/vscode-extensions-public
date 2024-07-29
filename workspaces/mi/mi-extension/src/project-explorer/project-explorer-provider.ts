@@ -9,8 +9,8 @@
 
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
-import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse } from '@wso2-enterprise/mi-core';
-import { COMMANDS, EndpointTypes, TemplateTypes } from '../constants';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse, getInboundEndpoint, getMessageProcessor } from '@wso2-enterprise/mi-core';
+import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
@@ -56,7 +56,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				this._data = await getProjectStructureData(this.context, langClient);
+				this._data = await getProjectStructureData(langClient);
 				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
@@ -114,7 +114,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 }
 
-async function getProjectStructureData(context: vscode.ExtensionContext, langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
 	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
 		const data: ProjectExplorerEntry[] = [];
 		if (!!langClient) {
@@ -156,7 +156,6 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		generateTreeDataOfArtifacts(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
 		generateTreeDataOfDataMappings(project, data, projectRoot);
-		generateTreeDataOfRegistry(project, data, projectRoot);
 		return projectRoot;
 	}
 }
@@ -229,8 +228,10 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'localEntries':
 					icon = 'local-entry';
 					label = 'Local Entries';
-					connectionEntry = generateConnectionEntry(artifacts[key]);
-					connectionEntry.info = artifacts[key];
+					break;
+				case 'connections':
+					icon = 'vm-connect';
+					label = 'Connections';
 					break;
 				case 'messageStores':
 					icon = 'message-store';
@@ -286,58 +287,9 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			parentEntry.contextValue = key;
 			parentEntry.id = `${project.name}/${key}`;
 
-			connectionEntry ? parentEntry.children?.push(connectionEntry) : null;
-
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
 		}
-	}
-}
-
-function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
-	const directoryMap = data.directoryMap;
-	const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
-	if (resources && resources['registry']) {
-		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-		const parentEntry = new ProjectExplorerEntry(
-			'Registry',
-			isCollapsibleState(Object.keys(resources['registry']).length > 0),
-			{ name: 'Registry', path: regPath, type: 'registry' },
-		);
-		parentEntry.contextValue = 'registry';
-		parentEntry.id = 'registry';
-		const gov = resources['registry']['gov'];
-		const conf = resources['registry']['conf'];
-		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
-		const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
-		if (gov) {
-			const govEntry = new ProjectExplorerEntry(
-				'gov',
-				isCollapsibleState(isCollapsibleGov),
-				{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
-				'registry'
-			);
-			govEntry.id = 'gov';
-			govEntry.contextValue = 'gov';
-			govEntry.children = genRegistryProjectStructureEntry(gov);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(govEntry);
-		}
-		if (conf) {
-			const confEntry = new ProjectExplorerEntry(
-				'conf',
-				isCollapsibleState(isCollapsibleConf),
-				{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
-				'registry'
-			);
-			confEntry.id = 'conf';
-			confEntry.contextValue = 'conf';
-			confEntry.children = genRegistryProjectStructureEntry(conf);
-			parentEntry.children = parentEntry.children ?? [];
-			parentEntry.children.push(confEntry);
-		}
-		projectRoot.children = projectRoot.children ?? [];
-		projectRoot.children.push(parentEntry);
 	}
 }
 
@@ -430,6 +382,103 @@ function getTemplateIcon(templateType: string): string {
 	return icon;
 }
 
+function getInboundEndpointIcon(endpointType: InboundEndpointTypes): string {
+	let icon = 'inbound-endpoint';
+	// Replace above with switch case when more endpoint types are added
+	switch (endpointType) {
+		case InboundEndpointTypes.CXF_WS_RM:
+			icon = 'cxf-ws-rm-endpoint';
+			break;
+		case InboundEndpointTypes.FILE:
+			icon = 'file-endpoint';
+			break;
+		case InboundEndpointTypes.HL7:
+			icon = 'hl7-endpoint';
+			break;
+		case InboundEndpointTypes.JMS:
+			icon = 'jms-endpoint';
+			break;
+		case InboundEndpointTypes.MQTT:
+			icon = 'mqtt-endpoint';
+			break;
+		case InboundEndpointTypes.WS:
+			icon = 'ws-endpoint';
+			break;
+		case InboundEndpointTypes.FEED:
+			icon = 'feed-endpoint';
+			break;
+		case InboundEndpointTypes.HTTPS:
+			icon = 'https-endpoint';
+			break;
+		case InboundEndpointTypes.HTTP:
+			icon = 'http-inbound-endpoint';
+			break;
+		case InboundEndpointTypes.KAFKA:
+			icon = 'kafka-endpoint';
+			break;
+		case InboundEndpointTypes.WSS:
+			icon = 'wss-endpoint';
+			break;
+		case InboundEndpointTypes.CUSTOM:
+			icon = 'user-defined-endpoint';
+			break;
+		case InboundEndpointTypes.RABBITMQ:
+			icon = 'rabbitmq-endpoint';
+			break;
+	}
+	return icon;
+}
+
+function getMessageProcessorIcon(messageProcessorType: MessageProcessorTypes): string {
+	let icon = 'message-processor';
+	// Replace above with switch case when more endpoint types are added
+	switch (messageProcessorType) {
+		case MessageProcessorTypes.MESSAGE_SAMPLING:
+			icon = 'message-sampling-processor';
+			break;
+		case MessageProcessorTypes.SCHEDULED_MESSAGE_FORWARDING:
+			icon = 'scheduled-message-forwarding-processor';
+			break;
+		case MessageProcessorTypes.SCHEDULED_FAILOVER_MESSAGE_FORWARDING:
+			icon = 'scheduled-failover-message-forwarding-processor';
+			break;
+		case MessageProcessorTypes.CUSTOM:
+			icon = 'custom-message-processor';
+			break;
+	}
+	return icon;
+}
+
+function getMesaaageStoreIcon(messageStoreType: MessageStoreTypes): string {
+	let icon = 'message-store';
+	// Replace above with switch case when more endpoint types are added
+	switch (messageStoreType) {
+		case MessageStoreTypes.IN_MEMORY:
+			icon = 'in-memory-message-store';
+			break;
+		case MessageStoreTypes.CUSTOM:
+			icon = 'custom-message-store';
+			break;
+		case MessageStoreTypes.JMS:
+			icon = 'jms-message-store';
+			break;
+		case MessageStoreTypes.RABBITMQ:
+			icon = 'rabbit-mq';
+			break;
+		case MessageStoreTypes.WSO2_MB:
+			icon = 'wso2-mb-message-store';
+			break;
+		case MessageStoreTypes.RESEQUENCE:
+			icon = 'resequence-message-store';
+			break;
+		case MessageStoreTypes.JDBC:
+			icon = 'jdbc-message-store';
+			break;
+	}
+	return icon;
+}
+
+
 function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplorerEntry[] {
 	const result: ProjectExplorerEntry[] = [];
 
@@ -489,7 +538,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-processor');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getMessageProcessorIcon(entry.subType as MessageProcessorTypes));
 			explorerEntry.contextValue = 'message-processor';
 			explorerEntry.command = {
 				"title": "Show Message Processor",
@@ -518,15 +567,15 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TASK") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, entry.type);
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
 				"title": "Show Task",
-				"command": COMMANDS.SHOW_TASK,
+				"command": COMMANDS.SHOW_TASK_VIEW,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'inbound-endpoint');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getInboundEndpointIcon(entry.subType as InboundEndpointTypes));
 			explorerEntry.contextValue = 'inboundEndpoint';
 			explorerEntry.command = {
 				"title": "Show Inbound Endpoint",
@@ -535,7 +584,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 		}
 		else if (entry.type === "MESSAGE_STORE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-store');
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getMesaaageStoreIcon(entry.subType as MessageStoreTypes));
 			explorerEntry.contextValue = 'messageStore';
 			explorerEntry.command = {
 				"title": "Show Message Store",
@@ -544,21 +593,41 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
-			let icon = 'code';
+			let icon = 'local-entry';
+			let isCodicon = false;
 			if (entry.isRegistryResource) {
 				icon = 'file-code';
+				isCodicon = true;
 			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
 			explorerEntry.contextValue = 'localEntry';
 			explorerEntry.command = {
 				"title": "Show Local Entry",
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
+
+		}
+		// TODO: Update type to connections
+		else if (entry.type === "localEntry") {
+			explorerEntry = new ProjectExplorerEntry(
+				entry.name,
+				isCollapsibleState(false),
+				entry,
+				'vm-connect',
+				true
+			);
+			explorerEntry.contextValue = 'connection';
+			explorerEntry.id = entry.name;
+			explorerEntry.command = {
+				"title": "Show Connection",
+				"command": COMMANDS.SHOW_CONNECTION,
+				"arguments": [vscode.Uri.file(entry.path), entry.name, false]
+			};
 		}
 		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 		else if (entry.type === "DATA_SOURCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, "data-source");
 			explorerEntry.contextValue = 'dataSource';
 			explorerEntry.command = {
 				"title": "Show Data Source",
@@ -566,7 +635,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "DATA_SERVICE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, "data-service");
 			explorerEntry.contextValue = 'data-service';
 			explorerEntry.command = {
 				"title": "Show Data Service",
@@ -586,134 +655,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	return result;
 }
 
-function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
-	const connectionsEntry = new ProjectExplorerEntry(
-		"Connections",
-		isCollapsibleState(true),
-		connectionsData,
-		'vm-connect',
-		true
-	);
-	connectionsEntry.contextValue = 'connections';
-	connectionsEntry.id = 'connections';
-
-	for (const entry of connectionsData) {
-		if (!entry.type) {
-			for (const [key, connectionsArray] of Object.entries(entry)) {
-				const connectionTypeEntry = new ProjectExplorerEntry(
-					key,
-					isCollapsibleState((connectionsArray as any[]).length > 0),
-					{
-						name: key,
-						type: 'connections',
-						path: (connectionsArray as any)[0].path
-					},
-					'link-external',
-					true
-				);
-				connectionTypeEntry.contextValue = key;
-				connectionTypeEntry.id = key;
-
-				for (const connection of (connectionsArray as any)) {
-					const connectionEntry = new ProjectExplorerEntry(
-						connection.name,
-						isCollapsibleState(false),
-						connection,
-						'code',
-						true
-					);
-					connectionEntry.contextValue = 'connection';
-					connectionEntry.id = connection.name;
-
-					connectionEntry.command = {
-						"title": "Show Connection",
-						"command": COMMANDS.SHOW_CONNECTION,
-						"arguments": [vscode.Uri.file(connection.path), connection.name, false]
-					};
-
-					connectionTypeEntry.children = connectionTypeEntry.children ?? [];
-					connectionTypeEntry.children.push(connectionEntry);
-
-				}
-				connectionsEntry.children = connectionsEntry.children ?? [];
-				connectionsEntry.children.push(connectionTypeEntry);
-			}
-		}
-	}
-
-	return connectionsEntry;
-}
-
-function checkExistanceOfRegistryResource(registryPath: string): boolean {
-	if (registryDetails.artifacts) {
-		for (const artifact of registryDetails.artifacts) {
-			let transformedPath = artifact.path.replace("/_system/governance", '/gov').replace("/_system/config", '/conf');
-			if (!artifact.isCollection) {
-				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
-			}
-			if (transformedPath === registryPath) {
-				return true;
-			}
-		}
-		return false;
-	}
-	return false;
-}
-
-function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
-	const result: ProjectExplorerEntry[] = [];
-	const regPathPrefix = path.join("wso2mi", "resources", "registry");
-	if (data) {
-		if (data.files) {
-			for (const entry of data.files) {
-				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
-					name: entry.name,
-					type: 'resource',
-					path: `${entry.path}`
-				}, 'code', true);
-				explorerEntry.id = entry.path;
-				explorerEntry.command = {
-					"title": "Edit Registry Resource",
-					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
-					"arguments": [vscode.Uri.file(entry.path)]
-				};
-				result.push(explorerEntry);
-				const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
-				const registryPath = entry.path.substring(lastIndex);
-				if (checkExistanceOfRegistryResource(registryPath)) {
-					explorerEntry.contextValue = "registry-with-metadata";
-				} else {
-					explorerEntry.contextValue = "registry-without-metadata";
-				}
-			}
-		}
-		if (data.folders) {
-			for (const entry of data.folders) {
-				if (entry.name !== ".meta") {
-					const explorerEntry = new ProjectExplorerEntry(entry.name,
-						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
-						{
-							name: entry.name,
-							type: 'resource',
-							path: `${entry.path}`
-						}, 'folder', true);
-					explorerEntry.children = genRegistryProjectStructureEntry(entry);
-					result.push(explorerEntry);
-					const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
-					const registryPath = entry.path.substring(lastIndex);
-					if (checkExistanceOfRegistryResource(registryPath)) {
-						explorerEntry.contextValue = "registry-with-metadata";
-					} else {
-						explorerEntry.contextValue = "registry-without-metadata";
-					}
-				}
-			}
-		}
-	}
-	return result;
-}
-
-function getViewCommand(endpointType?: string) {
+export function getViewCommand(endpointType?: string) {
 	let viewCommand = COMMANDS.SHOW_TEMPLATE;
 	if (endpointType === 'HTTP_ENDPOINT') {
 		viewCommand = COMMANDS.SHOW_HTTP_ENDPOINT;

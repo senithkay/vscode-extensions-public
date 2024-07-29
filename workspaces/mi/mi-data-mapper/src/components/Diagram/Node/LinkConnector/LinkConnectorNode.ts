@@ -81,6 +81,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
+        const prevSourcePorts = this.sourcePorts;
         this.sourcePorts = [];
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
@@ -93,7 +94,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
             if (inputNode) {
-                this.sourcePorts.push(getInputPort(inputNode, field));
+                const inputPort = getInputPort(inputNode, field);
+                if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
+                    this.sourcePorts.push(inputPort);
+                }
             }
         })
 
@@ -129,7 +133,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                         );
                         const previouslyHidden = this.hidden;
                         this.hidden = this.targetMappedPort?.portName !== this.targetPort?.portName;
-                        if (this.hidden !== previouslyHidden) {
+                        if (this.hidden !== previouslyHidden
+                            || (prevSourcePorts.length !== this.sourcePorts.length
+                                || prevSourcePorts.map(port => port.getID()).join('')
+                                    !== this.sourcePorts.map(port => port.getID()).join('')))
+                        {
                             this.hasInitialized = false;
                         }
                     }
@@ -228,8 +236,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     async updateSource(suffix: string): Promise<void> {
         this.value = `${this.value} + ${suffix}`;
-        this.innerNode.replaceWithText(this.value);
-        await this.context.applyModifications();
+        this.setInnerNode(this.innerNode.replaceWithText(this.value));
+        await this.context.applyModifications(this.innerNode.getSourceFile().getFullText());
     }
 
     public updatePosition() {
@@ -259,7 +267,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             if (Node.isVariableStatement) {
                 targetNode = this.innerNode;
             }
-            targetNode.replaceWithText(defaultValue);
+            const updatedTargetNode = targetNode.replaceWithText(defaultValue);
+            await applyModifications(updatedTargetNode.getSourceFile().getFullText());
         } else {
             let rootExpr = this.parentNode;
             if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
@@ -285,8 +294,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     node.replaceWithText('');
                 }
             });
+            await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
         }
+    }
 
-        await applyModifications();
+    public setInnerNode(innerNode: Node): void {
+        this.innerNode = innerNode;
     }
 }

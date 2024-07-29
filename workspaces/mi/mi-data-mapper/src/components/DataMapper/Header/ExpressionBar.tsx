@@ -10,18 +10,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { Block, Node, ObjectLiteralExpression, PropertyAssignment, ReturnStatement, ts, SyntaxKind, Expression } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
 import { filterCompletions } from './utils';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { View } from '../Views/DataMapperView';
-import { isMapFunction } from '../../../components/Diagram/utils/common-utils';
-import { getMapFunctionReturnStatement} from '../../../components/Diagram/utils/st-utils';
+import { ArrayOutputNode, ObjectOutputNode } from '../../../components/Diagram/Node';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -41,8 +40,7 @@ const useStyles = () => ({
 export interface ExpressionBarProps {
     views: View[];
     filePath: string;
-    applyModifications: () => Promise<void>;
-    
+    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
@@ -203,32 +201,36 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
-            const { focusedST, views } = focusedNode.context;
-            
-            let returnExpr: Expression;
 
-            //Condition to check array mapping or not
-            if (views.length > 1) {
-                if (Node.isPropertyAssignment(focusedST)) {
-                    const propertyAssignment = focusedST as PropertyAssignment;
-                    const arrowFunction = propertyAssignment?.getInitializerIfKindOrThrow(SyntaxKind.CallExpression)
-                        ?.getArguments()?.[0]
-                        ?.asKindOrThrow(SyntaxKind.ArrowFunction);
-                    const returnStatement = arrowFunction?.getDescendantsOfKind(SyntaxKind.ReturnStatement)?.[0];
-                    returnExpr = returnStatement?.getExpression();
-                } else if (Node.isReturnStatement(focusedST)) {
-                    const returnStatement = getMapFunctionReturnStatement(focusedST, views[views.length-1].mapFnIndex) as ReturnStatement;
-                    returnExpr = returnStatement?.getExpression();
-                }
-            } else {
-                returnExpr = (fnBody.getStatements().find((statement) =>
-                    Node.isReturnStatement(statement)
-                ) as ReturnStatement)?.getExpression();
-            }
+            const returnExpr = (fnBody.getStatements().find((statement) =>
+                Node.isReturnStatement(statement)
+            ) as ReturnStatement)?.getExpression();
 
             let objLitExpr: ObjectLiteralExpression;
-            if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
-                objLitExpr = returnExpr;
+            if (returnExpr) {
+                if (Node.isObjectLiteralExpression(returnExpr)) {
+                    objLitExpr = returnExpr;
+                } else {
+                    if (focusedNode instanceof ObjectOutputNode && Node.isObjectLiteralExpression(focusedNode.value)) {
+                        objLitExpr = focusedNode.value;
+                    } else if (focusedNode instanceof ArrayOutputNode && focusedNode.dmTypeWithValue) {
+                        const elements = focusedNode.dmTypeWithValue.elements;
+                        if (elements && elements.length > 0) {
+                            const targetElement = elements.find(element => {
+                                let nextPort = focusedPort;
+                                while (nextPort) {
+                                    if (element.member.value.getPos() === nextPort?.typeWithValue?.value?.getPos()) {
+                                        return true;
+                                    }
+                                    nextPort = nextPort?.parentModel;
+                                }
+                            });
+                            if (targetElement && targetElement.member.value && Node.isObjectLiteralExpression(targetElement.member.value)) {
+                                objLitExpr = targetElement.member.value;
+                            }
+                        }
+                    }
+                }
             }
 
             const propertyAssignment = await createSourceForUserInput(
@@ -282,13 +284,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
                 targetExpr.replaceWithText(replaceWith);
             }
-
+            await applyModifications(focusedFieldValue.getSourceFile().getFullText());
         }
-        await applyModifications();
     };
 
     const applyChangesOnFocusedFilter = async () => {
-        await applyModifications();
+        await applyModifications(focusedFilter.getSourceFile().getFullText());
     };
 
     return (

@@ -186,7 +186,12 @@ import {
     MarkAsDefaultSequenceRequest,
     GetSubFoldersResponse,
     GetSubFoldersRequest,
-    FileRenameRequest
+    DownloadInboundConnectorRequest,
+    DownloadInboundConnectorResponse,
+    FileRenameRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -256,7 +261,7 @@ export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteCon
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };
-export const initUndoRedoManager: NotificationType<UndoRedoParams> = { method: `${_preFix}/initUndoRedoManager` };
+export const initUndoRedoManager: RequestType<UndoRedoParams, void> = { method: `${_preFix}/initUndoRedoManager` };
 export const undo: NotificationType<UndoRedoParams> = { method: `${_preFix}/undo` };
 export const redo: NotificationType<UndoRedoParams> = { method: `${_preFix}/redo` };
 export const getDefinition: RequestType<GetDefinitionRequest, GetDefinitionResponse> = { method: `${_preFix}/getDefinition` };
@@ -274,11 +279,14 @@ export const updateRegistryMetadata: RequestType<UpdateRegistryMetadataRequest, 
 export const getMetadataOfRegistryResource: RequestType<GetRegistryMetadataRequest, GetRegistryMetadataResponse> = { method: `${_preFix}/getMetadataOfRegistryResource` };
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
+export const downloadInboundConnector: RequestType<DownloadInboundConnectorRequest, DownloadInboundConnectorResponse> = { method: `${_preFix}/downloadInboundConnector` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
+export const saveInboundEPUischema: RequestType<SaveInboundEPUischemaRequest, boolean> = { method: `${_preFix}/saveInboundEPUischema` };
+export const getInboundEPUischema: RequestType<GetInboundEPUischemaRequest, GetInboundEPUischemaResponse> = { method: `${_preFix}/getInboundEPUischema` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };

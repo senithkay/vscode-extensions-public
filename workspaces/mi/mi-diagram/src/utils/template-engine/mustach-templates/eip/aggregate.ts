@@ -15,15 +15,15 @@ export function getAggregateMustacheTemplate() {
     return `
     {{#isNewMediator}}
     <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
-{{#correlationExpression}}<correlateOn expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}/>{{/correlationExpression}}
-        <completeCondition timeout="{{completionTimeout}}">
-            <messageCount {{#completionMax}}max="{{{completionMax}}}" {{/completionMax}}{{#completionMin}}min="{{{completionMin}}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/messageCountNamespaces}}/>
+{{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
+        <completeCondition{{#completionTimeout}} timeout="{{completionTimeout}}"{{/completionTimeout}}>
+            <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
         </completeCondition>
         {{#sequenceKey}}
-        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}}/>
+        <onComplete{{#aggregateElementType}} aggregateElementType="{{aggregateElementType}}"{{/aggregateElementType}} {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}}/>
         {{/sequenceKey}}
         {{^sequenceKey}}
-        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/aggregationExpression}}></onComplete>
+        <onComplete{{#aggregateElementType}} aggregateElementType="{{aggregateElementType}}"{{/aggregateElementType}} {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}></onComplete>
         {{/sequenceKey}}
     </aggregate>
     {{/isNewMediator}}
@@ -32,19 +32,19 @@ export function getAggregateMustacheTemplate() {
     <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
     {{/editAggregate}}
     {{#editCorrelateOn}}
-    {{#correlationExpression}}<correlateOn expression="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}/>{{/correlationExpression}}
+    {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
     {{/editCorrelateOn}}
     {{#editCompleteCondition}}
-    <completeCondition timeout="{{completionTimeout}}">
-        <messageCount {{#completionMax}}max="{{{completionMax}}}" {{/completionMax}}{{#completionMin}}min="{{{completionMin}}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/messageCountNamespaces}}/>
+    <completeCondition{{#completionTimeout}} timeout="{{completionTimeout}}"{{/completionTimeout}}>
+        <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
     </completeCondition>
     {{/editCompleteCondition}}
     {{#editOnComplete}}
     {{#sequenceKey}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}}/>
+    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}}/>
     {{/sequenceKey}}
     {{^sequenceKey}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/aggregationExpression}}>
+    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}>
     {{#endOnComplete}}
     </onComplete>
     {{/endOnComplete}}
@@ -175,7 +175,7 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
     data.enclosingElementProperty = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.enclosingElementProperty;
     data.aggregationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression, namespaces: transformNamespaces(node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.namespaces) };
     data.sequenceKey = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.sequenceAttribute;
-    data.sequenceType = data.sequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.sequenceType = data.sequenceKey ? "REGISTRY REFERENCE" : "ANONYMOUS";
     data.ranges = {
         aggregate: node.range,
         correlateOn: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.range,
@@ -184,4 +184,11 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
     }
     data.onCompleteSelfClosed = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.selfClosed;
     return data;
+}
+
+export function getAggregateDescription(node: Aggregate) {
+    const onComplete = node?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+    const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+    return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
 }

@@ -28,15 +28,15 @@ export interface GetTaskTemplatesArgs {
 
 export function getTaskMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<task class="{{implementation}}" group="{{group}}" name="{{name}}"{{#pinnedServers}} pinnedServers="{{{pinnedServers}}}"{{/pinnedServers}} xmlns="http://ws.apache.org/ns/synapse">
+<task class="{{implementation}}" group="{{group}}" name="{{name}}"{{#pinnedServers}} pinnedServers="{{pinnedServers}}"{{/pinnedServers}} xmlns="http://ws.apache.org/ns/synapse">
     <trigger {{#cron}}cron="{{cron}}"{{/cron}}{{#once}}once="true"{{/once}}{{#count}}count="{{count}}" interval="{{interval}}"{{/count}}/>
     {{#taskProperties}}
     {{#key}}
     {{#isLiteral}}
-    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{{key}}}" value="{{{value}}}"/>
+    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{key}}" value="{{value}}"/>
     {{/isLiteral}}
     {{^isLiteral}}
-    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{{key}}}">{{{value}}}</property>
+    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{key}}">{{{value}}}</property>
     {{/isLiteral}}
     {{/key}}
     {{/taskProperties}}

@@ -13,12 +13,12 @@ import Mustache from "mustache";
 export function getSendMustacheTemplate() {
   return `
   {{#endpoint}}
-  <send {{#receivingSequence}}receive="{{{receivingSequence}}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{#description}}description="{{description}}" {{/description}}>
+  <send {{#receivingSequence}}receive="{{receivingSequence}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{#description}}description="{{description}}" {{/description}}>
     <endpoint key="{{endpoint}}"/>
   </send>
   {{/endpoint}}
   {{^endpoint}}
-  <send {{#receivingSequence}}receive="{{{receivingSequence}}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{#description}}description="{{description}}" {{/description}}/>
+  <send {{#receivingSequence}}receive="{{receivingSequence}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{#description}}description="{{description}}" {{/description}}/>
   {{/endpoint}}
   `;
 }

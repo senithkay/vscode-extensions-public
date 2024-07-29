@@ -18,10 +18,10 @@ export function getCloneMustacheTemplate() {
     <clone {{#continueParent}}continueParent="{{continueParent}}" {{/continueParent}}{{#cloneId}}id="{{cloneId}}" {{/cloneId}}{{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}" {{/description}}>
     {{#targets}}
     {{#isRegistrySeqAndEndpoint}}
-    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}/>
+    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}/>
     {{/isRegistrySeqAndEndpoint}}
     {{^isRegistrySeqAndEndpoint}}
-    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}>      
+    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}>      
         {{^sequenceRegistryKey}}
         <sequence></sequence>
         {{/sequenceRegistryKey}}
@@ -37,10 +37,10 @@ export function getCloneMustacheTemplate() {
 {{^editClone}}
 {{#newTarget}}
 {{#isRegistrySeqAndEndpoint}}
-<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}/>
+<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}/>
 {{/isRegistrySeqAndEndpoint}}
 {{^isRegistrySeqAndEndpoint}}
-<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}>      
+<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}>      
     {{^sequenceRegistryKey}}
     <sequence></sequence>
     {{/sequenceRegistryKey}}
@@ -49,7 +49,7 @@ export function getCloneMustacheTemplate() {
 {{/newTarget}}
 {{^newTarget}}
 {{#isRegistrySeqAndEndpoint}}
-<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}/>
+<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}/>
 {{/isRegistrySeqAndEndpoint}}
 {{^isRegistrySeqAndEndpoint}}
 {{#addSequence}}
@@ -153,18 +153,22 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         for (let i = 0; i < data.targets.length; i++) {
             let targetData: { [key: string]: any } = processTargetData(data.targets[i]);
             let editRange;
-            if (defaultValues.ranges.targets.length <= i) {
+            let oldIndex = data.targets[i][6];
+            // Add new target
+            if (oldIndex == undefined) {
                 editRange = {
                     start: defaultValues.ranges.clone.endTagRange.start,
                     end: defaultValues.ranges.clone.endTagRange.start
                 }
                 targetData.newTarget = true;
             } else {
-                targetData.addSequence = defaultValues.targets[i][0] != "ANONYMOUS" && !targetData.sequenceRegistryKey;
-                targetData.removeSequence = defaultValues.targets[i][0] == "ANONYMOUS" && targetData.isRegistrySeqAndEndpoint;
-                let range = defaultValues.ranges.targets[i];
+                //Edit existing target
+                let oldTarget = getOldTarget(defaultValues.targets, oldIndex);
+                targetData.addSequence = oldTarget[0] != "ANONYMOUS" && !targetData.sequenceRegistryKey;
+                targetData.removeSequence = oldTarget[0] == "ANONYMOUS" && targetData.isRegistrySeqAndEndpoint;
+                let range = getTargetRange(defaultValues.ranges.targets, oldIndex);
                 if (!targetData.addSequence && !targetData.removeSequence) {
-                    targetData.selfClosed = range.endTagRange.end ? false : true;
+                    targetData.selfClosed = range?.endTagRange?.end ? false : true;
                     editRange = {
                         start: range.startTagRange.start,
                         end: range.startTagRange.end
@@ -172,7 +176,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
                 } else {
                     editRange = {
                         start: range.startTagRange.start,
-                        end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+                        end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
                     }
                 }
             }
@@ -183,10 +187,51 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
             }
             edits.push(edit);
         }
+        // Remove deleted targets from xml
+        const removedTargets = filterRemovedElements(defaultValues.ranges.targets, data.targets);
+        for (let i = 0; i < removedTargets.length; i++) {
+            let removedTarget = removedTargets[i];
+            let selfClosed = removedTarget[1];
+            let editRange;
+            if (selfClosed) {
+                editRange = removedTarget[2].startTagRange;
+            } else {
+                editRange = { start: removedTarget[2].startTagRange.start, end: removedTarget[2].endTagRange.end };
+            }
+            let edit = {
+                text: "",
+                range: editRange
+            }
+            edits.push(edit);
+        }
     }
 
     edits.sort((a, b) => b.range.start.line - a.range.start.line);
     return edits;
+}
+
+function getOldTarget(targetDatas: any, index: number) {
+
+    for (let i = 0; i < targetDatas.length; i++) {
+        if (targetDatas[i][6] == index) {
+            return targetDatas[i];
+        }
+    }
+}
+
+function getTargetRange(targetData: any, index: number) {
+
+    for (let i = 0; i < targetData.length; i++) {
+        if (targetData[i][0] == index) {
+            return targetData[i][2];
+        }
+    }
+}
+
+function filterRemovedElements(arr1: any[], arr2: any[]): any[] {
+
+    const set2 = new Set(arr2.map(subArr => subArr[subArr.length - 1]));
+    return arr1.filter(subArr => !set2.has(subArr[0]));
 }
 
 export function getCloneFormDataFromSTNode(data: { [key: string]: any }, node: Clone) {
@@ -202,12 +247,12 @@ export function getCloneFormDataFromSTNode(data: { [key: string]: any }, node: C
         data.targets = node.target.map((target) => {
             const sequenceType = target.sequenceAttribute ? "REGISTRY_REFERENCE" : target.sequence ? "ANONYMOUS" : "NONE";
             const endpointType = target.endpointAttribute ? "REGISTRY_REFERENCE" : target.endpoint ? "ANONYMOUS" : "NONE";
-            return [sequenceType, target.sequenceAttribute, endpointType, target.endpointAttribute, target.soapAction, target.to];
+            return [sequenceType, target.sequenceAttribute, endpointType, target.endpointAttribute, target.soapAction, target.to, node.target.indexOf(target)];
         });
     }
     data.ranges = {
         clone: node.range,
-        targets: node.target.map((target) => target.range)
+        targets: node.target.map((target) => [node.target.indexOf(target), target.selfClosed, target.range])
     }
     return data;
 }
@@ -216,4 +261,8 @@ export function getNewCloneTargetXml() {
     return `<target>
     <sequence></sequence>
 </target>`
+}
+
+export function getTargetDescription(node: any) {
+    return node.sequenceAttribute;
 }

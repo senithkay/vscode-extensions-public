@@ -72,7 +72,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             const deleteAction: Item = {
                 id: "delete",
                 label: "Delete",
-                onClick: () => handleResourceDelete(resource, prevResource, parentTagEndPosition),
+                onClick: () => handleResourceDelete(resource, prevResource, parentTagEndPosition, index),
             };
             const moreActions: Item[] = [goToSourceAction, editAction, deleteAction];
             return {
@@ -92,7 +92,9 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
 
     useEffect(() => {
         const st = syntaxTree;
-
+        if (!st) { // TODO: Remove this once the bug is fixed
+            return;
+        }
         // Set metadata for the service
         const serviceData: APIData = {
             apiName: st.name,
@@ -114,8 +116,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 end: st.range.startTagRange.end,
             },
             handlersRange: {
-                start: st.handlers?.range.startTagRange.start ?? st.range.endTagRange.start,
-                end: st.handlers?.range.endTagRange.end ?? st.range.endTagRange.start,
+                start: st.handlers?.range?.startTagRange?.start ?? st.range.endTagRange.start,
+                end: st.handlers?.range?.endTagRange?.end ?? st.range.endTagRange.start,
             },
         };
         setServiceData(serviceData);
@@ -230,7 +232,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const handleResourceDelete = (
         currentResource: APIResource,
         prevResource: APIResource | undefined,
-        parentTagEndPosition: Position
+        parentTagEndPosition: Position,
+        index: number
     ) => {
         const position: Position = parentTagEndPosition;
         let startPosition;
@@ -257,6 +260,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 },
             },
         });
+
+        localStorage.removeItem(`diagramViewState-${documentUri}-${index}`);
     };
 
     const handleResourceClick = (resource: Resource) => {

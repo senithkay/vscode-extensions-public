@@ -174,6 +174,11 @@ const XSLTForm = (props: AddMediatorProps) => {
                     <Controller
                         name="xsltSchemaKey"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <FormKeylookup
                                 control={control}
@@ -181,7 +186,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 label="XSLT Schema Key"
                                 filterType='xslt'
                                 allowItemCreate={false}
-                                required={false}
+                                required={true}
                                 errorMsg={errors?.xsltSchemaKey?.message?.toString()}
                                 canChangeEx={true}
                                 exprToggleEnabled={true}

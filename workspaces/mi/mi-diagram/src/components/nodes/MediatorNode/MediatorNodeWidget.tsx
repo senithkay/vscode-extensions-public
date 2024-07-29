@@ -125,7 +125,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.mediatorName)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>

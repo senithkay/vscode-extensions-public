@@ -29,7 +29,7 @@ import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm/index";
 import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { APIResource, NamedSequence, Proxy, Template, MockService, UnitTest } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource, NamedSequence, Proxy, Template, MockService, UnitTest, Task, InboundEndpoint } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
@@ -51,6 +51,7 @@ import { UpdateMIExtension } from './views/UpdateExtension';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { SamplesView } from './views/SamplesView';
 import { WelcomeView } from './views/WelcomeView';
+import { TaskView } from './views/Diagram/Task';
 
 const MainContainer = styled.div`
     display: flex;
@@ -254,7 +255,7 @@ const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => 
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.InboundEPForm:
-                    setViewComponent(<InboundEPWizard path={machineView.documentUri} />);
+                    setViewComponent(<InboundEPWizard path={machineView.documentUri} model={(machineView.stNode as InboundEndpoint)} />);
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
                     setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
@@ -270,6 +271,12 @@ const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => 
                     break;
                 case MACHINE_VIEW.TaskForm:
                     setViewComponent(<TaskForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TaskView:
+                    setViewComponent(<TaskView
+                        path={machineView.documentUri}
+                        model={machineView.stNode as Task}
+                        diagnostics={machineView.diagnostics} />);
                     break;
                 case MACHINE_VIEW.TemplateForm:
                     const templateType = machineView.customProps && machineView.customProps.type ? machineView.customProps.type : '';
@@ -318,7 +325,7 @@ const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => 
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
-                        <AddConnection 
+                        <AddConnection
                             connectionName={machineView.customProps.connectionName}
                             allowedConnectionTypes={machineView.customProps.allowedConnectionTypes}
                             connector={machineView.customProps}

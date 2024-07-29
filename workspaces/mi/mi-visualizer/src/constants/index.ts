@@ -31,6 +31,8 @@ export const SYNTAX_TREE_KIND = {
 // Diagram view
 export const SIDE_PANEL_WIDTH = 450;
 
+export const gitIssueUrl = "https://github.com/wso2/mi-vscode/issues";
+
 // Actions for service designer
 export const ARTIFACT_TEMPLATES = {
     ADD_API: "add-api",

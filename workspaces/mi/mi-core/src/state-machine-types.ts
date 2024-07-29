@@ -44,6 +44,7 @@ export enum MACHINE_VIEW {
     MessageProcessorForm = "Message Processor Form",
     ProxyServiceForm = "Proxy Service Form",
     TaskForm = "Task Form",
+    TaskView = "Task View",
     TemplateForm = "Template Form",
     HttpEndpointForm = "Http Endpoint Form",
     AddressEndpointForm = "Address Endpoint Form",
@@ -209,5 +210,5 @@ export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onSwaggerSpecReceived: NotificationType<SwaggerData> = { method: `onSwaggerSpecReceived` };
 export const miServerRunStateChanged: NotificationType<MiServerRunStatus> = { method: `miServerRunStateChanged` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
-export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 
+export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` };
 export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };

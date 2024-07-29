@@ -185,7 +185,12 @@ import {
     MarkAsDefaultSequenceRequest,
     GetSubFoldersResponse,
     GetSubFoldersRequest,
-    FileRenameRequest
+    DownloadInboundConnectorRequest,
+    DownloadInboundConnectorResponse,
+    FileRenameRequest,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -254,7 +259,7 @@ export interface MiDiagramAPI {
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
-    initUndoRedoManager: (params: UndoRedoParams) => void;
+    initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
     undo: (params: UndoRedoParams) => void;
     redo: (params: UndoRedoParams) => void;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
@@ -272,11 +277,14 @@ export interface MiDiagramAPI {
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
+    downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
+    saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => Promise<boolean>;
+    getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;

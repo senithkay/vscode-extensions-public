@@ -27,6 +27,7 @@ export const COMMANDS = {
     SHOW_SEQUENCE_TEMPLATE_VIEW: "MI.show.sequence_template-view",
     SHOW_PROXY_VIEW: "MI.show.proxy-view",
     SHOW_TASK: "MI.show.task",
+    SHOW_TASK_VIEW: "MI.show.task-view",
     SHOW_INBOUND_ENDPOINT: "MI.show.inbound-endpoint",
     SHOW_SOURCE: "MI.show.source",
     SHOW_XML: "MI.show.xml",
@@ -102,7 +103,7 @@ export enum EndpointTypes {
     HTTP_ENDPOINT = "HTTP_ENDPOINT",
     WSDL_ENDPOINT = "WSDL_ENDPOINT",
     LOAD_BALANCE_ENDPOINT = "LOAD_BALANCE_ENDPOINT",
-    FAILOVER_ENDPOINT = "FAILOVER_ENDPOINT",
+    FAILOVER_ENDPOINT = "FAIL_OVER_ENDPOINT",
     TEMPLATE_ENDPOINT = "TEMPLATE_ENDPOINT",
     RECIPIENT_ENDPOINT = "RECIPIENT_ENDPOINT",
 };
@@ -115,15 +116,38 @@ export enum TemplateTypes {
     SEQUENCE_ENDPOINT = "SEQUENCE"
 };
 
-// export enum TemplateTypes {
-//     INBOUND_ENDPOINT = "INBOUND_ENDPOINT",
-//     LOCAL_ENTRY = "LOCAL_ENTRY",
-//     MESSAGE_PROCESSOR = "MESSAGE_PROCESSOR",
-//     MESSAGE_STORE = "MESSAGE_STORE",
-//     SEQUENCE = "SEQUENCE",
-//     TASK = "TASK",
-//     TEMPLATE = "TEMPLATE",
-// };
+export enum InboundEndpointTypes {
+    CXF_WS_RM = "CXF_WS_RM",
+    FILE = "FILE",
+    HL7 = "HL7",
+    JMS = "JMS",
+    MQTT = "MQTT",
+    WS = "WS",
+    FEED = "Feed",
+    HTTPS = "HTTPS",
+    HTTP = "HTTP",
+    KAFKA = "KAFKA",
+    WSS = "WSS",
+    CUSTOM = "CUSTOM",
+    RABBITMQ = "rabbit-mq"
+};
+
+export enum MessageProcessorTypes {
+    MESSAGE_SAMPLING = "MESSAGE_SAMPLING",
+    SCHEDULED_MESSAGE_FORWARDING = "SCHEDULED_MESSAGE_FORWARDING",
+    SCHEDULED_FAILOVER_MESSAGE_FORWARDING = "SCHEDULED_FAILOVER_MESSAGE_FORWARDING",
+    CUSTOM = "CUSTOM"
+};
+
+export enum MessageStoreTypes {
+    IN_MEMORY = "IN_MEMORY",
+    CUSTOM = "CUSTOM",
+    JMS = "JMS",
+    RABBITMQ = "RABBITMQ",
+    WSO2_MB = "WSO2_MB",
+    RESEQUENCE = "RESEQUENCE",
+    JDBC = "JDBC"
+};
 
 export * from "./swagger";
 

@@ -18,12 +18,18 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
+import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
+
+	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
+	await registryExplorerDataProvider.refresh(lsClient);
+	const registryTree = window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
+
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
@@ -35,7 +41,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
 			}
 		});
-
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
@@ -140,7 +145,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
 		const data = projectExplorerDataProvider.getChildren();
 
-		if (viewLocation.documentUri && viewLocation.projectUri && data) {
+		if (viewLocation.documentUri && viewLocation.projectUri && data && projectTree.visible) {
 			const project = (await data)?.find((project) => project.info?.path === viewLocation.projectUri);
 			if (project) {
 				projectTree.reveal(project, { select: true });
@@ -208,6 +213,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.SHOW_TASK, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
+	});
+	commands.registerCommand(COMMANDS.SHOW_TASK_VIEW, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TaskView, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	});
 	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);

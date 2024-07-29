@@ -15,9 +15,9 @@ import { transformNamespaces } from "../../../commons";
 export function getXsltMustacheTemplate() {
 
   return `
-    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{value}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{/sourceXPath}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} >
+    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{value}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{/sourceXPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} >
         {{#properties}}
-        <property name="{{{propertyName}}}" {{#propertyValue}}value="{{{propertyValue}}}"{{/propertyValue}} {{#propertyExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/propertyExpression}} />
+        <property name="{{propertyName}}" {{#propertyValue}}value="{{propertyValue}}"{{/propertyValue}} {{#propertyExpression}}expression="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/propertyExpression}} />
         {{/properties}}
         {{#features}}
         <feature name="{{featureName}}" value="{{featureEnabled}}"/>
@@ -53,6 +53,8 @@ export function getXsltXml(data: { [key: string]: any }) {
   if (data.xsltSchemaKey?.isExpression) {
     data.xsltSchemaKey.value = "{" + data.xsltSchemaKey.value + "}";
   }
+  if ((!data.sourceXPath.expression || data.sourceXPath.expression == "") &&
+     (!data.sourceXPath.value || data.sourceXPath.value == "")) delete data.sourceXPath;
   data.namespaces = getNamespaces(data);
   const output = Mustache.render(getXsltMustacheTemplate(), data)?.trim();
   return output;

@@ -18,6 +18,7 @@ import { Project, SyntaxKind } from "ts-morph";
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { hasFields } from "./components/Diagram/utils/node-utils";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -61,7 +62,7 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     const { rpcClient } = useVisualizerContext();
 
-    const { functionST, sourceFile } = useMemo(() => {
+    const functionST = useMemo(() => {
 
         const project = new Project({
             useInMemoryFileSystem: true,
@@ -70,6 +71,8 @@ export function DataMapperView(props: DataMapperViewProps) {
         const sourceFile = project.createSourceFile(filePath, fileContent);
         const fnST = sourceFile.getFunction(functionName);
 
+        const hasNonEmptyIOTrees = inputTrees.every(tree => hasFields(tree)) && hasFields(outputTree);
+
         // Check if the return statement is empty
         const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
         const isEmptyReturnStatement =
@@ -77,7 +80,7 @@ export function DataMapperView(props: DataMapperViewProps) {
             returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
             // If return type is an array
             || returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
-        if (isEmptyReturnStatement) {
+        if (hasNonEmptyIOTrees && isEmptyReturnStatement) {
             rpcClient.getMiVisualizerRpcClient().retrieveContext({
                 key: "showDmLandingMessage",
                 contextType: "workspace"
@@ -100,15 +103,12 @@ export function DataMapperView(props: DataMapperViewProps) {
             });
         }
 
-        return {
-            functionST: fnST,
-            sourceFile: sourceFile,
-        };
+        return fnST;
 
     }, [rpcClient, filePath, fileContent, functionName]);
 
-    const applyModifications = async () => {
-        await updateFileContent(sourceFile.getFullText());
+    const applyModifications = async (fileContent: string) => {
+        await updateFileContent(fileContent);
     };
 
     return (

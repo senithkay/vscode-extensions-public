@@ -25,7 +25,7 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { MockService, STNode, UnitTest } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest, Task, NamedSequence } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
@@ -38,7 +38,7 @@ interface MachineContext extends VisualizerLocation {
 }
 
 const stateMachine = createMachine<MachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJgCMANnSSA7AA5dAZgCsuyZIAspyVasAaEAE9E9+7vTHtfQDtK3tJSysATnsAXxj3NAYVYjJKGjoGZjZ0Lh5+IVF2CV1ZJBBFZXw1Mq0EbUlDE3NrWwcnF3cvBFMLdG1jC3sLfVNRyKt9PTiEjGxkknIqWnpsLI5uXkERMXFtUoUlFWrQWr1GswjWx2c3Tx1J9Cs7E0jjXXtQ-WmQRLn8FMWYAEQgE6HkRAIuAAZtQBMgcht8tsilJ9uVDlUsOpalZtJ1EO8rL1IqYSZEgqZAhYLJFvok6AB3LaFXAAETAuDEkCWGVWrHo9LATIKYnZnKKkAQfPYkNUWFRqPUFSOWJqiDe9keuisA2MDX0Nm1+IQ9n0mo+1IGuj0DUi0TpGGoRAgzNFHK5EB5KyY-PQiSdLpFRTFHqlPplmIVMiVGLl2PVw3QQV0kX6NNxI2Ntkaz1MxlNZMk1Id6CIsAAkjhcF7Mr7EmXK3gw8wI3Ko2jlZj43V9JF0JTzDYeu1Ig0s7Y-PZtHbtBZnNpfLT4j8MA2qxQgSCwRDobD4fWK1Xm9RW7R2zHKnG1T2+wPtbph85R-osxZrUZLG-6iY9dYSwIwAICAPHQRhUCFAAZaggOwKAaz5bJEgAoCQLAyDoIgWDj1PeUZEVMpOyvE4CXCPxU2-PVwl7M0s20Bd0DCM1wgsUxTX0P9lyQwDgNA8CGQAZVwAheFg+CfUQjBkJ4tCBKEkSsCgbDZTPPDowI2Njk0Akp20dBBhY4x9AMAJ7BJWj6MYsJLFY-R2Ksf9uNQviADkCDAqBIW5dJvTWP1JMc3ihVc9zPIgJTI1UjsNNVYiEHeOi9KGPMjKCBczLuBBIgsYx0F0Yw7QCB9TEmCYHJQwKGQAJUcigAHk+AAUWcgB9AA1csGoAdXwg5L002p2NMfshhnIs3iyyJaLsXL8tTRxjACEYvk4-zypk6qUIoZyAEF2oAcW2gAVBqevRPqYq0hBBuGmlUzGlMaSzZxDCnO0GhYwI6LK6S+I24CKAAMXLCCGuahrWXLQ7TsI-rEGu1jbvqbKHsmjLLFNJNqXqOjKWiXRvqcoUGsw-AFIocHIea1lauck61N6lVuzNXpnmyrLgmy+xaPJXLqWYpijNCEtGVdIoKqgmCye82sJPQEWg1wcWMKw6VlNw6Roei7sLiTN5SRpYwbFeW4umsXSLW1Oc9cmU1haFUXFfWmr6qatqOu6+mzsZ68el0qJstGa0F0mCxjRCQwnjsZnJFMGxSu+LBqAgOB1DQC9vdigBaF8Mszqx0DtQui6LnUSz+QgFjAdOu2vKdjSGSci20WPrXeUdYhWuX7YVkMJQgauiMu0y-EjkxJDtfQ7Dok3vBpAuiWb0Z6kXfMSwDB3e85fv1PO7sbF6A1JiMiwF0NvNjXMR5niLAw5qnks1zwAfYYQBbufzsk8z0WdbHszupK6AzGusUdJJhCDHXQxlpw3AvqZXWZJ6ikgnqYAmStJZQGfhdWoZghrPh8JAyIlgyTjjtAXBoVhWI+A+AtYwqCZKCWEiwWCmDuyt10s+awRYb62Rzl0AhfY8FPEMq9IW-8AoyWCqgDyW8WHXgMHlPS1p7ADBjuYEqT0KFJgmEMOi1FHAoLEWtX6jlZEgL1GAp45goGjg6GjLGmMT7N1xLOIkS4ZjoAARVYmKgFKmMujgshZpfApiIaSV8vhHimSXraN8U4SyYVgAQAARkQSAfjagjT6M0QIrwixvlDmjIYOVPzWmsGaPUUxO7y2RLgdJiAnj50PoESwp8KHGCzL2IwzwrIUKJCfDu7jqksjQZhXxO8M6XRcAfCYzT+ln3aRlHJSYdHsUkP0celg7bChqRVP6gCvbAMuiSXSh85zBJGDHBZXRm45ScMgz6WUiQdziEAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJm0A2dJICs2yQE49k7QEYT1vXoA0IAJ469ADnTWPAdiOSDkY+gX4AvmHOaAwqxGSUNHQMzGzoXDz8QqLsEtaySCCKyvhqBVoINgbGphZWtpVOrojW-uhGetomehYWHtpmRhFRGNixJORUtPTYKRzcvIIiYuLa+QpKKqWg5aZVJuaWNnYOzm4IfehmAMy+ACz+vleS1mbaV9pDINGj+HETidMmKw5hlFtkJFc1oUNiUsOodlc9jVDvV7I0zlcBug7k9btdfHpbHjPt8cL9xgkpslgWl5pkljlxLcoUVNnCyjpbkiDnVjujEITtOgPCKRf1Xo9jCSRmTCBSKGABEIBOh5EQCLgAGbUATIWmgrLLGTqVmw+GIEynZoedroLmPW67PoEjzStK0Og5HUASTJkySMxp0XYHrEPrJCED7A1qiwUmk8ZNMNj5oQvjMt0Mt3svg8xl8L35FSMV28RjMjxMHgs7w8ejd8kNOQAImBcGJIP7AbN0NFGwzcK32zlIJGgdHYfHEwVTSmOQgOlaEPYWpc9I8M9ZbpJbqK3dQiBAwWIhx2IF3qalogej03B22z2PmBPY1PjTPk1tNIhfNol7ZfEkO112zHcrm3FpfDdIhYF9PAL0DK8MBguDcCfagX1oN8WU-dltkQe4jGxQCPExDxbluTEzGsf8iXQJ4jBLSwAj0K4Xmg2C-QBS96GiFCIyjGMsJkcQ8iTYo53whAuSI3wSLIiiqJoppl0Cax0E8Yx2kRG1JFdSIvmQzj4MVZVVXVLUdT1PjjLQwTJxE991gkr9ykI4i9IUyizGo-9CQMbo9BLEtAiMPo3QEMACAgFx0AIHJUEYDUwAAeVwbgBAAMSi3AAFdItgBCgSQ9BIui2L4vwJL2zSjLso1fK4HQzC40cnCXLw79VOubxbjCm4rhFDpJF8f9fy8UijD68jrCsfRBgM6Iypi9BGFQMAAHcABlqGi7AoCKnslqila1s2na9qwKBmqE1qEyc6EOtTWwOmFPRpu0G08QGUaVPsIxfHQbRfwzbcnjzFoIpO2Kzo2zLsAgfbDqDDBlph9a4YR-aboc+72rZZ6My8V5uhuEUKxuIw-PA7FZsdDxbERK4rgW4ZSuh1aMYAZVweKWCR7jEN41GOdhnm+ex+zXza8SCfnN4bDtewKLkl5Qb8gGgZBijJHB54oMWkXys5zaAFV5AgZLz0F4rhfZ43YfNy32wgHHpbx2WzXnFpWOFZmXkkQOt06P8-sU4DdfA9MOlJqGHYxgA5Ag1qgK3kZKtGTY2pOU6tt3hI9j8nvl951Ozd77gLHyKP-d4hW8rkgjCkw49OjGACVoYoFK+AAUQTgB9AA1b1e4AdWnZy5ak2aeq3frHiG0xfrOexmaB2abgeaj3tZwz7bbzbO-Kih297vgtoAQQAYV74fR4nh7Z1c5pzFLefSMXutl--EtAeb-oIEGZWH0mzTOsNj4xQoAnS+I8ADil8AAqvdJ6PWnl1We79poDSXiNf8FF1K1BZiHIK5Y97HXjkfLumVvRbTvr3Zs3pEGoOfp1comDeoL0Gt-PBf1TBAR8BmQk9xtykWsK3dGm1e6I3wFdCgDCmED2bClBOKCn64Wei8UsZhqxBXXBWOs1hQ6ry3GYDS1ZsxvApgDchGA6AbWPDkLOF1EZyJtkdOxm1HG4GcbtVx10pYFxYRo+cDN1KWEdC0AYg0WYrx-FYei9wbAZmop9DMbp7HeKzpAlw3c+6DxHuPYJxcpLfzaGxYGgR9C2GuEuSwBhfy6FmjYfwoMIgGSwNQCAcB1BoE9pJLqABaIswzDCB3GRMoOW43Q-DlPEfpL9pLGJ-LoNo1hMSfReFNVitw3QhiwJ6XA4Y8ALLYRaN4Gl54+WIdYZWS5OjqW4dROm2ZfwswbHeU8I4ICnOejueu9xqIUUdGFe5wR6Lk1uTuV5bxbHoBvN4r5LtfnzmCKWYR5Zrh2DuSpBm3gHDrlmoHLemIOKoRRVJYGQpej+CsISNeyzlzlnReBYwEFczMQkRSrqjwDCYjCv0Fo-RcweH-FUtougGb9CmuBBwEi4oJWqqldKip6p5QKty8ouZMz8r6NREGIqxo7jaHUHwn1WmgP3uAjGLj9qauaMzMxfgAgMyjqYq41NqWYksJiPSLR3jythvDLA-j7XLgJKWUibEzDjODpaP6rEvVEJjQzR4HxDYH0kRtcWvA7VF3QTsW5hCfLkXAv1KanrLjet1im-16awGiwxk7K2YaXpeCeKYIxu5tzbPwdmcxAxZqMT0npS1FDD7Z2TqgVOyL81e0pcEPlFcTA2EpoyrcFFvDVmCFpEdIpA0d2hmG6sgNA79D6l29ZBJaKvTrHmZ4LNmZsQPVImReap7zowY64UtLXX3HdbRMKWtgYlmos8PqbpEawAIAAIyIJAMNu8N5+FzKYci5Fbj-lImYhwfguRckCCCjJXi7xhuCpcvqjx-adFBSpYIZjGKMQ2UK+wY7PEOLvL4y6UAyOkQowDJ9RjGKipUoSJ1Qm2U7OBsRjjA5slHrnQM9hzwhQAzSc8Ewry6k3DenmKa5YCwvANhEIAA */
     id: 'mi',
     initial: 'initialize',
     predictableActionArguments: true,
@@ -382,7 +382,8 @@ const stateMachine = createMachine<MachineContext>({
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
-                if (context.view?.includes("Form")) {
+
+                if (context.view?.includes("Form") && context.view !== MACHINE_VIEW.InboundEPForm) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -438,6 +439,19 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.stNode = node.template;
                                         break;
                                     }
+                                case !!node.task:
+                                    // we need to enrich Task with the sequence model
+                                    const task: Task = node.task as Task;
+                                    viewLocation.view = MACHINE_VIEW.TaskView;
+                                    const sequenceName = task.property.find((p) => { return p.name === 'sequenceName' })?.value
+                                    const sequencePath = await langClient.getSequencePath(sequenceName ? sequenceName : "");
+                                    if (sequencePath) {
+                                        const sequence = await langClient.getSyntaxTree({ documentIdentifier: { uri: sequencePath } });
+                                        task.sequence = sequence.syntaxTree.sequence;
+                                        task.sequenceURI = sequencePath;
+                                    }
+                                    viewLocation.stNode = task;
+                                    break;
                                 case !!node["unit-test"]:
                                     if (viewLocation.view !== MACHINE_VIEW.TestCase) {
                                         viewLocation.view = MACHINE_VIEW.TestSuite;
@@ -446,6 +460,9 @@ const stateMachine = createMachine<MachineContext>({
                                     break;
                                 case !!node["mock-service"]:
                                     viewLocation.stNode = node["mock-service"] as MockService;
+                                    break;
+                                case !!node.inboundEndpoint:
+                                    viewLocation.stNode = node.inboundEndpoint;
                                     break;
                                 default:
                                     // Handle default case

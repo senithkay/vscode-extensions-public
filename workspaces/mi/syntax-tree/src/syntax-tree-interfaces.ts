@@ -149,6 +149,8 @@ export interface Task extends STNode {
     name: string;
     group: string;
     pinnedServers: string;
+    sequence: NamedSequence | undefined;
+    sequenceURI: string | undefined;
 }
 
 export interface FilterElse extends STNode {
@@ -422,6 +424,7 @@ export interface InboundEndpoint extends STNode {
     clazz: string;
     statistics: string;
     trace: string;
+    interval: string;
 }
 
 export interface SmooksOutput extends STNode {

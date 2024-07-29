@@ -15,25 +15,25 @@ export function getForeachMustacheTemplate() {
     return `
     {{#isNewMediator}}
     {{#isAnnonymousSequence}}
-    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
+    <foreach expression="{{forEachExpression}}"{{#forEachID}} id="{{forEachID}}"{{/forEachID}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     <sequence></sequence>
     </foreach>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{{sequenceName}}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}/>
+    <foreach expression="{{forEachExpression}}"{{#forEachID}} id="{{forEachID}}"{{/forEachID}} {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isAnnonymousSequence}}
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editForeach}}
     {{#isAnnonymousSequence}}
-    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
+    <foreach expression="{{forEachExpression}}"{{#forEachID}} id="{{forEachID}}"{{/forEachID}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{#addSequence}}
     <sequence></sequence>
     </foreach>
     {{/addSequence}}
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{{sequenceName}}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}/>
+    <foreach expression="{{forEachExpression}}"{{#forEachID}} id="{{forEachID}}"{{/forEachID}} {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isAnnonymousSequence}}
     {{/editForeach}}
     {{/isNewMediator}}
@@ -58,16 +58,17 @@ export function getForeachXml(data: { [key: string]: any }, dirtyFields?: any, d
         if (defaultValues.sequenceType == "Anonymous" && data.sequenceType == "Key") {
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.endTagRange.start
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.endTagRange.start
             }
         } else if (defaultValues.sequenceType == "Key" && data.sequenceType == "Anonymous") {
             data.isAnnonymousSequence = true;
             data.addSequence = true;
             editRange = {
                 start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.endTagRange.start
+                end: range?.endTagRange?.end ? range.endTagRange.end : range.endTagRange.start
             }
         }
+        if (data.forEachID == "") delete data.forEachID;
         const output = Mustache.render(getForeachMustacheTemplate(), data)?.trim();
         return [{
             text: output,

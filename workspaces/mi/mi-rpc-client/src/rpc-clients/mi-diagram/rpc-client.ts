@@ -307,8 +307,16 @@ import {
     getSubFolderNames,
     GetSubFoldersResponse,
     GetSubFoldersRequest,
+    downloadInboundConnector,
+    DownloadInboundConnectorResponse,
+    DownloadInboundConnectorRequest,
     FileRenameRequest,
-    renameFile
+    renameFile,
+    SaveInboundEPUischemaRequest,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse,
+    getInboundEPUischema,
+    saveInboundEPUischema
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -580,8 +588,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    initUndoRedoManager(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
+    initUndoRedoManager(params: UndoRedoParams): Promise<void> {
+        return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
     undo(params: UndoRedoParams): void {
@@ -652,6 +660,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(downloadConnector, HOST_EXTENSION, params);
     }
 
+    downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
+        return this._messenger.sendRequest(downloadInboundConnector, HOST_EXTENSION, params);
+    }
+
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
         return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
     }
@@ -666,6 +678,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectionForm(params: GetConnectionFormRequest): Promise<GetConnectionFormResponse> {
         return this._messenger.sendRequest(getConnectionForm, HOST_EXTENSION, params);
+    }
+
+    saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
+        return this._messenger.sendRequest(saveInboundEPUischema, HOST_EXTENSION, params);
+    }
+
+    getInboundEPUischema(params: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
+        return this._messenger.sendRequest(getInboundEPUischema, HOST_EXTENSION, params);
     }
 
     createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {

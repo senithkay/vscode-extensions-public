@@ -7,6 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+export function escapeXml(text: string) {
+
+  return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+};
+
 export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -113,7 +122,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.62</version>
+            <version>5.2.64</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -157,7 +166,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>synapse-unit-test-maven-plugin</artifactId>
-            <version>5.2.62</version>
+            <version>5.2.64</version>
             <executions>
               <execution>
                 <id>synapse-unit-test</id>
@@ -220,7 +229,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.61</version>
+            <version>5.2.64</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -256,7 +265,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>mi-container-config-mapper</artifactId>
-            <version>5.2.61</version>
+            <version>5.2.64</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -266,7 +275,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <goal>config-mapper-parser</goal>
                 </goals>
                 <configuration>
-                  <miVersion>4.2.0</miVersion>
+                  <miVersion>4.3.0</miVersion>
                   <executeCipherTool>\${ciphertool.enable}</executeCipherTool>
                   <keystoreName>\${keystore.name}</keystoreName>
                   <keystoreAlias>\${keystore.alias}</keystoreAlias>
@@ -358,7 +367,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <keystore.password>wso2carbon</keystore.password>
     <keystore.alias>wso2carbon</keystore.alias>
     <ciphertool.enable>true</ciphertool.enable>
-    <dockerfile.base.image>wso2/wso2mi:4.2.0</dockerfile.base.image>
+    <dockerfile.base.image>wso2/wso2mi:4.3.0</dockerfile.base.image>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>

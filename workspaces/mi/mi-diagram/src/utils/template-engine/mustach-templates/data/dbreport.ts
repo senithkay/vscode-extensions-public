@@ -12,61 +12,61 @@ import Mustache from "mustache";
 
 export function getDBReportMustacheTemplate() {
     return `
-    <dbreport {{#description}}description="{{{description}}}"{{/description}} >
+    <dbreport {{#description}}description="{{description}}"{{/description}} >
         <connection>
             <pool>
                 {{#isDbConnection}}
                 {{#isRegistryBasedDriverConfig}}
-                {{#registryBasedConnectionDBDriver}}<driver key="{{{registryBasedConnectionDBDriver}}}" />{{/registryBasedConnectionDBDriver}}
+                {{#registryBasedConnectionDBDriver}}<driver key="{{registryBasedConnectionDBDriver}}" />{{/registryBasedConnectionDBDriver}}
                 {{/isRegistryBasedDriverConfig}}
                 {{^isRegistryBasedDriverConfig}}
-                {{#connectionDBDriver}}<driver>{{{connectionDBDriver}}}</driver>{{/connectionDBDriver}}
+                {{#connectionDBDriver}}<driver>{{connectionDBDriver}}</driver>{{/connectionDBDriver}}
                 {{/isRegistryBasedDriverConfig}}
                 {{#isRegistryBasedURLConfig}}
-                {{#registryBasedURLConfigKey}}<url key="{{{registryBasedURLConfigKey}}}" />{{/registryBasedURLConfigKey}}
+                {{#registryBasedURLConfigKey}}<url key="{{registryBasedURLConfigKey}}" />{{/registryBasedURLConfigKey}}
                 {{/isRegistryBasedURLConfig}}
                 {{^isRegistryBasedURLConfig}}
-                {{#connectionURL}}<url>{{{connectionURL}}}</url>{{/connectionURL}}
+                {{#connectionURL}}<url>{{connectionURL}}</url>{{/connectionURL}}
                 {{/isRegistryBasedURLConfig}}
                 {{#isRegistryBasedUserConfig}}
-                {{#registryBasedUserConfigKey}}<user key="{{{registryBasedUserConfigKey}}}" />{{/registryBasedUserConfigKey}}
+                {{#registryBasedUserConfigKey}}<user key="{{registryBasedUserConfigKey}}" />{{/registryBasedUserConfigKey}}
                 {{/isRegistryBasedUserConfig}}
                 {{^isRegistryBasedUserConfig}}
-                {{#connectionUsername}}<user>{{{connectionUsername}}}</user>{{/connectionUsername}}
+                {{#connectionUsername}}<user>{{connectionUsername}}</user>{{/connectionUsername}}
                 {{/isRegistryBasedUserConfig}}
                 {{#isRegistryBasedPassConfig}}
-                {{#registryBasedPassConfigKey}}<password key="{{{registryBasedPassConfigKey}}}" />{{/registryBasedPassConfigKey}}
+                {{#registryBasedPassConfigKey}}<password key="{{registryBasedPassConfigKey}}" />{{/registryBasedPassConfigKey}}
                 {{/isRegistryBasedPassConfig}}
                 {{^isRegistryBasedPassConfig}}
-                {{#connectionPassword}}<password>{{{connectionPassword}}}</password>{{/connectionPassword}}
+                {{#connectionPassword}}<password>{{connectionPassword}}</password>{{/connectionPassword}}
                 {{/isRegistryBasedPassConfig}}
                 {{/isDbConnection}}
                 {{^isDbConnection}}
-                {{#connectionDSName}}<dsName>{{{connectionDSName}}}</dsName>{{/connectionDSName}}
-                {{#connectionDSInitialContext}}<icClass>{{{connectionDSInitialContext}}}</icClass>{{/connectionDSInitialContext}}
+                {{#connectionDSName}}<dsName>{{connectionDSName}}</dsName>{{/connectionDSName}}
+                {{#connectionDSInitialContext}}<icClass>{{connectionDSInitialContext}}</icClass>{{/connectionDSInitialContext}}
                 {{^isCarbonDs}}
                 {{#isRegistryBasedURLConfig}}
-                {{#registryBasedURLConfigKey}}<url>{{{registryBasedURLConfigKey}}}</url>{{/registryBasedURLConfigKey}}
+                {{#registryBasedURLConfigKey}}<url>{{registryBasedURLConfigKey}}</url>{{/registryBasedURLConfigKey}}
                 {{/isRegistryBasedURLConfig}}
                 {{^isRegistryBasedURLConfig}}
-                {{#connectionURL}}<url>{{{connectionURL}}}</url>{{/connectionURL}}
+                {{#connectionURL}}<url>{{connectionURL}}</url>{{/connectionURL}}
                 {{/isRegistryBasedURLConfig}}
                 {{#isRegistryBasedUserConfig}}
-                {{#registryBasedUserConfigKey}}<user>{{{registryBasedUserConfigKey}}}</user>{{/registryBasedUserConfigKey}}
+                {{#registryBasedUserConfigKey}}<user>{{registryBasedUserConfigKey}}</user>{{/registryBasedUserConfigKey}}
                 {{/isRegistryBasedUserConfig}}
                 {{^isRegistryBasedUserConfig}}
-                {{#connectionUsername}}<user>{{{connectionUsername}}}</user>{{/connectionUsername}}
+                {{#connectionUsername}}<user>{{connectionUsername}}</user>{{/connectionUsername}}
                 {{/isRegistryBasedUserConfig}}
                 {{#isRegistryBasedPassConfig}}
-                {{#registryBasedPassConfigKey}}<password>{{{registryBasedPassConfigKey}}}</password>{{/registryBasedPassConfigKey}}
+                {{#registryBasedPassConfigKey}}<password>{{registryBasedPassConfigKey}}</password>{{/registryBasedPassConfigKey}}
                 {{/isRegistryBasedPassConfig}}
                 {{^isRegistryBasedPassConfig}}
-                {{#connectionPassword}}<password>{{{connectionPassword}}}</password>{{/connectionPassword}}
+                {{#connectionPassword}}<password>{{connectionPassword}}</password>{{/connectionPassword}}
                 {{/isRegistryBasedPassConfig}}
                 {{/isCarbonDs}}
                 {{/isDbConnection}}
                 {{#properties}}
-                <property name="{{{propertyName}}}" value="{{{propertyValue}}}" />
+                <property name="{{propertyName}}" value="{{propertyValue}}" />
                 {{/properties}}
             </pool>
         </connection>
@@ -74,10 +74,10 @@ export function getDBReportMustacheTemplate() {
         <statement>
             <sql><![CDATA[{{{queryString}}}]]></sql>
             {{#parameters}}
-            <parameter {{#valueExpression}}expression="{{{valueExpression}}}"{{/valueExpression}} {{#valueLiteral}}value="{{{valueLiteral}}}"{{/valueLiteral}} type="{{{dataType}}}"/>
+            <parameter {{#valueExpression}}expression="{{valueExpression}}"{{/valueExpression}} {{#valueLiteral}}value="{{valueLiteral}}"{{/valueLiteral}} type="{{dataType}}"/>
             {{/parameters}}
             {{#results}}
-            <result column="{{{columnId}}}" name="{{{propertyName}}}"/>
+            <result column="{{columnId}}" name="{{propertyName}}"/>
             {{/results}}
         </statement>
         {{/sqlStatements}}

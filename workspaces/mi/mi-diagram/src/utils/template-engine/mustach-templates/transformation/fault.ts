@@ -14,13 +14,13 @@ import { transformNamespaces } from "../../../commons";
 export function getFaultMustacheTemplate() {
     return `
     <makefault {{#serializeResponse}}response="{{markAsResponse}}"{{/serializeResponse}} description="{{description}}" version="{{soapVersion}}" >
-        <code value="{{soapVersion}}Env:{{code}}" xmlns:{{soapVersion}}Env="http://schemas.xmlsoap.org/soap/envelope/" />
-        <reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/reasonExpression}} />
-        {{#actor}}<role>{{{actor}}}</role>{{/actor}}
-        {{#node}}<node>{{{node}}}</node>{{/node}}
-        {{#role}}<role>{{{role}}}</role>{{/role}}
-        {{#detailValue}}<detail>{{{detailValue}}}</detail>{{/detailValue}}
-        {{#detailExpression}}<detail expression="{{{value}}}" {{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} />{{/detailExpression}}
+        {{^isPox}}<code value="{{soapVersion}}Env:{{code}}" xmlns:{{soapVersion}}Env="{{soapUri}}" />{{/isPox}}
+        {{#hasReason}}<reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/reasonExpression}} />{{/hasReason}}
+        {{#actor}}<role>{{actor}}</role>{{/actor}}
+        {{#node}}<node>{{node}}</node>{{/node}}
+        {{#Role}}<role>{{Role}}</role>{{/Role}}
+        {{#detailValue}}<detail>{{detailValue}}</detail>{{/detailValue}}
+        {{#detailExpression}}<detail expression="{{value}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} />{{/detailExpression}}
     </makefault>
     `;
 }
@@ -39,15 +39,28 @@ export function getFaultXml(data: { [key: string]: any }) {
     } else {
         data.reasonValue = data.reason.value;
     }
-
+    data.hasReason = data.reasonValue || data.reasonExpression;
+    data.soapVersion = data.soapVersion.toLowerCase();
     if (data.soapVersion == "soap11") {
+        data.soapUri = "http://schemas.xmlsoap.org/soap/envelope/";
         data.code = data.soap11;
-        delete data.role;
+        delete data.Role;
         delete data.node;
     }
     else if (data.soapVersion == "soap12") {
-        data.code = data.soap12;
+        data.soapUri = "http://www.w3.org/2003/05/soap-envelope";
         delete data.actor;
+    } else if (data.soapVersion == "pox") {
+        delete data.actor;
+        delete data.node;
+        delete data.Role;
+        data.isPox = true;
+    }
+
+    if (data.serializeResponse == true && data.markAsResponse != true) {
+        data.markAsResponse = false;
+    } else if (data.serializeResponse == false) {
+        delete data.markAsResponse;
     }
 
     const output = Mustache.render(getFaultMustacheTemplate(), data)?.trim();
@@ -70,7 +83,7 @@ export function getFaultFormDataFromSTNode(data: { [key: string]: any }, node: M
     data.soapVersion = node.version;
     data.description = node.description;
     data.node = node.node?.textNode;
-    data.role = node.role?.textNode;
+    data.Role = node.role?.textNode;
     data.actor = node.role?.textNode;
     const codeValue = node.code?.value.split("Env:");
     if (data.soapVersion == "soap11") {

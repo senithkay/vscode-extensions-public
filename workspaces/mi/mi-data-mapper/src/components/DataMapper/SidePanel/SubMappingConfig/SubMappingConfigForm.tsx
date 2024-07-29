@@ -22,7 +22,7 @@ import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Controller, useForm } from 'react-hook-form';
 
 import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
-import { Block, FunctionDeclaration, VariableStatement } from "ts-morph";
+import { Block, FunctionDeclaration, Node, VariableStatement } from "ts-morph";
 import { SourceNodeType, View } from "../../Views/DataMapperView";
 import { getDefaultValue } from "../../../Diagram/utils/common-utils";
 import { DataMapperNodeModel } from "../../../Diagram/Node/commons/DataMapperNode";
@@ -46,7 +46,7 @@ export type SubMappingConfigFormProps = {
     inputNode: DataMapperNodeModel;
     addView: (view: View) => void;
     updateView: (updatedView: View) => void;
-    applyModifications: () => Promise<void>;
+    applyModifications: (fileContent: string) => Promise<void>;
 };
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
@@ -87,14 +87,14 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
 
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
         const defaultValue = getDefaultValue(typeKind);
-        const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
+        const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType !== "object" && mappingType);
         const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}`: ''} = ${defaultValue};`;
         (functionST.getBody() as Block).insertStatements(nextSubMappingIndex, varStmt);
 
-        await applyModifications();
-
         resetSubMappingConfig();
         reset();
+
+        await applyModifications(functionST.getSourceFile().getFullText());
     };
 
     const onEdit = async (data: SMConfigFormData) => {
@@ -111,16 +111,19 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             updatedName = mappingName;
         }
 
+        let updatedNode: Node;
         if (mappingType !== prevMappingType && mappingType !== "object" && varDecl) {
             const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);
             if (typeNode) {
-                typeNode.replaceWithText(typeDesc);
+                updatedNode = typeNode.replaceWithText(typeDesc);
+                await applyModifications(updatedNode.getSourceFile().getFullText());
             } else {
                 varDecl.setType(typeDesc);
             }
-            varDecl.getInitializer().replaceWithText(defaultValue);
+            updatedNode = varDecl.getInitializer().replaceWithText(defaultValue);
+            await applyModifications(updatedNode.getSourceFile().getFullText());
             updatedType = typeDesc;
         }
 
@@ -134,7 +137,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             }
         });
 
-        await applyModifications();
+        await applyModifications(updatedNode.getSourceFile().getFullText());
         resetSubMappingConfig();
         reset();
     };
@@ -191,25 +194,23 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                         )}
                     />
                 </Field>
-                {watch("mappingType") !== undefined &&
-                    <Field>
-                        <Controller
-                            name="isArray"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox
-                                    checked={field.value}
-                                    onClick={(e: any) => field.onChange(e.target.checked)}
-                                    onBlur={field.onBlur}
-                                    name={field.name}
-                                    ref={field.ref}
-                                >
-                                    Is Array
-                                </VSCodeCheckbox>
-                            )}
-                        />
-                    </Field>
-                }
+                <Field>
+                    <Controller
+                        name="isArray"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox
+                                checked={field.value}
+                                onClick={(e: any) => field.onChange(e.target.checked)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                            >
+                                Is Array
+                            </VSCodeCheckbox>
+                        )}
+                    />
+                </Field>
                 {!isEdit && (
                     <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                         <Button

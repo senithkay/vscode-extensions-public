@@ -13,6 +13,10 @@ import { createRoot } from "react-dom/client";
 import { VisualizerContextProvider } from "./Context";
 import { Visualizer } from "./Visualizer";
 import { SwaggerData } from "@wso2-enterprise/mi-core";
+import Mustache from "mustache";
+import { escapeXml } from "@wso2-enterprise/mi-diagram/lib/utils/commons";
+
+Mustache.escape = escapeXml;
 
 const queryClient = new QueryClient({
     defaultOptions: {

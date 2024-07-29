@@ -14,24 +14,24 @@ import { checkAttributesExist, transformNamespaces } from "../../../commons";
 export function getIterateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{{iterateExpression}}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
         {{#isAnnonymousSequence}}
         <target>
             <sequence></sequence>
         </target>
         {{/isAnnonymousSequence}}
         {{^isAnnonymousSequence}}
-        <target sequence="{{{sequenceKey}}}" />
+        <target sequence="{{sequenceKey}}" />
         {{/isAnnonymousSequence}}
     </iterate>
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editIterate}}
     {{#isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{{iterateExpression}}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}/>
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isSelfClosed}}
     {{^isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{{iterateExpression}}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{/isSelfClosed}}
     {{/editIterate}}
     {{#editTarget}}
@@ -41,7 +41,7 @@ export function getIterateMustacheTemplate() {
     </target>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <target sequence="{{{sequenceKey}}}" />
+    <target sequence="{{sequenceKey}}" />
     {{/isAnnonymousSequence}}
     {{/editTarget}}
     {{/isNewMediator}}
@@ -96,7 +96,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let range = defaultValues.ranges.target;
         let editRange = {
             start: range.startTagRange.start,
-            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            end: range?.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end
         }
         let output = Mustache.render(getIterateMustacheTemplate(), dataCopy)?.trim();
         let edit = {
