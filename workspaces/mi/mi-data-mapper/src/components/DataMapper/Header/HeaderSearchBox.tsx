@@ -123,6 +123,15 @@ export default function HeaderSearchBox() {
             value={searchTerm}
             onTextChange={handleSearchInputChange}
             size={100}
+            inputProps={{
+                endAdornment: (
+                    <>
+                        {searchTerm && (
+                            <Codicon name="close" onClick={handleOnSearchTextClear} />
+                        )}
+                    </>
+                ),
+            }}
         />
     );
 }
