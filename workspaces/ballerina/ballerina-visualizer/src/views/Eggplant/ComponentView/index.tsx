@@ -39,7 +39,8 @@ const PanelViewMore = styled.div({
 
 const HorizontalCardContainer = styled.div({
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    margin: "0px 135px 0px 135px",
     gridAutoRows: "minmax(80px, auto)",
     gap: "20px",
 });
@@ -137,26 +138,7 @@ export function AddComponentView() {
             <ViewContent padding>
                 <Container>
                     <AddPanel>
-                        <Typography variant="h3" sx={{ margin: "0 0 5px 0", display: "flex", alignItems: "center" }}>
-                            <Codicon name="wand" sx={{ marginRight: "5px" }} />
-                            Describe your Integration to generate with AI
-                        </Typography>
-                        <AIPanel>
-                            <TextArea
-                                onTextChange={handleAiPromptChange}
-                                value={inputAiPrompt}
-                                rows={4}
-                                cols={1000}
-                                placeholder="ie. I want to create an API that will route my request based on a header value."
-                            ></TextArea>
-                            <Button appearance="primary" disabled={inputAiPrompt.length === 0} onClick={handleGenerateWithAI}>
-                                <Codicon name="wand" />
-                                &nbsp; Generate
-                            </Button>
-                        </AIPanel>
-                    </AddPanel>
-                    <AddPanel>
-                        <Typography variant="h3" sx={{ margin: 0 }}>
+                        <Typography variant="h2" sx={{ margin: 0 }}>
                             Entry Points
                         </Typography>
                         <HorizontalCardContainer>
@@ -185,7 +167,7 @@ export function AddComponentView() {
                         >
                             <PanelViewMore>
                                 <Divider />
-                                <Typography variant="h3" sx={{ margin: 0 }}>
+                                <Typography variant="h2" sx={{ margin: 0 }}>
                                     Other Artifacts
                                 </Typography>
                                 <HorizontalCardContainer>

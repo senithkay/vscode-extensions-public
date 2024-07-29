@@ -56,7 +56,6 @@ export function ProjectForm() {
     const { rpcClient } = useVisualizerContext();
     const [selectedModule, setSelectedModule] = useState("Main");
     const [name, setName] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
 
     const handleSelection = (type: string) => {
         setSelectedModule(type);
@@ -67,7 +66,6 @@ export function ProjectForm() {
     }
 
     const handleCreateProject = () => {
-        setIsLoading(true);
         rpcClient.getEggplantDiagramRpcClient().createProject({ projectName: name, isService: selectedModule === "Service" });
     }
 
@@ -98,7 +96,7 @@ export function ProjectForm() {
                 placeholder="Enter a project name"
             />
             <ButtonWrapper>
-                <Button disabled={isLoading || name.length < 2} onClick={handleCreateProject} appearance="primary">Create Project</Button>
+                <Button disabled={name.length < 2} onClick={handleCreateProject} appearance="primary">Create Project</Button>
             </ButtonWrapper>
         </FormContainer>
     );

@@ -60,6 +60,7 @@ const stateMachine = createMachine<MachineContext>({
     actions: {
         activateExplorer: (context, event) => {
             activateProjectExplorer(extension.context);
+            commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
         },
         showWelcome: (context, event) => {
             commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);
