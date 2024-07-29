@@ -84,6 +84,7 @@ export function TaskForm(props: TaskFormProps) {
         msg: ""
     });
     const [validationMessage, setValidationMessage] = useState(true);
+    const [isCountDefined, setIsCountDefined] = useState(false);
     const [message, setMessage] = useState({
         isError: false,
         text: ""
@@ -160,6 +161,9 @@ export function TaskForm(props: TaskFormProps) {
                 if (taskRes.name) {
                     setIsNewTask(false);
                     reset(taskRes);
+                    if (taskRes.triggerCount !== null) {
+                        setIsCountDefined(true);
+                    }
                     setSavedTaskName(taskRes.name);
                     if (taskRes.taskProperties) {
                         setValue("format", taskRes.taskProperties.find((prop: any) => prop.key === "format")?.value);
@@ -290,12 +294,15 @@ export function TaskForm(props: TaskFormProps) {
                 />
                 {watch("triggerType") === 'simple' ? (
                     <>
-                        <TextField
-                            id="triggerCount"
-                            label="Count"
-                            errorMsg={errors.triggerCount?.message}
-                            {...register("triggerCount")}
-                        />
+                        <CheckBox label="Trigger Indefinitely" checked={!isCountDefined} onChange={(isChecked: boolean) => setIsCountDefined(!isChecked)} />
+                        {isCountDefined &&
+                            <TextField
+                                id="triggerCount"
+                                label="Count"
+                                errorMsg={errors.triggerCount?.message}
+                                {...register("triggerCount")}
+                            />
+                        }
                         <TextField
                             id="triggerInterval"
                             required
