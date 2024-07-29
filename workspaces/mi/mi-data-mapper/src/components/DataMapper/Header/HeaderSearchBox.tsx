@@ -14,7 +14,7 @@ import debounce from "lodash.debounce";
 import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { Codicon, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
+import { CheckBox, CheckBoxGroup, Codicon, Menu, MenuItem, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -40,6 +40,10 @@ export default function HeaderSearchBox() {
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
         setSearchTerm(text);
+    };
+
+    const handleSearchOptionChange = (event:  React.ChangeEvent<{value: string[]}>) => {
+        setSearchOption(event.target.value);
     };
 
     const handleSearch = (term: string) => {
@@ -112,26 +116,51 @@ export default function HeaderSearchBox() {
     }, [searchOption]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
-    const filterIcon = (<Codicon name="filter" sx= {{cursor: "auto"}}/>);
+    const filterIcon = (<Codicon name="filter" sx={{ cursor: "auto" }} />);
 
     return (
-        <TextField
-            id={`search-${searchOption}`}
-            autoFocus={true}
-            icon={{iconComponent: filterIcon, position: "start"}}
-            placeholder={`filter input and output fields`}
-            value={searchTerm}
-            onTextChange={handleSearchInputChange}
-            size={100}
-            inputProps={{
-                endAdornment: (
-                    <>
-                        {searchTerm && (
-                            <Codicon name="close" onClick={handleOnSearchTextClear} />
-                        )}
-                    </>
-                ),
-            }}
-        />
+        <>
+            <TextField
+                id={`search-${searchOption}`}
+                autoFocus={true}
+                icon={{ iconComponent: filterIcon, position: "start" }}
+                placeholder={`filter input and output fields`}
+                value={searchTerm}
+                onTextChange={handleSearchInputChange}
+                size={100}
+                inputProps={{
+                    endAdornment: (
+
+                        <div style={{ display: "flex", flexDirection: "row" }}>
+                            {searchTerm && (
+                                <Codicon name="close" onClick={handleOnSearchTextClear} />
+                            )}
+
+                            <div>
+                                <Codicon name="chevron-down" />
+                                <div style={{ position: "absolute", top: "100%", right: "0", zIndex: 1000 , backgroundColor: "gray", padding: "5px"}}>
+                                    <CheckBoxGroup direction="vertical">
+                                        <CheckBox
+                                            checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1}
+                                            label="Filter in inputs"
+                                            onChange={(e) => {}}
+                                            value={INPUT_FIELD_FILTER_LABEL}
+                                        />
+                                        <CheckBox
+                                            checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1}
+                                            label="Filter in outputs"
+                                            onChange={(e) => {
+                                               }}
+                                               value={OUTPUT_FIELD_FILTER_LABEL}
+                                        />
+                                    </CheckBoxGroup>
+                                </div>
+                            </div>
+                        </div>
+                    ),
+                }}
+            />
+           
+        </>
     );
 }
