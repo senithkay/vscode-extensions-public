@@ -14,7 +14,7 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range 
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, Node, NodeId } from "./eggplant";
+import { Category, Flow, FlowNode, CodeData } from "./eggplant";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -420,26 +420,23 @@ export interface BallerinaServerCapability {
 
 // <------------ EGGPLANT INTERFACES --------->
 
-export interface EggplantModelRequest {
-    filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
+// export interface EggplantModelRequest {
+//     filePath: string;
+//     startLine: LinePosition;
+//     endLine: LinePosition;
+// }
 
-export type EggplantModelResponse = {
-    flowDesignModel: Flow;
-};
+// export type EggplantModelResponse = {
+//     flowDesignModel: Flow;
+// };
 
-export interface UpdateNodeRequest {
-    diagramNode: Node;
-}
+// export interface UpdateNodeRequest {
+//     diagramNode: Node;
+// }
 
-export interface UpdateNodeResponse {
-    textEdits: TextEdit[];
-}
-
-// new
-
+// export interface UpdateNodeResponse {
+//     textEdits: TextEdit[];
+// }
 export interface EggplantFlowModelRequest {
     filePath: string;
     startLine: LinePosition;
@@ -451,7 +448,7 @@ export type EggplantFlowModelResponse = {
 };
 
 export interface EggplantSourceCodeRequest {
-    diagramNode: Node;
+    flowNode: FlowNode;
 }
 
 export type EggplantSourceCodeResponse = {
@@ -469,11 +466,11 @@ export type EggplantAvailableNodesResponse = {
 };
 
 export interface EggplantNodeTemplateRequest {
-    id: NodeId;
+    id: CodeData;
 }
 
 export type EggplantNodeTemplateResponse = {
-    flowNode: Node;
+    flowNode: FlowNode;
 };
 
 // <------------ EGGPLANT INTERFACES --------->
