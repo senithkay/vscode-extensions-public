@@ -47,11 +47,11 @@ const PropertyForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            propertyName: sidePanelContext?.formValues?.propertyName || "",
+            propertyName: sidePanelContext?.formValues?.propertyName || {"isExpression":false,"value":""},
             propertyAction: sidePanelContext?.formValues?.propertyAction || "set",
             propertyDataType: sidePanelContext?.formValues?.propertyDataType || "STRING",
             value: sidePanelContext?.formValues?.value || {"isExpression":false,"value":""},
-            OMValue: sidePanelContext?.formValues?.OMValue || "",
+            OMValue: sidePanelContext?.formValues?.OMValue || {"isExpression":false,"value":""},
             propertyScope: sidePanelContext?.formValues?.propertyScope || "DEFAULT",
             valueStringPattern: sidePanelContext?.formValues?.valueStringPattern || "",
             valueStringCapturingGroup: sidePanelContext?.formValues?.valueStringCapturingGroup || "0",
@@ -105,11 +105,23 @@ const PropertyForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (
-                            <TextField {...field} label="Property Name" size={50} placeholder="New Property Name" required={true} errorMsg={errors?.propertyName?.message?.toString()} />
+                            <ExpressionField
+                                {...field} label="Property Name"
+                                placeholder="New Property Name"
+                                required={true}
+                                errorMsg={errors?.propertyName?.message?.toString()}
+                                canChange={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                            />
                         )}
                     />
                 </Field>
@@ -202,11 +214,23 @@ const PropertyForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (
-                            <TextField {...field} label="OM" size={50} placeholder="Value" required={true} errorMsg={errors?.OMValue?.message?.toString()} />
+                            <ExpressionField
+                                {...field} label="OM"
+                                placeholder="Value"
+                                required={true}
+                                errorMsg={errors?.OMValue?.message?.toString()}
+                                canChange={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                            />
                         )}
                     />
                 </Field>
