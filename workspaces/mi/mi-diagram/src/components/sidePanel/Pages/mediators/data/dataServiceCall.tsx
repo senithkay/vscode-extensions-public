@@ -60,7 +60,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "OperationName",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "ParamManager",
@@ -75,7 +75,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                         "type": "TextField",
                                         "label": "Property Name",
                                         "defaultValue": "",
-                                        "isRequired": false
+                                        "isRequired": true
                                     },
                                     {
                                         "type": "Dropdown",
@@ -175,6 +175,11 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         <Controller
                             name="serviceName"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
@@ -182,7 +187,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                     label="Data Service Name"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.serviceName?.message?.toString()}
                                 />
                             )}
@@ -193,13 +198,18 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         <Controller
                             name="sourceType"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <AutoComplete
                                     label="Source Type"
                                     name="sourceType"
                                     items={["INLINE", "BODY"]}
                                     value={field.value}
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.sourceType?.message?.toString()}
                                     onValueChange={(e: any) => {
                                         field.onChange(e);

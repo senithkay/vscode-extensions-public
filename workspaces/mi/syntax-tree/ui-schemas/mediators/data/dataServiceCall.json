@@ -16,7 +16,7 @@
               "displayName": "Data Service Name",
               "inputType": "key",
               "keyType": "dataService",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -31,7 +31,7 @@
                 "INLINE",
                 "BODY"
               ],
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -66,7 +66,7 @@
                     "name": "operationName",
                     "displayName": "OperationName",
                     "inputType": "string",
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },
@@ -85,7 +85,7 @@
                           "name": "propertyName",
                           "displayName": "Property Name",
                           "inputType": "string",
-                          "required": false,
+                          "required": true,
                           "helpTip": ""
                         }
                       },

@@ -121,8 +121,13 @@ const EventForm = (props: AddMediatorProps) => {
                         <Controller
                             name="staticTopic"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Static Topic" size={50} placeholder="" required={false} errorMsg={errors?.staticTopic?.message?.toString()} />
+                                <TextField {...field} label="Static Topic" size={50} placeholder="" required={true} errorMsg={errors?.staticTopic?.message?.toString()} />
                             )}
                         />
                     </Field>
@@ -133,8 +138,13 @@ const EventForm = (props: AddMediatorProps) => {
                         <Controller
                             name="dynamicTopic"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Dynamic Topic" size={50} placeholder="" required={false} errorMsg={errors?.dynamicTopic?.message?.toString()} />
+                                <TextField {...field} label="Dynamic Topic" size={50} placeholder="" required={true} errorMsg={errors?.dynamicTopic?.message?.toString()} />
                             )}
                         />
                     </Field>

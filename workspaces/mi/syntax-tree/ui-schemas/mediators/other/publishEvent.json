@@ -10,7 +10,7 @@
         "name": "streamName",
         "displayName": "Stream Name",
         "inputType": "string",
-        "required": false,
+        "required": true,
         "helpTip": ""
       }
     },
@@ -20,7 +20,7 @@
         "name": "streamVersion",
         "displayName": "Stream Version",
         "inputType": "string",
-        "required": false,
+        "required": true,
         "helpTip": ""
       }
     },
@@ -30,7 +30,7 @@
         "name": "eventSink",
         "displayName": "Event Sink",
         "inputType": "string",
-        "required": false,
+        "required": true,
         "helpTip": ""
       }
     },
@@ -75,7 +75,7 @@
                     "name": "attributeName",
                     "displayName": "Attribute Name",
                     "inputType": "string",
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },
@@ -109,7 +109,7 @@
                       "FLOAT",
                       "LONG"
                     ],
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },
@@ -180,7 +180,7 @@
                     "name": "attributeName",
                     "displayName": "Attribute Name",
                     "inputType": "string",
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },
@@ -285,7 +285,7 @@
                     "name": "attributeName",
                     "displayName": "Attribute Name",
                     "inputType": "string",
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },
@@ -390,7 +390,7 @@
                     "name": "attributeName",
                     "displayName": "Attribute Name",
                     "inputType": "string",
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },
