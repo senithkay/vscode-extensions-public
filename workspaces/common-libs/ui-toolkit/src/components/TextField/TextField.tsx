@@ -120,7 +120,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 onInput={handleChange}
             >
                 {startAdornment && <div slot="start">{startAdornment}</div>}
-                {iconComponent && <div onClick={iconClick} slot={position} style={{display: "flex", alignItems: "center"}}>{iconComponent}</div>}
+                {iconComponent && <div onClick={iconClick} slot={position} style={{ display: "flex", alignItems: "center" }}>{iconComponent}</div>}
                 {label && (
                     <LabelContainer>
                         <div style={{ color: "var(--vscode-editor-foreground)" }}>
