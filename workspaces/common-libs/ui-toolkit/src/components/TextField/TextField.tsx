@@ -103,7 +103,6 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
 
     return (
         <Container sx={sx}>
-            {startAdornment && startAdornment}
             <VSCodeTextField
                 ref={textFieldRef}
                 style={{ width: "100%" }}
@@ -116,14 +115,15 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 placeholder={placeholder}
                 id={id}
                 {...rest}
-                { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
+                {...!props.name ? { value: props.value ? props.value : "" } : {}} // If name is not provided, then value should be empty (for react-hook-form)
                 onChange={handleChange}
                 onInput={handleChange}
             >
-                {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
+                {startAdornment && <div slot="start">{startAdornment}</div>}
+                {iconComponent && <div onClick={iconClick} slot={position} style={{display: "flex", alignItems: "center"}}>{iconComponent}</div>}
                 {label && (
                     <LabelContainer>
-                        <div style={{color: "var(--vscode-editor-foreground	)"}}>
+                        <div style={{ color: "var(--vscode-editor-foreground)" }}>
                             <label htmlFor={`${id}-label`}>{label}</label>
                         </div>
                         {(required && label) && (<RequiredFormInput />)}
@@ -135,11 +135,11 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                         {description}
                     </Description>
                 )}
+                {endAdornment && <div slot="end">{endAdornment}</div>}
             </VSCodeTextField>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
             )}
-            {endAdornment && endAdornment}
         </Container>
     );
 });
