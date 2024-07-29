@@ -36,7 +36,7 @@ export function activateSubscriptions() {
     // <------------- Shared Commands ------------>
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position) => {
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position });
         })
     );
 

@@ -168,6 +168,10 @@ export function WelcomeView() {
                                 </div>
                             </Button>
                         </Tab>
+                        <Tab>
+                            <SubTitle>Explore Samples</SubTitle>
+                            <span>Have a look at some examples.<VSCodeLink onClick={openGettingStartedGuide}>View Samples</VSCodeLink>.</span>
+                        </Tab>
                     </Pane>
                 </Grid>
             </Wrapper>
