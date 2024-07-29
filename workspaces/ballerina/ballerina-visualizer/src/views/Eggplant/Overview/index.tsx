@@ -7,12 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { FC, ReactNode, useEffect } from "react";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { View, ViewContent, ViewHeader } from "../../../components/View";
+import { SkeletonText } from "../../../components/Skeletons";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
+
+import classNames from "classnames";
 
 interface OverviewProps {
     stateUpdated: boolean;
@@ -100,7 +105,17 @@ export function Overview(props: OverviewProps) {
                 </Button> */}
             </ViewHeader>
             <ViewContent padding>
-                {projectStructure && <ProjectStructureView projectStructure={projectStructure} />}
+                {/* {projectStructure && <ProjectStructureView projectStructure={projectStructure} />} */}
+
+
+
+                <div className={classNames("flex w-full flex-col gap-[10px] px-6 py-2")}>
+                    <SkeletonText className="w-20" />
+                    <Button className="w-full max-w-80 self-center sm:self-start">
+                        Sign In
+                    </Button>
+                </div>
+
             </ViewContent>
         </View>
     );
