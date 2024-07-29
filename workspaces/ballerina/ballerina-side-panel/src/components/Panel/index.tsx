@@ -15,10 +15,10 @@ import { BackIcon, CloseIcon } from "../../resources";
 
 export interface PanelContainerProps {
     children?: React.ReactNode;
-    title: string;
+    title?: string;
     show: boolean;
-    onClose(): void;
-    onBack?(): void;
+    onClose: () => void;
+    onBack?: () => void;
 }
 
 namespace S {
@@ -49,19 +49,21 @@ export function PanelContainer(props: PanelContainerProps) {
                 boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
             }}
         >
-            <SidePanelTitleContainer>
-                <S.Row>
-                    {onBack && (
-                        <S.StyledButton appearance="icon" onClick={onBack}>
-                            <BackIcon />
-                        </S.StyledButton>
-                    )}
-                    {title}
-                </S.Row>
-                <S.StyledButton appearance="icon" onClick={onClose}>
-                    <CloseIcon />
-                </S.StyledButton>
-            </SidePanelTitleContainer>
+            {title && (
+                <SidePanelTitleContainer>
+                    <S.Row>
+                        {onBack && (
+                            <S.StyledButton appearance="icon" onClick={onBack}>
+                                <BackIcon />
+                            </S.StyledButton>
+                        )}
+                        {title}
+                    </S.Row>
+                    <S.StyledButton appearance="icon" onClick={onClose}>
+                        <CloseIcon />
+                    </S.StyledButton>
+                </SidePanelTitleContainer>
+            )}
             {children}
         </SidePanel>
     );
