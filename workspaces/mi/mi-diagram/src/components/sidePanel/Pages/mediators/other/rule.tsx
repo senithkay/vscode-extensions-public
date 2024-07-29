@@ -226,11 +226,21 @@ const RuleForm = (props: AddMediatorProps) => {
                         <Controller
                             name="sourceXPath"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Source XPath"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.sourceXPath?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}

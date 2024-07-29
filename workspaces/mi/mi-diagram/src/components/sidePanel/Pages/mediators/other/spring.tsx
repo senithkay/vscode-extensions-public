@@ -99,8 +99,13 @@ const SpringForm = (props: AddMediatorProps) => {
                         <Controller
                             name="beanName"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Bean Name" size={50} placeholder="" required={false} errorMsg={errors?.beanName?.message?.toString()} />
+                                <TextField {...field} label="Bean Name" size={50} placeholder="" required={true} errorMsg={errors?.beanName?.message?.toString()} />
                             )}
                         />
                     </Field>

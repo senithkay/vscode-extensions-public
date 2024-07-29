@@ -15,7 +15,7 @@
               "name": "username",
               "displayName": "Username",
               "inputType": "stringOrExpression",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -25,7 +25,7 @@
               "name": "password",
               "displayName": "Password",
               "inputType": "stringOrExpression",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -35,7 +35,7 @@
               "name": "host",
               "displayName": "Host",
               "inputType": "stringOrExpression",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -45,7 +45,7 @@
               "name": "domain",
               "displayName": "Domain",
               "inputType": "stringOrExpression",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -55,7 +55,7 @@
               "name": "ntlmVersion",
               "displayName": "NTLM Version",
               "inputType": "stringOrExpression",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
