@@ -23,7 +23,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri } from "vscode";
-import { StateMachine } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getFlowModel(): Promise<EggplantFlowModelResponse> {
@@ -127,6 +127,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 });
 
                 //TODO: notify to diagram
+                updateView();
             }
         }
     }

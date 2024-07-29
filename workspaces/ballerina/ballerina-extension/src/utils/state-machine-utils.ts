@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { EggplantModelRequest, HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
@@ -131,20 +131,6 @@ function getSTByRangeReq(documentUri: string, position: NodePosition) {
                 line: position.endLine,
                 character: position.endColumn
             }
-        }
-    };
-}
-
-function getEggplantReq(documentUri: string, position: NodePosition): EggplantModelRequest {
-    return {
-        filePath: Uri.parse(documentUri!).fsPath,
-        startLine: {
-            line: position.startLine ?? 0,
-            offset: position.startColumn ?? 0
-        },
-        endLine: {
-            line: position.endLine ?? 0,
-            offset: position.endColumn ?? 0
         }
     };
 }
