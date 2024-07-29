@@ -147,14 +147,14 @@ export function WelcomeView() {
         <>
             <Wrapper>
                 <TitlePanel>
-                    <Headline>Eggplant Integration for VS Code</Headline>
+                    <Headline>Eggplant for VS Code</Headline>
                     <span>A comprehensive integration solution that simplifies your digital transformation journey. Streamlines connectivity among applications, services, data, and cloud using a user-friendly low-code graphical designing experience. </span>
                 </TitlePanel>
                 <Grid>
                     <Pane>
                         <Tab>
                             <SubTitle>Getting started</SubTitle>
-                            <span>Learn about the Eggplant Integrator Extension in our <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.</span>
+                            <span>Learn about the Eggplant Extension in our <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.</span>
                         </Tab>
                         <Tab>
                             <SubTitle>Create New Project</SubTitle>

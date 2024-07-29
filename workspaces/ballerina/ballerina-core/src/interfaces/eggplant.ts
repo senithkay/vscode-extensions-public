@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 
 export type Flow = {
@@ -131,6 +131,7 @@ export interface ProjectStructureArtifactResponse {
     type: string;
     context?: string;
     position?: NodePosition;
+    st?: STNode
 }
 export type Item = Category | AvailableNode;
 

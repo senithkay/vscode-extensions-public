@@ -7,14 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DIRECTORY_MAP } from '@wso2-enterprise/ballerina-core';
 import { Button, Codicon, ComponentCard, Icon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { ServiceType } from "./ServiceType";
-import { HttpForm } from "./HttpForm";
-import { HttpFormType } from "./HttpFormType";
 import { SERVICE_VIEW } from "./constants";
 
 const FORM_WIDTH = 600;
@@ -57,32 +54,51 @@ const ButtonWrapper = styled.div`
     width: 130px;
 `;
 
-export function ServiceForm() {
+export interface HttpFormProps {
+    handleView: (view: SERVICE_VIEW) => void;
+}
+
+export function HttpForm(props: HttpFormProps) {
     const { rpcClient } = useVisualizerContext();
-    const [component, setComponent] = useState(null);
-    const [view, setView] = useState(SERVICE_VIEW.TYPE);
+    const [name, setName] = useState("");
+    const [path, setPath] = useState("");
+    const [port, setPort] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        switch (view) {
-            case SERVICE_VIEW.HTTP_FORM:
-                setComponent(<HttpForm handleView={handleSetView} />);
-                break;
-            case SERVICE_VIEW.HTTP_FORM_TYPE:
-                setComponent(<HttpFormType handleView={handleSetView} />);
-                break;
-            case SERVICE_VIEW.TYPE:
-                setComponent(<ServiceType handleView={handleSetView} />);
-                break;
-        }
-    }, [view]);
-
-    const handleSetView = (view: SERVICE_VIEW) => {
-        setView(view)
+    const handleCreateService = () => {
+        setIsLoading(true);
+        rpcClient.getEggplantDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, name, path, port });
     }
 
     return (
         <>
-            {component}
+            <FormContainer>
+                <Typography variant="h1">New HTTP Service</Typography>
+                <TextField
+                    onTextChange={setName}
+                    sx={{ marginTop: 20 }}
+                    value={name}
+                    label="Service Name"
+                    placeholder="Enter service name"
+                />
+                <TextField
+                    onTextChange={setPath}
+                    sx={{ marginTop: 20 }}
+                    value={path}
+                    label="Path"
+                    placeholder="Enter service path"
+                />
+                <TextField
+                    onTextChange={setPort}
+                    sx={{ marginTop: 20 }}
+                    value={port}
+                    label="Port"
+                    placeholder="Enter service port"
+                />
+                <ButtonWrapper>
+                    <Button disabled={isLoading} onClick={handleCreateService} appearance="primary">Create Service</Button>
+                </ButtonWrapper>
+            </FormContainer>
         </>
     );
 };

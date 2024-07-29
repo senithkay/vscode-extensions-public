@@ -227,7 +227,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         const components = await StateMachine.langClient().getBallerinaProjectComponents({
             documentIdentifiers: [{ uri: Uri.file(dir).toString() }]
         });
-        this.traverseComponents(components, result);
+        await this.traverseComponents(components, result);
         return result;
     }
 
@@ -257,24 +257,46 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         });
     }
 
-    private traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse) {
+    private async traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse) {
         for (const pkg of components.packages) {
             for (const module of pkg.modules) {
-                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...this.getComponents(module.services, pkg.filePath));
-                response.directoryMap[DIRECTORY_MAP.TASKS].push(...this.getComponents(module.functions, pkg.filePath));
+                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await this.getComponents(module.services, pkg.filePath));
+                response.directoryMap[DIRECTORY_MAP.TASKS].push(...await this.getComponents(module.functions, pkg.filePath));
+                response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await this.getComponents(module.moduleVariables, pkg.filePath, DIRECTORY_MAP.CONNECTIONS));
+                response.directoryMap[DIRECTORY_MAP.SCHEMAS].push(...await this.getComponents(module.records, pkg.filePath));
             }
         }
     }
 
-    private getComponents(components: ComponentInfo[], projectPath: string): ProjectStructureArtifactResponse[] {
+    private async getComponents(components: ComponentInfo[], projectPath: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
         const entries: ProjectStructureArtifactResponse[] = [];
         for (const comp of components) {
             const componentFile = Uri.joinPath(Uri.parse(projectPath), comp.filePath).fsPath;
+            let stNode: SyntaxTree;
+            try {
+                stNode = await StateMachine.langClient().getSTByRange({
+                    documentIdentifier: { uri: Uri.file(componentFile).toString() },
+                    lineRange: {
+                        start: {
+                            line: comp.startLine,
+                            character: comp.startColumn
+                        },
+                        end: {
+                            line: comp.endLine,
+                            character: comp.endColumn
+                        }
+                    }
+                }) as SyntaxTree;
+            } catch (error) {
+                console.log(error);
+            }
+
             const fileEntry: ProjectStructureArtifactResponse = {
                 name: comp.name,
                 path: componentFile,
-                type: '',
+                type: 'HTTP',
                 context: comp.name,
+                st: stNode.syntaxTree,
                 position: {
                     endColumn: comp.endColumn,
                     endLine: comp.endLine,
@@ -282,7 +304,14 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                     startLine: comp.startLine
                 }
             };
-            entries.push(fileEntry);
+            if (dtype === DIRECTORY_MAP.CONNECTIONS) {
+                if (stNode.syntaxTree.typeData?.isEndpoint) {
+                    entries.push(fileEntry);
+                }
+            } else {
+                entries.push(fileEntry);
+            }
+
         }
         return entries;
     }

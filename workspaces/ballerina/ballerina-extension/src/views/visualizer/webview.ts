@@ -70,7 +70,6 @@ export class VisualizerWebview {
             .container {
                 background-color: var(--vscode-editor-background);
                 height: 100vh;
-                overflow: auto;
                 width: 100%;
             }
         `;

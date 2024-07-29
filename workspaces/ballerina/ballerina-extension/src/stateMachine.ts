@@ -10,6 +10,7 @@ import { RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as fs from 'fs';
 import * as path from 'path';
+import { extension } from './BalExtensionContext';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -177,8 +178,19 @@ const stateMachine = createMachine<MachineContext>(
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         history = new History();
                         undoRedoManager = new UndoRedoManager();
+                        const webview = VisualizerWebview.currentPanel?.getWebview();
+                        if (webview && context.isEggplant) {
+                            if (context.isEggplant) {
+                                webview.title = "Eggplant"
+                                webview.iconPath = {
+                                    light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
+                                    dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
+                                };
+                            }
+                        }
                         resolve(true);
                     });
+
                 } else {
                     VisualizerWebview.currentPanel!.getWebview()?.reveal();
                     resolve(true);
