@@ -8,3 +8,4 @@
  */
 
 export { Diagram } from "./components/Diagram";
+export { NodeIcon } from "./components/NodeIcon";
