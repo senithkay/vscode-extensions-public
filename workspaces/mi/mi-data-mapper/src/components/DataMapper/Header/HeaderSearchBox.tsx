@@ -14,7 +14,7 @@ import debounce from "lodash.debounce";
 import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { Codicon, SearchBox } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -115,13 +115,13 @@ export default function HeaderSearchBox() {
     const filterIcon = (<Codicon name="filter" sx= {{cursor: "auto"}}/>);
 
     return (
-        <SearchBox
+        <TextField
             id={`search-${searchOption}`}
             autoFocus={true}
-            icon={filterIcon}
+            icon={{iconComponent: filterIcon, position: "start"}}
             placeholder={`filter input and output fields`}
             value={searchTerm}
-            onChange={handleSearchInputChange}
+            onTextChange={handleSearchInputChange}
             size={100}
         />
     );
