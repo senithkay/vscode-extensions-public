@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { Flow, NodeKind, TargetMetadata, Node } from "../utils/types";
+import { Flow, NodeKind, FlowNode, Branch, LineRange } from "../utils/types";
 
 export interface DiagramContextState {
     flow: Flow;
@@ -17,26 +17,28 @@ export interface DiagramContextState {
         show(): void;
         hide(): void;
     };
-    onAddNode: (parent: Node) => void;
-    onNodeUpdate: (node: Node) => void;
+    showErrorFlow: boolean;
+    onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
+    onNodeUpdate: (node: FlowNode) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
-    flow: { name: "", nodes: [], clients: [] },
+    flow: { fileName: "", nodes: [], clients: [] },
     componentPanel: {
         visible: false,
-        show: () => { },
-        hide: () => { },
+        show: () => {},
+        hide: () => {},
     },
-    onAddNode: () => { },
-    onNodeUpdate: () => { },
+    showErrorFlow: false,
+    onAddNode: () => {},
+    onNodeUpdate: () => {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
 
 export function DiagramContextProvider(props: { children: React.ReactNode; value: DiagramContextState }) {
     // add node states
-    const [addNodeTargetMetadata, setAddNodeTargetMetadata] = React.useState<TargetMetadata | undefined>();
+    // const [addNodeTargetMetadata, setAddNodeTargetMetadata] = React.useState<TargetMetadata | undefined>();
     const [addNodeKind, setAddNodeKind] = React.useState<NodeKind | undefined>();
     // enrich context with optional states
     const ctx = {

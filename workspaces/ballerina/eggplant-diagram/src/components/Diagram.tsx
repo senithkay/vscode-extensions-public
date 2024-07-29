@@ -19,7 +19,7 @@ import {
     registerListeners,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, Node } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -31,8 +31,8 @@ import { InitVisitor } from "../visitors/InitVisitor";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode?: (parent: Node) => void;
-    onNodeChange?: (node: Node) => void;
+    onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onNodeChange?: (node: FlowNode) => void;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -45,6 +45,7 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
+            console.log(">>> diagram engine created");
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
         }
@@ -54,11 +55,12 @@ export function Diagram(props: DiagramProps) {
         // TODO: move to a separate function
         // get only do block
         let flowModel = cloneDeep(model);
-        const globalErrorHandleBlock = model.nodes.find((node) => node.kind === "ERROR_HANDLER");
+        console.log(">>> flow model", { flowModel, model });
+        const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
         if (globalErrorHandleBlock) {
             setHasErrorFlow(true);
-            const branchLabel = showErrorFlow ? "On Fail" : "Body";
-            const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.label === branchLabel);
+            const branchKind: NodeKind = showErrorFlow ? "ON_FAILURE" : "BODY";
+            const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.codedata.node === branchKind);
             if (subFlow) {
                 // replace error handler block with success flow
                 flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
@@ -73,6 +75,7 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(flowModel, positionVisitor);
+        console.log(">>> flow model", flowModel);
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(flowModel, nodeVisitor);
@@ -138,6 +141,7 @@ export function Diagram(props: DiagramProps) {
             show: handleShowComponentPanel,
             hide: handleCloseComponentPanel,
         },
+        showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
         onNodeUpdate: onNodeChange,
     };

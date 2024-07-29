@@ -16,7 +16,7 @@ interface NodeIconProps {
     type: NodeKind;
 }
 
-export default function NodeIcon(props: NodeIconProps) {
+export function NodeIcon(props: NodeIconProps) {
     const { type } = props;
 
     switch (type) {
@@ -24,8 +24,6 @@ export default function NodeIcon(props: NodeIconProps) {
             return <BranchIcon />;
         case "EXPRESSION":
             return <CodeIcon />;
-        case "HTTP_API_GET_CALL":
-        case "HTTP_API_POST_CALL":
         case "ACTION_CALL":
             return <CallIcon />;
         case "RETURN":
@@ -34,3 +32,5 @@ export default function NodeIcon(props: NodeIconProps) {
             return <CodeIcon />;
     }
 }
+
+export default NodeIcon;

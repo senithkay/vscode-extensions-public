@@ -9,21 +9,21 @@
 
 import React from "react";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
-import { Expression } from "../../utils/types";
+import { Property } from "../../utils/types";
 
 interface TextEditorProps {
-    expression: Expression;
-    onChange: (expression: Expression) => void;
+    property : Property;
+    onChange: (property : Property) => void;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { expression, onChange } = props;
+    const { property, onChange } = props;
 
     const handleOnChange = (value: string) => {
-        onChange({ ...expression, value });
+        onChange({ ...property, value });
     };
 
     return (
-        <TextField value={expression.value ? expression.value.toString() : ""} onTextChange={handleOnChange} />
+        <TextField value={property.value ? property.value.toString() : ""} onTextChange={handleOnChange} />
     );
 }

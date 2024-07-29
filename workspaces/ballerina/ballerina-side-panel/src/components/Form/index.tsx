@@ -9,13 +9,15 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, SidePanelBody, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
-        gap: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
     `;
 
     export const Row = styled.div<{}>`
@@ -48,7 +50,9 @@ interface FormProps {
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit } = props;
-    const { getValues, register } = useForm<FormValues>();
+    const { getValues, register, formState } = useForm<FormValues>();
+
+    console.log(">>> form fields", { formState, values: getValues() });
 
     const handleOnSave = () => {
         onSubmit(getValues());
@@ -58,20 +62,34 @@ export function Form(props: FormProps) {
         <S.Container>
             {formFields.map((field) => (
                 <S.Row key={field.key}>
-                    <TextField
-                        id={field.key}
-                        {...register(field.key, { required: !field.optional })}
-                        defaultValue={field.value}
-                        label={field.label}
-                        required={!field.optional}
-                        description={field.documentation}
-                        sx={{ width: "100%" }}
-                    />
+                    {field.items && (
+                        <Dropdown
+                            id={field.key}
+                            {...register(field.key, { required: !field.optional })}
+                            label={field.label}
+                            items={field.items.map((item) => ({ id: item, content: item, value: item }))}
+                            value={field.items?.at(0)}
+                            required={!field.optional}
+                            sx={{ width: "100%" }}
+                            containerSx={{ width: "100%" }}
+                        />
+                    )}
+                    {!field.items && (
+                        <TextField
+                            id={field.key}
+                            {...register(field.key, { required: !field.optional })}
+                            value={field.value}
+                            label={field.label}
+                            required={!field.optional}
+                            description={field.documentation}
+                            sx={{ width: "100%" }}
+                        />
+                    )}
                 </S.Row>
             ))}
 
             <S.Footer>
-                <Button appearance="primary" onClick={handleOnSave}>
+                <Button appearance="primary" onClick={handleOnSave} disabled={!formState.isValid}>
                     Save
                 </Button>
             </S.Footer>

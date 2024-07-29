@@ -8,26 +8,26 @@
  */
 
 import { BaseVisitor } from "../visitors/BaseVisitor";
-import { Flow, Node } from "./types";
+import { Flow, FlowNode } from "./types";
 
 const metaNodes = ["viewState", "position", "parent"];
 
-export function traverseFlow(flow: Flow, visitor: BaseVisitor, parent?: Node) {
-    let lastNode: Node = undefined;
+export function traverseFlow(flow: Flow, visitor: BaseVisitor, parent?: FlowNode) {
+    let lastNode: FlowNode = undefined;
     flow.nodes.forEach((node) => {
         traverseNode(node, visitor, parent || lastNode);
         lastNode = node;
     });
 }
 
-export function traverseNode(node: Node, visitor: BaseVisitor, parent?: Node) {
-    if (!node.kind) {
-        console.warn("Node kind is not defined", node);
+export function traverseNode(node: FlowNode, visitor: BaseVisitor, parent?: FlowNode) {
+    if (!node.codedata.node) {
+        console.warn("FlowNode kind is not defined", node);
         return;
     }
     let name = "";
     // convert this kind to a camel case string
-    node.kind.split("_").forEach((kind) => {
+    node.codedata.node.split("_").forEach((kind) => {
         name += kind.charAt(0).toUpperCase() + kind.slice(1).toLowerCase();
     });
 
@@ -49,7 +49,15 @@ export function traverseNode(node: Node, visitor: BaseVisitor, parent?: Node) {
         const childNode = (node as any)[key] as any;
         if (Array.isArray(childNode)) {
             childNode.forEach((elementNode) => {
-                if (!elementNode?.kind) {
+
+                // HACK: remove this after fixing the getFlowNode response
+                // if(elementNode && elementNode.kind && !elementNode.codedata.node){
+                //     elementNode.codedata.node = elementNode.kind;
+                //     console.warn("HACK: copied node kind to codedata", elementNode);
+                // }
+
+                if (!elementNode?.codedata.node) {
+                    console.warn("Child node kind is not defined", elementNode);
                     return;
                 }
 
@@ -58,7 +66,7 @@ export function traverseNode(node: Node, visitor: BaseVisitor, parent?: Node) {
             return;
         }
 
-        if (!childNode.kind) {
+        if (!childNode?.codedata?.node) {
             return;
         }
 

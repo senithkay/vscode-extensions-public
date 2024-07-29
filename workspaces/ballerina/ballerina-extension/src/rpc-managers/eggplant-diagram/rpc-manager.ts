@@ -34,7 +34,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
-import { StateMachine } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
@@ -139,6 +139,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 });
 
                 //TODO: notify to diagram
+                updateView();
             }
         }
     }

@@ -10,11 +10,13 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
+import { FlowNode } from "@wso2-enterprise/ballerina-core";
 
 export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
     protected visible: boolean;
+    protected parentFlowNode: FlowNode;
 
     constructor(id: string, visible = true) {
         super({
@@ -53,6 +55,14 @@ export class EmptyNodeModel extends NodeModel {
 
     getOutPort(): NodePortModel {
         return this.portOut;
+    }
+
+    setParentFlowNode(node: FlowNode): void {
+        this.parentFlowNode = node;
+    }
+
+    getParentFlowNode(): FlowNode {
+        return this.parentFlowNode;
     }
 
     isVisible(): boolean {

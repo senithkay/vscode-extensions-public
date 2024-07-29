@@ -13,22 +13,32 @@ import {
     FormField,
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
-import { Category, AvailableNode, NodeProperties, NodePropertyKey } from "@wso2-enterprise/ballerina-core";
+import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
+import {
+    Category,
+    AvailableNode,
+    NodeProperties,
+    NodePropertyKey,
+    FlowNode,
+    Client,
+} from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "./../views/EggplantDiagram";
+import React from "react";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     return {
-        id: node.id.kind,
-        label: node.name,
-        description: node.description,
+        id: node.codedata.node,
+        label: node.metadata.label,
+        description: node.metadata.description,
         enabled: node.enabled,
         metadata: node,
+        icon: <NodeIcon type={node.codedata.node} />,
     };
 }
 
 function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCategory {
-    const items: PanelItem[] = category.items.map((item) => {
-        if ("id" in item) {
+    const items: PanelItem[] = category.items?.map((item) => {
+        if ("codedata" in item) {
             return convertAvailableNodeToPanelNode(item as AvailableNode);
         } else {
             return convertDiagramCategoryToSidePanelCategory(item as Category);
@@ -36,8 +46,8 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
     });
 
     return {
-        title: category.name,
-        description: category.description,
+        title: category.metadata.label,
+        description: category.metadata.description,
         items: items,
     };
 }
@@ -46,7 +56,7 @@ export function convertEggplantCategoriesToSidePanelCategories(categories: Categ
     return categories.map(convertDiagramCategoryToSidePanelCategory);
 }
 
-export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties): FormField[] {
+export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties, clients: Client[]): FormField[] {
     const formFields: FormField[] = [];
 
     for (const key in nodeProperties) {
@@ -55,12 +65,16 @@ export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties
             if (expression) {
                 const formField: FormField = {
                     key,
-                    label: expression.label,
-                    type: expression.type,
+                    label: expression.metadata.label,
+                    type: expression.valueType,
                     optional: expression.optional,
                     editable: expression.editable,
-                    documentation: expression.documentation,
+                    documentation: expression.metadata.description,
                     value: expression.value,
+                    items:
+                        expression.valueType === "Identifier" && expression.metadata.label === "Connection"
+                            ? clients.map((client) => client.value)
+                            : undefined,
                 };
                 formFields.push(formField);
             }
@@ -68,6 +82,19 @@ export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties
     }
 
     return formFields;
+}
+
+export function getFormProperties(flowNode: FlowNode): NodeProperties {
+    if (flowNode.properties) {
+        return flowNode.properties;
+    }
+
+    if (flowNode.branches?.at(0)?.properties) {
+        // TODO: Handle multiple branches
+        return flowNode.branches.at(0).properties;
+    }
+
+    return {};
 }
 
 export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
@@ -88,7 +115,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
 export function getContainerTitle(view: SidePanelView): string {
     switch (view) {
         case SidePanelView.NODE_LIST:
-            return "Add Construct";
+            return ""; // Show switch instead of title
         case SidePanelView.FORM:
             return "Node Properties";
         default:

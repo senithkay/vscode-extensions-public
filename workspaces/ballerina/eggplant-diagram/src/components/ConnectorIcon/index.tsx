@@ -9,10 +9,10 @@
 
 import React from "react";
 import { ApiIcon, DatabaseIcon, HttpIcon } from "../../resources";
-import { Node } from "../../utils/types";
+import { FlowNode } from "../../utils/types";
 
 interface ConnectorIconProps {
-    node: Node;
+    node: FlowNode;
 }
 
 export default function ConnectorIcon(props: ConnectorIconProps) {
@@ -20,11 +20,11 @@ export default function ConnectorIcon(props: ConnectorIconProps) {
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
 
-    if (databaseClients.includes(node.nodeProperties.client?.type.split(":").at(0))) {
+    if (databaseClients.includes(node.properties.client?.valueType?.split(":").at(0))) {
         return <DatabaseIcon />;
     }
 
-    if (node.nodeProperties.client?.type.split(":").at(0) === "http") {
+    if (node.properties.client?.valueType?.split(":").at(0) === "http") {
         return <HttpIcon />;
     }
     
