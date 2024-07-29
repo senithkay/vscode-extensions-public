@@ -10,8 +10,10 @@
  */
 import {
     BallerinaDiagnosticsRequest,
+    CommandsRequest,
     GoToSourceRequest,
     WorkspaceFileRequest,
+    executeCommand,
     getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
@@ -26,4 +28,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onRequest(getWorkspaceFiles, (args: WorkspaceFileRequest) => rpcManger.getWorkspaceFiles(args));
     messenger.onRequest(getBallerinaDiagnostics, (args: BallerinaDiagnosticsRequest) => rpcManger.getBallerinaDiagnostics(args));
+    messenger.onRequest(executeCommand, (args: CommandsRequest) => rpcManger.executeCommand(args));
 }

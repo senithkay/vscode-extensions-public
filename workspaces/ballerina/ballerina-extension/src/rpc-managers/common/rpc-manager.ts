@@ -11,17 +11,19 @@
 import {
     BallerinaDiagnosticsRequest,
     BallerinaDiagnosticsResponse,
+    CommandsRequest,
+    CommandsResponse,
     CommonRPCAPI,
     Completion,
     CompletionParams,
     DiagnosticData,
-    SyntaxTree,
     GoToSourceRequest,
+    SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
-import { Uri, workspace } from "vscode";
+import { Uri, commands, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
@@ -122,6 +124,16 @@ export class CommonRpcManager implements CommonRPCAPI {
                 } as BallerinaDiagnosticsResponse;
                 resolve(response);
 
+            }
+        });
+    }
+
+    async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
+        return new Promise(async (resolve) => {
+            if (params.commands.length >= 1) {
+                const cmdArgs = params.commands.length > 1 ? params.commands.slice(1) : [];
+                await commands.executeCommand(params.commands[0], ...cmdArgs);
+                resolve({ data: "SUCCESS" });
             }
         });
     }

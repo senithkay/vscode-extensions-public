@@ -20,7 +20,7 @@ import { LANGUAGE } from '../../core';
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
     public static readonly viewType = 'ballerina.visualizer';
-    public static readonly panelTitle = 'Ballerina Visualizer';
+    public static readonly panelTitle = 'Visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -70,7 +70,6 @@ export class VisualizerWebview {
             .container {
                 background-color: var(--vscode-editor-background);
                 height: 100vh;
-                overflow: auto;
                 width: 100%;
             }
         `;

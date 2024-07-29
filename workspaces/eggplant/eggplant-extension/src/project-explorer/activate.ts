@@ -9,11 +9,15 @@
 
 import { COMMANDS, VIEWS } from '../constants';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
-import { ExtensionContext, commands, window } from 'vscode';
+import { ExtensionContext, commands, window, workspace } from 'vscode';
 
 export function activateProjectExplorer(context: ExtensionContext) {
-	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
+	const projectExplorerDataProvider = new ProjectExplorerEntryProvider();
 	const projectTree = window.createTreeView(VIEWS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
 	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+
+	context.subscriptions.push(workspace.onDidDeleteFiles(() => {
+		projectExplorerDataProvider.refresh();
+	}));
 }

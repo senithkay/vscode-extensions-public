@@ -11,11 +11,14 @@
 import {
     BallerinaDiagnosticsRequest,
     BallerinaDiagnosticsResponse,
+    CommandsRequest,
+    CommandsResponse,
     CommonRPCAPI,
     GoToSourceRequest,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
+    executeCommand,
     getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
@@ -45,5 +48,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     getBallerinaDiagnostics(params: BallerinaDiagnosticsRequest): Promise<BallerinaDiagnosticsResponse> {
         return this._messenger.sendRequest(getBallerinaDiagnostics, HOST_EXTENSION, params);
+    }
+
+    executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
+        return this._messenger.sendRequest(executeCommand, HOST_EXTENSION, params);
     }
 }

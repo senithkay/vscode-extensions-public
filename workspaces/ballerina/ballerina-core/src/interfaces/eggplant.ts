@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 
 export type Flow = {
@@ -94,6 +95,41 @@ export type ViewState = {
     startNodeId?: string;
 };
 
+// Add node target position metadata
+export type TargetMetadata = {
+    topNodeId: string;
+    bottomNodeId?: string;
+    linkLabel?: string;
+};
+
+export enum DIRECTORY_MAP {
+    SERVICES = 'services',
+    TASKS = 'tasks',
+    TRIGGERS = 'triggers',
+    CONNECTIONS = 'connections',
+    SCHEMAS = 'schemas',
+    CONFIGURATIONS = 'configurations'
+}
+
+export interface ProjectStructureResponse {
+    directoryMap: {
+        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[]
+        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[],
+    };
+}
+
+export interface ProjectStructureArtifactResponse {
+    name: string;
+    path: string;
+    type: string;
+    context?: string;
+    position?: NodePosition;
+    st?: STNode
+}
 export type Item = Category | AvailableNode;
 
 export type Category = {

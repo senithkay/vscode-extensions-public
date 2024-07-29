@@ -9,19 +9,40 @@
 
 import * as vscode from 'vscode';
 import { PALETTE_COMMANDS } from '../../features/project/cmds/cmd-runner';
-import { openView } from '../../stateMachine';
+import { StateMachine, openView } from '../../stateMachine';
 import { extension } from '../../BalExtensionContext';
+import { EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { ViewColumn } from 'vscode';
 
 export function activateSubscriptions() {
     const context = extension.context;
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position) => {
-            openView("OPEN_VIEW", { documentUri: path.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
+        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_SOURCE, () => {
+            const path = StateMachine.context().documentUri;
+            if (!path) {
+                return;
+            }
+            vscode.window.showTextDocument(vscode.Uri.file(path), { viewColumn: ViewColumn.Beside });
         })
     );
+
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, (path, selectedRecord = "") => {
-            openView("OPEN_VIEW", { view: 'ERDiagram', documentUri: path?.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, identifier: selectedRecord});
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ERDiagram, documentUri: path?.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, identifier: selectedRecord });
+        })
+    );
+
+
+    // <------------- Shared Commands ------------>
+    context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position) => {
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position });
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EggplantWelcome });
         })
     );
 

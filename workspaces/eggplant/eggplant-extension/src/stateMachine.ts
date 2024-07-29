@@ -12,6 +12,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { extension } from './eggplantExtentionContext';
+import { commands } from 'vscode';
+import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 
 interface MachineContext {
     errorCode: string | null;
@@ -29,17 +31,26 @@ const stateMachine = createMachine<MachineContext>({
         initialize: {
             invoke: {
                 src: checkIfEggplantProject,
-                onDone: {
-                    target: 'ready',
-                    cond: (context, event) => event.data,
-                },
+                onDone: [
+                    {
+                        target: 'ready',
+                        cond: (context, event) => event.data === true,
+                    },
+                    {
+                        target: 'new',
+                        cond: (context, event) => event.data === false,
+                    }
+                ],
                 onError: {
-                    target: 'disabled'
+                    target: 'new'
                 }
             }
         },
         ready: {
             entry: "activateExplorer"
+        },
+        new: {
+            entry: "showWelcome"
         },
         disabled: {
             // define what should happen when the project is not detected
@@ -49,6 +60,10 @@ const stateMachine = createMachine<MachineContext>({
     actions: {
         activateExplorer: (context, event) => {
             activateProjectExplorer(extension.context);
+            commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+        },
+        showWelcome: (context, event) => {
+            commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);
         }
     },
 });

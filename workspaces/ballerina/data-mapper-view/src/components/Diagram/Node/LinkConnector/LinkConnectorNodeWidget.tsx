@@ -10,7 +10,7 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { FunctionCall, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import classnames from "classnames";
@@ -94,7 +94,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             location: {
                 documentUri: fnDefFilePath,
                 position: fnDefPosition,
-                view: "DataMapper",
+                view: MACHINE_VIEW.DataMapper,
                 identifier: fnName
             },
             dataMapperDepth: history[history.length - 1].dataMapperDepth + 1
