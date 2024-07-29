@@ -56,7 +56,7 @@ const initialInboundEndpoint: InputsFields = {
     implementation: "org.apache.synapse.startup.tasks.MessageInjector",
     pinnedServers: "",
     triggerType: "simple",
-    triggerCount: 1,
+    triggerCount: null,
     triggerInterval: 1,
     triggerCron: "",
     invokeHandlers: false,
@@ -109,8 +109,9 @@ export function TaskForm(props: TaskFormProps) {
         triggerType: yup.mixed().oneOf(["simple", "cron"]),
         triggerCount: yup.mixed().when('triggerType', {
             is: 'simple',
-            then: () => yup.number().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-            otherwise: () => yup.string().notRequired().default("1")
+            then: () => yup.number().typeError('Trigger count must be a number').min(-1, "Trigger count must be greater than 0")
+                .nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).notRequired(),
+            otherwise: () => yup.string().notRequired()
         }),
         triggerInterval: yup.number().when('triggerType', {
             is: 'simple',
