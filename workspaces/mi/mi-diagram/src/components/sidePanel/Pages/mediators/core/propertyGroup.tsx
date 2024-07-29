@@ -52,11 +52,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                 paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties, 0, 3) : [],
                 paramFields: [
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Property Name",
-                        "defaultValue": "",
-                        "isRequired": true
-                    },
+                        "defaultValue": {
+                            "isExpression": false,
+                            "value": ""
+                        },
+                        "isRequired": true,
+                        "canChange": true, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                     {
                         "type": "Dropdown",
                         "label": "Property Action",
@@ -113,16 +117,20 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "OM",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": false,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": true,
                         "enableCondition": [
                             {
                                 "2": "OM"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                     {
                         "type": "Dropdown",
                         "label": "Property Scope",
@@ -236,7 +244,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
-                                        param.key = property[0].value;
+                                        param.key = (property[0].value as ExpressionFieldValue).value;
                                         param.value = (property[3].value as ExpressionFieldValue).value;
                                         param.icon = 'query';
                                         return param;

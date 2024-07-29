@@ -9,7 +9,7 @@
             "value": {
                 "name": "propertyName",
                 "displayName": "Property Name",
-                "inputType": "string",
+                "inputType": "stringOrExpression",
                 "defaultValue": "",
                 "required": true,
                 "helpTip": "New Property Name"
@@ -86,7 +86,7 @@
             "value": {
                 "name": "OMValue",
                 "displayName": "OM",
-                "inputType": "string",
+                "inputType": "stringOrExpression",
                 "defaultValue": "",
                 "required": true,
                 "helpTip": "Value",
