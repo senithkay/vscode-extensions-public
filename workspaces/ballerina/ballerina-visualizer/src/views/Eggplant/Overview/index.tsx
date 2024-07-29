@@ -17,8 +17,6 @@ import { Button, Codicon, ComponentCard, Divider, TextField, Typography } from "
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 
-import classNames from "classnames";
-
 interface OverviewProps {
     stateUpdated: boolean;
 }

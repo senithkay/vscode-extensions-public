@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import classnames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 
 interface Props {
@@ -15,5 +14,5 @@ interface Props {
 }
 
 export const SkeletonText: FC<Props> = ({ className }) => {
-	return <div className={classnames("my-0.5 h-4 animate-pulse rounded bg-vscode-button-secondaryForeground", className)} />;
+	return <div />;
 };

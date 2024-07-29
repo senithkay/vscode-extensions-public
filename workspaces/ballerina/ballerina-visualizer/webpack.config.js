@@ -1,16 +1,6 @@
 const path = require("path");
 const webpack = require('webpack');
 
-class RunTailwindCSSPlugin {
-  apply(compiler) {
-    compiler.hooks.beforeCompile.tap("RunTailwindCSSPlugin", () => {
-      // Run npx tailwindcss
-      const execSync = require("child_process").execSync;
-      execSync("npx tailwindcss -i ./src/style.css -o ./build/output.css");
-    });
-  }
-};
-
 module.exports = {
   entry: "./src/index.tsx",
   target: "web",
@@ -52,8 +42,7 @@ module.exports = {
         test: /\.css$/,
         use: [
           'style-loader',
-          'css-loader',
-          'postcss-loader'
+          'css-loader'
         ]
       },
       {
@@ -99,7 +88,6 @@ module.exports = {
     }),
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1
-    }),
-    new RunTailwindCSSPlugin()
+    })
   ]
 };
