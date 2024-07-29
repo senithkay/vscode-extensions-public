@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import { Codicon } from '../Codicon/Codicon';
-import { TextField, InputProps } from '../TextField/TextField';
+import { TextField } from '../TextField/TextField';
 
 export interface SearchBoxProps {
     value: string;
@@ -24,14 +24,13 @@ export interface SearchBoxProps {
     placeholder?: string;
     sx?: any;
     onChange?: (e: string) => void;
-    inputProps?: InputProps;
 }
 
 const searchIcon = (<Codicon name="search" sx= {{cursor: "auto"}}/>);
 
 export function SearchBox(props: SearchBoxProps) {
     const { label, size, disabled, readonly, value, id,
-        icon, iconPosition, autoFocus, onChange, placeholder, sx, inputProps
+        icon, iconPosition, autoFocus, onChange, placeholder, sx
     } = props;
     const handleChange = (value: string) => {
         onChange && onChange(value);
@@ -49,7 +48,6 @@ export function SearchBox(props: SearchBoxProps) {
             value={value || ""}
             id={id}
             sx={sx}
-            inputProps={inputProps}
         />
     );
 }
