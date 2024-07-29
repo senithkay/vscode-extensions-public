@@ -15,7 +15,7 @@ import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { EMPTY_NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
-import { Branch, Node, NodeModel } from "../utils/types";
+import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class NodeFactoryVisitor implements BaseVisitor {
@@ -28,7 +28,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         console.log(">>> node factory visitor started");
     }
 
-    private updateNodeLinks(node: Node, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {
+    private updateNodeLinks(node: FlowNode, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {
         if (node.viewState?.startNodeId) {
             // new sub flow start
             const startNode = this.nodes.find((n) => n.getID() === node.viewState.startNodeId);
@@ -46,14 +46,14 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = nodeModel;
     }
 
-    private createBaseNode(node: Node): NodeModel {
+    private createBaseNode(node: FlowNode): NodeModel {
         const nodeModel = new BaseNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
         return nodeModel;
     }
 
-    private createApiCallNode(node: Node): NodeModel {
+    private createApiCallNode(node: FlowNode): NodeModel {
         const nodeModel = new ApiCallNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
@@ -75,27 +75,27 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return this.links;
     }
 
-    beginVisitNode = (node: Node): void => {
+    beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
         }
     }; // only ui nodes have id
 
-    beginVisitEventHttpApi(node: Node, parent?: Node): void {
+    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         const nodeModel = new StartNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
     }
 
-    beginVisitIf(node: Node): void {
+    beginVisitIf(node: FlowNode): void {
         const nodeModel = new IfNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
         this.lastNodeModel = undefined;
     }
 
-    endVisitIf(node: Node, parent?: Node): void {
+    endVisitIf(node: FlowNode, parent?: FlowNode): void {
         const ifNodeModel = this.nodes.find((n) => n.getID() === node.id);
         if (!ifNodeModel) {
             console.error("If node model not found", node);
@@ -110,7 +110,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
             if (!firstChildNodeModel) {
-                console.error("Branch node model not found", branch);
+                console.error("Branch node model not found", { branch, node, parent, nodes: this.nodes });
                 return;
             }
 
@@ -126,6 +126,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             node.viewState.x + (node.viewState.w - VSCODE_MARGIN) / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
         ); // TODO: move position logic to position visitor
+        endIfEmptyNode.setParentFlowNode(node);
 
         let endIfLinkCount = 0;
         let allBranchesReturn = true;
@@ -143,7 +144,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
 
             // handle empty nodes in empty branches
-            if (branch.children && branch.children.length === 1 && branch.children.find((n) => n.kind === "EMPTY")) {
+            if (
+                branch.children &&
+                branch.children.length === 1 &&
+                branch.children.find((n) => n.codedata.node === "EMPTY")
+            ) {
                 // empty branch
                 const branchEmptyNodeModel = branch.children.at(0);
                 let branchEmptyNode = this.createEmptyNode(
@@ -165,7 +170,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
 
             let lastChildNodeModel;
-            if (branch.children.at(-1).kind === "IF") {
+            if (branch.children.at(-1).codedata.node === "IF") {
                 // if last child is IF, find endIf node
                 lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
             } else {
@@ -199,33 +204,29 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = endIfEmptyNode;
     }
 
-    endVisitBlock(node: Branch, parent?: Node): void {
+    // endVisitBlock(node: Branch, parent?: FlowNode): void {
+    //     this.lastNodeModel = undefined;
+    // }
+    endVisitConditional(node: Branch, parent?: FlowNode): void {
+        this.lastNodeModel = undefined;
+    }
+    
+    endVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
     }
 
-    beginVisitHttpApiGetCall(node: Node, parent?: Node): void {
+    beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {
         if (node.id) {
             this.createApiCallNode(node);
         }
     }
 
-    beginVisitHttpApiPostCall(node: Node, parent?: Node): void {
-        if (node.id) {
-            this.createApiCallNode(node);
-        }
-    }
-
-    beginVisitActionCall(node: Node, parent?: Node): void {
-        if (node.id) {
-            this.createApiCallNode(node);
-        }
-    }
-
-    beginVisitEmpty(node: Node, parent?: Node): void {
+    beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         // add empty node end of the block
         if (node.id.endsWith("-last")) {
             const lastNodeModel = this.createEmptyNode(node.id, node.viewState.x, node.viewState.y, false);
             this.updateNodeLinks(node, lastNodeModel, { showArrow: true });
+            return;
         }
         // skip node creation
     }

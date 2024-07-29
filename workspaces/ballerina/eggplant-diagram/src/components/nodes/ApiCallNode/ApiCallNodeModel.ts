@@ -11,14 +11,14 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
-import { Node } from "../../../utils/types";
+import { FlowNode } from "../../../utils/types";
 
 export class ApiCallNodeModel extends NodeModel {
-    readonly node: Node;
+    readonly node: FlowNode;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(node: Node) {
+    constructor(node: FlowNode) {
         super({
             id: getNodeIdFromModel(node),
             type: NodeTypes.API_CALL_NODE,

@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
 import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { Node } from "../../../utils/types";
+import { FlowNode } from "../../../utils/types";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -103,7 +103,7 @@ export namespace NodeStyles {
 interface IfNodeWidgetProps {
     model: IfNodeModel;
     engine: DiagramEngine;
-    onClick?: (node: Node) => void;
+    onClick?: (node: FlowNode) => void;
 }
 
 export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
@@ -151,9 +151,9 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                     <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
                 </NodeStyles.Column>
                 <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
+                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        {model.node.nodeProperties.condition.value}
+                        {model.node.branches.at(0).properties.condition.value}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
             </NodeStyles.Row>

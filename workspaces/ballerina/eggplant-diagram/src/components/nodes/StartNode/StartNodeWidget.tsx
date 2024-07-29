@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
 import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
-import { Node } from "../../../utils/types";
+import { FlowNode } from "../../../utils/types";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -60,7 +60,7 @@ export namespace NodeStyles {
 interface StartNodeWidgetProps {
     model: StartNodeModel;
     engine: DiagramEngine;
-    onClick?: (node: Node) => void;
+    onClick?: (node: FlowNode) => void;
 }
 
 export interface NodeWidgetProps extends Omit<StartNodeWidgetProps, "children"> {}

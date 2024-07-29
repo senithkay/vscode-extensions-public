@@ -19,7 +19,7 @@ import {
     NODE_WIDTH,
     VSCODE_MARGIN,
 } from "../resources/constants";
-import { Branch, Node } from "../utils/types";
+import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class SizingVisitor implements BaseVisitor {
@@ -30,14 +30,14 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     private setNodeSize(
-        node: Node | Branch,
+        node: FlowNode | Branch,
         width: number,
         height: number,
         containerWidth?: number,
         containerHeight?: number
     ): void {
         if (node.viewState == undefined) {
-            console.error("Node view state is not initialized", { node });
+            console.error("FlowNode view state is not initialized", { node });
             return;
         }
         node.viewState.w = width;
@@ -47,29 +47,48 @@ export class SizingVisitor implements BaseVisitor {
         node.viewState.ch = containerHeight || height;
     }
 
-    private createBaseNode(node: Node): void {
+    private createBaseNode(node: FlowNode): void {
         const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
         const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height);
     }
 
-    private createApiCallNode(node: Node): void {
+    private createApiCallNode(node: FlowNode): void {
         const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
         const containerWidth = width + NODE_GAP_X + NODE_HEIGHT;
         const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height, containerWidth);
     }
 
-    endVisitNode = (node: Node): void => this.createBaseNode(node);
+    private createBlockNode(node: Branch): void {
+        // get max width of children and sum of heights
+        let width = 0;
+        let height = 0;
+        if (node.children) {
+            node.children.forEach((child: FlowNode) => {
+                if (child.viewState) {
+                    width = Math.max(width, child.viewState.cw);
+                    if (height > 0) {
+                        // add link heights
+                        height += NODE_GAP_Y;
+                    }
+                    height += child.viewState.ch;
+                }
+            });
+        }
+        this.setNodeSize(node, width, height);
+    }
 
-    endVisitEventHttpApi(node: Node, parent?: Node): void {
+    endVisitNode = (node: FlowNode): void => this.createBaseNode(node);
+
+    endVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         const width = Math.round(NODE_WIDTH / 3) + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
         const height = Math.round(NODE_HEIGHT / 1.5) + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height);
     }
 
-    endVisitIf(node: Node, parent?: Node): void {
+    endVisitIf(node: FlowNode, parent?: FlowNode): void {
         // sum of then and else branches width and max height
         let width = 0;
         let height = 0;
@@ -91,38 +110,22 @@ export class SizingVisitor implements BaseVisitor {
         this.setNodeSize(node, ifNodeWidth, ifNodeWidth, width, height);
     }
 
-    endVisitBlock(node: Branch, parent?: Node): void {
-        // get max width of children and sum of heights
-        let width = 0;
-        let height = 0;
-        if (node.children) {
-            node.children.forEach((child: Node) => {
-                if (child.viewState) {
-                    width = Math.max(width, child.viewState.cw);
-                    if (height > 0) {
-                        // add link heights
-                        height += NODE_GAP_Y;
-                    }
-                    height += child.viewState.ch;
-                }
-            });
-        }
-        this.setNodeSize(node, width, height);
+    // endVisitBlock(node: Branch, parent?: FlowNode): void {
+    //     this.createBlockNode(node);
+    // }
+    endVisitConditional(node: Branch, parent?: FlowNode): void {
+        this.createBlockNode(node);
     }
 
-    endVisitHttpApiGetCall(node: Node, parent?: Node): void {
+    endVisitElse(node: Branch, parent?: FlowNode): void {
+        this.createBlockNode(node);
+    }
+
+    endVisitActionCall(node: FlowNode, parent?: FlowNode): void {
         this.createApiCallNode(node);
     }
 
-    endVisitHttpApiPostCall(node: Node, parent?: Node): void {
-        this.createApiCallNode(node);
-    }
-
-    endVisitActionCall(node: Node, parent?: Node): void {
-        this.createApiCallNode(node);
-    }
-
-    endVisitEmpty(node: Node, parent?: Node): void {
+    endVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         this.setNodeSize(node, EMPTY_NODE_WIDTH, EMPTY_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
     }
 

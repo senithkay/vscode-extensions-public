@@ -25,7 +25,7 @@ export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, Diagram
     }
 
     generateReactWidget(event: GenerateWidgetEvent<BaseNodeModel>) {
-        switch (event.model.node.kind as NodeKind) {
+        switch (event.model.node.codedata.node as NodeKind) {
             default:
                 return (
                     <BaseNodeWidget engine={this.engine} model={event.model} />
