@@ -92,21 +92,20 @@ export function filterCompletions(
     details: ts.CompletionEntryDetails,
     localFunctionNames: string[]
 ): CompletionItem {
-    if (
-        details.kind === ts.ScriptElementKind.parameterElement ||
-        details.kind === ts.ScriptElementKind.memberVariableElement
-    ) {
+    const isParameter = details.kind === ts.ScriptElementKind.parameterElement;
+    const isMemberVariable = details.kind === ts.ScriptElementKind.memberVariableElement;
+    const isFunction =  details.kind === ts.ScriptElementKind.functionElement;
+    const isMethod =  details.kind === ts.ScriptElementKind.memberFunctionElement;
+
+    if (isParameter || isMemberVariable) {
         return {
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
             value: entry.name,
             kind: details.kind as CompletionItemKind,
         }
-    } else if (
-        details.kind === ts.ScriptElementKind.functionElement ||
-        details.kind === ts.ScriptElementKind.memberFunctionElement
-    ) {
-        if (details.sourceDisplay) {
+    } else if (isFunction || isMethod) {
+        if (isMethod || (isFunction && details.sourceDisplay)) {
             const params: string[] = [];
             let param: string = '';
     
@@ -119,7 +118,7 @@ export function filterCompletions(
                 }
             });
     
-            const action = details.codeActions?.[0].changes[0].textChanges[0].newText;
+            const action = details.codeActions?.[0].changes[0].textChanges[0].newText || "";
             const itemTag = action.substring(0, action.length - 1);
     
             return {
@@ -142,4 +141,3 @@ export function filterCompletions(
 
     return undefined;
 }
-
