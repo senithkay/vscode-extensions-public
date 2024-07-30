@@ -9,3 +9,4 @@
 
 export * from './modification-utils';
 export * from './keyboard-navigation-manager';
+export * from './eggplant';

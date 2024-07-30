@@ -85,14 +85,7 @@ eggplant = true
                 // Create Ballerina.toml file
                 const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
                 fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
-
                 console.log(`Eggplant project created successfully at ${projectRoot}`);
-                // Create services directory
-                const servicesDir = path.join(projectRoot, DIRECTORY_MAP.SERVICES);
-                if (!fs.existsSync(servicesDir)) {
-                    fs.mkdirSync(servicesDir);
-                }
-
                 commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
             }
         });

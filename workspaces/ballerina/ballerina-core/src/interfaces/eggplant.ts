@@ -126,6 +126,7 @@ export interface ProjectStructureArtifactResponse {
     name: string;
     path: string;
     type: string;
+    icon?: string;
     context?: string;
     position?: NodePosition;
     st?: STNode
