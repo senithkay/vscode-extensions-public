@@ -47,4 +47,3 @@ export const ClickAwayListener: React.FC<PropsWithChildren<ClickAwayListenerProp
             </Container>
         );
     }
-

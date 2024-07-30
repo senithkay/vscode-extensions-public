@@ -34,4 +34,3 @@ const Template: ComponentStory<typeof ClickAwayListener> = () => {
 export const Example = Template.bind();
 
 export default { component: ClickAwayListener, title: "ClickAwayListener" };
-

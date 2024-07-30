@@ -1,0 +1,300 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import { TypeChip } from "./Commons";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
+
+const FieldGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+`;
+
+export interface Region {
+    label: string;
+    value: string;
+}
+
+export interface TemplateEndpointWizardProps {
+    path: string;
+    isPopup?: boolean;
+}
+
+type InputsFields = {
+    name?: string;
+    uri?: string;
+    template?: string;
+    description?: string;
+    endpoints?: any[];
+    parameters?: any[];
+    //reg form
+    saveInReg?: boolean;
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    uri: '',
+    template: '',
+    description: '',
+    endpoints: [],
+    parameters: [],
+    //reg form
+    saveInReg: false,
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
+};
+
+export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
+
+    const { rpcClient } = useVisualizerContext();
+    const isNewEndpoint = !props.path.endsWith(".xml");
+    const [paramConfigs, setParamConfigs] = useState<any>({
+        paramValues: [],
+        paramFields: [
+            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+        ]
+    });
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+
+    const schema = yup.object({
+        name: yup.string().required("Endpoint name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+            .test('validateEndpointName',
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }),
+        uri: yup.string(),
+        template: yup.string().required("Template is required"),
+        description: yup.string(),
+        endpoints: yup.array(),
+        parameters: yup.array(),
+        saveInReg: yup.boolean().default(false),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    if (formattedPath === undefined) return true;
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
+    });
+
+    const {
+        reset,
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues,
+        control,
+        setValue
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+    useEffect(() => {
+        if (!isNewEndpoint) {
+            (async () => {
+                const { ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
+                reset(endpoint);
+                setSavedEPName(endpoint.name);
+                setParamConfigs((prev: any) => {
+                    return {
+                        ...prev,
+                        paramValues: endpoint.parameters.map((property: any, index: Number) => {
+                            return {
+                                id: prev.paramValues.length + index,
+                                paramValues: [
+                                    { value: property.name },
+                                    { value: property.value }
+                                ],
+                                key: property.name,
+                                value: property.value,
+                            }
+                        })
+                    };
+                });
+            })();
+        }
+        (async () => {
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
+    }, [props.path]);
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
+
+    const handleParamChange = (config: any) => {
+        setParamConfigs((prev: any) => {
+            return {
+                ...prev,
+                paramValues: config.paramValues.map((param: any) => {
+                    return {
+                        ...param,
+                        key: param.paramValues[0].value,
+                        value: param.paramValues[1].value ?? '',
+                    }
+                })
+            };
+        })
+
+        setValue('parameters', config.paramValues.map((param: any) => ({
+            name: param.paramValues[0].value,
+            value: param.paramValues[1].value
+        })), { shouldDirty: true });
+    }
+
+    const handleUpdateEndpoint = async (values: any) => {
+        const updateEndpointParams = {
+            directory: props.path,
+            ...values,
+            getContentOnly: watch("saveInReg") && isNewEndpoint,
+        }
+        const result = await rpcClient.getMiDiagramRpcClient().updateTemplateEndpoint(updateEndpointParams);
+        if (watch("saveInReg") && isNewEndpoint) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
+        }
+        openOverview();
+    };
+
+    const openOverview = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview }, isPopup: props.isPopup });
+    };
+
+    const changeType = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EndPointForm,
+                documentUri: props.path,
+                customProps: { type: 'endpoint' }
+            },
+            isPopup: props.isPopup
+        });
+    }
+
+    return (
+        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
+            <TypeChip
+                type={"Template Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
+            />
+            <FormGroup title="Basic Properties" isCollapsed={false}>
+                <TextField
+                    required
+                    autoFocus
+                    label="Name"
+                    placeholder="Name"
+                    {...renderProps("name")}
+                    size={100}
+                />
+                <TextField
+                    label="Uri"
+                    placeholder="Uri"
+                    {...renderProps("uri")}
+                />
+                <FormKeylookup
+                    control={control}
+                    label="Template"
+                    name="template"
+                    filterType="endpointTemplate"
+                    path={props.path}
+                    {...renderProps("template")}
+                />
+                <TextField
+                    label="Description"
+                    {...renderProps("description")}
+                />
+                <FieldGroup>
+                    <span>Parameters</span>
+                    <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
+                </FieldGroup>
+            </FormGroup>
+            {isNewEndpoint && (<>
+                <FormCheckBox
+                    label="Save the endpoint in registry"
+                    {...register("saveInReg")}
+                    control={control}
+                />
+                {watch("saveInReg") && (<>
+                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                </>)}
+            </>)}
+            <FormActions>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleUpdateEndpoint)}
+                    disabled={!isDirty}
+                >
+                    {isNewEndpoint ? "Create" : "Save Changes"}
+                </Button>
+                <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+            </FormActions>
+        </FormView>
+    );
+}

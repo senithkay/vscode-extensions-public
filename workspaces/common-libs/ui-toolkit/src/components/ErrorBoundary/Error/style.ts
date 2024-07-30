@@ -22,11 +22,11 @@ export const useStyles = () => ({
         alignItems: "center"
     }),
     errorTitle: css({
-        color: "var(--vscode-badge-background)"
+        color: "var(--vscode-editor-foreground)"
     }),
     errorMsg: css({
         paddingTop: "16px",
-        color: "var(--vscode-checkbox-border)"
+        color: "var(--vscode-editor-foreground)"
     }),
     errorImg: css({
         paddingTop: "80px",
@@ -43,5 +43,9 @@ export const useStyles = () => ({
             color: "var(--vscode-editor-selectionBackground)",
             textDecoration: "underline",
         }
-    })
+    }),
+    iconContainer: css({
+        display: "flex",
+        flexDirection: "row"
+    }),
 });

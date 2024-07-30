@@ -41,7 +41,7 @@ export function PanelContainer(props: PanelContainerProps) {
     return (
         <SidePanel
             isOpen={show}
-            alignmanet="right"
+            alignment="right"
             sx={{
                 width: "400px",
                 fontFamily: "GilmerRegular",
