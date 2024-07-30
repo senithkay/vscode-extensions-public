@@ -344,14 +344,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         setDropdownWidth(inputWrapperRef.current?.clientWidth);
     }, []);
 
-    const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
-        return active ? OptionContainer : ActiveOptionContainer;
-    };
-
-    const handleAfterLeave = () => {
-        handleQueryChange('');
-    };
-
     useEffect(() => {
         setDropdownWidth(inputRef.current?.clientWidth);
     }, []);
