@@ -71,6 +71,7 @@ export enum MACHINE_VIEW {
     AITestGen = "AI Test Generation",
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
+    UpdateExtension = "Update Extension",
 }
 
 export enum AI_MACHINE_VIEW {
