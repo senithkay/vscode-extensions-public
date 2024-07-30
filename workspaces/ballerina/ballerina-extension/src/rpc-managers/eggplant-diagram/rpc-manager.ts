@@ -261,7 +261,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     private async traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse) {
         for (const pkg of components.packages) {
             for (const module of pkg.modules) {
-                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await this.getComponents(module.services, pkg.filePath));
+                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await this.getComponents(module.services, pkg.filePath, DIRECTORY_MAP.SERVICES));
                 response.directoryMap[DIRECTORY_MAP.TASKS].push(...await this.getComponents(module.functions, pkg.filePath));
                 response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await this.getComponents(module.moduleVariables, pkg.filePath, DIRECTORY_MAP.CONNECTIONS));
                 response.directoryMap[DIRECTORY_MAP.SCHEMAS].push(...await this.getComponents(module.records, pkg.filePath));
@@ -293,7 +293,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             }
 
             const fileEntry: ProjectStructureArtifactResponse = {
-                name: comp.name,
+                name: dtype === DIRECTORY_MAP.SERVICES ? comp.filePath.replace(".bal", "") : comp.name,
                 path: componentFile,
                 type: 'HTTP',
                 context: comp.name,
