@@ -26,7 +26,7 @@ import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 
 export interface ObjectOutputFieldWidgetProps {
@@ -97,7 +97,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const diagnostic = propertyAssignment && getDiagnostics(propertyAssignment)[0];
+    const diagnostic = propertyAssignment && filterDiagnosticsForNode(context.diagnostics, propertyAssignment)[0];
 
     const connectedViaLink = useMemo(() => {
         return hasValue && isConnectedViaLink(initializer);
