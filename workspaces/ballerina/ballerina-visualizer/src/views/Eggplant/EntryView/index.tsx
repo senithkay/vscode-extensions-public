@@ -15,7 +15,7 @@ import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../../components/View";
-import { SERVICE_VIEW } from "./constants";
+import { EggplantHeader } from "../EggplantHeader";
 
 const Container = styled.div({
     display: "flex",
@@ -40,10 +40,10 @@ const PanelViewMore = styled.div({
 
 const HorizontalCardContainer = styled.div({
     display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    margin: "0px 155px 0px 155px",
     gridAutoRows: "minmax(80px, auto)",
     gap: "40px",
-    margin: "0px 155px 0px 155px"
 });
 
 const PanelFooter = styled.div({
@@ -90,36 +90,76 @@ const transitionEffect = {
     }),
 };
 
-export interface HttpFormProps {
-    handleView: (view: SERVICE_VIEW) => void;
-}
-
-
-export function HttpFormType(props: HttpFormProps) {
+export function AddEntryView() {
     const { rpcClient } = useVisualizerContext();
+    const [activeWorkspaces, setActiveWorkspaces] = React.useState<any>(undefined);
+    const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
+    const [viewMore, setViewMore] = React.useState<boolean>(false);
 
-    const handleClick = async (key: SERVICE_VIEW) => {
-        props.handleView(key)
+    const handleClick = async (key: DIRECTORY_MAP) => {
+        if (key === DIRECTORY_MAP.SERVICES) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.EggplantServiceForm
+                }
+            });
+        } else {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.EggplantServiceForm
+                }
+            });
+        }
+    };
+
+    useEffect(() => {
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getWorkspaces()
+            .then((response: any) => {
+                setActiveWorkspaces(response.workspaces[0]);
+                console.log(response.workspaces[0]);
+            });
+    }, []);
+
+    const handleGenerateWithAI = async () => {
+        // rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
+        // rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
+    };
+
+    const handleAiPromptChange = (value: string) => {
+        setInputAiPrompt(value);
     };
 
     return (
         <View>
-            <ViewHeader title={"New Service Component"}></ViewHeader>
             <ViewContent padding>
+                <EggplantHeader />
                 <Container>
                     <AddPanel>
+                        <Typography variant="h2">
+                            Entry Points
+                        </Typography>
                         <HorizontalCardContainer>
                             <Card
-                                icon="APIResource"
-                                title="Import From OAS"
-                                description="Generate HTTP service from Open API Spec"
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
+                                icon="Service"
+                                title="Service"
+                                description="Create an HTTP service."
+                                onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
                             <Card
-                                icon="arrow-swap"
-                                title="Design From Scratch"
-                                description="Design HTTP service from our service designer."
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
+                                icon="Task"
+                                title="Task"
+                                description="Create a task that can be run periodically."
+                                onClick={() => handleClick(DIRECTORY_MAP.TASKS)}
+                            />
+                            <Card
+                                icon="Triggers"
+                                title="Triggers"
+                                description="Create a trigger that can will listen to an event."
+                                onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}
                             />
                         </HorizontalCardContainer>
                     </AddPanel>

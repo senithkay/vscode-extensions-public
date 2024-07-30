@@ -2,7 +2,7 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { Uri, workspace } from 'vscode';
@@ -11,6 +11,7 @@ import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, get
 import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
+import { EggplantDiagramRpcManager } from './rpc-managers/eggplant-diagram/rpc-manager';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -201,6 +202,13 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
+                        if (context.isEggplant) {
+                            const entryPoints = (await new EggplantDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
+                            if (entryPoints === 0) {
+                                history.push({ location: { view: MACHINE_VIEW.EggplantComponentView, documentUri: context.documentUri } });
+                                return resolve();
+                            }
+                        }
                         history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }

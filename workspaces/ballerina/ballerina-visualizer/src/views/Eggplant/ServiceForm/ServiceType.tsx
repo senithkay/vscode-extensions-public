@@ -16,6 +16,7 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../../components/View";
 import { SERVICE_VIEW } from "./constants";
+import { EggplantHeader } from "../EggplantHeader";
 
 const Container = styled.div({
     display: "flex",
@@ -30,6 +31,7 @@ const AddPanel = styled.div({
     gap: 10,
     backgroundColor: "var(--vscode-sideBar-background);",
     padding: 20,
+    marginBottom: 10
 });
 
 const PanelViewMore = styled.div({
@@ -43,7 +45,7 @@ const HorizontalCardContainer = styled.div({
     gridTemplateColumns: "repeat(3, 1fr)",
     gridAutoRows: "minmax(80px, auto)",
     gap: "20px",
-    margin: "0px 135px 0px 135px"
+    margin: "0px 155px 0px 155px"
 });
 
 const PanelFooter = styled.div({
@@ -103,28 +105,31 @@ export function ServiceType(props: HttpFormProps) {
 
     return (
         <View>
-            <ViewHeader title={"New Service Component"}></ViewHeader>
             <ViewContent padding>
+                <EggplantHeader />
                 <Container>
                     <AddPanel>
+                        <Typography variant="h2">
+                            Select Service Type
+                        </Typography>
                         <HorizontalCardContainer>
                             <Card
                                 icon="APIResource"
                                 title="HTTP Service"
                                 description="Implement a HTTP service"
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM_TYPE)}
+                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />
                             <Card
-                                icon="arrow-swap"
+                                icon="GraphQL"
                                 title="GraphQL Service"
                                 description="Implement a GraphQL service."
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM_TYPE)}
+                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />
                             <Card
                                 icon="task"
                                 title="gRPC Service"
                                 description="Implement a gRPC service."
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM_TYPE)}
+                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />
                         </HorizontalCardContainer>
                     </AddPanel>
