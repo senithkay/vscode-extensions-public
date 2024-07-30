@@ -104,9 +104,7 @@ export async function createEggplantService(params: CreateComponentRequest) {
 import ballerina/http;
 
 service ${params.path} on new http:Listener(${params.port}) {
-    resource function get greeting(string name) returns string|error? {
-        
-    }
+
 }
     `;
     const servicesDir = path.join(StateMachine.context().projectUri);
@@ -117,7 +115,8 @@ service ${params.path} on new http:Listener(${params.port}) {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
     history.clear();
-    updateView();
+    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 4, endColumn: 1 } });
+    // updateView();
     commands.executeCommand("Eggplant.project-explorer.refresh");
 }
 
