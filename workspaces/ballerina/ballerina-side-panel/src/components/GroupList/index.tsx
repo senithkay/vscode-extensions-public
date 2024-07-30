@@ -8,39 +8,63 @@
  */
 
 import React, { useState } from "react";
-import { Button, Icon, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
 import { Category, Node } from "./../NodeList/types";
 
 namespace S {
-    export const GroupRow = styled.div<{ showBorder?: boolean }>`
+    export const Card = styled.div<{}>`
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
+        gap: 8px;
         width: 100%;
-        margin-top: 8px;
-        margin-bottom: ${({ showBorder }) => (showBorder ? "20px" : "12px")};
-        padding-bottom: 8px;
-        border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+        padding: 8px 0;
+        border-radius: 5px;
+        background-color: ${Colors.SURFACE_DIM_2};
     `;
 
     export const Row = styled.div<{}>`
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-end;
+        justify-content: flex-start;
+        align-items: center;
         gap: 8px;
         margin-top: 4px;
         margin-bottom: 4px;
         width: 100%;
     `;
 
-    export const SubTitle = styled.div<{}>`
+    export const TitleRow = styled(Row)<{}>`
+        cursor: pointer;
+    `;
+
+    export const Title = styled.div<{}>`
         font-size: 12px;
         opacity: 0.9;
+    `;
+
+    export const BodyText = styled.div<{}>`
+        font-size: 11px;
+        opacity: 0.5;
+        padding: 0 8px;
+    `;
+
+    export const Grid = styled.div<{ columns: number }>`
+        display: grid;
+        grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
+        gap: 8px;
+        width: 100%;
+        margin-top: 8px;
+        padding: 0 8px;
+    `;
+
+    export const CardAction = styled.div<{}>`
+        padding: 0 8px;
+        margin-left: auto;
     `;
 
     export const Component = styled.div<{ enabled?: boolean }>`
@@ -59,13 +83,21 @@ namespace S {
             ${({ enabled }) =>
                 enabled &&
                 `
-                background-color: ${Colors.PRIMARY_CONTAINER};
-                border: 1px solid ${Colors.PRIMARY};
-            `}
+        background-color: ${Colors.PRIMARY_CONTAINER};
+        border: 1px solid ${Colors.PRIMARY};
+    `}
         }
     `;
 
-    export const IconContainer = styled.div`
+    export const ComponentTitle = styled.div`
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 120px;
+        word-break: break-all;
+    `;
+
+    export const ComponentIcon = styled.div`
         padding: 0 8px;
         display: flex;
         align-items: center;
@@ -81,36 +113,51 @@ namespace S {
 
 interface GroupListProps {
     category: Category;
-    onSelect: (id: string, metadata?: any) => void;
+    expand?: boolean;
+    onSelect: (node: Node) => void;
 }
 
 export function GroupList(props: GroupListProps) {
-    const { category, onSelect } = props;
+    const { category, expand, onSelect } = props;
 
-    const [showList, setShowList] = useState(false);
+    const [showList, setShowList] = useState(expand ?? false);
 
     const nodes = category.items as Node[];
+    const openList = expand || showList;
 
-    const handleAddNode = (node: Node) => {
-        onSelect(node.id, node.metadata);
+    const handleToggleList = () => {
+        setShowList(!showList);
     };
 
+    if (nodes.length === 0) {
+        return null;
+    }
+
     return (
-        <S.GroupRow>
-            <S.Row>
-                <S.SubTitle>{category.title}</S.SubTitle>
-                <Button onClick={() => setShowList(!showList)}>
-                    <Icon sx={{ marginTop: 2, marginRight: 5 }} name={showList ? "chevron-up" : "chevron-down"} />
-                </Button>
-            </S.Row>
-            {showList &&
-                nodes.map((node, index) => (
-                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
-                        <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
-                        <div>{node.label}</div>
-                    </S.Component>
-                ))}
-        </S.GroupRow>
+        <S.Card>
+            <S.TitleRow onClick={handleToggleList}>
+                <S.ComponentIcon>
+                    <LogIcon />
+                </S.ComponentIcon>
+                <S.Title>{category.title}</S.Title>
+                <S.CardAction>
+                    {openList ? <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />}
+                </S.CardAction>
+            </S.TitleRow>
+            {openList && (
+                <>
+                    <S.BodyText>{category.description}</S.BodyText>
+                    <S.Grid columns={2}>
+                        {nodes.map((node, index) => (
+                            <S.Component key={node.id + index} enabled={node.enabled} onClick={() => onSelect(node)}>
+                                <S.ComponentIcon>{node.icon || <LogIcon />}</S.ComponentIcon>
+                                <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                            </S.Component>
+                        ))}
+                    </S.Grid>
+                </>
+            )}
+        </S.Card>
     );
 }
 

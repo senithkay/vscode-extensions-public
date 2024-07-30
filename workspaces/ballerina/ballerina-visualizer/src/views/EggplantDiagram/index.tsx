@@ -110,7 +110,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         setShowSidePanel(true);
-        setSidePanelView(SidePanelView.FORM);
+
         const node = metadata as AvailableNode;
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
@@ -120,7 +120,15 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
                 const formProperties = getFormProperties(response.flowNode);
-                setFields(convertNodePropertiesToFormFields(formProperties, model.clients));
+                console.log(">>> Form properties", formProperties);
+                if (Object.keys(formProperties).length === 0) {
+                    // add node to source code
+                    handleOnFormSubmit({});
+                    return;
+                }
+                // get node properties
+                setSidePanelView(SidePanelView.FORM);
+                setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
             });
     };
 
@@ -185,7 +193,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         <>
             <Container>{!!model && <Diagram model={model} onAddNode={handleOnAddNode} />}</Container>
             <PanelContainer
-                title={getContainerTitle(sidePanelView)}
+                title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
                 onBack={sidePanelView === SidePanelView.FORM ? handleOnFormBack : undefined}

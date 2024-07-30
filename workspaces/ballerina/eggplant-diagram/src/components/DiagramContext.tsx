@@ -23,7 +23,7 @@ export interface DiagramContextState {
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
-    flow: { fileName: "", nodes: [], clients: [] },
+    flow: { fileName: "", nodes: [], connections: [] },
     componentPanel: {
         visible: false,
         show: () => {},

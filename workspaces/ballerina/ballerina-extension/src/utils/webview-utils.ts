@@ -89,32 +89,12 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
                 ${externalStyles}
                 <style>
                     /* use this class for loader that are shown until the module js is loaded */
-                    .root-loader {
-                        position: absolute;
-                        color: rgba(150, 150, 150, 0.5);
-                        left: calc(50% - 20px);
-                        top: calc(50% - 20px);
-                    }
                     @font-face {
                         font-family: "Droid Sans Mono";
                         src: url("${fontDirWithSeparatorReplaced}/DroidSansMono.ttf") format("truetype");
                         font-weight: normal;
                         font-style: normal;
                         font-stretch: normal;
-                    }
-                    .loader {
-                        border: 4px solid #bec5f5;
-                        border-top: 4px solid #5463dc;
-                        border-radius: 50%;
-                        width: 30px;
-                        height: 30px;
-                        animation: spin 1s linear infinite;
-                        margin: auto;
-                        margin-top: 20%;
-                    }
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
                     }
                     html {
                         overflow: hidden;

@@ -185,9 +185,9 @@ export function NodeList(props: NodeListProps) {
     const getConnectionContainer = (categories: Category[]) => (
         <S.Grid columns={1}>
             {categories.map((category, index) => (
-                <Tooltip content={category.description} key={category.title + index + "tooltip"}>
-                    <GroupList category={category} onSelect={() => {}} />
-                </Tooltip>
+                // <Tooltip content={category.description} key={category.title + index + "tooltip"}>
+                <GroupList category={category} expand={searchText?.length > 0} onSelect={handleAddNode} />
+                // </Tooltip>
             ))}
         </S.Grid>
     );
@@ -211,6 +211,8 @@ export function NodeList(props: NodeListProps) {
                         {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>}
                         {group.items.length > 0 && "id" in group.items.at(0)
                             ? getNodesContainer(group.items as Node[])
+                            : showConnectionPanel
+                            ? getConnectionContainer(group.items as Category[])
                             : getCategoryContainer(group.items as Category[], true)}
                     </S.CategoryRow>
                 );
@@ -232,22 +234,27 @@ export function NodeList(props: NodeListProps) {
 
     // filter out category items based on search text
     const filterItems = (items: Item[]): Item[] => {
-        return items.map((item) => {
-            if ("items" in item) {
-                const filteredItems = filterItems(item.items);
-                return {
-                    ...item,
-                    items: filteredItems,
-                };
-            } else {
-                const lowerCaseTitle = item.label.toLowerCase();
-                const lowerCaseDescription = item.description.toLowerCase();
-                const lowerCaseSearchText = searchText.toLowerCase();
-                if (lowerCaseTitle.includes(lowerCaseSearchText) || lowerCaseDescription.includes(lowerCaseSearchText)) {
-                    return item;
+        return items
+            .map((item) => {
+                if ("items" in item) {
+                    const filteredItems = filterItems(item.items);
+                    return {
+                        ...item,
+                        items: filteredItems,
+                    };
+                } else {
+                    const lowerCaseTitle = item.label.toLowerCase();
+                    const lowerCaseDescription = item.description.toLowerCase();
+                    const lowerCaseSearchText = searchText.toLowerCase();
+                    if (
+                        lowerCaseTitle.includes(lowerCaseSearchText) ||
+                        lowerCaseDescription.includes(lowerCaseSearchText)
+                    ) {
+                        return item;
+                    }
                 }
-            }
-        }).filter(Boolean);
+            })
+            .filter(Boolean);
     };
 
     const filteredFlowNodeCategory = cloneDeep(flowNodeCategory).map((category) => {
@@ -274,7 +281,7 @@ export function NodeList(props: NodeListProps) {
                         leftLabel="Nodes"
                         rightLabel="Connections"
                         checked={showConnectionPanel}
-                        checkedColor="var(--vscode-button-background)"
+                        checkedColor={Colors.PRIMARY}
                         enableTransition={true}
                         onChange={() => {
                             setShowConnectionPanel(!showConnectionPanel);
