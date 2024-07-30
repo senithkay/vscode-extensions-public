@@ -90,8 +90,8 @@
         "properties": {
           "MI.rootUrl": {
             "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0",
-            "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0"
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0",
+            "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v2.0"
           },
           "MI.authOrg": {
             "type": "string",
