@@ -13,6 +13,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { View, ViewContent } from "../../../components/View";
 import { Button, Codicon, ComponentCard, Divider, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
+import { EggplantHeader } from "../EggplantHeader";
 
 interface OverviewProps {
     stateUpdated: boolean;
@@ -162,11 +163,7 @@ export function Overview(props: OverviewProps) {
     return (
         <View>
             <ViewContent padding>
-                <TitleContainer>
-                    <ProjectTitle>{projectName}</ProjectTitle>
-                    <ProjectSubtitle>Project</ProjectSubtitle>
-                </TitleContainer>
-                <Divider />
+                <EggplantHeader />
                 {/*  Main Content with Two Columns */}
                 <GridContainer>
                     {/*  Left Column */}
