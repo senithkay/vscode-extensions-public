@@ -4577,6 +4577,13 @@ ${endpointAttributes}
         }
         return filePath;
     }
+
+    async openUpdateExtensionPage(): Promise<void> {
+        const extensionId = 'wso2.micro-integrator';
+        const url = `vscode:extension/${extensionId}`;
+        console.log("open update ext view url *****", url)
+        vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
+    }
 }
 
 export async function askProjectPath() {
