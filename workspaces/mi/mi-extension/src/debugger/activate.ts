@@ -28,6 +28,7 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
             config.type = 'mi';
             config.name = 'MI: Run and Debug';
             config.request = 'launch';
+            config.internalConsoleOptions =  config.noDebug ? 'neverOpen' : 'openOnSessionStart';
         }
 
         return config;
@@ -115,10 +116,12 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                     name: 'MI: Run',
                     request: 'launch',
                     noDebug: true,
+                    internalConsoleOptions:'neverOpen'
                 };
             } else {
                 config.name = 'MI: Run';
                 config.noDebug = true;
+                config.internalConsoleOptions = 'neverOpen';
             }
 
             try {
