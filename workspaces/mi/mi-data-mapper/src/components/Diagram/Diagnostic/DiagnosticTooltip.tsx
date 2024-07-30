@@ -46,7 +46,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
                     onClick={onClick}
                 >
                     <Codicon name="tools" sx={{ marginRight: "8px" }} />
-                    <span className={classes.editButtonText}>Fix by editing source</span>
+                    <span className={classes.editButtonText}>Fix by editing expression</span>
                 </Button>
             </div>
         </>
