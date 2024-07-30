@@ -74,10 +74,11 @@ const MethodBox = styled.div<MethodProp>`
     display: flex;
     justify-content: center;
     height: 25px;
-    width: 70px;
+    min-width: 70px;
+    width: auto;
     margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
     text-align: center;
-    padding: 3px 0px 3px 0px;
+    padding: 3px 5px 3px 5px;
     background-color: ${(p: MethodProp) => p.color};
     color: #FFF;
     align-items: center;
@@ -118,23 +119,11 @@ const colors = {
     "POST": '#49cc90',
     "DELETE": '#f93e3e',
     "PATCH": '#986ee2',
+    "OPTIONS": '#0d5aa7',
+    "HEAD": '#9012fe'
 }
 
-const ErrorMessage = styled.div`
-	display: flex;
-	flex-direction: row;
-	border: 1px solid;
-    padding: 10px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    color: #BB2124;
-`;
-
-const MessageIcon = styled.div`
-	margin-right: 10px;
-`;
-
-function getColorByMethod(method: string) {
+export function getColorByMethod(method: string) {
     switch (method.toUpperCase()) {
         case "GET":
             return colors.GET;
@@ -146,14 +135,18 @@ function getColorByMethod(method: string) {
             return colors.DELETE;
         case "PATCH":
             return colors.PATCH;
+        case "OPTIONS":
+            return colors.OPTIONS;
+        case "HEAD":
+            return colors.HEAD;
         default:
-            return '#FFF'; // Default color
+            return '#876036'; // Default color
     }
 }
 
 export interface ResourceAccordionProps {
     resource: Resource;
-    goToSource?: (resource: Resource) => void;
+    goToSource?: (resource: Resource) =>  void;
     onEditResource?: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
     onResourceImplement?: (resource: Resource) => void;
@@ -229,7 +222,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     }
 
     return (
-        <AccordionContainer haveErrors={resource.errors.length > 0}>
+        <AccordionContainer>
             <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {
@@ -288,11 +281,12 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                                         sx={{ transform: "translateX(-50%)" }}
                                         iconSx={verticalIconStyles}
                                         menuItems={additionalActions}
+                                        position='bottom-left'
                                     />
                                     <>
                                         More Actions
                                     </>
-                                </ButtonWrapper>
+                                </ButtonWrapper> 
                             )}
                         </>
                     ) : (
@@ -314,7 +308,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             )}
                             {additionalActions && (
                                 <ContextMenu
-                                    sx={{ transform: "translateX(-50%)" }}
+                                    menuSx={{ transform: "translateX(-50%)" }}
                                     iconSx={verticalIconStyles}
                                     menuItems={additionalActions}
                                 />
@@ -327,7 +321,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                             <Button appearance='icon' onClick={toggleAccordion}>
                                 <Codicon iconSx={{ marginTop: -3 }} name="chevron-up" />
                             </Button>
-                        ) : (
+                        ) : ( 
                             <Button appearance='icon' onClick={toggleAccordion}>
                                 <Codicon iconSx={{ marginTop: -3 }} name="chevron-down" />
                             </Button>
@@ -348,19 +342,6 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                         <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
                     }
                     {resource?.addtionalInfo && resource?.addtionalInfo}
-
-                    {resource.errors.map((error, index) => {
-                        return (
-                            <ErrorMessage key={index}>
-                                <MessageIcon>
-                                    <Codicon name='error' />
-                                </MessageIcon>
-                                <div>
-                                    <Typography variant="caption">{error.message}</Typography>
-                                </div>
-                            </ErrorMessage>
-                        )
-                    })}
                 </AccordionContent>
             )}
             <Confirm

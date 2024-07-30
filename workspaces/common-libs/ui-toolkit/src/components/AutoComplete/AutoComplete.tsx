@@ -10,23 +10,53 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
 import { css, cx } from "@emotion/css";
 import { Combobox, Transition } from '@headlessui/react'
 
-// import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
+import { Control, Controller } from 'react-hook-form';
+import { ErrorBanner } from '../Commons/ErrorBanner';
 
 export interface ComboboxOptionProps {
     active?: boolean;
+    display?: boolean;
 }
 
 export interface DropdownContainerProps {
     widthOffset?: number;
     dropdownWidth?: number;
+    display?: boolean;
 }
+
+interface DropdownProps {
+    hideDropdown: boolean;
+}
+
+const ActionButtonStyles = cx(css`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-inline: 5px;
+`);
+
+const ActionButtonContainerActive = cx(css`
+    background-color: var(--vscode-input-background);
+    border-right: 0 solid var(--vscode-focusBorder);
+    border-bottom: 1px solid var(--vscode-focusBorder);
+    border-top: 1px solid var(--vscode-focusBorder);
+    border-left: 0 solid var(--vscode-focusBorder); 
+`);
+
+const ActionButtonContainer = cx(css`
+    background-color: var(--vscode-input-background);
+    border-right: 0 solid var(--vscode-dropdown-border);
+    border-bottom: 1px solid var(--vscode-dropdown-border);
+    border-top: 1px solid var(--vscode-dropdown-border);
+    border-left: 0 solid var(--vscode-dropdown-border);
+`);
 
 const ComboboxButtonContainerActive = cx(css`
     padding-right: 5px;
@@ -54,22 +84,23 @@ export const DropdownIcon = cx(css`
     padding-right: 8px;
 `);
 
-export const SearchableInput = cx(css`
+export const SearchableInput = (hideDropdown: boolean) => cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: 24px;
-    width: calc(100% - 40px);
+    height: ${hideDropdown ? '100%' : '24px'};
+    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
     padding-left: 8px;
+    padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
     border-top: 1px solid var(--vscode-dropdown-border);
-    border-right: 0 solid var(--vscode-dropdown-border);
+    border-right: ${hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
     &:focus {
       outline: none;
       border-left: 1px solid var(--vscode-focusBorder);
       border-bottom: 1px solid var(--vscode-focusBorder);
       border-top: 1px solid var(--vscode-focusBorder);
-      border-right: 0 solid var(--vscode-focusBorder);
+      border-right: ${hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
     }
 `);
 
@@ -79,9 +110,14 @@ const LabelContainer = styled.div`
     margin-bottom: 4px;
 `;
 
-const ComboboxInputWrapper = styled.div`
+const ComboboxInputWrapper = styled.div<DropdownProps>`
+    height: 100%;
     display: flex;
     flex-direction: row;
+    border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
+    &:focus-within {
+        border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
+    }
 `;
 
 export const OptionContainer = cx(css`
@@ -116,8 +152,9 @@ export const NothingFound = styled.div`
 `;
 
 const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
+    position: absolute;
+    top: 100%;
     max-height: 100px;
-    width: ${(props: DropdownContainerProps) => `${props.dropdownWidth}px`};
     overflow: auto;
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
@@ -125,7 +162,9 @@ const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     border: 1px solid var(--vscode-list-dropBackground);
     padding-top: 5px;
     padding-bottom: 5px;
-    z-index: 1;
+    z-index: 1000;
+    display: ${(props: DropdownContainerProps) => (props.display ? 'block' : 'none')};
+    width: ${(props: DropdownContainerProps) => (props.dropdownWidth ? `${props.dropdownWidth - 2}px` : 'auto')};
     ul {
         margin: 0;
         padding: 0;
@@ -138,27 +177,50 @@ interface ContainerProps {
 
 export const Container = styled.div<ContainerProps>`
     width: 100%;
+    height: 100%;
     ${(props: ContainerProps) => props.sx}
 `;
 
-export interface AutoCompleteProps {
+export interface ItemComponent {
+    key: string; // For searching
+    item: ReactNode; // For rendering option
+}
+
+interface BaseProps {
     id?: string;
-    items: string[];
+    items: (string | ItemComponent)[];
+    actionBtns?: ReactNode[];
     required?: boolean;
-    label?: string;
-    notItemsFoundMessage?: string;
     widthOffset?: number;
     nullable?: boolean;
+    allowItemCreate?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
-    name?: string;
     value?: string;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
-} 
+    onCreateButtonClick?: () => void;
+    notItemsFoundMessage?: string;
+    hideDropdown?: boolean;
+    errorMsg?: string;
+}
 
-const ComboboxOption: React.FC<any> = styled.div`
+// Define the conditional properties
+type ConditionalProps =
+    | { label: string; name: string; identifier?: never }
+    | { label: string; name?: never; identifier?: never }
+    | { label?: never; name: string; identifier?: never }
+    | { label?: never; name?: never; identifier: string };
+
+// Combine the base properties with conditional properties
+export type AutoCompleteProps = BaseProps & ConditionalProps;
+
+const ComboboxContent: React.FC = styled.div`
+    position: relative;
+    height: 100%;
+`;
+
+const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     position: relative;
     cursor: default;
     user-select: none;
@@ -166,34 +228,85 @@ const ComboboxOption: React.FC<any> = styled.div`
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
         'var(--vscode-editor-background)')};
     list-style: none;
+    display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
+
+const ComboboxOptionButton: React.FC<ComboboxOptionProps> = styled.div`
+    position: relative;
+    cursor: default;
+    user-select: none;
+    color: var(--vscode-editor-foreground);
+    background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
+        'var(--vscode-editor-background)')};
+    list-style: none;
+    border-bottom: 1px solid var(--vscode-list-dropBackground);
+    display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
+`;
+
+export const getItemKey = (item: string | ItemComponent) => {
+    if (typeof item === 'string') {
+        return item;
+    }
+    return item?.key;
+}
+
+export const getItem = (item: string | ItemComponent) => {
+    if (typeof item === 'string') {
+        return item;
+    }
+    return item?.item;
+}
 
 
 export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps>((props, ref) => {
-    const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, borderBox, onValueChange, ...rest } = props;
+    const {
+        id,
+        name,
+        value,
+        items,
+        actionBtns,
+        required,
+        label,
+        notItemsFoundMessage,
+        widthOffset = 157,
+        nullable,
+        allowItemCreate = false,
+        sx,
+        borderBox,
+        onBlur,
+        onValueChange,
+        onCreateButtonClick,
+        identifier,
+        hideDropdown,
+        errorMsg
+    } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
+    const inputWrapperRef = useRef(null);
+    const btnId = useMemo(() => name || label || identifier || getItemKey(items[0]), [name, items, label, identifier]);
 
-    const handleChange = (item: string) => {
-        onValueChange && onValueChange(item);
+    const handleChange = (item: string | ItemComponent) => {
+        onValueChange && onValueChange(getItemKey(item));
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
     };
     const handleTextFieldClick = () => {
-        inputRef.current?.select();
-        // This is to open the dropdown when the text field is focused.
-        // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${items[0]}`)?.click();
-        document.getElementById(props.value as string)?.focus();
+        if (!hideDropdown) {
+            inputRef.current?.select();
+            // This is to open the dropdown when the text field is focused.
+            // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
+            document.getElementById(`autocomplete-dropdown-button-${btnId}`)?.click();
+            document.getElementById(props.value as string)?.focus();
+        }
     };
     const handleTextFieldOutFocused = (e: any) => {
         setIsTextFieldFocused(false);
         setIsUpButton(false);
-        props.onBlur && props.onBlur(e);
+        onBlur && onBlur(e);
     };
     const handleComboButtonClick = () => {
         setIsUpButton(!isUpButton);
@@ -205,14 +318,31 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const handleInputQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setQuery(event.target.value);
     };
-    const displayItemValue = (item: string) => item;
+    const displayItemValue = (item: string | ItemComponent) => getItemKey(item);
 
     const filteredResults =
         query === ''
             ? items
-            : items.filter(item =>
-                item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
-            );
+            : items.filter(filteredItem => {
+                const item = getItemKey(filteredItem);
+                return item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
+            });
+
+    const extactMatch = items.filter(item => getItemKey(item) === query);
+
+    const indexOffset = allowItemCreate && extactMatch.length === 0 ? 1 : 0;
+
+    const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
+        return active ? OptionContainer : ActiveOptionContainer;
+    };
+
+    const handleAfterLeave = () => {
+        handleQueryChange('');
+    };
+
+    useEffect(() => {
+        setDropdownWidth(inputWrapperRef.current?.clientWidth);
+    }, []);
 
     const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
         return active ? OptionContainer : ActiveOptionContainer;
@@ -228,32 +358,42 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
 
     return (
         <Container sx={sx}>
-            <Combobox value={props.value} onChange={handleChange} name={props.name} {...(nullable && { nullable })}>
-                <LabelContainer>
-                    <label htmlFor={id}>{label}</label>
-                    {(required && label) && (<RequiredFormInput />)}
-                </LabelContainer>
-                <div>
-                    <ComboboxInputWrapper>
+            <Combobox value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
+                {label && (
+                    <LabelContainer>
+                        <label htmlFor={id}>{label}</label>
+                        {(required && label) && (<RequiredFormInput />)}
+                    </LabelContainer>
+                )}
+                <ComboboxContent>
+                    <ComboboxInputWrapper ref={inputWrapperRef} hideDropdown={hideDropdown}>
                         <Combobox.Input
                             id={id}
                             ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
-                            className={cx(SearchableInput, borderBox && cx(css`
+                            className={cx(SearchableInput(hideDropdown), borderBox && cx(css`
                                 height: 28px;
                             `))}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
-                            { ...props.name ? {...rest} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                             onBlur={handleTextFieldOutFocused}
                         />
+                        {actionBtns?.length && (
+                            <div className={cx(
+                                ActionButtonStyles,
+                                isTextFieldFocused ? ActionButtonContainerActive : ActionButtonContainer
+                            )}>
+                                {actionBtns}
+                            </div>
+                        )}
                         <Combobox.Button
-                            id={`autocomplete-dropdown-button-${items[0]}`}
+                            id={`autocomplete-dropdown-button-${btnId}`}
+                            hidden={hideDropdown}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             {isUpButton ? (
-                                <i 
+                                <i
                                     className={`codicon codicon-chevron-up ${DropdownIcon}`}
                                     onClick={handleComboButtonClick}
                                     onMouseDown={(e: React.MouseEvent) => {
@@ -269,7 +409,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                     }}
                                 />
                             )}
-
                         </Combobox.Button>
                     </ComboboxInputWrapper>
                     <Transition
@@ -277,33 +416,107 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         afterLeave={handleAfterLeave}
                         ref={ref}
                     >
-                        <DropdownContainer widthOffset={widthOffset} dropdownWidth={dropdownWidth}>
+                        <DropdownContainer
+                            // condition to display the dropdown
+                            display={!(filteredResults.length === 0 && query !== "" && allowItemCreate && !onCreateButtonClick)}
+                            widthOffset={widthOffset}
+                            dropdownWidth={dropdownWidth}
+                        >
                             <Combobox.Options>
-                                {filteredResults.length === 0 && query !== '' ? (
-                                    <NothingFound>
-                                        {notItemsFoundMessage || 'No options'}
-                                    </NothingFound>
+                                {/* A hidden Combobox.Option which is used to create a new item */}
+                                {filteredResults.length === 0 && query !== "" && !onCreateButtonClick ? (
+                                    allowItemCreate ? (
+                                        <ComboboxOption key={0}>
+                                            <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
+                                                {query}
+                                            </Combobox.Option>
+                                        </ComboboxOption>
+                                    ) : (
+                                        <NothingFound>{notItemsFoundMessage || "No options"}</NothingFound>
+                                    )
                                 ) : (
-                                    filteredResults.map((item: string, i: number) => {
-                                        return (
-                                            <ComboboxOption key={i}>
-                                                <Combobox.Option
-                                                    className={ComboboxOptionContainer}
-                                                    value={item}
-                                                    key={item}
-                                                >
-                                                    {item}
+                                    <Fragment>
+                                        {/**
+                                         * A hidden Combobox.Option which is used to create a new item when the query is a
+                                         * substring of the filtered results
+                                        **/}
+                                        {allowItemCreate && extactMatch.length === 0 && (
+                                            <ComboboxOption display={false} key={0}>
+                                                <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
+                                                    {query}
                                                 </Combobox.Option>
                                             </ComboboxOption>
-                                        );
-                                    })
+                                        )}
+                                        {filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
+                                            const item = getItem(filteredItem);
+                                            const itemKey = getItemKey(filteredItem);
+                                            return (
+                                                <ComboboxOption key={i + indexOffset}>
+                                                    <Combobox.Option
+                                                        className={ComboboxOptionContainer}
+                                                        value={itemKey}
+                                                        key={i}
+                                                    >
+                                                        {item}
+                                                    </Combobox.Option>
+                                                </ComboboxOption>
+                                            );
+                                        })}
+                                    </Fragment>
                                 )}
+
+                                {onCreateButtonClick &&
+                                    <ComboboxOptionButton>
+                                        <Combobox.Button onClick={onCreateButtonClick} style={{
+                                            "color": "var(--vscode-editor-foreground)",
+                                            "background-color": "var(--vscode-editor-background)",
+                                            "padding": "3px 5px 3px 5px",
+                                            "border": "none",
+                                            "cursor": "pointer",
+                                        }}>
+                                            {"Create New"}
+                                        </Combobox.Button>
+                                    </ComboboxOptionButton>}
                             </Combobox.Options>
                         </DropdownContainer>
                     </Transition>
-                </div>
+                </ComboboxContent>
+                {errorMsg && (
+                    <ErrorBanner errorMsg={errorMsg} />
+                )}
             </Combobox>
         </Container>
     )
 });
 AutoComplete.displayName = 'AutoComplete';
+
+interface FormAutoCompleteProps {
+    name: string;
+    label?: string;
+    control: Control<any>;
+    items: string[];
+    isRequired?: boolean;
+    isNullable?: boolean;
+}
+
+export const FormAutoComplete: React.FC<FormAutoCompleteProps> = ({ name, control, label, items, isNullable, isRequired }) => {
+    return (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field: { onChange, value } }) => {
+                return (
+                    <AutoComplete
+                        items={items}
+                        label={label}
+                        required={isRequired}
+                        nullable={isNullable}
+                        value={value}
+                        onValueChange={(val: string) => onChange(val)}
+                    />
+                );
+            }}
+        />
+    );
+};
+

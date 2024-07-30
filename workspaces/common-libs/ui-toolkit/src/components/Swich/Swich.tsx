@@ -133,7 +133,7 @@ const getUncheckedComponent = (text: string, icon: ReactNode) => {
 
 export const Switch: React.FC<SwitchProps> = (props: SwitchProps) => {
     const { id, className, sx, checked, leftLabel, rightLabel, checkedIcon,
-        uncheckedIcon, checkedColor, enableTransition, disabled, readonly, onChange
+        uncheckedIcon, checkedColor, enableTransition, disabled, readonly, onChange 
     } = props;
     const handleLeftComponentClick = () => {
         if (checked && !readonly && !disabled) {
@@ -155,7 +155,7 @@ export const Switch: React.FC<SwitchProps> = (props: SwitchProps) => {
             </LeftInnerContainer >
             <RightInnerContainer onClick={handleRightComponentClick}>
                 {checked ?
-                    getCheckedComponent(rightLabel, checkedIcon, checkedColor, enableTransition) :
+                    getCheckedComponent(rightLabel, checkedIcon, checkedColor, enableTransition) : 
                     getUncheckedComponent(rightLabel, uncheckedIcon)
                 }
             </RightInnerContainer>

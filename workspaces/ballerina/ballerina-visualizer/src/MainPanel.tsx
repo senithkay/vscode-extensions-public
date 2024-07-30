@@ -12,10 +12,8 @@ import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_V
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
-
 import { NavigationBar } from "./components/NavigationBar"
 import { LoadingRing } from "./components/Loader";
-
 import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';
 import { GraphQLDiagram } from './views/GraphQLDiagram';

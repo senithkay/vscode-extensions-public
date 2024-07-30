@@ -60,14 +60,14 @@ export interface ComponentCardProps {
 
 export const ComponentCard: React.FC<PropsWithChildren<ComponentCardProps>> = 
     (props: PropsWithChildren<ComponentCardProps>) => {
-        const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
+        const { id, sx, tooltip, isSelected, disabled, disbaleHoverEffect, children, onClick } = props;
 
         const handleComponentClick = () => {
             onClick && onClick(id);
         };
 
         return (
-            <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
+            <CardContainer disbaleHoverEffect= {disbaleHoverEffect} id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
                 {children}
             </CardContainer>
         );

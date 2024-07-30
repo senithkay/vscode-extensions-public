@@ -24,5 +24,5 @@ export interface BadgeProps {
 }
 
 export const Badge: React.FC<BadgeProps> = (props: BadgeProps) => {
-    return <BadgeContainer style={{ backgroundColor: props.color, marginRight: "10px", marginLeft: "10px" }}>{props.children}</BadgeContainer>;
+    return <BadgeContainer style={{ backgroundColor: props.color }}>{props.children}</BadgeContainer>;
 };
