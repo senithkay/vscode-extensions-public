@@ -33,6 +33,7 @@ export interface SearchTerm {
 export default function HeaderSearchBox() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
+    const [showSearchOption, setShowSearchOption] = useState(false);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
@@ -42,10 +43,10 @@ export default function HeaderSearchBox() {
         setSearchTerm(text);
     };
 
-    const handleSearchOptionChange = (checked:boolean,value:string) => {
-        if(checked) {
-            if(searchOption.indexOf(value) === -1) {
-                setSearchOption([value,...searchOption]);
+    const handleSearchOptionChange = (checked: boolean, value: string) => {
+        if (checked) {
+            if (searchOption.indexOf(value) === -1) {
+                setSearchOption([value, ...searchOption]);
             }
         } else {
             setSearchOption(searchOption.filter(option => option !== value));
@@ -141,12 +142,10 @@ export default function HeaderSearchBox() {
                             {searchTerm && (
                                 <Codicon name="close" onClick={handleOnSearchTextClear} />
                             )}
-                            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"/>
-  
-
+                           
                             <div>
-                                <Codicon name="chevron-down" />
-                                <div style={{ position: "absolute", top: "100%", right: "0", zIndex: 1000 , backgroundColor: "gray", padding: "5px"}}>
+                                <Codicon name={showSearchOption ? "chevron-up" : "chevron-down"} onClick={() => setShowSearchOption(!showSearchOption)} />
+                                <div style={{ position: "absolute", top: "100%", right: "0", zIndex: 5, backgroundColor: "var(--vscode-sideBar-background)", padding: "5px", display: showSearchOption ? "block" : "none" }}>
                                     <CheckBoxGroup direction="vertical">
                                         <CheckBox
                                             checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1}
@@ -161,8 +160,8 @@ export default function HeaderSearchBox() {
                                             label="Filter in outputs"
                                             onChange={(checked) => {
                                                 handleSearchOptionChange(checked, OUTPUT_FIELD_FILTER_LABEL);
-                                               }}
-                                               value={OUTPUT_FIELD_FILTER_LABEL}
+                                            }}
+                                            value={OUTPUT_FIELD_FILTER_LABEL}
                                         />
                                     </CheckBoxGroup>
                                 </div>
@@ -171,7 +170,7 @@ export default function HeaderSearchBox() {
                     ),
                 }}
             />
-           
+
         </>
     );
 }
