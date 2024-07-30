@@ -9,12 +9,13 @@
 
 import React from "react";
 
-export function CloseIcon() {
+export function LoopIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path
-                d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z"
-            />
+            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5">
+                <path d="M12 3a9 9 0 1 1-5.657 2" />
+                <path d="M3 4.5h4v4" />
+            </g>
         </svg>
     );
 }
