@@ -44,26 +44,17 @@ const SearchOptionContainer=styled.div({
 export default function HeaderSearchBox() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
-    const [showSearchOption, setShowSearchOption] = useState(false);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
-    const showSearchOptionRef = useRef(null);
+   
 
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
         setSearchTerm(text);
     };
 
-    const handleSearchOptionChange = (checked: boolean, value: string) => {
-        if (checked) {
-            if (searchOption.indexOf(value) === -1) {
-                setSearchOption([value, ...searchOption]);
-            }
-        } else {
-            setSearchOption(searchOption.filter(option => option !== value));
-        }
-    };
+   
 
     const handleSearch = (term: string) => {
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
@@ -152,10 +143,8 @@ export default function HeaderSearchBox() {
                     <HeaderSearchBoxOptions
                     searchTerm={searchTerm}
                     searchOption={searchOption}
-                    showSearchOption={showSearchOption}
-                    setShowSearchOption={setShowSearchOption}
+                    setSearchOption={setSearchOption}
                     handleOnSearchTextClear={handleOnSearchTextClear}
-                    handleSearchOptionChange={handleSearchOptionChange}
                 />
                 ),
             }}

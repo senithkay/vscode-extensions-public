@@ -1,6 +1,6 @@
 
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 
@@ -19,21 +19,28 @@ export const OUTPUT_FIELD_FILTER_LABEL = "out:";
 interface HeaderSearchBoxOptionsProps {
     searchTerm: string;
     searchOption: string[];
-    showSearchOption: boolean;
-    setShowSearchOption: (show: boolean) => void;
+    setSearchOption: React.Dispatch<React.SetStateAction<string[]>>;
     handleOnSearchTextClear: () => void;
-    handleSearchOptionChange: (checked: boolean, value: string) => void;
 }
 
 const HeaderSearchBoxOptions: React.FC<HeaderSearchBoxOptionsProps> = ({
     searchTerm,
     searchOption,
-    showSearchOption,
-    setShowSearchOption,
-    handleOnSearchTextClear,
-    handleSearchOptionChange
+    setSearchOption,
+    handleOnSearchTextClear
 }) => {
+    const [showSearchOption, setShowSearchOption] = useState(false);
     const showSearchOptionRef = useRef(null);
+
+    const handleSearchOptionChange = (checked: boolean, value: string) => {
+        if (checked) {
+            if (searchOption.indexOf(value) === -1) {
+                setSearchOption([value, ...searchOption]);
+            }
+        } else {
+            setSearchOption(searchOption.filter(option => option !== value));
+        }
+    };
 
     return (
         <div style={{ display: "flex", flexDirection: "row" }}>
