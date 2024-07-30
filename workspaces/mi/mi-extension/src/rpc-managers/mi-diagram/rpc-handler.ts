@@ -57,7 +57,6 @@ import {
     GetRegistryMetadataRequest,
     GetSelectiveArtifactsRequest,
     GetSubFoldersRequest,
-    getSubFolderNames,
     GetTaskRequest,
     GetTemplateEPRequest,
     GetTextAtRangeRequest,
@@ -174,6 +173,7 @@ import {
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getStoreConnectorJSON,
+    getSubFolderNames,
     getSyntaxTree,
     getTask,
     getTemplate,
@@ -193,6 +193,7 @@ import {
     openDependencyPom,
     openDiagram,
     openFile,
+    openUpdateExtensionPage,
     rangeFormat,
     redo,
     refreshAccessToken,
@@ -318,13 +319,13 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnectionForm, (args: GetConnectionFormRequest) => rpcManger.getConnectionForm(args));
     messenger.onRequest(saveInboundEPUischema, (args: SaveInboundEPUischemaRequest) => rpcManger.saveInboundEPUischema(args));
     messenger.onRequest(getInboundEPUischema, (args: GetInboundEPUischemaRequest) => rpcManger.getInboundEPUischema(args));
+    messenger.onRequest(getStoreConnectorJSON, () => rpcManger.getStoreConnectorJSON());
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
     messenger.onRequest(getUserAccessToken, () => rpcManger.getUserAccessToken());
     messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
-    messenger.onRequest(getStoreConnectorJSON, () => rpcManger.getStoreConnectorJSON());
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
@@ -350,4 +351,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(markAsDefaultSequence, (args: MarkAsDefaultSequenceRequest) => rpcManger.markAsDefaultSequence(args));
     messenger.onRequest(getSubFolderNames, (args: GetSubFoldersRequest) => rpcManger.getSubFolderNames(args));
     messenger.onRequest(renameFile, (args: FileRenameRequest) => rpcManger.renameFile(args));
+    messenger.onNotification(openUpdateExtensionPage, () => rpcManger.openUpdateExtensionPage());
 }
