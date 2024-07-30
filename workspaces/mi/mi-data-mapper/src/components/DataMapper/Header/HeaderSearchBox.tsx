@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import debounce from "lodash.debounce";
 
 import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { CheckBox, CheckBoxGroup, Codicon, Menu, MenuItem, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
+import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon, Menu, MenuItem, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -30,6 +31,15 @@ export interface SearchTerm {
     isLabelAvailable: boolean;
 }
 
+const SearchOptionContainer=styled.div({
+    position: "absolute", 
+    top: "100%", 
+    right: "0", 
+    zIndex: 5, 
+    backgroundColor: "var(--vscode-sideBar-background)", 
+    padding: "5px" 
+});
+
 export default function HeaderSearchBox() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
@@ -37,6 +47,7 @@ export default function HeaderSearchBox() {
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
+    const showSearchOptionRef = useRef(null);
 
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
@@ -126,51 +137,55 @@ export default function HeaderSearchBox() {
     const filterIcon = (<Codicon name="filter" sx={{ cursor: "auto" }} />);
 
     return (
-        <>
-            <TextField
-                id={`search-${searchOption}`}
-                autoFocus={true}
-                icon={{ iconComponent: filterIcon, position: "start" }}
-                placeholder={`filter input and output fields`}
-                value={searchTerm}
-                onTextChange={handleSearchInputChange}
-                size={100}
-                inputProps={{
-                    endAdornment: (
+        <TextField
+            id={`search-${searchOption}`}
+            autoFocus={true}
+            icon={{ iconComponent: filterIcon, position: "start" }}
+            placeholder={`filter input and output fields`}
+            value={searchTerm}
+            onTextChange={handleSearchInputChange}
+            // onBlur={()=>{setShowSearchOption(false)}}
+            size={100}
+            inputProps={{
+                endAdornment: (
 
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                            {searchTerm && (
-                                <Codicon name="close" onClick={handleOnSearchTextClear} />
-                            )}
-                           
-                            <div>
-                                <Codicon name={showSearchOption ? "chevron-up" : "chevron-down"} onClick={() => setShowSearchOption(!showSearchOption)} />
-                                <div style={{ position: "absolute", top: "100%", right: "0", zIndex: 5, backgroundColor: "var(--vscode-sideBar-background)", padding: "5px", display: showSearchOption ? "block" : "none" }}>
-                                    <CheckBoxGroup direction="vertical">
-                                        <CheckBox
-                                            checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1}
-                                            label="Filter in inputs"
-                                            onChange={(checked) => {
-                                                handleSearchOptionChange(checked, INPUT_FIELD_FILTER_LABEL);
-                                            }}
-                                            value={INPUT_FIELD_FILTER_LABEL}
-                                        />
-                                        <CheckBox
-                                            checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1}
-                                            label="Filter in outputs"
-                                            onChange={(checked) => {
-                                                handleSearchOptionChange(checked, OUTPUT_FIELD_FILTER_LABEL);
-                                            }}
-                                            value={OUTPUT_FIELD_FILTER_LABEL}
-                                        />
-                                    </CheckBoxGroup>
-                                </div>
-                            </div>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                        {searchTerm && (
+                            <Codicon name="close" onClick={handleOnSearchTextClear} />
+                        )}
+
+                        <div>
+                            <div ref={showSearchOptionRef}><Codicon name={showSearchOption ? "chevron-up" : "chevron-down"} onClick={() => setShowSearchOption(!showSearchOption)} /></div>
+                            <ClickAwayListener onClickAway={() => { setShowSearchOption(false); }} anchorEl={showSearchOptionRef.current}>
+                                {showSearchOption && (
+                                    <SearchOptionContainer>
+                                        <CheckBoxGroup direction="vertical">
+                                            <CheckBox
+                                                checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1}
+                                                label="Filter in inputs"
+                                                onChange={(checked) => {
+                                                    handleSearchOptionChange(checked, INPUT_FIELD_FILTER_LABEL);
+                                                }}
+                                                value={INPUT_FIELD_FILTER_LABEL}
+                                                
+                                            />
+                                            <CheckBox
+                                                checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1}
+                                                label="Filter in outputs"
+                                                onChange={(checked) => {
+                                                    handleSearchOptionChange(checked, OUTPUT_FIELD_FILTER_LABEL);
+                                                }}
+                                                value={OUTPUT_FIELD_FILTER_LABEL}
+                                            />
+                                        </CheckBoxGroup>
+                                    </SearchOptionContainer>
+                                )}
+                            </ClickAwayListener>
                         </div>
-                    ),
-                }}
-            />
+                    </div>
+                ),
+            }}
+        />
 
-        </>
     );
 }
