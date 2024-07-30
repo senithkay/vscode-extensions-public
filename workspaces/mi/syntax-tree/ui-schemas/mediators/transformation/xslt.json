@@ -22,7 +22,7 @@
         "displayName": "XSLT Schema Key",
         "inputType": "keyOrExpression",
         "defaultValue": "",
-        "required": false,
+        "required": true,
         "helpTip": "",
         "keyType": "xslt"
       }

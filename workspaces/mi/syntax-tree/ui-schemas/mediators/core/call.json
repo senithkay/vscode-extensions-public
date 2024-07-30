@@ -92,7 +92,12 @@
                             "inputType": "checkbox",
                             "defaultValue": false,
                             "required": false,
-                            "helpTip": "Initialize Axis2 client options"
+                            "helpTip": "Initialize Axis2 client options",
+                            "enableCondition": [
+                                {
+                                    "enableBlockingCalls": true
+                                }
+                            ]
                         }
                     },
                     {

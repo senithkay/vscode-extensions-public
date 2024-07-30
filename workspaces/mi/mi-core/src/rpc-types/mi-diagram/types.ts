@@ -1501,15 +1501,17 @@ export interface GetConnectorConnectionsResponse {
 
 export interface SaveInboundEPUischemaRequest {
     connectorName:string;
-    uiSchema:string
+    uiSchema:string;
 }
 
 export interface GetInboundEPUischemaRequest {
-    connectorName:string;
+    documentPath?: string;
+    connectorName?: string;
 }
 
 export interface GetInboundEPUischemaResponse {
-    data: any
+    uiSchema: any;
+    connectorName: string;
 }
 
 export interface GetAllRegistryPathsRequest {

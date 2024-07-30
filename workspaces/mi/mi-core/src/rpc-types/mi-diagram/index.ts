@@ -283,7 +283,7 @@ export interface MiDiagramAPI {
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
-    saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => void;
+    saveInboundEPUischema: (params: SaveInboundEPUischemaRequest) => Promise<boolean>;
     getInboundEPUischema: (params: GetInboundEPUischemaRequest) => Promise<GetInboundEPUischemaResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
@@ -316,4 +316,5 @@ export interface MiDiagramAPI {
     markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => Promise<void>;
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
     renameFile: (params: FileRenameRequest) => void;
+    openUpdateExtensionPage: () => void;
 }

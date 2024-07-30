@@ -58,7 +58,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         "type": "KeyLookup",
                         "label": "Validate Schema Key",
                         "defaultValue": "",
-                        "isRequired": false,
+                        "isRequired": true,
                         "filterType": "schema"
                     },
                 ]
@@ -70,7 +70,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Feature Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "Checkbox",
@@ -87,13 +87,13 @@ const ValidateForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Location",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "KeyLookup",
                         "label": "Location Key",
                         "defaultValue": "",
-                        "isRequired": false,
+                        "isRequired": true,
                         "filterType": "registry"
                     },
                 ]

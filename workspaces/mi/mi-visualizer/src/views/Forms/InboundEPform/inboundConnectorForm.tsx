@@ -28,12 +28,10 @@ const CheckboxGroup = styled.div({
 export interface AddInboundConnectorProps {
     changeConnector?: () => void;
     formData: any;
-    parameters?: {};
-    data?: {};
+    model: any;
     path: string;
     setType: (type: string) => void;
     handleCreateInboundEP: (values: any) => void;
-    isEdit?: boolean;
 }
 
 type InboundEndpoint = {
@@ -43,20 +41,29 @@ type InboundEndpoint = {
 
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
-    const { formData, handleCreateInboundEP, parameters, data } = props;
-    const { control, handleSubmit, register, formState: { errors }, setValue } = useForm<any>();
+    const { formData, handleCreateInboundEP, model } = props;
+    const { control, handleSubmit, register, formState: { errors }, setValue, reset } = useForm<any>();
 
     useEffect(() => {
-        if (parameters && data) {
-            Object.entries(parameters).forEach(([key, value]) => {
-                setValue(key, value);
+        reset();
+        if (model) {
+            const attributeNames = getGenericAttributeNames(formData);
+            
+            attributeNames.forEach((attributeName: string) => {
+                if (model.hasOwnProperty(attributeName)) {
+                    setValue(getNameForController(attributeName), model[attributeName]);
+                }
             });
 
-            Object.entries(data).forEach(([key, value]) => {
-                setValue(key, value);
+            model.parameters[0]?.parameter?.forEach((param: any) => {
+                setValue(getNameForController(param.name), param.content);
             });
         }
-    }, [parameters]);
+    }, [model, formData]);
+
+    function getNameForController(name: string | number) {
+        return String(name).replace(/\./g, '__dot__');
+    }
 
     function getOriginalName(name: string) {
         return name.replace(new RegExp("__dot__", 'g'), '.');
@@ -101,7 +108,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
             Object.entries(paramFields).map(([key, value]) => [getOriginalName(key), value])
-            .filter(([_, value]) => typeof value !== 'object' || value === null)
+                .filter(([_, value]) => value && typeof value !== 'object') 
         );
 
         const inboundConnector: InboundEndpoint = {
@@ -118,14 +125,14 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     return (
         <>
-            <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={true} />
+            <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={!props.model} />
             <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
             <FormActions>
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.isEdit ? "Update" : "Add"}
+                    {props.model ? "Update" : "Add"}
                 </Button>
                 <Button
                     appearance="secondary"

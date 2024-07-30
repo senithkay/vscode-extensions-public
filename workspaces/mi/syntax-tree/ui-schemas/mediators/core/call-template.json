@@ -14,7 +14,7 @@
         "comboValues": [
           "{workspace.templates}"
         ],
-        "required": false,
+        "required": true,
         "helpTip": ""
       }
     },
@@ -33,7 +33,7 @@
               "name": "parameterName",
               "displayName": "Parameter Name",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -43,7 +43,7 @@
               "name": "parameterValue",
               "displayName": "Parameter Value",
               "inputType": "stringOrExpression",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           }

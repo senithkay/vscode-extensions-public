@@ -53,5 +53,6 @@ export function getHeaderFormDataFromSTNode(data: { [key: string]: any }, node: 
     } else {
         data.valueInline = node.any;
     }
+    data.scope = node.scope;
     return data;
 }

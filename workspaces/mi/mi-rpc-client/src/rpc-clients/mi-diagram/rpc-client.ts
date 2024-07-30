@@ -275,6 +275,7 @@ import {
     openDependencyPom,
     openDiagram,
     openFile,
+    openUpdateExtensionPage,
     rangeFormat,
     redo,
     refreshAccessToken,
@@ -679,7 +680,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getConnectionForm, HOST_EXTENSION, params);
     }
 
-    saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<void> {
+    saveInboundEPUischema(params: SaveInboundEPUischemaRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInboundEPUischema, HOST_EXTENSION, params);
     }
 
@@ -813,5 +814,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
   
     renameFile(params: FileRenameRequest): Promise<void> {
         return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
+    }
+
+    openUpdateExtensionPage(): void {
+        return this._messenger.sendNotification(openUpdateExtensionPage, HOST_EXTENSION);
     }
 }

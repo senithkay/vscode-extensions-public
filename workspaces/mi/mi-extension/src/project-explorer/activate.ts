@@ -220,10 +220,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	});
 	commands.registerCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		const uri = Uri.file(documentUri?.fsPath);
-		workspace.openTextDocument(uri).then((document) => {
-			window.showTextDocument(document);
-		});
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: documentUri?.fsPath, identifier: resourceIndex });
 	});
 	commands.registerCommand(COMMANDS.SHOW_SOURCE, (e: any) => {
 		const documentUri = StateMachine.context().documentUri;
