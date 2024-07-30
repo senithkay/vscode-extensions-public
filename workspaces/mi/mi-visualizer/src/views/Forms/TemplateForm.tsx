@@ -314,7 +314,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 {isNewTemplate && (
                     <>
                         <FormCheckBox
-                            label="Save the sequence in registry"
+                            label="Save the template in registry"
                             {...register("saveInReg")}
                             control={control}
                         />

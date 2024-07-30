@@ -1416,15 +1416,18 @@ ${endpointAttributes}
                     implementation: jsonData.task["@_"]["@_class"],
                     pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
                     triggerType: 'simple',
-                    triggerCount: 1,
+                    triggerCount: null,
                     triggerInterval: 1,
                     triggerCron: '',
                     taskProperties: []
                 };
 
-                if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
-                    response.triggerCount = Number(jsonData.task.trigger["@_"]["@_count"]);
+                if (jsonData.task.trigger["@_"]["@_once"] !== undefined) {
+                    response.triggerCount = 1;
+                } else if (jsonData.task.trigger["@_"]["@_interval"] !== undefined) {
                     response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
+                    response.triggerCount = jsonData.task.trigger["@_"]?.["@_count"] != null ?
+                        Number(jsonData.task.trigger["@_"]["@_count"]) : null;
                 }
                 else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
                     response.triggerType = 'cron';
