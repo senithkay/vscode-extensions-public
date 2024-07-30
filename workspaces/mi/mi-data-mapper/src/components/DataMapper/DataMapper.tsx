@@ -125,8 +125,11 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const generateNodes = async () => {
         const lastView = views[views.length - 1];
         const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
+        const { diagnostics } = await getDiagnostics();
+
         const context = new DataMapperContext(
-            fnST, fnST, inputTrees, outputTree, views, subMappingTypes, addView, goToSource, applyModifications
+            fnST, fnST, inputTrees, outputTree, views, subMappingTypes,
+            diagnostics, addView, goToSource, applyModifications
         );
         const nodeInitVisitor = new NodeInitVisitor(context);
     
@@ -181,6 +184,10 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const updateFileContent = async (content: string) => {
         await rpcClient.getMiDataMapperRpcClient().updateFileContent({ filePath, fileContent: content });
+    };
+
+    const getDiagnostics = async () => {
+        return rpcClient.getMiDataMapperRpcClient().getDMDiagnostics({ filePath });
     };
 
     return (

@@ -12,11 +12,10 @@ import React, { useState } from "react";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import classnames from "classnames";
-import { Node } from "ts-morph";
 
 import { LinkConnectorNode } from './LinkConnectorNode';
 import { useIntermediateNodeStyles } from '../../../styles';
-import { getEditorLineAndColumn, hasCallExpressions } from '../../utils/common-utils';
+import { hasCallExpressions } from '../../utils/common-utils';
 import { DiagnosticWidget } from '../../Diagnostic/DiagnosticWidget';
 import {
     renderDeleteButton,
@@ -25,6 +24,8 @@ import {
     renderExpressionTooltip,
     renderPortWidget
 } from './LinkConnectorWidgetComponents';
+import { useDMExpressionBarStore } from "../../../../store/store";
+import { InputOutputPortModel } from "../../Port";
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -33,8 +34,10 @@ export interface LinkConnectorNodeWidgetProps {
 
 export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const { node, engine } = props;
-    const { goToSource } = node.context;
+
     const classes = useIntermediateNodeStyles();
+    const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
+
     const diagnostic = node.hasError() ? node.diagnostics[0] : null;
     const isValueNodeForgotten = node.valueNode.wasForgotten();
     const hasCallExprs = !isValueNodeForgotten && hasCallExpressions(node.valueNode);
@@ -43,9 +46,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const onClickEdit = () => {
-        let nodeToBeEdited = node.innerNode;
-        const range = getEditorLineAndColumn(nodeToBeEdited);
-        goToSource(range);
+        const targetPort = node.targetMappedPort;
+        setExprBarFocusedPort(targetPort as InputOutputPortModel);
     };
 
     const onClickDelete = async () => {

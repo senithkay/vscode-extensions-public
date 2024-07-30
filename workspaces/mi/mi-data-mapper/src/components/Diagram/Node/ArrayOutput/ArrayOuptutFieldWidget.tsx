@@ -25,7 +25,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ObjectOutputFieldWidget } from "../ObjectOutput/ObjectOutputFieldWidget";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
@@ -79,7 +79,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const bodyNodeForgotten = body && body.wasForgotten();
     const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
 
-    const diagnostic = !bodyNodeForgotten && valExpr && getDiagnostics(valExpr)[0];
+    const diagnostic = !bodyNodeForgotten && valExpr && filterDiagnosticsForNode(context.diagnostics, valExpr)[0];
 
     const hasValue = !bodyNodeForgotten && valExpr && !!valExpr.getText();
     const elements = field.elements;

@@ -17,11 +17,11 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
-import { getEditorLineAndColumn, isInputAccessExpr } from '../utils/common-utils';
+import { isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { generateArrayToArrayMappingWithFn, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { useDMCollapsedFieldsStore } from '../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 
 export interface ExpressionLabelWidgetProps {
@@ -112,9 +112,10 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
     const classes = useStyles();
-    const { field, link, value, valueNode, context, deleteLink } = props.model;
+    const { link, value, valueNode, context, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -145,8 +146,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: MouseEvent<HTMLDivElement>) => {
-        const range = getEditorLineAndColumn(field);
-        context.goToSource(range);
+        const targetPort = props.model.link.getTargetPort();
+        setExprBarFocusedPort(targetPort as InputOutputPortModel);
     };
 
     const loadingScreen = (

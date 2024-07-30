@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic, DMType, Range } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableStatement } from "ts-morph";
 
 import { View } from "../../components/DataMapper/Views/DataMapperView";
@@ -20,6 +20,7 @@ export interface IDataMapperContext {
     outputTree: DMType;
     views: View[];
     subMappingTypes: Record<string, DMType>;
+    diagnostics: DMDiagnostic[];
     addView: (view: View) => void;
     goToSource: (range: Range) => void;
     applyModifications: (fileContent: string) => Promise<void>;
@@ -34,6 +35,7 @@ export class DataMapperContext implements IDataMapperContext {
         public outputTree: DMType,
         public views: View[] = [],
         public subMappingTypes: Record<string, DMType>,
+        public diagnostics: DMDiagnostic[],
         public addView: (view: View) => void,
         public goToSource: (range: Range) => void,
         public applyModifications: (fileContent: string) => Promise<void>
