@@ -364,7 +364,7 @@
             {
                 "command": "ballerina.show.source",
                 "title": "Show Source",
-                "icon": "$(distro-source-view)",
+                "icon": "$(code)",
                 "category": "Ballerina"
             },
             {
@@ -504,7 +504,13 @@
                     "when": "isBallerinaDiagram",
                     "command": "ballerina.show.source",
                     "group": "navigation@4"
-                }
+                },
+                {
+                    "when": "isBalVisualizerActive && showBalGoToSource",
+                    "command": "ballerina.show.source",
+                    "group": "navigation@3",
+                    "title": "Show Source"
+                  }
             ],
             "notebook/toolbar": [
                 {
