@@ -13,6 +13,8 @@ import { Button, Codicon, ComponentCard, Icon, TextField, Typography } from '@ws
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { SERVICE_VIEW } from "./constants";
+import { EggplantHeader } from '../EggplantHeader';
+import { View, ViewContent } from '../../../components/View';
 
 const FORM_WIDTH = 600;
 
@@ -23,13 +25,11 @@ const FormContainer = styled.div`
     max-width: 600px;
 `;
 
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
+const Container = styled.div({
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+});
 
 const BottomMarginTextWrapper = styled.div`
     font-size: 13px;
@@ -40,6 +40,8 @@ const HorizontalCardContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 10px;
 `;
 
 const IconWrapper = styled.div`
@@ -63,6 +65,7 @@ export function HttpForm(props: HttpFormProps) {
     const [name, setName] = useState("");
     const [path, setPath] = useState("");
     const [port, setPort] = useState("");
+    const [selectedModule, setSelectedModule] = useState("Scratch");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCreateService = () => {
@@ -70,35 +73,62 @@ export function HttpForm(props: HttpFormProps) {
         rpcClient.getEggplantDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, name, path, port });
     }
 
+    const handleSelection = (type: string) => {
+        setSelectedModule(type);
+    }
+
     return (
-        <>
-            <FormContainer>
-                <Typography variant="h1">New HTTP Service</Typography>
-                <TextField
-                    onTextChange={setName}
-                    sx={{ marginTop: 20 }}
-                    value={name}
-                    label="Service Name"
-                    placeholder="Enter service name"
-                />
-                <TextField
-                    onTextChange={setPath}
-                    sx={{ marginTop: 20 }}
-                    value={path}
-                    label="Path"
-                    placeholder="Enter service path"
-                />
-                <TextField
-                    onTextChange={setPort}
-                    sx={{ marginTop: 20 }}
-                    value={port}
-                    label="Port"
-                    placeholder="Enter service port"
-                />
-                <ButtonWrapper>
-                    <Button disabled={isLoading} onClick={handleCreateService} appearance="primary">Create Service</Button>
-                </ButtonWrapper>
-            </FormContainer>
-        </>
+        <View>
+            <ViewContent padding>
+                <EggplantHeader />
+                <Container>
+                    <FormContainer>
+                        <Typography variant="h1">New HTTP Service</Typography>
+                        <TextField
+                            onTextChange={setName}
+                            sx={{ marginTop: 20 }}
+                            value={name}
+                            label="Service Name"
+                            placeholder="Enter service name"
+                        />
+                        <TextField
+                            onTextChange={setPath}
+                            sx={{ marginTop: 20 }}
+                            value={path}
+                            label="Path"
+                            placeholder="Enter service path"
+                        />
+                        <TextField
+                            onTextChange={setPort}
+                            sx={{ marginTop: 20 }}
+                            value={port}
+                            label="Port"
+                            placeholder="Enter service port"
+                        />
+                        <HorizontalCardContainer>
+                            <ComponentCard isSelected={selectedModule === "Scratch"} onClick={() => handleSelection("Scratch")} sx={{ borderRadius: "unset", height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15, margin: 10 }}>
+                                <IconWrapper>
+                                    <div>Design From Scratch</div>
+                                </IconWrapper>
+                            </ComponentCard>
+                            <ComponentCard isSelected={selectedModule === "OAS"} onClick={() => handleSelection("OAS")} sx={{ borderRadius: "unset", height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15, margin: 10 }}>
+                                <IconWrapper>
+                                    <div>Import From OAS</div>
+                                </IconWrapper>
+                            </ComponentCard>
+                        </HorizontalCardContainer>
+                        {selectedModule === "OAS" &&
+                            <div>
+                                <label>Select a OAS File:</label>
+                                <input type="file" id="myfile" name="myfile" />
+                            </div>
+                        }
+                        <ButtonWrapper>
+                            <Button disabled={!name || !path || !port} onClick={handleCreateService} appearance="primary">Create Service</Button>
+                        </ButtonWrapper>
+                    </FormContainer>
+                </Container>
+            </ViewContent>
+        </View>
     );
 };

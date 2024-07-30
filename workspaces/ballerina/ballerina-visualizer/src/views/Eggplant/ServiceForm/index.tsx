@@ -14,7 +14,6 @@ import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { ServiceType } from "./ServiceType";
 import { HttpForm } from "./HttpForm";
-import { HttpFormType } from "./HttpFormType";
 import { SERVICE_VIEW } from "./constants";
 
 const FORM_WIDTH = 600;
@@ -66,9 +65,6 @@ export function ServiceForm() {
         switch (view) {
             case SERVICE_VIEW.HTTP_FORM:
                 setComponent(<HttpForm handleView={handleSetView} />);
-                break;
-            case SERVICE_VIEW.HTTP_FORM_TYPE:
-                setComponent(<HttpFormType handleView={handleSetView} />);
                 break;
             case SERVICE_VIEW.TYPE:
                 setComponent(<ServiceType handleView={handleSetView} />);

@@ -15,6 +15,7 @@ import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../../components/View";
+import { EggplantHeader } from "../EggplantHeader";
 
 const Container = styled.div({
     display: "flex",
@@ -40,9 +41,9 @@ const PanelViewMore = styled.div({
 const HorizontalCardContainer = styled.div({
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
-    margin: "0px 135px 0px 135px",
+    margin: "0px 155px 0px 155px",
     gridAutoRows: "minmax(80px, auto)",
-    gap: "20px",
+    gap: "40px",
 });
 
 const PanelFooter = styled.div({
@@ -134,28 +135,28 @@ export function AddComponentView() {
 
     return (
         <View>
-            <ViewHeader title={"Project: " + activeWorkspaces?.name} icon="project" iconSx={{ fontSize: "15px" }}></ViewHeader>
             <ViewContent padding>
+                <EggplantHeader />
                 <Container>
                     <AddPanel>
-                        <Typography variant="h2" sx={{ margin: 0 }}>
+                        <Typography variant="h2">
                             Entry Points
                         </Typography>
                         <HorizontalCardContainer>
                             <Card
-                                icon="APIResource"
+                                icon="Service"
                                 title="Service"
                                 description="Create an HTTP service."
                                 onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
                             <Card
-                                icon="arrow-swap"
+                                icon="Task"
                                 title="Task"
                                 description="Create a task that can be run periodically."
                                 onClick={() => handleClick(DIRECTORY_MAP.TASKS)}
                             />
                             <Card
-                                icon="task"
+                                icon="Triggers"
                                 title="Triggers"
                                 description="Create a trigger that can will listen to an event."
                                 onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}
@@ -167,7 +168,7 @@ export function AddComponentView() {
                         >
                             <PanelViewMore>
                                 <Divider />
-                                <Typography variant="h2" sx={{ margin: 0 }}>
+                                <Typography variant="h2">
                                     Other Artifacts
                                 </Typography>
                                 <HorizontalCardContainer>

@@ -100,15 +100,18 @@ eggplant = true
 
 
 export async function createEggplantService(params: CreateComponentRequest) {
-    const fooBalContent = `
-import ballerina/http;
+    const fooBalContent = `import ballerina/http;
 
-service ${params.path} on new http:Listener(${params.port}) {
-    resource function get greeting(string name) returns string|error? {
-        
+service /boom on new http:Listener(9090) {
+    resource function get greeting() returns json|http:InternalServerError {
+        do {
+           
+        } on fail error e {
+            return http:INTERNAL_SERVER_ERROR;
+        }
     }
 }
-    `;
+`;
     const servicesDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const fooBalPath = path.join(servicesDir, `${params.name}.bal`);
@@ -117,7 +120,7 @@ service ${params.path} on new http:Listener(${params.port}) {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
     history.clear();
-    updateView();
+    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 10, endColumn: 1 } });
     commands.executeCommand("Eggplant.project-explorer.refresh");
 }
 
