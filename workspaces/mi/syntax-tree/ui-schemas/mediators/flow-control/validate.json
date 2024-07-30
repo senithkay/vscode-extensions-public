@@ -42,7 +42,7 @@
               "displayName": "Validate Schema Key",
               "inputType": "key",
               "keyType": "schema",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           }
@@ -65,7 +65,7 @@
               "name": "featureName",
               "displayName": "Feature Name",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -98,7 +98,7 @@
               "name": "location",
               "displayName": "Location",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -109,7 +109,7 @@
               "displayName": "Location Key",
               "inputType": "key",
               "keyType": "registry",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           }

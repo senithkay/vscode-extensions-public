@@ -54,13 +54,13 @@ const BuilderForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Content Type",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "TextField",
                         "label": "Builder Class",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "TextField",

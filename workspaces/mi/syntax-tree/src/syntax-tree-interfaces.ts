@@ -991,7 +991,7 @@ export interface NamedSequence extends STNode {
 }
 
 export interface Property extends STNode {
-    any: any[];
+    any: any;
     scope: string;
     type: string;
     pattern: string;

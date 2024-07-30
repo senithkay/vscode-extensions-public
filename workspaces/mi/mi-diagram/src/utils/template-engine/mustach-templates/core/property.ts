@@ -9,20 +9,36 @@
 
 import Mustache from "mustache";
 import { Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { transformNamespaces } from "../../../commons";
+import { filterNamespaces, transformNamespaces } from "../../../commons";
 
 export function getPropertyMustacheTemplate() {
-    return `{{#isOM}}
-    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}>{{{OMValue}}}</property>    
-    {{/isOM}}
-    {{^isOM}}
-    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
-    {{/isOM}}`;
+    return `{{#isInlineOM}}
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>{{{OMValue}}}</property>    
+    {{/isInlineOM}}
+    {{^isInlineOM}}
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    {{/isInlineOM}}`;
 }
 
 export function getPropertyXml(data: { [key: string]: any }) {
+
+    let namespaces = [];
+    if (data.propertyName?.isExpression) {
+        namespaces.push(...data.propertyName?.namespaces ? data.propertyName?.namespaces : []);
+        data.propertyName = "{" + data.propertyName.value + "}";
+    } else {
+        data.propertyName = data.propertyName?.value;
+    }
     if (data.propertyDataType == "OM") {
-        data.isOM = true;
+        delete data.value;
+        if (data.OMValue?.isExpression) {
+            namespaces.push(...data.OMValue?.namespaces ? data.OMValue?.namespaces : []);
+            data.expression = data.OMValue?.value;
+        } else {
+            delete data.expression;
+            data.isInlineOM = true;
+            data.OMValue = data.OMValue?.value;
+        }
     }
     if (data.propertyDataType == "STRING") {
         if (!data.valueStringPattern) {
@@ -41,25 +57,35 @@ export function getPropertyXml(data: { [key: string]: any }) {
         delete data.valueStringCapturingGroup;
     }
     if (data.value?.isExpression) {
+        namespaces.push(...data.value?.namespaces ? data.value?.namespaces : []);
         data.expression = data.value?.value;
         data.namespaces = data.value?.namespaces;
         delete data.value;
     } else {
         data.value = data.value?.value;
     }
+    data.namespaces = filterNamespaces(namespaces);
     data.propertyScope = data.propertyScope?.toLowerCase();
     return Mustache.render(getPropertyMustacheTemplate(), data).trim();
 }
 
 export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node: Property) {
-    data.OMValue = node.any;
+
     data.description = node.description;
-    if (node.name) {
-        data.propertyName = node.name;
-        data.newPropertyName = node.name;
+    if (node.name?.startsWith("{") && node.name?.endsWith("}")) {
+        data.propertyName = { isExpression: true, value: node.name.substring(1, node.name.length - 1), namespaces: transformNamespaces(node.namespaces) };
+    } else {
+        data.propertyName = { isExpression: false, value: node.name };
     }
     if (node.type) {
         data.propertyDataType = node.type;
+    }
+    if (node.type == "OM") {
+        if (node.expression) {
+            data.OMValue = { isExpression: true, value: node.expression, namespaces: transformNamespaces(node.namespaces) };
+        } else {
+            data.OMValue = { isExpression: false, value: node.any };
+        }
     }
     if (node.action) {
         data.propertyAction = node.action;

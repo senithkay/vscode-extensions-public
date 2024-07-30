@@ -30,7 +30,7 @@
               "name": "staticTopic",
               "displayName": "Static Topic",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": "",
               "enableCondition": [
                 {
@@ -45,7 +45,7 @@
               "name": "dynamicTopic",
               "displayName": "Dynamic Topic",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": "",
               "enableCondition": [
                 {

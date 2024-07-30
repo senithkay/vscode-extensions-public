@@ -15,7 +15,7 @@
               "name": "executor",
               "displayName": "Executor",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },
@@ -37,7 +37,7 @@
               "displayName": "Sequence Key",
               "inputType": "key",
               "keyType": "sequence",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },

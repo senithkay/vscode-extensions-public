@@ -99,6 +99,11 @@ const StoreForm = (props: AddMediatorProps) => {
                     <Controller
                         name="messageStore"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <FormKeylookup
                                 control={control}
@@ -106,7 +111,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 label="Message Store"
                                 filterType='messageStore'
                                 allowItemCreate={false}
-                                required={false}
+                                required={true}
                                 errorMsg={errors?.messageStore?.message?.toString()}
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
