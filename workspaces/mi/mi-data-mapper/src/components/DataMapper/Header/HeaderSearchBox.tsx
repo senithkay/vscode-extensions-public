@@ -47,7 +47,11 @@ export default function HeaderSearchBox() {
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
-   
+    
+    const searchOptionsData = [
+        { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
+        { value: OUTPUT_FIELD_FILTER_LABEL, label: "Filter in outputs" }
+    ];
 
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
@@ -145,6 +149,7 @@ export default function HeaderSearchBox() {
                     searchOption={searchOption}
                     setSearchOption={setSearchOption}
                     handleOnSearchTextClear={handleOnSearchTextClear}
+                    searchOptionsData={searchOptionsData}
                 />
                 ),
             }}

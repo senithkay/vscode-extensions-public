@@ -19,16 +19,14 @@ export const OUTPUT_FIELD_FILTER_LABEL = "out:";
 interface HeaderSearchBoxOptionsProps {
     searchTerm: string;
     searchOption: string[];
+    searchOptionsData: {value:string,label:string}[];
     setSearchOption: React.Dispatch<React.SetStateAction<string[]>>;
     handleOnSearchTextClear: () => void;
 }
 
-const HeaderSearchBoxOptions: React.FC<HeaderSearchBoxOptionsProps> = ({
-    searchTerm,
-    searchOption,
-    setSearchOption,
-    handleOnSearchTextClear
-}) => {
+export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
+    const { searchTerm, searchOption, setSearchOption, handleOnSearchTextClear,searchOptionsData } = props;
+    
     const [showSearchOption, setShowSearchOption] = useState(false);
     const showSearchOptionRef = useRef(null);
 
@@ -56,22 +54,16 @@ const HeaderSearchBoxOptions: React.FC<HeaderSearchBoxOptionsProps> = ({
                     {showSearchOption && (
                         <SearchOptionContainer>
                             <CheckBoxGroup direction="vertical">
-                                <CheckBox
-                                    checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1}
-                                    label="Filter in inputs"
-                                    onChange={(checked) => {
-                                        handleSearchOptionChange(checked, INPUT_FIELD_FILTER_LABEL);
-                                    }}
-                                    value={INPUT_FIELD_FILTER_LABEL}
-                                />
-                                <CheckBox
-                                    checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1}
-                                    label="Filter in outputs"
-                                    onChange={(checked) => {
-                                        handleSearchOptionChange(checked, OUTPUT_FIELD_FILTER_LABEL);
-                                    }}
-                                    value={OUTPUT_FIELD_FILTER_LABEL}
-                                />
+                                {searchOptionsData.map((item)=>(
+                                    <CheckBox
+                                        checked={searchOption.indexOf(item.value) > -1}
+                                        label={item.label}
+                                        onChange={(checked) => {
+                                            handleSearchOptionChange(checked, item.value);
+                                        }}
+                                        value={item.value}
+                                    />
+                                ))}
                             </CheckBoxGroup>
                         </SearchOptionContainer>
                     )}
