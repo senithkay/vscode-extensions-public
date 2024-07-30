@@ -42,8 +42,14 @@ export default function HeaderSearchBox() {
         setSearchTerm(text);
     };
 
-    const handleSearchOptionChange = (event:  React.ChangeEvent<{value: string[]}>) => {
-        setSearchOption(event.target.value);
+    const handleSearchOptionChange = (checked:boolean,value:string) => {
+        if(checked) {
+            if(searchOption.indexOf(value) === -1) {
+                setSearchOption([value,...searchOption]);
+            }
+        } else {
+            setSearchOption(searchOption.filter(option => option !== value));
+        }
     };
 
     const handleSearch = (term: string) => {
@@ -135,6 +141,8 @@ export default function HeaderSearchBox() {
                             {searchTerm && (
                                 <Codicon name="close" onClick={handleOnSearchTextClear} />
                             )}
+                            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"/>
+  
 
                             <div>
                                 <Codicon name="chevron-down" />
@@ -143,13 +151,16 @@ export default function HeaderSearchBox() {
                                         <CheckBox
                                             checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1}
                                             label="Filter in inputs"
-                                            onChange={(e) => {}}
+                                            onChange={(checked) => {
+                                                handleSearchOptionChange(checked, INPUT_FIELD_FILTER_LABEL);
+                                            }}
                                             value={INPUT_FIELD_FILTER_LABEL}
                                         />
                                         <CheckBox
                                             checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1}
                                             label="Filter in outputs"
-                                            onChange={(e) => {
+                                            onChange={(checked) => {
+                                                handleSearchOptionChange(checked, OUTPUT_FIELD_FILTER_LABEL);
                                                }}
                                                value={OUTPUT_FIELD_FILTER_LABEL}
                                         />
