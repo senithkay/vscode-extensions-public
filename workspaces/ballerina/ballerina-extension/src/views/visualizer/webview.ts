@@ -7,20 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { Uri, ViewColumn, Webview } from 'vscode';
-import { RPCLayer } from '../../RPCLayer';
-import { debounce } from 'lodash';
-import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from '../../utils/webview-utils';
-import { extension } from '../../BalExtensionContext';
-import { updateView } from '../../stateMachine';
-import { LANGUAGE } from '../../core';
+import * as vscode from "vscode";
+import * as path from "path";
+import { Uri, ViewColumn, Webview } from "vscode";
+import { RPCLayer } from "../../RPCLayer";
+import { debounce } from "lodash";
+import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
+import { extension } from "../../BalExtensionContext";
+import { updateView } from "../../stateMachine";
+import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-    public static readonly viewType = 'ballerina.visualizer';
-    public static readonly panelTitle = 'Visualizer';
+    public static readonly viewType = "ballerina.visualizer";
+    public static readonly panelTitle = "Visualizer";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -52,7 +52,7 @@ export class VisualizerWebview {
             { viewColumn: ViewColumn.Beside, preserveFocus: false },
             {
                 enableScripts: true,
-                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
+                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, "resources"))],
                 retainContextWhenHidden: true,
             }
         );
@@ -64,13 +64,49 @@ export class VisualizerWebview {
     }
 
     private getWebviewContent(webView: Webview) {
-        const body = `<div class="container" id="webview-container"><div class="loader" /></div></div>`;
+        const body = `<div class="container" id="webview-container">
+                <div class="loader-wrapper">
+                    <div class="loader" /></div>
+                </div>
+            </div>`;
         const bodyCss = ``;
         const styles = `
             .container {
                 background-color: var(--vscode-editor-background);
                 height: 100vh;
                 width: 100%;
+                display: flex;
+            }
+            .loader-wrapper {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+            }
+            .loader {
+                width: 32px;
+                aspect-ratio: 1;
+                border-radius: 50%;
+                border: 4px solid var(--vscode-button-background);
+                animation:
+                    l20-1 0.8s infinite linear alternate,
+                    l20-2 1.6s infinite linear;
+            }
+            @keyframes l20-1{
+                0%    {clip-path: polygon(50% 50%,0       0,  50%   0%,  50%    0%, 50%    0%, 50%    0%, 50%    0% )}
+                12.5% {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100%   0%, 100%   0%, 100%   0% )}
+                25%   {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100% 100%, 100% 100%, 100% 100% )}
+                50%   {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100% 100%, 50%  100%, 0%   100% )}
+                62.5% {clip-path: polygon(50% 50%,100%    0, 100%   0%,  100%   0%, 100% 100%, 50%  100%, 0%   100% )}
+                75%   {clip-path: polygon(50% 50%,100% 100%, 100% 100%,  100% 100%, 100% 100%, 50%  100%, 0%   100% )}
+                100%  {clip-path: polygon(50% 50%,50%  100%,  50% 100%,   50% 100%,  50% 100%, 50%  100%, 0%   100% )}
+            }
+            @keyframes l20-2{ 
+                0%    {transform:scaleY(1)  rotate(0deg)}
+                49.99%{transform:scaleY(1)  rotate(135deg)}
+                50%   {transform:scaleY(-1) rotate(0deg)}
+                100%  {transform:scaleY(-1) rotate(-135deg)}
             }
         `;
         const scripts = `
@@ -84,7 +120,10 @@ export class VisualizerWebview {
 
         const webViewOptions: WebViewOptions = {
             ...getComposerWebViewOptions("Visualizer", webView),
-            body, scripts, styles, bodyCss
+            body,
+            scripts,
+            styles,
+            bodyCss,
         };
 
         return getLibraryWebViewContent(webViewOptions, webView);
