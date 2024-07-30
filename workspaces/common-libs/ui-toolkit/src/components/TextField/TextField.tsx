@@ -73,7 +73,8 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
     React.useImperativeHandle(ref, () => textFieldRef.current);
 
     const { iconComponent, position = "start", onClick: iconClick } = icon || {};
-    const handleChange = (e: any) => {
+    
+    const handleInput = (e: any) => {
         onTextChange && onTextChange(e.target.value);
         props.onChange && props.onChange(e);
     };
@@ -116,8 +117,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 id={id}
                 {...rest}
                 {...!props.name ? { value: props.value ? props.value : "" } : {}} // If name is not provided, then value should be empty (for react-hook-form)
-                onChange={handleChange}
-                onInput={handleChange}
+                onInput={handleInput}
             >
                 {startAdornment && <div slot="start">{startAdornment}</div>}
                 {iconComponent && <div onClick={iconClick} slot={position} style={{ display: "flex", alignItems: "center" }}>{iconComponent}</div>}
