@@ -14,14 +14,7 @@ import {
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
-import {
-    Category,
-    AvailableNode,
-    NodeProperties,
-    NodePropertyKey,
-    FlowNode,
-    Client,
-} from "@wso2-enterprise/ballerina-core";
+import { Category, AvailableNode, NodeProperties, NodePropertyKey, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "./../views/EggplantDiagram";
 import React from "react";
 
@@ -56,7 +49,10 @@ export function convertEggplantCategoriesToSidePanelCategories(categories: Categ
     return categories.map(convertDiagramCategoryToSidePanelCategory);
 }
 
-export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties, clients: Client[]): FormField[] {
+export function convertNodePropertiesToFormFields(
+    nodeProperties: NodeProperties,
+    connections: FlowNode[]
+): FormField[] {
     const formFields: FormField[] = [];
 
     for (const key in nodeProperties) {
@@ -73,7 +69,7 @@ export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties
                     value: expression.value,
                     items:
                         expression.valueType === "Identifier" && expression.metadata.label === "Connection"
-                            ? clients.map((client) => client.value)
+                            ? connections.map((connection) => connection.properties?.variable?.value)
                             : undefined,
                 };
                 formFields.push(formField);
@@ -112,12 +108,14 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
     return updatedNodeProperties;
 }
 
-export function getContainerTitle(view: SidePanelView): string {
+export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): string {
     switch (view) {
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
-            return "Node Properties";
+            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
+                activeNode.metadata.label
+            } Node Properties`;
         default:
             return "";
     }

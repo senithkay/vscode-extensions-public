@@ -13,7 +13,7 @@ import { LinePosition } from "./common";
 export type Flow = {
     fileName: string;
     nodes: FlowNode[];
-    clients?: Client[];
+    connections?: FlowNode[];
 };
 
 export type Client = {
@@ -167,10 +167,14 @@ export type NodeKind =
     | "BREAK"
     | "PANIC"
     | "START"
+    | "STOP"
     | "TRANSACTION"
     | "LOCK"
     | "FAIL"
     | "CONDITIONAL"
     | "ELSE"
     | "ON_FAILURE"
-    | "BODY";
+    | "BODY"
+    | "NEW_DATA"
+    | "UPDATE_DATA"
+    | "NEW_CONNECTION";

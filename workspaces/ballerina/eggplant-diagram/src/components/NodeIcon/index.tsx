@@ -8,9 +8,23 @@
  */
 
 import React from "react";
-import { BranchIcon, CallIcon, CodeIcon, SendIcon } from "../../resources";
+import {
+    BombIcon,
+    BranchIcon,
+    BreakIcon,
+    CallIcon,
+    CodeIcon,
+    ContinueIcon,
+    LockIcon,
+    LoopIcon,
+    PlusIcon,
+    StopIcon,
+    TransformIcon,
+} from "../../resources";
 import { NodeKind } from "../../utils/types";
 import { ReturnIcon } from "../../resources/icons/nodes/ReturnIcon";
+import { VarIcon } from "../../resources/icons/nodes/VarIcon";
+import { SecurityIcon } from "../../resources/icons/nodes/SecurityIcon";
 
 interface NodeIconProps {
     type: NodeKind;
@@ -28,6 +42,27 @@ export function NodeIcon(props: NodeIconProps) {
             return <CallIcon />;
         case "RETURN":
             return <ReturnIcon />;
+        case "NEW_DATA":
+        case "UPDATE_DATA":
+            return <VarIcon />;
+        case "WHILE":
+            return <LoopIcon />;
+        case "BREAK":
+            return <BreakIcon />;
+        case "CONTINUE":
+            return <ContinueIcon />;
+        case "STOP":
+            return <StopIcon />;
+        case "ERROR_HANDLER":
+            return <SecurityIcon />;
+        case "PANIC":
+            return <BombIcon />;
+        case "LOCK":
+            return <LockIcon />;
+        case "TRANSACTION":
+            return <TransformIcon />;
+        case "NEW_CONNECTION":
+            return <PlusIcon />;
         default:
             return <CodeIcon />;
     }
