@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBoxGroup, CheckBox, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBox, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { Task } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -48,6 +48,7 @@ type InputsFields = {
     sequenceName?: string;
     invokeHandlers?: boolean;
     injectTo?: string;
+    isCountUndefined?: boolean;
 };
 
 const initialInboundEndpoint: InputsFields = {
@@ -63,6 +64,7 @@ const initialInboundEndpoint: InputsFields = {
     format: "soap12",
     injectTo: "sequence",
     message: "<message></message>",
+    isCountUndefined: true
 };
 
 function generateSequenceName(taskName: string) {
@@ -84,7 +86,6 @@ export function TaskForm(props: TaskFormProps) {
         msg: ""
     });
     const [validationMessage, setValidationMessage] = useState(true);
-    const [isCountDefined, setIsCountDefined] = useState(false);
     const [message, setMessage] = useState({
         isError: false,
         text: ""
@@ -108,10 +109,10 @@ export function TaskForm(props: TaskFormProps) {
         implementation: yup.string().required("Task Implementation is required"),
         pinnedServers: yup.string(),
         triggerType: yup.mixed().oneOf(["simple", "cron"]),
-        triggerCount: yup.mixed().when('triggerType', {
-            is: 'simple',
+        triggerCount: yup.mixed().when('isCountUndefined', {
+            is: false,
             then: () => yup.number().typeError('Trigger count must be a number').min(-1, "Trigger count must be greater than 0")
-                .nullable().transform((value, originalValue) => (originalValue === '' ? null : value)).notRequired(),
+                .required("Trigger count is required"),
             otherwise: () => yup.string().notRequired()
         }),
         triggerInterval: yup.number().when('triggerType', {
@@ -135,6 +136,7 @@ export function TaskForm(props: TaskFormProps) {
         sequenceName: yup.string().notRequired(),
         soapAction: yup.string().notRequired(),
         message: yup.string().notRequired(),
+        isCountUndefined: yup.boolean().notRequired().default(true),
         invokeHandlers: yup.boolean().default(false),
         registryKey: yup.string().notRequired(),
     })
@@ -160,10 +162,7 @@ export function TaskForm(props: TaskFormProps) {
                 const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: props.path });
                 if (taskRes.name) {
                     setIsNewTask(false);
-                    reset(taskRes);
-                    if (taskRes.triggerCount !== null) {
-                        setIsCountDefined(true);
-                    }
+                    reset({ ...taskRes, isCountUndefined: taskRes.triggerCount === null });
                     setSavedTaskName(taskRes.name);
                     if (taskRes.taskProperties) {
                         setValue("format", taskRes.taskProperties.find((prop: any) => prop.key === "format")?.value);
@@ -294,10 +293,11 @@ export function TaskForm(props: TaskFormProps) {
                 />
                 {watch("triggerType") === 'simple' ? (
                     <>
-                        <CheckBox label="Trigger Indefinitely" checked={!isCountDefined} onChange={(isChecked: boolean) => setIsCountDefined(!isChecked)} />
-                        {isCountDefined &&
+                        <FormCheckBox label="Trigger Indefinitely" control={control} {...register('isCountUndefined')} />
+                        {!watch("isCountUndefined") &&
                             <TextField
                                 id="triggerCount"
+                                required
                                 label="Count"
                                 errorMsg={errors.triggerCount?.message}
                                 {...register("triggerCount")}
