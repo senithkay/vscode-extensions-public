@@ -7,27 +7,134 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { FC, ReactNode, useEffect } from "react";
+import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import ProjectStructureView from "./ProjectStructureView";
-import { View, ViewContent, ViewHeader } from "../../../components/View";
-import { SkeletonText } from "../../../components/Skeletons";
+import { View, ViewContent } from "../../../components/View";
 import { Button, Codicon, ComponentCard, Divider, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-
-import classNames from "classnames";
 
 interface OverviewProps {
     stateUpdated: boolean;
 }
 
+const TitleContainer = styled.div`
+    display: flex;
+    gap: 0.5rem;
+`;
+
+const ProjectTitle = styled.h1`
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-transform: capitalize;
+
+    @media (min-width: 768px) {
+        font-size: 1.875rem;
+    }
+`;
+
+const ProjectSubtitle = styled.h2`
+    display: none;
+    font-weight: 200;
+    font-size: 1.5rem;
+    opacity: 0.3;
+
+    @media (min-width: 640px) {
+        display: block;
+    }
+
+    @media (min-width: 768px) {
+        font-size: 1.875rem;
+    }
+`;
+
+const CardContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+`;
+
+const SectionTitle = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const GridContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: 3fr 1fr;
+    }
+`;
+
+const InnerGridContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+`;
+
+const SectionContainer = styled.div`
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+`;
+
+const LeftColumn = styled.div`
+    border-right: 1px solid var(--vscode-editorIndentGuide-background);
+    padding: 0.5rem;
+`;
+
+const SchemasSection = styled.div`
+    margin-bottom: 2rem;
+    border-right: 1px solid var(--vscode-editorIndentGuide-background);
+    padding: 0.5rem;
+`;
+
+const SchemaItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    &:hover {
+        background-color: var(--vscode-editorIndentGuide-background);
+    }
+    padding: 8px;
+`;
+
+const ConnectionItem = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    border: 1px solid var(--vscode-editor-foreground);
+    cursor: pointer;
+    &:hover {
+        background-color: var(--vscode-editor-hoverHighlightBackground);
+    }
+`;
+
+const FlexContainer = styled.div`
+    display: flex;
+    gap: 1rem;
+`;
+
+const SectionEmpty = styled.div`
+    margin: auto;
+    width: fit-content;
+    text-align: -webkit-center;
+`;
+
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
-    // const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
-    const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
     useEffect(() => {
@@ -39,33 +146,9 @@ export function Overview(props: OverviewProps) {
         })
     }, []);
 
-    // useEffect(() => {
-    //     if (workspaces && selected) {
-    //     //     rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
-    //     //             console.log(response);
-    //     //             setProjectStructure(response);
-    //     //         });
-    //     // }
-    // }, [selected, props]);
-
-    const changeWorkspace = (fsPath: string) => {
-        setSelected(fsPath);
-    }
-
-    const handleBuild = async () => {
-        // await rpcClient.getMiDiagramRpcClient().buildProject();
-    }
-
-    const handleExport = async () => {
-        // await rpcClient.getMiDiagramRpcClient().exportProject({
-        //     projectPath: activeWorkspaces.fsPath,
-        // });
-    }
-
     const goToView = async (res: ProjectStructureArtifactResponse) => {
         rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: res.path, position: res.position } });
     };
-
 
     const handleAddArtifact = () => {
         rpcClient.getVisualizerRpcClient().openView({
@@ -78,206 +161,298 @@ export function Overview(props: OverviewProps) {
 
     return (
         <View>
-            {/* <ViewHeader
-                title={`Project: ${projectName}`}
-                icon="project"
-                iconSx={{ fontSize: "15px" }}
-            > */}
-            {/* <Button
-                     appearance="icon"
-                    onClick={handleAddArtifact}
-                    tooltip="Add Artifact"
-                >
-                    <Codicon name="add" />
-                </Button> */}
-            {/* <Button
-                    appearance="icon"
-                    onClick={handleBuild}
-                    tooltip="Build"
-                >
-                    <Codicon name="combine" sx={{ marginRight: "4px" }} />
-                    Build
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={handleExport}
-                    tooltip="Export"
-                >
-                    <Codicon name="export" sx={{ marginRight: "4px" }} />
-                    Export
-                </Button> */}
-            {/* </ViewHeader> */}
             <ViewContent padding>
-
-                <div className="flex gap-2 mb-6">
-                    <h1 className="font-bold text-2xl md:text-3xl capitalize">{projectName}</h1>
-                    <h2 className="hidden font-thin text-2xl opacity-30 sm:block md:text-3xl">Project</h2>
-                </div>
-
-
+                <TitleContainer>
+                    <ProjectTitle>{projectName}</ProjectTitle>
+                    <ProjectSubtitle>Project</ProjectSubtitle>
+                </TitleContainer>
                 <Divider />
-                {/* {projectStructure && <ProjectStructureView projectStructure={projectStructure} />} */}
-
-
                 {/*  Main Content with Two Columns */}
-                <div className="grid grid-cols-1 lg:grid-cols-[3fr,1fr] gap-8">
-
+                <GridContainer>
                     {/*  Left Column */}
-                    <div className="border-r border-vscode-editorIndentGuide-background p-2">
-
+                    <LeftColumn>
                         {/* Entry Points Section */}
-                        <div className="mb-8 p-2">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-base mb-4">Entry Points</h2>
-                                <Button
-                                    appearance="icon"
-                                    onClick={handleAddArtifact}
-                                    tooltip="Add Artifact"
-                                >
-                                    <Codicon name="add" />
-                                </Button>
-                            </div>
-                            <div className="flex space-x-4">
+                        <SectionContainer>
+                            <SectionTitle>
+                                <Typography variant="h2">Entry Points</Typography>
+                                {projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].length > 0 &&
+                                    <Button
+                                        appearance="icon"
+                                        onClick={handleAddArtifact}
+                                        tooltip="Add Artifact"
+                                    >
+                                        <Codicon name="add" />
+                                    </Button>
+                                }
+                            </SectionTitle>
+                            <FlexContainer>
                                 {projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].length > 0 ? (
                                     projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].map((res, index) => (
-                                        <div key={index} className="border border-vscode p-6 w-64 h-32 cursor-pointer hover:bg-vscode-editorIndentGuide-background" onClick={() => goToView(res)}>
-                                            <div className="flex justify-between">
-                                                <span className="text-sm">{res.name}</span>
-                                                <span className="text-sm">{res.type}</span>
-                                            </div>
-                                            <p className="mt-6">API Context: {res.context}</p>
-                                        </div>
+                                        <ComponentCard
+                                            id={index.toString()}
+                                            onClick={() => goToView(res)}
+                                            sx={{
+                                                '&:hover, &.active': {
+                                                    '.icon svg g': {
+                                                        fill: 'var(--vscode-editor-foreground)'
+                                                    },
+                                                    backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
+                                                },
+                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                borderRadius: 1,
+                                                cursor: 'pointer',
+                                                display: 'block',
+                                                marginBottom: 16,
+                                                marginRight: 16,
+                                                padding: 30,
+                                                width: 300
+                                            }}
+                                        >
+
+                                            <CardContainer>
+                                                <Typography variant="h3">
+                                                    {res.name}
+                                                </Typography>
+                                                <Typography variant="h3">
+                                                    {res.type}
+                                                </Typography>
+                                            </CardContainer>
+                                            <Typography variant="h4">
+                                                API Context: {res.context}
+                                            </Typography>
+                                        </ComponentCard>
                                     ))
                                 ) : (
-                                    <p>No services/automation available.</p>
+                                    <SectionEmpty>
+                                        <ComponentCard
+                                            id={"config"}
+                                            onClick={handleAddArtifact}
+                                            sx={{
+                                                '&:hover, &.active': {
+                                                    '.icon svg g': {
+                                                        fill: 'var(--vscode-editor-foreground)'
+                                                    },
+                                                    backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
+                                                },
+                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                borderRadius: 1,
+                                                cursor: 'pointer',
+                                                display: 'block',
+                                                marginBottom: 16,
+                                                padding: 20,
+                                                width: 200,
+                                                textAlign: '-webkit-center'
+                                            }}
+                                        >
+                                            <Codicon name="add" />
+                                            <Typography variant="h4">
+                                                Add entry point
+                                            </Typography>
+                                        </ComponentCard>
+                                    </SectionEmpty>
                                 )}
-                            </div>
-                        </div>
-
+                            </FlexContainer>
+                        </SectionContainer>
                         <Divider />
-
                         {/* Connections Section*/}
-                        <div className="mb-8 p-2">
-                            <div className="flex justify-between items-center mb-4">
+                        <SectionContainer>
+                            <SectionTitle>
                                 <h2 className="text-base mb-4">Connections</h2>
-                                <Button
-                                    appearance="icon"
-                                    onClick={handleAddArtifact}
-                                    tooltip="Add Artifact"
-                                >
-                                    <Codicon name="add" />
-                                </Button>
-                            </div>
-                            <div className="flex space-x-4">
+                                {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].length > 0 &&
+                                    <Button
+                                        appearance="icon"
+                                        onClick={handleAddArtifact}
+                                        tooltip="Add Artifact"
+                                    >
+                                        <Codicon name="add" />
+                                    </Button>
+                                }
+                            </SectionTitle>
+                            <FlexContainer>
                                 {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].length > 0 ? (
                                     projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].map((res, index) => (
-                                        <div key={index} className="flex items-center justify-center w-32 h-32 rounded-full border border-vscode cursor-pointer hover:bg-vscode-editorIndentGuide-background" onClick={() => goToView(res)}>
+                                        <ConnectionItem key={index} onClick={() => goToView(res)}>
                                             <span>{res.name}</span>
-                                        </div>
+                                        </ConnectionItem>
                                     ))
                                 ) : (
-                                    <p>No global connections available.</p>
+                                    <SectionEmpty>
+                                        <ConnectionItem onClick={() => { }}>
+                                            <SectionEmpty>
+                                                <Codicon name="add" />
+                                                <Typography variant="h4">
+                                                    Add connection
+                                                </Typography>
+                                            </SectionEmpty>
+                                        </ConnectionItem>
+                                    </SectionEmpty>
                                 )}
-                            </div>
-                        </div>
-
-
+                            </FlexContainer>
+                        </SectionContainer>
                         <Divider />
                         {/*  Second Content with Two Columns */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <InnerGridContainer>
 
                             {/* Schemas Section*/}
-                            <div className="mb-8 border-r border-vscode-editorIndentGuide-background p-2">
-                                <div className="flex justify-between items-center mb-4">
+                            <SchemasSection>
+                                <SectionTitle>
                                     <h2 className="text-base">Schemas</h2>
-                                    <Button
-                                        appearance="icon"
-                                        onClick={handleAddArtifact}
-                                        tooltip="Add Artifact"
-                                    >
-                                        <Codicon name="add" />
-                                    </Button>
-                                </div>
+                                    {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].length > 0 &&
+                                        <Button
+                                            appearance="icon"
+                                            onClick={handleAddArtifact}
+                                            tooltip="Add Artifact"
+                                        >
+                                            <Codicon name="add" />
+                                        </Button>
+                                    }
+                                </SectionTitle>
                                 <div className="p-4max-h-64 overflow-y-auto">
-                                    <div className="flex justify-between mb-2">
+                                    <CardContainer>
                                         <span>Name</span>
                                         <span>Action</span>
-                                    </div>
+                                    </CardContainer>
                                     {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].length > 0 ? (
                                         projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].map((res, index) => (
-                                            <div key={index} className="flex justify-between mb-2 cursor-pointer hover:bg-vscode-editorIndentGuide-background" onClick={() => goToView(res)}>
+                                            <SchemaItem key={index} onClick={() => goToView(res)}>
                                                 <span>{res.name}</span>
                                                 <span>...</span>
-                                            </div>
+                                            </SchemaItem>
                                         ))
                                     ) : (
-                                        <p>No schemas available.</p>
+                                        <SectionEmpty>
+                                            <ComponentCard
+                                                id={"config"}
+                                                onClick={null}
+                                                sx={{
+                                                    '&:hover, &.active': {
+                                                        '.icon svg g': {
+                                                            fill: 'var(--vscode-editor-foreground)'
+                                                        },
+                                                        backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
+                                                    },
+                                                    border: '1px solid var(--vscode-editor-foreground)',
+                                                    borderRadius: 1,
+                                                    cursor: 'pointer',
+                                                    display: 'block',
+                                                    marginBottom: 16,
+                                                    padding: 20,
+                                                    width: 200,
+                                                    textAlign: '-webkit-center'
+                                                }}
+                                            >
+                                                <Codicon name="add" />
+                                                <Typography variant="h4">
+                                                    Add schema
+                                                </Typography>
+                                            </ComponentCard>
+                                        </SectionEmpty>
                                     )}
                                 </div>
-                            </div>
+                            </SchemasSection>
 
                             {/* Function Section*/}
-                            <div className="mb-8 p-2">
-                                <div className="flex justify-between items-center mb-4">
+                            <SectionContainer>
+                                <SectionTitle>
                                     <h2 className="text-base">Functions</h2>
-                                    <Button
-                                        appearance="icon"
-                                        onClick={handleAddArtifact}
-                                        tooltip="Add Artifact"
-                                    >
-                                        <Codicon name="add" />
-                                    </Button>
-                                </div>
+                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].length > 0 &&
+                                        <Button
+                                            appearance="icon"
+                                            onClick={handleAddArtifact}
+                                            tooltip="Add Artifact"
+                                        >
+                                            <Codicon name="add" />
+                                        </Button>
+                                    }
+                                </SectionTitle>
                                 <TextField
                                     onTextChange={null}
-                                    sx={{ marginTop: 20 }}
                                     value={null}
                                     placeholder="Search function"
                                 />
                                 <div className="p-2">
-                                    <div className="flex justify-between mb-2">
+                                    <CardContainer>
                                         <span>Name</span>
                                         <span>Type</span>
-                                    </div>
+                                    </CardContainer>
                                     {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].length > 0 ? (
                                         projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].map((res, index) => (
-                                            <div key={index} className="flex justify-between mb-2 cursor-pointer hover:bg-vscode-editorIndentGuide-background" onClick={() => goToView(res)}>
+                                            <SchemaItem key={index} onClick={() => goToView(res)}>
                                                 <span>{res.name}</span>
                                                 <span>Data Mapper</span>
-                                            </div>
+                                            </SchemaItem>
                                         ))
                                     ) : (
-                                        <p>No functions available.</p>
+                                        <SectionEmpty>
+                                            <ComponentCard
+                                                id={"config"}
+                                                onClick={null}
+                                                sx={{
+                                                    '&:hover, &.active': {
+                                                        '.icon svg g': {
+                                                            fill: 'var(--vscode-editor-foreground)'
+                                                        },
+                                                        backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
+                                                    },
+                                                    border: '1px solid var(--vscode-editor-foreground)',
+                                                    borderRadius: 1,
+                                                    cursor: 'pointer',
+                                                    display: 'block',
+                                                    marginBottom: 16,
+                                                    padding: 20,
+                                                    width: 200,
+                                                    textAlign: '-webkit-center'
+                                                }}
+                                            >
+                                                <Codicon name="add" />
+                                                <Typography variant="h4">
+                                                    Add function
+                                                </Typography>
+                                            </ComponentCard>
+                                        </SectionEmpty>
                                     )}
                                 </div>
-                            </div>
-                        </div>
-
-                    </div>
+                            </SectionContainer>
+                        </InnerGridContainer>
+                    </LeftColumn>
 
                     {/* Configurations Section*/}
-                    <div className="mb-8 p-2">
-                        <div className="flex justify-between items-center mb-4">
+                    <SectionContainer>
+                        <SectionTitle>
                             <h2 className="text-base">Configurations</h2>
-                            <Button
-                                appearance="icon"
-                                onClick={handleAddArtifact}
-                                tooltip="Add Artifact"
+                        </SectionTitle>
+                        <SectionEmpty>
+                            <ComponentCard
+                                id={"config"}
+                                onClick={null}
+                                sx={{
+                                    '&:hover, &.active': {
+                                        '.icon svg g': {
+                                            fill: 'var(--vscode-editor-foreground)'
+                                        },
+                                        backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
+                                    },
+                                    border: '1px solid var(--vscode-editor-foreground)',
+                                    borderRadius: 1,
+                                    cursor: 'pointer',
+                                    display: 'block',
+                                    marginBottom: 16,
+                                    padding: 20,
+                                    width: 200,
+                                    textAlign: '-webkit-center'
+                                }}
                             >
                                 <Codicon name="add" />
-                            </Button>
-                        </div>
-                        <div className="p-2">
-                            <span>No Configurations Found.</span>
-                            {/* <div className="flex justify-between mb-2 cursor-pointer hover:bg-vscode-editorIndentGuide-background">
-                                <span>Google Token</span>
-                            </div>
-                            <div className="flex justify-between mb-2 cursor-pointer hover:bg-vscode-editorIndentGuide-background">
-                                <span>Choreo Token</span>
-                            </div> */}
-                        </div>
-                    </div>
-                </div>
+                                <Typography variant="h4">
+                                    Add configuration
+                                </Typography>
+                                {/* <Typography variant="caption">
+                                    A configuration value defines how the integration application interacts with other systems and operates during runtime.
+                                </Typography> */}
+                            </ComponentCard>
+                        </SectionEmpty>
+                    </SectionContainer>
+                </GridContainer>
 
             </ViewContent>
         </View>
