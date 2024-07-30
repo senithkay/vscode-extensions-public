@@ -6,9 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { DMDiagnostic, TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { ElementAccessExpression, Identifier, Node, PropertyAccessExpression, ts } from "ts-morph";
+import { ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -24,7 +24,7 @@ import {
     getOutputPort,
     getTargetPortPrefix
 } from "../../utils/common-utils";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { PrimitiveOutputNode } from "../PrimitiveOutput";
@@ -42,7 +42,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public outPort: IntermediatePortModel;
 
     public value: string;
-    public diagnostics: ts.Diagnostic[];
+    public diagnostics: DMDiagnostic[];
     public hidden: boolean;
     public hasInitialized: boolean;
     public innerNode: Node;
@@ -67,16 +67,16 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (Node.isPropertyAssignment(valueNode)) {
             this.innerNode = valueNode.getInitializer();
             this.value = this.innerNode ? this.innerNode.getText().trim() : '';
-            this.diagnostics = getDiagnostics(valueNode.getInitializer());
+            this.diagnostics = filterDiagnosticsForNode(context.diagnostics, valueNode.getInitializer());
         } else if (Node.isVariableStatement(valueNode)) {
             const varDecl = valueNode.getDeclarations()[0];
             this.innerNode = varDecl.getInitializer();
             this.value = this.innerNode ? this.innerNode.getText().trim() : '';
-            this.diagnostics = getDiagnostics(valueNode);
+            this.diagnostics = filterDiagnosticsForNode(context.diagnostics, valueNode);
         } else {
             this.innerNode = this.valueNode;
             this.value = valueNode.getText().trim();
-            this.diagnostics = getDiagnostics(valueNode);
+            this.diagnostics = filterDiagnosticsForNode(context.diagnostics, valueNode);
         }
     }
 
