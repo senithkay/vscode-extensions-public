@@ -18,7 +18,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { InputOutputPortModel } from "../../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
@@ -144,7 +144,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             }
 
             if (inPort && mappedOutPort) {
-                const diagnostics = getDiagnostics(otherVal || value);
+                const diagnostics = filterDiagnosticsForNode(this.context.diagnostics, otherVal || value);
                 const lm = new DataMapperLinkModel(value, diagnostics, true);
 
                 lm.setTargetPort(mappedOutPort);

@@ -39,7 +39,6 @@ export * from './components/SeachBox/SearchBox';
 export * from './components/Swich/Swich';
 export * from './components/LocationSelector/LocationSelector';
 export * from './components/ClickAwayListener/ClickAwayListener';
-export * from './components/TypeBrowser/TypeBrowser';
 export * from './components/Confirm/Confirm';
 export * from './components/CheckBoxGroup/CheckBoxGroup';
 export * from './components/ErrorBoundary/ErrorBoundary';

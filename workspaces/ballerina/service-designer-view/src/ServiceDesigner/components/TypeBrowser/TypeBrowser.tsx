@@ -18,8 +18,8 @@ import { Combobox } from '@headlessui/react'
 
 import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
-import { Codicon } from '../Codicon/Codicon';
-import { Button } from '../Button/Button';
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button } from '@wso2-enterprise/ui-toolkit';
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 
 const ComboboxButtonContainerActive = cx(css`
