@@ -374,7 +374,7 @@ export function AIProjectGenerationChat() {
                         retryCount++;
                         const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
                         await new Promise(resolve => setTimeout(resolve, delay));
-                        return fetchSuggestions(); // Retry the request
+                        return await fetchSuggestions(); // Retry the request
                     } else {
                         openUpdateExtensionView();
                         return;
