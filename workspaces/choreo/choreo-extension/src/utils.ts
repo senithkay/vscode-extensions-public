@@ -12,7 +12,7 @@ import { join } from "path";
 import * as path from "path";
 import type { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
-import { commands, window, workspace } from "vscode";
+import { Uri, commands, window, workspace } from "vscode";
 
 export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
 	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
@@ -89,3 +89,17 @@ export const createDirectory = (basePath: string, dirName: string) => {
 
 	return { dirName: newDirName, dirPath };
 };
+
+export async function openDirectory(openingPath: string, message: string) {
+	const openInCurrentWorkspace = await window.showInformationMessage(message, { modal: true }, "Current Window", "New Window");
+	if (openInCurrentWorkspace === "Current Window") {
+		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
+			forceNewWindow: false,
+		});
+		await commands.executeCommand("workbench.explorer.fileView.focus");
+	} else if (openInCurrentWorkspace === "New Window") {
+		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
+			forceNewWindow: true,
+		});
+	}
+}

@@ -9,31 +9,33 @@
 
 import * as os from "os";
 import { join } from "path";
-import { CommandIds, type ComponentKind, GitProvider } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, GitProvider, type Organization, type Project } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { initGit } from "../git/main";
 import { parseGitURL } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
-import { createDirectory } from "../utils";
+import { createDirectory, openDirectory } from "../utils";
 import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 import { createWorkspaceFile } from "./create-project-workspace-cmd";
 
 export function cloneRepoCommand(context: ExtensionContext) {
 	context.subscriptions.push(
-		commands.registerCommand(CommandIds.CloneProject, async () => {
+		commands.registerCommand(CommandIds.CloneProject, async (params: { organization: Organization; project: Project; componentName: string }) => {
 			try {
 				const userInfo = await getUserInfoForCmd("clone project repository");
 				if (userInfo) {
-					const selectedOrg = await selectOrg(userInfo, "Select organization");
+					const selectedOrg = params?.organization ?? (await selectOrg(userInfo, "Select organization"));
 
-					const selectedProject = await selectProject(
-						selectedOrg,
-						`Loading projects from '${selectedOrg.name}'`,
-						`Select the project from '${selectedOrg.name}', that needs to be cloned`,
-					);
+					const selectedProject =
+						params?.project ??
+						(await selectProject(
+							selectedOrg,
+							`Loading projects from '${selectedOrg.name}'`,
+							`Select the project from '${selectedOrg.name}', that needs to be cloned`,
+						));
 
 					const cloneDir = await window.showOpenDialog({
 						canSelectFolders: true,
@@ -96,7 +98,13 @@ export function cloneRepoCommand(context: ExtensionContext) {
 						for (const component of components) {
 							const repo = component.spec.source.github?.repository || component.spec.source.bitbucket?.repository;
 							if (repo) {
-								repoSet.add(repo);
+								if (params?.componentName) {
+									if (component.metadata.name === params?.componentName) {
+										repoSet.add(repo);
+									}
+								} else {
+									repoSet.add(repo);
+								}
 							}
 						}
 
@@ -283,20 +291,5 @@ const cloneRepositoryWithProgress = async (
 };
 
 async function openClonedDirectory(openingPath: string) {
-	const openInCurrentWorkspace = await window.showInformationMessage(
-		"Where do you want to open the cloned repository workspace?",
-		{ modal: true },
-		"Current Window",
-		"New Window",
-	);
-	if (openInCurrentWorkspace === "Current Window") {
-		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
-			forceNewWindow: false,
-		});
-		await commands.executeCommand("workbench.explorer.fileView.focus");
-	} else if (openInCurrentWorkspace === "New Window") {
-		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
-			forceNewWindow: true,
-		});
-	}
+	openDirectory(openingPath, "Where do you want to open the cloned repository workspace?");
 }

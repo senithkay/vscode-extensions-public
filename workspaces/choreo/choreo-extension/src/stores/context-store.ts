@@ -20,7 +20,7 @@ import type {
 	Project,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
-import { ProgressLocation, Uri, window, workspace } from "vscode";
+import { ProgressLocation, window, workspace } from "vscode";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
@@ -29,7 +29,8 @@ import { getGitRoot } from "../git/util";
 import { isSubpath } from "../utils";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
-import { getGlobalStateStore } from "./store-utils";
+import { locationStore } from "./location-store";
+import { getWorkspaceStateStore } from "./store-utils";
 
 interface ContextStore {
 	state: ContextStoreState;
@@ -61,6 +62,9 @@ export const contextStore = createStore(
 						set(({ state }) => ({ state: { ...state, items, selected, components } }));
 						components = await getComponentsInfo(selected);
 						set(({ state }) => ({ state: { ...state, loading: false, items, selected, components } }));
+						if (selected) {
+							locationStore.getState().setLocation(selected, components);
+						}
 					}
 				} catch (err) {
 					set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
@@ -81,7 +85,7 @@ export const contextStore = createStore(
 					set(({ state }) => ({
 						state: {
 							...state,
-							items: { ...state.items, [`${org.handle}-${project.handler}`]: item },
+							items: { ...state.items, [getContextKey(org, project)]: item },
 							selected: item,
 						},
 					}));
@@ -101,7 +105,7 @@ export const contextStore = createStore(
 				}
 			},
 		}),
-		getGlobalStateStore("dir-context-zustand-storage"),
+		getWorkspaceStateStore("dir-context-zustand-storage"),
 	),
 );
 
@@ -188,6 +192,16 @@ const getSelected = (items: { [key: string]: ContextItemEnriched }, prevSelected
 		(item) =>
 			prevSelected?.orgHandle === item.orgHandle && prevSelected?.projectHandle === item.projectHandle && prevSelected?.org && prevSelected?.project,
 	);
+
+	const openKey: string | null | undefined = ext.context.globalState.get("open-local-repo");
+	if (openKey) {
+		ext.context.workspaceState.update("shown-workspace-create-notification", null);
+		const selected = items[openKey];
+		if (selected?.org && selected?.project) {
+			return selected;
+		}
+	}
+
 	if (!prevSelected || !matchingItem) {
 		// if no selected or unavailable selected, set first selected
 		const filtered = Object.values(items).filter((item) => item.org && item.project);
@@ -303,3 +317,5 @@ export const waitForContextStoreToLoad = async (): Promise<void> => {
 	};
 	return window.withProgress({ title: "Loading project directory...", location: ProgressLocation.Notification }, () => listenToLoad());
 };
+
+export const getContextKey = (org: Organization, project: Project) => `${org.handle}-${project.handler}`;

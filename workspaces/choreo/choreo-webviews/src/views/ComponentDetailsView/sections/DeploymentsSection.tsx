@@ -296,7 +296,7 @@ const EnvItem: FC<{
 										)}
 									</>
 								)}
-								{["ACTIVE", "IN_PROGRESS", "ERROR", "SUSPENDED"].includes(deploymentStatus?.deploymentStatusV2) && (
+								{["ACTIVE", "IN_PROGRESS", "ERROR"].includes(deploymentStatus?.deploymentStatusV2) && (
 									<GridColumnItem label="Observability">
 										<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
 											View Runtime Logs

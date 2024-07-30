@@ -19,6 +19,7 @@ import { getLogger, initLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
 import { contextStore } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
+import { locationStore } from "./stores/location-store";
 import { activateTelemetry } from "./telemetry/telemetry";
 import { activateURIHandlers } from "./uri-handlers";
 import { activateActivityWebViews } from "./webviews/utils";
@@ -35,6 +36,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	await authStore.persist.rehydrate();
 	await contextStore.persist.rehydrate();
 	await dataCacheStore.persist.rehydrate();
+	await locationStore.persist.rehydrate();
 
 	// Set context values
 	authStore.subscribe(({ state }) => {

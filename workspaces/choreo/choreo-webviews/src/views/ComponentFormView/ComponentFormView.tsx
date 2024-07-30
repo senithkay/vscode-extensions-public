@@ -102,6 +102,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 		}
 	}, [form, selectedLang, buildpacks]);
 
+	useEffect(() => {
+		form.trigger("subPath");
+	}, [selectedLang]);
+
 	const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useGetGitRemotes(directoryFsPath, subPath, {
 		keepPreviousData: true,
 	});
@@ -148,7 +152,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
 	const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(",")?.reverse() ?? [];
 
-	useEffect(() => form.setValue("langVersion", supportedVersions[0] ?? "", { shouldValidate: !!supportedVersions[0] }), [supportedVersions]);
+	useEffect(() => {
+		if (supportedVersions.length > 0 && (!form.getValues("langVersion") || !supportedVersions.includes(form.getValues("langVersion")))) {
+			form.setValue("langVersion", supportedVersions[0]);
+		}
+	}, [supportedVersions]);
 
 	const { mutate: createComponent, isLoading: isCreatingComponent } = useMutation({
 		mutationFn: async (data: ComponentFormType) => {

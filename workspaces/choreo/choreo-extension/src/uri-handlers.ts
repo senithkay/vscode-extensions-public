@@ -7,12 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProgressLocation, type ProviderResult, type Uri, window } from "vscode";
+import { CommandIds, type Organization, type Project } from "@wso2-enterprise/choreo-core";
+import { ProgressLocation, type ProviderResult, type QuickPickItem, type Uri, commands, window, workspace } from "vscode";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
+import { getUserInfoForCmd } from "./cmds/cmd-utils";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
+import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
+import { dataCacheStore } from "./stores/data-cache-store";
+import { locationStore } from "./stores/location-store";
+import { openDirectory } from "./utils";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
@@ -59,7 +65,100 @@ export function activateURIHandlers() {
 				if (authCode && orgId) {
 					ext.clients.rpcClient.obtainGithubToken({ code: authCode, orgId });
 				}
+			} else if (uri.path === "/open") {
+				const urlParams = new URLSearchParams(uri.query);
+				const orgHandle = urlParams.get("org");
+				const projectHandle = urlParams.get("project");
+				const componentName = urlParams.get("component");
+				if (!orgHandle || !projectHandle) {
+					return;
+				}
+				getUserInfoForCmd("open project").then(async (userInfo) => {
+					const org = userInfo?.organizations.find((item) => item.handle === orgHandle);
+					const cacheProjects = dataCacheStore.getState().getProjects(orgHandle)
+					const project = cacheProjects?.find((item) => item.handler === projectHandle);
+					if (!org || !project) {
+						return;
+					}
+
+					await waitForContextStoreToLoad();
+
+					const contextItems = contextStore.getState().getValidItems();
+					const isWithinDir = contextItems.find((item) => item.orgHandle === orgHandle && item.projectHandle === projectHandle);
+					if (isWithinDir) {
+						const selectedContext = contextStore.getState().state.selected;
+						if (selectedContext?.orgHandle !== orgHandle || selectedContext?.projectHandle !== projectHandle) {
+							contextStore.getState().onSetNewContext(org, project, isWithinDir.contextDirs[0]);
+						}
+						window.showInformationMessage(`You are already within the Choreo ${componentName ? "component" : "project"} directory`);
+						return;
+					}
+
+					const projectLocations = locationStore.getState().getLocations(projectHandle, orgHandle);
+
+					if (componentName) {
+						const filteredProjectLocations = projectLocations.filter((projectLocation) => {
+							if (projectLocation.componentItems.some((item) => item.component?.metadata?.name === componentName)) {
+								return true;
+							}
+						});
+						if (filteredProjectLocations.length > 0) {
+							const selectedPath = await getSelectedPath(filteredProjectLocations.map((item) => item.fsPath));
+							if (selectedPath) {
+								openProjectDirectory(selectedPath);
+							}
+						} else if (projectLocations.length > 0) {
+							const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
+							if (selectedPath) {
+								openProjectDirectory(selectedPath);
+							}
+						} else {
+							cloneOrOpenDirectory(org, project, componentName);
+						}
+					} else if (projectLocations.length > 0) {
+						const selectedPath = await getSelectedPath(projectLocations.map((item) => item.fsPath));
+						if (selectedPath) {
+							openProjectDirectory(selectedPath);
+						}
+					} else {
+						cloneOrOpenDirectory(org, project);
+					}
+				});
 			}
 		},
 	});
 }
+
+const openProjectDirectory = async (openingPath: string, isComponent = false) => {
+	openDirectory(openingPath, `Where do you want to open the Choreo ${isComponent ? "component" : "project"} directory ${openingPath} ?`);
+};
+
+const cloneOrOpenDirectory = (organization: Organization, project: Project, componentName = "") => {
+	window
+		.showInformationMessage(
+			`Unable to find a local clone of the ${componentName ? "component" : "project"} directory.`,
+			{ modal: true },
+			"Clone Repository",
+			"Open Directory",
+		)
+		.then((resp) => {
+			if (resp === "Open Directory") {
+				ext.context.globalState.update("open-local-repo", getContextKey(organization, project));
+				commands.executeCommand("vscode.openFolder");
+			} else if (resp === "Clone Repository") {
+				commands.executeCommand(CommandIds.CloneProject, { organization, project, componentName });
+			}
+		});
+};
+
+const getSelectedPath = async (paths: string[]): Promise<string | undefined | null> => {
+	if (paths.length === 0) {
+		return null;
+	}
+	if (paths?.length === 1) {
+		return paths[0];
+	}
+	const items: QuickPickItem[] = paths.map((item) => ({ label: item }));
+	const directorySelection = await window.showQuickPick(items, { title: "Multiple directories detected", ignoreFocusOut: true });
+	return directorySelection?.label;
+};

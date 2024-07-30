@@ -13,7 +13,7 @@ import React from "react";
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 
 /** Persist data within vscode workspace cache  */
-const workspaceStatePersister = (queryBaseKey: string) => {
+const webviewStatePersister = (queryBaseKey: string) => {
 	return {
 		persistClient: async (client: PersistedClient) => {
 			ChoreoWebViewAPI.getInstance().setWebviewCache(queryBaseKey, client);
@@ -35,14 +35,14 @@ export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: str
 				new QueryClient({
 					defaultOptions: {
 						queries: {
-							cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+							cacheTime: 1000 * 60 * 60 * 24 * 7 * 31, // 1 month
 							retry: false,
 						},
 					},
 				})
 			}
 			persistOptions={{
-				persister: workspaceStatePersister(`react-query-persister-${type}`),
+				persister: webviewStatePersister(`react-query-persister-${type}`),
 				buster: "choreo-webview-cache-v2",
 			}}
 		>

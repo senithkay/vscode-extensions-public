@@ -22,7 +22,7 @@ import { HeaderSection } from "./sections/HeaderSection";
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
 	const { component, project, organization, directoryPath } = props;
 
-	const { data: deploymentTracks = [] } = useGetDeploymentTracks(component, project, organization);
+	const { data: deploymentTracks = [] } = useGetDeploymentTracks(component, project, organization, { refetchOnWindowFocus: false });
 
 	const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
 
@@ -51,7 +51,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		},
 	});
 
-	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization);
+	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization, { refetchOnWindowFocus: false });
 
 	const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>();
 	const onTriggerDeployment = (env: Environment, deploying: boolean) => {
