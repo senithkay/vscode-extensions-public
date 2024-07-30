@@ -19,7 +19,9 @@ import {
     SubMappingTypesResponse,
     UpdateDMUndoRedoMangerRequest,
     GetCompletionsRequest,
-    GetCompletionsResponse
+    GetCompletionsResponse,
+    GetDMDiagnosticsRequest,
+    GetDMDiagnosticsResponse
 } from "./types";
 
 export interface MIDataMapperAPI {
@@ -35,4 +37,5 @@ export interface MIDataMapperAPI {
     addToDMUndoStack: (source: string) => void;
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
     getCompletions: (params: GetCompletionsRequest) => Promise<GetCompletionsResponse>;
+    getDMDiagnostics: (params: GetDMDiagnosticsRequest) => Promise<GetDMDiagnosticsResponse>;
 }

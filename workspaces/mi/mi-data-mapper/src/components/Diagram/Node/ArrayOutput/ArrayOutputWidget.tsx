@@ -21,7 +21,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ArrayOutputFieldWidget } from "./ArrayOuptutFieldWidget";
 import { useIONodesStyles } from '../../../styles';
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 
@@ -72,7 +72,8 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const hasValue = dmTypeWithValue && dmTypeWithValue?.elements && dmTypeWithValue.elements.length > 0;
 	const isBodyArrayLitExpr = !wasBodyForgotten && Node.isArrayLiteralExpression(body);
 	const elements = !wasBodyForgotten && isBodyArrayLitExpr ? body.getElements() : [];
-	const hasDiagnostics = !wasBodyForgotten && getDiagnostics(dmTypeWithValue?.value).length > 0;
+	const hasDiagnostics = !wasBodyForgotten
+		&& filterDiagnosticsForNode(context.diagnostics, dmTypeWithValue?.value).length > 0;
 
 	const portIn = getPort(`${id}.IN`);
 

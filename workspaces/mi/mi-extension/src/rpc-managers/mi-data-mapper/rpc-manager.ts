@@ -24,9 +24,13 @@ import {
     ConvertRegPathToAbsPathResponse,
     UpdateDMUndoRedoMangerRequest,
     GetCompletionsRequest,
-    GetCompletionsResponse
+    GetCompletionsResponse,
+    GetDMDiagnosticsRequest,
+    GetDMDiagnosticsResponse,
+    DMDiagnostic,
+    DMDiagnosticCategory
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions } from "../../util/dataMapper";
+import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
@@ -303,5 +307,22 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
+    async getDMDiagnostics(params: GetDMDiagnosticsRequest): Promise<GetDMDiagnosticsResponse> {
+        const diagnostics = fetchDiagnostics(params.filePath);
+
+        const formattedDiagnostics: DMDiagnostic[] = diagnostics.map((diagnostic) => {
+            return {
+                messageText: typeof diagnostic.messageText !== "string"
+                    ? diagnostic.messageText.messageText : diagnostic.messageText,
+                category: diagnostic.category as unknown as DMDiagnosticCategory,
+                code: diagnostic.code,
+                start: diagnostic.start,
+                length: diagnostic.length,
+                source: diagnostic.source
+            };
+        });
+
+        return { diagnostics: formattedDiagnostics };
+    }
 }
 
