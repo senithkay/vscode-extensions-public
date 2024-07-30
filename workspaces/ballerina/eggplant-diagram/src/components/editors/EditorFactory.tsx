@@ -8,20 +8,20 @@
  */
 
 import React from "react";
-import { Expression } from "../../utils/types";
+import { Property } from "../../utils/types";
 import { TextEditor } from "./TextEditor";
 import { ClientEditor } from "./ClientEditor";
 
 export interface EditorProps {
-    expression : Expression;
+    property : Property;
     parentId: string;
     index: number;
-    onChange: (expression: Expression) => void;
+    onChange: (expression: Property) => void;
 }
 
-export function generateEditor(key: string, expression: Expression, parentId: string, index: number, handleOnChange: (expression: Expression) => void) {
-     const props: EditorProps = { expression, index, parentId, onChange: handleOnChange };
-    if (expression.typeKind == "BTYPE" && expression.type == "http:Client") {
+export function generateEditor(key: string, property: Property, parentId: string, index: number, handleOnChange: (property: Property) => void) {
+     const props: EditorProps = { property, index, parentId, onChange: handleOnChange };
+    if (property.valueType == "BTYPE") {
         return (<ClientEditor {...props} />)
     }
     return (<TextEditor {...props} />);

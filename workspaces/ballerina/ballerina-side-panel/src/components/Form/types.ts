@@ -19,4 +19,5 @@ export type FormField = {
     editable: boolean;
     documentation: string;
     value: string;
+    items?: string[];
 };

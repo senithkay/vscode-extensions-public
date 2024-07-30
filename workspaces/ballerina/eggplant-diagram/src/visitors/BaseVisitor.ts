@@ -7,35 +7,35 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Branch, Node } from "../utils/types";
+import { Branch, FlowNode } from "../utils/types";
 
 export interface BaseVisitor {
     skipChildren(): boolean;
 
-    beginVisitNode?(node: Node, parent?: Node): void;
-    endVisitNode?(node: Node, parent?: Node): void;
+    beginVisitNode?(node: FlowNode, parent?: FlowNode): void;
+    endVisitNode?(node: FlowNode, parent?: FlowNode): void;
 
-    beginVisitEventHttpApi?(node: Node, parent?: Node): void;
-    endVisitEventHttpApi?(node: Node, parent?: Node): void;
+    beginVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
+    endVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
 
-    beginVisitIf?(node: Node, parent?: Node): void;
-    endVisitIf?(node: Node, parent?: Node): void;
+    beginVisitIf?(node: FlowNode, parent?: FlowNode): void;
+    endVisitIf?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitConditional?(node: Branch, parent?: FlowNode): void;
+    endVisitConditional?(node: Branch, parent?: FlowNode): void;
+
+    beginVisitElse?(node: Branch, parent?: FlowNode): void;
+    endVisitElse?(node: Branch, parent?: FlowNode): void;
     
-    beginVisitBlock?(node: Branch, parent?: Node): void;
-    endVisitBlock?(node: Branch, parent?: Node): void;
+    beginVisitBlock?(node: Branch, parent?: FlowNode): void;
+    endVisitBlock?(node: Branch, parent?: FlowNode): void;
 
-    beginVisitHttpApiGetCall?(node: Node, parent?: Node): void;
-    endVisitHttpApiGetCall?(node: Node, parent?: Node): void;
+    beginVisitActionCall?(node: FlowNode, parent?: FlowNode): void;
+    endVisitActionCall?(node: FlowNode, parent?: FlowNode): void;
 
-    beginVisitHttpApiPostCall?(node: Node, parent?: Node): void;
-    endVisitHttpApiPostCall?(node: Node, parent?: Node): void;
+    beginVisitReturn?(node: FlowNode, parent?: FlowNode): void;
+    endVisitReturn?(node: FlowNode, parent?: FlowNode): void;
 
-    beginVisitActionCall?(node: Node, parent?: Node): void;
-    endVisitActionCall?(node: Node, parent?: Node): void;
-
-    beginVisitReturn?(node: Node, parent?: Node): void;
-    endVisitReturn?(node: Node, parent?: Node): void;
-
-    beginVisitEmpty?(node: Node, parent?: Node): void;
-    endVisitEmpty?(node: Node, parent?: Node): void;
+    beginVisitEmpty?(node: FlowNode, parent?: FlowNode): void;
+    endVisitEmpty?(node: FlowNode, parent?: FlowNode): void;
 }
