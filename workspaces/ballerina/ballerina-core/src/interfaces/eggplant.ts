@@ -175,4 +175,5 @@ export type NodeKind =
     | "ON_FAILURE"
     | "BODY"
     | "NEW_DATA"
-    | "UPDATE_DATA";
+    | "UPDATE_DATA"
+    | "NEW_CONNECTION";

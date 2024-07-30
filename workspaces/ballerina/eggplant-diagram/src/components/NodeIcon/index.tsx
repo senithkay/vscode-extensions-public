@@ -17,7 +17,7 @@ import {
     ContinueIcon,
     LockIcon,
     LoopIcon,
-    SendIcon,
+    PlusIcon,
     StopIcon,
     TransformIcon,
 } from "../../resources";
@@ -61,6 +61,8 @@ export function NodeIcon(props: NodeIconProps) {
             return <LockIcon />;
         case "TRANSACTION":
             return <TransformIcon />;
+        case "NEW_CONNECTION":
+            return <PlusIcon />;
         default:
             return <CodeIcon />;
     }
