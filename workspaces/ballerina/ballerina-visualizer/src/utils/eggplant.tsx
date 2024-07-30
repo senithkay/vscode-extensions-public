@@ -20,7 +20,6 @@ import {
     NodeProperties,
     NodePropertyKey,
     FlowNode,
-    Client,
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "./../views/EggplantDiagram";
 import React from "react";
@@ -56,7 +55,7 @@ export function convertEggplantCategoriesToSidePanelCategories(categories: Categ
     return categories.map(convertDiagramCategoryToSidePanelCategory);
 }
 
-export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties, clients: Client[]): FormField[] {
+export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties, connections: FlowNode[]): FormField[] {
     const formFields: FormField[] = [];
 
     for (const key in nodeProperties) {
@@ -73,7 +72,7 @@ export function convertNodePropertiesToFormFields(nodeProperties: NodeProperties
                     value: expression.value,
                     items:
                         expression.valueType === "Identifier" && expression.metadata.label === "Connection"
-                            ? clients.map((client) => client.value)
+                            ? connections.map((connection) => connection.properties?.variable?.value)
                             : undefined,
                 };
                 formFields.push(formField);

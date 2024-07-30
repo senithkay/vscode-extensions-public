@@ -120,7 +120,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
                 const formProperties = getFormProperties(response.flowNode);
-                setFields(convertNodePropertiesToFormFields(formProperties, model.clients));
+                setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
             });
     };
 

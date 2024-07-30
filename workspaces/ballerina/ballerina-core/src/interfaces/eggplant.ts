@@ -13,7 +13,7 @@ import { LinePosition } from "./common";
 export type Flow = {
     fileName: string;
     nodes: FlowNode[];
-    clients?: Client[];
+    connections?: FlowNode[];
 };
 
 export type Client = {
