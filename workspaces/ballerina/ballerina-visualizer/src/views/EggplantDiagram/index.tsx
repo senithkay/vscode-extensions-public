@@ -193,7 +193,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         <>
             <Container>{!!model && <Diagram model={model} onAddNode={handleOnAddNode} />}</Container>
             <PanelContainer
-                title={getContainerTitle(sidePanelView)}
+                title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
                 onBack={sidePanelView === SidePanelView.FORM ? handleOnFormBack : undefined}
