@@ -104,6 +104,7 @@ const SchemaItem = styled.div`
     &:hover {
         background-color: var(--vscode-editorIndentGuide-background);
     }
+    padding: 8px;
 `;
 
 const ConnectionItem = styled.div`
@@ -116,7 +117,7 @@ const ConnectionItem = styled.div`
     border: 1px solid var(--vscode-editor-foreground);
     cursor: pointer;
     &:hover {
-        background-color: var(--vscode-editorIndentGuide-background);
+        background-color: var(--vscode-editor-hoverHighlightBackground);
     }
 `;
 
@@ -196,13 +197,11 @@ export function Overview(props: OverviewProps) {
                                                         fill: 'var(--vscode-editor-foreground)'
                                                     },
                                                     backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
-                                                    borderColor: 'var(--vscode-focusBorder)'
                                                 },
                                                 border: '1px solid var(--vscode-editor-foreground)',
                                                 borderRadius: 1,
                                                 cursor: 'pointer',
                                                 display: 'block',
-                                                height: 140,
                                                 marginBottom: 16,
                                                 marginRight: 16,
                                                 padding: 30,
@@ -234,7 +233,6 @@ export function Overview(props: OverviewProps) {
                                                         fill: 'var(--vscode-editor-foreground)'
                                                     },
                                                     backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
-                                                    borderColor: 'var(--vscode-focusBorder)'
                                                 },
                                                 border: '1px solid var(--vscode-editor-foreground)',
                                                 borderRadius: 1,
@@ -332,7 +330,6 @@ export function Overview(props: OverviewProps) {
                                                             fill: 'var(--vscode-editor-foreground)'
                                                         },
                                                         backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
-                                                        borderColor: 'var(--vscode-focusBorder)'
                                                     },
                                                     border: '1px solid var(--vscode-editor-foreground)',
                                                     borderRadius: 1,
@@ -396,7 +393,6 @@ export function Overview(props: OverviewProps) {
                                                             fill: 'var(--vscode-editor-foreground)'
                                                         },
                                                         backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
-                                                        borderColor: 'var(--vscode-focusBorder)'
                                                     },
                                                     border: '1px solid var(--vscode-editor-foreground)',
                                                     borderRadius: 1,
@@ -435,7 +431,6 @@ export function Overview(props: OverviewProps) {
                                             fill: 'var(--vscode-editor-foreground)'
                                         },
                                         backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
-                                        borderColor: 'var(--vscode-focusBorder)'
                                     },
                                     border: '1px solid var(--vscode-editor-foreground)',
                                     borderRadius: 1,
