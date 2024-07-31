@@ -74,10 +74,13 @@ function generateEnabledCondition(enableCondition: any, indentation: number, isS
     let conditions = "";
 
     const getCondition = (condition: string, value: string) => {
+        const watchExpression = condition.includes('.')
+            ? `watch("${condition.split('.')[0]}").${condition.split('.')[1]}`
+            : `watch("${condition}")`;
         if (typeof value === "boolean" || value === "true" || value === "false") {
-            return `watch("${condition}") == ${value}`;
+            return `${watchExpression} == ${value}`;
         } else {
-            return `watch("${condition}") == "${value}"`;
+            return `${watchExpression} == "${value}"`;
         }
     }
 
@@ -422,8 +425,9 @@ const generateForm = (jsonData: any): string => {
                     fields +=
                         fixIndentation(comboStr, indentation);
                 } else if (inputType === 'keyOrExpression') {
+                    defaultValue = { isExpression: false, value: "" }
                     const filterType = element.value.keyType;
-
+                    const additionalItems = element.value.comboValues;
                     const keyOrExpStr = `
                         <FormKeylookup
                         control={control}
@@ -436,6 +440,7 @@ const generateForm = (jsonData: any): string => {
                         canChangeEx={true}
                         exprToggleEnabled={true}
                         openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                        ${additionalItems !== undefined ? `additionalItems={${JSON.stringify(additionalItems)}}` : `additionalItems={[]}`}
                     />`;
                     fields +=
                         fixIndentation(keyOrExpStr, indentation);
