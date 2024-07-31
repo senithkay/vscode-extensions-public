@@ -20,7 +20,6 @@ Fixed: Inbound Endpoint hidden attributes are missing in source XML ([#264](http
 ### Improvements
 
 Improved: Not possible to provide a description for the Aggregate mediator ([#174](https://github.com/wso2/mi-vscode/issues/174))  
-Improved: Require an option to create custom inbound endpoints ([#258](https://github.com/wso2/mi-vscode/issues/258))  
 
 ## [1.0.1] - 2024-07-26
 
