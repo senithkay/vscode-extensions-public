@@ -23,6 +23,15 @@ export async function getView(documentUri: string, position: NodePosition): Prom
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
 
     if (node.parseSuccess) {
+        if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.ERDiagram,
+                    documentUri: documentUri,
+                    position: position
+                }
+            };
+        }
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
             if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {

@@ -46,4 +46,9 @@ export function activateSubscriptions() {
         })
     );
 
+
+    StateMachine.service().onTransition((state) => {
+        vscode.commands.executeCommand('setContext', 'showBalGoToSource', state.context?.documentUri !== undefined);
+    });
+
 }

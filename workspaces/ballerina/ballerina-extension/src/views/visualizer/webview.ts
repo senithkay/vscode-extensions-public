@@ -43,6 +43,10 @@ export class VisualizerWebview {
                 sendUpdateNotificationToWebview();
             }
         }, extension.context);
+
+        this._panel.onDidChangeViewState(() => {
+            vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
+        });
     }
 
     private static createWebview(): vscode.WebviewPanel {

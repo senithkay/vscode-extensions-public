@@ -30,7 +30,8 @@ import {
     STModification,
     SyntaxTree,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
@@ -209,45 +210,10 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getProjectStructure(): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
             const projectPath = StateMachine.context().projectUri;
-            const res: ProjectStructureResponse = await this.buildProjectStructure(projectPath);
+            const res: ProjectStructureResponse = await buildProjectStructure(projectPath, StateMachine.context().langClient);
             resolve(res);
         });
     }
-
-    private async buildProjectStructure(dir: string): Promise<ProjectStructureResponse> {
-        const result: ProjectStructureResponse = {
-            directoryMap: {
-                [DIRECTORY_MAP.SERVICES]: [],
-                [DIRECTORY_MAP.TASKS]: [],
-                [DIRECTORY_MAP.TRIGGERS]: [],
-                [DIRECTORY_MAP.CONNECTIONS]: [],
-                [DIRECTORY_MAP.SCHEMAS]: [],
-                [DIRECTORY_MAP.CONFIGURATIONS]: []
-            }
-        };
-        const components = await StateMachine.langClient().getBallerinaProjectComponents({
-            documentIdentifiers: [{ uri: Uri.file(dir).toString() }]
-        });
-        await this.traverseComponents(components, result);
-        return result;
-    }
-
-    // private traverseDirectory(dir: string, result: ProjectStructureResponse, folder: DIRECTORY_MAP) {
-    //     const items = readdirSync(dir);
-    //     for (const item of items) {
-    //         const fullPath = join(dir, item);
-    //         const stats = statSync(fullPath);
-    //         if (stats.isFile()) {
-    //             const artifact: ProjectStructureArtifactResponse = {
-    //                 name: item.replace(".bal", ""),
-    //                 path: fullPath,
-    //                 context: "HTTP Service",
-    //                 type: 'file'
-    //             };
-    //             result.directoryMap[folder].push(artifact);
-    //         }
-    //     }
-    // }
 
     async getProjectComponents(): Promise<ProjectComponentsResponse> {
         return new Promise(async (resolve) => {
@@ -256,64 +222,5 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             });
             resolve({ components });
         });
-    }
-
-    private async traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse) {
-        for (const pkg of components.packages) {
-            for (const module of pkg.modules) {
-                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await this.getComponents(module.services, pkg.filePath, DIRECTORY_MAP.SERVICES));
-                response.directoryMap[DIRECTORY_MAP.TASKS].push(...await this.getComponents(module.functions, pkg.filePath));
-                response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await this.getComponents(module.moduleVariables, pkg.filePath, DIRECTORY_MAP.CONNECTIONS));
-                response.directoryMap[DIRECTORY_MAP.SCHEMAS].push(...await this.getComponents(module.records, pkg.filePath));
-            }
-        }
-    }
-
-    private async getComponents(components: ComponentInfo[], projectPath: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
-        const entries: ProjectStructureArtifactResponse[] = [];
-        for (const comp of components) {
-            const componentFile = Uri.joinPath(Uri.parse(projectPath), comp.filePath).fsPath;
-            let stNode: SyntaxTree;
-            try {
-                stNode = await StateMachine.langClient().getSTByRange({
-                    documentIdentifier: { uri: Uri.file(componentFile).toString() },
-                    lineRange: {
-                        start: {
-                            line: comp.startLine,
-                            character: comp.startColumn
-                        },
-                        end: {
-                            line: comp.endLine,
-                            character: comp.endColumn
-                        }
-                    }
-                }) as SyntaxTree;
-            } catch (error) {
-                console.log(error);
-            }
-
-            const fileEntry: ProjectStructureArtifactResponse = {
-                name: dtype === DIRECTORY_MAP.SERVICES ? comp.filePath.replace(".bal", "") : comp.name,
-                path: componentFile,
-                type: 'HTTP',
-                context: comp.name,
-                st: stNode.syntaxTree,
-                position: {
-                    endColumn: comp.endColumn,
-                    endLine: comp.endLine,
-                    startColumn: comp.startColumn,
-                    startLine: comp.startLine
-                }
-            };
-            if (dtype === DIRECTORY_MAP.CONNECTIONS) {
-                if (stNode.syntaxTree.typeData?.isEndpoint) {
-                    entries.push(fileEntry);
-                }
-            } else {
-                entries.push(fileEntry);
-            }
-
-        }
-        return entries;
     }
 }
