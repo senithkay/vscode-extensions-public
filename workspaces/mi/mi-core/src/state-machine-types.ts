@@ -41,6 +41,7 @@ export enum MACHINE_VIEW {
     TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
+    InboundEPView = "Inbound EP View",
     MessageProcessorForm = "Message Processor Form",
     ProxyServiceForm = "Proxy Service Form",
     TaskForm = "Task Form",
@@ -71,6 +72,7 @@ export enum MACHINE_VIEW {
     AITestGen = "AI Test Generation",
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
+    UpdateExtension = "Update Extension",
 }
 
 export enum AI_MACHINE_VIEW {

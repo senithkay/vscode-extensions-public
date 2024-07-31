@@ -418,6 +418,8 @@ export interface InboundEndpoint extends STNode {
     parameters: InboundEndpointParameters[];
     name: string;
     sequence: string;
+    sequenceModel: NamedSequence | undefined;
+    sequenceURI: string | undefined;
     protocol: string;
     onError: string;
     suspend: boolean;
@@ -991,7 +993,7 @@ export interface NamedSequence extends STNode {
 }
 
 export interface Property extends STNode {
-    any: any[];
+    any: any;
     scope: string;
     type: string;
     pattern: string;

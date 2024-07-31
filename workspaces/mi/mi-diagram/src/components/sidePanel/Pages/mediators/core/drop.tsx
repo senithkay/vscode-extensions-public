@@ -94,13 +94,8 @@ const DropForm = (props: AddMediatorProps) => {
                     <Controller
                         name="description"
                         control={control}
-                        rules={
-                            {
-                                required: "This field is required",
-                            }
-                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" required={true} errorMsg={errors?.description?.message?.toString()} />
+                            <TextField {...field} label="Description" size={50} placeholder="Description" required={false} errorMsg={errors?.description?.message?.toString()} />
                         )}
                     />
                 </Field>

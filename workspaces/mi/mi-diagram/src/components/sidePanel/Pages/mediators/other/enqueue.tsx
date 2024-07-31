@@ -101,8 +101,13 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         <Controller
                             name="executor"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Executor" size={50} placeholder="" required={false} errorMsg={errors?.executor?.message?.toString()} />
+                                <TextField {...field} label="Executor" size={50} placeholder="" required={true} errorMsg={errors?.executor?.message?.toString()} />
                             )}
                         />
                     </Field>
@@ -126,6 +131,11 @@ const EnqueueForm = (props: AddMediatorProps) => {
                         <Controller
                             name="sequenceKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
@@ -133,7 +143,7 @@ const EnqueueForm = (props: AddMediatorProps) => {
                                     label="Sequence Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.sequenceKey?.message?.toString()}
                                 />
                             )}

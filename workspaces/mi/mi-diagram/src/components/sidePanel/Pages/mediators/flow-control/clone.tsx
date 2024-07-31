@@ -112,6 +112,17 @@ const CloneForm = (props: AddMediatorProps) => {
                         "defaultValue": "",
                         "isRequired": false
                     },
+                    {
+                        "type": "TextField",
+                        "label": "Index",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "-1": true
+                            }
+                        ]
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",

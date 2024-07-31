@@ -123,11 +123,21 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                         <Controller
                             name="fastXsltDynamicSchemaKey"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Fast Xslt Dynamic SchemaKey"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.fastXsltDynamicSchemaKey?.message?.toString()}
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
@@ -142,6 +152,11 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                         <Controller
                             name="fastXsltStaticSchemaKey"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
@@ -149,7 +164,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                     label="Fast Xslt Static SchemaKey"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.fastXsltStaticSchemaKey?.message?.toString()}
                                 />
                             )}

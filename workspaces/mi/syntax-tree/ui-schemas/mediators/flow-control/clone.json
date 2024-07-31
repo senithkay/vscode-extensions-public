@@ -130,7 +130,22 @@
                             "required": false,
                             "helpTip": ""
                         }
-                    }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                          "name": "index",
+                          "displayName": "Index",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": "",
+                          "enableCondition": [
+                            {
+                              "doNotShow": true
+                            }
+                          ]
+                        }
+                      }
                 ]
             }
         },

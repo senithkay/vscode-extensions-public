@@ -178,7 +178,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         return elements.map((element: { type: string; value: any; }) => {
             if (element.type === 'attribute') {
                 if (element.value.hidden) {
-                    setValue(element.value.name, element.value.defaultValue ?? "");
+                    setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
                     return;
                 }
                 return <Controller
@@ -211,7 +211,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced") ? true : false}
+                                    isCollapsed={(element.value.groupName === "Advanced" || element.value.isCollapsed) ? true : false}
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>

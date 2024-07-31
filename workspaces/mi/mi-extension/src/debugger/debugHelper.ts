@@ -113,7 +113,8 @@ export function checkServerReadiness(): Promise<void> {
                     if (elapsedTime < maxTimeout) {
                         setTimeout(checkReadiness, retryInterval);
                     } else {
-                        logDebug(`Error while checking for Server readiness: ${error}`, ERROR_LOG);
+                        const errorMsg = error?.errors[0]?.message;
+                        logDebug(`Error while checking for Server readiness: ${errorMsg}`, ERROR_LOG);
                         reject(`CApp has encountered deployment issues. Please refer to the output for error logs.`);
                     }
                 });

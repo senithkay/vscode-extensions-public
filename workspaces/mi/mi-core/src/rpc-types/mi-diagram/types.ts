@@ -881,7 +881,7 @@ export interface CreateTaskRequest {
     implementation: string;
     pinnedServers: string;
     triggerType: "simple" | "cron";
-    triggerCount: number;
+    triggerCount: number | null;
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
@@ -908,7 +908,7 @@ export interface GetTaskResponse {
     implementation: string;
     pinnedServers: string;
     triggerType: "simple" | "cron";
-    triggerCount: number;
+    triggerCount: number | null;
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];

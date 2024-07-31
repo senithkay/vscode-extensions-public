@@ -61,6 +61,10 @@ export function TypeResolver(props: TypeResolverProps) {
         onChange({ ...param, value: newValue }, param.enableCondition);
     }
 
+    const handleOnExprChange = (newValue: string | ExpressionFieldValue) => {
+        onChange({ ...param, value: newValue }, param.enableCondition);
+    }
+
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange({ ...param, value: e.target.checked }, param.enableCondition);
     }
@@ -162,7 +166,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     label={label}
                     value={value as string}
                     required={isRequired}
-                    onValueChange={handleOnChange}
+                    onValueChange={handleOnExprChange}
                     allowItemCreate={allowItemCreate}
                     nullable={nullable}
                     notItemsFoundMessage={noItemsFoundMessage}

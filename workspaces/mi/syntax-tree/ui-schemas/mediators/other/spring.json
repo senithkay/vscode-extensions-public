@@ -15,7 +15,7 @@
               "name": "beanName",
               "displayName": "Bean Name",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },

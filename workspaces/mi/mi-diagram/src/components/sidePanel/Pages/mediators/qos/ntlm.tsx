@@ -103,11 +103,21 @@ const NTLMForm = (props: AddMediatorProps) => {
                         <Controller
                             name="username"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Username"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.username?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
@@ -120,11 +130,21 @@ const NTLMForm = (props: AddMediatorProps) => {
                         <Controller
                             name="password"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Password"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.password?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
@@ -137,11 +157,21 @@ const NTLMForm = (props: AddMediatorProps) => {
                         <Controller
                             name="host"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Host"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.host?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
@@ -154,11 +184,21 @@ const NTLMForm = (props: AddMediatorProps) => {
                         <Controller
                             name="domain"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="Domain"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.domain?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
@@ -171,11 +211,21 @@ const NTLMForm = (props: AddMediatorProps) => {
                         <Controller
                             name="ntlmVersion"
                             control={control}
+                            rules={
+                                {
+                                    validate: (value) => {
+                                        if (!value?.value || value.value === "") {
+                                            return "This field is required";
+                                        }
+                                        return true;
+                                    },
+                                }
+                            }
                             render={({ field }) => (
                                 <ExpressionField
                                     {...field} label="NTLM Version"
                                     placeholder=""
-                                    required={false}
+                                    required={true}
                                     errorMsg={errors?.ntlmVersion?.message?.toString()}
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
