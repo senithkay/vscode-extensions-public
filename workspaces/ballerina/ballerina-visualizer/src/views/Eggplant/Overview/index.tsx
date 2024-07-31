@@ -17,7 +17,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { View, ViewContent } from "../../../components/View";
-import { Button, Codicon, ComponentCard, Divider, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import { EmptyCard } from "../../../components/EmptyCard";
@@ -104,7 +104,7 @@ const Row = styled.div`
 const CardGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
+    gap: 20px;
     width: 100%;
 `;
 
@@ -170,7 +170,7 @@ export function Overview(props: OverviewProps) {
                                                 title={`${res.name} ${res.type === "HTTP" ? "service" : ""}`}
                                                 caption={res.type}
                                                 description={`Path: ${res.context}`}
-                                                icon={<Codicon name="save" />}
+                                                icon={<Codicon name="globe" />}
                                                 onClick={() => goToView(res)}
                                             />
                                         ))}

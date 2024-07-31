@@ -19,7 +19,6 @@ const CardContainer = styled.div`
     justify-content: flex-start;
     gap: 16px;
     width: 100%;
-    max-height: 100px;
     padding: 16px;
     border-radius: 4px;
     border: 2px solid ${Colors.OUTLINE_VARIANT};
@@ -39,6 +38,7 @@ const Text = styled.p`
 
 const Title = styled(Text)`
     text-transform: capitalize;
+    font-weight: bold;
 `;
 
 const Caption = styled(Text)`
