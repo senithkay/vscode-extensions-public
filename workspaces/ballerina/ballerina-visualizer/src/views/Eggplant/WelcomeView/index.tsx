@@ -78,7 +78,9 @@ const AddButton = styled(Button)`
 const ButtonContent = styled.div`
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 10px;
+    height: 28px;
 `;
 
 export function WelcomeView() {
