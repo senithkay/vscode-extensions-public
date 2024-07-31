@@ -16,6 +16,13 @@ import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
 import { ServiceDesignerAPI, CommonRPCAPI, STModification } from "@wso2-enterprise/ballerina-core";
 import { ContextProvider } from "./ContextProvider";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon, View, ViewHeader, ViewContent, Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
+
+const ServiceHeader = styled.div`
+    padding-left: 24px;
+`;
 
 interface RPCClients {
     serviceDesignerRpcClient: ServiceDesignerAPI;
@@ -107,7 +114,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isEggplant));
+            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isEggplant, handleResourceEdit, handleResourceDelete));
         };
         fetchService();
     }, [model]);
@@ -128,15 +135,23 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
             <div data-testid="service-design-view">
-                <ServiceDesigner
-                    model={serviceConfig}
-                    goToSource={handleGoToSource}
-                    onResourceEdit={handleResourceEdit}
-                    onResourceDelete={handleResourceDelete}
-                    onServiceEdit={handleServiceEdit}
-                    onResourceAdd={handleResourceFormOpen}
-                    onResourceClick={handleGoToSource}
-                />
+                <View>
+                    <ViewHeader title={`Service ${serviceConfig?.path}`} codicon="globe" onEdit={handleServiceEdit}>
+                        <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
+                            <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                        </VSCodeButton>
+                    </ViewHeader>
+                    <ServiceHeader>
+                        {serviceConfig?.port && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Listening on: {serviceConfig.port}</Typography>}
+                    </ServiceHeader>
+                    <ViewContent padding>
+                        <ServiceDesigner
+                            model={serviceConfig}
+                            onResourceClick={handleGoToSource}
+                            disableServiceHeader={props.isEggplant}
+                        />
+                    </ViewContent>
+                </View>
                 {isResourceFormOpen &&
                     <ResourceForm
                         isOpen={isResourceFormOpen}

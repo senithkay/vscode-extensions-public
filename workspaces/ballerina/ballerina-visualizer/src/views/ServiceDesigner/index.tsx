@@ -32,19 +32,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     return (
         <>
-            <ViewWrapper>
-                <ServiceDesignerView
-                    model={model}
-                    rpcClients={{
-                        serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
-                        commonRpcClient: rpcClient.getCommonRpcClient(),
+            <ServiceDesignerView
+                model={model}
+                rpcClients={{
+                    serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
+                    commonRpcClient: rpcClient.getCommonRpcClient(),
 
-                    }}
-                    applyModifications={applyModifications}
-                    goToSource={handleOpenDiagram}
-                    isEggplant={props.isEggplant}
-                />
-            </ViewWrapper>
+                }}
+                applyModifications={applyModifications}
+                goToSource={handleOpenDiagram}
+                isEggplant={props.isEggplant}
+            />
         </>
     );
 }

@@ -65,3 +65,5 @@ export * from './components/FormView/FormView';
 export * from './styles';
 
 export * from './components/Alert/Alert';
+
+export * from './components/View';

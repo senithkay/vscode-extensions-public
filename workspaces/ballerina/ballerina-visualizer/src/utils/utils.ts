@@ -43,3 +43,34 @@ export async function handleRedo(rpcClient: BallerinaRpcClient) {
         });
     }
 }
+
+const colors = {
+    "GET": '#3d7eff',
+    "PUT": '#fca130',
+    "POST": '#49cc90',
+    "DELETE": '#f93e3e',
+    "PATCH": '#986ee2',
+    "OPTIONS": '#0d5aa7',
+    "HEAD": '#9012fe'
+}
+
+export function getColorByMethod(method: string) {
+    switch (method.toUpperCase()) {
+        case "GET":
+            return colors.GET;
+        case "PUT":
+            return colors.PUT;
+        case "POST":
+            return colors.POST;
+        case "DELETE":
+            return colors.DELETE;
+        case "PATCH":
+            return colors.PATCH;
+        case "OPTIONS":
+            return colors.OPTIONS;
+        case "HEAD":
+            return colors.HEAD;
+        default:
+            return '#876036'; // Default color
+    }
+}
