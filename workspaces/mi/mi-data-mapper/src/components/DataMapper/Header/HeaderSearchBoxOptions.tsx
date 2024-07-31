@@ -12,25 +12,25 @@ import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2-enter
 import styled from '@emotion/styled';
 
 const SearchOptionsContainer = styled.div({
-    position: "absolute", 
-    top: "100%", 
-    right: "0", 
-    zIndex: 5, 
-    backgroundColor: "var(--vscode-sideBar-background)", 
-    padding: "5px" 
+    position: "absolute",
+    top: "100%",
+    right: "0",
+    zIndex: 5,
+    backgroundColor: "var(--vscode-sideBar-background)",
+    padding: "5px"
 });
 
 interface HeaderSearchBoxOptionsProps {
     searchTerm: string;
     searchOptions: string[];
-    searchOptionsData: {value:string,label:string}[];
+    searchOptionsData: { value: string, label: string }[];
     setSearchOptions: React.Dispatch<React.SetStateAction<string[]>>;
     handleOnSearchTextClear: () => void;
 }
 
 export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
-    const { searchTerm, searchOptions, setSearchOptions, handleOnSearchTextClear,searchOptionsData } = props;
-    
+    const { searchTerm, searchOptions, setSearchOptions, handleOnSearchTextClear, searchOptionsData } = props;
+
     const [showSearchOptions, setShowSearchOptions] = useState(false);
     const showSearchOptionsRef = useRef(null);
 
@@ -58,7 +58,7 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
                     {showSearchOptions && (
                         <SearchOptionsContainer>
                             <CheckBoxGroup direction="vertical">
-                                {searchOptionsData.map((item)=>(
+                                {searchOptionsData.map((item) => (
                                     <CheckBox
                                         checked={searchOptions.indexOf(item.value) > -1}
                                         label={item.label}

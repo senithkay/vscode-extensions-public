@@ -38,7 +38,7 @@ export default function HeaderSearchBox() {
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
-    
+
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
         { value: OUTPUT_FIELD_FILTER_LABEL, label: "Filter in outputs" }
@@ -133,12 +133,12 @@ export default function HeaderSearchBox() {
             inputProps={{
                 endAdornment: (
                     <HeaderSearchBoxOptions
-                    searchTerm={searchTerm}
-                    searchOptions={searchOptions}
-                    setSearchOptions={setSearchOptions}
-                    handleOnSearchTextClear={handleOnSearchTextClear}
-                    searchOptionsData={searchOptionsData}
-                />
+                        searchTerm={searchTerm}
+                        searchOptions={searchOptions}
+                        setSearchOptions={setSearchOptions}
+                        handleOnSearchTextClear={handleOnSearchTextClear}
+                        searchOptionsData={searchOptionsData}
+                    />
                 ),
             }}
         />
