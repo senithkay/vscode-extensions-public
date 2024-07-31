@@ -88,7 +88,7 @@ export const downloadCLI = async () => {
 
 	process.chdir(CHOREO_BIN_DIR);
 	if (OS !== "win32") {
-		fs.promises.chmod(CHOREO_CLI_EXEC, 0o755);
+		await fs.promises.chmod(CHOREO_CLI_EXEC, 0o755);
 	}
 
 	console.log("Choreo RPC server was installed successfully 🎉");

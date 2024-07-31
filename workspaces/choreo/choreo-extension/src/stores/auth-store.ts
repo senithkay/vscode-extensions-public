@@ -11,6 +11,7 @@ import type { AuthState, Organization, UserInfo } from "@wso2-enterprise/choreo-
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { ext } from "../extensionVariables";
+import { withRetries } from "../utils";
 import { contextStore } from "./context-store";
 import { dataCacheStore } from "./data-cache-store";
 import { getGlobalStateStore } from "./store-utils";
@@ -18,11 +19,8 @@ import { getGlobalStateStore } from "./store-utils";
 interface AuthStore {
 	state: AuthState;
 	resetState: () => void;
-	loginStart: () => void;
 	loginSuccess: (userInfo: UserInfo) => void;
-	logout: () => void;
-	getOrgById: (orgId: number) => Organization | undefined;
-	getOrgByHandle: (orgHandle: string) => Organization | undefined;
+	logout: () => Promise<void>;
 	initAuth: () => Promise<void>;
 }
 
@@ -33,22 +31,22 @@ export const authStore = createStore(
 		(set, get) => ({
 			state: initialState,
 			resetState: () => set(() => ({ state: initialState })),
-			loginStart: () => set(({ state }) => ({ state: { ...state } })),
 			loginSuccess: (userInfo) => {
 				dataCacheStore.getState().setOrgs(userInfo.organizations);
 				set(({ state }) => ({ state: { ...state, userInfo } }));
 				contextStore.getState().refreshState();
 			},
-			logout: () => {
-				ext.clients.rpcClient.signOut();
+			logout: async () => {
+				try {
+					await ext.clients.rpcClient.signOut();
+				} catch {
+					// ignore error
+				}
 				get().resetState();
 			},
-			getOrgById: (orgId) => get().state.userInfo?.organizations.find((org) => org.id.toString() === orgId.toString()),
-			getOrgByHandle: (orgHandle) => get().state.userInfo?.organizations.find((org) => org.handle === orgHandle),
 			initAuth: async () => {
 				try {
-					set(({ state }) => ({ state: { ...state } }));
-					const userInfo = await ext.clients.rpcClient.getUserInfo();
+					const userInfo = await withRetries(() => ext.clients.rpcClient.getUserInfo(), "getUserInfo", 2, 1000);
 					userInfo ? get().loginSuccess(userInfo) : get().logout();
 				} catch (err) {
 					get().logout();

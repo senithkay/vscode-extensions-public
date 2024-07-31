@@ -26,7 +26,7 @@ import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
-import { getSubPath } from "../utils";
+import { delay, getSubPath } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
@@ -167,7 +167,7 @@ export const submitCreateComponentHandler = async ({ createParams, endpoint, org
 			if (workspace.workspaceFile.scheme !== "untitled" && path.basename(workspace.workspaceFile.path) === `${project?.handler}.code-workspace`) {
 				// Automatically update the workspace if user is within a project workspace
 				writeFileSync(workspace.workspaceFile!.fsPath, JSON.stringify(workspaceContent, null, 4));
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await delay(1000);
 				contextStore.getState().refreshState();
 			} else {
 				// Else manfully ask and update the workspace
@@ -176,7 +176,7 @@ export const submitCreateComponentHandler = async ({ createParams, endpoint, org
 					.then(async (resp) => {
 						if (resp === "Continue") {
 							writeFileSync(workspace.workspaceFile!.fsPath, JSON.stringify(workspaceContent, null, 4));
-							await new Promise((resolve) => setTimeout(resolve, 1000));
+							await delay(1000);
 							contextStore.getState().refreshState();
 						}
 					});

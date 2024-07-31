@@ -13,6 +13,7 @@ import * as path from "path";
 import type { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { Uri, commands, window, workspace } from "vscode";
+import { getLogger } from "./logger/logger";
 
 export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
 	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
@@ -102,4 +103,27 @@ export async function openDirectory(openingPath: string, message: string) {
 			forceNewWindow: true,
 		});
 	}
+}
+
+export function withTimeout<T>(fn: () => Promise<T>, functionName: string, timeout: number): Promise<T> {
+	return Promise.race([fn(), new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`Function ${functionName} timed out`)), timeout))]);
+}
+
+export async function withRetries<T>(fn: () => Promise<T>, functionName: string, retries: number, timeout: number): Promise<T> {
+	for (let i = 0; i < retries; i++) {
+		try {
+			return await withTimeout(fn, functionName, timeout);
+		} catch (error: any) {
+			if (i === retries - 1) {
+				throw error;
+			}
+			getLogger().error(`Attempt to call ${functionName} failed(Attempt ${i + 1}): ${error?.message}. Retrying...`);
+			await delay(500);
+		}
+	}
+	throw new Error(`Max retries reached for function ${functionName}`);
+}
+
+export function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }

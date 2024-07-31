@@ -12,6 +12,7 @@ import { type ExtensionContext, ProgressLocation, commands, window } from "vscod
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
+import { withRetries } from "../utils";
 
 export function signInCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -20,8 +21,9 @@ export function signInCommand(context: ExtensionContext) {
 				getLogger().debug("Signing in to Choreo");
 				const callbackUrl = await vscode.env.asExternalUri(vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`));
 
+				console.log("Generating Choreo login URL for ", callbackUrl.toString());
 				const loginUrl = await window.withProgress({ title: "Generating Login URL...", location: ProgressLocation.Notification }, () =>
-					ext.clients.rpcClient.getSignInUrl(callbackUrl.toString()),
+					withRetries(() => ext.clients.rpcClient.getSignInUrl(callbackUrl.toString()), "getSignInUrl", 2, 1000),
 				);
 
 				if (loginUrl) {

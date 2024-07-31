@@ -75,7 +75,7 @@ export function activateURIHandlers() {
 				}
 				getUserInfoForCmd("open project").then(async (userInfo) => {
 					const org = userInfo?.organizations.find((item) => item.handle === orgHandle);
-					const cacheProjects = dataCacheStore.getState().getProjects(orgHandle)
+					const cacheProjects = dataCacheStore.getState().getProjects(orgHandle);
 					const project = cacheProjects?.find((item) => item.handler === projectHandle);
 					if (!org || !project) {
 						return;
