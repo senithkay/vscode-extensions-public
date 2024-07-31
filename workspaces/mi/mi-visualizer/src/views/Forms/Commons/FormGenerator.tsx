@@ -211,7 +211,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced") ? true : false}
+                                    isCollapsed={(element.value.groupName === "Advanced" || element.value.isCollapsed) ? true : false}
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
