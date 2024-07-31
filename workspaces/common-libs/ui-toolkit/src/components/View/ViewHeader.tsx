@@ -8,7 +8,9 @@
  */
 import React from 'react';
 import styled from '@emotion/styled';
-import { Button, Icon, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from '../Codicon/Codicon';
+import { Icon } from '../Icon/Icon';
+import { Button } from '../Button/Button';
 
 
 type ViewHeaderProps = {
