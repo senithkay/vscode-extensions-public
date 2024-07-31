@@ -145,7 +145,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.model ? "Update" : "Add"}
+                    {props.model ? "Update" : "Create"}
                 </Button>
                 <Button
                     appearance="secondary"
