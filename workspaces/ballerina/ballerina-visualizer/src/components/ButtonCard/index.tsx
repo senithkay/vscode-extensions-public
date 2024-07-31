@@ -12,7 +12,7 @@ import { Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 
-const CardContainer = styled.div`
+const CardContainer = styled.div<{ active?: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -21,8 +21,8 @@ const CardContainer = styled.div`
     width: 100%;
     padding: 16px;
     border-radius: 4px;
-    border: 2px solid ${Colors.OUTLINE_VARIANT};
-    background-color: ${Colors.SURFACE_DIM};
+    border: 2px solid ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+    background-color: ${(props: { active: boolean }) => (props.active ? Colors.PRIMARY_CONTAINER : Colors.SURFACE_DIM)};
     cursor: pointer;
     &:hover {
         background-color: ${Colors.PRIMARY_CONTAINER};
@@ -75,14 +75,15 @@ export interface ButtonCardProps {
     caption?: string;
     description: string;
     icon?: React.ReactNode;
+    active?: boolean;
     onClick: () => void;
 }
 
 export function ButtonCard(props: ButtonCardProps) {
-    const { title, caption, description, icon, onClick } = props;
+    const { title, caption, description, icon, active, onClick } = props;
     return (
-        <CardContainer onClick={onClick}>
-            <IconContainer>{icon}</IconContainer>
+        <CardContainer onClick={onClick} active={active ?? false}>
+            {icon && <IconContainer>{icon}</IconContainer>}
             <ContentContainer>
                 {caption && <Caption>{caption}</Caption>}
                 <Title>{title}</Title>
