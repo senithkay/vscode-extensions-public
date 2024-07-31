@@ -18,13 +18,15 @@ import {
     CompletionParams,
     DiagnosticData,
     GoToSourceRequest,
+    ProjectDirResponse,
     SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
-    WorkspacesFileResponse
+    WorkspacesFileResponse,
 } from "@wso2-enterprise/ballerina-core";
-import { Uri, commands, workspace } from "vscode";
+import { Uri, commands, window, workspace } from "vscode";
 import { URI } from "vscode-uri";
+import * as os from 'os';
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { getUpdatedSource } from "./utils";
@@ -137,4 +139,27 @@ export class CommonRpcManager implements CommonRPCAPI {
             }
         });
     }
+
+    async askProjectDirPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDir = await askProjectPath();
+            if (!selectedDir || selectedDir.length === 0) {
+                window.showErrorMessage('A folder must be selected to create project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDir[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+}
+
+async function askProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a folder to create the Project"
+    });
 }
