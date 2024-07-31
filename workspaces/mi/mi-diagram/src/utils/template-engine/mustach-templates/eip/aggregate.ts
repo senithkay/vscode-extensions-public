@@ -14,7 +14,7 @@ import { checkAttributesExist, transformNamespaces } from "../../../commons";
 export function getAggregateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
+    <aggregate{{#aggregateID}} id="{{aggregateID}}"{{/aggregateID}}{{#description}} description="{{description}}"{{/description}}>
 {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
         <completeCondition{{#completionTimeout}} timeout="{{completionTimeout}}"{{/completionTimeout}}>
             <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
@@ -183,6 +183,7 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
         onComplete: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.range
     }
     data.onCompleteSelfClosed = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.selfClosed;
+    data.description = node.description;
     return data;
 }
 
