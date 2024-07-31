@@ -11,13 +11,17 @@ import React, { useRef, useState } from 'react';
 import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 
-const SearchOptionsContainer = styled.div({
+const DropDownContainer = styled.div({
     position: "absolute",
     top: "100%",
     right: "0",
     zIndex: 5,
     backgroundColor: "var(--vscode-sideBar-background)",
     padding: "5px"
+});
+
+const SearchBoxOptionsContainer=styled.div({
+    display: "flex", flexDirection: "row"
 });
 
 interface HeaderSearchBoxOptionsProps {
@@ -47,7 +51,7 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <SearchBoxOptionsContainer>
             {searchTerm && (
                 <Codicon name="close" onClick={handleOnSearchTextClear} />
             )}
@@ -58,7 +62,7 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
                 </div>
                 <ClickAwayListener onClickAway={() => { setShowSearchOptions(false); }} anchorEl={showSearchOptionsRef.current}>
                     {showSearchOptions && (
-                        <SearchOptionsContainer>
+                        <DropDownContainer>
                             <CheckBoxGroup direction="vertical">
                                 {searchOptionsData.map((item) => (
                                     <CheckBox
@@ -71,11 +75,11 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
                                     />
                                 ))}
                             </CheckBoxGroup>
-                        </SearchOptionsContainer>
+                        </DropDownContainer>
                     )}
                 </ClickAwayListener>
             </div>
-        </div>
+        </SearchBoxOptionsContainer>
     );
 };
 
