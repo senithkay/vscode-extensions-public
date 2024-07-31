@@ -15,9 +15,11 @@ import {
     CommandsResponse,
     CommonRPCAPI,
     GoToSourceRequest,
+    ProjectDirResponse,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
+    askProjectDirPath,
     executeCommand,
     getBallerinaDiagnostics,
     getTypes,
@@ -52,5 +54,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
         return this._messenger.sendRequest(executeCommand, HOST_EXTENSION, params);
+    }
+
+    askProjectDirPath(): Promise<ProjectDirResponse> {
+        return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
     }
 }

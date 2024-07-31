@@ -180,7 +180,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async createProject(params: CreateProjectRequest): Promise<void> {
-        createEggplantProjectPure(params.projectName);
+        createEggplantProjectPure(params.projectName, params.projectPath);
     }
 
     async getWorkspaces(): Promise<WorkspacesResponse> {
