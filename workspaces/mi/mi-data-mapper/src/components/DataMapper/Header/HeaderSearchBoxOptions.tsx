@@ -1,10 +1,17 @@
-
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import React, { useRef, useState } from 'react';
 import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 
-const SearchOptionContainer = styled.div({
+const SearchOptionsContainer = styled.div({
     position: "absolute", 
     top: "100%", 
     right: "0", 
@@ -13,30 +20,27 @@ const SearchOptionContainer = styled.div({
     padding: "5px" 
 });
 
-export const INPUT_FIELD_FILTER_LABEL = "in:";
-export const OUTPUT_FIELD_FILTER_LABEL = "out:";
-
 interface HeaderSearchBoxOptionsProps {
     searchTerm: string;
-    searchOption: string[];
+    searchOptions: string[];
     searchOptionsData: {value:string,label:string}[];
-    setSearchOption: React.Dispatch<React.SetStateAction<string[]>>;
+    setSearchOptions: React.Dispatch<React.SetStateAction<string[]>>;
     handleOnSearchTextClear: () => void;
 }
 
 export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
-    const { searchTerm, searchOption, setSearchOption, handleOnSearchTextClear,searchOptionsData } = props;
+    const { searchTerm, searchOptions, setSearchOptions, handleOnSearchTextClear,searchOptionsData } = props;
     
-    const [showSearchOption, setShowSearchOption] = useState(false);
-    const showSearchOptionRef = useRef(null);
+    const [showSearchOptions, setShowSearchOptions] = useState(false);
+    const showSearchOptionsRef = useRef(null);
 
-    const handleSearchOptionChange = (checked: boolean, value: string) => {
+    const handleSearchOptionsChange = (checked: boolean, value: string) => {
         if (checked) {
-            if (searchOption.indexOf(value) === -1) {
-                setSearchOption([value, ...searchOption]);
+            if (searchOptions.indexOf(value) === -1) {
+                setSearchOptions([value, ...searchOptions]);
             }
         } else {
-            setSearchOption(searchOption.filter(option => option !== value));
+            setSearchOptions(searchOptions.filter(option => option !== value));
         }
     };
 
@@ -47,25 +51,25 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
             )}
 
             <div>
-                <div ref={showSearchOptionRef}>
-                    <Codicon name={showSearchOption ? "chevron-up" : "chevron-down"} onClick={() => setShowSearchOption(!showSearchOption)} />
+                <div ref={showSearchOptionsRef}>
+                    <Codicon name={showSearchOptions ? "chevron-up" : "chevron-down"} onClick={() => setShowSearchOptions(!showSearchOptions)} />
                 </div>
-                <ClickAwayListener onClickAway={() => { setShowSearchOption(false); }} anchorEl={showSearchOptionRef.current}>
-                    {showSearchOption && (
-                        <SearchOptionContainer>
+                <ClickAwayListener onClickAway={() => { setShowSearchOptions(false); }} anchorEl={showSearchOptionsRef.current}>
+                    {showSearchOptions && (
+                        <SearchOptionsContainer>
                             <CheckBoxGroup direction="vertical">
                                 {searchOptionsData.map((item)=>(
                                     <CheckBox
-                                        checked={searchOption.indexOf(item.value) > -1}
+                                        checked={searchOptions.indexOf(item.value) > -1}
                                         label={item.label}
                                         onChange={(checked) => {
-                                            handleSearchOptionChange(checked, item.value);
+                                            handleSearchOptionsChange(checked, item.value);
                                         }}
                                         value={item.value}
                                     />
                                 ))}
                             </CheckBoxGroup>
-                        </SearchOptionContainer>
+                        </SearchOptionsContainer>
                     )}
                 </ClickAwayListener>
             </div>
