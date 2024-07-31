@@ -87,7 +87,7 @@ export const DropdownIcon = cx(css`
 export const SearchableInput = (hideDropdown: boolean) => cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: ${hideDropdown ? '100%' : '24px'};
+    height: ${hideDropdown ? '100%' : 'auto'};
     width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
     padding-left: 8px;
     padding-block: ${hideDropdown ? '5px' : '1px'};
@@ -114,6 +114,7 @@ const ComboboxInputWrapper = styled.div<DropdownProps>`
     height: 100%;
     display: flex;
     flex-direction: row;
+    margin-right: 10px;
     border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
     &:focus-within {
         border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
