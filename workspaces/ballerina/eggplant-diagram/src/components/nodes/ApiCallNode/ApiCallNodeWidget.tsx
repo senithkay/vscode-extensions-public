@@ -24,6 +24,7 @@ import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
+import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -134,13 +135,15 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onNodeSelect } = useDiagramContext();
 
     const handleOnClick = () => {
         onClick && onClick(model.node);
+        onNodeSelect(model.node);
     };
 
     return (
-        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} onClick={handleOnClick}>
             <NodeStyles.Box selected={model.isSelected()} hovered={isHovered}>
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>

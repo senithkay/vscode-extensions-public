@@ -14,6 +14,7 @@ import { IfNodeModel } from "./IfNodeModel";
 import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
+import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -111,9 +112,11 @@ export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
 export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onNodeSelect } = useDiagramContext();
 
     const handleOnClick = () => {
         onClick && onClick(model.node);
+        onNodeSelect(model.node);
     };
 
     return (
@@ -122,6 +125,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleOnClick}
         >
             <NodeStyles.Row>
                 <NodeStyles.Column>
