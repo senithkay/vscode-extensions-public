@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import debounce from "lodash.debounce";
 
@@ -38,6 +38,7 @@ export default function HeaderSearchBox() {
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
@@ -128,12 +129,14 @@ export default function HeaderSearchBox() {
             icon={{ iconComponent: filterIcon, position: "start" }}
             placeholder={`filter input and output fields`}
             value={searchTerm}
+            ref={searchInputRef}
             onTextChange={handleSearchInputChange}
             size={100}
             inputProps={{
                 endAdornment: (
                     <HeaderSearchBoxOptions
                         searchTerm={searchTerm}
+                        searchInputRef={searchInputRef}
                         searchOptions={searchOptions}
                         setSearchOptions={setSearchOptions}
                         handleOnSearchTextClear={handleOnSearchTextClear}

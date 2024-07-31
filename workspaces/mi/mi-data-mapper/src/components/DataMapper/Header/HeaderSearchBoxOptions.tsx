@@ -22,6 +22,7 @@ const SearchOptionsContainer = styled.div({
 
 interface HeaderSearchBoxOptionsProps {
     searchTerm: string;
+    searchInputRef: React.RefObject<HTMLInputElement>;
     searchOptions: string[];
     searchOptionsData: { value: string, label: string }[];
     setSearchOptions: React.Dispatch<React.SetStateAction<string[]>>;
@@ -29,7 +30,7 @@ interface HeaderSearchBoxOptionsProps {
 }
 
 export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
-    const { searchTerm, searchOptions, setSearchOptions, handleOnSearchTextClear, searchOptionsData } = props;
+    const { searchTerm, searchInputRef, searchOptions, setSearchOptions, handleOnSearchTextClear, searchOptionsData } = props;
 
     const [showSearchOptions, setShowSearchOptions] = useState(false);
     const showSearchOptionsRef = useRef(null);
@@ -42,6 +43,7 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
         } else {
             setSearchOptions(searchOptions.filter(option => option !== value));
         }
+        searchInputRef.current.shadowRoot.querySelector('input').focus();
     };
 
     return (
