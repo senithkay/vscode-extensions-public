@@ -36,10 +36,24 @@ import {
     updateNodeProperties,
 } from "./../../utils/eggplant";
 import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { getColorByMethod } from "../../utils/utils";
 
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
+`;
+
+interface ColoredTagProps {
+    color: string;
+};
+
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+    ::part(control) {
+        color: var(--button-primary-foreground);
+        background-color: ${({ color }: ColoredTagProps) => color};
+    }
 `;
 
 export enum SidePanelView {
@@ -189,9 +203,27 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
     };
 
+    const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+
+    const DiagramTitle = (
+        <React.Fragment>
+            <span>Resource:</span>
+            <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
+            <span>{getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}</span>
+        </React.Fragment>
+    )
+
     return (
         <>
-            <Container>{!!model && <Diagram model={model} onAddNode={handleOnAddNode} title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)} />}</Container>
+            <View>
+                <ViewHeader title={DiagramTitle} codicon="globe" onEdit={handleOnFormBack}>
+                </ViewHeader>
+                <ViewContent padding>
+                    <Container>
+                        {!!model && <Diagram model={model} onAddNode={handleOnAddNode} title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)} />}
+                    </Container>
+                </ViewContent>
+            </View>
             <PanelContainer
                 title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}

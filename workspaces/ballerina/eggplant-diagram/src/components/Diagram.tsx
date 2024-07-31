@@ -30,17 +30,6 @@ import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import styled from "@emotion/styled";
 
-const Title = styled.h3`
-    margin: 0 10px 0 0;
-    color: var(--vscode-sideBarSectionHeader-foreground);
-    font-size: var(--vscode-font-size);
-`;
-
-const BreadCrumb = styled.div`
-    padding-left: 15px;
-    display: flex;
-`;
-
 export interface DiagramProps {
     model: Flow;
     onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
@@ -161,9 +150,6 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            <BreadCrumb>
-                <Title> Eggplant Diagram: {props.title}</Title>
-            </BreadCrumb>
             {hasErrorFlow && (
                 <Switch
                     leftLabel="Flow"
