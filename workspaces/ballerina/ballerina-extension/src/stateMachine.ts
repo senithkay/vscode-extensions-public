@@ -180,14 +180,12 @@ const stateMachine = createMachine<MachineContext>(
                         history = new History();
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
-                        if (webview && context.isEggplant) {
-                            if (context.isEggplant) {
-                                webview.title = "Eggplant";
-                                webview.iconPath = {
-                                    light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
-                                    dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
-                                };
-                            }
+                        if (webview && (context.isEggplant || context.view === MACHINE_VIEW.EggplantWelcome)) {
+                            webview.title = "Eggplant";
+                            webview.iconPath = {
+                                light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
+                                dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
+                            };
                         }
                         resolve(true);
                     });
