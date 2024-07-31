@@ -28,7 +28,6 @@ const AddPanel = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: 10,
-    // backgroundColor: "var(--vscode-sideBar-background);",
     padding: 20,
 });
 
@@ -38,13 +37,6 @@ const PanelViewMore = styled.div({
     gap: 10,
 });
 
-const HorizontalCardContainer = styled.div({
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    margin: "0px 155px 0px 155px",
-    gridAutoRows: "minmax(80px, auto)",
-    gap: "40px",
-});
 
 const CardGrid = styled.div`
     display: grid;
@@ -68,49 +60,10 @@ const Title = styled(Typography)`
     margin: 8px 0;
 `;
 
-const PanelFooter = styled.div({
-    display: "flex",
-    justifyContent: "center",
-});
 
 // Add this styled component for the close button
-const CloseButton = styled(Button)({
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none", // Optional: Adjust styling as needed
-    border: "none", // Optional: Adjust styling as needed
-    cursor: "pointer", // Optional: Adjust styling as needed
-});
 
-const AIPanel = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "5px",
-});
 
-const transitionEffect = {
-    enter: css({
-        transition: "opacity 75ms ease-out",
-    }),
-    enterFrom: css({
-        opacity: 0,
-    }),
-    enterTo: css({
-        opacity: 1,
-    }),
-    leave: css({
-        transition: "opacity 150ms ease-in",
-    }),
-    leaveFrom: css({
-        opacity: 1,
-    }),
-    leaveTo: css({
-        opacity: 0,
-    }),
-};
 
 export function AddComponentView() {
     const { rpcClient } = useVisualizerContext();
@@ -146,14 +99,7 @@ export function AddComponentView() {
             });
     }, []);
 
-    const handleGenerateWithAI = async () => {
-        // rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
-        // rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
-    };
 
-    const handleAiPromptChange = (value: string) => {
-        setInputAiPrompt(value);
-    };
 
     return (
         <View>
