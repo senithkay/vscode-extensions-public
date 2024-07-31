@@ -14,20 +14,22 @@ import styled from "@emotion/styled";
 const CardContainer = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    height: 100%;
     width: 100%;
-    padding: 16px 32px;
-    background-color: var(--vscode-activityBar-background);
+    padding-bottom: 24px;
 `;
 
 const Text = styled.p`
     font-size: 14px;
-    text-align: center;
     margin: 8px 0;
-    color: var(--vscode-activityBar-inactiveForeground);
+    color: var(--vscode-sideBarTitle-foreground);
+    opacity: 0.5;
 `;
+
+const ActionButton = styled(LinkButton)`
+    padding: 8px 4px;
+`
 
 export interface EmptyCardProps {
     description: string;
@@ -40,10 +42,10 @@ export function EmptyCard(props: EmptyCardProps) {
     return (
         <CardContainer>
             <Text>{description}</Text>
-            <LinkButton onClick={onClick}>
+            <ActionButton onClick={onClick}>
                 <Codicon name="add" />
                 {actionText}
-            </LinkButton>
+            </ActionButton>
         </CardContainer>
     );
 }
