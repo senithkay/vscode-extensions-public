@@ -1,0 +1,80 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React, { useRef, useState } from 'react';
+import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+
+const SearchOptionsContainer = styled.div({
+    position: "absolute", 
+    top: "100%", 
+    right: "0", 
+    zIndex: 5, 
+    backgroundColor: "var(--vscode-sideBar-background)", 
+    padding: "5px" 
+});
+
+interface HeaderSearchBoxOptionsProps {
+    searchTerm: string;
+    searchOptions: string[];
+    searchOptionsData: {value:string,label:string}[];
+    setSearchOptions: React.Dispatch<React.SetStateAction<string[]>>;
+    handleOnSearchTextClear: () => void;
+}
+
+export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
+    const { searchTerm, searchOptions, setSearchOptions, handleOnSearchTextClear,searchOptionsData } = props;
+    
+    const [showSearchOptions, setShowSearchOptions] = useState(false);
+    const showSearchOptionsRef = useRef(null);
+
+    const handleSearchOptionsChange = (checked: boolean, value: string) => {
+        if (checked) {
+            if (searchOptions.indexOf(value) === -1) {
+                setSearchOptions([value, ...searchOptions]);
+            }
+        } else {
+            setSearchOptions(searchOptions.filter(option => option !== value));
+        }
+    };
+
+    return (
+        <div style={{ display: "flex", flexDirection: "row" }}>
+            {searchTerm && (
+                <Codicon name="close" onClick={handleOnSearchTextClear} />
+            )}
+
+            <div>
+                <div ref={showSearchOptionsRef}>
+                    <Codicon name={showSearchOptions ? "chevron-up" : "chevron-down"} onClick={() => setShowSearchOptions(!showSearchOptions)} />
+                </div>
+                <ClickAwayListener onClickAway={() => { setShowSearchOptions(false); }} anchorEl={showSearchOptionsRef.current}>
+                    {showSearchOptions && (
+                        <SearchOptionsContainer>
+                            <CheckBoxGroup direction="vertical">
+                                {searchOptionsData.map((item)=>(
+                                    <CheckBox
+                                        checked={searchOptions.indexOf(item.value) > -1}
+                                        label={item.label}
+                                        onChange={(checked) => {
+                                            handleSearchOptionsChange(checked, item.value);
+                                        }}
+                                        value={item.value}
+                                    />
+                                ))}
+                            </CheckBoxGroup>
+                        </SearchOptionsContainer>
+                    )}
+                </ClickAwayListener>
+            </div>
+        </div>
+    );
+};
+
+export default HeaderSearchBoxOptions;
