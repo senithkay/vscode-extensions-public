@@ -217,8 +217,20 @@
         "category": "MI"
       },
       {
+        "command": "MI.registry-explorer.add",
+        "title": "Add to Registry",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.refresh",
         "title": "Refresh Project Explorer",
+        "icon": "$(refresh)",
+        "group": "navigation"
+      },
+      {
+        "command": "MI.registry-explorer.refresh",
+        "title": "Refresh Registry Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
       },
@@ -566,6 +578,16 @@
         {
           "command": "MI.project-explorer.add",
           "when": "false"
+        },
+        {
+          "command": "MI.registry-explorer.refresh",
+          "when": "view == MI.registry-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.registry-explorer.add",
+          "when": "view == MI.registry-explorer && projectOpened",
+          "group": "navigation"
         }
       ],
       "view/title": [
@@ -577,6 +599,16 @@
         {
           "command": "MI.project-explorer.add",
           "when": "view == MI.project-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.registry-explorer.refresh",
+          "when": "view == MI.registry-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.registry-explorer.add",
+          "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
         },
         {
