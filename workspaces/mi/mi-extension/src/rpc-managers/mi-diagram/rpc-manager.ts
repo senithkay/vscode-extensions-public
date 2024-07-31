@@ -1113,7 +1113,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sequenceList = endpointsAndSequences.data[1];
             const projectDir = (await this.getProjectRoot({ path: directory })).path;
 
-            let sequencePath = "";
             if (attributes.sequence) {
                 if (!(sequenceList.includes(attributes.sequence as string))) {
 
@@ -1128,9 +1127,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         trace: false
                     };
                     const response = await this.createSequence(sequenceRequest);
-                    sequencePath = response.filePath;
-                } else {
-                    sequencePath = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${attributes.sequence as string}.xml`);
                 }
             }
 
@@ -1152,7 +1148,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             await replaceFullContentToFile(filePath, xmlData);
-            resolve({ path: sequencePath });
+            resolve({ path: filePath });
         });
     }
 
