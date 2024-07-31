@@ -14,7 +14,8 @@ import styled from "@emotion/styled";
 
 const TitleContainer = styled.div`
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 8px;
 `;
 
 const ProjectTitle = styled.h1`

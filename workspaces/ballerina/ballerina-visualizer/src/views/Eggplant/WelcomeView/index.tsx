@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { Button, Codicon, ComponentCard } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const TextWrapper = styled.div`
@@ -21,19 +21,9 @@ const TextWrapper = styled.div`
     justify-content: center;
 `;
 
-const NavigationContainer = styled.div`
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-`;
-
-const IconWrapper = styled.div`
-    height: 20px;
-    width: 20px;
-`;
-
 const Wrapper = styled.div`
     height: calc(100vh - 100px);
+    max-width: 800px;
     padding: 85px 120px;
     overflow: auto;
 `;
@@ -51,22 +41,6 @@ const Pane = styled.div`
     width: 100%;
 `;
 
-const ComponentCardStyles = {
-    height: 50,
-    width: "100%",
-    marginBottom: 10,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    paddingLeft: 30
-};
-
-const CreateBtnStyles = {
-    gap: 10,
-    display: "flex",
-    flexDirection: "row"
-};
-
 const Tab = styled.div`
     display: flex;
     flex-direction: column;
@@ -79,7 +53,7 @@ const Headline = styled.div`
     font-weight: 400;
     font-size: 2.7em;
     white-space: nowrap;
-    padding-bottom: 10px;
+    margin-bottom: 20px;
 `;
 
 const SubTitle = styled.div`
@@ -90,24 +64,22 @@ const SubTitle = styled.div`
     line-height: normal;
 `;
 
-const SampleText = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
-
 const Grid = styled.div({
     display: "flex",
     flexDirection: "row",
-    gap: 20
-})
+    gap: 20,
+});
 
-const SampleTitle = {
-    margin: "4px 0px",
-    fontSize: 14,
-    fontWeight: 500,
-    textAlign: "left",
-    display: "inline-block"
-}
+const AddButton = styled(Button)`
+    margin-top: 10px;
+    width: 100%;
+`;
+
+const ButtonContent = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+`;
 
 export function WelcomeView() {
     const { rpcClient } = useVisualizerContext();
@@ -116,61 +88,53 @@ export function WelcomeView() {
         rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.EggplantProjectForm
-            }
+                view: MACHINE_VIEW.EggplantProjectForm,
+            },
         });
-    }
-
-    const openTroubleshootGuide = () => {
-        // rpcClient.getVisualizerRpcClient().openExternal({
-        //     uri: "https://mi.docs.wso2.com/en/4.3.0/develop/mi-for-vscode/troubleshooting-mi-for-vscode/"
-        // })
-    }
+    };
 
     const openGettingStartedGuide = () => {
         // rpcClient.getVisualizerRpcClient().openExternal({
         //     uri: "https://mi.docs.wso2.com/en/4.3.0/get-started/development-kickstart/"
         // })
-    }
-
-
-    const handleMoreSamples = () => {
-        // rpcClient.getMiVisualizerRpcClient().openView({
-        //     type: EVENT_TYPE.OPEN_VIEW,
-        //     location: {
-        //         view: MACHINE_VIEW.Samples
-        //     }
-        // });
-    }
+    };
 
     return (
         <>
             <Wrapper>
                 <TitlePanel>
                     <Headline>Eggplant for VS Code</Headline>
-                    <span>A comprehensive integration solution that simplifies your digital transformation journey. Streamlines connectivity among applications, services, data, and cloud using a user-friendly low-code graphical designing experience. </span>
+                    <span>
+                        A comprehensive integration solution that simplifies your digital transformation journey.
+                        Streamlines connectivity among applications, services, data, and cloud using a user-friendly
+                        low-code graphical designing experience.{" "}
+                    </span>
                 </TitlePanel>
                 <Grid>
                     <Pane>
                         <Tab>
                             <SubTitle>Getting started</SubTitle>
-                            <span>Learn about the Eggplant Extension in our <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.</span>
+                            <span>
+                                Learn about the Eggplant Extension in our{" "}
+                                <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.
+                            </span>
                         </Tab>
                         <Tab>
                             <SubTitle>Create New Project</SubTitle>
-                            <span>Create an empty project.</span>
-                            <Button appearance="primary" onClick={() => goToCreateProject()}>
-                                <div style={CreateBtnStyles}>
-                                    <IconWrapper>
-                                        <Codicon name="folder-library" iconSx={{ fontSize: 20 }} />
-                                    </IconWrapper>
+                            <span>Create a new project by clicking the button below.</span>
+                            <AddButton appearance="primary" onClick={() => goToCreateProject()}>
+                                <ButtonContent>
+                                    <Codicon name="add" iconSx={{ fontSize: 16 }} />
                                     <TextWrapper>Create New Project</TextWrapper>
-                                </div>
-                            </Button>
+                                </ButtonContent>
+                            </AddButton>
                         </Tab>
                         <Tab>
                             <SubTitle>Explore Samples</SubTitle>
-                            <span>Have a look at some examples.<VSCodeLink onClick={openGettingStartedGuide}>View Samples</VSCodeLink>.</span>
+                            <span>
+                                Have a look at some examples.
+                                <VSCodeLink onClick={openGettingStartedGuide}>View Samples</VSCodeLink>.
+                            </span>
                         </Tab>
                     </Pane>
                 </Grid>
