@@ -313,7 +313,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             {isNewEndpoint && (
                 <>
                     <FormCheckBox
-                        label="Save the sequence in registry"
+                        label="Save the endpoint in registry"
                         {...register("saveInReg")}
                         control={control}
                     />

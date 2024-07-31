@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { useIONodesStyles } from "../../../styles";
 import { useDMExpressionBarStore } from "../../../../store/store";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 
@@ -71,7 +71,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
 
     const portIn = getPort(`${fieldId}.IN`);
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
-    const diagnostic = value && getDiagnostics(field.value)[0];
+    const diagnostic = value && filterDiagnosticsForNode(context.diagnostics, field.value)[0];
 
     const handleEditValue = () => {
         if (field.value) {

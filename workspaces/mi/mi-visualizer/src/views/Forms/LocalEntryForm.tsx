@@ -343,7 +343,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                     {isNewTask && (
                         <>
                             <FormCheckBox
-                                label="Save the sequence in registry"
+                                label="Save the local entry in registry"
                                 {...register("saveInReg")}
                                 control={control}
                             />

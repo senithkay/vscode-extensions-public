@@ -37,7 +37,10 @@ import {
     updateDMUndoRedoManager,
     getCompletions,
     GetCompletionsRequest,
-    GetCompletionsResponse
+    GetCompletionsResponse,
+    GetDMDiagnosticsRequest,
+    GetDMDiagnosticsResponse,
+    getDMDiagnostics
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -99,5 +102,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     getCompletions(params: GetCompletionsRequest): Promise<GetCompletionsResponse> {
         return this._messenger.sendRequest(getCompletions, HOST_EXTENSION, params);
+    }
+
+    getDMDiagnostics(params: GetDMDiagnosticsRequest): Promise<GetDMDiagnosticsResponse> {
+        return this._messenger.sendRequest(getDMDiagnostics, HOST_EXTENSION, params);
     }
 }
