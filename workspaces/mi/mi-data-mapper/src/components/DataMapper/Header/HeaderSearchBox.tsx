@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import debounce from "lodash.debounce";
 
@@ -98,7 +98,7 @@ export default function HeaderSearchBox() {
         let modifiedSearchTerm = searchTerm;
         if (searchOptions.includes(INPUT_FIELD_FILTER_LABEL)) {
             if (inSearchTerm && !inSearchTerm.isLabelAvailable) {
-                modifiedSearchTerm += ` ${INPUT_FIELD_FILTER_LABEL}`;
+                modifiedSearchTerm = modifiedSearchTerm.trimEnd() + ` ${INPUT_FIELD_FILTER_LABEL}`;
             }
         } else {
             if (inSearchTerm && inSearchTerm.isLabelAvailable) {
@@ -107,7 +107,7 @@ export default function HeaderSearchBox() {
         }
         if (searchOptions.includes(OUTPUT_FIELD_FILTER_LABEL)) {
             if (outSearchTerm && !outSearchTerm.isLabelAvailable) {
-                modifiedSearchTerm += ` ${OUTPUT_FIELD_FILTER_LABEL}`;
+                modifiedSearchTerm = modifiedSearchTerm.trimEnd() + ` ${OUTPUT_FIELD_FILTER_LABEL}`;
             }
         } else {
             if (outSearchTerm && outSearchTerm.isLabelAvailable) {
