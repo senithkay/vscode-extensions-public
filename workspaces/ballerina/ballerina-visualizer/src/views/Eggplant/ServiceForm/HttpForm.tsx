@@ -14,7 +14,6 @@ import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SERVICE_VIEW } from "./constants";
 import { EggplantHeader } from "../EggplantHeader";
-import { View, ViewContent } from "../../../components/View";
 import ButtonCard from "../../../components/ButtonCard";
 
 const FORM_WIDTH = 600;
