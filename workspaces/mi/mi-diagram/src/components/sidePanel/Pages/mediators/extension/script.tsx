@@ -53,7 +53,7 @@ const ScriptForm = (props: AddMediatorProps) => {
             scriptLanguage: sidePanelContext?.formValues?.scriptLanguage || "js",
             scriptType: sidePanelContext?.formValues?.scriptType || "INLINE",
             scriptBody: sidePanelContext?.formValues?.scriptBody || "",
-            scriptKey: sidePanelContext?.formValues?.scriptKey || "",
+            scriptKey: sidePanelContext?.formValues?.scriptKey || {"isExpression":false,"value":""},
             mediateFunction: sidePanelContext?.formValues?.mediateFunction || "",
             scriptKeys: {
                 paramValues: sidePanelContext?.formValues?.scriptKeys ? getParamManagerFromValues(sidePanelContext?.formValues?.scriptKeys, 0, 1) : [],
@@ -186,6 +186,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                additionalItems={[]}
                             />
                         )}
                     />
