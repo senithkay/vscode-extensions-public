@@ -17,6 +17,8 @@ import { getInputOutputSearchTerms } from "./utils";
 import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon, Menu, MenuItem, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import HeaderSearchBoxOptions from './HeaderSearchBoxOptions';
+import { DataMapperNodeModel } from '../../Diagram/Node/commons/DataMapperNode';
+import { ArrayOutputNode, FocusedInputNode, InputNode, ObjectOutputNode, PrimitiveOutputNode } from '../../Diagram/Node';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -32,13 +34,26 @@ export interface SearchTerm {
     isLabelAvailable: boolean;
 }
 
-export default function HeaderSearchBox() {
+interface HeaderSearchBoxProps {
+    nodes: DataMapperNodeModel[];
+}
+
+export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
+
+    const { nodes } = props;
+
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOptions, setSearchOptions] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
+
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const prevInSearchTermRef = useRef<string>("");
+    const prevOutSearchTermRef = useRef<string>("");
+
+    const inputNode = nodes.find((node) => (node instanceof InputNode || node instanceof FocusedInputNode));
+    const outputNode = nodes.find((node) => (node instanceof ObjectOutputNode || node instanceof ArrayOutputNode || node instanceof PrimitiveOutputNode));
 
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
@@ -52,6 +67,7 @@ export default function HeaderSearchBox() {
 
     const handleSearch = (term: string) => {
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
+        
         const hasInputFilterLabelChanged = !inputSearchTerm
             || (inputSearchTerm && inSearchTerm && inputSearchTerm.isLabelAvailable !== inSearchTerm.isLabelAvailable);
         const hasOutputFilterLabelChanged = !outputSearchTerm
@@ -83,10 +99,21 @@ export default function HeaderSearchBox() {
             }
             setSearchOptions(modifiedSearchOptions);
         }
+
         setInputSearchTerm(inSearchTerm);
         setOutputSearchTerm(outSearchTerm);
         dmStore.setInputSearch(inSearchTerm.searchText.trim());
         dmStore.setOutputSearch(outSearchTerm.searchText.trim());
+
+        if (inputNode && prevInSearchTermRef.current != inSearchTerm.searchText) {
+            inputNode.setPosition(inputNode.getX(), 0);
+            prevInSearchTermRef.current = inSearchTerm.searchText;
+        }
+
+        if (outputNode && prevOutSearchTermRef.current != outSearchTerm.searchText) {
+            outputNode && outputNode.setPosition(outputNode.getX(), 0);
+            prevOutSearchTermRef.current = outSearchTerm.searchText;
+        }
     };
 
     const handleOnSearchTextClear = () => {
