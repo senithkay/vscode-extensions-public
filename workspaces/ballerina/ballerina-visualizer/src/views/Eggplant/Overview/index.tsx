@@ -10,8 +10,7 @@
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { View, ViewContent } from "../../../components/View";
-import { Button, Codicon, ComponentCard, Divider, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ComponentCard, Divider, TextField, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 
