@@ -47,6 +47,7 @@ import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms'
 import { DataServiceView } from './views/Diagram/DataService';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
+import { UpdateMIExtension } from './views/UpdateExtension';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { SamplesView } from './views/SamplesView';
 import { WelcomeView } from './views/WelcomeView';
@@ -335,6 +336,9 @@ const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => 
                     break;
                 case MACHINE_VIEW.LoggedOut:
                     setViewComponent(<SignInToCopilotMessage />);
+                    break;
+                case MACHINE_VIEW.UpdateExtension:
+                    setViewComponent(<UpdateMIExtension />);
                     break;
                 case MACHINE_VIEW.TestCase:
                     setViewComponent(<TestCaseForm

@@ -42,11 +42,13 @@ type InboundEndpoint = {
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
     const { formData, handleCreateInboundEP, model } = props;
-    const { control, handleSubmit, register, formState: { errors }, setValue } = useForm<any>();
+    const { control, handleSubmit, register, formState: { errors }, setValue, reset } = useForm<any>();
 
     useEffect(() => {
+        reset();
         if (model) {
             const attributeNames = getGenericAttributeNames(formData);
+            
             attributeNames.forEach((attributeName: string) => {
                 if (model.hasOwnProperty(attributeName)) {
                     setValue(getNameForController(attributeName), model[attributeName]);
@@ -57,7 +59,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 setValue(getNameForController(param.name), param.content);
             });
         }
-    }, [model]);
+    }, [model, formData]);
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');

@@ -9,36 +9,61 @@
 
 import { PropertyGroup } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
-import { transformNamespaces } from "../../../commons";
+import { filterNamespaces, transformNamespaces } from "../../../commons";
 
 export function getPropertyGroupMustacheTemplate() {
     return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
     {{#properties}}
-    {{#OMValue}}
-    <property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}>{{{OMValue}}}</property>
-    {{/OMValue}}
-    {{^OMValue}}
-    <property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
-    {{/OMValue}}
+    {{#isInlineOMValue}}
+    <property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>{{{OMValue}}}</property>
+    {{/isInlineOMValue}}
+    {{^isInlineOMValue}}
+    <property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    {{/isInlineOMValue}}
     {{/properties}}
 </propertyGroup>`;
 }
 
 export function getPropertyGroupXml(data: { [key: string]: any }) {
     const properties = data.properties.map((property: any[]) => {
+        let name = property[0]?.isExpression ? "{" + property[0].value + "}" : property[0].value;
         let hasStringPattern = property[6] != null && property[6] != "";
+        let value;
+        let expression;
+        let omValue;
+        let isInlineOMValue;
+        let namespaces = [];
+        namespaces.push(...property[0].namespaces ? property[0].namespaces : []);
+        if (property[2] == "OM") {
+            if (property[4]?.isExpression) {
+                expression = property[4].value;
+                namespaces.push(...property[4]?.namespaces ? property[4]?.namespaces : []);
+            } else {
+                isInlineOMValue = true;
+                omValue = property[4]?.value;
+            }
+        } else {
+            if (property[3]?.isExpression) {
+                expression = property[3].value;
+                namespaces.push(...property[3]?.namespaces ? property[3]?.namespaces : []);
+            } else {
+                value = property[3]?.value;
+            }
+        }
+        let filteredNamespaces = filterNamespaces(namespaces);
         return {
-            newPropertyName: property[0],
+            newPropertyName: name,
             propertyAction: property[1],
             propertyDataType: property[2],
-            value: property[3]?.isExpression ? undefined : property[3]?.value,
-            expression: property[3]?.isExpression ? property[3]?.value : undefined,
-            namespaces: property[3]?.isExpression ? property[3]?.namespaces : undefined,
-            OMValue: property[1] == "OM" ? property[4] : undefined,
+            value: value,
+            expression: expression,
+            namespaces: filteredNamespaces,
+            OMValue: omValue,
             propertyScope: property[5]?.toLowerCase(),
             valueStringPattern: hasStringPattern ? property[6] : undefined,
             valueStringCapturingGroup: hasStringPattern ? property[7] : undefined,
-            description: property[8]
+            description: property[8],
+            isInlineOMValue: isInlineOMValue
         }
     });
     const modifiedData = {
@@ -51,12 +76,17 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
 export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any }, node: PropertyGroup) {
 
     data.properties = node.property.map(property => {
-        let isExpression = property.value ? false : true;
-        let namespaces;
-        if (isExpression) {
-            namespaces = transformNamespaces(property?.namespaces);
+        let isNameExpression = property.name?.startsWith("{") && property.name.endsWith("}");
+        let name = isNameExpression ? property.name?.substring(1, property.name?.length - 1) : property.name;
+        let isValueExpression = property.value ? false : true;
+        let namespaces = transformNamespaces(property?.namespaces);
+        let omValue = property.any;
+        let isOmExpression = false;
+        if (property.type == "OM" && property.expression) {
+            isOmExpression = true;
+            omValue = property.expression;
         }
-        return [property.name, property.action, property.type, { isExpression: isExpression, value: property.value ?? property.expression, namespaces: namespaces }, "", property.scope?.toUpperCase(), property.pattern, property.group, property.description];
+        return [{ isExpression: isNameExpression, value: name, namespaces: namespaces }, property.action, property.type, { isExpression: isValueExpression, value: property.value ?? property.expression, namespaces: namespaces }, { isExpression: isOmExpression, value: omValue, namespaces: namespaces }, property.scope?.toUpperCase(), property.pattern, property.group, property.description];
     })
     return data;
 }

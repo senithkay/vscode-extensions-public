@@ -8,6 +8,22 @@
  */
 import { DMType } from "../../interfaces/mi-data-mapper";
 
+export enum DMDiagnosticCategory {
+    Warning = 0,
+    Error = 1,
+    Suggestion = 2,
+    Message = 3,
+}
+
+export interface DMDiagnostic {
+    messageText: string;
+    code: number;
+    category: DMDiagnosticCategory;
+    start: number | undefined;
+    length: number | undefined;
+    source?: string;
+}
+
 export interface DMTypeRequest {
     filePath: string;
     functionName: string;
@@ -102,3 +118,10 @@ export interface GetCompletionsResponse {
     completions: unknown[];
 }
 
+export interface GetDMDiagnosticsRequest {
+    filePath: string;
+}
+
+export interface GetDMDiagnosticsResponse {
+    diagnostics: DMDiagnostic[];
+}

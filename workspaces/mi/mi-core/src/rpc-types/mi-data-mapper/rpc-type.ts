@@ -23,7 +23,9 @@ import {
     ConvertRegPathToAbsPathResponse,
     UpdateDMUndoRedoMangerRequest,
     GetCompletionsRequest,
-    GetCompletionsResponse
+    GetCompletionsResponse,
+    GetDMDiagnosticsRequest,
+    GetDMDiagnosticsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -41,3 +43,4 @@ export const dmRedo: RequestType<void, string> = { method: `${_preFix}/dmRedo` }
 export const addToDMUndoStack: NotificationType<string> = { method: `${_preFix}/addToDMUndoStack` };
 export const updateDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/updateDMUndoRedoManager` };
 export const getCompletions: RequestType<GetCompletionsRequest, GetCompletionsResponse> = { method: `${_preFix}/getCompletions` };
+export const getDMDiagnostics: RequestType<GetDMDiagnosticsRequest, GetDMDiagnosticsResponse> = { method: `${_preFix}/getDMDiagnostics` };

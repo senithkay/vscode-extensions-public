@@ -27,7 +27,7 @@
               "displayName": "Source XPath",
               "inputType": "expression",
               "defaultValue": "",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           }

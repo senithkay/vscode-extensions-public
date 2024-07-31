@@ -21,7 +21,8 @@ import {
     ReturnStatement,
     FunctionDeclaration,
     SyntaxKind,
-    ElementAccessExpression
+    ElementAccessExpression,
+    SourceFile
 } from "ts-morph";
 
 import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
@@ -721,6 +722,20 @@ export function getFilterExpressions(callExpr: CallExpression): CallExpression[]
     });
 
     return filterCalls.reverse();
+}
+
+export function isFunctionArgument(identifier: string, sourceFile: SourceFile): boolean {
+    const identifierNodes = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier);
+    
+    for (const idNode of identifierNodes) {
+        if (idNode.getText() === identifier) {
+            const parent = idNode.getParent();
+            if (parent && parent.getKind() === SyntaxKind.Parameter) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
