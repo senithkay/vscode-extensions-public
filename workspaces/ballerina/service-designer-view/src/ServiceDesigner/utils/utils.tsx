@@ -223,7 +223,7 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
     return serviceData;
 }
 
-export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any): Promise<Resource> {
+export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any, isEggplant?: boolean): Promise<Resource> {
     const pathConfig = getResourcePath(resource);
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);
@@ -246,7 +246,8 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         responses: response,
         updatePosition: position,
         position: resource.position,
-        errors: errors
+        errors: errors,
+        expandable: isEggplant ? false : true
     };
 }
 
@@ -261,12 +262,12 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
     };
 }
 
-export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any): Promise<Service> {
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isEggplant?: boolean): Promise<Service> {
     const serviceData: ServiceData = await getServiceData(serviceDecl);
     const resources: Resource[] = [];
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
-            resources.push(await getResource(member, rpcClient));
+            resources.push(await getResource(member, rpcClient, isEggplant));
         }
     }
     return {

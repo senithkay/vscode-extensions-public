@@ -61,19 +61,16 @@ export function createEggplantProject(name: string, isService: boolean) {
         });
 }
 
-export function createEggplantProjectPure(name: string) {
-    window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Project Location' })
-        .then(uri => {
-            if (uri && uri[0]) {
-                const projectLocation = uri[0].fsPath;
+export function createEggplantProjectPure(name: string, projectPath: string) {
+    const projectLocation = projectPath;
 
-                const projectRoot = path.join(projectLocation, name);
-                // Create project root directory
-                if (!fs.existsSync(projectRoot)) {
-                    fs.mkdirSync(projectRoot);
-                }
+    const projectRoot = path.join(projectLocation, name);
+    // Create project root directory
+    if (!fs.existsSync(projectRoot)) {
+        fs.mkdirSync(projectRoot);
+    }
 
-                const ballerinaTomlContent = `
+    const ballerinaTomlContent = `
 [package]
 org = "wso2"
 name = "${name}"
@@ -82,13 +79,11 @@ version = "0.1.0"
 eggplant = true  
 `;
 
-                // Create Ballerina.toml file
-                const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
-                fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
-                console.log(`Eggplant project created successfully at ${projectRoot}`);
-                commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
-            }
-        });
+    // Create Ballerina.toml file
+    const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
+    fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
+    console.log(`Eggplant project created successfully at ${projectRoot}`);
+    commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
 }
 
 

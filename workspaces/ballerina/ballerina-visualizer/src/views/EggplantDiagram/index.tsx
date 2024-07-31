@@ -35,7 +35,7 @@ import {
     getFormProperties,
     updateNodeProperties,
 } from "./../../utils/eggplant";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 const Container = styled.div`
     width: 100%;
@@ -191,7 +191,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     return (
         <>
-            <Container>{!!model && <Diagram model={model} onAddNode={handleOnAddNode} />}</Container>
+            <Container>{!!model && <Diagram model={model} onAddNode={handleOnAddNode} title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)} />}</Container>
             <PanelContainer
                 title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}
@@ -205,4 +205,12 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             </PanelContainer>
         </>
     );
+}
+
+function getResourcePath(resource: ResourceAccessorDefinition) {
+    let resourcePath = "";
+    resource.relativeResourcePath?.forEach((path, index) => {
+        resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
+    });
+    return resourcePath;
 }
