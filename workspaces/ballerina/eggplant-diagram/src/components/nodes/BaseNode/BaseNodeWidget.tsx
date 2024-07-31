@@ -16,6 +16,7 @@ import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
+import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -119,9 +120,11 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onNodeSelect } = useDiagramContext();
 
     const handleOnClick = () => {
         onClick && onClick(model.node);
+        onNodeSelect(model.node);
     };
 
     return (
@@ -130,6 +133,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>

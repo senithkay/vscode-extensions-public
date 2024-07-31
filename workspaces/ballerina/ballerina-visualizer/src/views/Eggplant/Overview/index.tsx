@@ -200,7 +200,7 @@ export function Overview(props: OverviewProps) {
                                             <ButtonCard
                                                 key={index}
                                                 title={res.name}
-                                                description={`Module: ${res.type}`}
+                                                description={`Module: ${(res.st as any).initializer?.typeData?.typeSymbol?.moduleID?.moduleName || res.type}`}
                                                 icon={<Codicon name="link" />}
                                                 onClick={() => goToView(res)}
                                             />

@@ -47,9 +47,9 @@ const Container = styled.div`
 
 interface ColoredTagProps {
     color: string;
-};
+}
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -96,6 +96,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         setFields([]);
         selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
+        targetRef.current = undefined;
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
@@ -196,6 +197,24 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         }
     };
 
+    const handleOnEditNode = (node: FlowNode) => {
+        console.log(">>> on edit node", node);
+        selectedNodeRef.current = node;
+        topNodeRef.current = undefined;
+        targetRef.current = node.codedata.lineRange;
+
+        const formProperties = getFormProperties(node);
+        console.log(">>> Form properties", formProperties);
+        if (Object.keys(formProperties).length === 0) {
+            // nothing to render
+            return;
+        }
+        // get node properties
+        setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
+        setSidePanelView(SidePanelView.FORM);
+        setShowSidePanel(true);
+    };
+
     const handleOnFormBack = () => {
         setSidePanelView(SidePanelView.NODE_LIST);
         // clear memory
@@ -211,16 +230,22 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
             <span>{getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}</span>
         </React.Fragment>
-    )
+    );
 
     return (
         <>
             <View>
-                <ViewHeader title={DiagramTitle} codicon="globe" onEdit={handleOnFormBack}>
-                </ViewHeader>
+                <ViewHeader title={DiagramTitle} codicon="globe" onEdit={handleOnFormBack}></ViewHeader>
                 <ViewContent padding>
                     <Container>
-                        {!!model && <Diagram model={model} onAddNode={handleOnAddNode} title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)} />}
+                        {model && (
+                            <Diagram
+                                model={model}
+                                onAddNode={handleOnAddNode}
+                                onNodeSelect={handleOnEditNode}
+                                title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}
+                            />
+                        )}
                     </Container>
                 </ViewContent>
             </View>
