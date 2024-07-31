@@ -48,7 +48,7 @@ const SequenceForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            referringSequence: sidePanelContext?.formValues?.referringSequence || "",
+            referringSequence: sidePanelContext?.formValues?.referringSequence || {"isExpression":false,"value":""},
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -114,6 +114,7 @@ const SequenceForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                additionalItems={[]}
                             />
                         )}
                     />

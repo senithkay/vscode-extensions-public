@@ -58,6 +58,7 @@ const AggregateForm = (props: AddMediatorProps) => {
             aggregationExpression: sidePanelContext?.formValues?.aggregationExpression || {"isExpression":true,"value":""},
             sequenceType: sidePanelContext?.formValues?.sequenceType || "ANONYMOUS",
             sequenceKey: sidePanelContext?.formValues?.sequenceKey || "",
+            description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
@@ -283,6 +284,16 @@ const AggregateForm = (props: AddMediatorProps) => {
                     }
 
                 </ComponentCard>
+
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
+                        )}
+                    />
+                </Field>
 
 
                 <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>

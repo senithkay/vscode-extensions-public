@@ -134,11 +134,9 @@ function getOldCaseData(caseBranchesData: any, index: number) {
 }
 
 function filterRemovedElements(arr1: any[], arr2: any[]): any[] {
-  // Create a Set of stringified key pairs from the second array for efficient lookup
-  const set2 = new Set(arr2.map(pair => JSON.stringify([pair[0], pair[1]])));
 
-  // Filter arr1 to keep only elements not present in arr2
-  return arr1.filter(pair => !set2.has(JSON.stringify([pair[0], pair[1]])));
+  const set2 = new Set(arr2.map(pair => pair[1]));
+  return arr1.filter(pair => !set2.has(pair[1]));
 }
 
 export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: Switch) {

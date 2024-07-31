@@ -13,12 +13,12 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Text
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, openPopup } from '../common';
+import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { Keylookup } from '../../../../Form';
+import { FormKeylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 import { CodeTextArea } from '../../../../Form/CodeTextArea';
@@ -50,10 +50,8 @@ const CallForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            endopint: sidePanelContext?.formValues?.endopint || "",
+            endpoint: sidePanelContext?.formValues?.endpoint || {"isExpression":false,"value":""},
             inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "",
-            endpointRegistryKey: sidePanelContext?.formValues?.endpointRegistryKey || "",
-            endpointXpath: sidePanelContext?.formValues?.endpointXpath || {"isExpression":true,"value":""},
             enableBlockingCalls: sidePanelContext?.formValues?.enableBlockingCalls || false,
             initAxis2ClientOptions: sidePanelContext?.formValues?.initAxis2ClientOptions || false,
             sourceType: sidePanelContext?.formValues?.sourceType || "none",
@@ -109,7 +107,7 @@ const CallForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <Controller
-                        name="endopint"
+                        name="endpoint"
                         control={control}
                         rules={
                             {
@@ -117,60 +115,30 @@ const CallForm = (props: AddMediatorProps) => {
                             }
                         }
                         render={({ field }) => (
-                            <Keylookup
-                                value={field.value}
-                                filterType='endpoint'
+                            <FormKeylookup
+                                control={control}
+                                name='endpoint'
                                 label="Select Endpoint"
+                                filterType='endpoint'
                                 allowItemCreate={false}
-                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                    openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
-                                }}
-                                onValueChange={field.onChange}
                                 required={true}
-                                errorMsg={errors?.endopint?.message?.toString()}
+                                errorMsg={errors?.endpoint?.message?.toString()}
+                                canChangeEx={true}
+                                exprToggleEnabled={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                additionalItems={["INLINE"]}
                             />
                         )}
                     />
                 </Field>
 
-                {watch("endopint") == "INLINE" &&
+                {((watch("endpoint").value == "INLINE") &&(watch("endpoint").isExpression == false) ) &&
                 <Field>
                     <Controller
                         name="inlineEndpoint"
                         control={control}
                         render={({ field }) => (
                             <CodeTextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.inlineEndpoint?.message?.toString()} />
-                        )}
-                    />
-                </Field>
-                }
-
-                {watch("endpoint") == "REGISTRYKEY" &&
-                <Field>
-                    <Controller
-                        name="endpointRegistryKey"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Endpoint Registry Key" size={50} placeholder="Endpoint Registry Key" required={false} errorMsg={errors?.endpointRegistryKey?.message?.toString()} />
-                        )}
-                    />
-                </Field>
-                }
-
-                {watch("endpoint") == "XPATH" &&
-                <Field>
-                    <Controller
-                        name="endpointXpath"
-                        control={control}
-                        render={({ field }) => (
-                            <ExpressionField
-                                {...field} label="Endpoint Xpath"
-                                placeholder="Endpoint Xpath"
-                                required={false}
-                                errorMsg={errors?.endpointXpath?.message?.toString()}
-                                canChange={false}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                            />
                         )}
                     />
                 </Field>
