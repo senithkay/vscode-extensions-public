@@ -16,6 +16,7 @@ const TitleContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-left: 20px;
 `;
 
 const ProjectTitle = styled.h1`
