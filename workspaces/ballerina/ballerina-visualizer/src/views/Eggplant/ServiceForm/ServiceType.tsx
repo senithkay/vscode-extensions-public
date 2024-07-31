@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { Transition } from "@headlessui/react";
@@ -16,6 +15,7 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { SERVICE_VIEW } from "./constants";
 import { EggplantHeader } from "../EggplantHeader";
+import ButtonCard from "../../../components/ButtonCard";
 
 const Container = styled.div({
     display: "flex",
@@ -28,68 +28,33 @@ const AddPanel = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: 10,
-    backgroundColor: "var(--vscode-sideBar-background);",
     padding: 20,
-    marginBottom: 10
-});
-
-const PanelViewMore = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-});
-
-const HorizontalCardContainer = styled.div({
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gridAutoRows: "minmax(80px, auto)",
-    gap: "20px",
-    margin: "0px 155px 0px 155px"
-});
-
-const PanelFooter = styled.div({
-    display: "flex",
-    justifyContent: "center",
+    marginBottom: 10,
 });
 
 // Add this styled component for the close button
-const CloseButton = styled(Button)({
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none", // Optional: Adjust styling as needed
-    border: "none", // Optional: Adjust styling as needed
-    cursor: "pointer", // Optional: Adjust styling as needed
-});
 
-const AIPanel = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "5px",
-});
+const CardGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    width: 100%;
+`;
 
-const transitionEffect = {
-    enter: css({
-        transition: "opacity 75ms ease-out",
-    }),
-    enterFrom: css({
-        opacity: 0,
-    }),
-    enterTo: css({
-        opacity: 1,
-    }),
-    leave: css({
-        transition: "opacity 150ms ease-in",
-    }),
-    leaveFrom: css({
-        opacity: 1,
-    }),
-    leaveTo: css({
-        opacity: 0,
-    }),
-};
+const Text = styled.p`
+    font-size: 14px;
+    color: var(--vscode-sideBarTitle-foreground);
+`;
+
+const BodyText = styled(Text)`
+    color: var(--vscode-sideBarTitle-foreground);
+    margin: 0 0 8px;
+    opacity: 0.5;
+`;
+
+const Title = styled(Typography)`
+    margin: 8px 0;
+`;
 
 export interface HttpFormProps {
     handleView: (view: SERVICE_VIEW) => void;
@@ -108,32 +73,34 @@ export function ServiceType(props: HttpFormProps) {
                 <EggplantHeader />
                 <Container>
                     <AddPanel>
-                        <Typography variant="h2">
-                            Select Service Type
-                        </Typography>
-                        <HorizontalCardContainer>
-                            <Card
-                                icon="APIResource"
+                        <Title variant="h2">Select Service Type</Title>
+                        <BodyText>
+                            Choose the type of service you want to add to your integration. Select from the options
+                            below.
+                        </BodyText>
+                        <CardGrid>
+                            <ButtonCard
+                                icon={<Codicon name="globe" />}
                                 title="HTTP Service"
-                                description="Implement a HTTP service"
+                                description="Create an HTTP service to handle web requests and responses."
                                 onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />
-                            <Card
-                                icon="GraphQL"
+                            <ButtonCard
+                                icon={<Codicon name="graph-scatter" />}
                                 title="GraphQL Service"
-                                description="Implement a GraphQL service."
+                                description="Set up a GraphQL service for flexible and efficient data queries."
                                 onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />
-                            <Card
-                                icon="task"
+                            <ButtonCard
+                                icon={<Codicon name="symbol-interface" />}
                                 title="gRPC Service"
-                                description="Implement a gRPC service."
+                                description="Implement a gRPC service for high-performance, cross-platform communication."
                                 onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />
-                        </HorizontalCardContainer>
+                        </CardGrid>
                     </AddPanel>
                 </Container>
             </ViewContent>
-        </View >
+        </View>
     );
 }

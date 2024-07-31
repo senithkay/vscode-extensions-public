@@ -244,7 +244,7 @@ export function NodeList(props: NodeListProps) {
                     };
                 } else {
                     const lowerCaseTitle = item.label.toLowerCase();
-                    const lowerCaseDescription = item.description.toLowerCase();
+                    const lowerCaseDescription = item.description?.toLowerCase() || "";
                     const lowerCaseSearchText = searchText.toLowerCase();
                     if (
                         lowerCaseTitle.includes(lowerCaseSearchText) ||

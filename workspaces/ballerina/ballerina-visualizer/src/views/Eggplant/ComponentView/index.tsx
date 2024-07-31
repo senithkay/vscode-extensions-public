@@ -15,6 +15,7 @@ import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
+import ButtonCard from "../../../components/ButtonCard";
 
 const Container = styled.div({
     display: "flex",
@@ -27,7 +28,6 @@ const AddPanel = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: 10,
-    backgroundColor: "var(--vscode-sideBar-background);",
     padding: 20,
 });
 
@@ -37,57 +37,33 @@ const PanelViewMore = styled.div({
     gap: 10,
 });
 
-const HorizontalCardContainer = styled.div({
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    margin: "0px 155px 0px 155px",
-    gridAutoRows: "minmax(80px, auto)",
-    gap: "40px",
-});
 
-const PanelFooter = styled.div({
-    display: "flex",
-    justifyContent: "center",
-});
+const CardGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    width: 100%;
+`;
+
+const Text = styled.p`
+    font-size: 14px;
+    color: var(--vscode-sideBarTitle-foreground);
+`;
+
+const BodyText = styled(Text)`
+    color: var(--vscode-sideBarTitle-foreground);
+    margin: 0 0 8px;
+    opacity: 0.5;
+`;
+
+const Title = styled(Typography)`
+    margin: 8px 0;
+`;
+
 
 // Add this styled component for the close button
-const CloseButton = styled(Button)({
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none", // Optional: Adjust styling as needed
-    border: "none", // Optional: Adjust styling as needed
-    cursor: "pointer", // Optional: Adjust styling as needed
-});
 
-const AIPanel = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "5px",
-});
 
-const transitionEffect = {
-    enter: css({
-        transition: "opacity 75ms ease-out",
-    }),
-    enterFrom: css({
-        opacity: 0,
-    }),
-    enterTo: css({
-        opacity: 1,
-    }),
-    leave: css({
-        transition: "opacity 150ms ease-in",
-    }),
-    leaveFrom: css({
-        opacity: 1,
-    }),
-    leaveTo: css({
-        opacity: 0,
-    }),
-};
 
 export function AddComponentView() {
     const { rpcClient } = useVisualizerContext();
@@ -100,15 +76,15 @@ export function AddComponentView() {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.EggplantServiceForm
-                }
+                    view: MACHINE_VIEW.EggplantServiceForm,
+                },
             });
         } else {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.EggplantServiceForm
-                }
+                    view: MACHINE_VIEW.EggplantServiceForm,
+                },
             });
         }
     };
@@ -123,14 +99,7 @@ export function AddComponentView() {
             });
     }, []);
 
-    const handleGenerateWithAI = async () => {
-        // rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
-        // rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
-    };
 
-    const handleAiPromptChange = (value: string) => {
-        setInputAiPrompt(value);
-    };
 
     return (
         <View>
@@ -138,61 +107,69 @@ export function AddComponentView() {
                 <EggplantHeader />
                 <Container>
                     <AddPanel>
-                        <Typography variant="h2">
-                            Entry Points
-                        </Typography>
-                        <HorizontalCardContainer>
-                            <Card
-                                icon="Service"
+                        <Title variant="h2">Entry Points</Title>
+                        <BodyText>
+                            Choose how you want your integration to start. Select one of the entry point types below.
+                        </BodyText>
+                        <CardGrid>
+                            <ButtonCard
+                                icon={<Codicon name="globe" />}
                                 title="Service"
-                                description="Create an HTTP service."
+                                description="Start your integration with a HTTP service."
                                 onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
-                            <Card
-                                icon="Task"
+                            <ButtonCard
+                                icon={<Codicon name="calendar" />}
                                 title="Task"
-                                description="Create a task that can be run periodically."
+                                description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
                                 onClick={() => handleClick(DIRECTORY_MAP.TASKS)}
                             />
-                            <Card
-                                icon="Triggers"
+                            <ButtonCard
+                                icon={<Codicon name="debug-disconnect" />}
                                 title="Triggers"
-                                description="Create a trigger that can will listen to an event."
+                                description="Initiate your integration with a Trigger. Best for event-driven actions from external sources."
                                 onClick={() => handleClick(DIRECTORY_MAP.TRIGGERS)}
                             />
-                        </HorizontalCardContainer>
-                        <Transition
+                        </CardGrid>
+                        {/* <Transition
                             show={viewMore}
                             {...transitionEffect}
-                        >
-                            <PanelViewMore>
-                                <Divider />
-                                <Typography variant="h2">
-                                    Other Artifacts
-                                </Typography>
-                                <HorizontalCardContainer>
-                                    <Card
-                                        icon="endpoint"
-                                        title="Connections"
-                                        description="Define communication endpoint configurations."
-                                        onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
-                                    />
-                                    <Card
-                                        icon="Sequence"
-                                        title="Schema"
-                                        description="Configure reusable mediation sequences."
-                                        onClick={() => handleClick(DIRECTORY_MAP.SCHEMAS)}
-                                    />
-                                    <Card
-                                        icon="registry"
-                                        title="Configurations"
-                                        description="Manage shared resources and configurations."
-                                        onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
-                                    />
-                                </HorizontalCardContainer>
-                            </PanelViewMore>
-                        </Transition>
-                        <PanelFooter>
+                        > */}
+                        <PanelViewMore>
+                            <Divider />
+                            <Title variant="h2">Other Artifacts</Title>
+                            <BodyText>
+                                Manage additional components for your integration. Select from the options below.
+                            </BodyText>
+                            <CardGrid>
+                                <ButtonCard
+                                    icon={<Codicon name="link" />}
+                                    title="Connections"
+                                    description="Set up external service connections, like databases and APIs."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
+                                />
+                                <ButtonCard
+                                    icon={<Codicon name="layout" />}
+                                    title="Schema"
+                                    description="Define and manage data types with JSON schema."
+                                    onClick={() => handleClick(DIRECTORY_MAP.SCHEMAS)}
+                                />
+                                <ButtonCard
+                                    icon={<Codicon name="gear" />}
+                                    title="Configurations"
+                                    description="Handle environment variables and secrets for your project."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
+                                />
+                                <ButtonCard
+                                    icon={<Codicon name="file-code" />}
+                                    title="Functions"
+                                    description="Create reusable functions to streamline your integration logic."
+                                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
+                                />
+                            </CardGrid>
+                        </PanelViewMore>
+                        {/* </Transition> */}
+                        {/* <PanelFooter>
                             {!viewMore ? (
                                 <LinkButton sx={{ padding: "4px 8px" }} onClick={() => setViewMore(true)}>
                                     <Codicon name="plus" />
@@ -203,10 +180,10 @@ export function AddComponentView() {
                                     <Typography variant="body2">Show Less</Typography>
                                 </LinkButton>
                             )}
-                        </PanelFooter>
+                        </PanelFooter> */}
                     </AddPanel>
                 </Container>
             </ViewContent>
-        </View >
+        </View>
     );
 }
