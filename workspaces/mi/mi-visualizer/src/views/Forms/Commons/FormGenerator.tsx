@@ -31,6 +31,7 @@ export interface FormGeneratorProps {
     control: any;
     errors: any;
     setValue: any;
+    watch: any;
 }
 
 interface Element {
@@ -54,7 +55,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
 
-    const { formData, control, errors, setValue } = props;
+    const { formData, control, errors, setValue, watch } = props;
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
@@ -181,6 +182,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                     setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
                     return;
                 }
+
+                if (element.value.enableCondition) {
+                    return (
+                        renderControllerIfConditionMet(element)
+                    );
+                }
+
                 return <Controller
                     name={getNameForController(element.value.name)}
                     control={control}
@@ -223,6 +231,77 @@ export function FormGenerator(props: FormGeneratorProps) {
             return null;
         });
     };
+
+    const renderControllerIfConditionMet = (element: any) => {
+        let watchStatements: boolean;
+
+        if (Array.isArray(element.value.enableCondition)) {
+            const firstElement = element.value.enableCondition[0];
+
+            if (firstElement === "AND") {
+                // Handle AND conditions
+                watchStatements = true;
+                const conditions = element.value.enableCondition.slice(1);
+                const statements = conditions.forEach((condition: any) => {
+                    const conditionKey = Object.keys(condition)[0];
+                    const conditionValue = condition[conditionKey];
+                    if (!(watch(conditionKey) === conditionValue && watchStatements)) {
+                        watchStatements = false;
+                    }
+                });
+            } else if (firstElement === "OR") {
+                // Handle OR conditions
+                watchStatements = false;
+                const conditions = element.value.enableCondition.slice(1);
+                const statements = conditions.forEach((condition: any) => {
+                    const conditionKey = Object.keys(condition)[0];
+                    const conditionValue = condition[conditionKey];
+                    if (watch(conditionKey) === conditionValue || watchStatements) {
+                        watchStatements = true;
+                    }
+                });
+            } else {
+                // Handle Single condition
+                const conditions = element.value.enableCondition;
+                watchStatements = conditions.every((condition: any) => {
+                    const conditionKey = Object.keys(condition)[0];
+                    const conditionValue = condition[conditionKey];
+                    return (
+                        watch(conditionKey) === conditionValue
+                    );
+                });
+            }
+        }
+
+        if (watchStatements) {
+            return (
+                <Controller
+                    name={getNameForController(element.value.name)}
+                    control={control}
+                    defaultValue={element.value.defaultValue ?? ""}
+                    rules={
+                        {
+                            ...(element.value.required === 'true') && {
+                                validate: (value) => {
+                                    if (!value || (typeof value === 'object' && !value.value)) {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
+                    }
+                    render={({ field }) => (
+                        <Field>
+                            {renderFormElement(element.value, field)}
+                        </Field>
+                    )}
+                />
+            );
+        }
+
+        return null; // Return null if conditions are not met
+    }
 
     return (
         formData && formData.elements && formData.elements.length > 0 && (
