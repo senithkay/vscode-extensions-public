@@ -32,7 +32,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 if (schema.name === params.recordName) {
                     resolve({ recordST: schema.st as TypeDefinition });
                 }
-            })
+            });
         });
     }
 }

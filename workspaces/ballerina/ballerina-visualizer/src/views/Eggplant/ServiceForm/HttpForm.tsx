@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
-import { DIRECTORY_MAP } from '@wso2-enterprise/ballerina-core';
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import React, { useRef, useState } from "react";
+import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
+import { Button, Codicon, ComponentCard, Icon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SERVICE_VIEW } from "./constants";
-import { EggplantHeader } from '../EggplantHeader';
-import { View, ViewContent } from '../../../components/View';
+import { EggplantHeader } from "../EggplantHeader";
+import { View, ViewContent } from "../../../components/View";
+import ButtonCard from "../../../components/ButtonCard";
 
 const FORM_WIDTH = 600;
 
@@ -56,6 +57,16 @@ const ButtonWrapper = styled.div`
     width: 130px;
 `;
 
+const CardGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+    width: 100%;
+`;
+
+type ServiceType = "Scratch" | "OAS";
+
 export interface HttpFormProps {
     handleView: (view: SERVICE_VIEW) => void;
 }
@@ -65,17 +76,18 @@ export function HttpForm(props: HttpFormProps) {
     const [name, setName] = useState("");
     const [path, setPath] = useState("");
     const [port, setPort] = useState("");
-    const [selectedModule, setSelectedModule] = useState("Scratch");
+    const [file, setFile] = useState("");
+    const [selectedModule, setSelectedModule] = useState<ServiceType>("Scratch");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCreateService = () => {
         setIsLoading(true);
         rpcClient.getEggplantDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, name, path, port });
-    }
+    };
 
-    const handleSelection = (type: string) => {
+    const handleSelection = (type: ServiceType) => {
         setSelectedModule(type);
-    }
+    };
 
     return (
         <View>
@@ -105,30 +117,43 @@ export function HttpForm(props: HttpFormProps) {
                             label="Port"
                             placeholder="Enter service port"
                         />
-                        <HorizontalCardContainer>
-                            <ComponentCard isSelected={selectedModule === "Scratch"} onClick={() => handleSelection("Scratch")} sx={{ borderRadius: "unset", height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15, margin: 10 }}>
-                                <IconWrapper>
-                                    <div>Design From Scratch</div>
-                                </IconWrapper>
-                            </ComponentCard>
-                            <ComponentCard isSelected={selectedModule === "OAS"} onClick={() => handleSelection("OAS")} sx={{ borderRadius: "unset", height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15, margin: 10 }}>
-                                <IconWrapper>
-                                    <div>Import From OAS</div>
-                                </IconWrapper>
-                            </ComponentCard>
-                        </HorizontalCardContainer>
-                        {selectedModule === "OAS" &&
-                            <div>
-                                <label>Select a OAS File:</label>
-                                <input type="file" id="myfile" name="myfile" />
-                            </div>
-                        }
+                        <CardGrid>
+                            <ButtonCard
+                                title="Design From Scratch"
+                                description="Design your HTTP service using our service design tool."
+                                active={selectedModule === "Scratch"}
+                                onClick={() => handleSelection("Scratch")}
+                            />
+                            <ButtonCard
+                                title="Import From OAS"
+                                description="Import an existing OpenAPI Specification file to set up your service."
+                                active={selectedModule === "OAS"}
+                                onClick={() => handleSelection("OAS")}
+                            />
+                        </CardGrid>
+
+                        {selectedModule === "OAS" && (
+                            <TextField
+                                type="file"
+                                onTextChange={setFile}
+                                sx={{ marginTop: 20 }}
+                                value={file}
+                                label="Select a OAS File"
+                            />
+                        )}
+
                         <ButtonWrapper>
-                            <Button disabled={!name || !path || !port} onClick={handleCreateService} appearance="primary">Create Service</Button>
+                            <Button
+                                disabled={!name || !path || !port}
+                                onClick={handleCreateService}
+                                appearance="primary"
+                            >
+                                Create Service
+                            </Button>
                         </ButtonWrapper>
                     </FormContainer>
                 </Container>
             </ViewContent>
         </View>
     );
-};
+}
