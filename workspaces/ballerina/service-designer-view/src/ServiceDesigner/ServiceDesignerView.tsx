@@ -30,6 +30,8 @@ interface ServiceDesignerProps {
     applyModifications?: (modifications: STModification[]) => Promise<void>;
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) => void;
+    // If the service designer is for eggplant
+    isEggplant?: boolean;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
@@ -105,7 +107,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, serviceDesignerRpcClient));
+            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isEggplant));
         };
         fetchService();
     }, [model]);
@@ -133,6 +135,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     onResourceDelete={handleResourceDelete}
                     onServiceEdit={handleServiceEdit}
                     onResourceAdd={handleResourceFormOpen}
+                    onResourceClick={handleGoToSource}
                 />
                 {isResourceFormOpen &&
                     <ResourceForm

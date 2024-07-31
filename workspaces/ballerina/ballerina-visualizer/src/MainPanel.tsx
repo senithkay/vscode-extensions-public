@@ -91,11 +91,12 @@ const MainPanel = () => {
                             <ServiceDesigner
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
+                                isEggplant={value.isEggplant}
                             />
                         );
                         break;
                     case MACHINE_VIEW.EggplantDiagram:
-                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree}/>);
+                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree} />);
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
