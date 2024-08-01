@@ -73,7 +73,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
 
         if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
-            const fileContent = nodeForSuggestions.getSourceFile().getText();
+            const fileContent = nodeForSuggestions.getSourceFile().getFullText();
             const cursorPosition = nodeForSuggestions.getEnd();
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
                 filePath,
