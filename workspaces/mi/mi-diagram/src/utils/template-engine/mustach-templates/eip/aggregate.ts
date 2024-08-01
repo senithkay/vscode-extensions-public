@@ -29,7 +29,7 @@ export function getAggregateMustacheTemplate() {
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editAggregate}}
-    <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}>
+    <aggregate {{#aggregateID}}id="{{aggregateID}}"{{/aggregateID}}{{#description}} description="{{description}}"{{/description}}>
     {{/editAggregate}}
     {{#editCorrelateOn}}
     {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
@@ -86,7 +86,7 @@ export function getAggregateXml(data: { [key: string]: any }, dirtyFields?: any,
 
 function getEdits(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-    let aggregatteTagAttributes = ["aggregateID"];
+    let aggregatteTagAttributes = ["aggregateID", "description"];
     let correlateOnAttributes = ["correlationExpression"];
     let completeConditionAttributes = ["completionTimeout", "completionMaxMessages", "completionMinMessages"];
     let onCompleteAttributes = ["aggregateElementType", "enclosingElementProperty", "aggregationExpression", "sequenceKey", "sequenceType"];
