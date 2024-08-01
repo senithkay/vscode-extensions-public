@@ -44,7 +44,7 @@ export const TaskView = ({ path, model, diagnostics }: TaskViewProps) => {
     return (
         <View>
             {model && model.name &&
-                <ViewHeader title={`Task: ${model.name}`} codicon="globe" onEdit={handleEditTask} />
+                <ViewHeader title={`Task: ${model.name}`} icon="task" onEdit={handleEditTask} />
             }
             {<ViewContent>
                 {model && model.name && model.sequence &&
