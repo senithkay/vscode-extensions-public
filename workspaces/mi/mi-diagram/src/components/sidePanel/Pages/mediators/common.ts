@@ -43,7 +43,7 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm }, isPopup: true });
             break;
         case "datasource":
-            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri }, isPopup: true });
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri, customProps }, isPopup: true });
             break;
         case "addDriver":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddDriverPopup, documentUri: documentUri, customProps }, isPopup: true });
