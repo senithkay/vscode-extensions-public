@@ -9,10 +9,11 @@
 
 import { FastXSLT } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getFastXSLTMustacheTemplate() {
     return `
-    <fastXSLT {{#description}}description="{{description}}"{{/description}} key="{{key}}" />
+    <fastXSLT {{#description}}description="{{description}}"{{/description}} key="{{key}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     `;
 }
 
@@ -22,6 +23,7 @@ export function getFastXSLTXml(data: { [key: string]: any }) {
         data.key = data.fastXsltStaticSchemaKey;
     } else if (data.fastXsltSchemaType == "Dynamic") {
         data.key = "{" + data.fastXsltDynamicSchemaKey?.value + "}";
+        data.namespaces = data.fastXsltDynamicSchemaKey?.namespaces;
     }
     const output = Mustache.render(getFastXSLTMustacheTemplate(), data)?.trim();
     return output;
@@ -34,7 +36,7 @@ export function getFastXSLTFormDataFromSTNode(data: { [key: string]: any }, node
         const match = node.key.match(regex);
         if (match && match.length > 1) {
             data.fastXsltSchemaType = "Dynamic";
-            data.fastXsltDynamicSchemaKey = { isExpression: true, value: match[1] };
+            data.fastXsltDynamicSchemaKey = { isExpression: true, value: match[1], namespaces: transformNamespaces(node.namespaces) };
         } else {
             data.fastXsltSchemaType = "Static";
             data.fastXsltStaticSchemaKey = { isExpression: true, value: node.key };
