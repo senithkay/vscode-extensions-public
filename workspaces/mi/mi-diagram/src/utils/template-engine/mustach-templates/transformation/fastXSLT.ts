@@ -19,11 +19,11 @@ export function getFastXSLTMustacheTemplate() {
 
 export function getFastXSLTXml(data: { [key: string]: any }) {
 
-    if (data.fastXsltSchemaType == "Static") {
-        data.key = data.fastXsltStaticSchemaKey;
-    } else if (data.fastXsltSchemaType == "Dynamic") {
-        data.key = "{" + data.fastXsltDynamicSchemaKey?.value + "}";
-        data.namespaces = data.fastXsltDynamicSchemaKey?.namespaces;
+    if (data.schemaKay?.isExpression) {
+        data.key = "{" + data.schemaKay?.value + "}";
+        data.namespaces = data.schemaKay?.namespaces;
+    } else {
+        data.key = data.schemaKay?.value;
     }
     const output = Mustache.render(getFastXSLTMustacheTemplate(), data)?.trim();
     return output;
@@ -35,11 +35,9 @@ export function getFastXSLTFormDataFromSTNode(data: { [key: string]: any }, node
         const regex = /{([^}]*)}/;
         const match = node.key.match(regex);
         if (match && match.length > 1) {
-            data.fastXsltSchemaType = "Dynamic";
-            data.fastXsltDynamicSchemaKey = { isExpression: true, value: match[1], namespaces: transformNamespaces(node.namespaces) };
+            data.schemaKay = { isExpression: true, value: match[1], namespaces: transformNamespaces(node.namespaces) };
         } else {
-            data.fastXsltSchemaType = "Static";
-            data.fastXsltStaticSchemaKey = { isExpression: true, value: node.key };
+            data.schemaKay = { isExpression: false, value: node.key };
         }
     }
     return data;
