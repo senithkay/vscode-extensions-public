@@ -116,7 +116,7 @@ export function getCacheXml(data: { [key: string]: any }, dirtyFields?: any, def
     }
     // Need to replace entire mediator if cacheType changes from "COLLECTOR" to "FINDER".
     let collectorToFinder = false;
-    if (defaultValues.cacheType == "COLLECTOR" && data.cacheType == "FINDER") {
+    if (defaultValues && defaultValues.cacheType == "COLLECTOR" && data.cacheType == "FINDER") {
         collectorToFinder = true;
     }
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0 || collectorToFinder) {
