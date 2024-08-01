@@ -49,7 +49,7 @@ const StoreForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            messageStore: sidePanelContext?.formValues?.messageStore || "",
+            messageStore: sidePanelContext?.formValues?.messageStore || {"isExpression":false,"value":""},
             onStoreSequence: sidePanelContext?.formValues?.onStoreSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -116,6 +116,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                additionalItems={[]}
                             />
                         )}
                     />

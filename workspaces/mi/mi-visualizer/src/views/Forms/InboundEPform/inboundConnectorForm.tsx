@@ -119,8 +119,21 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         handleCreateInboundEP(inboundConnector);
     };
 
-    const handleOnClose = () => {
+    const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
+
+    const openInboundEPView = (documentUri: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: documentUri } });
+    };
+
+    const handleOnClose = () => {
+        const isNewTask = !props.model;
+        if (isNewTask) {
+            openOverview();
+        } else {
+            openInboundEPView(props.path);
+        }
     }
 
     return (
@@ -132,7 +145,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.model ? "Update" : "Add"}
+                    {props.model ? "Update" : "Create"}
                 </Button>
                 <Button
                     appearance="secondary"
