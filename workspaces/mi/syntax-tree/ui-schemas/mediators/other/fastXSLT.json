@@ -12,49 +12,13 @@
           {
             "type": "attribute",
             "value": {
-              "name": "fastXsltSchemaType",
-              "displayName": "Fast Xslt Schema Type",
-              "inputType": "combo",
-              "defaultValue": "Static",
-              "comboValues": [
-                "Static",
-                "Dynamic"
-              ],
-              "required": false,
+              "name": "schemaKay",
+              "displayName": "Fast Xslt Schema Key",
+              "inputType": "keyOrExpression",
+              "keyType": "xslt",
+              "defaultValue": "",
+              "required": true,
               "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "fastXsltDynamicSchemaKey",
-              "displayName": "Fast Xslt Dynamic SchemaKey",
-              "inputType": "expression",
-              "defaultValue": "",
-              "required": true,
-              "helpTip": "",
-              "enableCondition": [
-                {
-                  "fastXsltSchemaType": "Dynamic"
-                }
-              ]
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "fastXsltStaticSchemaKey",
-              "displayName": "Fast Xslt Static SchemaKey",
-              "inputType": "key",
-              "keyType": "sequence",
-              "defaultValue": "",
-              "required": true,
-              "helpTip": "",
-              "enableCondition": [
-                {
-                  "fastXsltSchemaType": "Static"
-                }
-              ]
             }
           }
         ]
