@@ -35,7 +35,7 @@ import {
     getFormProperties,
     updateNodeProperties,
 } from "./../../utils/eggplant";
-import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { getColorByMethod } from "../../utils/utils";
@@ -113,7 +113,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 startLine: parent.codedata.lineRange.startLine,
                 endLine: parent.codedata.lineRange.endLine,
             },
-            filePath: model.fileName
+            filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
         rpcClient
@@ -121,7 +121,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             .getAvailableNodes(getNodeRequest)
             .then((response) => {
                 console.log(">>> Available nodes", response);
-                if(!response.categories) {
+                if (!response.categories) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
@@ -132,7 +132,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         setShowSidePanel(true);
 
-        const { node, category } = metadata as { node: AvailableNode, category?: string };
+        const { node, category } = metadata as { node: AvailableNode; category?: string };
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
@@ -234,7 +234,17 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     const handleOnClosePopup = () => {
         setShowPopup(false);
-    }
+    };
+
+    const handleOnGoToSource = (node: FlowNode) => {
+        const targetPosition: NodePosition = {
+            startLine: node.codedata.lineRange.startLine.line,
+            startColumn: node.codedata.lineRange.startLine.offset,
+            endLine: node.codedata.lineRange.endLine.line,
+            endColumn: node.codedata.lineRange.endLine.offset,
+        };
+        rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
+    };
 
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
 
@@ -257,7 +267,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 model={model}
                                 onAddNode={handleOnAddNode}
                                 onNodeSelect={handleOnEditNode}
-                                title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}
+                                goToSource={handleOnGoToSource}
                             />
                         )}
                     </Container>

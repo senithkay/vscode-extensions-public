@@ -32,13 +32,13 @@ import styled from "@emotion/styled";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
-    title?: string;
+    goToSource?: (node: FlowNode) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onNodeSelect } = props;
+    const { model, onAddNode, onNodeSelect, goToSource } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
     const [hasErrorFlow, setHasErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
@@ -146,6 +146,7 @@ export function Diagram(props: DiagramProps) {
         showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
         onNodeSelect: onNodeSelect,
+        goToSource: goToSource,
     };
 
     return (
