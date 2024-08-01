@@ -17,7 +17,7 @@ import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
-import { filterCompletions } from './utils';
+import { filterCompletions, getInnermostPropAsmtNode } from './utils';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { View } from '../Views/DataMapperView';
 import { ArrayOutputNode, ObjectOutputNode } from '../../../components/Diagram/Node';
@@ -194,10 +194,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 
                 // Workaround for https://github.com/wso2/mi-vscode/issues/246
                 // Remove short hand property assignments and property assinments without names
-                properties.filter(property => (Node.isPropertyAssignment(property) && property.getName() === "") || (Node.isShorthandPropertyAssignment(property)))
-                    .forEach(property => {
-                        property.remove();
-                    });
+                properties.filter(property => (Node.isPropertyAssignment(property) && property.getName() === "")
+                    || (Node.isShorthandPropertyAssignment(property)))
+                        .forEach(property => {
+                            property.remove();
+                        });
 
                 const propertyAssignment = parent.addPropertyAssignment({
                     name: propName,
@@ -211,41 +212,25 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
 
-            const returnExpr = (fnBody.getStatements().find((statement) =>
-                Node.isReturnStatement(statement)
-            ) as ReturnStatement)?.getExpression();
-
             let objLitExpr: ObjectLiteralExpression;
-            if (returnExpr) {
-                if (Node.isObjectLiteralExpression(returnExpr)) {
-                    objLitExpr = returnExpr;
-                } else {
-                    if (focusedNode instanceof ObjectOutputNode && Node.isObjectLiteralExpression(focusedNode.value)) {
-                        objLitExpr = focusedNode.value;
-                    } else if (focusedNode instanceof ArrayOutputNode && focusedNode.dmTypeWithValue) {
-                        const elements = focusedNode.dmTypeWithValue.elements;
-                        if (elements && elements.length > 0) {
-                            const targetElement = elements.find(element => {
-                                let nextPort = focusedPort;
-                                while (nextPort) {
-                                    if (element.member.value.getPos() === nextPort?.typeWithValue?.value?.getPos()) {
-                                        return true;
-                                    }
-                                    nextPort = nextPort?.parentModel;
-                                }
-                            });
-                            if (targetElement && targetElement.member.value && Node.isObjectLiteralExpression(targetElement.member.value)) {
-                                objLitExpr = targetElement.member.value;
-                            }
-                        }
-                    }
+            let parentPort = focusedPort?.parentModel;
+
+            while (parentPort) {
+                const parentValue = parentPort.typeWithValue?.value;
+                if (parentValue && Node.isObjectLiteralExpression(parentValue)) {
+                    objLitExpr = parentValue;
+                    break;
                 }
+                parentPort = parentPort?.parentModel;
             }
 
             const propertyAssignment = await createSourceForUserInput(
                 focusedPort?.typeWithValue, objLitExpr, text, fnBody
             );
-            focusedPort.typeWithValue.setValue(propertyAssignment);
+
+            const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
+
+            focusedPort.typeWithValue.setValue(portValue);
         }
     };
 
