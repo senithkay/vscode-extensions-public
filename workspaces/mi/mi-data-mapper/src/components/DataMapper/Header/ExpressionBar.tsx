@@ -190,6 +190,15 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 const parent = focusedFieldValue.getParent();
                 const propName = focusedFieldValue.getName();
                 focusedFieldValue.remove();
+                const properties = parent.getProperties();
+                
+                // Workaround for https://github.com/wso2/mi-vscode/issues/246
+                // Remove short hand property assignments and property assinments without names
+                properties.filter(property => (Node.isPropertyAssignment(property) && property.getName() === "") || (Node.isShorthandPropertyAssignment(property)))
+                    .forEach(property => {
+                        property.remove();
+                    });
+
                 const propertyAssignment = parent.addPropertyAssignment({
                     name: propName,
                     initializer: text
