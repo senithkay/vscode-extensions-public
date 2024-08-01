@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { EVENT_TYPE, MACHINE_VIEW, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
@@ -68,6 +68,18 @@ const AIPanel = styled.div({
     gap: "5px",
 });
 
+const FlexRow = styled.div({
+    display: "flex",
+    flexDirection: "row",
+});
+
+const ItemRow = styled.div({
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "5px",
+});
+
 const transitionEffect = {
     enter: css({
         transition: "opacity 75ms ease-out",
@@ -94,6 +106,9 @@ export function AddArtifactView() {
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [viewMore, setViewMore] = React.useState<boolean>(false);
+    const [files, setFiles] = useState([]);
+    const [images, setImages] = useState([]);
+    const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
 
     const handleClick = async (key: string) => {
         const dir = path.join(activeWorkspaces.fsPath, "src", "main", "wso2mi", "artifacts", key);
@@ -161,13 +176,60 @@ export function AddArtifactView() {
     }, []);
 
     const handleGenerateWithAI = async () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
-        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
+        const promptObject = {
+            aiPrompt: inputAiPrompt,
+            files,
+            images
+        };
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", promptObject] });
     };
 
     const handleAiPromptChange = (value: string) => {
         setInputAiPrompt(value);
     };
+
+
+    const handleFileAttach = (e: any) => {
+        const file = e.target.files[0];
+        const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+        const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+
+        if (file && validFileTypes.includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+                const fileContents = event.target.result;
+                setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
+                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
+            };
+            reader.readAsText(file);
+        } else if (file && validImageTypes.includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+                const imageBase64 = event.target.result;
+                setImages(setImages => [...setImages, { imageName: file.name, imageBase64: imageBase64 }]);
+                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
+            };
+            reader.readAsDataURL(file);
+
+        } else {
+            setFileUploadStatus({ type: 'error', text: 'File format not supported' });
+        }
+        e.target.value = '';
+    };
+
+    const handleRemoveFile = (index: number) => {
+        setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setImages(prevImages => prevImages.filter((image, i) => i !== index));
+    };
+
+    const combinedItems = [
+        ...images.map((image, index) => ({ type: 'image', index, name: image.imageName })),
+        ...files.map((file, index) => ({ type: 'file', index, name: file.fileName }))
+    ];
 
     return (
         <View>
@@ -187,10 +249,48 @@ export function AddArtifactView() {
                                 cols={1000}
                                 placeholder="ie. I want to create an API that will route my request based on a header value."
                             ></TextArea>
-                            <Button appearance="primary" disabled={inputAiPrompt.length === 0} onClick={handleGenerateWithAI}>
-                                <Codicon name="wand" />
-                                &nbsp; Generate
-                            </Button>
+                            <ItemRow>
+                                {combinedItems.map((item, index) => (
+                                    <FlexRow key={index} style={{ alignItems: 'center' }}>
+                                        <span>{item.name}</span>
+                                        <Button
+                                            appearance="icon"
+                                            onClick={() => {
+                                                if (item.type === 'file') {
+                                                    handleRemoveFile(item.index);
+                                                } else {
+                                                    handleRemoveImage(item.index);
+                                                }
+                                            }}
+                                        >
+                                            <span className="codicon codicon-close"></span>
+                                        </Button>
+                                    </FlexRow>
+                                ))}
+                            </ItemRow>
+                            <ItemRow>
+                                <Button
+                                    appearance="primary"
+                                    onClick={() => document.getElementById('fileInput').click()}
+                                    
+                                >
+                                    <span className={`codicon codicon-new-file`}></span>
+                                </Button>
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    style={{ display: "none" }}
+                                    onChange={(e: any) => handleFileAttach(e)}
+                                />
+                                <Button 
+                                    appearance="primary" 
+                                    disabled={inputAiPrompt.length === 0} 
+                                    onClick={handleGenerateWithAI}
+                                >
+                                    <Codicon name="wand" />
+                                    &nbsp; Generate
+                                </Button>
+                            </ItemRow>
                         </AIPanel>
                     </AddPanel>
                     <AddPanel>

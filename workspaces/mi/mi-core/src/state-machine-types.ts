@@ -166,9 +166,15 @@ export interface PopupVisualizerLocation extends VisualizerLocation {
     recentIdentifier?: string;
 }
 
+interface PromptObject {
+    aiPrompt: string;
+    files: { fileName: string; fileContent: string }[];
+    images: { imageName: string; imageBase64: string }[];
+}
+
 export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
-    initialPrompt?: string;
+    initialPrompt?: PromptObject;
     state?: AIMachineStateValue;
     userTokens?: AIUserTokens;
 }

@@ -156,6 +156,7 @@ export function AIProjectGenerationChat() {
     const [files, setFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
+    const [initialPromptLoaded, setInitialPromptLoaded] = useState(false);
 
     async function fetchBackendUrl() {
         try {
@@ -199,15 +200,20 @@ export function AIProjectGenerationChat() {
                     }
                 }
 
-
                 if (machineView.initialPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
-                        { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+                        { role: "User", content: machineView.initialPrompt.aiPrompt, type: "initial_prompt" },
                     ]);
-                    addChatEntry("user", machineView.initialPrompt);
-                    handleSend(false, true);
-                    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+                    addChatEntry("user", machineView.initialPrompt.aiPrompt);
+
+                    const initialFiles = machineView.initialPrompt.files || [];
+                    const initialImages = machineView.initialPrompt.images?.map((image: { imageName: string; imageBase64: any; }) => image.imageBase64) || [];
+
+                    setFiles(initialFiles);
+                    setImages(initialImages);
+                    setInitialPromptLoaded(true);
+
                 } else {
                     if (storedChatArray) {
                         if (storedQuestion) {
@@ -265,6 +271,14 @@ export function AIProjectGenerationChat() {
             });
         });
     }, []);
+
+    useEffect(() => {
+        if (initialPromptLoaded) {
+            handleSend(false, true);
+            setInitialPromptLoaded(false);
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+        }
+    }, [initialPromptLoaded]);
 
     function addChatEntry(role: string, content: string): void {
         chatArray.push({
