@@ -267,7 +267,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
-                onBack={sidePanelView === SidePanelView.FORM ? handleOnFormBack : undefined}
+                onBack={
+                    sidePanelView === SidePanelView.FORM && topNodeRef.current !== undefined
+                        ? handleOnFormBack
+                        : undefined
+                }
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                     <NodeList
