@@ -81,7 +81,7 @@ You can create any integration project by entering your integration scenario in 
 
 ## Reach Out
 
-Reach out to us for assistance by creating [GitHub issues](https://github.com/wso2/mi-vscode/issues) or via [help-micro-integrator](https://discord.com/channels/955510916064092180/1261228533636796508) channel in WSO2 Discord server.
+Reach out to us for assistance by creating [GitHub issues](https://github.com/wso2/mi-vscode/issues) or via [help-micro-integrator](https://discord.com/invite/Xa5VubmThw) channel in WSO2 Discord server.
 
 ## Documentation
 
