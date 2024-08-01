@@ -113,7 +113,7 @@ export function Diagram(props: DiagramProps) {
         if (hasPreviousPosition) {
             // reset canvas position to previous position
             loadDiagramZoomAndPosition(diagramEngine);
-        } else {
+        } else if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
             // change canvas position to first node
             const firstNode = newDiagramModel.getNodes().at(0);
             diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
