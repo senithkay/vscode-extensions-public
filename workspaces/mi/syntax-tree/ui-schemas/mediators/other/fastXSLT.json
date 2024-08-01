@@ -31,7 +31,7 @@
               "displayName": "Fast Xslt Dynamic SchemaKey",
               "inputType": "expression",
               "defaultValue": "",
-              "required": false,
+              "required": true,
               "helpTip": "",
               "enableCondition": [
                 {
@@ -48,7 +48,7 @@
               "inputType": "key",
               "keyType": "sequence",
               "defaultValue": "",
-              "required": false,
+              "required": true,
               "helpTip": "",
               "enableCondition": [
                 {

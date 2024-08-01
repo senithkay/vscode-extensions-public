@@ -57,7 +57,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Parameter Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "ExprField",
@@ -66,7 +66,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                             "isExpression": false,
                             "value": ""
                         },
-                        "isRequired": false,
+                        "isRequired": true,
                         "canChange": true, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                 ]
@@ -121,6 +121,11 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                     <Controller
                         name="targetTemplate"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
@@ -131,7 +136,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                     openPopup(rpcClient, "sequenceTemplate", fetchItems, handleValueChange);
                                 }}
                                 onValueChange={field.onChange}
-                                required={false}
+                                required={true}
                                 errorMsg={errors?.targetTemplate?.message?.toString()}
                             />
                         )}

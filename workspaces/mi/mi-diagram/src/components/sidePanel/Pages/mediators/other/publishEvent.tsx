@@ -61,7 +61,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "Dropdown",
@@ -77,7 +77,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "Dropdown",
                         "label": "Attribute Type",
                         "defaultValue": "STRING",
-                        "isRequired": false,
+                        "isRequired": true,
                         "values": [
                             "STRING",
                             "INTEGER",
@@ -128,7 +128,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "Dropdown",
@@ -195,7 +195,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "Dropdown",
@@ -262,7 +262,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "Dropdown",
@@ -374,8 +374,13 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     <Controller
                         name="streamName"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Stream Name" size={50} placeholder="" required={false} errorMsg={errors?.streamName?.message?.toString()} />
+                            <TextField {...field} label="Stream Name" size={50} placeholder="" required={true} errorMsg={errors?.streamName?.message?.toString()} />
                         )}
                     />
                 </Field>
@@ -384,8 +389,13 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     <Controller
                         name="streamVersion"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Stream Version" size={50} placeholder="" required={false} errorMsg={errors?.streamVersion?.message?.toString()} />
+                            <TextField {...field} label="Stream Version" size={50} placeholder="" required={true} errorMsg={errors?.streamVersion?.message?.toString()} />
                         )}
                     />
                 </Field>
@@ -394,8 +404,13 @@ const PublishEventForm = (props: AddMediatorProps) => {
                     <Controller
                         name="eventSink"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Event Sink" size={50} placeholder="" required={false} errorMsg={errors?.eventSink?.message?.toString()} />
+                            <TextField {...field} label="Event Sink" size={50} placeholder="" required={true} errorMsg={errors?.eventSink?.message?.toString()} />
                         )}
                     />
                 </Field>

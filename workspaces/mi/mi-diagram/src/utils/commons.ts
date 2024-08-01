@@ -53,3 +53,17 @@ export function escapeXml(text: string) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 };
+
+export function filterNamespaces(namespaces: any[]) {
+    let filteredNamespaces: any[] = [];
+    let prefixes: string[] = [];
+    let uris: string[] = [];
+    namespaces.forEach((namespace) => {
+        if (!(prefixes.includes(namespace.prefix) || uris.includes(namespace.uri))) {
+            prefixes.push(namespace.prefix);
+            uris.push(namespace.uri);
+            filteredNamespaces.push(namespace);
+        }
+    });
+    return filteredNamespaces;
+}

@@ -11,7 +11,7 @@
         "displayName": "Description",
         "inputType": "string",
         "defaultValue": "",
-        "required": true,
+        "required": false,
         "helpTip": "Description"
       }
     }

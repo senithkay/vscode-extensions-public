@@ -20,7 +20,7 @@ export interface GetTaskTemplatesArgs {
     implementation: string;
     pinnedServers: string;
     triggerType: "simple" | "cron";
-    triggerCount: number;
+    triggerCount: number | null;
     triggerInterval: number;
     triggerCron: string;
     taskProperties: Property[];
@@ -29,7 +29,7 @@ export interface GetTaskTemplatesArgs {
 export function getTaskMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <task class="{{implementation}}" group="{{group}}" name="{{name}}"{{#pinnedServers}} pinnedServers="{{pinnedServers}}"{{/pinnedServers}} xmlns="http://ws.apache.org/ns/synapse">
-    <trigger {{#cron}}cron="{{cron}}"{{/cron}}{{#once}}once="true"{{/once}}{{#count}}count="{{count}}" interval="{{interval}}"{{/count}}/>
+    <trigger{{#cron}} cron="{{cron}}"{{/cron}}{{#once}} once="true"{{/once}}{{#count}} count="{{count}}"{{/count}}{{#interval}} interval="{{interval}}"{{/interval}}/>
     {{#taskProperties}}
     {{#key}}
     {{#isLiteral}}

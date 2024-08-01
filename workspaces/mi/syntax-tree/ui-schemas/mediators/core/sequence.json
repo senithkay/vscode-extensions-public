@@ -10,7 +10,7 @@
         "name": "referringSequence",
         "displayName": "Referring Sequence",
         "inputType": "keyOrExpression",
-        "required": false,
+        "required": true,
         "helpTip": "",
         "keyType": "sequence"
       }

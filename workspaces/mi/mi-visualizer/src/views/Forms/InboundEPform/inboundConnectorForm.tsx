@@ -42,11 +42,13 @@ type InboundEndpoint = {
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
     const { formData, handleCreateInboundEP, model } = props;
-    const { control, handleSubmit, register, formState: { errors }, setValue } = useForm<any>();
+    const { control, handleSubmit, register, formState: { errors }, setValue, reset } = useForm<any>();
 
     useEffect(() => {
+        reset();
         if (model) {
             const attributeNames = getGenericAttributeNames(formData);
+            
             attributeNames.forEach((attributeName: string) => {
                 if (model.hasOwnProperty(attributeName)) {
                     setValue(getNameForController(attributeName), model[attributeName]);
@@ -57,7 +59,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 setValue(getNameForController(param.name), param.content);
             });
         }
-    }, [model]);
+    }, [model, formData]);
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
@@ -117,8 +119,21 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         handleCreateInboundEP(inboundConnector);
     };
 
-    const handleOnClose = () => {
+    const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
+
+    const openInboundEPView = (documentUri: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: documentUri } });
+    };
+
+    const handleOnClose = () => {
+        const isNewTask = !props.model;
+        if (isNewTask) {
+            openOverview();
+        } else {
+            openInboundEPView(props.path);
+        }
     }
 
     return (
@@ -130,7 +145,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.model ? "Update" : "Add"}
+                    {props.model ? "Update" : "Create"}
                 </Button>
                 <Button
                     appearance="secondary"

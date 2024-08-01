@@ -1,5 +1,5 @@
 <call blocking="true"  >
-    <endpoint />
+    <endpoint key="templattest" />
     <source type="body"/>
     <target type="body"/>
 </call>

@@ -96,13 +96,16 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
 
     const schema = yup.object({
         apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name")
-            .test('validateApiName',
-                'An artifact with same name already exists', value => {
-                    return (value === apiData?.apiName) || !(workspaceFileNames.includes(value))
-                }).test('validateArtifactName',
-                    'A registry resource with this artifact name already exists', value => {
-                        return (value === apiData?.apiName) || !(artifactNames.includes(value))
-                    }),
+            .test('validateApiName', 'An artifact with same file name already exists', function (value) {
+                const { version } = this.parent;
+                const fileName = version ? `${value}_v${version}` : value;
+                return (value === apiData?.apiName) || !(workspaceFileNames.includes(fileName));
+            }).test('validateArtifactName',
+                'A registry resource with this artifact name already exists', function (value) {
+                    const { version } = this.parent;
+                    const artifactName = version ? `${value}:v${version}` : value;
+                    return (value === apiData?.apiName) || !(artifactNames.includes(artifactName))
+                }),
         apiContext: yup.string().required("API Context is required"),
         hostName: yup.string(),
         port: yup.string(),
@@ -116,8 +119,17 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             })
             .when("versionType", {
                 is: (value: string) => value === "context" || value === "url",
-                then: schema => schema.matches(/^(\d+\.\d+\.\d+)$/, "Invalid version format"),
-            }),
+                then: schema => schema.matches(/^([a-zA-z0-9.]+)$/, "Invalid version format"),
+            }).test('validateApiName', 'An artifact with same version already exists', function (value) {
+                const { apiName } = this.parent;
+                const fileName = value ? `${apiName}_v${value}` : apiName;
+                return (!value) || !(workspaceFileNames.includes(fileName));
+            }).test('validateArtifactName',
+                'An artifact with this artifact name and version already exists', function (value) {
+                    const { apiName } = this.parent;
+                    const artifactName = value ? `${apiName}:v${value}` : apiName;
+                    return (!value) || !(artifactNames.includes(artifactName))
+                }),
         apiCreateOption: yup.string().oneOf(["create-api", "swagger-to-api", "wsdl-to-api"] as const).defined(),
         swaggerDefPath: yup.string().when('apiCreateOption', {
             is: "swagger-to-api",
@@ -456,7 +468,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 {versionType !== "none" && (
                     <TextField
                         label="Version"
-                        placeholder={"0.0.1"}
+                        placeholder={"1.0.0"}
                         {...renderProps("version")}
                     />
                 )}
