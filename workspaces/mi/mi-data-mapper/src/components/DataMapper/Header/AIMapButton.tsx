@@ -22,7 +22,7 @@ const ButtonContainer = styled.div`
   margin-left: 5px;
 `;
 
-const StyledButton = styled(Button)<{ isLoading: boolean }>`
+const StyledButton = styled(Button) <{ isLoading: boolean }>`
   text-transform: none;
   box-sizing: border-box;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
@@ -42,22 +42,22 @@ const StyledButton = styled(Button)<{ isLoading: boolean }>`
 const AIMapButton: React.FC<AIMapButtonProps> = ({ onClick, isLoading }) => {
   return (
     <ButtonContainer>
-        <StyledButton
+      <StyledButton
         appearance={isLoading ? "secondary" : "primary"}
         tooltip="Generate Mapping using AI"
         onClick={async () => {
           if (!isLoading) {
             await onClick();
           }
-        }} 
+        }}
         disabled={isLoading}
         isLoading={isLoading}
-    >
+      >
         <div style={{ display: "flex", alignItems: "center" }}>
           <Codicon name="sync" />
           <span style={{ marginLeft: "3px" }}>Map</span>
         </div>
-        </StyledButton>
+      </StyledButton>
     </ButtonContainer>
   );
 };

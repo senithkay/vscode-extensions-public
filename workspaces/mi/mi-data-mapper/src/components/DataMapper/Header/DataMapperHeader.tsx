@@ -27,14 +27,14 @@ export interface DataMapperHeaderProps {
     onDataMapButtonClick?: () => void;
     onDataMapClearClick?: () => void;
     isLoading: boolean;
-    setIsLoading: (loading: boolean) => void;  
+    setIsLoading: (loading: boolean) => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick:onClear, setIsLoading, isLoading } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
 
     const { rpcClient } = useVisualizerContext();
-  
+
     const handleDataMapButtonClick = async () => {
         props.setIsLoading(true);
         try {
@@ -49,7 +49,6 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     const handleDataMapClearButtonClick = async () => {
         const dm = "";
         await rpcClient.getMiDataMapperRpcClient().writeDataMapping(dm);
-        console.log("Cleared AI Mapping");
     };
 
     return (
@@ -76,7 +75,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                                 appearance="secondary"
                                 onClick={handleDataMapClearButtonClick}
                                 tooltip='Clear AI Mapping'
-                                >
+                            >
                                 <RedCodicon name="trash" />
                             </Button>
                         </IOFilterBar>

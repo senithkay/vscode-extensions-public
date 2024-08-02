@@ -64,9 +64,9 @@ const classes = {
         textTransform: 'none',
         background: '#F7F8FB',
         marginTop: '15px',
-        border: 'none', 
+        border: 'none',
         borderRadius: '5px',
-      }),
+    }),
     spinner: css({
         margin: '20px auto',
         width: '20px',
@@ -90,7 +90,7 @@ export interface MIDataMapperProps {
     configName: string;
     applyModifications: (fileContent: string) => Promise<void>;
     isLoading: boolean;
-    setIsLoading: (loading: boolean) => void; 
+    setIsLoading: (loading: boolean) => void;
 }
 
 enum ActionType {
@@ -134,7 +134,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const [views, dispatch] = useReducer(viewsReducer, initialView);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-    
+
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
     const { resetFocus: resetExprBarFocus } = useDMExpressionBarStore();
@@ -180,7 +180,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     useEffect(() => {
         generateNodes();
         setupKeyboardShortcuts();
-    
+
         return () => {
             KeyboardNavigationManager.getClient().resetMouseTrapInstance();
         };
@@ -196,7 +196,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             diagnostics, addView, goToSource, applyModifications
         );
         const nodeInitVisitor = new NodeInitVisitor(context);
-    
+
         if (lastView.subMappingInfo !== undefined) {
             await handleSubMapping(lastView, context, nodeInitVisitor, subMappingTypes);
         } else {
@@ -220,7 +220,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
         const nodeList = buildNodeListForSubMappings(context, nodeInitVisitor, subMappingDetails);
         setNodes(nodeList);
     };
-    
+
     const handleDefaultMapping = (
         lastView: View,
         context: DataMapperContext,
@@ -271,20 +271,19 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 />
             )}
             {isLoading && (
-            <div className={classes.overlayWithLoader}>
-                <div className={classes.spinner} />
-                <div className={classes.autoMapInProgressMsg}>
-                    {message}
+                <div className={classes.overlayWithLoader}>
+                    <div className={classes.spinner} />
+                    <div className={classes.autoMapInProgressMsg}>
+                        {message}
+                    </div>
+                    <Button
+                        onClick={() => setIsLoading(false)}
+                        className={classes.autoMapStopButton}
+                    >
+                        {'Stop'}
+                    </Button>
                 </div>
-                <Button
-                    onClick={() => setIsLoading(false)}
-                    //variant="contained"
-                    className={classes.autoMapStopButton}
-                >
-                    {'Stop'}
-                </Button>
-            </div>
-             )}
+            )}
             {nodes.length > 0 && (
                 <DataMapperDiagram
                     nodes={nodes}
