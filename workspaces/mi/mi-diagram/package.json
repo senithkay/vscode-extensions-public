@@ -5,7 +5,7 @@
     "main": "lib/index.js",
     "scripts": {
         "start": "tsc && node dist/index.js",
-        "test": "jest",
+        "test": "jest --coverage",
         "build": "tsc --pretty && npm run copy-files",
         "storybook": "storybook dev -p 6006",
         "watch": "tsc --pretty --watch",
