@@ -537,7 +537,7 @@ export function AIProjectGenerationChat() {
             // Remove the user uploaded files and images after sending them to the backend.
             removeAllFiles();
             removeAllImages();
-            
+
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let result = '';
@@ -1070,7 +1070,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                {!loading && language === 'xml' &&
+                    {!loading && language === 'xml' &&
                         <Button
                             appearance="icon"
                             onClick={(e) => {

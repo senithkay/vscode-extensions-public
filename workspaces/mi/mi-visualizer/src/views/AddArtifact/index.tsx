@@ -268,6 +268,11 @@ export function AddArtifactView() {
                                     </FlexRow>
                                 ))}
                             </ItemRow>
+                            {fileUploadStatus.type === 'error' && (
+                                <div style={{ color: 'red' }}>
+                                    {fileUploadStatus.text}
+                                </div>
+                            )}
                             <ItemRow>
                                 <Button
                                     appearance="primary"

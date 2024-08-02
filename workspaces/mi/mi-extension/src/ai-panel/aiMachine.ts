@@ -252,7 +252,7 @@ export const StateMachineAI = {
 
 export function openAIWebview(initialPrompt?: PromptObject) {
     extension.initialPrompt = initialPrompt;
-        if (!AiPanelWebview.currentPanel) {
+    if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {
         AiPanelWebview.currentPanel!.getWebview()?.reveal();
