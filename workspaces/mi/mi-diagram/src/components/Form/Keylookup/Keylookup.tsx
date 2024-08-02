@@ -173,7 +173,7 @@ export const Keylookup = (props: IKeylookup) => {
     const {
         filter,
         filterType,
-        value,
+        value = "",
         onValueChange,
         allowItemCreate = true,
         path,
@@ -310,56 +310,52 @@ export const Keylookup = (props: IKeylookup) => {
     }
     
     return (
-        <>
-            {getValue(value) !== undefined && (
-                <Container>
-                    {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
-                    !isExpressionFieldValue(value)) ? (
-                        <AutoComplete
-                            {...rest}
-                            value={getValue(value || value)}
-                            onValueChange={handleValueChange}
-                            borderBox={true}
-                            required={props.required}
-                            items={items}
-                            allowItemCreate={allowItemCreate}
-                            onCreateButtonClick={props.onCreateButtonClick ? () => {
-                                handleValueChange("");
-                                props.onCreateButtonClick(fetchItems, handleValueChange);
-                            } : null}
-                            {...exprToggleEnabled && isExpressionFieldValue(value) && {
-                                actionBtns: [
-                                    <ExButton
-                                        isActive={value.isExpression}
-                                        onClick={() => {
-                                            if (canChangeEx) {
-                                                onValueChange && onValueChange({
-                                                    ...value, isExpression: !value.isExpression
-                                                });
-                                            }
-                                        }}
-                                    />
-                                ],
-                            }}
-                        /> 
-                    ) : (
-                        <ExpressionField
-                            label={props.label}
-                            placeholder={props.placeholder}
-                            required={props.required}
-                            disabled={props.disabled}
-                            value={value}
-                            onChange={onValueChange}
-                            canChange={canChangeEx}
-                            openExpressionEditor={(value, onValueChange) => openExpressionEditor(value, onValueChange)}
-                            errorMsg={errorMsg}
-                            sx={{ ...sx, height: "45px" }}
-                        />
-                    )}
-                    {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
-                </Container>
+        <Container>
+            {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
+            !isExpressionFieldValue(value)) ? (
+                <AutoComplete
+                    {...rest}
+                    value={getValue(value)}
+                    onValueChange={handleValueChange}
+                    borderBox={true}
+                    required={props.required}
+                    items={items}
+                    allowItemCreate={allowItemCreate}
+                    onCreateButtonClick={props.onCreateButtonClick ? () => {
+                        handleValueChange("");
+                        props.onCreateButtonClick(fetchItems, handleValueChange);
+                    } : null}
+                    {...exprToggleEnabled && isExpressionFieldValue(value) && {
+                        actionBtns: [
+                            <ExButton
+                                isActive={value.isExpression}
+                                onClick={() => {
+                                    if (canChangeEx) {
+                                        onValueChange && onValueChange({
+                                            ...value, isExpression: !value.isExpression
+                                        });
+                                    }
+                                }}
+                            />
+                        ],
+                    }}
+                /> 
+            ) : (
+                <ExpressionField
+                    label={props.label}
+                    placeholder={props.placeholder}
+                    required={props.required}
+                    disabled={props.disabled}
+                    value={value}
+                    onChange={onValueChange}
+                    canChange={canChangeEx}
+                    openExpressionEditor={(value, onValueChange) => openExpressionEditor(value, onValueChange)}
+                    errorMsg={errorMsg}
+                    sx={{ ...sx, height: "45px" }}
+                />
             )}
-        </>
+            {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
+        </Container>
     );
 };
 
