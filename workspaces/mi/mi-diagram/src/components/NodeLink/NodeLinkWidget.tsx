@@ -125,7 +125,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={isHovered || link.isSelected() ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={2}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
+                {...(link.showArrowToNode() && { markerEnd: `url(#${link.getID()}-arrow-head)` })}
             />
             {link.label && (
                 <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
@@ -144,10 +144,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                     alignItems: "center",
                                     borderRadius: "20px",
                                     border: `2px solid ${link.hasDiagnotics()
-                                            ? Colors.ERROR
-                                            : link.showAddButton && isHovered
-                                                ? Colors.SECONDARY
-                                                : Colors.PRIMARY
+                                        ? Colors.ERROR
+                                        : link.showAddButton && isHovered
+                                            ? Colors.SECONDARY
+                                            : Colors.PRIMARY
                                         }`,
                                     backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                     padding: "2px 10px",
