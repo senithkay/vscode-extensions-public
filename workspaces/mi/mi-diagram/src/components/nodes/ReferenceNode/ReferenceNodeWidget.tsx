@@ -189,7 +189,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     }, [tooltip])
 
     return (
-        <div >
+        <div data-testid={`referenceNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
