@@ -13,7 +13,7 @@ import path from 'path';
 import fs from 'fs';
 import { Diagram } from '../../components';
 import { log } from "console";
-import { prettyDOM, waitFor } from "@testing-library/dom";
+import { prettyDOM, waitFor, waitForElementToBeRemoved } from "@testing-library/dom";
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom';
 
@@ -78,7 +78,8 @@ describe('Diagram component', () => {
 
                     await waitFor(async () => {
                         expect(await screen.findByTestId(/^diagram-canvas-/)).toBeInTheDocument();
-                    }, { timeout: 12000 })
+                        await waitForElementToBeRemoved(await screen.findByTestId("loading-overlay"));
+                    }, { timeout: 10000 })
 
                     const prettyDom = prettyDOM(dom.container, 1000000, {
                         highlight: false, filterNode(node) {
@@ -88,7 +89,7 @@ describe('Diagram component', () => {
 
                     expect(prettyDom).toBeTruthy();
 
-                    const sanitazedDom = (prettyDom as string).replaceAll(/(data-nodeid|data-linkid|marker-end|id)="[^"]*"/g, '');
+                    const sanitazedDom = (prettyDom as string).replaceAll(/\s+(marker-end|id)="[^"]*"/g, '');
                     expect(sanitazedDom).toMatchSnapshot();
                 } else {
                     throw new Error("Resource is undefined or empty.");
