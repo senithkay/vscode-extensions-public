@@ -44,3 +44,5 @@ export const addToDMUndoStack: NotificationType<string> = { method: `${_preFix}/
 export const updateDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/updateDMUndoRedoManager` };
 export const getCompletions: RequestType<GetCompletionsRequest, GetCompletionsResponse> = { method: `${_preFix}/getCompletions` };
 export const getDMDiagnostics: RequestType<GetDMDiagnosticsRequest, GetDMDiagnosticsResponse> = { method: `${_preFix}/getDMDiagnostics` };
+export const getMappingFromOpenAI: RequestType<void, void> = { method: `${_preFix}/getMappingFromOpenAI` };
+export const writeDataMapping: NotificationType<string> = { method: `${_preFix}/writeDataMapping` };

@@ -29,14 +29,58 @@ import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { buildNodeListForSubMappings, initializeSubMappingContext } from "../Diagram/utils/sub-mapping-utils";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 const classes = {
     root: css({
         flexGrow: 1,
         height: "100vh",
         overflow: "hidden",
-    })
-}
+    }),
+    overlay: css({
+        zIndex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        background: 'white',
+        opacity: 0.8,
+    }),
+    overlayWithLoader: css({
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        zIndex: 1,
+        position: 'fixed',
+        backdropFilter: "blur(3px)",
+        backgroundColor: "rgba(138, 138, 138, 0.7)",
+    }),
+    autoMapInProgressMsg: css({
+        marginTop: '0px'
+    }),
+    autoMapStopButton: css({
+        textTransform: 'none',
+        background: '#F7F8FB',
+        marginTop: '15px',
+        border: 'none', 
+        borderRadius: '5px',
+      }),
+    spinner: css({
+        margin: '20px auto',
+        width: '20px',
+        height: '20px',
+        borderRadius: '50%',
+        border: '3px solid #f3f3f3',
+        borderTop: '3px solid #3498db',
+        animation: 'spin 2s linear infinite',
+        '@keyframes spin': {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' }
+        }
+    }),
+};
 export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
     inputTrees: DMType[];
@@ -45,6 +89,8 @@ export interface MIDataMapperProps {
     filePath: string;
     configName: string;
     applyModifications: (fileContent: string) => Promise<void>;
+    isLoading: boolean;
+    setIsLoading: (loading: boolean) => void; 
 }
 
 enum ActionType {
@@ -77,7 +123,7 @@ function viewsReducer(state: ViewState, action: ViewAction) {
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications } = props;
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading } = props;
 
     const initialView = [{
         targetFieldFQN: "",
@@ -88,7 +134,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const [views, dispatch] = useReducer(viewsReducer, initialView);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-
+    
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
     const { resetFocus: resetExprBarFocus } = useDMExpressionBarStore();
@@ -112,6 +158,24 @@ export function MIDataMapper(props: MIDataMapperProps) {
     }, [resetSearchStore, resetExprBarFocus]);
 
     const inputNode = nodes.find(node => isInputNode(node));
+
+    const [message, setMessage] = useState("Mapping is in progress...");
+
+    useEffect(() => {
+        const messages = [
+            "Mapping is in progress...",
+            "Please wait...",
+            "This may take a few minutes, depending on the size of your schema."
+        ];
+        let index = 0;
+
+        const interval = setInterval(() => {
+            index = (index + 1) % messages.length;
+            setMessage(messages[index]);
+        }, 20000); // 20 seconds
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, []);
 
     useEffect(() => {
         generateNodes();
@@ -200,8 +264,27 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
+                    onDataMapButtonClick={undefined}
+                    onDataMapClearClick={undefined}
+                    setIsLoading={setIsLoading}
+                    isLoading={isLoading}
                 />
             )}
+            {isLoading && (
+            <div className={classes.overlayWithLoader}>
+                <div className={classes.spinner} />
+                <div className={classes.autoMapInProgressMsg}>
+                    {message}
+                </div>
+                <Button
+                    onClick={() => setIsLoading(false)}
+                    //variant="contained"
+                    className={classes.autoMapStopButton}
+                >
+                    {'Stop'}
+                </Button>
+            </div>
+             )}
             {nodes.length > 0 && (
                 <DataMapperDiagram
                     nodes={nodes}
@@ -224,3 +307,5 @@ export function MIDataMapper(props: MIDataMapperProps) {
         </div>
     )
 }
+
+

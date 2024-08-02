@@ -28,11 +28,13 @@ import {
     GetDMDiagnosticsRequest,
     GetDMDiagnosticsResponse,
     DMDiagnostic,
-    DMDiagnosticCategory
+    DMDiagnosticCategory,
+    EVENT_TYPE,
+    MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
 import { Project } from "ts-morph";
-import { navigate } from "../../stateMachine";
+import { StateMachine, navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateDMC } from "../../util/tsBuilder";
@@ -46,6 +48,10 @@ import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
 import {DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME} from "../../constants";
+import { getSources } from "../../util/dataMapper";
+import { refreshAuthCode } from '../../ai-panel/auth';
+import { DATAMAP_BACKEND_URL } from "../../constants";
+import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -191,6 +197,180 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             reject({ absPath: '', configName: '' });
         });
     }
+
+    //Function to read the TypeScript file which contains the schema interfaces to be mapped
+    async readTSFile(): Promise<string> {
+        const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+      // Check if sourcePath is defined before converting to string
+        if (sourcePath) {
+            const [tsFullText, tsInterfacesText] = getSources(sourcePath);
+            try {
+            return tsFullText; 
+            } catch (error) {
+                console.error('Failed to read TypeScript file: ', error);
+                throw error;
+            }
+        } else {
+            throw new Error("sourcePath is undefined");
+        }
+    }
+
+    //Function to write generated mappings to DMC and TS files
+    async writeDataMapping(dataMapping: string): Promise<void> {
+        const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+
+        if (sourcePath) {
+            try {
+            //for TS file
+            let tsContent = await this.readTSFile();
+            let tsLines = tsContent.split('\n');
+
+            // Find the line before 'return {'
+            let insertLineIndex = tsLines.findIndex(line => line.trim().startsWith('export function mapFunction('));
+            if (insertLineIndex !== -1) {
+                // Remove all lines after the 'function mapFunction(' line, including 'return {'
+                tsLines = tsLines.slice(0, insertLineIndex + 1);
+                // Add the data mapping and 'return {' statement after the 'function mapFunction(' line
+                tsLines.push(`    return {${dataMapping}};`);
+                // Add a single '}' at the end to close the function
+                tsLines.push('}');
+            } 
+            else {
+                console.log("TS Line not found");
+            }
+            tsContent = tsLines.join('\n');        
+            fs.writeFileSync(sourcePath, tsContent);
+        } catch (error) {
+            console.error('Failed to write mapping to files: ', error);
+            throw error; // Rethrow the error to handle it further up the call stack if necessary
+    }}
+}
+
+    async fetchBackendUrl() {
+        try {
+            let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
+            const { url } = await miDiagramRpcManager.getBackendRootUrl();
+            
+            return url;
+            // Do something with backendRootUri
+        } catch (error) {
+            console.error('Failed to fetch backend URL:', error);
+        }
+    }
+
+    //Main function to get the mapping from OpenAI and write it to the relevant files
+    async getMappingFromOpenAI(): Promise<void> {
+        try {
+            let tsContent = await this.readTSFile();
+
+            // Function to find and extract all schema interface text via Abstract Syntax Tree
+            const findInterfaceText = (node: ts.Node, interfaceName: string): string | null | undefined => {
+                if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
+                    return node.getText();
+                }
+                return node.forEachChild(child => findInterfaceText(child, interfaceName));
+            };
+
+            // Function to extract InputRoot and OutputRoot names from tsContent
+            const extractRootNames = (content: string): { inputRoot: string, outputRoot: string } => {
+                const mapFunctionRegex = /function\s+mapFunction\s*\(\s*input\s*:\s*(\w+)\s*\)\s*:\s*(\w+)\s*{/;
+                const match = content.match(mapFunctionRegex);
+                if (!match) {
+                    throw new Error('mapFunction signature not found in TypeScript file.');
+                }
+                return { inputRoot: match[1], outputRoot: match[2] };
+            };
+
+            const makeRequest = async (url: string, token: string) => {
+                const response = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify(schema)
+                });
+                if (!response.ok) throw new Error(`Error while checking token: ${response.statusText}`);
+                return response.json();
+              }
+              
+
+            // Extract InputRoot and OutputRoot names
+            const { inputRoot, outputRoot } = extractRootNames(tsContent);
+
+            const backendRootUri = await this.fetchBackendUrl();
+            const url = backendRootUri + DATAMAP_BACKEND_URL;
+
+            // Parse the TypeScript content to AST
+            const sourceFile = ts.createSourceFile('temp.ts', tsContent, ts.ScriptTarget.Latest, true);
+            const inputSchema = findInterfaceText(sourceFile, inputRoot);
+            const outputSchema = findInterfaceText(sourceFile, outputRoot);
+
+            if (!inputSchema || !outputSchema) {
+                throw new Error('InputRoot or OutputRoot interface not found in TypeScript file.');
+            }
+
+            const schema = {
+                input: inputSchema,
+                output: outputSchema
+            };
+
+            const openSignInView = () => {
+                let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
+                miVisualizerRpcClient.openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoggedOut } });
+            };
+
+            let token;
+            try {
+            token = await extension.context.secrets.get('MIAIUser');
+            } 
+            catch (error) {
+            console.error('User not signed in', error);
+            openSignInView();
+            return; // If there is no token, return early to exit the function
+            }
+
+            let response;
+            try {
+            response = await makeRequest(url, token);
+            } 
+            catch (error) {
+                if (response.status === 401 || response.status === 403) {
+                    const newToken = await refreshAuthCode();
+                    if (!newToken) 
+                    {
+                    console.error('Could not refresh auth code');
+                    throw new Error('Could not refresh auth code');
+                    }
+                    response = await makeRequest(url, newToken);
+                } 
+                else {
+                    throw error;
+                }
+            }
+            interface DataMapResponse {
+                mapping: string;
+                event: string;
+                usage: string;
+            }
+            
+            // Parse the response from the request
+            const data = await response as DataMapResponse;
+            if (data.event === "data_mapping_success") {
+                // Extract the mapping string and pass it to the writeDataMapping function
+                const mappingString = data.mapping;
+                await this.writeDataMapping(mappingString);
+              } 
+            else {
+                // Log error or perform error handling
+                console.error('Data mapping was not successful');
+              }
+        } catch (error) {
+            console.error('Error while generating data mapping',error);
+            throw error;
+        }
+}
+
 
     async createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return new Promise(async (resolve, reject) => {

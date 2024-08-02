@@ -13,6 +13,9 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import AIMapButton from './AIMapButton';
 
 export interface DataMapperHeaderProps {
     filePath: string;
@@ -21,10 +24,33 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: (fileContent: string) => Promise<void>;
+    onDataMapButtonClick?: () => void;
+    onDataMapClearClick?: () => void;
+    isLoading: boolean;
+    setIsLoading: (loading: boolean) => void;  
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick:onClear, setIsLoading, isLoading } = props;
+
+    const { rpcClient } = useVisualizerContext();
+  
+    const handleDataMapButtonClick = async () => {
+        props.setIsLoading(true);
+        try {
+            await rpcClient.getMiDataMapperRpcClient().getMappingFromOpenAI();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            props.setIsLoading(false);
+        }
+    };
+
+    const handleDataMapClearButtonClick = async () => {
+        const dm = "";
+        await rpcClient.getMiDataMapperRpcClient().writeDataMapping(dm);
+        console.log("Cleared AI Mapping");
+    };
 
     return (
         <HeaderContainer>
@@ -42,6 +68,17 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <>
                         <IOFilterBar>
                             <HeaderSearchBox />
+                            <AIMapButton
+                                onClick={handleDataMapButtonClick}
+                                isLoading={isLoading}
+                            />
+                            <Button
+                                appearance="secondary"
+                                onClick={handleDataMapClearButtonClick}
+                                tooltip='Clear AI Mapping'
+                                >
+                                <RedCodicon name="trash" />
+                            </Button>
                         </IOFilterBar>
                     </>
                 )}
@@ -92,4 +129,8 @@ const IOFilterBar = styled.div`
     align-items: center;
     justify-content: flex-end;
     margin-bottom: 3px;
+`;
+
+const RedCodicon = styled(Codicon)`
+    color: red;
 `;

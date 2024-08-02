@@ -31,7 +31,9 @@ import {
     getCompletions,
     GetCompletionsRequest,
     getDMDiagnostics,
-    GetDMDiagnosticsRequest
+    GetDMDiagnosticsRequest,
+    getMappingFromOpenAI,
+    writeDataMapping
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -52,4 +54,6 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onNotification(updateDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.updateDMUndoRedoManager(args));
     messenger.onRequest(getCompletions, (args: GetCompletionsRequest) => rpcManger.getCompletions(args));
     messenger.onRequest(getDMDiagnostics, (args: GetDMDiagnosticsRequest) => rpcManger.getDMDiagnostics(args));
+    messenger.onRequest(getMappingFromOpenAI, () => rpcManger.getMappingFromOpenAI());
+    messenger.onNotification(writeDataMapping, (args: string) => rpcManger.writeDataMapping(args));
 }

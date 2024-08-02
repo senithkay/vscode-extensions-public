@@ -40,7 +40,9 @@ import {
     GetCompletionsResponse,
     GetDMDiagnosticsRequest,
     GetDMDiagnosticsResponse,
-    getDMDiagnostics
+    getDMDiagnostics,
+    getMappingFromOpenAI,
+    writeDataMapping
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -106,5 +108,13 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     getDMDiagnostics(params: GetDMDiagnosticsRequest): Promise<GetDMDiagnosticsResponse> {
         return this._messenger.sendRequest(getDMDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getMappingFromOpenAI(): Promise<void> {
+        return this._messenger.sendRequest(getMappingFromOpenAI, HOST_EXTENSION);
+    }
+
+    writeDataMapping(dataMapping: string): void {
+        return this._messenger.sendNotification(writeDataMapping, HOST_EXTENSION, dataMapping);
     }
 }
