@@ -136,12 +136,6 @@ const AddConnector = (props: AddConnectorProps) => {
     };
 
     useEffect(() => {
-        if (!sidePanelContext?.formValues) {
-            renderForm(props.formData.elements);
-        }
-    },[])
-
-    useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };
@@ -453,32 +447,30 @@ const AddConnector = (props: AddConnectorProps) => {
                     />
                 );
             case 'connection':
-                // setValue(element.name as string, props.connectionType ?? getValues(element.name as string) ?? element.allowedConnectionTypes[0]);
-                // !getValues('configKey') && setValue('configKey', props.connectionName ?? connections[0] ?? "");
                 if (props.fromConnectorStore) {
-                return (
-                    <>
-                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                                <label>{element.displayName}</label>
-                                {element.required === 'true' && <RequiredFormInput />}
+                    return (
+                        <>
+                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                    <label>{element.displayName}</label>
+                                    {element.required === 'true' && <RequiredFormInput />}
+                                </div>
+                                <LinkButton onClick={() => addNewConnection()}>
+                                    Add new connection
+                                </LinkButton>
                             </div>
-                            <LinkButton onClick={() => addNewConnection()}>
-                                Add new connection
-                            </LinkButton>
-                        </div>
-                        <AutoComplete
-                            name="configKey"
-                            errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
-                            items={connections}
-                            value={field.value}
-                            onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }}
-                            required={element.required === 'true'}
-                            allowItemCreate={false}
-                        />
-                    </>);
+                            <AutoComplete
+                                name="configKey"
+                                errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
+                                items={connections}
+                                value={field.value}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                                required={element.required === 'true'}
+                                allowItemCreate={false}
+                            />
+                        </>);
                 } else {
                     return;
                 }
@@ -503,6 +495,14 @@ const AddConnector = (props: AddConnectorProps) => {
 
                 if (element.value.name === "configRef") {
                     element.value.name = "configKey";
+                }
+
+                if (!getValues(getNameForController(element.value.name)) && element.value.defaultValue) {
+                    setValue(getNameForController(element.value.name), element.value.defaultValue)
+                }
+
+                if (element.value.inputType === 'connection' && !props.fromConnectorStore) {
+                    return;
                 }
 
                 return <Controller
@@ -591,6 +591,10 @@ const AddConnector = (props: AddConnectorProps) => {
         }
 
         if (watchStatements) {
+            if (!getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), element.value.defaultValue)
+            }
+
             return (
                 <Controller
                     name={getNameForController(element.value.name)}
@@ -615,6 +619,11 @@ const AddConnector = (props: AddConnectorProps) => {
                     )}
                 />
             );
+        } else {
+            if (getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), "")
+            }
+
         }
 
         return null; // Return null if conditions are not met

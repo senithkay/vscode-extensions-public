@@ -32,6 +32,7 @@ export interface FormGeneratorProps {
     errors: any;
     setValue: any;
     watch: any;
+    getValues: any;
 }
 
 interface Element {
@@ -55,7 +56,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
 
-    const { formData, control, errors, setValue, watch } = props;
+    const { formData, control, errors, setValue, getValues, watch } = props;
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
@@ -189,6 +190,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                     );
                 }
 
+                if (!getValues(getNameForController(element.value.name)) && element.value.defaultValue) {
+                    setValue(getNameForController(element.value.name), element.value.defaultValue)
+                }
+
                 return <Controller
                     name={getNameForController(element.value.name)}
                     control={control}
@@ -274,6 +279,10 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
 
         if (watchStatements) {
+            if (!getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), element.value.defaultValue)
+            }
+
             return (
                 <Controller
                     name={getNameForController(element.value.name)}
@@ -298,6 +307,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                     )}
                 />
             );
+        } else {
+            if (getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), "")
+            }
         }
 
         return null; // Return null if conditions are not met
