@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useRef } from 'react';
-import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,8 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { Keylookup } from '../../../../Form';
-import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { FormKeylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
@@ -48,9 +48,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            fastXsltSchemaType: sidePanelContext?.formValues?.fastXsltSchemaType || "Static",
-            fastXsltDynamicSchemaKey: sidePanelContext?.formValues?.fastXsltDynamicSchemaKey || {"isExpression":true,"value":""},
-            fastXsltStaticSchemaKey: sidePanelContext?.formValues?.fastXsltStaticSchemaKey || "",
+            schemaKay: sidePanelContext?.formValues?.schemaKay || {"isExpression":false,"value":""},
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -100,57 +98,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="fastXsltSchemaType"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete
-                                    label="Fast Xslt Schema Type"
-                                    name="fastXsltSchemaType"
-                                    items={["Static", "Dynamic"]}
-                                    value={field.value}
-                                    required={false}
-                                    errorMsg={errors?.fastXsltSchemaType?.message?.toString()}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }}
-                                />
-                            )}
-                        />
-                    </Field>
-
-                    {watch("fastXsltSchemaType") == "Dynamic" &&
-                    <Field>
-                        <Controller
-                            name="fastXsltDynamicSchemaKey"
-                            control={control}
-                            rules={
-                                {
-                                    validate: (value) => {
-                                        if (!value?.value || value.value === "") {
-                                            return "This field is required";
-                                        }
-                                        return true;
-                                    },
-                                }
-                            }
-                            render={({ field }) => (
-                                <ExpressionField
-                                    {...field} label="Fast Xslt Dynamic SchemaKey"
-                                    placeholder=""
-                                    required={true}
-                                    errorMsg={errors?.fastXsltDynamicSchemaKey?.message?.toString()}
-                                    canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                                />
-                            )}
-                        />
-                    </Field>
-                    }
-
-                    {watch("fastXsltSchemaType") == "Static" &&
-                    <Field>
-                        <Controller
-                            name="fastXsltStaticSchemaKey"
+                            name="schemaKay"
                             control={control}
                             rules={
                                 {
@@ -158,19 +106,22 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                 }
                             }
                             render={({ field }) => (
-                                <Keylookup
-                                    value={field.value}
-                                    filterType='sequence'
-                                    label="Fast Xslt Static SchemaKey"
+                                <FormKeylookup
+                                    control={control}
+                                    name='schemaKay'
+                                    label="Fast Xslt Schema Key"
+                                    filterType='xslt'
                                     allowItemCreate={false}
-                                    onValueChange={field.onChange}
                                     required={true}
-                                    errorMsg={errors?.fastXsltStaticSchemaKey?.message?.toString()}
+                                    errorMsg={errors?.schemaKay?.message?.toString()}
+                                    canChangeEx={true}
+                                    exprToggleEnabled={true}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                    additionalItems={[]}
                                 />
                             )}
                         />
                     </Field>
-                    }
 
                 </ComponentCard>
 

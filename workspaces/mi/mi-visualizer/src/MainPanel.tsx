@@ -52,6 +52,7 @@ import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator'
 import { SamplesView } from './views/SamplesView';
 import { WelcomeView } from './views/WelcomeView';
 import { TaskView } from './views/Diagram/Task';
+import { InboundEPView } from './views/Diagram/InboundEndpoint';
 
 const MainContainer = styled.div`
     display: flex;
@@ -89,7 +90,7 @@ const PopUpContainer = styled.div`
 
 const ViewContainer = styled.div({});
 
-const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => {
+const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
@@ -255,7 +256,15 @@ const MainPanel = ({ handleResetError } : {  handleResetError: () => void }) => 
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.InboundEPForm:
-                    setViewComponent(<InboundEPWizard path={machineView.documentUri} model={(machineView.stNode as InboundEndpoint)} />);
+                    setViewComponent(<InboundEPWizard
+                        path={machineView.documentUri}
+                        model={machineView.customProps?.model as InboundEndpoint} />);
+                    break;
+                case MACHINE_VIEW.InboundEPView:
+                    setViewComponent(<InboundEPView
+                        path={machineView.documentUri}
+                        model={machineView.stNode as InboundEndpoint}
+                        diagnostics={machineView.diagnostics} />);
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
                     setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
