@@ -263,7 +263,7 @@ export function AddArtifactView() {
                                                 }
                                             }}
                                         >
-                                            <span className="codicon codicon-close"></span>
+                                            <Codicon name="close"/>
                                         </Button>
                                     </FlexRow>
                                 ))}
@@ -277,9 +277,8 @@ export function AddArtifactView() {
                                 <Button
                                     appearance="primary"
                                     onClick={() => document.getElementById('fileInput').click()}
-                                    
                                 >
-                                    <span className={`codicon codicon-new-file`}></span>
+                                    <Codicon name="new-file"/>
                                 </Button>
                                 <input
                                     id="fileInput"

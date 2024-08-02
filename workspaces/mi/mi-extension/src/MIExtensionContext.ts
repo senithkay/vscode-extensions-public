@@ -10,10 +10,20 @@
 
 import { ExtensionContext } from "vscode";
 
+interface FileObject {
+    fileName: string;
+    fileContent: string;
+}
+
+interface ImageObject {
+    imageName: string;
+    imageBase64: string;
+}
+
 interface PromptObject {
     aiPrompt: string;
-    files: { fileName: string; fileContent: string }[];
-    images: { imageName: string; imageBase64: string }[];
+    files: FileObject[];
+    images: ImageObject[];
 }
 
 export class MIExtensionContext {
