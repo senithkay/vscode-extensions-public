@@ -110,7 +110,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     };
 
     return (
-        <g pointerEvents={"all"} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <g pointerEvents={"all"} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} data-testid={`link-${link.getID()}`}>
             <path
                 id={link.getID() + "-bg"}
                 d={link.getSVGPath()}
