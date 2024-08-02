@@ -104,6 +104,13 @@ export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
 };
 
 // check local storage has zoom level and position
-export const hasDiagramZoomAndPosition = () => {
-    return localStorage.getItem("diagram-zoom-level") !== null;
+export const hasDiagramZoomAndPosition = (file: string) => {
+    return localStorage.getItem("diagram-file-path") === file;
 };
+
+export const resetDiagramZoomAndPosition = (file: string) => {
+    localStorage.setItem("diagram-file-path", file);
+    localStorage.setItem("diagram-zoom-level", "100");
+    localStorage.setItem("diagram-offset-x", "0");
+    localStorage.setItem("diagram-offset-y", "0");
+}
