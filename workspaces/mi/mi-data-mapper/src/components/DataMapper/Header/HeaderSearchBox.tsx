@@ -14,11 +14,11 @@ import debounce from "lodash.debounce";
 import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { CheckBox, CheckBoxGroup, ClickAwayListener, Codicon, Menu, MenuItem, SearchBox, TextField } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
+import { Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
 import HeaderSearchBoxOptions from './HeaderSearchBoxOptions';
 import { DataMapperNodeModel } from '../../Diagram/Node/commons/DataMapperNode';
-import { ArrayOutputNode, FocusedInputNode, InputNode, ObjectOutputNode, PrimitiveOutputNode } from '../../Diagram/Node';
+import { SubMappingNode } from '../../Diagram/Node';
+import { isInputNode, isOutputNode } from '../../Diagram/Actions/utils'
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -52,8 +52,8 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
     const prevInSearchTermRef = useRef<string>("");
     const prevOutSearchTermRef = useRef<string>("");
 
-    const inputNode = nodes.find((node) => (node instanceof InputNode || node instanceof FocusedInputNode));
-    const outputNode = nodes.find((node) => (node instanceof ObjectOutputNode || node instanceof ArrayOutputNode || node instanceof PrimitiveOutputNode));
+    const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
+    const outputNode = nodes.find(isOutputNode);
 
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
@@ -67,7 +67,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const handleSearch = (term: string) => {
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
-        
+
         const hasInputFilterLabelChanged = !inputSearchTerm
             || (inputSearchTerm && inSearchTerm && inputSearchTerm.isLabelAvailable !== inSearchTerm.isLabelAvailable);
         const hasOutputFilterLabelChanged = !outputSearchTerm
