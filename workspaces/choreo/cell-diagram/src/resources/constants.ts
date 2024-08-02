@@ -20,6 +20,7 @@ export enum Colors {
     SURFACE_BRIGHT = '#FFF',
     SURFACE = '#F7F8FB',
     SURFACE_DIM = '#CBCEDB',
+    SURFACE_CONTAINER = "#cfd1f3",
     ON_SURFACE = '#000',
     ON_SURFACE_VARIANT = '#40404B',
 
