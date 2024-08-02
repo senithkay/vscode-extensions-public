@@ -290,7 +290,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
         <>
             {(resourceServiceModel || operationServiceModel) && (
                 <View>
-                    <ViewHeader title="Service Designer" codicon="globe" onEdit={handleDataServiceEdit}>
+                    <ViewHeader title="Service Designer" icon="APIResource" onEdit={handleDataServiceEdit}>
                         {showResources ? (
                             <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
                                 <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
