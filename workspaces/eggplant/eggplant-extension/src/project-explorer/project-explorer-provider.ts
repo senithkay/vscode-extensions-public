@@ -65,9 +65,9 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         });
     }
 
-    constructor() {
+    constructor(isEggplant: boolean) {
         this._data = [];
-        this.refresh();
+        isEggplant && this.refresh();
     }
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
