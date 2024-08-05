@@ -58,7 +58,8 @@ export const useRepositionedNodes = (
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && sameView && filtersUnchanged && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            const hasArrayFilterNode = nodesClone.some(node => node instanceof ArrayFilterNode);
+            let y = exisitingNode && sameView && (!hasArrayFilterNode || filtersUnchanged) && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
             node.setPosition(x, y);
             if (node instanceof InputNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
