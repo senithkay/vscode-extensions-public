@@ -15,7 +15,7 @@ import { css } from '@emotion/css';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem } from './ExpressionBar';
-import { debounce, throttle } from 'lodash';
+import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
@@ -317,25 +317,17 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
-    const { value, sx, onChange, onSave, onCompletionSelect, getCompletions, ...rest } = props;
+    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
-    const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /(\w*)$/,
         suffix: /^(\w*)/,
     };
-
-    const updateCompletions = debounce(async () => {
-        if (inputRef.current) {
-            const completionItems = await getCompletions();
-            setCompletions(completionItems);
-        }
-    }, 100);
 
     useImperativeHandle(ref, () => inputRef.current);
 
@@ -389,7 +381,6 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         if (isCursorInFunction) {
             updateSyntax(currentFnContent, selectedItem);
         }
-        await updateCompletions();
     };
 
     const handleCompletionSelect = async (item: CompletionItem) => {
@@ -407,8 +398,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     };
 
     const handleClose = () => {
-        updateCompletions.cancel();
-        setCompletions([]);
+        onCancel();
         setSyntax(undefined);
     };
 
