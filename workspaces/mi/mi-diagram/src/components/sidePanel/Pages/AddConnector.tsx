@@ -276,7 +276,7 @@ const AddConnector = (props: AddConnectorProps) => {
         const operationName = props.formData?.operationName ?? props.operationName ??
             sidePanelContext.formValues.operationName;
 
-        if (!sidePanelContext.formValues.form && !sidePanelContext.formValues.parameters) {
+        if (!sidePanelContext.formValues?.form && !sidePanelContext.formValues?.parameters) {
             // Get values set through param manager when no UISchema/template is present
             values = getValues();
         }
@@ -447,33 +447,30 @@ const AddConnector = (props: AddConnectorProps) => {
                     />
                 );
             case 'connection':
-                if (props.fromConnectorStore) {
-                    return (
-                        <>
-                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                                    <label>{element.displayName}</label>
-                                    {element.required === 'true' && <RequiredFormInput />}
-                                </div>
-                                <LinkButton onClick={() => addNewConnection()}>
-                                    Add new connection
-                                </LinkButton>
+                return (
+                    <>
+                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                <label>{element.displayName}</label>
+                                {element.required === 'true' && <RequiredFormInput />}
                             </div>
-                            <AutoComplete
-                                name="configKey"
-                                errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
-                                items={connections}
-                                value={field.value}
-                                onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }}
-                                required={element.required === 'true'}
-                                allowItemCreate={false}
-                            />
-                        </>);
-                } else {
-                    return;
-                }
+                            <LinkButton onClick={() => addNewConnection()}>
+                                Add new connection
+                            </LinkButton>
+                        </div>
+                        <AutoComplete
+                            name="configKey"
+                            errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
+                            items={connections}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={element.required === 'true'}
+                            allowItemCreate={false}
+                        />
+                    </>);
+
             default:
                 return null;
         }
@@ -501,7 +498,8 @@ const AddConnector = (props: AddConnectorProps) => {
                     setValue(getNameForController(element.value.name), element.value.defaultValue)
                 }
 
-                if (element.value.inputType === 'connection' && !props.fromConnectorStore) {
+                if (element.value.inputType === 'connection' && !props.fromConnectorStore && !sidePanelContext.formValues?.form) {
+                    !getValues(element.value.name) && setValue(element.value.name, connections[0]);
                     return;
                 }
 
