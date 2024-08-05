@@ -10,10 +10,26 @@
 
 import { ExtensionContext } from "vscode";
 
+interface FileObject {
+    fileName: string;
+    fileContent: string;
+}
+
+interface ImageObject {
+    imageName: string;
+    imageBase64: string;
+}
+
+interface PromptObject {
+    aiPrompt: string;
+    files: FileObject[];
+    images: ImageObject[];
+}
+
 export class MIExtensionContext {
     public context!: ExtensionContext;
     public webviewReveal!: boolean;
-    public initialPrompt?: string;
+    public initialPrompt?: PromptObject;
     public preserveActivity!: boolean;
     public isServerStarted!: boolean;
 }
