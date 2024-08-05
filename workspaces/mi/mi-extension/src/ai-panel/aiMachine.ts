@@ -86,12 +86,19 @@ const aiStateMachine = createMachine<AiMachineContext>({
                         target: 'loggedOut'
                     }
                 ],
-                onError: {
-                    target: 'disabled',
-                    actions: assign({
-                        errorCode: (context, event) => event.data
-                    })
-                }
+                onError: [
+                    {
+                        cond: (context, event) => event.data.status === 404,
+                        target: 'updateExtension',
+                    },
+                    {
+                        target: 'disabled',
+                        actions:
+                            assign({
+                                errorCode: (context, event) => event.data
+                            })
+                    }
+                ]
             }
         },
 
@@ -160,6 +167,14 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 STOP: "Ready",
                 LOGEDOUT: "loggedOut"
             }
+        },
+
+        updateExtension: {
+            on: {
+                RETRY: {
+                    target: "initialize",
+                }
+            }
         }
     }
 }, {
@@ -168,7 +183,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
         openLogin: openLogin,
     }
 });
-
 
 async function checkToken(context, event): Promise<UserToken> {
     return new Promise(async (resolve, reject) => {
@@ -210,6 +224,8 @@ async function checkToken(context, event): Promise<UserToken> {
                         }else{
                             resolve({token: undefined, userToken: undefined});
                         }
+                    }else if (response.status === 404){
+                        throw { status: 404, message: 'Resource not found' };
                     }else{
                         console.log("Error: " + response.statusText);
                         console.log("Error Code: " + response.status);
@@ -226,8 +242,6 @@ async function checkToken(context, event): Promise<UserToken> {
     });
 }
 
-
-
 async function openLogin(context, event) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -238,7 +252,6 @@ async function openLogin(context, event) {
     });
 }
 
-
 async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.micro-integrator/signin`)
@@ -246,7 +259,6 @@ async function initiateInbuiltAuth() {
     const oauthURL = await getAuthUrl(callbackUri.toString());
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
-
 
 // Create a service to interpret the machine
 export const aiStateService = interpret(aiStateMachine);
