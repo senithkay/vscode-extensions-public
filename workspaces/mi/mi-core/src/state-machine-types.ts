@@ -86,7 +86,7 @@ export type MachineStateValue =
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled';
 
 export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 
