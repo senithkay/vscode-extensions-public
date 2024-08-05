@@ -146,7 +146,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             }
         }
         const response = await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
-        if (response.path && !props.model) {
+        if (response.path) {
             openSequence(response.path);
         } else {
             openOverview();
@@ -167,7 +167,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     };
 
     const openSequence = (sequencePath: string) => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceView, documentUri: sequencePath } });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.InboundEPView, documentUri: sequencePath } });
     };
 
     const handleOnClose = () => {

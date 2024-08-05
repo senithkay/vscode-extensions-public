@@ -25,7 +25,7 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { MockService, STNode, UnitTest, Task, NamedSequence } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest, Task, NamedSequence, InboundEndpoint } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
@@ -383,7 +383,7 @@ const stateMachine = createMachine<MachineContext>({
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
 
-                if (context.view?.includes("Form") && context.view !== MACHINE_VIEW.InboundEPForm) {
+                if (context.view?.includes("Form")) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -462,6 +462,16 @@ const stateMachine = createMachine<MachineContext>({
                                     viewLocation.stNode = node["mock-service"] as MockService;
                                     break;
                                 case !!node.inboundEndpoint:
+                                    // enrich inbound endpoint with the sequence model
+                                    const inboundEndpoint: InboundEndpoint = node.inboundEndpoint as InboundEndpoint;
+                                    viewLocation.view = MACHINE_VIEW.InboundEPView;
+                                    const epSequenceName = inboundEndpoint.sequence;
+                                    const sequenceURI = await langClient.getSequencePath(epSequenceName ? epSequenceName : "");
+                                    if (sequenceURI) {
+                                        const sequence = await langClient.getSyntaxTree({ documentIdentifier: { uri: sequenceURI } });
+                                        inboundEndpoint.sequenceModel = sequence.syntaxTree.sequence;
+                                        inboundEndpoint.sequenceURI = sequenceURI;
+                                    }
                                     viewLocation.stNode = node.inboundEndpoint;
                                     break;
                                 default:

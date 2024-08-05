@@ -239,8 +239,13 @@ const CacheForm = (props: AddMediatorProps) => {
                         <Controller
                             name="maxEntryCount"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <TextField {...field} label="Max Entry Count" size={50} placeholder="" required={false} errorMsg={errors?.maxEntryCount?.message?.toString()} />
+                                <TextField {...field} label="Max Entry Count" size={50} placeholder="" required={true} errorMsg={errors?.maxEntryCount?.message?.toString()} />
                             )}
                         />
                     </Field>
