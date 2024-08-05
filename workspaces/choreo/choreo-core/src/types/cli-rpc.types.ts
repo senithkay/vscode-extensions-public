@@ -20,6 +20,7 @@ import type {
 	Environment,
 	Project,
 } from "./common.types";
+import type { InboundConfig } from "./config-file.types";
 
 export interface BuildPackReq {
 	orgId: string;
@@ -72,6 +73,11 @@ export interface CreateComponentReq {
 	spaBuildCommand: string;
 	spaNodeVersion: string;
 	spaOutputDir: string;
+}
+export interface CreateConfigYamlReq {
+	componentDir: string;
+	type: string;
+	inbound?: InboundConfig;
 }
 export interface GetBuildsReq {
 	orgId: string;

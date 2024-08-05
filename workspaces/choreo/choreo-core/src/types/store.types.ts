@@ -76,7 +76,7 @@ export interface ContextStoreState {
 export interface LocationStoreState {
 	projectLocations: {
 		[projectKey: string]: {
-			[fsPath: string]: ContextStoreComponentState[]
+			[fsPath: string]: ContextStoreComponentState[];
 		};
 	};
 }

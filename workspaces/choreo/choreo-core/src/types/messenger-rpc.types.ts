@@ -85,10 +85,7 @@ export interface SubmitComponentCreateReq {
 	org: Organization;
 	project: Project;
 	createParams: CreateComponentReq;
-	endpoint?: {
-		networkVisibility: string;
-		port: number;
-	};
+	endpoint?: Endpoint;
 }
 
 export interface ViewBuildLogsReq {

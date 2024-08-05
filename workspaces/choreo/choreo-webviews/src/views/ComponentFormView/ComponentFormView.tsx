@@ -63,7 +63,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 			branch: "",
 			dockerFile: "",
 			port: 8080,
-			visibility: "Public",
+			outboundVisibility: "Public",
 			spaBuildCommand: "npm run build",
 			spaNodeVersion: "20.0.0",
 			spaOutputDir: "build",
@@ -75,15 +75,13 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 	const subPath = form.watch("subPath");
 	const repoUrl = form.watch("repoUrl");
 
-	const isEndpointsRequired = ![ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(selectedLang as ChoreoBuildPackNames);
-
 	const { data: hasEndpoints } = useQuery({
-		queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang, isEndpointsRequired }],
+		queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang }],
 		queryFn: async () => {
 			const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
 			return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
 		},
-		select: (resp) => resp?.endpoints?.length > 0 || !isEndpointsRequired,
+		select: (resp) => resp?.endpoints?.length > 0,
 		enabled: selectedType === ChoreoComponentType.Service && !!selectedLang,
 	});
 
@@ -187,7 +185,13 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 			};
 
 			if (data.type === ChoreoComponentType.Service && !hasEndpoints) {
-				createCompCommandParams.endpoint = { port: data.port, networkVisibility: data.visibility };
+				createCompCommandParams.endpoint = {
+					name: componentName,
+					port: data.port,
+					networkVisibility: data.outboundVisibility,
+					type: "REST",
+					context: "/",
+				};
 			}
 
 			const created = await ChoreoWebViewAPI.getInstance().submitComponentCreate(createCompCommandParams);
@@ -262,14 +266,14 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 	}
 
 	const endpointConfigs: ReactNode[] = [];
-	if (selectedType === ChoreoComponentType.Service && !!selectedLang && isEndpointsRequired && !hasEndpoints) {
+	if (selectedType === ChoreoComponentType.Service && !!selectedLang && !hasEndpoints) {
 		endpointConfigs.push(<TextField label="Port" required name="port" control={form.control} placeholder="8080" />);
 		endpointConfigs.push(
 			<Dropdown
 				label="Visibility"
-				key="visibility"
+				key="outboundVisibility"
 				required
-				name="visibility"
+				name="outboundVisibility"
 				items={["Public", "Organization", "Project"]}
 				control={form.control}
 			/>,

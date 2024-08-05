@@ -23,12 +23,12 @@ import { locationStore } from "./stores/location-store";
 import { activateTelemetry } from "./telemetry/telemetry";
 import { activateURIHandlers } from "./uri-handlers";
 import { activateActivityWebViews } from "./webviews/utils";
+import { registerYamlLanguageServer } from "./yaml-ls";
 
 export async function activate(context: vscode.ExtensionContext) {
 	activateTelemetry(context);
 	await initLogger(context);
 	getLogger().debug("Activating Choreo Extension");
-	ext.isPluginStartup = true; // todo: remove if not used
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
 
@@ -68,10 +68,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			activateCmds(context);
 			activateActivityWebViews(context); // activity web views
 			activateURIHandlers();
-			// setupGithubAuthStatusCheck(); // TODO: remove
-			// registerYamlLanguageServer();   // TODO: Re-enable after fixing project manager dependencies
 
-			ext.isPluginStartup = false;
 			getLogger().debug("Choreo Extension activated");
 		})
 		.catch((e) => {
@@ -83,21 +80,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		commands.executeCommand("workbench.action.openWalkthrough", "wso2.choreo#choreo.getStarted", false);
 	});
 	registerPreInitHandlers();
+	registerYamlLanguageServer();
 	return ext.api;
 }
-
-// function setupGithubAuthStatusCheck() {
-//     ext.api.onStatusChanged(() => {
-//         ext.clients.githubAppClient.checkAuthStatus();
-//     });
-// }
-
-// Add back if needed
-// export function getGitExtensionAPI() {
-//     getLogger().debug("Getting Git Extension API");
-//     const gitExtension = vscode.extensions.getExtension<GitExtension>("vscode.git")!.exports;
-//     return gitExtension.getAPI(1);
-// }
 
 function registerPreInitHandlers(): any {
 	workspace.onDidChangeConfiguration(async ({ affectsConfiguration }: ConfigurationChangeEvent) => {

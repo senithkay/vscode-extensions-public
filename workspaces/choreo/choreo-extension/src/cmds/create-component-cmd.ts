@@ -7,26 +7,24 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import * as os from "os";
 import * as path from "path";
+import { join } from "path";
 import {
 	ChoreoComponentType,
 	CommandIds,
-	type ComponentYamlContent,
 	type ICreateComponentParams,
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
-	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
-import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
-import { delay, getSubPath } from "../utils";
+import { delay, getSubPath, goTosource } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { ComponentFormView } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
@@ -113,7 +111,6 @@ export function createNewComponentCommand(context: ExtensionContext) {
 }
 
 export const submitCreateComponentHandler = async ({ createParams, endpoint, org, project }: SubmitComponentCreateReq) => {
-	const cleanCompName = makeURLSafe(createParams.name);
 	const createdComponent = await window.withProgress(
 		{
 			title: `Creating new component ${createParams.displayName}...`,
@@ -122,22 +119,35 @@ export const submitCreateComponentHandler = async ({ createParams, endpoint, org
 		() => ext.clients.rpcClient.createComponent(createParams),
 	);
 
-	if (createParams.type === ChoreoComponentType.Service && endpoint) {
-		const componentConfigFileContent: ComponentYamlContent = {
-			apiVersion: "core.choreo.dev/v1beta1",
-			kind: "ComponentConfig",
-			spec: { inbound: [{ name: cleanCompName, context: "/", type: "REST", ...endpoint }] },
-		};
-		const choreoDir = path.join(createParams.componentDir, ".choreo");
-		if (!existsSync(choreoDir)) {
-			mkdirSync(choreoDir);
-		}
-		writeFileSync(path.join(choreoDir, "component-config.yaml"), yaml.dump(componentConfigFileContent));
-	}
-
-	window.showInformationMessage(`Component ${createParams?.name} has been successfully created`);
-
 	if (createdComponent) {
+		if (
+			createParams.type === ChoreoComponentType.Service &&
+			!existsSync(join(createParams.componentDir, ".choreo", "endpoints.yaml")) &&
+			!existsSync(join(createParams.componentDir, ".choreo", "component-config.yaml"))
+		) {
+			const componentConfPath = await ext.clients.rpcClient.createComponentConfig({
+				componentDir: createParams.componentDir,
+				type: createParams.type,
+				inbound: endpoint,
+			});
+
+			window
+				.showInformationMessage(
+					`Component ${createParams?.name} and its configuration file have been successfully created.`,
+					"Open Configuration File",
+					"View Documentation",
+				)
+				.then((res) => {
+					if (res === "Open Configuration File") {
+						goTosource(componentConfPath);
+					} else if (res === "View Documentation") {
+						commands.executeCommand("vscode.open", "https://wso2.com/choreo/docs/develop-components/configure-endpoints/");
+					}
+				});
+		} else {
+			window.showInformationMessage(`Component ${createParams?.name} has been successfully created.`);
+		}
+
 		showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
 
 		const compCache = dataCacheStore.getState().getComponents(org.handle, project.handler);

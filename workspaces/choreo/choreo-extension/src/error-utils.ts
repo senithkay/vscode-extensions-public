@@ -84,7 +84,7 @@ export function handlerError(err: any) {
 					"View Documentation",
 				).then((res) => {
 					if (res === "View Documentation") {
-						commands.executeCommand("vscode.open", "https://wso2.com/choreo/docs/develop-components/configure-endpoints-body/");
+						commands.executeCommand("vscode.open", "https://wso2.com/choreo/docs/develop-components/configure-endpoints/");
 					}
 				});
 				break;

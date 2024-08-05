@@ -17,6 +17,7 @@ import type {
 	ComponentKind,
 	CreateBuildReq,
 	CreateComponentReq,
+	CreateConfigYamlReq,
 	CreateDeploymentReq,
 	CreateProjectReq,
 	DeleteCompReq,
@@ -131,12 +132,12 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		return resp.component;
 	}
 
-	async createEpYaml(params: CreateComponentReq): Promise<{ success: boolean }> {
+	async createComponentConfig(params: CreateConfigYamlReq): Promise<string> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		const resp = await this.client.sendRequest<{ success: boolean }>("component/createEpYaml", params);
-		return resp;
+		const resp = await this.client.sendRequest<{ configPath: string }>("component/createComponentConfig", params);
+		return resp.configPath;
 	}
 
 	async deleteComponent(params: DeleteCompReq): Promise<void> {

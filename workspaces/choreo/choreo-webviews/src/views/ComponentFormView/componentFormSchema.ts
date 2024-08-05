@@ -34,7 +34,11 @@ export const componentFormSchema = z.object({
 	langVersion: z.string(),
 	dockerFile: z.string(),
 	port: z.number({ coerce: true }),
-	visibility: z.string(),
+	outboundVisibility: z.string(),
+	// TODO // required if its REST or GQL types
+	// outboundType: z.string(),
+	// outboundContext: z.string(),
+	// outboundSchemaPath: z.string(),
 	spaBuildCommand: z.string(),
 	spaNodeVersion: z.string().regex(/^(?=.*\d)\d+(\.\d+)*(?:-[a-zA-Z0-9]+)?$/, "Invalid Node version"),
 	spaOutputDir: z.string(),
@@ -80,11 +84,7 @@ export const getComponentFormSchema = (existingComponents: ComponentKind[], dire
 			ctx.addIssue({ path: ["name"], code: z.ZodIssueCode.custom, message: "Name already exists" });
 		}
 
-		if (
-			data.type === ChoreoComponentType.Service &&
-			!data.port &&
-			![ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(data.buildPackLang as ChoreoBuildPackNames)
-		) {
+		if (data.type === ChoreoComponentType.Service && !data.port) {
 			const endpoints = await ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
 			if (endpoints?.endpoints?.length === 0) {
 				ctx.addIssue({ path: ["port"], code: z.ZodIssueCode.custom, message: "Required" });
