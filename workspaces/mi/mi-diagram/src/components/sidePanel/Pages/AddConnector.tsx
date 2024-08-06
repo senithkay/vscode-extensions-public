@@ -558,8 +558,9 @@ const AddConnector = (props: AddConnectorProps) => {
                 watchStatements = true;
                 const conditions = element.value.enableCondition.slice(1);
                 const statements = conditions.forEach((condition: any) => {
-                    const conditionKey = getNameForController(Object.keys(condition)[0]);
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     if (!(watch(conditionKey) === conditionValue && watchStatements)) {
                         watchStatements = false;
                     }
@@ -569,8 +570,9 @@ const AddConnector = (props: AddConnectorProps) => {
                 watchStatements = false;
                 const conditions = element.value.enableCondition.slice(1);
                 const statements = conditions.forEach((condition: any) => {
-                    const conditionKey = getNameForController(Object.keys(condition)[0]);
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     if (watch(conditionKey) === conditionValue || watchStatements) {
                         watchStatements = true;
                     }
@@ -579,8 +581,9 @@ const AddConnector = (props: AddConnectorProps) => {
                 // Handle Single condition
                 const conditions = element.value.enableCondition;
                 watchStatements = conditions.every((condition: any) => {
-                    const conditionKey = getNameForController(Object.keys(condition)[0]);
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     return (
                         watch(conditionKey) === conditionValue
                     );
