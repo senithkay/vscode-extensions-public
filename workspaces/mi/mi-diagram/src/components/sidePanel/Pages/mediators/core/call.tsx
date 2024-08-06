@@ -111,14 +111,19 @@ const CallForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (
                             <FormKeylookup
                                 control={control}
                                 name='endpoint'
-                                label="Select Endpoint"
+                                label="Endpoint"
                                 filterType='endpoint'
                                 allowItemCreate={false}
                                 required={true}

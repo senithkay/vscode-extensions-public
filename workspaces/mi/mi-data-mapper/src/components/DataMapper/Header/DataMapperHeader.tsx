@@ -13,6 +13,7 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
+import { DataMapperNodeModel } from "../../Diagram/Node/commons/DataMapperNode";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import AIMapButton from './AIMapButton';
@@ -25,6 +26,7 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: (fileContent: string) => Promise<void>;
+    nodes: DataMapperNodeModel[];
     onDataMapButtonClick?: () => void;
     onDataMapClearClick?: () => void;
     isLoading: boolean;
@@ -32,7 +34,7 @@ export interface DataMapperHeaderProps {
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, nodes, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
 
     const { rpcClient } = useVisualizerContext();
 
@@ -71,7 +73,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 {!hasEditDisabled && !onClose && (
                     <>
                         <IOFilterBar>
-                            <HeaderSearchBox />
+                            <HeaderSearchBox
+                                nodes={nodes}
+                            />
                             <AIMapButton
                                 onClick={handleDataMapButtonClick}
                                 isLoading={isLoading}

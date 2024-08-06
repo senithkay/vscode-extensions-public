@@ -265,6 +265,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
+                    nodes={nodes}
                     setIsLoading={setIsLoading}
                     isLoading={isLoading}
                 />
