@@ -51,7 +51,9 @@ export class NodeLinkModel extends DefaultLinkModel {
     constructor(label?: string);
     constructor(options: NodeLinkModelOptions);
     constructor(options: NodeLinkModelOptions | string) {
+        const stRange = (options as NodeLinkModelOptions)?.stRange as Position;
         super({
+            id: stRange?.line && stRange?.character ? `${stRange.line},${stRange.character}${(options as any)?.label ? `,${(options as any).label}` : ''}` : `link-${Date.now()}`,
             type: NODE_LINK,
             width: 10,
             color: Colors.PRIMARY,
@@ -153,21 +155,17 @@ export class NodeLinkModel extends DefaultLinkModel {
         let path = `M ${source.x} ${source.y} `;
         path += `L ${source.x} ${target.y - this.linkBottomOffset - curveOffset} `;
         if (isRight) {
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${
-                target.y - this.linkBottomOffset
-            } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${target.y - this.linkBottomOffset
+                } `;
             path += `L ${target.x - curveOffset} ${target.y - this.linkBottomOffset} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${
-                target.y - this.linkBottomOffset + curveOffset
-            } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${target.y - this.linkBottomOffset + curveOffset
+                } `;
         } else {
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${
-                target.y - this.linkBottomOffset
-            } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${target.y - this.linkBottomOffset
+                } `;
             path += `L ${target.x + curveOffset} ${target.y - this.linkBottomOffset} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${
-                target.y - this.linkBottomOffset + curveOffset
-            } `;
+            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${target.y - this.linkBottomOffset + curveOffset
+                } `;
         }
         path += `L ${target.x} ${target.y}`;
         return path;

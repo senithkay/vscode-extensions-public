@@ -99,7 +99,12 @@ const SequenceForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (

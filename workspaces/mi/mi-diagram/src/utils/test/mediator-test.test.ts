@@ -9,7 +9,8 @@
 
 import path from "path";
 import { LanguageClient } from "./lang-service/client";
-import { getMediatorDescription, isValidMediatorXML } from "./utils/test-utils";
+import { getMediatorDescription, readXMLFile } from "./utils/test-utils";
+import { getDataFromST, getXML } from "../template-engine/mustach-templates/templateUtils";
 
 const dataRoot = path.join(__dirname, "data");
 
@@ -297,8 +298,15 @@ describe('Test MI Mediators', () => {
                         uri
                     }
                 });
-                const res = await isValidMediatorXML(type, syntaxTree);
-                expect(res).toBeTruthy();
+                const mediatorST = syntaxTree.syntaxTree.api.resource[0].inSequence.mediatorList[0];
+
+                const mediatorData = await getDataFromST(type, mediatorST);
+                const generatedXml = getXML(type, mediatorData);
+
+                const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
+                // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
+                const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${type}.xml`));
+                expect(generatedXml).toEqual(outputFileContent);
                 done();
             } catch (error) {
                 console.error('Error:', error);
