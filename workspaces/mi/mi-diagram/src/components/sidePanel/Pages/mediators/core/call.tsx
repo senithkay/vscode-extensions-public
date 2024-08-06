@@ -123,7 +123,7 @@ const CallForm = (props: AddMediatorProps) => {
                             <FormKeylookup
                                 control={control}
                                 name='endpoint'
-                                label="Select Endpoint"
+                                label="Endpoint"
                                 filterType='endpoint'
                                 allowItemCreate={false}
                                 required={true}
