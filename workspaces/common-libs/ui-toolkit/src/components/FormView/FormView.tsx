@@ -73,6 +73,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
     return (
         <div className="form-actions" style={{
             display: 'flex',
+            justifyContent: 'flex-end',
             gap: '10px',
             position: 'sticky',
             bottom: 0,
