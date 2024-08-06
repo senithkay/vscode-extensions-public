@@ -284,7 +284,7 @@ const generateForm = (jsonData: any): string => {
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
-                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression') ? `
+                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression' || inputType === 'keyOrExpression') ? `
                 {
                     validate: (value) => {
                         if (!value?.value || value.value === "") {
