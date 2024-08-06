@@ -155,7 +155,7 @@ export function Diagram(props: DiagramProps) {
         });
         updateDiagramData(flows);
 
-        rpcClient.getVisualizerState().then((state) => {
+        rpcClient?.getVisualizerState().then((state) => {
             if (state && state.identifier !== undefined && state.identifier !== "") {
                 setDiagramViewStateKey(`diagramViewState-${props.documentUri}-${state.identifier}`);
             }
@@ -200,8 +200,13 @@ export function Diagram(props: DiagramProps) {
         const updatedDiagramData: any = {};
         let canvasWidth = 0;
         let canvasHeight = 0;
-        const currentBreakpoints: GetBreakpointsResponse = await rpcClient.getMiDebuggerRpcClient().getBreakpoints({ filePath: props.documentUri });
-
+        let currentBreakpoints: GetBreakpointsResponse = {
+            breakpoints: [],
+            activeBreakpoint: undefined
+        };
+        if (rpcClient) {
+            currentBreakpoints = await rpcClient.getMiDebuggerRpcClient().getBreakpoints({ filePath: props.documentUri });
+        }
         data.forEach((dataItem) => {
             const { nodes, links, width, height } = getDiagramData(dataItem.model, currentBreakpoints);
             drawDiagram(nodes as any, links, dataItem.engine, (newModel: DiagramModel) => {
@@ -302,14 +307,14 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            <S.Container ref={scrollRef} onScroll={handleScroll}>
+            <S.Container ref={scrollRef} onScroll={handleScroll} data-testid={"diagram-container"}>
                 <SidePanelProvider value={{
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
-                        <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width}>
+                        <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width} type="flow">
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.flow.engine as any}
                                 overflow="hidden"
@@ -320,7 +325,7 @@ export function Diagram(props: DiagramProps) {
 
                     {/* Fault sequence */}
                     {diagramData.fault.engine && diagramData.fault.model && isFaultFlow &&
-                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width}>
+                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width} type="fault">
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.fault.engine as any}
                                 overflow="hidden"
