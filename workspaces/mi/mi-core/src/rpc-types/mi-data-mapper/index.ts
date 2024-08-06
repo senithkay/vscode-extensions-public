@@ -21,7 +21,8 @@ import {
     GetCompletionsRequest,
     GetCompletionsResponse,
     GetDMDiagnosticsRequest,
-    GetDMDiagnosticsResponse
+    GetDMDiagnosticsResponse,
+    DataMapWriteRequest
 } from "./types";
 
 export interface MIDataMapperAPI {
@@ -39,5 +40,5 @@ export interface MIDataMapperAPI {
     getCompletions: (params: GetCompletionsRequest) => Promise<GetCompletionsResponse>;
     getDMDiagnostics: (params: GetDMDiagnosticsRequest) => Promise<GetDMDiagnosticsResponse>;
     getMappingFromOpenAI: () => void;
-    writeDataMapping: (dataMapping: string)=> void;
+    writeDataMapping: (params: DataMapWriteRequest)=> void;
 }

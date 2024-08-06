@@ -29,6 +29,7 @@ import {
     GetDMDiagnosticsResponse,
     DMDiagnostic,
     DMDiagnosticCategory,
+    DataMapWriteRequest,
     EVENT_TYPE,
     MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
@@ -47,7 +48,7 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, READONLY_MAPPING_FUNCTION_NAME } from "../../constants";
 import { getSources } from "../../util/dataMapper";
 import { refreshAuthCode } from '../../ai-panel/auth';
 import { DATAMAP_BACKEND_URL } from "../../constants";
@@ -200,8 +201,9 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     // Function to read the TypeScript file which contains the schema interfaces to be mapped
     async readTSFile(): Promise<string> {
+        //sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
-        // Check if sourcePath is defined before converting to string
+        // Check if sourcePath is defined
         if (sourcePath) {
             const [tsFullText, tsInterfacesText] = getSources(sourcePath);
             try {
@@ -215,33 +217,28 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         }
     }
 
-    // Function to write generated mappings to DMC and TS files
-    async writeDataMapping(dataMapping: string): Promise<void> {
+    //Function to update the body of a function in a TypeScript file
+    async writeDataMapping(params: DataMapWriteRequest): Promise<void> {
+        const { dataMapping } = params;
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
-
         if (sourcePath) {
             try {
-                // for TS file
-                let tsContent = await this.readTSFile();
-                let tsLines = tsContent.split('\n');
+                const project = DMProject.getInstance(sourcePath).getProject();
 
-                // Find the line before 'return {'
-                let insertLineIndex = tsLines.findIndex(line => line.trim().startsWith('export function mapFunction('));
-                if (insertLineIndex !== -1) {
-                    // Remove all lines after the 'function mapFunction(' line, including 'return {'
-                    tsLines = tsLines.slice(0, insertLineIndex + 1);
-                    // Add the data mapping and 'return {' statement after the 'function mapFunction(' line
-                    tsLines.push(`    return {${dataMapping}};`);
-                    // Add a single '}' at the end to close the function
-                    tsLines.push('}');
+                const sourceFile = project.getSourceFileOrThrow(sourcePath);
+                
+                // find the function declaration
+                const functionDeclaration = sourceFile.getFunction(READONLY_MAPPING_FUNCTION_NAME);
+                if (functionDeclaration) {
+                    // update the function body
+                    functionDeclaration.setBodyText(`return {${dataMapping}};`);
+                    // write the updates to the file
+                    await sourceFile.save();
+                } else {
+                    console.error("Error in writing data mapping. mapFunction not found in target ts file.");
                 }
-                else {
-                    console.log("TS Line not found");
-                }
-                tsContent = tsLines.join('\n');
-                fs.writeFileSync(sourcePath, tsContent);
             } catch (error) {
-                console.error('Failed to write mapping to files: ', error);
+                console.error('Failed to write data mapping to files: ', error);
                 throw error; // Rethrow the error to handle it further up the call stack if necessary
             }
         }
@@ -264,7 +261,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         try {
             let tsContent = await this.readTSFile();
 
-            // Function to find and extract all schema interface text via Abstract Syntax Tree
+            // Recursive function to find the content of each interface with the given name
             const findInterfaceText = (node: ts.Node, interfaceName: string): string | null | undefined => {
                 if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
                     return node.getText();
@@ -295,15 +292,15 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 return response.json();
             }
 
-
             // Extract InputRoot and OutputRoot names
             const { inputRoot, outputRoot } = extractRootNames(tsContent);
 
             const backendRootUri = await this.fetchBackendUrl();
             const url = backendRootUri + DATAMAP_BACKEND_URL;
 
-            // Parse the TypeScript content to AST
+            // Parse the TypeScript content into an AST to find the InputRoot and OutputRoot interfaces
             const sourceFile = ts.createSourceFile('temp.ts', tsContent, ts.ScriptTarget.Latest, true);
+
             const inputSchema = findInterfaceText(sourceFile, inputRoot);
             const outputSchema = findInterfaceText(sourceFile, outputRoot);
 
@@ -336,6 +333,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 response = await makeRequest(url, token);
             }
             catch (error) {
+                // Handle 401 and 403 errors by refreshing the auth code
                 if (response.status === 401 || response.status === 403) {
                     const newToken = await refreshAuthCode();
                     if (!newToken) {
@@ -348,6 +346,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     throw error;
                 }
             }
+
             interface DataMapResponse {
                 mapping: string;
                 event: string;
@@ -359,7 +358,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (data.event === "data_mapping_success") {
                 // Extract the mapping string and pass it to the writeDataMapping function
                 const mappingString = data.mapping;
-                await this.writeDataMapping(mappingString);
+
+                // Create an object of type DataMapWriteRequest
+                const dataMapWriteRequest: DataMapWriteRequest = {
+                    dataMapping: mappingString
+                };
+
+                await this.writeDataMapping(dataMapWriteRequest);
             }
             else {
                 // Log error or perform error handling

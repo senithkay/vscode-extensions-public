@@ -25,7 +25,8 @@ import {
     GetCompletionsRequest,
     GetCompletionsResponse,
     GetDMDiagnosticsRequest,
-    GetDMDiagnosticsResponse
+    GetDMDiagnosticsResponse,
+    DataMapWriteRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -45,4 +46,4 @@ export const updateDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerReq
 export const getCompletions: RequestType<GetCompletionsRequest, GetCompletionsResponse> = { method: `${_preFix}/getCompletions` };
 export const getDMDiagnostics: RequestType<GetDMDiagnosticsRequest, GetDMDiagnosticsResponse> = { method: `${_preFix}/getDMDiagnostics` };
 export const getMappingFromOpenAI: RequestType<void, void> = { method: `${_preFix}/getMappingFromOpenAI` };
-export const writeDataMapping: NotificationType<string> = { method: `${_preFix}/writeDataMapping` };
+export const writeDataMapping: NotificationType<DataMapWriteRequest> = { method: `${_preFix}/writeDataMapping` };

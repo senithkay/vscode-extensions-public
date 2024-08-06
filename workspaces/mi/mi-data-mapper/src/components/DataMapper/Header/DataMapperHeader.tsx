@@ -16,6 +16,7 @@ import { View } from "../Views/DataMapperView";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import AIMapButton from './AIMapButton';
+import { DataMapWriteRequest } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
     filePath: string;
@@ -48,7 +49,11 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 
     const handleDataMapClearButtonClick = async () => {
         const dm = "";
-        await rpcClient.getMiDataMapperRpcClient().writeDataMapping(dm);
+
+        const dataMapWriteRequest: DataMapWriteRequest = {
+            dataMapping: dm
+        };
+        await rpcClient.getMiDataMapperRpcClient().writeDataMapping(dataMapWriteRequest);
     };
 
     return (
@@ -71,13 +76,13 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                                 onClick={handleDataMapButtonClick}
                                 isLoading={isLoading}
                             />
-                            <Button
+                            <DeleteButton
                                 appearance="secondary"
                                 onClick={handleDataMapClearButtonClick}
                                 tooltip='Clear AI Mapping'
                             >
-                                <RedCodicon name="trash" />
-                            </Button>
+                                <Codicon name="trash" />
+                            </DeleteButton>
                         </IOFilterBar>
                     </>
                 )}
@@ -130,6 +135,13 @@ const IOFilterBar = styled.div`
     margin-bottom: 3px;
 `;
 
-const RedCodicon = styled(Codicon)`
-    color: red;
+const DeleteButton = styled(Button)`
+    color: var(--vscode-errorForeground);
+    border: none;
+    box-sizing: border-box;
+    border-radius: 3px;
+    margin: 0; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 `;

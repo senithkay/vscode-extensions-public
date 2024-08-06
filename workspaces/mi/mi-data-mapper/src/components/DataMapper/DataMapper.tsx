@@ -42,7 +42,7 @@ const classes = {
         position: 'absolute',
         width: '100%',
         height: '100%',
-        background: 'white',
+        background: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
         opacity: 0.8,
     }),
     overlayWithLoader: css({
@@ -55,14 +55,14 @@ const classes = {
         zIndex: 1,
         position: 'fixed',
         backdropFilter: "blur(3px)",
-        backgroundColor: "rgba(138, 138, 138, 0.7)",
+        backgroundColor: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
     }),
     autoMapInProgressMsg: css({
         marginTop: '0px'
     }),
     autoMapStopButton: css({
         textTransform: 'none',
-        background: '#F7F8FB',
+        background: 'var(--vscode-button-background)',
         marginTop: '15px',
         border: 'none',
         borderRadius: '5px',
@@ -72,8 +72,8 @@ const classes = {
         width: '20px',
         height: '20px',
         borderRadius: '50%',
-        border: '3px solid #f3f3f3',
-        borderTop: '3px solid #3498db',
+        border: '3px solid var(--vscode-editor-background)',
+        borderTop: '3px solid var(--vscode-editor-foreground)',
         animation: 'spin 2s linear infinite',
         '@keyframes spin': {
             '0%': { transform: 'rotate(0deg)' },
@@ -81,6 +81,7 @@ const classes = {
         }
     }),
 };
+
 export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
     inputTrees: DMType[];
@@ -165,14 +166,14 @@ export function MIDataMapper(props: MIDataMapperProps) {
         const messages = [
             "Mapping is in progress...",
             "Please wait...",
-            "This may take a few minutes, depending on the size of your schema."
+            "This may take a few seconds, depending on the size of your schema."
         ];
         let index = 0;
 
         const interval = setInterval(() => {
             index = (index + 1) % messages.length;
             setMessage(messages[index]);
-        }, 20000); // 20 seconds
+        }, 10000); // 10 seconds
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, []);
@@ -264,8 +265,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
-                    onDataMapButtonClick={undefined}
-                    onDataMapClearClick={undefined}
                     setIsLoading={setIsLoading}
                     isLoading={isLoading}
                 />

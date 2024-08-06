@@ -25,10 +25,9 @@ const ButtonContainer = styled.div`
 const StyledButton = styled(Button) <{ isLoading: boolean }>`
   text-transform: none;
   box-sizing: border-box;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 1px 2px var(--vscode-widget-shadow);
   border-radius: 3px;
-  color: ${({ isLoading }) => (isLoading ? "white" : "#40404b")};
-  color: #40404b;
+  color: ${({ isLoading }) => (isLoading ? "var(--vscode-button-foreground)" : "var(--vscode-editor-foreground)")};
   font-size: smaller;
   height: 30px;
   font-weight: 300;
