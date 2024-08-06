@@ -33,6 +33,7 @@ export interface Region {
 export interface LoadBalanceWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type Endpoint = {
@@ -305,7 +306,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview} hideClose={props.isPopup}>
             <TypeChip
                 type={"Load Balance Endpoint"}
                 onClick={changeType}

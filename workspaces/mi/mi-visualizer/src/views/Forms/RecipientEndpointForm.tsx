@@ -34,6 +34,7 @@ export interface Region {
 export interface RecipientWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type Endpoint = {

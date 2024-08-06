@@ -23,6 +23,7 @@ export interface HttpEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
@@ -286,7 +287,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     return (
         <FormView
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
-            onClose={openOverview}
+            onClose={props.handlePopupClose ?? openOverview}
             hideClose={props.isPopup}
         >
             <TypeChip

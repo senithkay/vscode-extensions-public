@@ -33,6 +33,7 @@ export interface Region {
 export interface FailoverWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type Endpoint = {
@@ -279,7 +280,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Failover Endpoint"}
                 onClick={changeType}

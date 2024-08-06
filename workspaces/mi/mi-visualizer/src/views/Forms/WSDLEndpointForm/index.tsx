@@ -23,6 +23,7 @@ export interface WsdlEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -230,7 +231,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     return (
         <FormView
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
-            onClose={openOverview}
+            onClose={props.handlePopupClose ?? openOverview}
             hideClose={props.isPopup}
         >
             <TypeChip

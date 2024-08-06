@@ -52,6 +52,7 @@ export interface AddConnectionProps {
     changeConnector?: () => void;
     fromSidePanel?: boolean;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 interface Element {
@@ -73,7 +74,7 @@ interface ExpressionValueWithSetter {
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
 
 export function AddConnection(props: AddConnectionProps) {
-    const { allowedConnectionTypes } = props;
+    const { allowedConnectionTypes, handlePopupClose } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [formData, setFormData] = useState(undefined);
@@ -532,7 +533,7 @@ export function AddConnection(props: AddConnectionProps) {
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
     return (
-        <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
+        <FormView title={`Add New Connection`} onClose={ handlePopupClose ?? handleOnClose }>
             {!props.fromSidePanel && <TypeChip
                 type={props.connector.name}
                 onClick={props.changeConnector}

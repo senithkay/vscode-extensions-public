@@ -33,6 +33,7 @@ export interface Region {
 export interface TemplateEndpointWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type InputsFields = {
@@ -233,7 +234,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview} hideClose={props.isPopup}>
             <TypeChip
                 type={"Template Endpoint"}
                 onClick={changeType}
