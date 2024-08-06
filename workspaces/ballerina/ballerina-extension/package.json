@@ -510,7 +510,7 @@
                     "command": "ballerina.show.source",
                     "group": "navigation@3",
                     "title": "Show Source"
-                  }
+                }
             ],
             "notebook/toolbar": [
                 {
