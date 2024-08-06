@@ -269,15 +269,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                 });
             } else {
                 // Handle Single condition
-                const conditions = element.value.enableCondition;
-                watchStatements = conditions.every((condition: any) => {
+                const condition = element.value.enableCondition[0];
+                if (condition) {
                     const key = Object.keys(condition)[0];
                     const conditionKey = getNameForController(key);
                     const conditionValue = condition[key];
-                    return (
-                        watch(conditionKey) === conditionValue
-                    );
-                });
+                    watchStatements = watch(conditionKey) === conditionValue;
+                }
             }
         }
 
