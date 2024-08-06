@@ -54,6 +54,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [action, triggerAction] = useState<boolean>(false);
 
     const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
@@ -137,7 +138,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const disabled = useMemo(() => {
         let value = "";
-        let disabled;
+        let disabled = true;
     
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
@@ -149,19 +150,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     value = focusedNode ? focusedNode.getText() : "";
                 }
             }
-
-            if (textFieldRef.current) {
-                textFieldRef.current.focus();
-            }
-
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
-
-            if (textFieldRef.current) {
-                textFieldRef.current.focus();
-            }
-
             disabled = false;
         } else if (textFieldRef.current) {
             // If displaying a focused view
@@ -170,14 +161,23 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             } else {
                 setPlaceholder('Click on an output field to add/edit expressions.');
             }
-
-            textFieldRef.current.blur();
         }
     
         savedTextFieldValue.current = textFieldValue;
         setTextFieldValue(value);
+        triggerAction(!action);
         return disabled;
     }, [textFieldRef.current?.innerText, focusedPort, focusedFilter, views]);
+
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            if (disabled) {
+                textFieldRef.current?.blur();
+            } else if (focusedPort || focusedFilter) {
+                textFieldRef.current?.focus();
+            }
+        });
+    }, [disabled, action]);
 
     const updateST = useCallback(debounce(async (text: string) => {
         let propertyAssignment: PropertyAssignment;
@@ -234,8 +234,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             );
 
             const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
-
             focusedPort.typeWithValue.setValue(portValue);
+
+            await updateST(text);
         }
         setCompletions(await getCompletions());
     }, 300), [focusedPort, focusedFilter]);
@@ -308,7 +309,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             <ExpressionBar
                 id='expression-bar'
                 ref={textFieldRef}
-                disabled={disabled ?? false}
+                disabled={disabled}
                 value={textFieldValue}
                 placeholder={placeholder}
                 completions={completions}
