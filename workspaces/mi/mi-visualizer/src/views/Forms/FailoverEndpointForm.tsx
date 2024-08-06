@@ -122,7 +122,8 @@ export function FailoverWizard(props: FailoverWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -197,6 +198,10 @@ export function FailoverWizard(props: FailoverWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setValue("artifactName", watch("name"));
+    }, [watch("name")]);
 
     const buildMessageOptions = [
         { content: 'True', value: 'true' },

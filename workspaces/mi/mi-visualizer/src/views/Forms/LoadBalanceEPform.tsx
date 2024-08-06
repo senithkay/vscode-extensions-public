@@ -133,7 +133,8 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -210,6 +211,10 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setValue("artifactName", watch("name"));
+    }, [watch("name")]);
 
     const algorithms = [
         { content: 'Round Robin', value: 'org.apache.synapse.endpoints.algorithms.RoundRobin' },

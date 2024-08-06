@@ -103,7 +103,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("templateName"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -205,6 +206,10 @@ export function TemplateWizard(props: TemplateWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setValue("artifactName", watch("templateName"));
+    }, [watch("templateName")]);
 
     const setEndpointType = (type: string) => {
 

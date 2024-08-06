@@ -86,7 +86,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -101,6 +102,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
         handleSubmit,
         getValues,
         control,
+        setValue,
         formState: { errors, isDirty },
     } = useForm<InputsFields>({
         defaultValues: initialSequence,
@@ -119,6 +121,10 @@ export function SequenceWizard(props: SequenceWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, []);
+
+    useEffect(() => {
+        setValue("artifactName", watch("name"));
+    }, [watch("name")]);
 
     const handleCreateSequence = async (values: any) => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;

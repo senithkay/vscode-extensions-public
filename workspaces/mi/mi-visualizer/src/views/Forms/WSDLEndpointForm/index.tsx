@@ -102,7 +102,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -182,6 +183,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+    }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const handleUpdateWsdlEndpoint = async (values: any) => {
         const updateWsdlEndpointParams: UpdateWsdlEndpointRequest = {
