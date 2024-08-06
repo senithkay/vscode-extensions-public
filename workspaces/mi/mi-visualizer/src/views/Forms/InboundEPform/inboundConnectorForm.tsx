@@ -8,22 +8,19 @@
  */
 
 
-import { AutoComplete, Button, FormActions, FormCheckBox, FormGroup, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, FormActions, FormGroup } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useForm } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
-import { FormKeylookup } from '@wso2-enterprise/mi-diagram';
 import FormGenerator from '../Commons/FormGenerator';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
 
-const CheckboxGroup = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    marginBottom: "20px",
-});
+const ParamManagerContainer = styled.div`
+    width: ; 100%;
+`;
 
 export interface AddInboundConnectorProps {
     changeConnector?: () => void;
@@ -43,21 +40,92 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
     const { formData, handleCreateInboundEP, model } = props;
     const { control, handleSubmit, register, formState: { errors }, setValue, reset } = useForm<any>();
+    const [sequences, setSequences] = useState<string[]>([]);
+
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Key",
+                defaultValue: "",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: true
+            }]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const fetchSequences = async () => {
+        try {
+            const sequenceList = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
+            const sequenceNames: string[] = sequenceList.data[1].map((seq: string) => {
+                seq = seq.replace(".xml", "");
+                return seq.replace(".xml", "")
+            });
+
+            setSequences(sequenceNames);
+        } catch (error) {
+            console.error('Error fetching sequences:', error);
+        }
+    };
+
+    function generateSequenceName(inboundEPName: string, sequenceType: string) {
+        let baseName = inboundEPName + sequenceType;
+        let uniqueName = baseName;
+        let counter = 1;
+    
+        while (sequences.includes(uniqueName)) {
+            uniqueName = baseName + counter;
+            counter++;
+        }
+    
+        return uniqueName;
+    }
 
     useEffect(() => {
         reset();
+        setParams(paramConfigs);
+        fetchSequences();
+
         if (model) {
             const attributeNames = getGenericAttributeNames(formData);
-            
+            const parameterNames = getParameterNames(formData);
+
+            // Populate Attributes
             attributeNames.forEach((attributeName: string) => {
                 if (model.hasOwnProperty(attributeName)) {
                     setValue(getNameForController(attributeName), model[attributeName]);
                 }
             });
 
+            let additionalParams: any[] = [];
+            // Populate Paramters
             model.parameters[0]?.parameter?.forEach((param: any) => {
-                setValue(getNameForController(param.name), param.content);
+                if (parameterNames.includes(param.name)) {
+                    setValue(getNameForController(param.name), param.content);
+                } else {
+                    additionalParams.push({
+                        name: param.name,
+                        value: param.content
+                    });
+                }
             });
+
+            // Populate additional parameters to param manager
+            if (additionalParams) {
+                const modifiedParams = {
+                    ...params, paramValues: generateParams(additionalParams)
+                };
+                setParams(modifiedParams);
+            }
         }
     }, [model, formData]);
 
@@ -81,6 +149,22 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         return [];
     }
 
+    function getParameterNames(jsonData: any): string[] {
+        const parameterNames: string[] = [];
+      
+        jsonData.elements.forEach((element: any) => {
+          if (element.type === 'attributeGroup') {
+            element?.value?.elements.forEach((element: any) => {
+              if (element.type === 'attribute') {
+                parameterNames.push(element.value.name);
+              }
+            });
+          }
+        });
+      
+        return parameterNames;
+      }
+
     function extractProperties(values: any, attributeNames: string[]) {
         const attrFields: any = {};
         const paramFields = { ...values };
@@ -93,13 +177,38 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         return { attrFields, paramFields };
     }
 
-    const renderProps = (fieldName: keyof InboundEndpoint) => {
-        return {
-            id: fieldName,
-            ...register(fieldName),
-            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
-        }
+    const handleOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
+                    icon: "query"
+                }
+            })
+        };
+        setParams(modifiedParams);
     };
+
+    function generateParams(parameters: any[]) {
+        return parameters.map((param: any, id) => {
+            return {
+                id: id,
+                key: param.name,
+                value: param.value,
+                icon: "query",
+                paramValues: [
+                    {
+                        value: param.name,
+                    },
+                    {
+                        value: param.value,
+                    },
+                ]
+            }
+        });
+    }
 
     const handleCreateInboundConnector = async (values: any) => {
         const attributeNames = getGenericAttributeNames(formData);
@@ -108,8 +217,24 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         // Transform the keys of the rest object
         const transformedParameters = Object.fromEntries(
             Object.entries(paramFields).map(([key, value]) => [getOriginalName(key), value])
-                .filter(([_, value]) => value && typeof value !== 'object') 
+                .filter(([_, value]) => value && typeof value !== 'object')
         );
+
+        // Add key-value pairs from param manager
+        params.paramValues.forEach(param => {
+            transformedParameters[param.key] = param.value;
+        });
+
+        // Generate unique sequence and onError names if not provided
+        if (!values.sequence) {
+            const sequenceName = generateSequenceName(values.name, "sequence");
+            attrFields['sequence'] = sequenceName;
+        }
+
+        if (!values.onError) {
+            const onErrorName = generateSequenceName(values.name, "onError");
+            attrFields['onError'] = onErrorName;
+        }
 
         const inboundConnector: InboundEndpoint = {
             attributes: attrFields,
@@ -139,7 +264,19 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     return (
         <>
             <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={!props.model} />
-            <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
+            <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} sequences={sequences} />
+            <FormGroup
+                key={"additionalParameters"}
+                title={`Additional Parameters`}
+                isCollapsed={true}
+            >
+                <ParamManagerContainer>
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange={handleOnChange} />
+                </ParamManagerContainer>
+            </FormGroup>
             <FormActions>
                 <Button
                     appearance="primary"

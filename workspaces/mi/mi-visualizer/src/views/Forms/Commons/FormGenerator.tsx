@@ -15,13 +15,6 @@ import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
 
-const cardStyle = {
-    display: "block",
-    padding: "10px 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
-};
-
 const Field = styled.div`
     margin-bottom: 12px;
 `;
@@ -31,6 +24,7 @@ export interface FormGeneratorProps {
     control: any;
     errors: any;
     setValue: any;
+    sequences?: string[];
 }
 
 interface Element {
@@ -54,7 +48,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
 
-    const { formData, control, errors, setValue } = props;
+    const { formData, control, errors, setValue, sequences } = props;
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
@@ -181,6 +175,29 @@ export function FormGenerator(props: FormGeneratorProps) {
                     setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
                     return;
                 }
+
+                if (element.value.name === "sequence" || element.value.name === "onError") {
+                    return <Controller
+                        name={getNameForController(element.value.name)}
+                        control={control}
+                        defaultValue={element.value.defaultValue ?? ""}
+                        render={({ field }) => (
+                            <Field>
+                                <AutoComplete
+                                    name={getNameForController(element.value.name)}
+                                    label={element.value.displayName}
+                                    items={sequences}
+                                    value={field.value}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }}
+                                    allowItemCreate={true}
+                                />
+                            </Field>
+                        )}
+                    />;
+                }
+
                 return <Controller
                     name={getNameForController(element.value.name)}
                     control={control}
@@ -206,12 +223,14 @@ export function FormGenerator(props: FormGeneratorProps) {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                        {element.value.groupName === "Generic" ? renderForm(element.value.elements) :
                             <>
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced") ? true : false}
+                                    isCollapsed={(element.value.groupName === "Advanced" || element.value.isCollapsed === true) ?
+                                        true : false
+                                    }
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
