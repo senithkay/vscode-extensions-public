@@ -126,16 +126,16 @@ export function AddDriver(props: AddDriverProps) {
             </div>
             <FormActions>
                 <Button
-                    appearance="primary"
-                    onClick={handleSave}
-                >
-                    {"Save Changes"}
-                </Button>
-                <Button
                     appearance="secondary"
                     onClick={handleOnClose}
                 >
                     Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSave}
+                >
+                    {"Save Changes"}
                 </Button>
             </FormActions>
         </FormView>

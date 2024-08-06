@@ -42,7 +42,7 @@ type InboundEndpoint = {
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
     const { formData, handleCreateInboundEP, model } = props;
-    const { control, handleSubmit, register, formState: { errors }, setValue, reset, watch, getValues } = useForm<any>();
+    const { control, handleSubmit, register, formState: { errors }, setValue, reset } = useForm<any>();
 
     useEffect(() => {
         reset();
@@ -139,7 +139,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     return (
         <>
             <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={!props.model} />
-            <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} watch={watch} getValues={getValues}/>
+            <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} />
             <FormActions>
                 <Button
                     appearance="primary"
