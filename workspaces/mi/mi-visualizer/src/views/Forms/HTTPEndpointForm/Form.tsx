@@ -10,16 +10,10 @@
 import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
 import styled from "@emotion/styled";
+import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 
 interface OptionProps {
     value: string;
-}
-
-const Colors = {
-    INPUT_OPTION_ACTIVE: "var(--vscode-inputOption-activeBackground)",
-    INPUT_OPTION_INACTIVE: "var(--vscode-inputOption-inactiveBackground)",
-    INPUT_OPTION_HOVER: "var(--vscode-inputOption-hoverBackground)",
-    INPUT_OPTION_ACTIVE_BORDER: "var(--vscode-inputOption-activeBorder)",
 }
 
 const ExButtonWrapper = styled.div<{ isActive: boolean }>`
