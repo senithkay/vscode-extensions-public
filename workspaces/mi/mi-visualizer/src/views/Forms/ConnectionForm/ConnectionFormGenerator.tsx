@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, FormActions, FormGroup, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -32,12 +32,8 @@ const Error = styled.span`
     font-size: 12px;
 `;
 
-const Field = styled.div`
-    margin-bottom: 12px;
-`;
-
 const ParamManagerContainer = styled.div`
-    width: ; 100%;
+    width: 100%;
 `;
 
 interface Connection {
@@ -482,9 +478,9 @@ export function AddConnection(props: AddConnectionProps) {
                         }
                     }
                     render={({ field }) => (
-                        <Field>
+                        <>
                             {renderFormElement(element.value, field)}
-                        </Field>
+                        </>
                     )}
                 />;
             } else if (element.type === 'attributeGroup') {
@@ -492,10 +488,9 @@ export function AddConnection(props: AddConnectionProps) {
                     <>
                         {element.value.groupName === "General" ? renderForm(element.value.elements) :
                             <>
-                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                <FormGroup title={element.value.groupName} isCollapsed={false}>
                                     {renderForm(element.value.elements)}
-                                </ComponentCard>
+                                </FormGroup>
                             </>
                         }
                     </>
@@ -549,7 +544,7 @@ export function AddConnection(props: AddConnectionProps) {
                 <>
                     {ConnectionName}
                     {allowedConnectionTypes && (
-                        <Field>
+                        <>
                             <Controller
                                 name="connectionType"
                                 control={control}
@@ -571,7 +566,7 @@ export function AddConnection(props: AddConnectionProps) {
                                     />
                                 )}
                             />
-                        </Field>
+                        </>
                     )}
                     {formData && formData.elements && formData.elements.length > 0 && (
                         <>
