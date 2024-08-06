@@ -13,6 +13,7 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
+import { DataMapperNodeModel } from "../../Diagram/Node/commons/DataMapperNode";
 
 export interface DataMapperHeaderProps {
     filePath: string;
@@ -21,10 +22,11 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: (fileContent: string) => Promise<void>;
+    nodes: DataMapperNodeModel[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, nodes } = props;
 
     return (
         <HeaderContainer>
@@ -41,7 +43,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 {!hasEditDisabled && !onClose && (
                     <>
                         <IOFilterBar>
-                            <HeaderSearchBox />
+                            <HeaderSearchBox
+                                nodes={nodes}
+                            />
                         </IOFilterBar>
                     </>
                 )}
