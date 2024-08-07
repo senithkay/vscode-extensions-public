@@ -39,6 +39,8 @@ import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterpr
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { getColorByMethod } from "../../utils/utils";
+import { PopupPanel } from "../Eggplant/PopupPanel";
+import { AddConnectionWizard } from "../Eggplant/Connection/AddConnectionWizard";
 
 const Container = styled.div`
     width: 100%;
@@ -71,6 +73,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
+    const [showPopup, setShowPopup] = useState(false);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
     const selectedNodeRef = useRef<FlowNode>();
@@ -106,12 +109,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
-            parentNodeLineRange: {
+            position: {
                 startLine: parent.codedata.lineRange.startLine,
                 endLine: parent.codedata.lineRange.endLine,
             },
-            parentNodeKind: parent.codedata.node,
-            branchLabel: "label" in parent ? parent.label : undefined,
+            filePath: model.fileName
         };
         console.log(">>> get available node request", getNodeRequest);
         rpcClient
@@ -119,6 +121,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             .getAvailableNodes(getNodeRequest)
             .then((response) => {
                 console.log(">>> Available nodes", response);
+                if(!response.categories) {
+                    console.error(">>> Error getting available nodes", response);
+                    return;
+                }
                 setCategories(convertEggplantCategoriesToSidePanelCategories(response.categories as Category[]));
             });
     };
@@ -126,7 +132,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         setShowSidePanel(true);
 
-        const node = metadata as AvailableNode;
+        const { node, category } = metadata as { node: AvailableNode, category?: string };
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
@@ -143,7 +149,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 }
                 // get node properties
                 setSidePanelView(SidePanelView.FORM);
-                setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
+                setFields(convertNodePropertiesToFormFields(formProperties, model.connections, category));
             });
     };
 
@@ -222,6 +228,14 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
     };
 
+    const handleOnAddConnection = () => {
+        setShowPopup(true);
+    };
+
+    const handleOnClosePopup = () => {
+        setShowPopup(false);
+    }
+
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
 
     const DiagramTitle = (
@@ -256,10 +270,20 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 onBack={sidePanelView === SidePanelView.FORM ? handleOnFormBack : undefined}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <NodeList categories={categories} onSelect={handleOnSelectNode} onClose={handleOnCloseSidePanel} />
+                    <NodeList
+                        categories={categories}
+                        onSelect={handleOnSelectNode}
+                        onAddConnection={handleOnAddConnection}
+                        onClose={handleOnCloseSidePanel}
+                    />
                 )}
                 {sidePanelView === SidePanelView.FORM && <Form formFields={fields} onSubmit={handleOnFormSubmit} />}
             </PanelContainer>
+            {showPopup && (
+                <PopupPanel onClose={handleOnClosePopup}>
+                    <AddConnectionWizard target={targetRef.current} onClose={handleOnClosePopup} />
+                </PopupPanel>
+            )}
         </>
     );
 }
