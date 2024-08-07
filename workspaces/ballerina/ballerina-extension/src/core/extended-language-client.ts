@@ -85,12 +85,14 @@ import {
     EggplantFlowModelRequest,
     EggplantFlowModelResponse,
     EggplantSourceCodeRequest,
-    EggplantSourceCodeResponse
+    EggplantSourceCodeResponse,
+    EggplantConnectorsRequest,
+    EggplantConnectorsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
-import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { CancellationToken, DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -145,6 +147,7 @@ enum EXTENDED_APIS {
     EGGPLANT_SOURCE_CODE = 'flowDesignService/getSourceCode',
     EGGPLANT_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
+    EGGPLANT_CONNECTOR = 'flowDesignService/getConnectors',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -200,6 +203,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         this.ballerinaExtInstance = ballerinaExtInstance;
         this.timeConsumption = { diagnostics: [], completion: [] };
     }
+    init?: (params: InitializeParams) => Promise<InitializeResult>;
 
     // <------------ VS CODE RELATED APIS START --------------->
     didOpen(params: DidOpenParams): void {
@@ -542,6 +546,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
         return this.sendRequest<EggplantNodeTemplateResponse>(EXTENDED_APIS.EGGPLANT_NODE_TEMPLATE, params);
+    }
+    
+    async getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
+        return this.sendRequest<EggplantConnectorsResponse>(EXTENDED_APIS.EGGPLANT_CONNECTOR, params);
     }
 
     // <------------ EGGPLANT APIS END --------------->
