@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { NodeModel } from "@projectstorm/react-diagrams";
+import { NodeModel, PortModel } from "@projectstorm/react-diagrams";
 import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
 import {
     ts,
@@ -736,6 +736,16 @@ export function isFunctionArgument(identifier: string, sourceFile: SourceFile): 
         }
     }
     return false;
+}
+
+export function isConnectingArrays(sourcePort: PortModel, targetPort: PortModel): boolean {
+    if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
+        return false;
+    }
+    const sourceKind = sourcePort.field.kind;
+    const targetKind = targetPort.field.kind;
+
+    return sourceKind === TypeKind.Array && targetKind === TypeKind.Array;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

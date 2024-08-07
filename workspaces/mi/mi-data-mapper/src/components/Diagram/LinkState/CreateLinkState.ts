@@ -8,7 +8,7 @@
  */
 import { KeyboardEvent, MouseEvent } from 'react';
 
-import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
+import { Action, ActionEvent, DragCanvasState, InputType, State } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
@@ -18,6 +18,7 @@ import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
+import { isConnectingArrays } from '../utils/common-utils';
 /**
  * This state is controlling the creation of a link.
  */
@@ -107,6 +108,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 									if (this.sourcePort.canLinkToPort(element)) {
 
 										this.link?.setTargetPort(element);
+
+										const connectingArrays = isConnectingArrays(this.sourcePort, element);
+										if (connectingArrays) {
+											const label = this.link.getLabels()
+											.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
+											label.setIsConnectingArrays(true);
+											this.transitionWithEvent(new DragCanvasState({allowDrag: false}), actionEvent);
+										}
+
 										this.engine.getModel().addAll(this.link)
 										if (this.sourcePort instanceof InputOutputPortModel) {
 											this.sourcePort.linkedPorts.forEach((linkedPort) => {

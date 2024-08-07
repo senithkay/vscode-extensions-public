@@ -14,7 +14,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
-import { isDefaultValue } from "../../utils/common-utils";
+import { isConnectingArrays, isDefaultValue } from "../../utils/common-utils";
 import { buildInputAccessExpr, createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
@@ -62,6 +62,14 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
+
+				const connectingArrays = isConnectingArrays(sourcePort, targetPort);
+
+				if (connectingArrays) {
+					// Source update behavior is determined by the user when connecting arrays.
+					return;
+				}
+
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 

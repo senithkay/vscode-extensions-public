@@ -24,16 +24,13 @@ import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 
-export interface ExpressionLabelWidgetProps {
-    model: ExpressionLabelModel;
-}
-
 export const useStyles = () => ({
     container: css({
         width: '100%',
         backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
         borderRadius: "6px",
+        border: "1px solid var(--vscode-welcomePage-tileBorder)",
         display: "flex",
         color: "var(--vscode-checkbox-border)",
         alignItems: "center",
@@ -67,31 +64,14 @@ export const useStyles = () => ({
             filter: 'brightness(0.95)',
         },
     }),
-    iconWrapper: css({
-        height: '22px',
-        width: '22px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    }),
-    codeIconButton: css({
-        color: 'var(--vscode-checkbox-border)',
-    }),
-    deleteIconButton: css({
-        color: 'var(--vscode-checkbox-border)',
-    }),
     separator: css({
         height: 'fit-content',
         width: '1px',
         backgroundColor: 'var(--vscode-editor-lineHighlightBorder)',
     }),
-    rightBorder: css({
-        borderRightWidth: '2px',
-        borderColor: 'var(--vscode-pickerGroup-border)',
-    }),
     loadingContainer: css({
         padding: '10px',
-    }),
+    })
 });
 
 export enum LinkState {
@@ -105,6 +85,10 @@ export enum ArrayMappingType {
     ArrayToSingleton
 }
 
+export interface ExpressionLabelWidgetProps {
+    model: ExpressionLabelModel;
+}
+
 // now we can render all what we want in the label
 export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
@@ -116,6 +100,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
+    const source = link?.getSourcePort();
+    const target = link?.getTargetPort();
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -262,9 +248,6 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     let isTargetCollapsed = false;
     const collapsedFields = collapsedFieldsStore.collapsedFields;
 
-    const source = link?.getSourcePort();
-    const target = link?.getTargetPort();
-
     if (source instanceof InputOutputPortModel) {
         if (source?.parentId) {
             const fieldName = source.field.fieldName;
@@ -292,28 +275,26 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         return null;
     }
 
-    return linkStatus === LinkState.TemporaryLink
-        ? (
-            <div
-                className={classNames(
-                    classes.container
-                )}
-            >
-                <div className={classNames(classes.element, classes.loadingContainer)}>
-                    {loadingScreen}
-                </div>
-            </div>
-        ) : (
-            <div
-                data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
-                className={classNames(
-                    classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
-                )}
-            >
-                {elements}
+
+    if (linkStatus === LinkState.TemporaryLink) {
+        return (
+            <div className={classNames(classes.container, classes.element, classes.loadingContainer)}>
+                {loadingScreen}
             </div>
         );
+    }
+
+    return (
+        <div
+            data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
+            className={classNames(
+                classes.container,
+                linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
+            )}
+        >
+            {elements}
+        </div>
+    );
 }
 
 export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {

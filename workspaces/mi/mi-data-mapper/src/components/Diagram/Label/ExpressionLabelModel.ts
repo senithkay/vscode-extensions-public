@@ -30,6 +30,7 @@ export class ExpressionLabelModel extends LabelModel {
 	link?: DataMapperLinkModel;
 	field?: Node;
 	editorLabel?: string;
+	isConnectingArrays?: boolean;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
@@ -61,5 +62,9 @@ export class ExpressionLabelModel extends LabelModel {
 
 	updateSource(): void {
 		// TODO: Implement update source logic
+	}
+
+	setIsConnectingArrays(isConnectingArrays: boolean): void {
+		this.isConnectingArrays = isConnectingArrays;
 	}
 }

@@ -13,6 +13,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { ExpressionLabelWidget } from './ExpressionLabelWidget';
+import { ArrayMappingOptionsWidget } from './ArrayMappingOptionsWidget';
 
 export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabelModel, DiagramEngine> {
 	constructor() {
@@ -24,6 +25,17 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
+		const { isConnectingArrays } = event.model;
+
+		if (isConnectingArrays) {
+			return (
+				<ArrayMappingOptionsWidget
+					link={event.model.link}
+					context={event.model.context}
+					setIsConnectingArrays={event.model.setIsConnectingArrays}
+				/>
+			);
+		}
 		return <ExpressionLabelWidget model={event.model} />;
 	}
 }

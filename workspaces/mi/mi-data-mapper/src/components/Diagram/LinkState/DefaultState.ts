@@ -56,6 +56,7 @@ export class DefaultState extends State<DiagramEngine> {
 							// Clicked on a link overlay item or a diagnostic tooltip,
 							// hence, do not propagate as a canvas drag
 						} else if (dmCanvasContainer) {
+							// deselect links when clicking on the canvas
 							this.deselectLinks();
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
