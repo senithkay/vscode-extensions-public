@@ -42,18 +42,12 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const { nodes } = props;
 
-    // const [searchTerm, setSearchTerm] = useState('');
-    const searchTermRef=useRef("");
-    const searchTerm=searchTermRef.current;
-    const setSearchTerm=(term:string)=>{
-        searchTermRef.current=term;
-    }
-
     const [searchOptions, setSearchOptions] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
-
+    
+    const searchTermRef = useRef("");
     const searchInputRef = useRef<HTMLInputElement>(null);
     const prevInSearchTermRef = useRef<string>("");
     const prevOutSearchTermRef = useRef<string>("");
@@ -68,7 +62,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
-        setSearchTerm(text);
+        searchTermRef.current = text;
     };
 
     const handleSearch = (term: string) => {
@@ -125,12 +119,12 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const handleOnSearchTextClear = () => {
         handleSearch("");
-        setSearchTerm("");
+        searchTermRef.current = "";
     };
 
     useEffect(() => {
-        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
-        let modifiedSearchTerm = searchTerm;
+        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTermRef.current);
+        let modifiedSearchTerm = searchTermRef.current;
         if (searchOptions.includes(INPUT_FIELD_FILTER_LABEL)) {
             if (inSearchTerm && !inSearchTerm.isLabelAvailable) {
                 modifiedSearchTerm = modifiedSearchTerm.trimEnd() + ` ${INPUT_FIELD_FILTER_LABEL}`;
@@ -150,7 +144,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
             }
         }
         handleSearch(modifiedSearchTerm);
-        setSearchTerm(modifiedSearchTerm);
+        searchTermRef.current = modifiedSearchTerm;
     }, [searchOptions]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 4000);
@@ -162,14 +156,14 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
             autoFocus={true}
             icon={{ iconComponent: filterIcon, position: "start" }}
             placeholder={`filter input and output fields`}
-            value={searchTerm}
+            value={searchTermRef.current}
             ref={searchInputRef}
             onTextChange={handleSearchInputChange}
             size={100}
             inputProps={{
                 endAdornment: (
                     <HeaderSearchBoxOptions
-                        searchTerm={searchTerm}
+                        searchTerm={searchTermRef.current}
                         searchInputRef={searchInputRef}
                         searchOptions={searchOptions}
                         setSearchOptions={setSearchOptions}
