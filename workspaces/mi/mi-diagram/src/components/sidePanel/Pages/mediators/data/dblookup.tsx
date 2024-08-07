@@ -50,7 +50,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             connectionType: sidePanelContext?.formValues?.connectionType || "DB_CONNECTION",
-            databaseConfiguration: sidePanelContext?.formValues?.databaseConfiguration || "",
             connectionDBType: sidePanelContext?.formValues?.connectionDBType || "OTHER",
             isRegistryBasedDriverConfig: sidePanelContext?.formValues?.isRegistryBasedDriverConfig || "",
             connectionDBDriver: sidePanelContext?.formValues?.connectionDBDriver || "",
@@ -264,23 +263,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </Field>
-
-                    {watch("connectionType") == "DB_CONNECTION" &&
-                    <Field>
-                        <Controller
-                            name="databaseConfiguration"
-                            control={control}
-                            rules={
-                                {
-                                    required: "This field is required",
-                                }
-                            }
-                            render={({ field }) => (
-                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" required={true} errorMsg={errors?.databaseConfiguration?.message?.toString()} />
-                            )}
-                        />
-                    </Field>
-                    }
 
                     {watch("connectionType") == "DB_CONNECTION" &&
                     <Field>
