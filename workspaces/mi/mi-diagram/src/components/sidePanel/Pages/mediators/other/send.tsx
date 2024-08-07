@@ -129,7 +129,7 @@ const SendForm = (props: AddMediatorProps) => {
                                     label="Select Endpoint"
                                     allowItemCreate={false}
                                     onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                        openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
+                                        openPopup(rpcClient, 'endpoint', fetchItems, handleValueChange);
                                     }}
                                     onValueChange={field.onChange}
                                     required={true}

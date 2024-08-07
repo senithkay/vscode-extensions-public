@@ -17,6 +17,7 @@ import { Colors } from "../../../resources/constants";
 import fsPath from "path";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { getValue, isExpressionFieldValue } from "./utils";
+import { ResourceType, MultipleResourceType } from "@wso2-enterprise/mi-core";
 
 export type FilterType =
     | "sequence"
@@ -68,7 +69,7 @@ interface IKeylookupBase {
     // Document path
     path?: string;
     // Artifact type to be fetched
-    filterType?: FilterType;
+    filterType?: FilterType | ResourceType[];
     // Callback to filter the fetched artifacts
     filter?: (value: string) => boolean;
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
@@ -246,9 +247,17 @@ export const Keylookup = (props: IKeylookup) => {
             return;
         }
 
+        let resourceType: ResourceType | MultipleResourceType[];
+        if (Array.isArray(filterType)) {
+            resourceType = filterType.map((type) => {
+                return { type: type }
+            });
+        } else {
+            resourceType = filterType;
+        }
         const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
             documentIdentifier: path,
-            resourceType: filterType,
+            resourceType: resourceType
         });
 
         let workspaceItems: ItemComponent[] = [];
