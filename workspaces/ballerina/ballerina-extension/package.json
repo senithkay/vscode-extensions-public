@@ -442,6 +442,12 @@
                 "title": "Entity Relationship Diagram",
                 "icon": "$(distro-persist-diagram)",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.open.ai.panel",
+                "title": "Open AI Panel",
+                "category": "Ballerina",
+                "icon": "$(wand)"
             }
         ],
         "views": {
@@ -510,6 +516,12 @@
                     "command": "ballerina.show.source",
                     "group": "navigation@3",
                     "title": "Show Source"
+                },
+                {
+                    "command": "ballerina.open.ai.panel",
+                    "group": "navigation@1",
+                    "when": "resourceLangId == ballerina || isBallerinaDiagram",
+                    "title": "Open AI Panel"
                 }
             ],
             "notebook/toolbar": [
@@ -780,11 +792,11 @@
         "@vscode/test-electron": "^2.4.0",
         "@vscode/vsce": "^2.22.0",
         "@wso2-enterprise/ballerina-core": "workspace:*",
+        "@wso2-enterprise/ballerina-visualizer": "workspace:*",
         "@wso2-enterprise/choreo-client": "workspace:*",
         "@wso2-enterprise/choreo-core": "workspace:*",
         "@wso2-enterprise/font-wso2-vscode": "workspace:*",
         "@wso2-enterprise/syntax-tree": "workspace:*",
-        "@wso2-enterprise/ballerina-visualizer": "workspace:*",
         "cors-anywhere": "^0.4.4",
         "del-cli": "^5.1.0",
         "file-uri-to-path": "^2.0.0",
@@ -792,6 +804,7 @@
         "handlebars": "~4.7.8",
         "lodash": "^4.17.21",
         "monaco-languageclient": "0.13.1-next.9",
+        "node-fetch": "^3.3.2",
         "node-schedule": "^2.1.1",
         "portfinder": "^1.0.32",
         "source-map-support": "^0.5.21",
@@ -801,13 +814,13 @@
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^8.1.0",
         "vscode-languageserver-protocol": "^3.17.5",
+        "vscode-languageserver-types": "^3.17.5",
         "vscode-messenger": "^0.4.5",
         "vscode-messenger-common": "^0.4.5",
         "vscode-test": "^1.6.1",
+        "vscode-uri": "^3.0.8",
         "xml-js": "^1.6.11",
-        "xstate": "^4.38.3",
-        "vscode-languageserver-types": "^3.17.5",
-        "vscode-uri": "^3.0.8"
+        "xstate": "^4.38.3"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.20.1",

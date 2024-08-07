@@ -67,3 +67,42 @@ export const stateChanged: NotificationType<MachineStateValue> = { method: 'stat
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 
+
+
+// AI Related state types
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+
+export enum AI_EVENT_TYPE {
+    LOGIN = "LOGIN",
+    SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
+    LOGOUT = "LOGOUT",
+    EXECUTE = "EXECUTE",
+    CLEAR = "CLEAR",
+    CLEAR_PROMPT = "CLEAR_PROMPT",
+    DISPOSE = "DISPOSE",
+    CANCEL = "CANCEL",
+    RETRY = "RETRY",
+}
+
+export enum AI_MACHINE_VIEW {
+    AIOverview = "AI Overview",
+    AIArtifact = "AI Artifact",
+    AIChat = "AI Chat",
+}
+
+export interface AIVisualizerLocation {
+    view?: AI_MACHINE_VIEW | null;
+    initialPrompt?: string;
+    state?: AIMachineStateValue;
+    userTokens?: AIUserTokens;
+}
+
+export interface AIUserTokens {
+    max_usage: number;
+    remaining_tokens: number;
+    time_to_reset: number;
+}
+
+export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
+export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
+export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };

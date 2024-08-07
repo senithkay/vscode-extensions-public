@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,10 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export enum SHARED_COMMANDS {
-    SHOW_VISUALIZER = 'ballerina.show.visualizer',
-    OPEN_EGGPLANT_WELCOME = 'ballerina.open.eggplant.welcome',
-    OPEN_SERVICE_FORM = 'ballerina.open.service.form',
-    OPEN_AI_PANEL = 'ballerina.open.ai.panel',
-    CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
+import { AI_EVENT_TYPE } from "../../state-machine-types";
+
+export interface AIVisualizerState {
+    state: AI_EVENT_TYPE;
 }

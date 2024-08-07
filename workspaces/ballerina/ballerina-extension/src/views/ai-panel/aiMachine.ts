@@ -10,13 +10,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/ballerina-core';
 import { AiPanelWebview } from './webview';
 import { getAuthUrl, refreshAuthCode } from './auth';
-import { extension } from '../MIExtensionContext';
+import { extension } from '../../BalExtensionContext';
 import fetch from 'node-fetch';
-import { USER_CHECK_BACKEND_URL } from '../constants';
-import { log } from '../util/logger';
+import { log } from '../../utils/logger';
+
+export const USER_CHECK_BACKEND_URL = '/user/usage';
 
 interface ChatEntry {
     role: string;
@@ -157,9 +158,9 @@ const aiStateMachine = createMachine<AiMachineContext>({
 async function checkToken(context, event): Promise<UserToken> {
     return new Promise(async (resolve, reject) => {
         try {
-            const token = await extension.context.secrets.get('MIAIUser');
+            const token = await extension.context.secrets.get('BallerinaAIUser');
             if (token) {
-                const config = vscode.workspace.getConfiguration('MI');
+                const config = vscode.workspace.getConfiguration('Ballerina');
                 const ROOT_URL = config.get('rootUrl') as string;
                 const url = ROOT_URL + USER_CHECK_BACKEND_URL;
                 const response = await fetch(url, {
@@ -170,12 +171,12 @@ async function checkToken(context, event): Promise<UserToken> {
                     },
                 });
                 if (response.ok) {
-                    const responseBody = await response.json();
-                    resolve({token, userToken: responseBody});
+                    const responseBody = await response.json() as AIUserTokens;
+                    resolve({ token, userToken: responseBody });
                 } else {
                     if (response.status === 401 || response.status === 403) {
                         const newToken = await refreshAuthCode();
-                        if (newToken !=""){
+                        if (newToken != "") {
                             const tokenFetchResponse = await fetch(url, {
                                 method: 'GET',
                                 headers: {
@@ -183,18 +184,18 @@ async function checkToken(context, event): Promise<UserToken> {
                                     'Authorization': `Bearer ${newToken}`,
                                 },
                             });
-                            if(tokenFetchResponse.ok){
-                                const responseBody = await tokenFetchResponse.json();
-                                resolve({token: newToken, userToken: responseBody});
-                            }else{
+                            if (tokenFetchResponse.ok) {
+                                const responseBody = await tokenFetchResponse.json() as AIUserTokens;
+                                resolve({ token: newToken, userToken: responseBody });
+                            } else {
                                 console.log("Error: " + tokenFetchResponse.statusText);
                                 console.log("Error Code: " + tokenFetchResponse.status);
                                 throw new Error(`Error while checking token: ${tokenFetchResponse.statusText}`);
                             }
-                        }else{
-                            resolve({token: undefined, userToken: undefined});
+                        } else {
+                            resolve({ token: undefined, userToken: undefined });
                         }
-                    }else{
+                    } else {
                         console.log("Error: " + response.statusText);
                         console.log("Error Code: " + response.status);
                         throw new Error(`Error while checking token: ${response.statusText}`);

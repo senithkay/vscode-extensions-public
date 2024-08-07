@@ -9,11 +9,12 @@
 
 import axios from 'axios';
 import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
-import { extension } from '../MIExtensionContext';
+import { AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/ballerina-core';
+import { extension } from '../../BalExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
-import { USER_CHECK_BACKEND_URL } from '../constants';
+
+export const USER_CHECK_BACKEND_URL = '/user/usage';
 
 export interface AccessToken {
     accessToken: string;
@@ -81,7 +82,7 @@ export async function exchangeAuthCode(authCode: string) {
             const config = vscode.workspace.getConfiguration('MI');
             const ROOT_URL = config.get('rootUrl') as string;
             const url = ROOT_URL + USER_CHECK_BACKEND_URL;
-            
+
             const fetch_response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -90,11 +91,11 @@ export async function exchangeAuthCode(authCode: string) {
                 },
             });
 
-            if(fetch_response.ok) {
-                const responseBody = await fetch_response.json();
+            if (fetch_response.ok) {
+                const responseBody = await fetch_response.json() as AIUserTokens;
                 const context = StateMachineAI.context();
                 context.userTokens = responseBody;
-            }else{
+            } else {
                 throw new Error(`Error while checking token usage: ${fetch_response.statusText}`);
             }
 
@@ -106,7 +107,7 @@ export async function exchangeAuthCode(authCode: string) {
     }
 }
 
-export async function refreshAuthCode(): Promise<string>{
+export async function refreshAuthCode(): Promise<string> {
     const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
     if (!refresh_token) {
         throw new Error("Refresh token is not available.");

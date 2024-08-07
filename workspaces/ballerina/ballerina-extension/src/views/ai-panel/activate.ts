@@ -8,20 +8,21 @@
  */
 
 import * as vscode from 'vscode';
-import { COMMANDS } from '../constants';
+import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 import { StateMachineAI, openAIWebview } from './aiMachine';
-import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { exchangeAuthCode } from './auth';
-import { extension } from '../MIExtensionContext';
+import { extension } from '../../BalExtensionContext';
+import { BallerinaExtension } from '../../core';
 
-export function activateAiPanel(context: vscode.ExtensionContext) {
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
+export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
+    ballerinaExtInstance.context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
             openAIWebview(initialPrompt);
         })
     );
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.CLEAR_AI_PROMPT, () => {
+    ballerinaExtInstance.context.subscriptions.push(
+        vscode.commands.registerCommand(SHARED_COMMANDS.CLEAR_AI_PROMPT, () => {
             extension.initialPrompt = undefined;
         })
     );

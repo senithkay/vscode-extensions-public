@@ -30,7 +30,9 @@ export function Visualizer({ mode }: { mode: string }) {
             {(() => {
                 switch (mode) {
                     case "visualizer":
-                        return <VisualizerComponent state={state}/>
+                        return <VisualizerComponent state={state} />
+                    case "ai":
+                        return <h1>AI</h1>
                     // TODO: Below is to render another webview in the activity panel
                     // case "activityPanel":
                     //     return <ActivityPanelComponent state={state}/>

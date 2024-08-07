@@ -23,6 +23,7 @@ import { ExtendedLangClient } from './core/extended-language-client';
 import { activate as activateNotebook } from './views/notebook';
 import { activate as activateLibraryBrowser } from './features/library-browser';
 import { activate as activateERDiagram } from './views/persist-layer-diagram';
+import { activateAiPanel } from './views/ai-panel';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
@@ -118,6 +119,9 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // <------------ OTHER FEATURES ----------->
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
+
+        //activate ai panel
+        activateAiPanel(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
