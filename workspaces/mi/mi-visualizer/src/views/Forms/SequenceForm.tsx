@@ -53,6 +53,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in sequence name")
@@ -123,7 +124,10 @@ export function SequenceWizard(props: SequenceWizardProps) {
     }, []);
 
     useEffect(() => {
-        setValue("artifactName", watch("name"));
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
     }, [watch("name")]);
 
     const handleCreateSequence = async (values: any) => {

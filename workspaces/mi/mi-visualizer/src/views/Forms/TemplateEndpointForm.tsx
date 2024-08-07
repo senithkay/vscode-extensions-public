@@ -78,6 +78,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required")
@@ -177,7 +178,10 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        setValue("artifactName", watch("name"));
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
     }, [watch("name")]);
 
     const renderProps = (fieldName: keyof InputsFields) => {

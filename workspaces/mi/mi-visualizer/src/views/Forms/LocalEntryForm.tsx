@@ -87,6 +87,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         isError: false,
         text: ""
     });
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
@@ -186,7 +187,10 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        setValue("artifactName", watch("name"));
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
     }, [watch("name")]);
 
     useEffect(() => {

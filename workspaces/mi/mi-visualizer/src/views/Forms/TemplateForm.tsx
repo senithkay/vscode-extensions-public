@@ -136,6 +136,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     const [savedTemplateName, setSavedTemplateName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [paramsUpdated, setParamsUpdated] = useState(false);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const params: ParamConfig = {
         paramValues: [],
@@ -208,7 +209,10 @@ export function TemplateWizard(props: TemplateWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        setValue("artifactName", watch("templateName"));
+        setPrevName(watch("templateName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("templateName"));
+        }
     }, [watch("templateName")]);
 
     const setEndpointType = (type: string) => {

@@ -135,6 +135,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -185,7 +186,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
     }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const handleUpdateWsdlEndpoint = async (values: any) => {

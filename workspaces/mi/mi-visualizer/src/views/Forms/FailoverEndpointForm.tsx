@@ -85,6 +85,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required")
@@ -200,7 +201,10 @@ export function FailoverWizard(props: FailoverWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        setValue("artifactName", watch("name"));
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
     }, [watch("name")]);
 
     const buildMessageOptions = [
