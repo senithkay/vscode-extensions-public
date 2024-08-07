@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { Button, SearchBox, SidePanelBody, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SearchBox, SidePanelBody, Switch, TextArea, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { CloseIcon, LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
@@ -141,17 +141,54 @@ namespace S {
         right: 10px;
         border-radius: 5px;
     `;
+
+    export const HighlightedButton = styled.div`
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 20px 12px;
+        color: ${Colors.PRIMARY};
+        border: 1px dashed ${Colors.PRIMARY};
+        border-radius: 5px;
+        cursor: pointer;
+        &:hover {
+            border: 1px solid ${Colors.PRIMARY};
+            background-color: ${Colors.PRIMARY_CONTAINER};
+        }
+    `;
+
+    export const AddConnectionButton = styled(Button)`
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    `;
+
+    export const AiContainer = styled.div`
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+        margin-top: 20px;
+    `;
 }
 
 interface NodeListProps {
     categories: Category[];
     onSelect: (id: string, metadata?: any) => void;
     onSearchTextChange?: (text: string) => void;
+    onAddConnection?: () => void;
     onClose?: () => void;
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, onSelect, onSearchTextChange, onClose } = props;
+    const { categories, onSelect, onSearchTextChange, onAddConnection, onClose } = props;
 
     console.log(">>> categories", { categories });
 
@@ -165,8 +202,14 @@ export function NodeList(props: NodeListProps) {
         }
     };
 
-    const handleAddNode = (node: Node) => {
-        onSelect(node.id, node.metadata);
+    const handleAddNode = (node: Node, category?: string) => {
+        onSelect(node.id, { node: node.metadata, category });
+    };
+
+    const handleAddConnection = () => {
+        if (onAddConnection) {
+            onAddConnection();
+        }
     };
 
     const getNodesContainer = (nodes: Node[]) => (
@@ -186,7 +229,12 @@ export function NodeList(props: NodeListProps) {
         <S.Grid columns={1}>
             {categories.map((category, index) => (
                 // <Tooltip content={category.description} key={category.title + index + "tooltip"}>
-                <GroupList category={category} expand={searchText?.length > 0} onSelect={handleAddNode} />
+                <GroupList
+                    key={category.title + index + "tooltip"}
+                    category={category}
+                    expand={searchText?.length > 0}
+                    onSelect={handleAddNode}
+                />
                 // </Tooltip>
             ))}
         </S.Grid>
@@ -195,7 +243,8 @@ export function NodeList(props: NodeListProps) {
     const getCategoryContainer = (groups: Category[], isSubCategory = false) => (
         <>
             {groups.map((group, index) => {
-                if (!group || group.items.length === 0) {
+                const isConnectionCategory = group.title === "Connections";
+                if ((!group || group.items.length === 0) && !isConnectionCategory) {
                     return null;
                 }
                 return (
@@ -209,9 +258,15 @@ export function NodeList(props: NodeListProps) {
                             {!isSubCategory && <S.Title>{group.title}</S.Title>}
                         </S.Row>
                         {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>}
+                        {isConnectionCategory && (
+                            <S.HighlightedButton onClick={handleAddConnection}>
+                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                Add Connection
+                            </S.HighlightedButton>
+                        )}
                         {group.items.length > 0 && "id" in group.items.at(0)
                             ? getNodesContainer(group.items as Node[])
-                            : showConnectionPanel
+                            : isConnectionCategory
                             ? getConnectionContainer(group.items as Category[])
                             : getCategoryContainer(group.items as Category[], true)}
                     </S.CategoryRow>
@@ -219,18 +274,6 @@ export function NodeList(props: NodeListProps) {
             })}
         </>
     );
-
-    // HACK: This is a temporary solution to render node list
-    const flowNodeCategory = categories.map((category) => {
-        if (!(category.title === "Network" || category.title === "Databases")) {
-            return category;
-        }
-    });
-    const connectionCategory = categories.map((category) => {
-        if (category.title === "Network" || category.title === "Databases") {
-            return category;
-        }
-    });
 
     // filter out category items based on search text
     const filterItems = (items: Item[]): Item[] => {
@@ -257,15 +300,7 @@ export function NodeList(props: NodeListProps) {
             .filter(Boolean);
     };
 
-    const filteredFlowNodeCategory = cloneDeep(flowNodeCategory).map((category) => {
-        if (!category || !category.items) {
-            return category;
-        }
-        category.items = filterItems(category.items);
-        return category;
-    });
-
-    const filteredConnectionCategory = cloneDeep(connectionCategory).map((category) => {
+    const filteredCategories = cloneDeep(categories).map((category) => {
         if (!category || !category.items) {
             return category;
         }
@@ -278,8 +313,8 @@ export function NodeList(props: NodeListProps) {
             <S.HeaderContainer>
                 <S.Row>
                     <Switch
-                        leftLabel="Nodes"
-                        rightLabel="Connections"
+                        leftLabel="Search"
+                        rightLabel="Generate"
                         checked={showConnectionPanel}
                         checkedColor={Colors.PRIMARY}
                         enableTransition={true}
@@ -299,12 +334,34 @@ export function NodeList(props: NodeListProps) {
                         </S.CloseButton>
                     )}
                 </S.Row>
-                <S.Row>
-                    <S.StyledSearchInput value={searchText} autoFocus={true} onChange={handleOnSearch} size={60} />
-                </S.Row>
+                {!showConnectionPanel && (
+                    <S.Row>
+                        <S.StyledSearchInput
+                            value={searchText}
+                            placeholder="Search"
+                            autoFocus={true}
+                            onChange={handleOnSearch}
+                            size={60}
+                        />
+                    </S.Row>
+                )}
             </S.HeaderContainer>
-            {!showConnectionPanel && <S.PanelBody>{getCategoryContainer(filteredFlowNodeCategory)}</S.PanelBody>}
-            {showConnectionPanel && <S.PanelBody>{getCategoryContainer(filteredConnectionCategory)}</S.PanelBody>}
+            {!showConnectionPanel && <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>}
+            {showConnectionPanel && (
+                <S.PanelBody>
+                    <S.AiContainer>
+                        <S.Title>Describe what you want you want to do</S.Title>
+                        <TextArea
+                            rows={10}
+                            placeholder={
+                                "E.g. I need to add functionality to validate user input before saving to the database."
+                            }
+                            sx={{ width: "100%" }}
+                        ></TextArea>
+                        <Button>Generate</Button>
+                    </S.AiContainer>
+                </S.PanelBody>
+            )}
         </S.Container>
     );
 }
