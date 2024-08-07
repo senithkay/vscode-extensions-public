@@ -42,7 +42,13 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const { nodes } = props;
 
-    const [searchTerm, setSearchTerm] = useState('');
+    // const [searchTerm, setSearchTerm] = useState('');
+    const searchTermRef=useRef("");
+    const searchTerm=searchTermRef.current;
+    const setSearchTerm=(term:string)=>{
+        searchTermRef.current=term;
+    }
+
     const [searchOptions, setSearchOptions] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
@@ -66,6 +72,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
     };
 
     const handleSearch = (term: string) => {
+        console.log(term);
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
 
         const hasInputFilterLabelChanged = !inputSearchTerm
@@ -146,7 +153,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
         setSearchTerm(modifiedSearchTerm);
     }, [searchOptions]);
 
-    const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
+    const debouncedOnChange = debounce((value: string) => handleSearch(value), 4000);
     const filterIcon = (<Codicon name="filter" sx={{ cursor: "auto" }} />);
 
     return (
