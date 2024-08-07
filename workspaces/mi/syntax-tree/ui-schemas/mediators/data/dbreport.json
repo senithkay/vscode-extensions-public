@@ -27,21 +27,6 @@
           {
             "type": "attribute",
             "value": {
-              "name": "databaseConfiguration",
-              "displayName": "Database Configuration",
-              "inputType": "custom",
-              "enableCondition": [
-                {
-                  "connectionType": "DB_CONNECTION"
-                }
-              ],
-              "required": true,
-              "helpTip": "Customize the database configuration"
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
               "name": "connectionDBType",
               "displayName": "Connection DB Type",
               "inputType": "combo",
