@@ -35,13 +35,7 @@ export interface SearchTerm {
     isLabelAvailable: boolean;
 }
 
-interface HeaderSearchBoxProps {
-    nodes: DataMapperNodeModel[];
-}
-
-export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
-
-    const { nodes } = props;
+export default function HeaderSearchBox() {
 
     const [searchOptions, setSearchOptions] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
@@ -50,8 +44,6 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const searchTermRef = useRef("");
     const searchInputRef = useRef<HTMLInputElement>(null);
-    const prevInSearchTermRef = useRef<string>("");
-    const prevOutSearchTermRef = useRef<string>("");
 
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
