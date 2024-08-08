@@ -189,6 +189,10 @@ const AddConnector = (props: AddConnectorProps) => {
                 };
                 setParams(modifiedParams);
             }
+
+            if (sidePanelContext.formValues?.connectionName) {
+                setValue('configKey', sidePanelContext.formValues?.connectionName);
+            }
         }
     }, [sidePanelContext.formValues]);
 
