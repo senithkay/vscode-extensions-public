@@ -27,12 +27,11 @@ enum WizardStep {
 }
 
 interface AddConnectionWizardProps {
-    target: LineRange;
     onClose: () => void;
 }
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
-    const { target, onClose } = props;
+    const { onClose } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);

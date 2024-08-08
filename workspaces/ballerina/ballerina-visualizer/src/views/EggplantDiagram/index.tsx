@@ -39,8 +39,6 @@ import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from 
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { getColorByMethod } from "../../utils/utils";
-import { PopupPanel } from "../Eggplant/PopupPanel";
-import { AddConnectionWizard } from "../Eggplant/Connection/AddConnectionWizard";
 
 const Container = styled.div`
     width: 100%;
@@ -68,12 +66,11 @@ export interface EggplantDiagramProps {
 }
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setShowPopup } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
-    const [showPopup, setShowPopup] = useState(false);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
     const selectedNodeRef = useRef<FlowNode>();
@@ -232,10 +229,6 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         setShowPopup(true);
     };
 
-    const handleOnClosePopup = () => {
-        setShowPopup(false);
-    };
-
     const handleOnGoToSource = (node: FlowNode) => {
         const targetPosition: NodePosition = {
             startLine: node.codedata.lineRange.startLine.line,
@@ -293,11 +286,6 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 )}
                 {sidePanelView === SidePanelView.FORM && <Form formFields={fields} onSubmit={handleOnFormSubmit} />}
             </PanelContainer>
-            {showPopup && (
-                <PopupPanel onClose={handleOnClosePopup}>
-                    <AddConnectionWizard target={targetRef.current} onClose={handleOnClosePopup} />
-                </PopupPanel>
-            )}
         </>
     );
 }

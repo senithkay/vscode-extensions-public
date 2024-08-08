@@ -10,11 +10,19 @@
 import React, { ReactNode, useState } from "react";
 import { BallerinaRpcClient, VisualizerContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 
-
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
 
+  const setShowPopup = (showPopup: boolean) => {
+    setVisualizerState((prevState) => ({
+      ...prevState,
+      showPopup,
+    }));
+  }
+
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    rpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
+    rpcClient: new BallerinaRpcClient(), // Create the root RPC layer client object
+    showPopup: false,
+    setShowPopup: setShowPopup,
   });
 
   return (

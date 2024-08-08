@@ -108,7 +108,7 @@ const CardGrid = styled.div`
 `;
 
 export function Overview(props: OverviewProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setShowPopup } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -141,6 +141,10 @@ export function Overview(props: OverviewProps) {
             },
         });
     };
+
+    const handleAddConnection = () => {
+        setShowPopup(true);
+    }
 
     return (
         <View>
@@ -188,7 +192,7 @@ export function Overview(props: OverviewProps) {
                             <SectionTitle>
                                 <h2 className="text-base mb-4">Connections</h2>
                                 {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].length > 0 && (
-                                    <Button appearance="icon" onClick={handleAddArtifact} tooltip="Add Artifact">
+                                    <Button appearance="icon" onClick={handleAddConnection} tooltip="Add Connection">
                                         <Codicon name="add" />
                                     </Button>
                                 )}
@@ -210,7 +214,7 @@ export function Overview(props: OverviewProps) {
                                     <EmptyCard
                                         description="Set up connections to external services like databases or third-party APIs. Predefine your connections here."
                                         actionText="Add Connection"
-                                        onClick={handleAddArtifact}
+                                        onClick={handleAddConnection}
                                     />
                                 )}
                             </Row>
