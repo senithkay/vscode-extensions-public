@@ -26,7 +26,7 @@ const Container = styled.div`
     gap: 8px;
 `;
 
-export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
+export const DisabledWindow = (props: { showProjectHeader?: boolean }) => {
     const { rpcClient } = useVisualizerContext();
     const { showProjectHeader } = props;
 

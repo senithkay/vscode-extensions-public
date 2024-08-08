@@ -10,11 +10,10 @@
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
-import { View, ViewContent, ViewHeader } from "../../../components/View";
 import { EggplantHeader } from "../EggplantHeader";
 
 const Container = styled.div({

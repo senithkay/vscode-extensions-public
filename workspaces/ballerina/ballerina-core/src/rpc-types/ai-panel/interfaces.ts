@@ -8,8 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { AI_EVENT_TYPE } from "../../state-machine-types";
+import { AIMachineStateValue } from "../../state-machine-types";
 
 export interface AIVisualizerState {
-    state: AI_EVENT_TYPE;
+    state: AIMachineStateValue;
 }

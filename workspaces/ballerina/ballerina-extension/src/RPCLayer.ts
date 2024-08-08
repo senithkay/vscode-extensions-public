@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, aiStateChanged } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
@@ -21,7 +21,9 @@ import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagra
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
 import { registerEggplantDiagramRpcHandlers } from './rpc-managers/eggplant-diagram/rpc-handler';
-
+import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
+import { AiPanelWebview } from './views/ai-panel/webview';
+import { StateMachineAI } from './views/ai-panel/aiMachine';
 export class RPCLayer {
     static _messenger: Messenger;
 
@@ -34,6 +36,9 @@ export class RPCLayer {
             });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
+            StateMachineAI.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+            });
             // StateMachine.service().onTransition((state) => {
             //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
             // });
@@ -49,6 +54,7 @@ export class RPCLayer {
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
         registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
+        registerAiPanelRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {

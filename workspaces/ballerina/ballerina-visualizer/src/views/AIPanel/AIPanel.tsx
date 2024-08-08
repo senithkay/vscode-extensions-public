@@ -38,7 +38,7 @@ const AIPanel = () => {
     const [state, setState] = React.useState<AIMachineStateValue>();
 
 
-    rpcClient?.onAIStateChanged((newState: AIMachineStateValue) => {
+    rpcClient?.onAIPanelStateChanged((newState: AIMachineStateValue) => {
         setState(newState);
     });
 
@@ -46,13 +46,9 @@ const AIPanel = () => {
         fetchContext();
     }, [state]);
 
-    const login = () => {
-        rpcClient.sendAIStateEvent(AI_EVENT_TYPE.LOGIN);
-    }
-
     const fetchContext = () => {
-        rpcClient.getAIVisualizerState().then((machineView) => {
-            switch (machineView?.state) {
+        rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView) => {
+            switch (machineView.state) {
                 case "Ready":
                     setViewComponent(<AIChat />);
                     break;
@@ -66,7 +62,7 @@ const AIPanel = () => {
                     setViewComponent(<DisabledWindow />);
                     break;
                 default:
-                    setViewComponent(null);
+                    setViewComponent(<h1>{machineView.state}</h1>);
             }
         });
 

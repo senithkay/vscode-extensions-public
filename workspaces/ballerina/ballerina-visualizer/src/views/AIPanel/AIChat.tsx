@@ -156,7 +156,7 @@ export function AIChat() {
 
     async function fetchBackendUrl() {
         try {
-            backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+            backendRootUri = (await rpcClient.getAiPanelRpcClient().getBackendURL());
             // Do something with backendRootUri
         } catch (error) {
             console.error('Failed to fetch backend URL:', error);
@@ -169,98 +169,97 @@ export function AIChat() {
     }, []);
 
     useEffect(() => {
-        rpcClient?.getMiDiagramRpcClient().getProjectUuid().then((response) => {
-            projectUuid = response.uuid;
-            const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-            const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
-            const storedChatArray = localStorage.getItem(localStorageFile);
-            const storedQuestion = localStorage.getItem(localStorageQuestionFile);
-            const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-            rpcClient.getAIVisualizerState().then((machineView: any) => {
-                timeToReset = machineView.userTokens.time_to_reset;
-                timeToReset = timeToReset / (60 * 60 * 24);
-                const maxTokens = machineView.userTokens.max_usage;
-                if (maxTokens == -1) {
-                    remainingTokenPercentage = "Unlimited";
+        projectUuid = "";
+        const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+        const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
+        const storedChatArray = localStorage.getItem(localStorageFile);
+        const storedQuestion = localStorage.getItem(localStorageQuestionFile);
+        const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
+        rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
+            timeToReset = machineView.userTokens.time_to_reset;
+            timeToReset = timeToReset / (60 * 60 * 24);
+            const maxTokens = machineView.userTokens.max_usage;
+            if (maxTokens == -1) {
+                remainingTokenPercentage = "Unlimited";
+            } else {
+                const remainingTokens = machineView.userTokens.remaining_tokens;
+                remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
+                    remaingTokenLessThanOne = true;
                 } else {
-                    const remainingTokens = machineView.userTokens.remaining_tokens;
-                    remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                    if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-                        remaingTokenLessThanOne = true;
-                    } else {
-                        remaingTokenLessThanOne = false;
-                    }
-                    remainingTokenPercentage = Math.round(remainingTokenPercentage);
-                    if (remainingTokenPercentage < 0) {
-                        remainingTokenPercentage = 0;
-                    }
+                    remaingTokenLessThanOne = false;
                 }
+                remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                if (remainingTokenPercentage < 0) {
+                    remainingTokenPercentage = 0;
+                }
+            }
 
 
-                if (machineView.initialPrompt) {
-                    setMessages(prevMessages => [
+            if (machineView.initialPrompt) {
+                setMessages(prevMessages => [
+                    ...prevMessages,
+                    { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+                ]);
+                addChatEntry("user", machineView.initialPrompt);
+                handleSend(false, true);
+                //rpcClient.getVisualizerRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+            } else {
+                if (storedChatArray) {
+                    if (storedQuestion) {
+                        setMessages(prevMessages => [
+                            ...prevMessages,
+                            { role: "", content: storedQuestion, type: "question" },
+                        ]);
+                    }
+                    if (storedCodeBlocks) {
+                        const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
+                        codeBlocks.push(...codeBlocksFromStorage);
+                    }
+                    console.log("Code Blocks: " + codeBlocks);
+                    const chatArrayFromStorage = JSON.parse(storedChatArray);
+                    chatArray = chatArrayFromStorage;
+
+                    // Add the messages from the chat array to the view
+                    setMessages((prevMessages) => [
                         ...prevMessages,
-                        { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+                        ...chatArray.map((entry: ChatEntry) => {
+                            let role, type;
+                            if (entry.role === 'user') {
+                                role = 'User';
+                                type = 'user_message';
+                            } else if (entry.role === 'assistant') {
+                                role = 'MI Copilot';
+                                type = 'assistant_message';
+                            }
+                            return {
+                                role: role,
+                                type: type,
+                                content: entry.content,
+                            };
+                        }),
                     ]);
-                    addChatEntry("user", machineView.initialPrompt);
-                    handleSend(false, true);
-                    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+
+                    // Set initial messages only if chatArray's length is 0
                 } else {
-                    if (storedChatArray) {
+                    if (chatArray.length === 0) {
+                        setMessages((prevMessages) => [
+                            ...prevMessages
+                        ]);
                         if (storedQuestion) {
                             setMessages(prevMessages => [
                                 ...prevMessages,
                                 { role: "", content: storedQuestion, type: "question" },
                             ]);
-                        }
-                        if (storedCodeBlocks) {
-                            const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
-                            codeBlocks.push(...codeBlocksFromStorage);
-                        }
-                        console.log("Code Blocks: " + codeBlocks);
-                        const chatArrayFromStorage = JSON.parse(storedChatArray);
-                        chatArray = chatArrayFromStorage;
-
-                        // Add the messages from the chat array to the view
-                        setMessages((prevMessages) => [
-                            ...prevMessages,
-                            ...chatArray.map((entry: ChatEntry) => {
-                                let role, type;
-                                if (entry.role === 'user') {
-                                    role = 'User';
-                                    type = 'user_message';
-                                } else if (entry.role === 'assistant') {
-                                    role = 'MI Copilot';
-                                    type = 'assistant_message';
-                                }
-                                return {
-                                    role: role,
-                                    type: type,
-                                    content: entry.content,
-                                };
-                            }),
-                        ]);
-
-                        // Set initial messages only if chatArray's length is 0
-                    } else {
-                        if (chatArray.length === 0) {
-                            setMessages((prevMessages) => [
-                                ...prevMessages
-                            ]);
-                            if (storedQuestion) {
-                                setMessages(prevMessages => [
-                                    ...prevMessages,
-                                    { role: "", content: storedQuestion, type: "question" },
-                                ]);
-                            } else {
-                                console.log("Fetching initial questions");
-                                generateSuggestions();
-                            }
+                        } else {
+                            console.log("Fetching initial questions");
+                            generateSuggestions();
                         }
                     }
                 }
-            });
+            }
         });
+
     }, []);
 
     function addChatEntry(role: string, content: string): void {
@@ -287,8 +286,8 @@ export function AIChat() {
 
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerState().then((initialState) => {
-                setState(initialState);
+            rpcClient.getAiPanelRpcClient().getAiPanelState().then((initialState) => {
+                //setState(initialState);
             });
         }
     }, [rpcClient]);
@@ -320,26 +319,26 @@ export function AIChat() {
             const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
             var context: GetWorkspaceContextResponse[] = [];
             //Get machine view
-            const machineView = await rpcClient.getVisualizerState();
-            switch (machineView?.view) {
-                case MACHINE_VIEW.Overview:
-                    await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-                        context = [response]; // Wrap the response in an array
-                    });
-                    break;
+            const machineView = await rpcClient.getAiPanelRpcClient().getAiPanelState();
+            switch (machineView) {
+                // case MACHINE_VIEW.Overview:
+                //     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+                //         context = [response]; // Wrap the response in an array
+                //     });
+                //     break;
                 default:
                     console.log("Other");
-                    await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-                        context = [response]; // Wrap the response in an array
-                    });
+                // await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+                //     context = [response]; // Wrap the response in an array
+                // });
             }
             console.log(JSON.stringify({ messages: chatArray, context: context[0].context }));
-            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+            const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
                 signal: signal,
@@ -409,35 +408,25 @@ export function AIChat() {
         var backendUrl = ""
         var view = ""
         //Get machine view
-        const machineView = await rpcClient.getVisualizerState();
-        switch (machineView?.view) {
-            case MACHINE_VIEW.Overview:
-            case MACHINE_VIEW.ADD_ARTIFACT:
-                backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
-                view = "Overview";
-                break;
-            default:
-                backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
-                view = "Artifact";
+        //const machineView = await rpcClient.getAiPanelRpcClient().getMachineView();
 
-        }
-        if (view == "Overview") {
-            await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-                context = [response]; // Wrap the response in an array
-            });
-        } else if (view == "Artifact") {
-            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-                context = [response]; // Wrap the response in an array
-            });
-        }
+        // if (view == "Overview") {
+        //     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+        //         context = [response]; // Wrap the response in an array
+        //     });
+        // } else if (view == "Artifact") {
+        //     await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+        //         context = [response]; // Wrap the response in an array
+        //     });
+        // }
         console.log(context[0].context);
-        const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
         try {
             var response = await fetch(backendRootUri + backendUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile: JSON.stringify(uploadedFile) }),
                 signal: signal,
@@ -463,13 +452,13 @@ export function AIChat() {
                 throw new Error('Failed to fetch response');
             }
             if (response.status == 401) {
-                await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
-                const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+                await rpcClient.getAiPanelRpcClient().refreshAccessToken();
+                const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
                 response = await fetch(backendRootUri + backendUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token.token}`,
+                        'Authorization': `Bearer ${token}`,
                     },
                     body: JSON.stringify({ messages: chatArray, context: context[0].context }),
                     signal: signal,
@@ -602,24 +591,8 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    const handleAddtoWorkspace = async () => {
 
-        await rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: codeBlocks }).then((response) => {
-            console.log(response);
-        });
 
-        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
-    }
-
-    const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
-
-        var selectiveCodeBlocks: string[] = [];
-        selectiveCodeBlocks.push(codeSegment);
-        await rpcClient.getMiDiagramRpcClient().writeContentToFile({ content: selectiveCodeBlocks }).then((response) => {
-            console.log(response);
-        });
-
-    }
 
     function splitHalfGeneratedCode(content: string) {
         const segments = [];
@@ -662,7 +635,7 @@ export function AIChat() {
     }
 
     async function handleLogout() {
-        await rpcClient.getMiDiagramRpcClient().logoutFromMIAccount();
+        await rpcClient.getAiPanelRpcClient().logout();
     }
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -809,7 +782,7 @@ export function AIChat() {
                                     key={i}
                                     segmentText={segment.text}
                                     loading={segment.loading}
-                                    handleAddSelectiveCodetoWorkspace={handleAddSelectiveCodetoWorkspace}
+                                    handleAddSelectiveCodetoWorkspace={() => { }}
                                 />
                             ) : (
                                 message.type == "Error" ? (

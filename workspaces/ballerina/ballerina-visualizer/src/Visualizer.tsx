@@ -12,6 +12,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/ballerina-core";
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
+import AIPanel from "./views/AIPanel/AIPanel";
 
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
@@ -32,10 +33,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case "visualizer":
                         return <VisualizerComponent state={state} />
                     case "ai":
-                        return <h1>AI</h1>
-                    // TODO: Below is to render another webview in the activity panel
-                    // case "activityPanel":
-                    //     return <ActivityPanelComponent state={state}/>
+                        return <AIPanel />
                 }
             })()}
         </>
@@ -50,17 +48,3 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
             return <LoadingRing />;
     }
 });
-
-
-// TODO: Remove below code if we don't need to have a webview for the activity panel
-// const ActivityPanelComponent = ({ state }: { state: MachineStateValue }) => {
-//     switch (true) {
-//         case typeof state === 'object' && 'ready' in state:
-//             return <GettingStartedPanel state={state} />;
-//             // return <MainPanel state={state} />;
-//         case typeof state === 'object' && 'newProject' in state:
-//             return <GettingStartedPanel state={state} />;
-//         default:
-//             return <h1>LOADING</h1>;
-//     }
-// };

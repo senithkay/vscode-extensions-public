@@ -11,9 +11,10 @@ import { AIVisualizerState } from "./interfaces";
 
 export interface AIPanelAPI {
     getBackendURL: () => Promise<string>;
-    updateProject: () => Promise<void>;
-    getToken: () => Promise<string>;
-    login: () => Promise<void>;
-    logout: () => Promise<void>;
-    getAIVisualizerState: () => Promise<AIVisualizerState>;
+    updateProject: () => void;
+    login: () => void;
+    logout: () => void;
+    getAiPanelState: () => Promise<AIVisualizerState>;
+    getAccessToken: () => Promise<string>;
+    refreshAccessToken: () => void;
 }
