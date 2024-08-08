@@ -102,11 +102,16 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         }
     };
 
+    const handleOnBack = () => {
+        setCurrentStep(WizardStep.CONNECTOR_LIST);
+        setFields([]);
+    };
+
     return (
         <Container>
             {currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
             {currentStep === WizardStep.CONNECTION_CONFIG && (
-                <ConnectionConfigView fields={fields} onSubmit={handleOnFormSubmit} />
+                <ConnectionConfigView fields={fields} onSubmit={handleOnFormSubmit} onBack={handleOnBack} />
             )}
         </Container>
     );

@@ -14,6 +14,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
+import { BodyText } from "../../../styles";
 
 const Container = styled.div`
     padding: 0 20px;
@@ -34,14 +35,12 @@ const GridContainer = styled.div`
     width: 100%;
 `;
 
-const Row = styled.div<{}>`
+const Row = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
     gap: 8px;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: 32px;
     width: 100%;
 `;
 
@@ -112,7 +111,10 @@ export function ConnectorView(props: ConnectorViewProps) {
 
     return (
         <Container>
-            <Typography variant="h2">Connectors</Typography>
+            <Typography variant="h2">Select a Connector</Typography>
+            <BodyText>
+                Select a connector to integrate with external services. Use search to quickly find the right one.
+            </BodyText>
             <Row>
                 <StyledSearchInput
                     value={searchText}

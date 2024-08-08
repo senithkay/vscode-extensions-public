@@ -9,25 +9,45 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { BodyText } from "../../../styles";
+import { Colors } from "../../../../resources/constants";
 
 const Container = styled.div`
     padding: 0 20px;
     width: 100%;
 `;
 
+const Row = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    color: ${Colors.ON_SURFACE};
+`;
+
 interface ConnectionConfigViewProps {
     fields: FormField[];
     onSubmit: (data: FormValues) => void;
+    onBack: () => void;
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { fields, onSubmit } = props;
+    const { fields, onSubmit, onBack } = props;
 
     return (
         <Container>
-            <Typography variant="h2">Connection Configuration</Typography>
+            <Row>
+                <Button appearance="icon" onClick={onBack}>
+                    <Codicon name="arrow-left" />
+                </Button>
+                <Typography variant="h2">Configure Connector</Typography>
+            </Row>
+            <BodyText>
+                Provide the necessary configuration details for the selected connector to complete the setup.
+            </BodyText>
             <Form formFields={fields} onSubmit={onSubmit} />
         </Container>
     );

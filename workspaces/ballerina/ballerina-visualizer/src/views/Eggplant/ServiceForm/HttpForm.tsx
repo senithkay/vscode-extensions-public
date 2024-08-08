@@ -7,48 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
-import { Button, Codicon, ComponentCard, Icon, TextField, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SERVICE_VIEW } from "./constants";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
-
-const FORM_WIDTH = 600;
+import { BodyText } from "../../styles";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin: auto; /* Center vertically and horizontally */
     max-width: 600px;
 `;
 
-const Container = styled.div({
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-});
-
-const BottomMarginTextWrapper = styled.div`
-    font-size: 13px;
-    margin-bottom: 10px;
-`;
-
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 10px;
-    margin-bottom: 10px;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+const Container = styled.div`
+    display: "flex";
+    flex-direction: "column";
+    gap: 10;
+    margin: 20px;
 `;
 
 const ButtonWrapper = styled.div`
@@ -71,6 +50,7 @@ export interface HttpFormProps {
 }
 
 export function HttpForm(props: HttpFormProps) {
+    const { handleView } = props;
     const { rpcClient } = useVisualizerContext();
     const [name, setName] = useState("");
     const [path, setPath] = useState("");
@@ -94,7 +74,11 @@ export function HttpForm(props: HttpFormProps) {
                 <EggplantHeader />
                 <Container>
                     <FormContainer>
-                        <Typography variant="h1">New HTTP Service</Typography>
+                        <Typography variant="h2">Create HTTP Service</Typography>
+                        <BodyText>
+                            Design your HTTP service using the our Service Designer or import an OpenAPI
+                            Specification (OAS) file to set it up quickly.
+                        </BodyText>
                         <TextField
                             onTextChange={setName}
                             sx={{ marginTop: 20 }}
