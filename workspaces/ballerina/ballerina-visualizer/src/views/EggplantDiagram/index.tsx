@@ -29,6 +29,7 @@ import {
     LineRange,
 } from "@wso2-enterprise/ballerina-core";
 import {
+    addDraftNodeToDiagram,
     convertEggplantCategoriesToSidePanelCategories,
     convertNodePropertiesToFormFields,
     getContainerTitle,
@@ -78,6 +79,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
+    const originalFlowModel = useRef<Flow>();
 
     useEffect(() => {
         getSequenceModel();
@@ -99,6 +101,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
         targetRef.current = undefined;
+        // restore original model
+        if (originalFlowModel.current) {
+            setModel(originalFlowModel.current);
+            originalFlowModel.current = undefined;
+        }
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
@@ -125,6 +132,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     return;
                 }
                 setCategories(convertEggplantCategoriesToSidePanelCategories(response.categories as Category[]));
+                // add draft node to model
+                const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
+                originalFlowModel.current = model;
+                setModel(updatedFlowModel);
             });
     };
 

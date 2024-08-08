@@ -21,9 +21,13 @@ import {
     NodePropertyKey,
     FlowNode,
     Property,
+    Flow,
+    Branch,
+    LineRange,
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "./../views/EggplantDiagram";
 import React from "react";
+import { cloneDeep } from "lodash";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     return {
@@ -165,4 +169,33 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): st
         default:
             return "";
     }
+}
+
+export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch, target: LineRange) {
+    const newFlowModel = cloneDeep(flowModel);
+    console.log(">>> addDraftNodeToDiagram", newFlowModel, parent, target);
+
+    const draftNode: FlowNode = {
+        id: "draft",
+        metadata: {
+            label: "Draft",
+            description: "Draft Node",
+        },
+        codedata: {
+            node: "DRAFT",
+            lineRange: {
+                fileName: flowModel.fileName,
+                ...target,
+            },
+        },
+        branches: [],
+        returning: false,
+    };
+
+    // Hack: Adding draft node to the first branch of the first node
+    // TODO: Handle multiple branches and multiple places
+    if (newFlowModel.nodes.at(1).branches.at(0).children) {
+        newFlowModel.nodes.at(1).branches.at(0).children.push(draftNode);
+    }
+    return newFlowModel;
 }
