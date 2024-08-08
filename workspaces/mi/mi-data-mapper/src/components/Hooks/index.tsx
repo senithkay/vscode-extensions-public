@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	DiagramModel,
@@ -25,6 +25,7 @@ import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/
 import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
 import { PrimitiveOutputNode } from '../Diagram/Node/PrimitiveOutput';
+import { isInputNode, isOutputNode } from '../Diagram/Actions/utils'
 
 export const useRepositionedNodes = (
     nodes: DataMapperNodeModel[],
@@ -154,3 +155,36 @@ export const useDiagramModel = (
 
     return { updatedModel, isFetching, isError, refetch };
 };
+
+export const useSearchScrollReset = (
+    diagramModel:DiagramModel<DiagramModelGenerics>,
+    isFetching: boolean
+) => {
+    const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevInSearchTermRef = useRef<string>("");
+    const prevOutSearchTermRef = useRef<string>("");
+
+    useEffect(() => {
+        if (isFetching == false) {
+            const nodes=diagramModel.getNodes() as DataMapperNodeModel[];
+            console.log("RepZero");
+            const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
+            const subMappingNode = nodes.find((node) => (node instanceof SubMappingNode));
+            const outputNode = nodes.find(isOutputNode);
+            console.log({ inputSearch, outputSearch });
+            console.log({ pin: prevInSearchTermRef.current, pout: prevOutSearchTermRef.current })
+            console.log(nodes);
+            if (inputNode && prevInSearchTermRef.current != inputSearch) {
+                inputNode.setPosition(inputNode.getX(), 0);
+                subMappingNode?.setPosition(subMappingNode.getX(), inputNode.height + GAP_BETWEEN_INPUT_NODES);
+                prevInSearchTermRef.current = inputSearch;
+            }
+
+            if (outputNode && prevOutSearchTermRef.current != outputSearch) {
+                outputNode.setPosition(outputNode.getX(), 0);
+                prevOutSearchTermRef.current = outputSearch;
+            }
+
+        }
+    }, [diagramModel]);
+}
