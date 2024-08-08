@@ -50,7 +50,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             connectionType: sidePanelContext?.formValues?.connectionType || "DB_CONNECTION",
-            databaseConfiguration: sidePanelContext?.formValues?.databaseConfiguration || "",
             connectionDBType: sidePanelContext?.formValues?.connectionDBType || "OTHER",
             isRegistryBasedDriverConfig: sidePanelContext?.formValues?.isRegistryBasedDriverConfig || "",
             connectionDBDriver: sidePanelContext?.formValues?.connectionDBDriver || "",
@@ -74,7 +73,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Query String",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "ParamManager",
@@ -89,6 +88,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Data Type",
                                         "defaultValue": "CHAR",
+                                        "placeholder": "Select the data type",
                                         "isRequired": true,
                                         "values": [
                                             "CHAR",
@@ -113,6 +113,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Value Type",
                                         "defaultValue": "LITERAL",
+                                        "placeholder": "Select the value type",
                                         "isRequired": true,
                                         "values": [
                                             "LITERAL",
@@ -123,6 +124,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                         "type": "TextField",
                                         "label": "Value Literal",
                                         "defaultValue": "",
+                                        "placeholder": "Enter the value literal",
                                         "isRequired": true,
                                         "enableCondition": [
                                             {
@@ -137,6 +139,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                             "isExpression": true,
                                             "value": ""
                                         },
+                                        "placeholder": "Enter the value expression",
                                         "isRequired": true,
                                         "canChange": false,
                                         "enableCondition": [
@@ -264,23 +267,6 @@ const DBLookupForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </Field>
-
-                    {watch("connectionType") == "DB_CONNECTION" &&
-                    <Field>
-                        <Controller
-                            name="databaseConfiguration"
-                            control={control}
-                            rules={
-                                {
-                                    required: "This field is required",
-                                }
-                            }
-                            render={({ field }) => (
-                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" required={true} errorMsg={errors?.databaseConfiguration?.message?.toString()} />
-                            )}
-                        />
-                    </Field>
-                    }
 
                     {watch("connectionType") == "DB_CONNECTION" &&
                     <Field>
