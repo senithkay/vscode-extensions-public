@@ -121,7 +121,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel, filtersCollapsedChanged);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
-	useSearchScrollReset(diagramModel, isFetching);
+	useSearchScrollReset(diagramModel);
 
 	engine.setModel(diagramModel);
 

@@ -157,34 +157,28 @@ export const useDiagramModel = (
 };
 
 export const useSearchScrollReset = (
-    diagramModel:DiagramModel<DiagramModelGenerics>,
-    isFetching: boolean
+    diagramModel: DiagramModel<DiagramModelGenerics>
 ) => {
     const { inputSearch, outputSearch } = useDMSearchStore();
     const prevInSearchTermRef = useRef<string>("");
     const prevOutSearchTermRef = useRef<string>("");
 
     useEffect(() => {
-        if (isFetching == false) {
-            const nodes=diagramModel.getNodes() as DataMapperNodeModel[];
-            console.log("RepZero");
-            const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
-            const subMappingNode = nodes.find((node) => (node instanceof SubMappingNode));
-            const outputNode = nodes.find(isOutputNode);
-            console.log({ inputSearch, outputSearch });
-            console.log({ pin: prevInSearchTermRef.current, pout: prevOutSearchTermRef.current })
-            console.log(nodes);
-            if (inputNode && prevInSearchTermRef.current != inputSearch) {
-                inputNode.setPosition(inputNode.getX(), 0);
-                subMappingNode?.setPosition(subMappingNode.getX(), inputNode.height + GAP_BETWEEN_INPUT_NODES);
-                prevInSearchTermRef.current = inputSearch;
-            }
+        const nodes = diagramModel.getNodes() as DataMapperNodeModel[];
+        const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
+        const subMappingNode = nodes.find((node) => (node instanceof SubMappingNode));
+        const outputNode = nodes.find(isOutputNode);
 
-            if (outputNode && prevOutSearchTermRef.current != outputSearch) {
-                outputNode.setPosition(outputNode.getX(), 0);
-                prevOutSearchTermRef.current = outputSearch;
-            }
-
+        if (inputNode && prevInSearchTermRef.current != inputSearch) {
+            inputNode.setPosition(inputNode.getX(), 0);
+            subMappingNode?.setPosition(subMappingNode.getX(), inputNode.height + GAP_BETWEEN_INPUT_NODES);
+            prevInSearchTermRef.current = inputSearch;
         }
+
+        if (outputNode && prevOutSearchTermRef.current != outputSearch) {
+            outputNode.setPosition(outputNode.getX(), 0);
+            prevOutSearchTermRef.current = outputSearch;
+        }
+        
     }, [diagramModel]);
 }
