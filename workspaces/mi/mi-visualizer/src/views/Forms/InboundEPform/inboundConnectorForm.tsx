@@ -189,7 +189,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         let defaultValues: { [key: string]: any } = {};
         jsonData.forEach((element: any) => {
             if (element.type === 'attribute') {
-                defaultValues[element.value.name] = element.value.defaultValue;
+                defaultValues[getNameForController(element.value.name)] = element.value.defaultValue;
             } else if (element.type === 'attributeGroup') {
                 Object.assign(defaultValues, extractDefaultValues(element.value.elements));
             }
