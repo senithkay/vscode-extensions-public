@@ -39,7 +39,7 @@ type InboundEndpoint = {
 export function AddInboundConnector(props: AddInboundConnectorProps) {
     const { rpcClient } = useVisualizerContext();
     const { formData, handleCreateInboundEP, model } = props;
-    const { control, handleSubmit, register, formState: { errors }, setValue, reset } = useForm<any>();
+    const { control, handleSubmit, register, formState: { errors }, setValue, reset, watch, getValues } = useForm<any>();
     const [sequences, setSequences] = useState<string[]>([]);
 
     const paramConfigs: ParamConfig = {
@@ -266,11 +266,13 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
             <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={!props.model} />
             <FormGenerator
                 formData={formData}
+                sequences={sequences}
+                onEdit={!!props.model}
                 control={control}
                 errors={errors}
                 setValue={setValue}
-                sequences={sequences}
-                onEdit={!!props.model} />
+                watch={watch}
+                getValues={getValues} />
             {formData && formData.additionalParameters && (
                 <FormGroup
                     key={"additionalParameters"}
@@ -290,7 +292,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                     appearance="primary"
                     onClick={handleSubmit(handleCreateInboundConnector)}
                 >
-                    {props.model ? "Update" : "Add"}
+                    {props.model ? "Update" : "Create"}
                 </Button>
                 <Button
                     appearance="secondary"

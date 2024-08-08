@@ -49,7 +49,7 @@ const StoreForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            messageStore: sidePanelContext?.formValues?.messageStore || "",
+            messageStore: sidePanelContext?.formValues?.messageStore || {"isExpression":false,"value":""},
             onStoreSequence: sidePanelContext?.formValues?.onStoreSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -101,7 +101,12 @@ const StoreForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (
@@ -116,6 +121,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                additionalItems={[]}
                             />
                         )}
                     />

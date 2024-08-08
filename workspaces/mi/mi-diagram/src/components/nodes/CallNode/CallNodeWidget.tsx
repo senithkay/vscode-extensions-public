@@ -191,7 +191,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     }
 
     return (
-        <div>
+        <div data-testid={`callNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}

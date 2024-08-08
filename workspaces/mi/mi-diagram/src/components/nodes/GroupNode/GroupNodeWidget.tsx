@@ -163,7 +163,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     }, [tooltip])
 
     return (
-        <div>
+        <div data-testid={`groupNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={"bottom"} containerPosition={"absolute"}>
                 <S.Node
                     selected={node.isSelected()}

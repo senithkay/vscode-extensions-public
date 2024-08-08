@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -78,7 +78,8 @@
           {
             "type": "mi",
             "name": "MI: Run and Debug",
-            "request": "launch"
+            "request": "launch",
+            "internalConsoleOptions": "openOnSessionStart"
           }
         ]
       }
@@ -216,8 +217,20 @@
         "category": "MI"
       },
       {
+        "command": "MI.registry-explorer.add",
+        "title": "Add to Registry",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.refresh",
         "title": "Refresh Project Explorer",
+        "icon": "$(refresh)",
+        "group": "navigation"
+      },
+      {
+        "command": "MI.registry-explorer.refresh",
+        "title": "Refresh Registry Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
       },
@@ -565,6 +578,16 @@
         {
           "command": "MI.project-explorer.add",
           "when": "false"
+        },
+        {
+          "command": "MI.registry-explorer.refresh",
+          "when": "view == MI.registry-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.registry-explorer.add",
+          "when": "view == MI.registry-explorer && projectOpened",
+          "group": "navigation"
         }
       ],
       "view/title": [
@@ -576,6 +599,16 @@
         {
           "command": "MI.project-explorer.add",
           "when": "view == MI.project-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.registry-explorer.refresh",
+          "when": "view == MI.registry-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.registry-explorer.add",
+          "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
         },
         {

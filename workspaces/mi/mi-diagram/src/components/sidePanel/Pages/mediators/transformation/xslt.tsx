@@ -50,7 +50,7 @@ const XSLTForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
-            xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || "",
+            xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || {"isExpression":false,"value":""},
             properties: {
                 paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties, 0, 1) : [],
                 paramFields: [
@@ -176,7 +176,12 @@ const XSLTForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (
@@ -191,6 +196,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                additionalItems={[]}
                             />
                         )}
                     />

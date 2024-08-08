@@ -21,11 +21,13 @@ const Field = styled.div`
 
 export interface FormGeneratorProps {
     formData: any;
+    sequences?: string[];
+    onEdit?: boolean;
     control: any;
     errors: any;
     setValue: any;
-    sequences?: string[];
-    onEdit?: boolean;
+    watch: any;
+    getValues: any;
 }
 
 interface Element {
@@ -46,7 +48,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData, control, errors, setValue, sequences, onEdit } = props;
+    const { formData,  sequences, onEdit, control, errors, setValue, getValues, watch } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -239,6 +241,16 @@ export function FormGenerator(props: FormGeneratorProps) {
                         );
                     }
                 }
+                
+                if (element.value.enableCondition) {
+                    return (
+                        renderControllerIfConditionMet(element)
+                    );
+                }
+
+                if (!getValues(getNameForController(element.value.name)) && element.value.defaultValue) {
+                    setValue(getNameForController(element.value.name), element.value.defaultValue)
+                }
 
                 return <Controller
                     name={getNameForController(element.value.name)}
@@ -270,7 +282,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced" || element.value.isCollapsed === true) ?
+                                    isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
                                         true : false
                                     }
                                 >
@@ -284,6 +296,86 @@ export function FormGenerator(props: FormGeneratorProps) {
             return null;
         });
     };
+
+    const renderControllerIfConditionMet = (element: any) => {
+        let watchStatements: boolean;
+
+        if (Array.isArray(element.value.enableCondition)) {
+            const firstElement = element.value.enableCondition[0];
+
+            if (firstElement === "AND") {
+                // Handle AND conditions
+                watchStatements = true;
+                const conditions = element.value.enableCondition.slice(1);
+                const statements = conditions.forEach((condition: any) => {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    if (!(watch(conditionKey) === conditionValue && watchStatements)) {
+                        watchStatements = false;
+                    }
+                });
+            } else if (firstElement === "OR") {
+                // Handle OR conditions
+                watchStatements = false;
+                const conditions = element.value.enableCondition.slice(1);
+                const statements = conditions.forEach((condition: any) => {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    if (watch(conditionKey) === conditionValue || watchStatements) {
+                        watchStatements = true;
+                    }
+                });
+            } else {
+                // Handle Single condition
+                const condition = element.value.enableCondition[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) === conditionValue;
+                }
+            }
+        }
+
+        if (watchStatements) {
+            if (!getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), element.value.defaultValue)
+            }
+
+            return (
+                <Controller
+                    name={getNameForController(element.value.name)}
+                    control={control}
+                    defaultValue={element.value.defaultValue ?? ""}
+                    rules={
+                        {
+                            ...(element.value.required === 'true') && {
+                                validate: (value) => {
+                                    if (!value || (typeof value === 'object' && !value.value)) {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
+                    }
+                    render={({ field }) => (
+                        <Field>
+                            {renderFormElement(element.value, field)}
+                        </Field>
+                    )}
+                />
+            );
+        } else {
+            if (getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), "")
+            }
+        }
+
+        return null; // Return null if conditions are not met
+    }
 
     return (
         formData && formData.elements && formData.elements.length > 0 && (

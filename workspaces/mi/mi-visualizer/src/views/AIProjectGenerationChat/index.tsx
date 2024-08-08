@@ -156,6 +156,7 @@ export function AIProjectGenerationChat() {
     const [files, setFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
+    const [initialPromptLoaded, setInitialPromptLoaded] = useState(false);
 
     async function fetchBackendUrl() {
         try {
@@ -199,15 +200,20 @@ export function AIProjectGenerationChat() {
                     }
                 }
 
-
                 if (machineView.initialPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
-                        { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+                        { role: "User", content: machineView.initialPrompt.aiPrompt, type: "initial_prompt" },
                     ]);
-                    addChatEntry("user", machineView.initialPrompt);
-                    handleSend(false, true);
-                    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+                    addChatEntry("user", machineView.initialPrompt.aiPrompt);
+
+                    const initialFiles = machineView.initialPrompt.files || [];
+                    const initialImages = machineView.initialPrompt.images || [];
+
+                    setFiles(initialFiles);
+                    setImages(initialImages);
+                    setInitialPromptLoaded(true);
+
                 } else {
                     if (storedChatArray) {
                         if (storedQuestion) {
@@ -265,6 +271,14 @@ export function AIProjectGenerationChat() {
             });
         });
     }, []);
+
+    useEffect(() => {
+        if (initialPromptLoaded) {
+            handleSend(false, true);
+            setInitialPromptLoaded(false);
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+        }
+    }, [initialPromptLoaded]);
 
     function addChatEntry(role: string, content: string): void {
         chatArray.push({
@@ -471,6 +485,8 @@ export function AIProjectGenerationChat() {
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const stringifiedUploadedFiles = files.map(file => JSON.stringify(file));
+        const imageBase64Array = images.map(image => image.imageBase64);
+
         let retryCount = 0;
         const maxRetries = 2;
 
@@ -481,7 +497,7 @@ export function AIProjectGenerationChat() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token.token}`,
                 },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: images }),
+                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: imageBase64Array }),
                 signal: signal,
             });
 
@@ -494,7 +510,7 @@ export function AIProjectGenerationChat() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: images }),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: imageBase64Array }),
                     signal: signal,
                 });
                 if (!response.ok) {
@@ -523,7 +539,7 @@ export function AIProjectGenerationChat() {
             // Remove the user uploaded files and images after sending them to the backend.
             removeAllFiles();
             removeAllImages();
-            
+
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let result = '';
@@ -768,7 +784,7 @@ export function AIProjectGenerationChat() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const imageBase64 = event.target.result;
-                setImages(prevImages => [...prevImages, imageBase64]);
+                setImages(prevImages => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
                 setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
             };
             reader.readAsDataURL(file);
@@ -922,18 +938,18 @@ export function AIProjectGenerationChat() {
                             appearance="icon"
                             onClick={() => handleRemoveFile(index)}
                         >
-                            <span className="codicon codicon-close"></span>
+                            <Codicon name="close"/>
                         </Button>
                     </FlexRow>
                 ))}
                 {images.map((image, index) => (
                     <FlexRow style={{ alignItems: 'center' }} key={index}>
-                        <span>Image</span>
+                        <span>{image.imageName}</span>
                         <Button
                             appearance="icon"
                             onClick={() => handleRemoveImage(index)}
                         >
-                            <span className="codicon codicon-close"></span>
+                            <Codicon name="close"/>
                         </Button>
                     </FlexRow>
                 ))}
@@ -942,7 +958,7 @@ export function AIProjectGenerationChat() {
                         appearance="secondary"
                         onClick={() => document.getElementById('fileInput').click()}
                         style={{ width: "35px", marginBottom: "4px" }}>
-                        <span className={`codicon codicon-new-file`}></span>
+                        <Codicon name="new-file"/>
                     </VSCodeButton>
                     <input
                         id="fileInput"
@@ -1056,7 +1072,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                {!loading && language === 'xml' &&
+                    {!loading && language === 'xml' &&
                         <Button
                             appearance="icon"
                             onClick={(e) => {

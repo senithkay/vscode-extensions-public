@@ -30,7 +30,7 @@ interface CallNodeWidgetProps {
 export function EndNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     return (
-        <S.Node>
+        <S.Node data-testid={`endNode-${node.getID()}`}>
             <PortWidget port={node.getPort("in")!} engine={engine} />
             <svg width="24" height="24" viewBox="0 0 32 32">
                 <circle cx="16" cy="16" r="14" fill={Colors.PRIMARY} />

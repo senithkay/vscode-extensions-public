@@ -604,7 +604,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             {isNewEndpoint && (
                 <>
                     <FormCheckBox
-                        label="Save the sequence in registry"
+                        label="Save the endpoint in registry"
                         {...register("saveInReg")}
                         control={control}
                     />

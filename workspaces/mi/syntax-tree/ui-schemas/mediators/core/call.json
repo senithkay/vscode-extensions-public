@@ -7,14 +7,11 @@
         {
             "type": "attribute",
             "value": {
-                "name": "endopint",
-                "displayName": "Select Endpoint",
-                "inputType": "comboOrKey",
+                "name": "endpoint",
+                "displayName": "Endpoint",
+                "inputType": "keyOrExpression",
                 "comboValues": [
-                    "INLINE",
-                    "NONE",
-                    "REGISTRYKEY",
-                    "XPATH"
+                    "INLINE"
                 ],
                 "required": true,
                 "keyType":"endpoint",
@@ -30,40 +27,12 @@
                 "required": false,
                 "helpTip": "Define your endpoint as an XML",
                 "enableCondition": [
+                    "AND",
                     {
-                        "endopint": "INLINE"
-                    }
-                ]
-            }
-        },
-        {
-            "type": "attribute",
-            "value": {
-                "name": "endpointRegistryKey",
-                "displayName": "Endpoint Registry Key",
-                "inputType": "string",
-                "defaultValue": "",
-                "required": false,
-                "helpTip": "Endpoint Registry Key",
-                "enableCondition": [
+                        "endpoint.value": "INLINE"
+                    },
                     {
-                        "endpoint": "REGISTRYKEY"
-                    }
-                ]
-            }
-        },
-        {
-            "type": "attribute",
-            "value": {
-                "name": "endpointXpath",
-                "displayName": "Endpoint Xpath",
-                "inputType": "expression",
-                "defaultValue": "",
-                "required": false,
-                "helpTip": "Endpoint Xpath",
-                "enableCondition": [
-                    {
-                        "endpoint": "XPATH"
+                        "endpoint.isExpression": false
                     }
                 ]
             }
