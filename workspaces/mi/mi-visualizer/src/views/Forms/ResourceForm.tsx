@@ -18,7 +18,8 @@ import {
     Codicon,
     RadioButtonGroup,
     FormCheckBox,
-    FormGroup
+    FormGroup,
+    Typography
 } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import styled from "@emotion/styled";
@@ -200,13 +201,13 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
+                <Typography variant="h3" sx={{margin: 0}}>{`${formData ? "Edit" : "Add"} API Resource`}</Typography>
                 <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody style={{ overflowY: "scroll" }}>
                 <SidePanelBodyWrapper>
-                    <h3>{`${formData ? "Edit" : "Add"} API Resource`}</h3>
                     {urlStyle === "uri-template" && (
                         <TextField
                             id="url-style-uri-template"
