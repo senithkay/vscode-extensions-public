@@ -166,7 +166,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
 
     const tableKeys: string[] = [];
     elements.forEach((attribute: any, index: number) => {
-        const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
+        const { name, displayName, enableCondition, inputType, required, comboValues, helpTip, validation, validationRegEx } = attribute.value;
         let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
         defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
 
@@ -199,6 +199,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
                 type: type,
                 label: displayName,
                 defaultValue: defaultValue,
+                ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
