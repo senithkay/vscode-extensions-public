@@ -78,15 +78,15 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     };
 
     function generateSequenceName(inboundEPName: string, sequenceType: string) {
-        let baseName = inboundEPName + sequenceType;
+        let baseName = `${inboundEPName}-inbound${sequenceType}`;
         let uniqueName = baseName;
         let counter = 1;
-    
+
         while (sequences.includes(uniqueName)) {
             uniqueName = baseName + counter;
             counter++;
         }
-    
+
         return uniqueName;
     }
 
@@ -151,19 +151,19 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
     function getParameterNames(jsonData: any): string[] {
         const parameterNames: string[] = [];
-      
+
         jsonData.elements.forEach((element: any) => {
-          if (element.type === 'attributeGroup') {
-            element?.value?.elements.forEach((element: any) => {
-              if (element.type === 'attribute') {
-                parameterNames.push(element.value.name);
-              }
-            });
-          }
+            if (element.type === 'attributeGroup') {
+                element?.value?.elements.forEach((element: any) => {
+                    if (element.type === 'attribute') {
+                        parameterNames.push(element.value.name);
+                    }
+                });
+            }
         });
-      
+
         return parameterNames;
-      }
+    }
 
     function extractProperties(values: any, attributeNames: string[]) {
         const attrFields: any = {};
@@ -227,12 +227,12 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
 
         // Generate unique sequence and onError names if not provided
         if (!values.sequence) {
-            const sequenceName = generateSequenceName(values.name, "sequence");
+            const sequenceName = generateSequenceName(values.name, "Sequence");
             attrFields['sequence'] = sequenceName;
         }
 
         if (!values.onError) {
-            const onErrorName = generateSequenceName(values.name, "onError");
+            const onErrorName = generateSequenceName(values.name, "ErrorSequence");
             attrFields['onError'] = onErrorName;
         }
 
@@ -264,19 +264,27 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     return (
         <>
             <TypeChip type={formData.title} onClick={() => props.setType("")} showButton={!props.model} />
-            <FormGenerator formData={formData} control={control} errors={errors} setValue={setValue} sequences={sequences} />
-            <FormGroup
-                key={"additionalParameters"}
-                title={`Additional Parameters`}
-                isCollapsed={true}
-            >
-                <ParamManagerContainer>
-                    <ParamManager
-                        paramConfigs={params}
-                        readonly={false}
-                        onChange={handleOnChange} />
-                </ParamManagerContainer>
-            </FormGroup>
+            <FormGenerator
+                formData={formData}
+                control={control}
+                errors={errors}
+                setValue={setValue}
+                sequences={sequences}
+                onEdit={!!props.model} />
+            {formData && formData.additionalParameters && (
+                <FormGroup
+                    key={"additionalParameters"}
+                    title={`Additional Parameters`}
+                    isCollapsed={true}
+                >
+                    <ParamManagerContainer>
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handleOnChange} />
+                    </ParamManagerContainer>
+                </FormGroup>
+            )}
             <FormActions>
                 <Button
                     appearance="primary"

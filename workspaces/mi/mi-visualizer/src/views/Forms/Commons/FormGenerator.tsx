@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
@@ -25,6 +25,7 @@ export interface FormGeneratorProps {
     errors: any;
     setValue: any;
     sequences?: string[];
+    onEdit?: boolean;
 }
 
 interface Element {
@@ -45,14 +46,22 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
+    const { formData, control, errors, setValue, sequences, onEdit } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-
-    const { formData, control, errors, setValue, sequences } = props;
+    const [autoGenerate, setAutoGenerate] = useState(!onEdit);
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
     }
+
+    const handleSequenceGeneration = (e: any) => {
+        setAutoGenerate(e);
+        if (e) {
+            setValue("sequence", "");
+            setValue("onError", "");
+        }
+    };
 
     const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
 
@@ -89,6 +98,43 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />
             </>
         )
+    }
+
+    const sequenceFieldComponent = ({ element }: { element: Element }) => {
+        return (
+            <Controller
+                name={getNameForController(element.name)}
+                control={control}
+                rules={
+                    {
+                        ...(element.required === 'true') && {
+                            validate: (value) => {
+                                if (!value || (typeof value === 'object' && !value.value)) {
+                                    return "This field is required";
+                                }
+                                return true;
+                            },
+                        }
+                    }
+                }
+                render={({ field }) => (
+                    <Field>
+                        <AutoComplete
+                            name={getNameForController(element.name)}
+                            label={element.displayName}
+                            items={sequences}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={element.required === 'true'}
+                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            allowItemCreate={false}
+                        />
+                    </Field>
+                )}
+            />
+        );
     }
 
     const renderFormElement = (element: Element, field: any) => {
@@ -177,25 +223,21 @@ export function FormGenerator(props: FormGeneratorProps) {
                 }
 
                 if (element.value.name === "sequence" || element.value.name === "onError") {
-                    return <Controller
-                        name={getNameForController(element.value.name)}
-                        control={control}
-                        defaultValue={element.value.defaultValue ?? ""}
-                        render={({ field }) => (
-                            <Field>
-                                <AutoComplete
-                                    name={getNameForController(element.value.name)}
-                                    label={element.value.displayName}
-                                    items={sequences}
-                                    value={field.value}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }}
-                                    allowItemCreate={true}
-                                />
-                            </Field>
-                        )}
-                    />;
+                    if (element.value.name === "sequence") {
+                        return (
+                            <>
+                                {!onEdit && <CheckBox
+                                    label="Automatically generate sequences"
+                                    onChange={handleSequenceGeneration}
+                                    checked={autoGenerate}
+                                />}
+                                {!autoGenerate && sequenceFieldComponent({ element: element.value})}
+                            </>);
+                    } else {
+                        return (
+                            !autoGenerate && sequenceFieldComponent({ element: element.value})
+                        );
+                    }
                 }
 
                 return <Controller
