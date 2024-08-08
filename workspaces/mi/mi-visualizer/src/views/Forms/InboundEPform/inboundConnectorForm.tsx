@@ -91,7 +91,8 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     }
 
     useEffect(() => {
-        reset();
+        const defaultValues = extractDefaultValues(formData.elements);
+        reset(defaultValues);
         setParams(paramConfigs);
         fetchSequences();
 
@@ -176,6 +177,18 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         });
         return { attrFields, paramFields };
     }
+
+    const extractDefaultValues = (jsonData: any) => {
+        let defaultValues: { [key: string]: any } = {};
+        jsonData.forEach((element: any) => {
+            if (element.type === 'attribute') {
+                defaultValues[element.value.name] = element.value.defaultValue;
+            } else if (element.type === 'attributeGroup') {
+                Object.assign(defaultValues, extractDefaultValues(element.value.elements));
+            }
+        });
+        return defaultValues;
+    };
 
     const handleOnChange = (params: any) => {
         const modifiedParams = {
