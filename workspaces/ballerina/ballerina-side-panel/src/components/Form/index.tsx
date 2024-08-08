@@ -81,7 +81,7 @@ export function Form(props: FormProps) {
                             value={field.value}
                             label={field.label}
                             required={!field.optional}
-                            readOnly={!field.editable}
+                            // readOnly={!field.editable}
                             description={field.documentation}
                             sx={{ width: "100%" }}
                         />
