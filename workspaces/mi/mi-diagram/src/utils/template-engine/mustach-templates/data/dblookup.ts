@@ -257,7 +257,7 @@ export function getDBLookupFormDataFromSTNode(data: { [key: string]: any }, node
 
     data.sqlStatements = node.statement.map((statement: any) => {
         const match = statement?.sql?.match(/<!\[CDATA\[(.*?)]]>/);
-        let sql = match ? match[1] : null;
+        let sql = match ? match[1] : statement?.sql;
         return [
             sql,
             statement?.parameter?.map((parameter: any) => {

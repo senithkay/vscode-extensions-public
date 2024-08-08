@@ -73,7 +73,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Query String",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "ParamManager",
