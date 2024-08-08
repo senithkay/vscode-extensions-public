@@ -224,22 +224,22 @@ export function FormGenerator(props: FormGeneratorProps) {
                     return;
                 }
 
-                if (element.value.name === "sequence" || element.value.name === "onError") {
-                    if (element.value.name === "sequence") {
-                        return (
-                            <>
-                                {!onEdit && <CheckBox
-                                    label="Automatically generate sequences"
-                                    onChange={handleSequenceGeneration}
-                                    checked={autoGenerate}
-                                />}
-                                {!autoGenerate && sequenceFieldComponent({ element: element.value})}
-                            </>);
-                    } else {
-                        return (
-                            !autoGenerate && sequenceFieldComponent({ element: element.value})
-                        );
-                    }
+                if (element.value.name === "sequence") {
+                    return (
+                        <>
+                            {!onEdit && <CheckBox
+                                label="Automatically generate sequences"
+                                onChange={handleSequenceGeneration}
+                                checked={autoGenerate}
+                            />}
+                            {!autoGenerate && sequenceFieldComponent({ element: element.value})}
+                        </>);
+                }
+
+                if (element.value.name === "onError") {
+                    return (
+                        !autoGenerate && sequenceFieldComponent({ element: element.value})
+                    );
                 }
                 
                 if (element.value.enableCondition) {
