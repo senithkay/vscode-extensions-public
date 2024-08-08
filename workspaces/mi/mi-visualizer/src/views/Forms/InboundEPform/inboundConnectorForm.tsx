@@ -171,7 +171,14 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
         const paramFields = { ...values };
         attributeNames.forEach(name => {
             if (paramFields.hasOwnProperty(name)) {
-                attrFields[name] = paramFields[name];
+                if (name === "statistics" || name === "trace") {
+                    // Pass statistics and trace as enable when true
+                    if (paramFields[name] === true) {
+                        attrFields[name] = "enable";
+                    }
+                } else {
+                    attrFields[name] = paramFields[name];
+                }
                 delete paramFields[name];
             }
         });
