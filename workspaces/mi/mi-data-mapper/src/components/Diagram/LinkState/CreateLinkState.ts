@@ -19,6 +19,7 @@ import { isInputNode, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
 import { isConnectingArrays } from '../utils/common-utils';
+import { DataMapperLinkModel } from '../Link/DataMapperLink';
 /**
  * This state is controlling the creation of a link.
  */
@@ -79,6 +80,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								const link = this.sourcePort.createLinkModel();
 								link.setSourcePort(this.sourcePort);
 								link.addLabel(new ExpressionLabelModel({
+									link: link as DataMapperLinkModel,
 									value: undefined,
 									context: undefined
 								}));
@@ -113,8 +115,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 										if (connectingArrays) {
 											const label = this.link.getLabels()
 											.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
-											label.setIsConnectingArrays(true);
-											this.transitionWithEvent(new DragCanvasState({allowDrag: false}), actionEvent);
+											label.setIsPendingArrayToArray(true);
 										}
 
 										this.engine.getModel().addAll(this.link)

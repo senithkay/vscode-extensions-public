@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
-import { Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import { Node } from "ts-morph";
 
@@ -22,10 +22,26 @@ import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperCo
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
-        backgroundColor: "var(--vscode-sideBar-background)",
         pointerEvents: 'auto'
-    })
+    }),
+    itemContainer: css({
+        display: 'flex',
+        width: '100%',
+        alignItems: 'center'
+    }),
 });
+
+const a2aMenuStyles = {
+    backgroundColor: "var(--vscode-quickInput-background)",
+    boxShadow: "none",
+    padding: "0px",
+    border: "1px solid var(--vscode-debugIcon-breakpointDisabledForeground)"
+};
+
+const codiconStyles = {
+    color: 'var(--vscode-editorLightBulb-foreground)',
+    marginRight: '10px'
+}
 
 export interface ArrayMappingOptionsWidgetProps {
     link: DataMapperLinkModel;
@@ -76,21 +92,39 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
             await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
     };
+    
+    const getItemElement = (id: string, label: string) => {
+        return (
+            <div
+                className={classes.itemContainer}
+                key={id}
+            >
+                <Codicon name="lightbulb" sx={codiconStyles}/>
+                {label}
+            </div>
+        );
+    }
 
     const items: Item[] = [
-        {id: "a2a-direct", label: <>Map Input Array to Output Array</>, onClick: () => onClickMapViaArrayFn(), disabled: false}, 
-        {id: "a2a-inner", label: <>Further Process Array to Array Mapping</>, onClick: () => {console.log("Item Selected")}, disabled: false},
-        {id: "discard", label: <>Discard</>, onClick: () => {console.log("Item Selected")}, disabled: false}
+        {
+            id: "a2a-direct",
+            label: getItemElement("a2a-direct", "Map Input Array to Output Array"),
+            onClick: () => onClickMapViaArrayFn()
+        }, 
+        {
+            id: "a2a-inner",
+            label: getItemElement("a2a-inner", "Further Process Array to Array Mapping"),
+            onClick: () => {console.log("Item Selected")}
+        }
     ];
 
     return (
         <div className={classes.arrayMappingMenu}>
-            <Menu sx={{ backgroundColor: "var(--vscode-sideBar-background)" }}> 
+            <Menu sx={a2aMenuStyles}> 
                 {items.map((item: Item) => 
                     <MenuItem
                         key={`item ${item.id}`}
                         item={item}
-                        onClick={() => {console.log(`Clicked Item ${item.id}`)}}
                     />
                 )}
             </Menu>

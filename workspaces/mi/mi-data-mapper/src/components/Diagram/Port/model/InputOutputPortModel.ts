@@ -32,6 +32,7 @@ enum ValueType {
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
 
 	public linkedPorts: PortModel[];
+	public pendingArrayToArray: boolean;
 
 	constructor(
 		public field: DMType,
@@ -110,8 +111,12 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		super.addLink(link);
 	}
 
-	addLinkedPort(port: PortModel): void{
+	addLinkedPort(port: PortModel): void {
 		this.linkedPorts.push(port);
+	}
+
+	setIsPendingArrayToArray(pendingA2A: boolean): void {
+		this.pendingArrayToArray = pendingA2A;
 	}
 
 	setDescendantHasValue(): void {

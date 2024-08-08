@@ -25,14 +25,14 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
-		const { isConnectingArrays } = event.model;
+		const { link, context, pendingArrayToArray, setIsPendingArrayToArray } = event.model;
 
-		if (isConnectingArrays) {
+		if (pendingArrayToArray) {
 			return (
 				<ArrayMappingOptionsWidget
-					link={event.model.link}
-					context={event.model.context}
-					setIsConnectingArrays={event.model.setIsConnectingArrays}
+					link={link}
+					context={context}
+					setIsConnectingArrays={setIsPendingArrayToArray}
 				/>
 			);
 		}
