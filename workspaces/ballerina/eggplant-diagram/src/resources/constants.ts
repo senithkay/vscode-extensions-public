@@ -76,6 +76,7 @@ export const Colors = {
 export enum NodeTypes {
     BASE_NODE = "base-node",
     EMPTY_NODE = "empty-node",
+    DRAFT_NODE = "draft-node",
     IF_NODE = "if-node",
     START_NODE = "start-node",
     API_CALL_NODE = "api-call-node",
@@ -101,6 +102,11 @@ export const NODE_GAP_X = 60;
 export const IF_NODE_WIDTH = 65;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
+
+// draft node
+export const DRAFT_NODE_WIDTH = NODE_WIDTH;
+export const DRAFT_NODE_HEIGHT= NODE_HEIGHT;
+export const DRAFT_NODE_BORDER_WIDTH = 2;
 
 // HACK
 export const VSCODE_MARGIN = 20;
