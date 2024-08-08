@@ -28,7 +28,7 @@ import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import { EmptyCard } from "../../../components/EmptyCard";
 import { ButtonCard } from "../../../components/ButtonCard";
-import { useEggplantContext } from "../../../Context";
+import { useVisualizerContext } from "../../../Context";
 
 interface OverviewProps {
     stateUpdated: boolean;
@@ -117,7 +117,7 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setShowPopup } = useEggplantContext();
+    const { setShowPopup } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 

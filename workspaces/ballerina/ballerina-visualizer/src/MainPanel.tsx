@@ -27,7 +27,7 @@ import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
-import { useEggplantContext } from './Context';
+import { useVisualizerContext } from './Context';
 
 const globalStyles = css`
   *,
@@ -48,7 +48,7 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const { showPopup, setShowPopup} = useEggplantContext();
+    const { showPopup, setShowPopup} = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 

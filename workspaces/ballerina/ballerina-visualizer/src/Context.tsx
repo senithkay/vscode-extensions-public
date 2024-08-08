@@ -8,44 +8,37 @@
  */
 
 import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
-import { BallerinaRpcClient, VisualizerContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaRpcClient, VisualizerContext as RpcContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 
-export function VisualizerContextProvider({ children }: { children: ReactNode }) {
+export function RpcContextProvider({ children }: { children: ReactNode }) {
     const rpcClient = useRef(new BallerinaRpcClient());
 
-    const contextValue: VisualizerContext = {
+    const contextValue: RpcContext = {
         rpcClient: rpcClient.current,
     };
 
     return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 }
 
-
-interface EggplantContext {
+interface VisualizerContext {
     showPopup: boolean;
     setShowPopup: (showPopup: boolean) => void;
 }
 
-export const EggplantContext = createContext({
+export const VisualizerContext = createContext({
     showPopup: false,
-    setShowPopup: (showPopup: boolean) => { },
-} as EggplantContext);
+    setShowPopup: (showPopup: boolean) => {},
+} as VisualizerContext);
 
-export function EggplantContextProvider({ children }: { children: ReactNode }) {
+export function VisualizerContextProvider({ children }: { children: ReactNode }) {
     const [showPopup, setShowPopup] = useState(false);
 
     const contextValue = {
         showPopup: showPopup,
-        setShowPopup: (showPopup: boolean) => {
-            console.log(">>> setShowPopup", showPopup);
-            setShowPopup(showPopup);
-        },
+        setShowPopup: setShowPopup,
     };
 
-    console.log(">>> EggplantContextProvider", contextValue);
-
-    return <EggplantContext.Provider value={contextValue}>{children}</EggplantContext.Provider>;
+    return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;
 }
 
-
-export const useEggplantContext = () => useContext(EggplantContext);
+export const useVisualizerContext = () => useContext(VisualizerContext);

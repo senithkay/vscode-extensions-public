@@ -11,7 +11,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { Visualizer } from "./Visualizer";
-import { EggplantContextProvider, VisualizerContextProvider } from "./Context";
+import { VisualizerContextProvider, RpcContextProvider } from "./Context";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -27,12 +27,12 @@ const queryClient = new QueryClient({
 export function renderWebview(mode: string, target: HTMLElement) {
     const root = createRoot(target);
     root.render(
-        <EggplantContextProvider>
-            <VisualizerContextProvider>
+        <VisualizerContextProvider>
+            <RpcContextProvider>
                 <QueryClientProvider client={queryClient}>
                     <Visualizer mode={mode} />
                 </QueryClientProvider>
-            </VisualizerContextProvider>
-        </EggplantContextProvider>
+            </RpcContextProvider>
+        </VisualizerContextProvider>
     );
 }

@@ -39,7 +39,7 @@ import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from 
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { getColorByMethod } from "../../utils/utils";
-import { useEggplantContext } from "../../Context";
+import { useVisualizerContext } from "../../Context";
 
 const Container = styled.div`
     width: 100%;
@@ -68,7 +68,7 @@ export interface EggplantDiagramProps {
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setShowPopup} = useEggplantContext();
+    const { setShowPopup} = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
