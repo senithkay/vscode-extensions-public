@@ -144,11 +144,12 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
-                    if (formattedPath === undefined) return true;
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
+                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                        if (formattedPath === undefined) return true;
+                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                    }),
         }),
         registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"])
     });
@@ -177,6 +178,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -238,6 +240,13 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
+    }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const handleUpdateHttpEndpoint = async (values: any) => {
         const updateHttpEndpointParams: UpdateHttpEndpointRequest = {

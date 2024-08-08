@@ -53,7 +53,7 @@ export enum MACHINE_VIEW {
     DefaultEndpointForm = "Default Endpoint Form",
     DataServiceForm = "Data Service Form",
     DssDataSourceForm = "DSS Data Source Form",
-    DSSServiceDesigner = "DSS Service Designer",
+    DSSServiceDesigner = "Data Service Designer",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
