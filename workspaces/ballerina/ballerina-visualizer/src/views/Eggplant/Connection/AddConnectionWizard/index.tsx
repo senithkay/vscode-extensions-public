@@ -67,6 +67,19 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         if (selectedNodeRef.current) {
             let updatedNode: FlowNode = cloneDeep(selectedNodeRef.current);
 
+            // HACK: update node position
+            updatedNode.codedata.lineRange = {
+                ...updatedNode.codedata.lineRange,
+                startLine: {
+                    line: 2,
+                    offset: 0,
+                },
+                endLine: {
+                    line: 2,
+                    offset: 0,
+                }
+            }
+
             if (selectedNodeRef.current.branches?.at(0)?.properties) {
                 // branch properties
                 // TODO: Handle multiple branches

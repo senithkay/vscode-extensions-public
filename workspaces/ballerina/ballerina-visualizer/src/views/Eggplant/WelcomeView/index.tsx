@@ -24,7 +24,7 @@ const TextWrapper = styled.div`
 const Wrapper = styled.div`
     height: calc(100vh - 100px);
     max-width: 800px;
-    padding: 85px 120px;
+    margin: 80px 120px;
     overflow: auto;
 `;
 

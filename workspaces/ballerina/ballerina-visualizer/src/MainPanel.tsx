@@ -164,8 +164,6 @@ const MainPanel = () => {
         setShowPopup(false);
     }
 
-    console.log(">>> showPopup val", showPopup);
-
     return (
         <>
             <Global styles={globalStyles} />

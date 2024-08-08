@@ -15,8 +15,15 @@ import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
 
 const Container = styled.div`
-    padding: 0 20px;
-    width: 100%;
+    padding: 0 20px 20px;
+    max-width: 600px;
+    > div:last-child {
+        padding: 20px 0;
+        height: calc(100vh - 160px);
+        > div:last-child {
+            justify-content: flex-start;
+        }
+    }
 `;
 
 const Row = styled.div`
