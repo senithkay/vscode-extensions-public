@@ -10,7 +10,7 @@
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextArea, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
@@ -161,6 +161,19 @@ export function AddComponentView() {
                                 </LinkButton>
                             )}
                         </PanelFooter> */}
+                        <br />
+                        <Title variant="h2">Generate Entry Point with Copilot</Title>
+                        <BodyText>
+                            Describe your project entry point in detail and click 'Generate' to create it using AI.{" "}
+                        </BodyText>
+                        <TextArea
+                            placeholder="E.g. Create a webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
+                            rows={6}
+                            style={{ width: "100%" }}
+                        />
+                        <Button onClick={() => {}} appearance="primary" sx={{ marginTop: "4px" }}>
+                            Generate
+                        </Button>
                     </AddPanel>
                 </Container>
             </ViewContent>
