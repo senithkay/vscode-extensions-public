@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FormView, Card } from "@wso2-enterprise/ui-toolkit";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, DownloadProgressData } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddInboundConnector from "./inboundConnectorForm";
 import { APIS } from "../../../constants";
@@ -57,6 +57,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const [isDownloading, setIsDownloading] = useState(false);
     const [isFetchingConnectors, setIsFetchingConnectors] = useState(false);
     const [connectorSchema, setConnectorSchema] = useState(undefined);
+    const [downloadProgress, setDownloadProgress] = useState<DownloadProgressData>(undefined);
 
     useEffect(() => {
         (async () => {
@@ -76,6 +77,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             }
         })();
     }, [props.path]);
+
+    rpcClient.onDownloadProgress((data: DownloadProgressData) => {
+        setDownloadProgress(data);
+    });
 
     const fetchConnectors = async () => {
         setIsFetchingConnectors(true);
@@ -184,7 +189,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     isDownloading ? (
                         <LoaderWrapper>
                             <ProgressRing />
-                            Downloading connector... This might take a while.
+                            <span>Downloading connector... This might take a while</span>
+                            {downloadProgress && (
+                                `Downloaded ${downloadProgress.downloadedAmount} KB of ${downloadProgress.downloadSize} KB (${downloadProgress.percentage}%). `
+                            )}
                         </LoaderWrapper>
                     ) : (
                         <>
