@@ -19,6 +19,7 @@ import HeaderSearchBoxOptions from './HeaderSearchBoxOptions';
 import { DataMapperNodeModel } from '../../Diagram/Node/commons/DataMapperNode';
 import { SubMappingNode } from '../../Diagram/Node';
 import { isInputNode, isOutputNode } from '../../Diagram/Actions/utils'
+import { GAP_BETWEEN_INPUT_NODES } from '../../Diagram/utils/constants'
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -46,14 +47,11 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
-    
+
     const searchTermRef = useRef("");
     const searchInputRef = useRef<HTMLInputElement>(null);
     const prevInSearchTermRef = useRef<string>("");
     const prevOutSearchTermRef = useRef<string>("");
-
-    const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
-    const outputNode = nodes.find(isOutputNode);
 
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
@@ -106,15 +104,6 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
         dmStore.setInputSearch(inSearchTerm.searchText.trim());
         dmStore.setOutputSearch(outSearchTerm.searchText.trim());
 
-        if (inputNode && prevInSearchTermRef.current != inSearchTerm.searchText) {
-            inputNode.setPosition(inputNode.getX(), 0);
-            prevInSearchTermRef.current = inSearchTerm.searchText;
-        }
-
-        if (outputNode && prevOutSearchTermRef.current != outSearchTerm.searchText) {
-            outputNode && outputNode.setPosition(outputNode.getX(), 0);
-            prevOutSearchTermRef.current = outSearchTerm.searchText;
-        }
     };
 
     const handleOnSearchTextClear = () => {
@@ -147,7 +136,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
         searchTermRef.current = modifiedSearchTerm;
     }, [searchOptions]);
 
-    const debouncedOnChange = debounce((value: string) => handleSearch(value), 4000);
+    const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
     const filterIcon = (<Codicon name="filter" sx={{ cursor: "auto" }} />);
 
     return (
