@@ -562,8 +562,9 @@ const AddConnector = (props: AddConnectorProps) => {
                 watchStatements = true;
                 const conditions = element.value.enableCondition.slice(1);
                 const statements = conditions.forEach((condition: any) => {
-                    const conditionKey = Object.keys(condition)[0];
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     if (!(watch(conditionKey) === conditionValue && watchStatements)) {
                         watchStatements = false;
                     }
@@ -573,22 +574,22 @@ const AddConnector = (props: AddConnectorProps) => {
                 watchStatements = false;
                 const conditions = element.value.enableCondition.slice(1);
                 const statements = conditions.forEach((condition: any) => {
-                    const conditionKey = Object.keys(condition)[0];
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     if (watch(conditionKey) === conditionValue || watchStatements) {
                         watchStatements = true;
                     }
                 });
             } else {
                 // Handle Single condition
-                const conditions = element.value.enableCondition;
-                watchStatements = conditions.every((condition: any) => {
-                    const conditionKey = Object.keys(condition)[0];
-                    const conditionValue = condition[conditionKey];
-                    return (
-                        watch(conditionKey) === conditionValue
-                    );
-                });
+                const condition = element.value.enableCondition[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) === conditionValue;
+                }
             }
         }
 
