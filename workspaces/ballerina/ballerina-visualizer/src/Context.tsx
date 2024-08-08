@@ -7,27 +7,45 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
 import { BallerinaRpcClient, VisualizerContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
+    const rpcClient = useRef(new BallerinaRpcClient());
 
-  const setShowPopup = (showPopup: boolean) => {
-    setVisualizerState((prevState) => ({
-      ...prevState,
-      showPopup,
-    }));
-  }
+    const contextValue: VisualizerContext = {
+        rpcClient: rpcClient.current,
+    };
 
-  const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    rpcClient: new BallerinaRpcClient(), // Create the root RPC layer client object
-    showPopup: false,
-    setShowPopup: setShowPopup,
-  });
-
-  return (
-    <Context.Provider value={visualizerState}>
-      {children}
-    </Context.Provider>
-  );
+    return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 }
+
+
+interface EggplantContext {
+    showPopup: boolean;
+    setShowPopup: (showPopup: boolean) => void;
+}
+
+export const EggplantContext = createContext({
+    showPopup: false,
+    setShowPopup: (showPopup: boolean) => { },
+} as EggplantContext);
+
+export function EggplantContextProvider({ children }: { children: ReactNode }) {
+    const [showPopup, setShowPopup] = useState(false);
+
+    const contextValue = {
+        showPopup: showPopup,
+        setShowPopup: (showPopup: boolean) => {
+            console.log(">>> setShowPopup", showPopup);
+            setShowPopup(showPopup);
+        },
+    };
+
+    console.log(">>> EggplantContextProvider", contextValue);
+
+    return <EggplantContext.Provider value={contextValue}>{children}</EggplantContext.Provider>;
+}
+
+
+export const useEggplantContext = () => useContext(EggplantContext);

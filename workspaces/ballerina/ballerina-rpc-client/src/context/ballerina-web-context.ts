@@ -12,8 +12,6 @@ import { BallerinaRpcClient } from "../BallerinaRpcClient";
 
 export interface VisualizerContext {
     rpcClient: BallerinaRpcClient
-    showPopup: boolean;
-    setShowPopup?: (showPopup: boolean) => void;
 }
 
 /**
@@ -22,7 +20,6 @@ export interface VisualizerContext {
  */
 const defaultState: VisualizerContext = {
     rpcClient:  null,
-    showPopup: false
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 

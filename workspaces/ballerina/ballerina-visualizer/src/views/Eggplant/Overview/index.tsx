@@ -16,11 +16,19 @@ import {
     ProjectStructureResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ComponentCard, Divider, TextField, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import {
+    Button,
+    Codicon,
+    TextField,
+    Typography,
+    View,
+    ViewContent,
+} from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import { EmptyCard } from "../../../components/EmptyCard";
 import { ButtonCard } from "../../../components/ButtonCard";
+import { useEggplantContext } from "../../../Context";
 
 interface OverviewProps {
     stateUpdated: boolean;
@@ -108,7 +116,8 @@ const CardGrid = styled.div`
 `;
 
 export function Overview(props: OverviewProps) {
-    const { rpcClient, setShowPopup } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
+    const { setShowPopup } = useEggplantContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -143,8 +152,9 @@ export function Overview(props: OverviewProps) {
     };
 
     const handleAddConnection = () => {
+        console.log(">>> Add Connection");
         setShowPopup(true);
-    }
+    };
 
     return (
         <View>
@@ -204,7 +214,10 @@ export function Overview(props: OverviewProps) {
                                             <ButtonCard
                                                 key={index}
                                                 title={res.name}
-                                                description={`Module: ${(res.st as any).initializer?.typeData?.typeSymbol?.moduleID?.moduleName || res.type}`}
+                                                description={`Module: ${
+                                                    (res.st as any).initializer?.typeData?.typeSymbol?.moduleID
+                                                        ?.moduleName || res.type
+                                                }`}
                                                 icon={<Codicon name="link" />}
                                                 onClick={() => goToView(res)}
                                             />
