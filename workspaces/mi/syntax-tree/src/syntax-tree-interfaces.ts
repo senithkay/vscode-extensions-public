@@ -1805,6 +1805,7 @@ export interface Connector extends STNode {
     connectorName: string;
     method: string;
     parameters: ConnectorParameter[];
+    configKey?: string;
 }
 
 export interface ConnectorParameter extends STNode {

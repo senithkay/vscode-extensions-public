@@ -1293,7 +1293,7 @@ export interface BrowseFileRequest {
     openLabel?: string;
 }
 
-type ResourceType =
+export type ResourceType =
     | "sequence"
     | "endpoint"
     | "api"

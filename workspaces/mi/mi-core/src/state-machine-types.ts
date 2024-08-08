@@ -210,6 +210,12 @@ export interface ConnectorStatus {
     message: string;
 }
 
+export interface DownloadProgressData {
+    percentage: number;
+    downloadedAmount: string;
+    downloadSize: string;
+}
+
 export interface Document {
     uri: string;
 }
@@ -228,4 +234,5 @@ export const onSwaggerSpecReceived: NotificationType<SwaggerData> = { method: `o
 export const miServerRunStateChanged: NotificationType<MiServerRunStatus> = { method: `miServerRunStateChanged` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` };
+export const onDownloadProgress: NotificationType<DownloadProgressData> = { method: `onDownloadProgress` };
 export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };
