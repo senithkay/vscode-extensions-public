@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from "react";
-import { Button, Codicon, FormActions, FormView, LinkButton, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, FormActions, FormGroup, FormView, LocationSelector, TextField } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -115,15 +115,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 onSelect={handleProjecDirSelection}
                 {...register("directory")}
             />
-            <LinkButton onClick={() => setValue("viewMore", !getValues("viewMore"))}>
-                {watch("viewMore") ? "Hide" : "More Options"}
-                <Codicon
-                    name={watch("viewMore") ? "chevron-up" : "add"}
-                    sx={{ borderRadius: "4px", height: "14px" }}
-                    iconSx={{ fontSize: "14px" }}
-                />
-            </LinkButton>
-            {watch("viewMore") && (
+            <FormGroup title="Advanced Options">
                 <React.Fragment>
                     <TextField
                         id='groupID'
@@ -144,7 +136,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                         {...register("version")}
                     />
                 </React.Fragment>
-            )}
+            </FormGroup>
             <FormActions>
                 <Button
                     appearance="secondary"
