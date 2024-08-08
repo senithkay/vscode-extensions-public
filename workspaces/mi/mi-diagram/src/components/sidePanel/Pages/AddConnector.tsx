@@ -530,6 +530,10 @@ const AddConnector = (props: AddConnectorProps) => {
                     )}
                 />;
             } else if (element.type === 'attributeGroup') {
+                if (element.value.groupName === "Search") {
+                    return;
+                }
+                
                 return (
                     <>
                         {element.value.groupName === "General" ? renderForm(element.value.elements) :
