@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
 import { NavigationBar } from "./components/NavigationBar"
@@ -47,7 +47,7 @@ const ComponentViewWrapper = styled.div`
 `;
 
 const MainPanel = () => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const { showPopup, setShowPopup} = useEggplantContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);

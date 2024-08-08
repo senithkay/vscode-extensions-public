@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { AvailableNode, Category, Item } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
@@ -54,7 +54,7 @@ interface ConnectorViewProps {
 
 export function ConnectorView(props: ConnectorViewProps) {
     const { onSelectConnector } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
     const [searchText, setSearchText] = useState<string>("");

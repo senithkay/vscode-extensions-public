@@ -23,4 +23,4 @@ const defaultState: VisualizerContext = {
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 
-export const useVisualizerContext = () => useContext(Context);
+export const useRpcContext = () => useContext(Context);

@@ -43,7 +43,7 @@ import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
 
 const classes = {
@@ -225,7 +225,7 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });

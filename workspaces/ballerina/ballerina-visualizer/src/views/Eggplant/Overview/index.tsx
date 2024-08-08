@@ -15,7 +15,7 @@ import {
     ProjectStructureArtifactResponse,
     ProjectStructureResponse,
 } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     Button,
     Codicon,
@@ -116,7 +116,7 @@ const CardGrid = styled.div`
 `;
 
 export function Overview(props: OverviewProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const { setShowPopup } = useEggplantContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);

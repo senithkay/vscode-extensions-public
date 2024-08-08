@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
 import { Button, TextField, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { SERVICE_VIEW } from "./constants";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
@@ -51,7 +51,7 @@ export interface HttpFormProps {
 
 export function HttpForm(props: HttpFormProps) {
     const { handleView } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
     const [path, setPath] = useState("");
     const [port, setPort] = useState("");

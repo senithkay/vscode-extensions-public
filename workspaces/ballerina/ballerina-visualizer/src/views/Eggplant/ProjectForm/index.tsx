@@ -10,7 +10,7 @@
 import React, { useRef, useState } from 'react';
 import { Button, Codicon, ComponentCard, Icon, LocationSelector, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 const FORM_WIDTH = 600;
 
@@ -53,7 +53,7 @@ const ButtonWrapper = styled.div`
 `;
 
 export function ProjectForm() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [selectedModule, setSelectedModule] = useState("Main");
     const [name, setName] = useState("");
     const [path, setPath] = useState("");

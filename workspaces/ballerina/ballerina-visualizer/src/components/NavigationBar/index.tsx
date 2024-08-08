@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 import { NavButtonGroup } from "./NavButtonGroup";
 import styled from "@emotion/styled";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { Breadcrumbs, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
@@ -30,7 +30,7 @@ const FnNavContainer = styled.div`
 
 export function NavigationBar(props: NavigationBarProps) {
 
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [history, setHistory] = useState<HistoryEntry[]>();
     rpcClient.getVisualizerRpcClient().getHistory().then(history => setHistory(history));
     

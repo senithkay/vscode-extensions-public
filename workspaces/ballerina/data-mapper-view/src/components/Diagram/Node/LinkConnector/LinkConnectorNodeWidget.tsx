@@ -20,7 +20,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import { getCollectClauseActions, getFieldLabel, getMappedFnNames } from '../../utils/dm-utils';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { QueryExprMappingType } from '../QueryExpression';
 import { CodeActionWidget } from '../../CodeAction/CodeAction';
 import { AggregationFunctions } from '../../Label';
@@ -34,7 +34,7 @@ export interface LinkConnectorNodeWidgetProps {
 export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const { node, engine } = props;
     const { context } = node;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const classes = useIntermediateNodeStyles();
     const hasError = node.hasError();

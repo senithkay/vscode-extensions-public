@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
     NodeList,
@@ -67,7 +67,7 @@ export interface EggplantDiagramProps {
 }
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const { setShowPopup} = useEggplantContext();
 
     const [model, setModel] = useState<Flow>();

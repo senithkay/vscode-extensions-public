@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Range } from '@wso2-enterprise/ballerina-core';
 import { URI } from "vscode-uri";
 import { transformNodePosition } from './utils/utils';
@@ -20,7 +20,7 @@ export const useSyntaxTreeFromRange = (
     identifier: string,
     hasFileChanged?: boolean
 ) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const getST = async () => {
         if (location && filePath) {
             try {

@@ -10,7 +10,7 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { AvailableNode, FlowNode, LineRange } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/eggplant";
@@ -32,7 +32,7 @@ interface AddConnectionWizardProps {
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const { onClose } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
     const [fields, setFields] = useState<FormField[]>([]);

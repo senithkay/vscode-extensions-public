@@ -8,13 +8,13 @@
  */
 
 import React, { useEffect } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/ballerina-core";
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 
 export function Visualizer({ mode }: { mode: string }) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [state, setState] = React.useState<MachineStateValue>('initialize');
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
