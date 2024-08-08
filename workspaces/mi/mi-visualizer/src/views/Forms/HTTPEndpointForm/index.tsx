@@ -123,6 +123,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
         templateParameters: yup.array(),
+        basicUsernameExpression: yup.boolean().notRequired().default(false),
+        basicPasswordExpression: yup.boolean().notRequired().default(false),
+        usernameExpression: yup.boolean().notRequired().default(false),
+        passwordExpression: yup.boolean().notRequired().default(false),
+        clientIdExpression: yup.boolean().notRequired().default(false),
+        clientSecretExpression: yup.boolean().notRequired().default(false),
+        tokenUrlExpression: yup.boolean().notRequired().default(false),
+        refreshTokenExpression: yup.boolean().notRequired().default(false),
         saveInReg: yup.boolean(),
         artifactName: yup.string().when('saveInReg', {
             is: false,
@@ -221,6 +229,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     }))
                 }));
                 reset(existingEndpoint);
+                setValue('basicAuthUsername', removeBraces(watch('basicAuthUsername'), 'basicUsernameExpression'));
+                setValue('basicAuthPassword', removeBraces(watch('basicAuthPassword'), 'basicPasswordExpression'));
+                setValue('username', removeBraces(watch('username'), 'usernameExpression'));
+                setValue('password', removeBraces(watch('password'), 'passwordExpression'));
+                setValue('clientId', removeBraces(watch('clientId'), 'clientIdExpression'));
+                setValue('clientSecret', removeBraces(watch('clientSecret'), 'clientSecretExpression'));
+                setValue('tokenUrl', removeBraces(watch('tokenUrl'), 'tokenUrlExpression'));
+                setValue('refreshToken', removeBraces(watch('refreshToken'), 'refreshTokenExpression'));
                 setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
                 setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
@@ -253,6 +269,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             directory: props.path,
             getContentOnly: watch("saveInReg"),
             ...values,
+            basicAuthUsername: addBracesIfExpressionNotBlank(values.basicUsernameExpression, values.basicAuthUsername),
+            basicAuthPassword: addBracesIfExpressionNotBlank(values.basicPasswordExpression, values.basicAuthPassword),
+            username: addBracesIfExpressionNotBlank(values.usernameExpression, values.username),
+            password: addBracesIfExpressionNotBlank(values.passwordExpression, values.password),
+            clientId: addBracesIfExpressionNotBlank(values.clientIdExpression, values.clientId),
+            clientSecret: addBracesIfExpressionNotBlank(values.clientSecretExpression, values.clientSecret),
+            tokenUrl: addBracesIfExpressionNotBlank(values.tokenUrlExpression, values.tokenUrl),
+            refreshToken: addBracesIfExpressionNotBlank(values.refreshTokenExpression, values.refreshToken)
         }
 
         const result = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
@@ -271,6 +295,28 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
     };
+
+    const isNotBlank = (value: string) => {
+        return value !== undefined && value !== null && value !== "";
+    }
+
+    const addBracesIfExpressionNotBlank = (condition: boolean | undefined, value: string | undefined | null): string | undefined | null => {
+        if (condition && isNotBlank(value)) {
+            return `{${value}}`;
+        }
+        return value;
+    };
+
+    const removeBraces = (value: string, expressionName: keyof InputsFields): string => {
+        if (isNotBlank(value)) {
+            if (value.length > 1 && value[0] === '{' && value[value.length - 1] === '}') {
+                setValue(expressionName, true);
+                return value.substring(1, value.length - 1);
+            }
+        }
+        setValue(expressionName, false);
+        return value;
+    }
 
     const changeType = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
