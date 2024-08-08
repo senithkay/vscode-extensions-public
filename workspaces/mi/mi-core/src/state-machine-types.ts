@@ -212,8 +212,8 @@ export interface ConnectorStatus {
 
 export interface DownloadProgressData {
     percentage: number;
-    downloadedAmount: number;
-    downloadSize: number;
+    downloadedAmount: string;
+    downloadSize: string;
 }
 
 export interface Document {

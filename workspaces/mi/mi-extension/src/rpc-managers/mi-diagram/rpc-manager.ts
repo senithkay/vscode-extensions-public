@@ -3079,14 +3079,24 @@ ${endpointAttributes}
                         const totalLength = progressEvent.total || 0;
                         if (totalLength !== 0) {
                             const progress = Math.round((progressEvent.loaded * 100) / totalLength);
+
+                            const formatSize = (sizeInBytes: number) => {
+                                const sizeInKB = sizeInBytes / 1024;
+                                if (sizeInKB < 1024) {
+                                    return `${Math.floor(sizeInKB)} KB`;
+                                } else {
+                                    return `${Math.floor(sizeInKB / 1024)} MB`;
+                                }
+                            };
+
                             // Notify the visualizer
                             RPCLayer._messenger.sendNotification(
                                 onDownloadProgress,
                                 { type: 'webview', webviewType: VisualizerWebview.viewType },
                                 { 
                                     percentage: progress,
-                                    downloadedAmount: Math.floor(progressEvent.loaded / 1024),
-                                    downloadSize: Math.floor(totalLength / 1024)
+                                    downloadedAmount: formatSize(progressEvent.loaded),
+                                    downloadSize: formatSize(totalLength)
                                 }
                             );
                         }

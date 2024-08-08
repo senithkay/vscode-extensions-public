@@ -191,7 +191,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                             <ProgressRing />
                             <span>Downloading connector... This might take a while</span>
                             {downloadProgress && (
-                                `Downloaded ${downloadProgress.downloadedAmount} KB of ${downloadProgress.downloadSize} KB (${downloadProgress.percentage}%). `
+                                `Downloaded ${downloadProgress.downloadedAmount} of ${downloadProgress.downloadSize} (${downloadProgress.percentage}%). `
                             )}
                         </LoaderWrapper>
                     ) : (
