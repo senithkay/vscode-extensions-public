@@ -20,12 +20,14 @@ import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
 import { isConnectingArrays } from '../utils/common-utils';
 import { DataMapperLinkModel } from '../Link/DataMapperLink';
+import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
 /**
  * This state is controlling the creation of a link.
  */
 export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
+	a2aTemporayLink: LinkModel;
 
 	constructor() {
 		super({ name: 'create-new-link' });
@@ -63,6 +65,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 							}
 						}
+					}
+
+					if (this.a2aTemporayLink) {
+						removeArrayToArrayTempLinkIfExists(this.a2aTemporayLink);
+						this.a2aTemporayLink = undefined;
 					}
 
 					if (isExprBarFocused && element instanceof InputOutputPortModel && element.portType === "OUT") {
@@ -116,6 +123,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 											const label = this.link.getLabels()
 											.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
 											label.setIsPendingArrayToArray(true);
+											this.a2aTemporayLink = this.link;
 										}
 
 										this.engine.getModel().addAll(this.link)

@@ -27,6 +27,7 @@ import { FocusedInputNode } from '../Node/FocusedInput';
 import { SubMappingNode } from '../Node/SubMapping';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
 import { useDMExpressionBarStore } from '../../../store/store';
+import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -122,6 +123,7 @@ export class DefaultState extends State<DiagramEngine> {
 			link.setSelected(false);
 			link.getSourcePort()?.fireEvent({}, "link-unselected");
 			link.getTargetPort()?.fireEvent({}, "link-unselected");
+			removeArrayToArrayTempLinkIfExists(link);
 		});
 		useDMExpressionBarStore.getState().resetFocus();
 	}

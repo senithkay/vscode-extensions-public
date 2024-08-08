@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { PortModel } from "@projectstorm/react-diagrams-core";
+import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { InputOutputPortModel } from "../Port";
@@ -47,6 +47,24 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
     }
 
     return `${srcExpr.trim()}\n${isSourceOptional ? '?.' : '.'}map((${refinedVarName}) => {${returnExpr}})`;
+}
+
+export function removeArrayToArrayTempLinkIfExists(link: LinkModel) {
+	const sourcePort = link.getSourcePort();
+	const targetPort = link.getTargetPort();
+
+	const isPendingArrayToArray = sourcePort instanceof InputOutputPortModel
+		&& targetPort instanceof InputOutputPortModel
+		&& sourcePort.pendingArrayToArray
+		&& targetPort.pendingArrayToArray;
+
+	if (isPendingArrayToArray) {
+		sourcePort?.fireEvent({}, "link-removed");
+		targetPort?.fireEvent({}, "link-removed");
+		sourcePort.setIsPendingArrayToArray(false);
+		targetPort.setIsPendingArrayToArray(false);
+		link.remove();
+	}
 }
 
 function fillWithDefaults(type: DMType): string {

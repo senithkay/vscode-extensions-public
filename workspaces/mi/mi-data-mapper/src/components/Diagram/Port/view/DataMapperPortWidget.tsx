@@ -83,7 +83,9 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 							resetExprBarFocus();
 						}
 					} else if (event.function === "link-unselected"
-						|| event.function === "mappingStartedFromSelectedAgain") {
+						|| event.function === "mappingStartedFromSelectedAgain"
+						|| event.function === "link-removed"
+					) {
 						setPortState(PortState.Unselected);
 						if (handlePortState) {
 							handlePortState(PortState.Unselected);
