@@ -19,7 +19,7 @@ import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
 import { isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayToArrayMappingWithFn, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
+import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -105,7 +105,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
-        if (link) {
+        if (link && link.isActualLink) {
             link.registerListener({
                 selectionChanged(event) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
@@ -202,7 +202,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 }
             }
 
-            const mapFnSrc = generateArrayToArrayMappingWithFn(linkModelValue.getText(), targetType, isSourceOptional);
+            const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
 
                 const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
                 await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
@@ -212,7 +212,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const codeActions = [];
     if (arrayMappingType === ArrayMappingType.ArrayToArray) {
         codeActions.push({
-            title: "Map with array function",
+            title: "Map array elements individually",
             onClick: onClickMapViaArrayFn
         });
     } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {

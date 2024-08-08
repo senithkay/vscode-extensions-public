@@ -29,7 +29,7 @@ import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFin
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
-import { InputOutputPortModel } from "../Port";
+import { InputOutputPortModel, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 import {
@@ -43,6 +43,7 @@ import {
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 import { View } from "../../../components/DataMapper/Views/DataMapperView";
+import { DataMapperLinkModel } from "../Link";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -746,6 +747,24 @@ export function isConnectingArrays(sourcePort: PortModel, targetPort: PortModel)
     const targetKind = targetPort.field.kind;
 
     return sourceKind === TypeKind.Array && targetKind === TypeKind.Array;
+}
+
+export function getValueType(lm: DataMapperLinkModel): ValueType {
+    const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
+
+    if (typeWithValue?.value) {
+        let expr = typeWithValue.value;
+
+        if (Node.isPropertyAssignment(expr)) {
+            expr = expr.getInitializer();
+        }
+        const value = expr?.getText();
+        if (value !== undefined) {
+            return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
+        }
+    }
+
+    return ValueType.Empty;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

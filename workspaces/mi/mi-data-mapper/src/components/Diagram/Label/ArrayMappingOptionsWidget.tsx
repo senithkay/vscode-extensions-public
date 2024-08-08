@@ -9,16 +9,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { TypeKind } from '@wso2-enterprise/mi-core';
 import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { Node } from "ts-morph";
 
-import { InputOutputPortModel } from '../Port';
-import { isInputAccessExpr } from '../utils/common-utils';
-import { generateArrayToArrayMappingWithFn } from '../utils/link-utils';
+import { InputOutputPortModel, ValueType } from '../Port';
+import { getValueType } from '../utils/common-utils';
+import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
+import { buildInputAccessExpr, createSourceForMapping, updateExisitingValue } from '../utils/modification-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -45,51 +44,45 @@ const codiconStyles = {
 
 export interface ArrayMappingOptionsWidgetProps {
     link: DataMapperLinkModel;
-    context: DataMapperContext;
-    setIsConnectingArrays: (isConnectingArrays: boolean) => void;
 }
 
 export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps) {
     const classes = useStyles();
-    const { link, context, setIsConnectingArrays } = props;
+    const { link } = props;
 
-    const onClickMapViaArrayFn = async () => {
-        const target = link?.getTargetPort();
-        if (target instanceof InputOutputPortModel) {
-            const targetPortField = target.field;
+    const sourcePort = link.getSourcePort();
+    const targetPort = link?.getTargetPort();
+    const valueType = getValueType(link);
+    const targetPortHasLinks = Object.values(targetPort.links)
+        ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+
+    const isValueModifiable = valueType === ValueType.Default
+        || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
+
+    const onClickMapArrays = async () => {
+        if (isValueModifiable) {
+           await updateExisitingValue(sourcePort, targetPort);
+        } else {
+            await createSourceForMapping(link);
+        }
+    }
+
+    const onClickMapIndividualElements = async () => {
+        if (targetPort instanceof InputOutputPortModel) {
+            const targetPortField = targetPort.field;
 
             if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                await applyArrayFunction(link, targetPortField.memberType);
+                const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
+                let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
+                const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
+
+                if (isValueModifiable) {
+                    await updateExisitingValue(sourcePort, targetPort, mapFnSrc);
+                 } else {
+                     await createSourceForMapping(link, mapFnSrc);
+                 }
+                await createSourceForMapping(link, mapFnSrc);
             }
-        }
-    };
-
-    const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: DMType) => {
-        if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
-
-            let isSourceOptional = false;
-            const linkModelValue = linkModel.value;
-            const sourcePort = linkModel.getSourcePort();
-            const targetPort = linkModel.getTargetPort();
-
-            let targetExpr: Node = linkModelValue;
-            if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
-                isSourceOptional = true;
-            }
-            if (targetPort instanceof InputOutputPortModel) {
-                const expr = targetPort.typeWithValue?.value;
-                if (Node.isPropertyAssignment(expr)) {
-                    targetExpr = expr.getInitializer();
-                } else {
-                    targetExpr = expr;
-                }
-            }
-
-            const mapFnSrc = generateArrayToArrayMappingWithFn(linkModelValue.getText(), targetType, isSourceOptional);
-
-            const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
-            setIsConnectingArrays(false);
-            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
     };
     
@@ -105,23 +98,23 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         );
     }
 
-    const items: Item[] = [
+    const menuItems: Item[] = [
         {
             id: "a2a-direct",
             label: getItemElement("a2a-direct", "Map Input Array to Output Array"),
-            onClick: () => onClickMapViaArrayFn()
+            onClick: onClickMapArrays
         }, 
         {
             id: "a2a-inner",
-            label: getItemElement("a2a-inner", "Further Process Array to Array Mapping"),
-            onClick: () => {console.log("Item Selected")}
+            label: getItemElement("a2a-inner", "Map Array Elements Individually"),
+            onClick: onClickMapIndividualElements
         }
     ];
 
     return (
         <div className={classes.arrayMappingMenu}>
             <Menu sx={a2aMenuStyles}> 
-                {items.map((item: Item) => 
+                {menuItems.map((item: Item) => 
                     <MenuItem
                         key={`item ${item.id}`}
                         item={item}

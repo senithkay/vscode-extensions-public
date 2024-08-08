@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
+import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
 	ArrayLiteralExpression,
 	Block,
@@ -34,7 +35,7 @@ import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 
-export async function createSourceForMapping(link: DataMapperLinkModel) {
+export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string) {
     if (!link.getSourcePort() || !link.getTargetPort()) {
 		return;
 	}
@@ -50,7 +51,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const parentFieldNames: string[] = [];
 	const { applyModifications } = targetNode.context;
 
-	rhs = buildInputAccessExpr(sourcePort.fieldFQN);
+	rhs = rhsValue || buildInputAccessExpr(sourcePort.fieldFQN);
 	lhs = getFieldNameFromOutputPort(targetPort, sourcePort);
 
 	if (isMappedToRootArrayLiteralExpr(targetPort)
@@ -394,6 +395,23 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 			}
 		});
 	}
+}
+
+export async function updateExisitingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string) {
+	const targetNode = targetPort.getNode() as DataMapperNodeModel;
+	const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+	const sourceInputAccessExpr = newValue || buildInputAccessExpr(sourceField);
+	const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
+	const expr = typeWithValue.value;
+
+	let updatedExpr;
+	if (Node.isPropertyAssignment(expr)) {
+		updatedExpr = expr.setInitializer(sourceInputAccessExpr);
+	} else {
+		updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
+	}
+
+	await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {
