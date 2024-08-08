@@ -66,7 +66,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
     const fetchSequences = async () => {
         try {
             const sequenceList = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
-            const sequenceNames: string[] = sequenceList ? (sequenceList.data[1].map((seq: string) => {
+            const sequenceNames: string[] = sequenceList.data[1]?. length > 0 ? (sequenceList.data[1].map((seq: string) => {
                 seq = seq.replace(".xml", "");
                 return seq.replace(".xml", "")
             })) : [];
