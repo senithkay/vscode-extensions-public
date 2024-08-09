@@ -50,7 +50,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     };
 
     const handleDataMapClearButtonClick = async () => {
-        const dm = "";
+        const dm = "return {}";
 
         const dataMapWriteRequest: DataMapWriteRequest = {
             dataMapping: dm

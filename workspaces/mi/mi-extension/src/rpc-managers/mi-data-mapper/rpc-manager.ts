@@ -34,7 +34,7 @@ import {
     MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { Project } from "ts-morph";
+import { Project, QuoteKind } from "ts-morph";
 import { StateMachine, navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
@@ -53,6 +53,7 @@ import { getSources } from "../../util/dataMapper";
 import { refreshAuthCode } from '../../ai-panel/auth';
 import { DATAMAP_BACKEND_URL } from "../../constants";
 import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { get } from "lodash";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -231,7 +232,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const functionDeclaration = sourceFile.getFunction(READONLY_MAPPING_FUNCTION_NAME);
                 if (functionDeclaration) {
                     // update the function body
-                    functionDeclaration.setBodyText(`return {${dataMapping}};`);
+                    functionDeclaration.setBodyText(`${dataMapping}`);
                     // write the updates to the file
                     await sourceFile.save();
                 } else {
@@ -259,24 +260,39 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     // Main function to get the mapping from OpenAI and write it to the relevant files
     async getMappingFromOpenAI(): Promise<void> {
         try {
+            const dm = "";
+            const dataMapWriteRequest: DataMapWriteRequest = {
+            dataMapping: dm
+            };
+            await this.writeDataMapping(dataMapWriteRequest);
             let tsContent = await this.readTSFile();
 
-            // Recursive function to find the content of each interface with the given name
-            const findInterfaceText = (node: ts.Node, interfaceName: string): string | null | undefined => {
-                if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
-                    return node.getText();
+            function removeMapFunctionEntry(content: string): string {
+                const project = new Project({
+                    useInMemoryFileSystem: true,
+                    manipulationSettings: {
+                        quoteKind: QuoteKind.Single
+                    }
+                });
+                
+                const sourceFile = project.createSourceFile('temp.ts', content);
+                const mapFunction = sourceFile.getFunction('mapFunction');
+                if (!mapFunction) {
+                    throw new Error('mapFunction not found in TypeScript file.');
                 }
-                return node.forEachChild(child => findInterfaceText(child, interfaceName));
-            };
+                let functionContent;
+                if (mapFunction.getBodyText()) {
+                    functionContent = mapFunction.getBodyText()?.trim();
+                } 
+                else {
+                    throw new Error('No function body text found for mapFunction in TypeScript file.');
+                }
+                sourceFile.removeText(mapFunction.getPos(), mapFunction.getEnd());
+                return functionContent;
+            }
 
-            // Function to extract InputRoot and OutputRoot names from tsContent
-            const extractRootNames = (content: string): { inputRoot: string, outputRoot: string } => {
-                const mapFunctionRegex = /function\s+mapFunction\s*\(\s*input\s*:\s*(\w+)\s*\)\s*:\s*(\w+)\s*{/;
-                const match = content.match(mapFunctionRegex);
-                if (!match) {
-                    throw new Error('mapFunction signature not found in TypeScript file.');
-                }
-                return { inputRoot: match[1], outputRoot: match[2] };
+            const request = {
+                tsFile: tsContent
             };
 
             const makeRequest = async (url: string, token: string) => {
@@ -286,32 +302,14 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(schema)
+                    body: JSON.stringify(request)
                 });
                 if (!response.ok) throw new Error(`Error while checking token: ${response.statusText}`);
                 return response.json();
             }
 
-            // Extract InputRoot and OutputRoot names
-            const { inputRoot, outputRoot } = extractRootNames(tsContent);
-
             const backendRootUri = await this.fetchBackendUrl();
             const url = backendRootUri + DATAMAP_BACKEND_URL;
-
-            // Parse the TypeScript content into an AST to find the InputRoot and OutputRoot interfaces
-            const sourceFile = ts.createSourceFile('temp.ts', tsContent, ts.ScriptTarget.Latest, true);
-
-            const inputSchema = findInterfaceText(sourceFile, inputRoot);
-            const outputSchema = findInterfaceText(sourceFile, outputRoot);
-
-            if (!inputSchema || !outputSchema) {
-                throw new Error('InputRoot or OutputRoot interface not found in TypeScript file.');
-            }
-
-            const schema = {
-                input: inputSchema,
-                output: outputSchema
-            };
 
             const openSignInView = () => {
                 let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
@@ -358,10 +356,11 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (data.event === "data_mapping_success") {
                 // Extract the mapping string and pass it to the writeDataMapping function
                 const mappingString = data.mapping;
+                const mappingRet = removeMapFunctionEntry(mappingString);
 
                 // Create an object of type DataMapWriteRequest
                 const dataMapWriteRequest: DataMapWriteRequest = {
-                    dataMapping: mappingString
+                    dataMapping: mappingRet
                 };
 
                 await this.writeDataMapping(dataMapWriteRequest);
@@ -375,7 +374,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             throw error;
         }
     }
-
 
     async createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return new Promise(async (resolve, reject) => {
