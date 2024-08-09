@@ -133,7 +133,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 label="Target Template"
                                 allowItemCreate={false}
                                 onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                    openPopup(rpcClient, "sequenceTemplate", fetchItems, handleValueChange);
+                                    openPopup(rpcClient, 'sequenceTemplate', fetchItems, handleValueChange);
                                 }}
                                 onValueChange={field.onChange}
                                 required={true}

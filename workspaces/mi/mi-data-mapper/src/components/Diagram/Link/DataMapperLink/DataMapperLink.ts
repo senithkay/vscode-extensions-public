@@ -29,7 +29,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			width: 1,
 			curvyness: 0,
 			locked: true,
-			color: "#00c0ff"
+			color: "var(--vscode-debugIcon-breakpointDisabledForeground)"
 		});
 
 		if (isActualLink){

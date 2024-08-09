@@ -7,11 +7,37 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
+import styled from "@emotion/styled";
+import { Colors } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 
 interface OptionProps {
     value: string;
+}
+
+const ExButtonWrapper = styled.div<{ isActive: boolean }>`
+    margin-left: -14px;
+    margin-top: -2px;
+    padding: 3px;
+    cursor: pointer;
+    background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_INACTIVE};
+    border: 1px solid ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE_BORDER : "transparent"};
+    &:hover {
+        background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
+    }
+`;
+
+const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
+    return (
+        <ExButtonWrapper isActive={props.isActive} onClick={props.onClick}>
+            <Typography sx={
+                {
+                    textAlign: "center",
+                    margin: 0
+                }} variant="h6">EX</Typography>
+        </ExButtonWrapper>
+    );
 }
 
 const Form = ({
@@ -229,12 +255,24 @@ const Form = ({
                         label="Basic Auth Username"
                         placeholder="Username"
                         {...renderProps("basicAuthUsername")}
+                        icon={{
+                            iconComponent: <ExButton isActive={watch("basicUsernameExpression")} onClick={() => {
+                                setValue("basicUsernameExpression", !watch("basicUsernameExpression"));
+                            }} />,
+                            position: "end"
+                        }}
                     />
                     <TextField
                         required
                         label="Basic Auth Password"
                         placeholder="Password"
                         {...renderProps("basicAuthPassword")}
+                        icon={{
+                            iconComponent: <ExButton isActive={watch("basicPasswordExpression")} onClick={() => {
+                                setValue("basicPasswordExpression", !watch("basicPasswordExpression"));
+                            }} />,
+                            position: "end"
+                        }}
                     />
                 </>}
                 {watch('authType') === 'OAuth' && <>
@@ -253,18 +291,36 @@ const Form = ({
                         label="Client ID"
                         placeholder="Client ID"
                         {...renderProps("clientId")}
+                        icon={{
+                            iconComponent: <ExButton isActive={watch("clientIdExpression")} onClick={() => {
+                                setValue("clientIdExpression", !watch("clientIdExpression"));
+                            }} />,
+                            position: "end"
+                        }}
                     />
                     <TextField
                         required
                         label="Client Secret"
                         placeholder="Client Secret"
                         {...renderProps("clientSecret")}
+                        icon={{
+                            iconComponent: <ExButton isActive={watch("clientSecretExpression")} onClick={() => {
+                                setValue("clientSecretExpression", !watch("clientSecretExpression"));
+                            }} />,
+                            position: "end"
+                        }}
                     />
                     <TextField
                         required
                         label="Token Url"
                         placeholder="Token Url"
                         {...renderProps("tokenUrl")}
+                        icon={{
+                            iconComponent: <ExButton isActive={watch("tokenUrlExpression")} onClick={() => {
+                                setValue("tokenUrlExpression", !watch("tokenUrlExpression"));
+                            }} />,
+                            position: "end"
+                        }}
                     />
                     {watch('grantType') === 'Authorization Code' && (
                         <TextField
@@ -272,6 +328,12 @@ const Form = ({
                             label="Refresh Token"
                             placeholder="Refresh Token"
                             {...renderProps("refreshToken")}
+                            icon={{
+                                iconComponent: <ExButton isActive={watch("refreshTokenExpression")} onClick={() => {
+                                    setValue("refreshTokenExpression", !watch("refreshTokenExpression"));
+                                }} />,
+                                position: "end"
+                            }}
                         />
                     )}
                     {watch('grantType') === 'Password' && <>
@@ -280,12 +342,24 @@ const Form = ({
                             label="Username"
                             placeholder="Username"
                             {...renderProps("username")}
+                            icon={{
+                                iconComponent: <ExButton isActive={watch("usernameExpression")} onClick={() => {
+                                    setValue("usernameExpression", !watch("usernameExpression"));
+                                }} />,
+                                position: "end"
+                            }}
                         />
                         <TextField
                             required
                             label="Password"
                             placeholder="Password"
                             {...renderProps("password")}
+                            icon={{
+                                iconComponent: <ExButton isActive={watch("passwordExpression")} onClick={() => {
+                                    setValue("passwordExpression", !watch("passwordExpression"));
+                                }} />,
+                                position: "end"
+                            }}
                         />
                     </>}
                     <RadioButtonGroup

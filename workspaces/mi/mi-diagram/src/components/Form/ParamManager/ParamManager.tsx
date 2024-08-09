@@ -51,6 +51,7 @@ export interface ParamField {
     id?: number;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
     label?: string;
+    placeholder?: string;
     defaultValue?: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
@@ -244,6 +245,11 @@ export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId
     return paramField?.label;
 }
 
+export const getParamFieldPlaceholderFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.placeholder;
+}
+
 const getParamFieldTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
     const paramField = paramFields[paramId];
     return paramField?.type;
@@ -327,6 +333,7 @@ export function ParamManager(props: ParamManagerProps) {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
                 type,
+                placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,
                 isEnabled: paramVal.isEnabled,
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
