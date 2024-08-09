@@ -26,6 +26,8 @@ export interface FormGeneratorProps {
     control: any;
     errors: any;
     setValue: any;
+    watch: any;
+    getValues: any;
 }
 
 interface Element {
