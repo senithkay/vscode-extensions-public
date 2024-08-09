@@ -19,6 +19,7 @@ import HeaderSearchBoxOptions from './HeaderSearchBoxOptions';
 import { DataMapperNodeModel } from '../../Diagram/Node/commons/DataMapperNode';
 import { SubMappingNode } from '../../Diagram/Node';
 import { isInputNode, isOutputNode } from '../../Diagram/Actions/utils'
+import { GAP_BETWEEN_INPUT_NODES } from '../../Diagram/utils/constants'
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -34,26 +35,15 @@ export interface SearchTerm {
     isLabelAvailable: boolean;
 }
 
-interface HeaderSearchBoxProps {
-    nodes: DataMapperNodeModel[];
-}
+export default function HeaderSearchBox() {
 
-export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
-
-    const { nodes } = props;
-
-    const [searchTerm, setSearchTerm] = useState('');
     const [searchOptions, setSearchOptions] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
 
+    const searchTermRef = useRef("");
     const searchInputRef = useRef<HTMLInputElement>(null);
-    const prevInSearchTermRef = useRef<string>("");
-    const prevOutSearchTermRef = useRef<string>("");
-
-    const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
-    const outputNode = nodes.find(isOutputNode);
 
     const searchOptionsData = [
         { value: INPUT_FIELD_FILTER_LABEL, label: "Filter in inputs" },
@@ -62,10 +52,11 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
 
     const handleSearchInputChange = (text: string) => {
         debouncedOnChange(text);
-        setSearchTerm(text);
+        searchTermRef.current = text;
     };
 
     const handleSearch = (term: string) => {
+        console.log(term);
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
 
         const hasInputFilterLabelChanged = !inputSearchTerm
@@ -105,25 +96,16 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
         dmStore.setInputSearch(inSearchTerm.searchText.trim());
         dmStore.setOutputSearch(outSearchTerm.searchText.trim());
 
-        if (inputNode && prevInSearchTermRef.current != inSearchTerm.searchText) {
-            inputNode.setPosition(inputNode.getX(), 0);
-            prevInSearchTermRef.current = inSearchTerm.searchText;
-        }
-
-        if (outputNode && prevOutSearchTermRef.current != outSearchTerm.searchText) {
-            outputNode && outputNode.setPosition(outputNode.getX(), 0);
-            prevOutSearchTermRef.current = outSearchTerm.searchText;
-        }
     };
 
     const handleOnSearchTextClear = () => {
         handleSearch("");
-        setSearchTerm("");
+        searchTermRef.current = "";
     };
 
     useEffect(() => {
-        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
-        let modifiedSearchTerm = searchTerm;
+        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTermRef.current);
+        let modifiedSearchTerm = searchTermRef.current;
         if (searchOptions.includes(INPUT_FIELD_FILTER_LABEL)) {
             if (inSearchTerm && !inSearchTerm.isLabelAvailable) {
                 modifiedSearchTerm = modifiedSearchTerm.trimEnd() + ` ${INPUT_FIELD_FILTER_LABEL}`;
@@ -143,7 +125,7 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
             }
         }
         handleSearch(modifiedSearchTerm);
-        setSearchTerm(modifiedSearchTerm);
+        searchTermRef.current = modifiedSearchTerm;
     }, [searchOptions]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
@@ -155,14 +137,14 @@ export default function HeaderSearchBox(props: HeaderSearchBoxProps) {
             autoFocus={true}
             icon={{ iconComponent: filterIcon, position: "start" }}
             placeholder={`filter input and output fields`}
-            value={searchTerm}
+            value={searchTermRef.current}
             ref={searchInputRef}
             onTextChange={handleSearchInputChange}
             size={100}
             inputProps={{
                 endAdornment: (
                     <HeaderSearchBoxOptions
-                        searchTerm={searchTerm}
+                        searchTerm={searchTermRef.current}
                         searchInputRef={searchInputRef}
                         searchOptions={searchOptions}
                         setSearchOptions={setSearchOptions}
