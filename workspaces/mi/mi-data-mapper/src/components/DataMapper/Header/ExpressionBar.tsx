@@ -10,12 +10,12 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
+import { ExpressionBar, CompletionItem, ExpressionBarRef } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from 'ts-morph';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-import { useDMExpressionBarStore } from '../../../store/store';
+import { useDMExpressionBarStore, useDMRegenerateNodesStore } from '../../../store/store';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
@@ -49,8 +49,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { views, filePath, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
-    const textFieldRef = useRef<HTMLInputElement>(null);
-    const savedTextFieldValue = useRef<string>("");
+    const textFieldRef = useRef<ExpressionBarRef>(null);
+    const savedFieldOrFilterValue = useRef<string>("");
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -61,6 +61,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         focusedFilter: state.focusedFilter,
         inputPort: state.inputPort,
         resetInputPort: state.resetInputPort
+    }));
+
+    const { regenerateNodes } = useDMRegenerateNodesStore(state => ({
+        regenerateNodes: state.regenerateNodes
     }));
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
@@ -154,7 +158,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         } else if (focusedFilter) {
             value = focusedFilter.getText();
             disabled = false;
-        } else if (textFieldRef.current) {
+        } else {
             // If displaying a focused view
             if (views.length > 1 && !views[views.length - 1].subMappingInfo) {
                 setPlaceholder('Click on an output field or a filter to add/edit expressions.');
@@ -163,11 +167,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
         }
     
-        savedTextFieldValue.current = textFieldValue;
+        savedFieldOrFilterValue.current = textFieldValue;
+
         setTextFieldValue(value);
         triggerAction(!action);
+
         return disabled;
-    }, [textFieldRef.current?.innerText, focusedPort, focusedFilter, views]);
+    }, [focusedPort, focusedFilter, views]);
 
     useEffect(() => {
         requestAnimationFrame(() => {
@@ -247,25 +253,29 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleExpressionSave = async (value: string) => {
-        if (savedTextFieldValue.current === value) {
+        if (savedFieldOrFilterValue.current === value) {
             return;
         }
-        savedTextFieldValue.current = value;
+        savedFieldOrFilterValue.current = value;
         await updateST.flush();
         await applyChanges(value);
     }
 
     const handleCompletionSelect = async (value: string) => {
-        if (savedTextFieldValue.current === value) {
+        if (savedFieldOrFilterValue.current === value) {
             return;
         }
-        savedTextFieldValue.current = value;
+        savedFieldOrFilterValue.current = value;
         await updateST.flush();
         await applyChanges(value);
     }
 
     const handleCancelCompletions = () => {
         setCompletions([]);
+    }
+
+    const handleUndoUncommitedChanges = async () => {
+        regenerateNodes();
     }
 
     const applyChanges = async (value: string) => {
@@ -317,6 +327,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
                 onCancel={handleCancelCompletions}
+                undoUncommitedChanges={handleUndoUncommitedChanges}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>
