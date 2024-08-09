@@ -16,6 +16,7 @@ import { InputSearchHighlight } from './Search';
 import { TreeContainer, TreeHeader } from './Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { getTypeName } from "../../utils/common-utils";
+import { useDMIOConfigPanelStore } from "../../../../store/store";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -30,6 +31,13 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
     const { engine, dmType, id, getPort, valueLabel, nodeHeaderSuffix } = props;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+
+    const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType,
+		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
+
     const classes = useIONodesStyles();
 
     const typeName = getTypeName(dmType);
@@ -54,8 +62,15 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
         </span>
     );
 
+    const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault(); 
+        setIOConfigPanelType("Input");
+        setIsSchemaOverridden(true);
+        setIsIOConfigPanelOpen(true);
+    };
+
     return (
-        <TreeContainer data-testid={`${id}-node`}>
+        <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
             <TreeHeader id={"recordfield-" + id} isSelected={portState !== PortState.Unselected}>
                 <span className={classes.label}>
                     {label}
