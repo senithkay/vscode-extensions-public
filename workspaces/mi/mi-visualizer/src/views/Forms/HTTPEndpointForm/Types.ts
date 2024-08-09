@@ -51,6 +51,14 @@ export type InputsFields = {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any[];
+    basicUsernameExpression: boolean;
+    basicPasswordExpression: boolean;
+    usernameExpression: boolean;
+    passwordExpression: boolean;
+    clientIdExpression: boolean;
+    clientSecretExpression: boolean;
+    tokenUrlExpression: boolean;
+    refreshTokenExpression: boolean;
     saveInReg?: boolean;
     //reg form
     artifactName?: string;
@@ -117,6 +125,15 @@ export const initialEndpoint: InputsFields = {
     templateName: "",
     requireTemplateParameters: false,
     templateParameters: [],
+
+    basicUsernameExpression: false,
+    basicPasswordExpression: false,
+    usernameExpression: false,
+    passwordExpression: false,
+    clientIdExpression: false,
+    clientSecretExpression: false,
+    tokenUrlExpression: false,
+    refreshTokenExpression: false,
 
     saveInReg: false,
     //reg form

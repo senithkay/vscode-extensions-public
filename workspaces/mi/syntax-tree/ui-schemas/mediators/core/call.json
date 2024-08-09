@@ -8,7 +8,7 @@
             "type": "attribute",
             "value": {
                 "name": "endpoint",
-                "displayName": "Select Endpoint",
+                "displayName": "Endpoint",
                 "inputType": "keyOrExpression",
                 "comboValues": [
                     "INLINE"
