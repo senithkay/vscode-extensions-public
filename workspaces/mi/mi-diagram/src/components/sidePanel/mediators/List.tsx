@@ -77,7 +77,7 @@ export function Mediators(props: MediatorProps) {
                                 <Tooltip content={action.tooltip} position='bottom' sx={{zIndex: 2010}}>
                                     <ComponentCard
                                         key={action.operationName}
-                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title)}
+                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title, getMediatorIconsFromFont(action.operationName as string, key === "most popular"))}
                                         sx={{
                                             '&:hover, &.active': {
                                                 '.icon svg g': {

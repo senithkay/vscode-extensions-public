@@ -370,7 +370,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
             endpoint={endpoint.name}
             trailingSpace={props.trailingSpace} />;
 
-        sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`);
+        sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`, (<Icon name="HTTPEndpoint" sx={{ height: 25, width: 25, fontSize: 22, color: "#3e97d3" }} />));
     }
 
     const getConnectionLabel = (connectorName: string, connectionType: string) => {
