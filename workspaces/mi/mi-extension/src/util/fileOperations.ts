@@ -255,8 +255,8 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
         } else {
             if (fileName) {
                 // if file name present do the exact match
-                if (artifactXMLData.artifacts.artifact.item && artifactXMLData.artifacts.artifact.item.file === fileName
-                    && artifactXMLData.artifacts.artifact.item.path === artifactPath) {
+                if (artifactXMLData.artifacts.artifact.item && artifactXMLData.artifacts.artifact.item.file === fileName &&
+                    [artifactPath, `${artifactPath}/`].includes(artifactXMLData.artifacts.artifact.item.path)) {
                     removed = true;
                     artifactXMLData.artifacts.artifact = [];
                 }
