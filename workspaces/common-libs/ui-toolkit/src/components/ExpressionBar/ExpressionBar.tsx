@@ -37,12 +37,13 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
+    completions: CompletionItem[];
     onChange: (value: string) => Promise<void>;
     onFocus?: () => void;
     onBlur?: () => void;
     onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
-    getCompletions: () => Promise<CompletionItem[]>;
+    onCancel: () => void;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
