@@ -101,8 +101,9 @@ export function filterCompletions(
         return {
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
-            value: entry.name,
+            value: entry.insertText || entry.name,
             kind: details.kind as CompletionItemKind,
+            replacementSpan: entry.replacementSpan?.length
         }
     } else if (isFunction || isMethod) {
         if (isMethod || (isFunction && details.sourceDisplay)) {

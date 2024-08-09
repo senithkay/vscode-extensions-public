@@ -29,6 +29,7 @@ export type CompletionItem = {
     description: string;
     kind: CompletionItemKind;
     args?: string[];
+    replacementSpan?: number;
 };
 
 export type ExpressionBarBaseProps = {

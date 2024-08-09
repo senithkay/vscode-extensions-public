@@ -387,10 +387,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleCompletionSelect = async (item: CompletionItem) => {
+        const replacementSpan = item.replacementSpan ?? 0;
         const cursorPosition = inputRef.current.shadowRoot.querySelector('input').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
-        const prefix = value.substring(0, cursorPosition - prefixMatches[1].length);
+        const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
         const suffix = value.substring(cursorPosition + suffixMatches[1].length);
         const newCursorPosition = prefix.length + item.value.length;
         const newTextValue = prefix + item.value + suffix;
