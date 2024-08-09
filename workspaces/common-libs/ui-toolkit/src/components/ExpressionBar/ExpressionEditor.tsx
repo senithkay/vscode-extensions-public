@@ -489,8 +489,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     useImperativeHandle(ref, () => ({
-        focus: async () => {
+        focus: async (text?: string) => {
             inputRef.current?.focus();
+            if (text !== undefined) {
+                await onChange(text);
+            }
         },
         blur: async () => {
             inputRef.current?.blur();

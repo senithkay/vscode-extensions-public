@@ -213,7 +213,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (disabled) {
                 textFieldRef.current?.blur();
             } else if (focusedPort || focusedFilter) {
-                textFieldRef.current?.focus();
+                textFieldRef.current?.focus(textFieldValue);
             }
         });
     }, [disabled, action]);
@@ -276,7 +276,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
             focusedPort.typeWithValue.setValue(portValue);
 
-            await updateST(text);
+            if (text !== "") {
+                await updateST(text);
+            }
         }
         setCompletions(await getCompletions());
     }, 300), [focusedPort, focusedFilter]);
