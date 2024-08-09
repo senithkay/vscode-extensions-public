@@ -115,7 +115,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                     control={control}
                                     name='schemaKay'
                                     label="Fast Xslt Schema Key"
-                                    filterType='xslt'
+                                    filterType={['xslt','xsl']}
                                     allowItemCreate={false}
                                     required={true}
                                     errorMsg={errors?.schemaKay?.message?.toString()}

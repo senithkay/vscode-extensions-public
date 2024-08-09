@@ -1,16 +1,18 @@
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
- */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+*
+* This software is the property of WSO2 LLC. and its suppliers, if any.
+* Dissemination of any information or reproduction of any material contained
+* herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+* You may not alter or remove any copyright or other notice from copies of this content.
+*/
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from 'ts-morph';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { useDMExpressionBarStore } from '../../../store/store';
@@ -20,7 +22,7 @@ import { getDefaultValue } from '../../../components/Diagram/utils/common-utils'
 import { filterCompletions, getInnermostPropAsmtNode } from './utils';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { View } from '../Views/DataMapperView';
-import { ArrayOutputNode, ObjectOutputNode } from '../../../components/Diagram/Node';
+import { debounce } from 'lodash';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -51,6 +53,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const savedTextFieldValue = useRef<string>("");
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
 
     const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
@@ -73,7 +76,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
 
         if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
-            const fileContent = nodeForSuggestions.getSourceFile().getText();
+            const fileContent = nodeForSuggestions.getSourceFile().getFullText();
             const cursorPosition = nodeForSuggestions.getEnd();
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
                 filePath,
@@ -130,7 +133,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 }
             }
         })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputPort]);
 
     const disabled = useMemo(() => {
@@ -175,11 +177,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         savedTextFieldValue.current = textFieldValue;
         setTextFieldValue(value);
         return disabled;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [textFieldRef.current, focusedPort, focusedFilter, views]);
+    }, [textFieldRef.current?.innerText, focusedPort, focusedFilter, views]);
 
-    const onChangeTextField = async (text: string) => {
-        setTextFieldValue(text);
+    const updateST = useCallback(debounce(async (text: string) => {
+        let propertyAssignment: PropertyAssignment;
         const focusedFieldValue = focusedPort?.typeWithValue.value;
         if (focusedFieldValue) {
             if (focusedFieldValue.wasForgotten()) {
@@ -189,22 +190,26 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (Node.isPropertyAssignment(focusedFieldValue)) {
                 const parent = focusedFieldValue.getParent();
                 const propName = focusedFieldValue.getName();
+                const parentContent = parent.getFullText();
+                const propertyCount = parent.getProperties().length;
                 focusedFieldValue.remove();
-                const properties = parent.getProperties();
-                
-                // Workaround for https://github.com/wso2/mi-vscode/issues/246
-                // Remove short hand property assignments and property assinments without names
-                properties.filter(property => (Node.isPropertyAssignment(property) && property.getName() === "")
-                    || (Node.isShorthandPropertyAssignment(property)))
-                        .forEach(property => {
-                            property.remove();
-                        });
-
-                const propertyAssignment = parent.addPropertyAssignment({
+                propertyAssignment = parent.addPropertyAssignment({
                     name: propName,
                     initializer: text
                 });
-                focusedPort.typeWithValue.setValue(propertyAssignment);
+                
+                if (parent.getProperties().some(prop => prop.isKind(SyntaxKind.ShorthandPropertyAssignment))) {
+                    /** 
+                     * Creating a PropertyAssignment with invalid or incomplete text can result in unexpected
+                     * ShorthandPropertyAssignments in ts-morph. To avoid this issue, we do not update the
+                     * project at this stage. Instead, we revert the operations and return to the previous state.
+                     */
+                    const prevParent = parent.replaceWithText(parentContent) as ObjectLiteralExpression;
+                    const prevFocusedFieldValue = prevParent.getProperties()[propertyCount - 1];
+                    focusedPort.typeWithValue.setValue(prevFocusedFieldValue);
+                } else {
+                    focusedPort.typeWithValue.setValue(propertyAssignment);
+                }
             }
         } else if (focusedFilter) {
             focusedFilter.replaceWithText(text);
@@ -224,14 +229,20 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 parentPort = parentPort?.parentModel;
             }
 
-            const propertyAssignment = await createSourceForUserInput(
-                focusedPort?.typeWithValue, objLitExpr, text, fnBody
+            propertyAssignment = await createSourceForUserInput(
+                focusedPort?.typeWithValue, objLitExpr, "", fnBody
             );
 
             const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
 
             focusedPort.typeWithValue.setValue(portValue);
         }
+        setCompletions(await getCompletions());
+    }, 300), [focusedPort, focusedFilter]);
+
+    const onChangeTextField = async (text: string) => {
+        setTextFieldValue(text);
+        await updateST(text);
     };
 
     const handleExpressionSave = async (value: string) => {
@@ -239,6 +250,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             return;
         }
         savedTextFieldValue.current = value;
+        await updateST.flush();
         await applyChanges(value);
     }
 
@@ -247,7 +259,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             return;
         }
         savedTextFieldValue.current = value;
+        await updateST.flush();
         await applyChanges(value);
+    }
+
+    const handleCancelCompletions = () => {
+        setCompletions([]);
     }
 
     const applyChanges = async (value: string) => {
@@ -294,10 +311,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 disabled={disabled ?? false}
                 value={textFieldValue}
                 placeholder={placeholder}
+                completions={completions}
                 onChange={onChangeTextField}
                 onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
-                getCompletions={getCompletions}
+                onCancel={handleCancelCompletions}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>

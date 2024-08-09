@@ -53,7 +53,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
-    const isNewTemplate = !props.path.endsWith(".xml");
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in sequence name")
@@ -87,7 +87,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -102,6 +103,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
         handleSubmit,
         getValues,
         control,
+        setValue,
         formState: { errors, isDirty },
     } = useForm<InputsFields>({
         defaultValues: initialSequence,
@@ -120,6 +122,13 @@ export function SequenceWizard(props: SequenceWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, []);
+
+    useEffect(() => {
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
+    }, [watch("name")]);
 
     const handleCreateSequence = async (values: any) => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;

@@ -87,6 +87,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         isError: false,
         text: ""
     });
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
@@ -131,7 +132,8 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -183,6 +185,13 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             reset(initialLocalEntry);
         }
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
+    }, [watch("name")]);
 
     useEffect(() => {
         if (!validationMessage) {

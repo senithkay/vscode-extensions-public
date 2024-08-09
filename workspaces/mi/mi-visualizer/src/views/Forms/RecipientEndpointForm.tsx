@@ -84,6 +84,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required")
@@ -120,7 +121,8 @@ export function RecipientWizard(props: RecipientWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -195,6 +197,13 @@ export function RecipientWizard(props: RecipientWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
+    }, [watch("name")]);
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
