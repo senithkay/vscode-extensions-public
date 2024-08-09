@@ -148,7 +148,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const undoChangesOnPrevSelectedNode = () => {
         if (prevTypeWithValue.current) {
             const prevFocusedNode = prevTypeWithValue.current.value;
-            if (prevFocusedNode && Node.isPropertyAssignment(prevFocusedNode)) {
+            if (
+                prevFocusedNode &&
+                !prevFocusedNode.wasForgotten() &&
+                Node.isPropertyAssignment(prevFocusedNode)
+            ) {
                 const parent = prevFocusedNode.getParent();
                 const propName = prevFocusedNode.getName();
                 prevFocusedNode.remove();
@@ -318,6 +322,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const applyChangesOnFocusedPort = async (value: string) => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
+        let updatedSourceContent;
         if (focusedFieldValue) {
             if (focusedFieldValue.wasForgotten()) {
                 return;
@@ -325,18 +330,23 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             let targetExpr: Node;
             if (Node.isPropertyAssignment(focusedFieldValue)) {
+                const parent = focusedFieldValue.getParent();
+
                 if (value === '') {
                     focusedFieldValue.remove();
                 }
+
+                updatedSourceContent = parent.getSourceFile().getFullText();
             } else {
                 targetExpr = focusedFieldValue;
                 const replaceWith = value === ''
                     ? getDefaultValue(focusedPort.typeWithValue.type.kind)
                     : value;
 
-                targetExpr.replaceWithText(replaceWith);
+                const updatedNode = targetExpr.replaceWithText(replaceWith);
+                updatedSourceContent = updatedNode.getSourceFile().getFullText();
             }
-            await applyModifications(focusedFieldValue.getSourceFile().getFullText());
+            await applyModifications(updatedSourceContent);
         }
     };
 
