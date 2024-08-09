@@ -73,7 +73,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Query String",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "ParamManager",
@@ -88,6 +88,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Data Type",
                                         "defaultValue": "CHAR",
+                                        "placeholder": "Select the data type",
                                         "isRequired": true,
                                         "values": [
                                             "CHAR",
@@ -112,6 +113,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Value Type",
                                         "defaultValue": "LITERAL",
+                                        "placeholder": "Select the value type",
                                         "isRequired": true,
                                         "values": [
                                             "LITERAL",
@@ -122,6 +124,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "TextField",
                                         "label": "Value Literal",
                                         "defaultValue": "",
+                                        "placeholder": "Enter the value literal",
                                         "isRequired": true,
                                         "enableCondition": [
                                             {
@@ -136,6 +139,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                             "isExpression": true,
                                             "value": ""
                                         },
+                                        "placeholder": "Enter the value expression",
                                         "isRequired": true,
                                         "canChange": false,
                                         "enableCondition": [
