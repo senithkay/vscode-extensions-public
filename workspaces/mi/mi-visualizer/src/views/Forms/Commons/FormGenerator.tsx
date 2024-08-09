@@ -8,19 +8,12 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
-
-const cardStyle = {
-    display: "block",
-    padding: "10px 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
-};
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -28,6 +21,8 @@ const Field = styled.div`
 
 export interface FormGeneratorProps {
     formData: any;
+    sequences?: string[];
+    onEdit?: boolean;
     control: any;
     errors: any;
     setValue: any;
@@ -53,14 +48,22 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
+    const { formData,  sequences, onEdit, control, errors, setValue, getValues, watch } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-
-    const { formData, control, errors, setValue, getValues, watch } = props;
+    const [autoGenerate, setAutoGenerate] = useState(!onEdit);
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
     }
+
+    const handleSequenceGeneration = (e: any) => {
+        setAutoGenerate(e);
+        if (e) {
+            setValue("sequence", "");
+            setValue("onError", "");
+        }
+    };
 
     const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
 
@@ -97,6 +100,43 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />
             </>
         )
+    }
+
+    const sequenceFieldComponent = ({ element }: { element: Element }) => {
+        return (
+            <Controller
+                name={getNameForController(element.name)}
+                control={control}
+                rules={
+                    {
+                        ...(element.required === 'true') && {
+                            validate: (value) => {
+                                if (!value || (typeof value === 'object' && !value.value)) {
+                                    return "This field is required";
+                                }
+                                return true;
+                            },
+                        }
+                    }
+                }
+                render={({ field }) => (
+                    <Field>
+                        <AutoComplete
+                            name={getNameForController(element.name)}
+                            label={element.displayName}
+                            items={sequences}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={element.required === 'true'}
+                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            allowItemCreate={false}
+                        />
+                    </Field>
+                )}
+            />
+        );
     }
 
     const renderFormElement = (element: Element, field: any) => {
@@ -184,6 +224,24 @@ export function FormGenerator(props: FormGeneratorProps) {
                     return;
                 }
 
+                if (element.value.name === "sequence") {
+                    return (
+                        <>
+                            {!onEdit && <CheckBox
+                                label="Automatically generate sequences"
+                                onChange={handleSequenceGeneration}
+                                checked={autoGenerate}
+                            />}
+                            {!autoGenerate && sequenceFieldComponent({ element: element.value})}
+                        </>);
+                }
+
+                if (element.value.name === "onError") {
+                    return (
+                        !autoGenerate && sequenceFieldComponent({ element: element.value})
+                    );
+                }
+                
                 if (element.value.enableCondition) {
                     return (
                         renderControllerIfConditionMet(element)
@@ -219,12 +277,14 @@ export function FormGenerator(props: FormGeneratorProps) {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                        {element.value.groupName === "Generic" ? renderForm(element.value.elements) :
                             <>
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced" || element.value.isCollapsed) ? true : false}
+                                    isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
+                                        true : false
+                                    }
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
@@ -248,8 +308,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                 watchStatements = true;
                 const conditions = element.value.enableCondition.slice(1);
                 const statements = conditions.forEach((condition: any) => {
-                    const conditionKey = Object.keys(condition)[0];
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     if (!(watch(conditionKey) === conditionValue && watchStatements)) {
                         watchStatements = false;
                     }
@@ -259,22 +320,22 @@ export function FormGenerator(props: FormGeneratorProps) {
                 watchStatements = false;
                 const conditions = element.value.enableCondition.slice(1);
                 const statements = conditions.forEach((condition: any) => {
-                    const conditionKey = Object.keys(condition)[0];
-                    const conditionValue = condition[conditionKey];
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
                     if (watch(conditionKey) === conditionValue || watchStatements) {
                         watchStatements = true;
                     }
                 });
             } else {
                 // Handle Single condition
-                const conditions = element.value.enableCondition;
-                watchStatements = conditions.every((condition: any) => {
-                    const conditionKey = Object.keys(condition)[0];
-                    const conditionValue = condition[conditionKey];
-                    return (
-                        watch(conditionKey) === conditionValue
-                    );
-                });
+                const condition = element.value.enableCondition[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) === conditionValue;
+                }
             }
         }
 

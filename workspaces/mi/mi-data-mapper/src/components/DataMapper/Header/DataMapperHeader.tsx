@@ -26,7 +26,6 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: (fileContent: string) => Promise<void>;
-    nodes: DataMapperNodeModel[];
     onDataMapButtonClick?: () => void;
     onDataMapClearClick?: () => void;
     isLoading: boolean;
@@ -34,7 +33,7 @@ export interface DataMapperHeaderProps {
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, nodes, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
 
     const { rpcClient } = useVisualizerContext();
 
@@ -73,9 +72,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 {!hasEditDisabled && !onClose && (
                     <>
                         <IOFilterBar>
-                            <HeaderSearchBox
-                                nodes={nodes}
-                            />
+                            <HeaderSearchBox />
                             <AIMapButton
                                 onClick={handleDataMapButtonClick}
                                 isLoading={isLoading}
