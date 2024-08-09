@@ -22,11 +22,10 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: (fileContent: string) => Promise<void>;
-    nodes: DataMapperNodeModel[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, nodes } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
 
     return (
         <HeaderContainer>
@@ -43,9 +42,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 {!hasEditDisabled && !onClose && (
                     <>
                         <IOFilterBar>
-                            <HeaderSearchBox
-                                nodes={nodes}
-                            />
+                            <HeaderSearchBox />
                         </IOFilterBar>
                     </>
                 )}

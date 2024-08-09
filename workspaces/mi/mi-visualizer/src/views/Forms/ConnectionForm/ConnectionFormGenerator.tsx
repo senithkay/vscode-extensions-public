@@ -71,7 +71,7 @@ interface ExpressionValueWithSetter {
     setValue: (value: ExpressionFieldValue) => void;
 };
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes, handlePopupClose } = props;
