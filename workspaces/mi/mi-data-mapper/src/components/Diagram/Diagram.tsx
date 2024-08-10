@@ -31,7 +31,7 @@ import { LinkConnectorNode } from './Node/LinkConnector';
 import { ArrayFnConnectorNode } from './Node/ArrayFnConnector';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
-import { useDiagramModel, useRepositionedNodes } from '../Hooks';
+import { useDiagramModel, useRepositionedNodes, useSearchScrollReset } from '../Hooks';
 import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
@@ -121,6 +121,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel, filtersCollapsedChanged);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
+	useSearchScrollReset(diagramModel);
 
 	engine.setModel(diagramModel);
 
