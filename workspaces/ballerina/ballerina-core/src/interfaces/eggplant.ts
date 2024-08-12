@@ -156,6 +156,7 @@ export type Scope = "module" | "local" | "object";
 
 export type NodeKind =
     | "EMPTY"
+    | "DRAFT"
     | "EVENT_HTTP_API"
     | "IF"
     | "ACTION_CALL"

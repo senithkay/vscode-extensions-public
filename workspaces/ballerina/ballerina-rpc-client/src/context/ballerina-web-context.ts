@@ -19,8 +19,8 @@ export interface VisualizerContext {
  * This will be used within all the other components
  */
 const defaultState: VisualizerContext = {
-    rpcClient:  null
+    rpcClient:  null,
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 
-export const useVisualizerContext = () => useContext(Context);
+export const useRpcContext = () => useContext(Context);

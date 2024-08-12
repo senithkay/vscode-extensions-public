@@ -9,13 +9,12 @@
 
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
-import { Transition } from "@headlessui/react";
-import { css } from "@emotion/css";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Button, Codicon, TextArea, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
+import { BodyText } from "../../styles";
 
 const Container = styled.div({
     display: "flex",
@@ -37,7 +36,6 @@ const PanelViewMore = styled.div({
     gap: 10,
 });
 
-
 const CardGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -45,31 +43,15 @@ const CardGrid = styled.div`
     width: 100%;
 `;
 
-const Text = styled.p`
-    font-size: 14px;
-    color: var(--vscode-sideBarTitle-foreground);
-`;
-
-const BodyText = styled(Text)`
-    color: var(--vscode-sideBarTitle-foreground);
-    margin: 0 0 8px;
-    opacity: 0.5;
-`;
-
 const Title = styled(Typography)`
     margin: 8px 0;
 `;
 
-
 // Add this styled component for the close button
 
-
-
 export function AddComponentView() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<any>(undefined);
-    const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
-    const [viewMore, setViewMore] = React.useState<boolean>(false);
 
     const handleClick = async (key: DIRECTORY_MAP) => {
         if (key === DIRECTORY_MAP.SERVICES) {
@@ -98,8 +80,6 @@ export function AddComponentView() {
                 console.log(response.workspaces[0]);
             });
     }, []);
-
-
 
     return (
         <View>
@@ -135,7 +115,7 @@ export function AddComponentView() {
                             show={viewMore}
                             {...transitionEffect}
                         > */}
-                        <PanelViewMore>
+                        {/* <PanelViewMore>
                             <Divider />
                             <Title variant="h2">Other Artifacts</Title>
                             <BodyText>
@@ -167,7 +147,7 @@ export function AddComponentView() {
                                     onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                                 />
                             </CardGrid>
-                        </PanelViewMore>
+                        </PanelViewMore> */}
                         {/* </Transition> */}
                         {/* <PanelFooter>
                             {!viewMore ? (
@@ -181,6 +161,19 @@ export function AddComponentView() {
                                 </LinkButton>
                             )}
                         </PanelFooter> */}
+                        <br />
+                        <Title variant="h2">Generate Entry Point with Copilot</Title>
+                        <BodyText>
+                            Describe your project entry point in detail and click 'Generate' to create it using AI.{" "}
+                        </BodyText>
+                        <TextArea
+                            placeholder="E.g. Create a webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
+                            rows={6}
+                            style={{ width: "100%" }}
+                        />
+                        <Button onClick={() => {}} appearance="primary" sx={{ marginTop: "4px" }}>
+                            Generate
+                        </Button>
                     </AddPanel>
                 </Container>
             </ViewContent>

@@ -9,7 +9,7 @@
 
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { STModification, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
@@ -22,7 +22,7 @@ interface DataMapperProps {
 
 export function DataMapper(props: DataMapperProps) {
     const { filePath, model, applyModifications } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();

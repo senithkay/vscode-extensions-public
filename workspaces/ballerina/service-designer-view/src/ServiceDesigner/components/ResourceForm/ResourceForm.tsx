@@ -20,7 +20,7 @@ import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { useServiceDesignerContext } from '../../Context';
 
@@ -57,7 +57,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const { setDiagnostics, setDPosition, serviceEndPosition } = useServiceDesignerContext();
 
-	const { rpcClient } = useVisualizerContext();
+	const { rpcClient } = useRpcContext();
 
 	useEffect(() => {
 		setDPosition(resourceConfig?.updatePosition || serviceEndPosition); // Setting the position of the resource into the context so that we can use it in filtering diagnostic msgs.

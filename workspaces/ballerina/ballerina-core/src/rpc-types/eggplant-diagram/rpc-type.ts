@@ -13,6 +13,8 @@ import {
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantFlowModelResponse,
+    EggplantConnectorsRequest,
+    EggplantConnectorsResponse,
     EggplantNodeTemplateRequest,
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
@@ -31,3 +33,4 @@ export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `$
 export const getProjectStructure: RequestType<void, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
 export const getProjectComponents: RequestType<void, ProjectComponentsResponse> = { method: `${_preFix}/getProjectComponents` };
 export const createComponent: RequestType<CreateComponentRequest, CreateComponentResponse> = { method: `${_preFix}/createComponent` };
+export const getEggplantConnectors: RequestType<EggplantConnectorsRequest, EggplantConnectorsResponse> = { method: `${_preFix}/getEggplantConnectors` };

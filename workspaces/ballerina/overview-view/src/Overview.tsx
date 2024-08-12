@@ -10,7 +10,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from 'react';
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client"
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client"
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
@@ -49,7 +49,7 @@ export function Overview(props: { visualizerLocation: VisualizerLocation }) {
     const [loading, setLoading] = useState(true);
     const [workspaceInfo, setWorkspaceInfo] = useState<WorkspacesFileResponse>();
     const [selectedFile, setSelectedFile] = useState<string>(SELECT_ALL_FILES);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const [isPanelOpen, setPanelOpen] = useState(false);
 

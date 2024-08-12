@@ -14,9 +14,20 @@ import {
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
 import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
-import { Category, AvailableNode, NodeProperties, NodePropertyKey, FlowNode } from "@wso2-enterprise/ballerina-core";
+import {
+    Category,
+    AvailableNode,
+    NodeProperties,
+    NodePropertyKey,
+    FlowNode,
+    Property,
+    Flow,
+    Branch,
+    LineRange,
+} from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "./../views/EggplantDiagram";
 import React from "react";
+import { cloneDeep } from "lodash";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     return {
@@ -46,12 +57,21 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
 }
 
 export function convertEggplantCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
-    return categories.map(convertDiagramCategoryToSidePanelCategory);
+    const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+    if (!panelCategories.find((category) => category.title === "Connections")) {
+        panelCategories.push({
+            title: "Connections",
+            description: "The connections used in the flow",
+            items: [],
+        });
+    }
+    return panelCategories;
 }
 
 export function convertNodePropertiesToFormFields(
     nodeProperties: NodeProperties,
-    connections: FlowNode[]
+    connections?: FlowNode[],
+    clientName?: string
 ): FormField[] {
     const formFields: FormField[] = [];
 
@@ -64,13 +84,10 @@ export function convertNodePropertiesToFormFields(
                     label: expression.metadata.label,
                     type: expression.valueType,
                     optional: expression.optional,
-                    editable: expression.editable,
+                    editable: isFieldEditable(expression, connections, clientName),
                     documentation: expression.metadata.description,
-                    value: expression.value,
-                    items:
-                        expression.valueType === "Identifier" && expression.metadata.label === "Connection"
-                            ? connections.map((connection) => connection.properties?.variable?.value)
-                            : undefined,
+                    value: getFormFieldValue(expression, connections, clientName),
+                    // items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
                 };
                 formFields.push(formField);
             }
@@ -78,6 +95,39 @@ export function convertNodePropertiesToFormFields(
     }
 
     return formFields;
+}
+
+function isFieldEditable(expression: Property, connections?: FlowNode[], clientName?: string) {
+    if (
+        connections &&
+        clientName &&
+        expression.valueType === "Identifier" &&
+        expression.metadata.label === "Connection"
+    ) {
+        return false;
+    }
+    return expression.editable;
+}
+
+function getFormFieldValue(expression: Property, connections?: FlowNode[], clientName?: string) {
+    if (
+        connections &&
+        clientName &&
+        expression.valueType === "Identifier" &&
+        expression.metadata.label === "Connection" &&
+        connections.find((connection) => connection.properties?.variable?.value === clientName)
+    ) {
+        console.log(">>> client name as set field value", clientName);
+        return clientName;
+    }
+    return expression.value;
+}
+
+function getFormFieldItems(expression: Property, connections: FlowNode[]) {
+    if (expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
+        return connections.map((connection) => connection.properties?.variable?.value);
+    }
+    return undefined;
 }
 
 export function getFormProperties(flowNode: FlowNode): NodeProperties {
@@ -119,4 +169,33 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): st
         default:
             return "";
     }
+}
+
+export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch, target: LineRange) {
+    const newFlowModel = cloneDeep(flowModel);
+    console.log(">>> addDraftNodeToDiagram", newFlowModel, parent, target);
+
+    const draftNode: FlowNode = {
+        id: "draft",
+        metadata: {
+            label: "Draft",
+            description: "Draft Node",
+        },
+        codedata: {
+            node: "DRAFT",
+            lineRange: {
+                fileName: flowModel.fileName,
+                ...target,
+            },
+        },
+        branches: [],
+        returning: false,
+    };
+
+    // Hack: Adding draft node to the first branch of the first node
+    // TODO: Handle multiple branches and multiple places
+    if (newFlowModel.nodes.at(1).branches.at(0).children) {
+        newFlowModel.nodes.at(1).branches.at(0).children.push(draftNode);
+    }
+    return newFlowModel;
 }

@@ -9,14 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    BallerinaProjectComponents,
-    ComponentInfo,
     CreateComponentRequest,
     CreateComponentResponse,
     CreateProjectRequest,
     DIRECTORY_MAP,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
+    EggplantConnectorsRequest,
+    EggplantConnectorsResponse,
     EggplantDiagramAPI,
     EggplantFlowModelRequest,
     EggplantFlowModelResponse,
@@ -25,7 +25,6 @@ import {
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
     ProjectComponentsResponse,
-    ProjectStructureArtifactResponse,
     ProjectStructureResponse,
     STModification,
     SyntaxTree,
@@ -221,6 +220,23 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 documentIdentifiers: [{ uri: Uri.file(StateMachine.context().projectUri).toString() }]
             });
             resolve({ components });
+        });
+    }
+
+    async getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getEggplantConnectors(params)
+                .then((model) => {
+                    console.log(">>> eggplant connectors from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching connectors from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
         });
     }
 }

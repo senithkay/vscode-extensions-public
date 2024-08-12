@@ -9,11 +9,11 @@
 
 import React, { useEffect } from "react";
 import { PersistERModel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PersistDiagram } from "@wso2-enterprise/persist-layer-diagram";
 
 export function ERDiagram() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const persistDiagramRPCClient = rpcClient.getPersistDiagramRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
 

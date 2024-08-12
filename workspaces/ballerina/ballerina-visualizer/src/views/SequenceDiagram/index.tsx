@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     LowCodeDiagram,
     initVisitor,
@@ -39,7 +39,7 @@ const MessageContainer = styled.div({
 });
 
 export function SequenceDiagram() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const [st, setSt] = useState<STNode>();
     const [showPanel, setShowPanel] = useState<boolean>(false);

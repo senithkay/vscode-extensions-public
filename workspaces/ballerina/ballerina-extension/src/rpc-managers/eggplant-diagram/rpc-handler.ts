@@ -12,11 +12,13 @@ import {
     CreateComponentRequest,
     CreateProjectRequest,
     EggplantAvailableNodesRequest,
+    EggplantConnectorsRequest,
     EggplantNodeTemplateRequest,
     EggplantSourceCodeRequest,
     createComponent,
     createProject,
     getAvailableNodes,
+    getEggplantConnectors,
     getFlowModel,
     getNodeTemplate,
     getProjectComponents,
@@ -38,4 +40,5 @@ export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
+    messenger.onRequest(getEggplantConnectors, (args: EggplantConnectorsRequest) => rpcManger.getEggplantConnectors(args));
 }

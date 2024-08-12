@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
@@ -61,7 +61,7 @@ export interface HttpFormProps {
 }
 
 export function ServiceType(props: HttpFormProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const handleClick = async (view: SERVICE_VIEW) => {
         props.handleView(view);
