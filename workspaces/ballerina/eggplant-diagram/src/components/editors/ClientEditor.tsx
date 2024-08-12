@@ -13,25 +13,25 @@ import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { EditorProps } from "./EditorFactory";
 
 export function ClientEditor(props: EditorProps) {
-    const { expression, onChange, parentId, index } = props;
+    const { property, onChange, parentId, index } = props;
     const { flow } = useContext(DiagramContext);
 
-    const globalClients = flow.clients.filter((client) => client.scope === "GLOBAL");
-    const dropdownItems = globalClients.map((client) => {
+    const globalClients = flow.connections;
+    const dropdownItems = globalClients.map((connection) => {
         return {
-            id: client.id,
-            content: client.value,
-            value: client.value,
+            id: connection.id,
+            content: connection.metadata.label,
+            value: connection.metadata.label,
         };
     });
 
     const handleOnChange = (value: string) => {
-        onChange({ ...expression, value });
+        onChange({ ...property, value });
     };
 
     return ( <Dropdown
                 id={parentId + index}
-                value={expression.value ? expression.value.toString() : ""}
+                value={property.value ? property.value.toString() : ""}
                 items={dropdownItems}
                 sx={{ width: 165.5, marginBottom: 2 }}
                 onValueChange={handleOnChange}

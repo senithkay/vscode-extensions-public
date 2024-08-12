@@ -104,7 +104,7 @@ export function ConstructorPanel(props: ConstructorPanelProps) {
     return (
         <SidePanel
             isOpen={props.isPanelOpen}
-            alignmanet="right"
+            alignment="right"
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>

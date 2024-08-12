@@ -1,0 +1,122 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import {
+    Category as PanelCategory,
+    Node as PanelNode,
+    Item as PanelItem,
+    FormField,
+    FormValues,
+} from "@wso2-enterprise/ballerina-side-panel";
+import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
+import { Category, AvailableNode, NodeProperties, NodePropertyKey, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { SidePanelView } from "./../views/EggplantDiagram";
+import React from "react";
+
+function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
+    return {
+        id: node.codedata.node,
+        label: node.metadata.label,
+        description: node.metadata.description,
+        enabled: node.enabled,
+        metadata: node,
+        icon: <NodeIcon type={node.codedata.node} />,
+    };
+}
+
+function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCategory {
+    const items: PanelItem[] = category.items?.map((item) => {
+        if ("codedata" in item) {
+            return convertAvailableNodeToPanelNode(item as AvailableNode);
+        } else {
+            return convertDiagramCategoryToSidePanelCategory(item as Category);
+        }
+    });
+
+    return {
+        title: category.metadata.label,
+        description: category.metadata.description,
+        items: items,
+    };
+}
+
+export function convertEggplantCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
+    return categories.map(convertDiagramCategoryToSidePanelCategory);
+}
+
+export function convertNodePropertiesToFormFields(
+    nodeProperties: NodeProperties,
+    connections: FlowNode[]
+): FormField[] {
+    const formFields: FormField[] = [];
+
+    for (const key in nodeProperties) {
+        if (nodeProperties.hasOwnProperty(key)) {
+            const expression = nodeProperties[key as NodePropertyKey];
+            if (expression) {
+                const formField: FormField = {
+                    key,
+                    label: expression.metadata.label,
+                    type: expression.valueType,
+                    optional: expression.optional,
+                    editable: expression.editable,
+                    documentation: expression.metadata.description,
+                    value: expression.value,
+                    items:
+                        expression.valueType === "Identifier" && expression.metadata.label === "Connection"
+                            ? connections.map((connection) => connection.properties?.variable?.value)
+                            : undefined,
+                };
+                formFields.push(formField);
+            }
+        }
+    }
+
+    return formFields;
+}
+
+export function getFormProperties(flowNode: FlowNode): NodeProperties {
+    if (flowNode.properties) {
+        return flowNode.properties;
+    }
+
+    if (flowNode.branches?.at(0)?.properties) {
+        // TODO: Handle multiple branches
+        return flowNode.branches.at(0).properties;
+    }
+
+    return {};
+}
+
+export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
+    const updatedNodeProperties: NodeProperties = { ...nodeProperties };
+
+    for (const key in values) {
+        if (values.hasOwnProperty(key) && updatedNodeProperties.hasOwnProperty(key)) {
+            const expression = updatedNodeProperties[key as NodePropertyKey];
+            if (expression) {
+                expression.value = values[key];
+            }
+        }
+    }
+
+    return updatedNodeProperties;
+}
+
+export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): string {
+    switch (view) {
+        case SidePanelView.NODE_LIST:
+            return ""; // Show switch instead of title
+        case SidePanelView.FORM:
+            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
+                activeNode.metadata.label
+            } Node Properties`;
+        default:
+            return "";
+    }
+}

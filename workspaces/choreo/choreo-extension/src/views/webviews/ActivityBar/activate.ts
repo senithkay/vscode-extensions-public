@@ -11,13 +11,13 @@ import { ProjectView } from './ProjectView';
 import { AccountView } from './AccountView';
 
 export function activateActivityBarWebViews(context: vscode.ExtensionContext) {
-    const projectViewProvider = new ProjectView(context.extensionUri);
+	const projectViewProvider = new ProjectView(context.extensionUri);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ProjectView.viewType, projectViewProvider));
 
-    const accountViewProvider = new AccountView(context.extensionUri);
+	const accountViewProvider = new AccountView(context.extensionUri);
 
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(AccountView.viewType, accountViewProvider));
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(AccountView.viewType, accountViewProvider));
 }

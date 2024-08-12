@@ -30,11 +30,12 @@ import {
     STModification,
     SyntaxTree,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
-import { StateMachine } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
@@ -139,6 +140,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 });
 
                 //TODO: notify to diagram
+                updateView();
             }
         }
     }
@@ -178,7 +180,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async createProject(params: CreateProjectRequest): Promise<void> {
-        createEggplantProjectPure(params.projectName);
+        createEggplantProjectPure(params.projectName, params.projectPath);
     }
 
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -208,45 +210,10 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getProjectStructure(): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
             const projectPath = StateMachine.context().projectUri;
-            const res: ProjectStructureResponse = await this.buildProjectStructure(projectPath);
+            const res: ProjectStructureResponse = await buildProjectStructure(projectPath, StateMachine.context().langClient);
             resolve(res);
         });
     }
-
-    private async buildProjectStructure(dir: string): Promise<ProjectStructureResponse> {
-        const result: ProjectStructureResponse = {
-            directoryMap: {
-                [DIRECTORY_MAP.SERVICES]: [],
-                [DIRECTORY_MAP.TASKS]: [],
-                [DIRECTORY_MAP.TRIGGERS]: [],
-                [DIRECTORY_MAP.CONNECTIONS]: [],
-                [DIRECTORY_MAP.SCHEMAS]: [],
-                [DIRECTORY_MAP.CONFIGURATIONS]: []
-            }
-        };
-        const components = await StateMachine.langClient().getBallerinaProjectComponents({
-            documentIdentifiers: [{ uri: Uri.file(dir).toString() }]
-        });
-        this.traverseComponents(components, result);
-        return result;
-    }
-
-    // private traverseDirectory(dir: string, result: ProjectStructureResponse, folder: DIRECTORY_MAP) {
-    //     const items = readdirSync(dir);
-    //     for (const item of items) {
-    //         const fullPath = join(dir, item);
-    //         const stats = statSync(fullPath);
-    //         if (stats.isFile()) {
-    //             const artifact: ProjectStructureArtifactResponse = {
-    //                 name: item.replace(".bal", ""),
-    //                 path: fullPath,
-    //                 context: "HTTP Service",
-    //                 type: 'file'
-    //             };
-    //             result.directoryMap[folder].push(artifact);
-    //         }
-    //     }
-    // }
 
     async getProjectComponents(): Promise<ProjectComponentsResponse> {
         return new Promise(async (resolve) => {
@@ -255,35 +222,5 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             });
             resolve({ components });
         });
-    }
-
-    private traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse) {
-        for (const pkg of components.packages) {
-            for (const module of pkg.modules) {
-                response.directoryMap[DIRECTORY_MAP.SERVICES].push(...this.getComponents(module.services, pkg.filePath));
-                response.directoryMap[DIRECTORY_MAP.TASKS].push(...this.getComponents(module.functions, pkg.filePath));
-            }
-        }
-    }
-
-    private getComponents(components: ComponentInfo[], projectPath: string): ProjectStructureArtifactResponse[] {
-        const entries: ProjectStructureArtifactResponse[] = [];
-        for (const comp of components) {
-            const componentFile = Uri.joinPath(Uri.parse(projectPath), comp.filePath).fsPath;
-            const fileEntry: ProjectStructureArtifactResponse = {
-                name: comp.name,
-                path: componentFile,
-                type: '',
-                context: comp.name,
-                position: {
-                    endColumn: comp.endColumn,
-                    endLine: comp.endLine,
-                    startColumn: comp.startColumn,
-                    startLine: comp.startLine
-                }
-            };
-            entries.push(fileEntry);
-        }
-        return entries;
     }
 }

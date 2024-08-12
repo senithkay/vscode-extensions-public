@@ -12,10 +12,8 @@ import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_V
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
-
 import { NavigationBar } from "./components/NavigationBar"
 import { LoadingRing } from "./components/Loader";
-
 import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';
 import { GraphQLDiagram } from './views/GraphQLDiagram';
@@ -42,7 +40,7 @@ const VisualizerContainer = styled.div`
 `;
 
 const ComponentViewWrapper = styled.div`
-    height: calc(100% - 24px);
+    height: calc(100vh - 24px);
 `;
 
 const MainPanel = () => {
@@ -93,11 +91,12 @@ const MainPanel = () => {
                             <ServiceDesigner
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
+                                isEggplant={value.isEggplant}
                             />
                         );
                         break;
                     case MACHINE_VIEW.EggplantDiagram:
-                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree}/>);
+                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree} />);
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);

@@ -10,11 +10,9 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import path = require('path');
-import * as fs from 'fs';
 import { VIEWS } from '../constants';
-import { BallerinaProjectComponents, ComponentInfo, SHARED_COMMANDS } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../eggplantExtentionContext";
-import { NodePosition } from '../../../../ballerina/syntax-tree/lib';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
     children: ProjectExplorerEntry[] | undefined;
@@ -24,12 +22,21 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         info: string | undefined = undefined,
-        icon: string = 'folder'
+        icon: string = 'folder',
+        isCodicon: boolean = false
     ) {
         super(label, collapsibleState);
         this.tooltip = `${this.label}`;
         this.info = info;
-        this.iconPath = new vscode.ThemeIcon(icon);
+        if (icon && isCodicon) {
+            this.iconPath = new vscode.ThemeIcon(icon);
+        } else if (icon) {
+            this.iconPath = {
+                light: path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`),
+                dark: path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)
+            };
+            console.log(this.iconPath, "this.iconPath");
+        }
     }
 }
 
@@ -45,7 +52,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
             location: { viewId: VIEWS.PROJECT_EXPLORER },
             title: 'Loading project structure'
         }, async () => {
-        await getProjectStructureData()
+            await getProjectStructureData()
                 .then(data => {
                     this._data = data;
                 })
@@ -114,9 +121,7 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
             const workspaceFolders = vscode.workspace.workspaceFolders;
             for (const workspace of workspaceFolders) {
                 const rootPath = workspace.uri.fsPath;
-                const resp = await extension.langClient.getBallerinaProjectComponents({
-                    documentIdentifiers: [{ uri: vscode.Uri.file(rootPath).toString() }]
-                }) as BallerinaProjectComponents;
+                const resp = await buildProjectStructure(rootPath, extension.langClient);
                 const projectTree = generateTreeData(workspace, resp);
                 if (projectTree) {
                     data.push(projectTree);
@@ -129,13 +134,14 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
 
 }
 
-function generateTreeData(project: vscode.WorkspaceFolder, components: BallerinaProjectComponents): ProjectExplorerEntry | undefined {
+function generateTreeData(project: vscode.WorkspaceFolder, components: ProjectStructureResponse): ProjectExplorerEntry | undefined {
     const projectRootPath = project.uri.fsPath;
     const projectRootEntry = new ProjectExplorerEntry(
         `Project ${project.name}`,
         vscode.TreeItemCollapsibleState.Expanded,
         projectRootPath,
-        'project'
+        'project',
+        true
     );
 
     projectRootEntry.contextValue = 'eggplant-project';
@@ -152,94 +158,80 @@ function generateTreeData(project: vscode.WorkspaceFolder, components: Ballerina
     return projectRootEntry;
 }
 
-function getEntries(directoryPath: string): ProjectExplorerEntry[] {
+function getEntriesEggplant(components: ProjectStructureResponse): ProjectExplorerEntry[] {
     const entries: ProjectExplorerEntry[] = [];
-    const items = fs.readdirSync(directoryPath);
 
-    for (const item of items) {
-        const itemPath = path.join(directoryPath, item);
-        const stat = fs.statSync(itemPath);
+    // Entry Points
+    const entryPoints = new ProjectExplorerEntry(
+        "Entry Points",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'folder',
+        true
+    );
+    entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES]);
+    entries.push(entryPoints);
 
-        if (stat.isDirectory()) {
-            const folderChildren = getEntries(itemPath);
-            if (folderChildren.length > 0) {
-                const folderEntry = new ProjectExplorerEntry(
-                    item,
-                    vscode.TreeItemCollapsibleState.Collapsed,
-                    itemPath,
-                    'folder'
-                );
-                folderEntry.children = folderChildren;
-                entries.push(folderEntry);
-            }
-        } else if (stat.isFile() && item.endsWith('.bal')) {
-            const fileEntry = new ProjectExplorerEntry(
-                item.replace('.bal', ''),
-                vscode.TreeItemCollapsibleState.None,
-                itemPath,
-                'file'
-            );
-            fileEntry.command = {
-                "title": "Visualize",
-                "command": SHARED_COMMANDS.SHOW_VISUALIZER,
-                "arguments": [vscode.Uri.parse(itemPath), false]
-            };
-            entries.push(fileEntry);
-        }
-    }
+    // Connections
+    const connections = new ProjectExplorerEntry(
+        "Connections",
+        vscode.TreeItemCollapsibleState.Collapsed,
+        null,
+        'folder',
+        true
+    );
+    connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS]);
+    entries.push(connections);
+
+    // Connections
+    const schemas = new ProjectExplorerEntry(
+        "Schemas",
+        vscode.TreeItemCollapsibleState.Collapsed,
+        null,
+        'folder',
+        true
+    );
+    schemas.children = getComponents(components.directoryMap[DIRECTORY_MAP.SCHEMAS]);
+    entries.push(schemas);
+
+    // Functions
+    const functions = new ProjectExplorerEntry(
+        "Functions",
+        vscode.TreeItemCollapsibleState.Collapsed,
+        null,
+        'folder',
+        true
+    );
+    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.TASKS]);
+    entries.push(functions);
+
+    // Configurations
+    const configs = new ProjectExplorerEntry(
+        "Configurations",
+        vscode.TreeItemCollapsibleState.Collapsed,
+        null,
+        'folder',
+        true
+    );
+    configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS]);
+    entries.push(configs);
 
     return entries;
 }
 
-function getEntriesEggplant(components: BallerinaProjectComponents): ProjectExplorerEntry[] {
+function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplorerEntry[] {
     const entries: ProjectExplorerEntry[] = [];
-    for (const pkg of components.packages) {
-        for (const module of pkg.modules) {
-            const serviceChildren = getComponents(module.services, pkg.filePath);
-            const serviceEntry = new ProjectExplorerEntry(
-                "Services",
-                vscode.TreeItemCollapsibleState.Collapsed,
-                pkg.filePath,
-                'folder'
-            );
-            serviceEntry.children = serviceChildren;
-            entries.push(serviceEntry);
-
-            const folderChildren = getComponents(module.functions, pkg.filePath);
-            const folderEntry = new ProjectExplorerEntry(
-                "Task",
-                vscode.TreeItemCollapsibleState.Collapsed,
-                pkg.filePath,
-                'folder'
-            );
-            folderEntry.children = folderChildren;
-            entries.push(folderEntry);
-        }
-    }
-
-    return entries;
-}
-
-function getComponents(components: ComponentInfo[], projectPath: string): ProjectExplorerEntry[] {
-    const entries: ProjectExplorerEntry[] = [];
-    for (const comp of components) {
-        const componentFile = vscode.Uri.joinPath(vscode.Uri.parse(projectPath), comp.filePath).fsPath;
+    for (const comp of items) {
         const fileEntry = new ProjectExplorerEntry(
             comp.name,
             vscode.TreeItemCollapsibleState.None,
-            componentFile,
-            'file'
+            comp.path,
+            comp.icon
         );
-        const position: NodePosition = {
-            endColumn: comp.endColumn,
-            endLine: comp.endLine,
-            startColumn: comp.startColumn,
-            startLine: comp.startLine
-        };
         fileEntry.command = {
             "title": "Visualize",
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
-            "arguments": [vscode.Uri.parse(componentFile), position]
+            "arguments": [vscode.Uri.parse(comp.path), comp.position]
         };
         entries.push(fileEntry);
     }

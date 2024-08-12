@@ -77,13 +77,14 @@ jobs:
           always-auth: true
           node-version: 16.x
           registry-url: "https://npm.pkg.github.com"
-
-      - uses: pnpm/action-setup@v2
+  
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
         with:
-          version: 7.26.3
-          
-      - run: |
-          node common/scripts/install-run-rush.js install
+          pnpm: 7.26.3
+          cache-rush: false
+          cache-pnpm: false
+          set-env: false
 
       - name: Get version
         id: version
@@ -119,6 +120,7 @@ jobs:
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ref_name: ${{ github.ref_name }}
           commonLibs: true
           choreo: true
           ballerina: true

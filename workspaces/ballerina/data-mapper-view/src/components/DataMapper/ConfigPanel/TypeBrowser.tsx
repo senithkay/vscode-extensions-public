@@ -27,6 +27,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
     return (
         <>
             <AutoComplete
+                identifier="type-select-dropdown"
                 key={`type-select-${isLoading.toString()}`}
                 data-testid='type-select-dropdown'
                 items={recordCompletions.map(

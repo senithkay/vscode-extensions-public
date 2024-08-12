@@ -34,6 +34,10 @@ interface ServiceDesignerProps {
     onResourceImplement?: (resource: Resource) => void;
     // Callback to send the resource back upon clicking on it
     onResourceClick?: (resource: Resource) => void;
+    // Disable service header
+    disableServiceHeader?: boolean;
+    customTitle?: string;
+    customEmptyResourceMessage?: string;
 }
 
 const defaultService: Service = {
@@ -61,13 +65,14 @@ const ResourceListHeader = styled.div`
     align-items: center;
 `;
 
-const emptyView = (
-    <Typography variant="h3" sx={{ textAlign: "center"}}>
-        No resources found. Add a new resource.
-    </Typography>
-);
-
 export function ServiceDesigner(props: ServiceDesignerProps) {
+
+    const emptyView = (
+        <Typography variant="h3" sx={{ textAlign: "center"}}>
+            { props.customEmptyResourceMessage ?? "No resources found. Add a new resource." }
+        </Typography>
+    );
+
     const {
         model = defaultService,
         goToSource, onResourceAdd,
@@ -75,7 +80,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         onResourceDelete,
         onServiceEdit,
         onResourceImplement,
-        onResourceClick
+        onResourceClick,
+        disableServiceHeader = false
     } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
@@ -108,17 +114,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     return (
         <div data-testid="service-design-view">
-            <ServiceHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
-                {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
-                {onServiceEdit && (
-                    <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
-                        <Codicon name="settings-gear" />
-                    </VSCodeButton>
-                )}
-            </ServiceHeader>
+            {!disableServiceHeader && (
+                <ServiceHeader>
+                    <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
+                    {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
+                    {onServiceEdit && (
+                        <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
+                            <Codicon name="settings-gear" />
+                        </VSCodeButton>
+                    )}
+                </ServiceHeader>
+            )}
             <ResourceListHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{props.customTitle ?? "Available resources"}</Typography>
                 {onResourceAdd && (
                     <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
                         <Codicon name="add" sx={{ marginRight: 5 }} /> Resource

@@ -9,12 +9,16 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    DIRECTORY_MAP,
+    ProjectStructureResponse,
     RecordSTRequest,
     RecordSTResponse,
     visitor as RecordsFinderVisitor,
     ServiceDesignerAPI,
-    SyntaxTreeResponse} from "@wso2-enterprise/ballerina-core";
-import { traversNode } from "@wso2-enterprise/syntax-tree";
+    SyntaxTreeResponse,
+    buildProjectStructure
+} from "@wso2-enterprise/ballerina-core";
+import { TypeDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";
 
@@ -23,17 +27,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            const fileUri = Uri.file(context.documentUri!).toString();
-            const stResponse = await StateMachine.langClient().getSyntaxTree({ documentIdentifier: { uri: fileUri } }) as SyntaxTreeResponse;
-            traversNode(stResponse.syntaxTree, RecordsFinderVisitor);
-            const records = RecordsFinderVisitor.getRecords();
-            const recordST = records.get(params.recordName);
-            if (recordST !== undefined) {
-                resolve({ recordST });
-            } else {
-                // Handle the case where recordST is undefined, perhaps throw an error or return a default value
-                throw new Error(`Record with name ${params.recordName} not found.`);
-            }
+            const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
+            res.directoryMap[DIRECTORY_MAP.SCHEMAS].forEach(schema => {
+                if (schema.name === params.recordName) {
+                    resolve({ recordST: schema.st as TypeDefinition });
+                }
+            });
         });
     }
 }

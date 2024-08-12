@@ -14,6 +14,7 @@ import * as Handlebars from 'handlebars';
 import { Annotation, NodePosition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
 import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig, Service, ServiceData } from '@wso2-enterprise/service-designer';
+import { Item } from '@wso2-enterprise/ui-toolkit';
 
 export interface ResourceDefinition {
     METHOD: string;
@@ -223,7 +224,7 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
     return serviceData;
 }
 
-export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any): Promise<Resource> {
+export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any, isEggplant?: boolean): Promise<Resource> {
     const pathConfig = getResourcePath(resource);
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);
@@ -246,7 +247,8 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         responses: response,
         updatePosition: position,
         position: resource.position,
-        errors: errors
+        errors: errors,
+        expandable: isEggplant ? false : true
     };
 }
 
@@ -261,12 +263,25 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
     };
 }
 
-export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any): Promise<Service> {
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isEggplant?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
     const serviceData: ServiceData = await getServiceData(serviceDecl);
     const resources: Resource[] = [];
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
-            resources.push(await getResource(member, rpcClient));
+            const resource = await getResource(member, rpcClient, isEggplant);
+            const editAction: Item = {
+                id: "edit",
+                label: "Edit",
+                onClick: () => handleResourceEdit(resource),
+            };
+            const deleteAction: Item = {
+                id: "delete",
+                label: "Delete",
+                onClick: () => handleResourceDelete(resource),
+            };
+            const moreActions: Item[] = [editAction, deleteAction];
+            resource.additionalActions = moreActions;
+            resources.push(resource);
         }
     }
     return {

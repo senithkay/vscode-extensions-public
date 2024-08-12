@@ -14,8 +14,9 @@ import { BaseNodeModel } from "./BaseNodeModel";
 import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CodeIcon, MoreVertIcon } from "../../../resources";
-import { Node } from "../../../utils/types";
+import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
+import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -111,7 +112,7 @@ export namespace NodeStyles {
 interface BaseNodeWidgetProps {
     model: BaseNodeModel;
     engine: DiagramEngine;
-    onClick?: (node: Node) => void;
+    onClick?: (node: FlowNode) => void;
 }
 
 export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
@@ -119,9 +120,11 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onNodeSelect } = useDiagramContext();
 
     const handleOnClick = () => {
         onClick && onClick(model.node);
+        onNodeSelect(model.node);
     };
 
     return (
@@ -130,16 +133,17 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Icon>
-                    <NodeIcon type={model.node.kind} />
+                    <NodeIcon type={model.node.codedata.node} />
                 </NodeStyles.Icon>
                 <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
+                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        {model.node.description || "Lorem ipsum dolor sit amet"}
+                        {model.node.metadata.description || "Lorem ipsum dolor sit amet"}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>

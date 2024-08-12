@@ -8,7 +8,7 @@
  */
 
 import { NODE_GAP_X, NODE_GAP_Y, VSCODE_MARGIN } from "../resources/constants";
-import { Branch, Node } from "../utils/types";
+import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class PositionVisitor implements BaseVisitor {
@@ -20,7 +20,7 @@ export class PositionVisitor implements BaseVisitor {
         console.log(">>> position visitor started");
     }
 
-    beginVisitEventHttpApi(node: Node, parent?: Node): void {
+    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
@@ -28,7 +28,7 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.x = this.diagramCenterX - node.viewState.w / 2;
     }
 
-    beginVisitIf(node: Node, parent?: Node): void {
+    beginVisitIf(node: FlowNode, parent?: FlowNode): void {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
@@ -45,20 +45,31 @@ export class PositionVisitor implements BaseVisitor {
         const thenWidth = thenBranch.viewState.cw;
         const elseWidth = elseBranch.viewState.cw;
         const gap = NODE_GAP_X;
-
         thenBranch.viewState.x = centerX - (3 * thenWidth + elseWidth + 2 * gap) / 4;
         elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
+
+        // HACK
+        if(thenBranch.children.length === 1 && thenBranch.children.at(0).codedata.node === "EMPTY"){
+            thenBranch.viewState.x -= VSCODE_MARGIN;
+        }
     }
 
-    endVisitIf(node: Node, parent?: Node): void {
+    endVisitIf(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
-    beginVisitBlock(node: Branch, parent?: Node): void {
+    // beginVisitBlock(node: Branch, parent?: FlowNode): void {
+    //     this.lastNodeY = node.viewState.y;
+    // }
+    beginVisitConditional(node: Branch, parent?: FlowNode): void {
+        this.lastNodeY = node.viewState.y;
+    }
+    
+    beginVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y;
     }
 
-    beginVisitNode(node: Node, parent?: Node): void {
+    beginVisitNode(node: FlowNode, parent?: FlowNode): void {
         if (!node.viewState.y) {
             node.viewState.y = this.lastNodeY;
         }
@@ -67,11 +78,10 @@ export class PositionVisitor implements BaseVisitor {
         if (!node.viewState.x) {
             const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
             node.viewState.x = centerX - node.viewState.w / 2;
-
         }
     }
 
-    beginVisitEmpty(node: Node, parent?: Node): void {
+    beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         // add empty node end of the block
         if (node.id.endsWith("-last")) {
             node.viewState.y = this.lastNodeY;
@@ -89,7 +99,7 @@ export class PositionVisitor implements BaseVisitor {
         return this.skipChildrenVisit;
     }
 
-    getNodePosition(node: Node, parent: Node) {
+    getNodePosition(node: FlowNode, parent: FlowNode) {
         return { x: node.viewState.x, y: node.viewState.y };
     }
 }

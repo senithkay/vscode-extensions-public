@@ -61,19 +61,16 @@ export function createEggplantProject(name: string, isService: boolean) {
         });
 }
 
-export function createEggplantProjectPure(name: string) {
-    window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Project Location' })
-        .then(uri => {
-            if (uri && uri[0]) {
-                const projectLocation = uri[0].fsPath;
+export function createEggplantProjectPure(name: string, projectPath: string) {
+    const projectLocation = projectPath;
 
-                const projectRoot = path.join(projectLocation, name);
-                // Create project root directory
-                if (!fs.existsSync(projectRoot)) {
-                    fs.mkdirSync(projectRoot);
-                }
+    const projectRoot = path.join(projectLocation, name);
+    // Create project root directory
+    if (!fs.existsSync(projectRoot)) {
+        fs.mkdirSync(projectRoot);
+    }
 
-                const ballerinaTomlContent = `
+    const ballerinaTomlContent = `
 [package]
 org = "wso2"
 name = "${name}"
@@ -82,33 +79,27 @@ version = "0.1.0"
 eggplant = true  
 `;
 
-                // Create Ballerina.toml file
-                const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
-                fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
-
-                console.log(`Eggplant project created successfully at ${projectRoot}`);
-                // Create services directory
-                const servicesDir = path.join(projectRoot, DIRECTORY_MAP.SERVICES);
-                if (!fs.existsSync(servicesDir)) {
-                    fs.mkdirSync(servicesDir);
-                }
-
-                commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
-            }
-        });
+    // Create Ballerina.toml file
+    const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
+    fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
+    console.log(`Eggplant project created successfully at ${projectRoot}`);
+    commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
 }
 
 
 export async function createEggplantService(params: CreateComponentRequest) {
-    const fooBalContent = `
-import ballerina/http;
+    const fooBalContent = `import ballerina/http;
 
 service ${params.path} on new http:Listener(${params.port}) {
-    resource function get greeting(string name) returns string|error? {
-        
+    resource function get greeting() returns json|http:InternalServerError {
+        do {
+           
+        } on fail error e {
+            return http:INTERNAL_SERVER_ERROR;
+        }
     }
 }
-    `;
+`;
     const servicesDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const fooBalPath = path.join(servicesDir, `${params.name}.bal`);
@@ -117,7 +108,7 @@ service ${params.path} on new http:Listener(${params.port}) {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
     history.clear();
-    updateView();
+    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 10, endColumn: 1 } });
     commands.executeCommand("Eggplant.project-explorer.refresh");
 }
 

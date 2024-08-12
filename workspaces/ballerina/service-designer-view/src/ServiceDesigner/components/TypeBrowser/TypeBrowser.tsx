@@ -71,7 +71,7 @@ const DropdownIcon = cx(css`
 const SearchableInput = cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: 24px;
+    height: 28px;
     width: 80%;
     padding-left: 8px;
     border-left: 1px solid var(--vscode-dropdown-border);

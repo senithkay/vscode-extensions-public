@@ -19,18 +19,41 @@ import {
 } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { Diagram } from "@wso2-enterprise/eggplant-diagram";
-import { EggplantAvailableNodesRequest, Flow, Node, Category, AvailableNode } from "@wso2-enterprise/ballerina-core";
+import {
+    EggplantAvailableNodesRequest,
+    Flow,
+    FlowNode,
+    Branch,
+    Category,
+    AvailableNode,
+    LineRange,
+} from "@wso2-enterprise/ballerina-core";
 import {
     convertEggplantCategoriesToSidePanelCategories,
     convertNodePropertiesToFormFields,
     getContainerTitle,
+    getFormProperties,
     updateNodeProperties,
 } from "./../../utils/eggplant";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { getColorByMethod } from "../../utils/utils";
 
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
+`;
+
+interface ColoredTagProps {
+    color: string;
+}
+
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+    ::part(control) {
+        color: var(--button-primary-foreground);
+        background-color: ${({ color }: ColoredTagProps) => color};
+    }
 `;
 
 export enum SidePanelView {
@@ -50,8 +73,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
-    const selectedNodeRef = useRef<Node>();
-    const topNodeRef = useRef<Node>();
+    const selectedNodeRef = useRef<FlowNode>();
+    const topNodeRef = useRef<FlowNode | Branch>();
+    const targetRef = useRef<LineRange>();
 
     useEffect(() => {
         getSequenceModel();
@@ -72,20 +96,24 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         setFields([]);
         selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
+        targetRef.current = undefined;
     };
 
-    const handleOnAddNode = (parent: Node) => {
-        console.log(">>> opening panel...");
+    const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
+        console.log(">>> opening panel...", { parent, target });
         setShowSidePanel(true);
         setSidePanelView(SidePanelView.NODE_LIST);
         topNodeRef.current = parent;
+        targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
             parentNodeLineRange: {
-                startLine: parent.lineRange.startLine,
-                endLine: parent.lineRange.endLine,
+                startLine: parent.codedata.lineRange.startLine,
+                endLine: parent.codedata.lineRange.endLine,
             },
-            parentNodeKind: parent.kind,
+            parentNodeKind: parent.codedata.node,
+            branchLabel: "label" in parent ? parent.label : undefined,
         };
+        console.log(">>> get available node request", getNodeRequest);
         rpcClient
             .getEggplantDiagramRpcClient()
             .getAvailableNodes(getNodeRequest)
@@ -97,37 +125,63 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         setShowSidePanel(true);
-        setSidePanelView(SidePanelView.FORM);
+
         const node = metadata as AvailableNode;
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ id: node.id })
+            .getNodeTemplate({ id: node.codedata })
             .then((response) => {
-                console.log(">>> Node template", response);
+                console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
-                setFields(convertNodePropertiesToFormFields(response.flowNode.nodeProperties));
+                const formProperties = getFormProperties(response.flowNode);
+                console.log(">>> Form properties", formProperties);
+                if (Object.keys(formProperties).length === 0) {
+                    // add node to source code
+                    handleOnFormSubmit({});
+                    return;
+                }
+                // get node properties
+                setSidePanelView(SidePanelView.FORM);
+                setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
             });
     };
 
     const handleOnFormSubmit = (data: FormValues) => {
         console.log(">>> on form submit", data);
         if (selectedNodeRef.current && topNodeRef.current) {
-            const updatedNodeProperties = updateNodeProperties(data, selectedNodeRef.current.nodeProperties);
-            const updatedNode: Node = {
+            let updatedNode: FlowNode = {
                 ...selectedNodeRef.current,
-                lineRange: {
-                    fileName: topNodeRef.current.lineRange.fileName,
-                    startLine: topNodeRef.current.lineRange.endLine,
-                    endLine: topNodeRef.current.lineRange.endLine,
+                codedata: {
+                    ...selectedNodeRef.current.codedata,
+                    lineRange: {
+                        ...selectedNodeRef.current.codedata.lineRange,
+                        startLine: targetRef.current.startLine,
+                        endLine: targetRef.current.endLine,
+                    },
                 },
-                nodeProperties: updatedNodeProperties,
             };
+
+            if (selectedNodeRef.current.branches?.at(0)?.properties) {
+                // branch properties
+                // TODO: Handle multiple branches
+                const updatedNodeProperties = updateNodeProperties(
+                    data,
+                    selectedNodeRef.current.branches.at(0).properties
+                );
+                updatedNode.branches.at(0).properties = updatedNodeProperties;
+            } else if (selectedNodeRef.current.properties) {
+                // node properties
+                const updatedNodeProperties = updateNodeProperties(data, selectedNodeRef.current.properties);
+                updatedNode.properties = updatedNodeProperties;
+            } else {
+                console.error(">>> Error updating source code. No properties found");
+            }
             console.log(">>> Updated node", updatedNode);
 
             rpcClient
                 .getEggplantDiagramRpcClient()
-                .getSourceCode({ diagramNode: updatedNode })
+                .getSourceCode({ flowNode: updatedNode })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
@@ -143,6 +197,24 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         }
     };
 
+    const handleOnEditNode = (node: FlowNode) => {
+        console.log(">>> on edit node", node);
+        selectedNodeRef.current = node;
+        topNodeRef.current = undefined;
+        targetRef.current = node.codedata.lineRange;
+
+        const formProperties = getFormProperties(node);
+        console.log(">>> Form properties", formProperties);
+        if (Object.keys(formProperties).length === 0) {
+            // nothing to render
+            return;
+        }
+        // get node properties
+        setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
+        setSidePanelView(SidePanelView.FORM);
+        setShowSidePanel(true);
+    };
+
     const handleOnFormBack = () => {
         setSidePanelView(SidePanelView.NODE_LIST);
         // clear memory
@@ -150,20 +222,52 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
     };
 
+    const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+
+    const DiagramTitle = (
+        <React.Fragment>
+            <span>Resource:</span>
+            <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
+            <span>{getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}</span>
+        </React.Fragment>
+    );
+
     return (
         <>
-            <Container>{!!model && <Diagram model={model} onAddNode={handleOnAddNode} />}</Container>
+            <View>
+                <ViewHeader title={DiagramTitle} codicon="globe" onEdit={handleOnFormBack}></ViewHeader>
+                <ViewContent padding>
+                    <Container>
+                        {model && (
+                            <Diagram
+                                model={model}
+                                onAddNode={handleOnAddNode}
+                                onNodeSelect={handleOnEditNode}
+                                title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}
+                            />
+                        )}
+                    </Container>
+                </ViewContent>
+            </View>
             <PanelContainer
-                title={getContainerTitle(sidePanelView)}
+                title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
                 onBack={sidePanelView === SidePanelView.FORM ? handleOnFormBack : undefined}
             >
-                {sidePanelView === SidePanelView.NODE_LIST && (
-                    <NodeList categories={categories} onSelect={handleOnSelectNode} />
+                {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
+                    <NodeList categories={categories} onSelect={handleOnSelectNode} onClose={handleOnCloseSidePanel} />
                 )}
                 {sidePanelView === SidePanelView.FORM && <Form formFields={fields} onSubmit={handleOnFormSubmit} />}
             </PanelContainer>
         </>
     );
+}
+
+function getResourcePath(resource: ResourceAccessorDefinition) {
+    let resourcePath = "";
+    resource.relativeResourcePath?.forEach((path, index) => {
+        resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
+    });
+    return resourcePath;
 }

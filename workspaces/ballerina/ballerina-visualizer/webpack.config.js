@@ -80,6 +80,7 @@ module.exports = {
         'text/css': ['css']
       },
     },
+    static: path.join(__dirname, "build"),
   },
   plugins: [
     new webpack.ProvidePlugin({
@@ -87,6 +88,6 @@ module.exports = {
     }),
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1
-    }),
+    })
   ]
 };

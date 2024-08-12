@@ -21,9 +21,10 @@ import {
 } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
-import { Node } from "../../../utils/types";
+import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
+import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -47,7 +48,7 @@ export namespace NodeStyles {
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -59,6 +60,7 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
+        gap: 2px;
         width: 100%;
         padding: 8px;
     `;
@@ -98,11 +100,15 @@ export namespace NodeStyles {
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
+        max-width: ${NODE_WIDTH - 80}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        color: ${Colors.ON_SURFACE};
+        opacity: 0.7;
     `;
 
     export const Row = styled.div`
@@ -121,32 +127,32 @@ export namespace NodeStyles {
 interface ApiCallNodeWidgetProps {
     model: ApiCallNodeModel;
     engine: DiagramEngine;
-    onClick?: (node: Node) => void;
+    onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> {}
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onNodeSelect } = useDiagramContext();
 
     const handleOnClick = () => {
         onClick && onClick(model.node);
+        onNodeSelect(model.node);
     };
 
     return (
-        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} onClick={handleOnClick}>
             <NodeStyles.Box selected={model.isSelected()} hovered={isHovered}>
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
                     <NodeStyles.Icon>
-                        <NodeIcon type={model.node.kind} />
+                        <NodeIcon type={model.node.codedata.node} />
                     </NodeStyles.Icon>
                     <NodeStyles.Header>
-                        <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
-                        <NodeStyles.Description>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                        </NodeStyles.Description>
+                        <NodeStyles.Title>{model.node.codedata.module} : {model.node.metadata.label}</NodeStyles.Title>
+                        <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>
                         <MoreVertIcon />

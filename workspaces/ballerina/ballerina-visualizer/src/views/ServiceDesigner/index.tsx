@@ -17,6 +17,7 @@ import { ViewWrapper } from "../styles";
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    isEggplant?: boolean;
 }
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
@@ -31,18 +32,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     return (
         <>
-            <ViewWrapper>
-                <ServiceDesignerView
-                    model={model}
-                    rpcClients={{
-                        serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
-                        commonRpcClient: rpcClient.getCommonRpcClient(),
+            <ServiceDesignerView
+                model={model}
+                rpcClients={{
+                    serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
+                    commonRpcClient: rpcClient.getCommonRpcClient(),
 
-                    }}
-                    applyModifications={applyModifications}
-                    goToSource={handleOpenDiagram}
-                />
-            </ViewWrapper>
+                }}
+                applyModifications={applyModifications}
+                goToSource={handleOpenDiagram}
+                isEggplant={props.isEggplant}
+            />
         </>
     );
 }

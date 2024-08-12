@@ -37,7 +37,7 @@ export function ServiceForm(props: ResourceFormProps) {
 		<>
 			<SidePanel
 				isOpen={isOpen}
-				alignmanet="right"
+				alignment="right"
 				sx={{ width: 312 }}
 			>
 				<SidePanelTitleContainer>

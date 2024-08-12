@@ -8,15 +8,29 @@
  */
 
 import React from "react";
-import { BranchIcon, CallIcon, CodeIcon, SendIcon } from "../../resources";
+import {
+    BombIcon,
+    BranchIcon,
+    BreakIcon,
+    CallIcon,
+    CodeIcon,
+    ContinueIcon,
+    LockIcon,
+    LoopIcon,
+    PlusIcon,
+    StopIcon,
+    TransformIcon,
+} from "../../resources";
 import { NodeKind } from "../../utils/types";
 import { ReturnIcon } from "../../resources/icons/nodes/ReturnIcon";
+import { VarIcon } from "../../resources/icons/nodes/VarIcon";
+import { SecurityIcon } from "../../resources/icons/nodes/SecurityIcon";
 
 interface NodeIconProps {
     type: NodeKind;
 }
 
-export default function NodeIcon(props: NodeIconProps) {
+export function NodeIcon(props: NodeIconProps) {
     const { type } = props;
 
     switch (type) {
@@ -24,13 +38,34 @@ export default function NodeIcon(props: NodeIconProps) {
             return <BranchIcon />;
         case "EXPRESSION":
             return <CodeIcon />;
-        case "HTTP_API_GET_CALL":
-        case "HTTP_API_POST_CALL":
         case "ACTION_CALL":
             return <CallIcon />;
         case "RETURN":
             return <ReturnIcon />;
+        case "NEW_DATA":
+        case "UPDATE_DATA":
+            return <VarIcon />;
+        case "WHILE":
+            return <LoopIcon />;
+        case "BREAK":
+            return <BreakIcon />;
+        case "CONTINUE":
+            return <ContinueIcon />;
+        case "STOP":
+            return <StopIcon />;
+        case "ERROR_HANDLER":
+            return <SecurityIcon />;
+        case "PANIC":
+            return <BombIcon />;
+        case "LOCK":
+            return <LockIcon />;
+        case "TRANSACTION":
+            return <TransformIcon />;
+        case "NEW_CONNECTION":
+            return <PlusIcon />;
         default:
             return <CodeIcon />;
     }
 }
+
+export default NodeIcon;

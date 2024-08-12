@@ -17,6 +17,7 @@ import {
     CommandsRequest,
     CommandsResponse,
     GoToSourceRequest,
+    ProjectDirResponse,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
@@ -28,4 +29,5 @@ export interface CommonRPCAPI {
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
     getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
+    askProjectDirPath: () => Promise<ProjectDirResponse>;
 }

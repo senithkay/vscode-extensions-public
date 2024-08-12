@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 
 export type Flow = {
-    nodes: Node[];
-    name: string;
-    clients?: Client[];
+    fileName: string;
+    nodes: FlowNode[];
+    connections?: FlowNode[];
 };
 
 export type Client = {
@@ -30,36 +30,47 @@ export type ClientKind = "HTTP" | "OTHER";
 
 export type ClientScope = "LOCAL" | "OBJECT" | "GLOBAL";
 
-export type Node = {
-    kind: NodeKind;
-    label: string;
-    nodeProperties: NodeProperties;
-    returning: boolean;
-    fixed: boolean;
+export type FlowNode = {
     id: string;
-    lineRange: ELineRange;
-    branches?: Branch[];
-    viewState?: ViewState;
-    description?: string;
+    metadata: Metadata;
+    codedata: CodeData;
+    properties?: NodeProperties;
+    branches: Branch[];
     flags?: number;
+    returning: boolean;
+    viewState?: ViewState;
 };
 
-export type NodeKind =
-    | "EMPTY" // Placeholder nodes for diagram rendering
-    | "EVENT_HTTP_API"
-    | "BLOCK"
-    | "IF"
-    | "HTTP_API_GET_CALL"
-    | "HTTP_API_POST_CALL"
-    | "ACTION_CALL"
-    | "RETURN"
-    | "ERROR_HANDLER"
-    | "EXPRESSION";
+export type Metadata = {
+    label: string;
+    description: string;
+    keywords?: string[];
+};
+
+export type Property = {
+    metadata: Metadata;
+    valueType: string;
+    value: string;
+    optional: boolean;
+    editable: boolean;
+};
+
+export type CodeData = {
+    node: NodeKind;
+    org?: string;
+    module?: string;
+    object?: string;
+    symbol?: string;
+    lineRange?: ELineRange;
+};
 
 export type Branch = {
-    kind: string;
     label: string;
-    children: Node[];
+    kind: BranchKind;
+    codedata: CodeData;
+    repeatable: Repeatable;
+    properties: NodeProperties;
+    children: FlowNode[];
     viewState?: ViewState;
 };
 
@@ -69,21 +80,7 @@ export type ELineRange = {
     endLine: LinePosition;
 };
 
-export type Expression = {
-    label: string;
-    type: null | string;
-    typeKind: TypeKind;
-    optional: boolean;
-    editable: boolean;
-    documentation: string;
-    value: string;
-};
-
-export type TypeKind = "BTYPE" | "IDENTIFIER" | "URI_PATH";
-
-export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targetType" | "variable" | "expression";
-
-export type NodeProperties = { [P in NodePropertyKey]?: Expression };
+export type NodeProperties = { [P in NodePropertyKey]?: Property };
 
 export type ViewState = {
     // element view state
@@ -129,30 +126,55 @@ export interface ProjectStructureArtifactResponse {
     name: string;
     path: string;
     type: string;
+    icon?: string;
     context?: string;
     position?: NodePosition;
+    st?: STNode
 }
 export type Item = Category | AvailableNode;
 
 export type Category = {
-    name: string;
-    description: string;
-    keywords: string[];
+    metadata: Metadata;
     items: Item[];
 };
 
 export type AvailableNode = {
-    id: NodeId;
-    name: string;
-    description: string;
-    keywords: string[];
+    metadata: Metadata;
+    codedata: CodeData;
     enabled: boolean;
 };
 
-export type NodeId = {
-    kind: string;
-    library: string;
-    call: string;
-};
-
 export type DiagramLabel = "On Fail" | "Body";
+
+export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targetType" | "variable" | "expression";
+
+export type BranchKind = "block" | "worker";
+
+export type Repeatable = "1+" | "0..1" | "1" | "0+";
+
+export type Scope = "module" | "local" | "object";
+
+export type NodeKind =
+    | "EMPTY"
+    | "EVENT_HTTP_API"
+    | "IF"
+    | "ACTION_CALL"
+    | "RETURN"
+    | "EXPRESSION"
+    | "ERROR_HANDLER"
+    | "WHILE"
+    | "CONTINUE"
+    | "BREAK"
+    | "PANIC"
+    | "START"
+    | "STOP"
+    | "TRANSACTION"
+    | "LOCK"
+    | "FAIL"
+    | "CONDITIONAL"
+    | "ELSE"
+    | "ON_FAILURE"
+    | "BODY"
+    | "NEW_DATA"
+    | "UPDATE_DATA"
+    | "NEW_CONNECTION";

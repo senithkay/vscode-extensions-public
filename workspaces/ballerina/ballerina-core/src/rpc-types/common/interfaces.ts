@@ -51,3 +51,7 @@ export interface CommandsRequest {
 export interface CommandsResponse {
     data: string;
 }
+
+export interface ProjectDirResponse {
+    path: string;
+}

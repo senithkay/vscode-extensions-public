@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { EggplantModelRequest, HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
@@ -23,6 +23,15 @@ export async function getView(documentUri: string, position: NodePosition): Prom
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
 
     if (node.parseSuccess) {
+        if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.ERDiagram,
+                    documentUri: documentUri,
+                    position: position
+                }
+            };
+        }
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
             if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
@@ -131,20 +140,6 @@ function getSTByRangeReq(documentUri: string, position: NodePosition) {
                 line: position.endLine,
                 character: position.endColumn
             }
-        }
-    };
-}
-
-function getEggplantReq(documentUri: string, position: NodePosition): EggplantModelRequest {
-    return {
-        filePath: Uri.parse(documentUri!).fsPath,
-        startLine: {
-            line: position.startLine ?? 0,
-            offset: position.startColumn ?? 0
-        },
-        endLine: {
-            line: position.endLine ?? 0,
-            offset: position.endColumn ?? 0
         }
     };
 }

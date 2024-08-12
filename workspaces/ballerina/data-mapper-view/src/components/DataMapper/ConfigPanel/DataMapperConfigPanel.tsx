@@ -420,8 +420,8 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     return (
         <SidePanel
             isOpen={true}
-            alignmanet="right"
-            sx={{ transition: "all 0.3s ease-in-out", width: 600 }}
+            alignment="right"
+            sx={{transition: "all 0.3s ease-in-out", width: 600}}
         >
             <div>
                 <WizardFormControlExtended

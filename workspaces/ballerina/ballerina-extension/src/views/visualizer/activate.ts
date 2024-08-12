@@ -36,7 +36,7 @@ export function activateSubscriptions() {
     // <------------- Shared Commands ------------>
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position) => {
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: path?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath, position: position });
         })
     );
 
@@ -45,5 +45,10 @@ export function activateSubscriptions() {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EggplantWelcome });
         })
     );
+
+
+    StateMachine.service().onTransition((state) => {
+        vscode.commands.executeCommand('setContext', 'showBalGoToSource', state.context?.documentUri !== undefined);
+    });
 
 }

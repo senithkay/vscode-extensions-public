@@ -68,6 +68,7 @@ export * from "./history";
 export * from "./undo-redo-manager";
 
 // ------ Util functions -------->
+export * from "./utils";
 export * from "./utils/modification-utils";
 export * from "./utils/form-component-utils";
 export * from "./utils/diagnostics-utils";

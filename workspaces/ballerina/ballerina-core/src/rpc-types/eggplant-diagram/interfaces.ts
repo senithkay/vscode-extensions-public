@@ -12,6 +12,7 @@ import { BallerinaProjectComponents } from "../../interfaces/extended-lang-clien
 
 export interface CreateProjectRequest {
     projectName: string;
+    projectPath: string;
     isService: boolean;
 }
 

@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Node } from "./types";
+import { FlowNode } from "./types";
 
-export function getNodeIdFromModel(node: Node, prefix?: string) {
+export function getNodeIdFromModel(node: FlowNode, prefix?: string) {
     if (!node) {
         return null;
     }

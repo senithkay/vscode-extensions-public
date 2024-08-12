@@ -19,7 +19,7 @@ export type Node = {
     id: string;
     label: string;
     description: string;
-    icon?: React.ReactElement<SVGElement>;
+    icon?: React.JSX.Element;
     enabled?: boolean;
     metadata?: any;
 };
