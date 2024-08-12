@@ -147,6 +147,7 @@ export const useDiagramModel = (
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
+    const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
     let requiredParamFields = 0;
     let numberOfRequiredParamNodes = 0;
     let additionalSpace = 0;
@@ -154,8 +155,9 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
+        const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+
         const nodeHeight = node.height === 0 ? 800 : node.height;
-        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
         if (node instanceof MappingConstructorNode
             || node instanceof ListConstructorNode
             || node instanceof PrimitiveTypeNode
