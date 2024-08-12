@@ -88,6 +88,12 @@ export const useDiagramModel = (
     const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
+        if (diagramModel.getZoomLevel() !== zoomLevel && diagramModel.getNodes().length > 0) {
+            // Update only zoom level and offset if zoom level is changed
+            diagramModel.setZoomLevel(zoomLevel);
+            diagramModel.setOffset(offSetX, offSetY);
+            return diagramModel;
+        }
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);

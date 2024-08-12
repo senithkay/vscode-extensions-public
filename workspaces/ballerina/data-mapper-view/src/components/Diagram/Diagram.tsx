@@ -46,7 +46,7 @@ import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFacto
 import * as Ports from "./Port";
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
-import { debounce } from 'lodash';
+import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/dm-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
@@ -180,8 +180,11 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 		engine.setModel(currentModel);
 	};
 
-	const handleResize = debounce((e: any) => {
-		setScreenWidth(window.innerWidth);
+	const handleResize = throttle(() => {
+		const newScreenWidth = window.innerWidth;
+		if (newScreenWidth !== screenWidth) {
+			setScreenWidth(newScreenWidth);
+		}
 	}, 100);
 
 	return (
