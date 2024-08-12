@@ -206,7 +206,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
         // Check if sourcePath is defined
         if (sourcePath) {
-            const [tsFullText, tsInterfacesText] = getSources(sourcePath);
+            const [tsFullText, _] = getSources(sourcePath);
             try {
                 return tsFullText;
             } catch (error) {
@@ -221,22 +221,25 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     //Function to update the body of a function in a TypeScript file
     async writeDataMapping(params: DataMapWriteRequest): Promise<void> {
         const { dataMapping } = params;
+        // sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+        
         if (sourcePath) {
             try {
+                // Get the project from the sourcePath
                 const project = DMProject.getInstance(sourcePath).getProject();
-
+                // Get the source file from the project
                 const sourceFile = project.getSourceFileOrThrow(sourcePath);
-                
-                // find the function declaration
+                // find the mapFunction declaration
                 const functionDeclaration = sourceFile.getFunction(READONLY_MAPPING_FUNCTION_NAME);
+
                 if (functionDeclaration) {
                     // update the function body
                     functionDeclaration.setBodyText(`${dataMapping}`);
                     // write the updates to the file
                     await sourceFile.save();
                 } else {
-                    console.error("Error in writing data mapping. mapFunction not found in target ts file.");
+                    console.error("Error in writing data mapping, mapFunction not found in target ts file.");
                 }
             } catch (error) {
                 console.error('Failed to write data mapping to files: ', error);
@@ -249,7 +252,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         try {
             let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
             const { url } = await miDiagramRpcManager.getBackendRootUrl();
-
             return url;
             // Do something with backendRootUri
         } catch (error) {
@@ -260,13 +262,15 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     // Main function to get the mapping from OpenAI and write it to the relevant files
     async getMappingFromOpenAI(): Promise<void> {
         try {
-            const dm = "";
             const dataMapWriteRequest: DataMapWriteRequest = {
-            dataMapping: dm
+            dataMapping: ""
             };
             await this.writeDataMapping(dataMapWriteRequest);
+
+            // Function to read the TypeScript file
             let tsContent = await this.readTSFile();
 
+            // Function to remove the mapFunction line from the TypeScript file
             function removeMapFunctionEntry(content: string): string {
                 const project = new Project({
                     useInMemoryFileSystem: true,
@@ -274,19 +278,22 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         quoteKind: QuoteKind.Single
                     }
                 });
-                
+                // Create a temporary TypeScript file with the content of the source file
                 const sourceFile = project.createSourceFile('temp.ts', content);
+                // Get the mapFunction from the source file
                 const mapFunction = sourceFile.getFunction('mapFunction');
                 if (!mapFunction) {
                     throw new Error('mapFunction not found in TypeScript file.');
                 }
                 let functionContent;
                 if (mapFunction.getBodyText()) {
+                    // Get the function body text and remove any leading or trailing whitespace
                     functionContent = mapFunction.getBodyText()?.trim();
                 } 
                 else {
                     throw new Error('No function body text found for mapFunction in TypeScript file.');
                 }
+                // Remove the mapFunction line from the source file
                 sourceFile.removeText(mapFunction.getPos(), mapFunction.getEnd());
                 return functionContent;
             }
@@ -294,7 +301,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             const request = {
                 tsFile: tsContent
             };
-
+            // Function to make a request to the backend to get the data mapping
             const makeRequest = async (url: string, token: string) => {
                 const response = await fetch(url, {
                     method: 'POST',
@@ -318,6 +325,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
             let token;
             try {
+                // Get the user token from the secrets
                 token = await extension.context.secrets.get('MIAIUser');
             }
             catch (error) {
@@ -328,6 +336,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
             let response;
             try {
+                // Make a request to the backend to get the data mapping
                 response = await makeRequest(url, token);
             }
             catch (error) {
@@ -356,13 +365,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (data.event === "data_mapping_success") {
                 // Extract the mapping string and pass it to the writeDataMapping function
                 const mappingString = data.mapping;
+                // Remove the mapFunction line from the mapping string
                 const mappingRet = removeMapFunctionEntry(mappingString);
-
                 // Create an object of type DataMapWriteRequest
                 const dataMapWriteRequest: DataMapWriteRequest = {
                     dataMapping: mappingRet
                 };
-
                 await this.writeDataMapping(dataMapWriteRequest);
             }
             else {
