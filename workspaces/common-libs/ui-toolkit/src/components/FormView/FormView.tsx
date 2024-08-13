@@ -73,6 +73,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
     return (
         <div className="form-actions" style={{
             display: 'flex',
+            justifyContent: 'flex-end',
             gap: '10px',
             position: 'sticky',
             bottom: 0,
@@ -98,7 +99,7 @@ export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollaps
     return (
         <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={toggleCollapse}>
-                <Typography variant="h2" sx={{ fontWeight: 'lighter', margin: '0px' }}>{title}</Typography>
+                <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
                 <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-editorIndentGuide-background)' }} />
                 <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
                     <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />

@@ -189,6 +189,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                 items={ALLOWED_TYPES}
                                 nullable={true}
                                 value={field.value}
+                                borderBox
                                 onValueChange={(e) => {field.onChange(e);}}
                             />
                         )}

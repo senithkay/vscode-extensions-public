@@ -55,6 +55,8 @@ export function SequenceWizard(props: SequenceWizardProps) {
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
 
+    const isNewTemplate = !props.path.endsWith(".xml");
+
     const schema = yup.object({
         name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in sequence name")
             .test('validateSequenceName',
@@ -212,7 +214,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
                     disabled={!isDirty}
                     onClick={handleSubmit(handleCreateSequence)}
                 >
-                    Create
+                    {isNewTemplate ? "Create" : "Save Changes"}
                 </Button>
             </FormActions>
         </FormView>
