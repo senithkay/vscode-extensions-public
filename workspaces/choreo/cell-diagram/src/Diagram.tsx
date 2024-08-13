@@ -26,6 +26,7 @@ export interface CellDiagramProps {
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
     customTooltips?: CustomTooltips;
+    modelVersion?: string; 
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
