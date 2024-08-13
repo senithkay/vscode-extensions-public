@@ -45,7 +45,6 @@ export type ExpressionBarBaseProps = {
     onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
     onCancel: () => void;
-    undoUncommitedChanges: () => Promise<void>;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -54,7 +53,7 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 
 export type ExpressionBarRef = {
     focus: (text?: string) => Promise<void>;
-    blur: () => Promise<void>;
+    blur: (text?: string) => Promise<void>;
     shadowRoot: ShadowRoot;
 };
 

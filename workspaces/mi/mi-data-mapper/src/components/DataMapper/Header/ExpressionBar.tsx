@@ -19,11 +19,10 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { filterCompletions, getInnermostPropAsmtNode } from './utils';
 import { View } from '../Views/DataMapperView';
-import { DMTypeWithValue } from '../../../components/Diagram/Mappings/DMTypeWithValue';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
-import { useDMExpressionBarStore, useDMRegenerateNodesStore } from '../../../store/store';
+import { useDMExpressionBarStore } from '../../../store/store';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -56,20 +55,34 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [action, triggerAction] = useState<boolean>(false);
 
-    // Refs for undoing and saving operations
-    const prevFocusedFilter = useRef<Node | undefined>();
-    const prevTypeWithValue = useRef<DMTypeWithValue>();
-    const savedNodeValue = useRef<string | undefined>();
-
-    const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
+    const {
+        focusedPort,
+        focusedFilter,
+        lastFocusedPort,
+        lastFocusedFilter,
+        inputPort,
+        savedNodeValue,
+        setLastFocusedPort,
+        setLastFocusedFilter,
+        resetInputPort,
+        setSavedNodeValue,
+        resetSavedNodeValue,
+        resetLastFocusedPort,
+        resetLastFocusedFilter,
+    } = useDMExpressionBarStore((state) => ({
         focusedPort: state.focusedPort,
         focusedFilter: state.focusedFilter,
+        lastFocusedPort: state.lastFocusedPort,
+        lastFocusedFilter: state.lastFocusedFilter,
         inputPort: state.inputPort,
-        resetInputPort: state.resetInputPort
-    }));
-
-    const { regenerateNodes } = useDMRegenerateNodesStore(state => ({
-        regenerateNodes: state.regenerateNodes
+        savedNodeValue: state.savedNodeValue,
+        resetInputPort: state.resetInputPort,
+        setLastFocusedPort: state.setLastFocusedPort,
+        setLastFocusedFilter: state.setLastFocusedFilter,
+        setSavedNodeValue: state.setSavedNodeValue,
+        resetLastFocusedPort: state.resetLastFocusedPort,
+        resetLastFocusedFilter: state.resetLastFocusedFilter,
+        resetSavedNodeValue: state.resetSavedNodeValue,
     }));
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
@@ -145,40 +158,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         })();
     }, [inputPort]);
 
-    const undoChangesOnPrevSelectedNode = () => {
-        if (prevTypeWithValue.current) {
-            const prevFocusedNode = prevTypeWithValue.current.value;
-            if (
-                prevFocusedNode &&
-                !prevFocusedNode.wasForgotten() &&
-                Node.isPropertyAssignment(prevFocusedNode)
-            ) {
-                const parent = prevFocusedNode.getParent();
-                const propName = prevFocusedNode.getName();
-                prevFocusedNode.remove();
-                const propertyAssignment = parent.addPropertyAssignment({
-                    name: propName,
-                    initializer: savedNodeValue.current
-                });
-                prevTypeWithValue.current.setValue(propertyAssignment);
-                prevTypeWithValue.current = undefined;
-            }
-        } else if (prevFocusedFilter.current) {
-            prevFocusedFilter.current.replaceWithText(savedNodeValue.current);
-            prevFocusedFilter.current = undefined;
-        }
-    };
-
     const disabled = useMemo(() => {
         let value = "";
         let disabled = true;
 
-        undoChangesOnPrevSelectedNode();
-    
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
             const focusedNode = focusedPort.typeWithValue.value;
-            prevTypeWithValue.current = focusedPort.typeWithValue;
+            setLastFocusedPort(focusedPort);
             if (focusedNode && !focusedNode.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedNode)) {
                     value = focusedNode.getInitializer()?.getText();
@@ -186,10 +173,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     value = focusedNode ? focusedNode.getText() : "";
                 }
             }
+
+            setSavedNodeValue(value);
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
-            prevFocusedFilter.current = focusedFilter;
+
+            setLastFocusedFilter(focusedFilter);
             disabled = false;
         } else {
             // If displaying a focused view
@@ -198,9 +188,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             } else {
                 setPlaceholder('Click on an output field to add/edit expressions.');
             }
+
+            resetSavedNodeValue();
         }
-    
-        savedNodeValue.current = value;
 
         setTextFieldValue(value);
         triggerAction(!action);
@@ -209,11 +199,25 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }, [focusedPort, focusedFilter, views]);
 
     useEffect(() => {
-        requestAnimationFrame(() => {
+        requestAnimationFrame(async () => {
+            let value = "";
+            const focusedNode = lastFocusedPort?.typeWithValue.value;
+            if (focusedNode && !focusedNode.wasForgotten()) {
+                if (Node.isPropertyAssignment(focusedNode)) {
+                    value = focusedNode.getInitializer()?.getText();
+                } else {
+                    value = focusedNode.getText();
+                }
+            } else if (lastFocusedFilter) {
+                value = lastFocusedFilter.getText();
+            } else if (!focusedPort) {
+                value = undefined;
+            }
+
             if (disabled) {
-                textFieldRef.current?.blur();
+                await textFieldRef.current?.blur(value);
             } else if (focusedPort || focusedFilter) {
-                textFieldRef.current?.focus(textFieldValue);
+                await textFieldRef.current?.focus(value);
             }
         });
     }, [disabled, action]);
@@ -252,7 +256,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
         } else if (focusedFilter) {
             const filter = focusedFilter.replaceWithText(text);
-            prevFocusedFilter.current = filter;
+            setLastFocusedFilter(filter);
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
@@ -289,19 +293,19 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleExpressionSave = async (value: string) => {
-        if (savedNodeValue.current === value) {
+        if (savedNodeValue === value) {
             return;
         }
-        savedNodeValue.current = value;
+        setSavedNodeValue(value);
         await updateST.flush();
         await applyChanges(value);
     }
 
     const handleCompletionSelect = async (value: string) => {
-        if (savedNodeValue.current === value) {
+        if (savedNodeValue === value) {
             return;
         }
-        savedNodeValue.current = value;
+        setSavedNodeValue(value);
         await updateST.flush();
         await applyChanges(value);
     }
@@ -310,20 +314,16 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions([]);
     }
 
-    const handleUndoUncommitedChanges = async () => {
-        regenerateNodes();
-    }
-
     const applyChanges = async (value: string) => {
-        if (focusedPort) {
+        if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
-        } else if (focusedFilter) {
+        } else if (lastFocusedFilter) {
             await applyChangesOnFocusedFilter();
         }
     };
 
     const applyChangesOnFocusedPort = async (value: string) => {
-        const focusedFieldValue = focusedPort?.typeWithValue.value;
+        const focusedFieldValue = lastFocusedPort?.typeWithValue.value;
         let updatedSourceContent;
         if (focusedFieldValue) {
             if (focusedFieldValue.wasForgotten()) {
@@ -346,14 +346,18 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     : value;
 
                 const updatedNode = targetExpr.replaceWithText(replaceWith);
+                focusedPort.typeWithValue.setValue(updatedNode);
                 updatedSourceContent = updatedNode.getSourceFile().getFullText();
             }
+            resetLastFocusedPort();
             await applyModifications(updatedSourceContent);
         }
     };
 
     const applyChangesOnFocusedFilter = async () => {
-        await applyModifications(focusedFilter.getSourceFile().getFullText());
+        const updatedSourceContent = lastFocusedFilter.getSourceFile().getFullText();
+        resetLastFocusedFilter();
+        await applyModifications(updatedSourceContent);
     };
 
     return (
@@ -369,7 +373,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
                 onCancel={handleCancelCompletions}
-                undoUncommitedChanges={handleUndoUncommitedChanges}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>

@@ -47,13 +47,22 @@ export interface DataMapperSubMappingConfigPanelState {
 
 export interface DataMapperExpressionBarState {
     focusedPort: InputOutputPortModel;
+    lastFocusedPort: InputOutputPortModel;
     focusedFilter: Node;
+    lastFocusedFilter: Node;
     inputPort: InputOutputPortModel;
+    savedNodeValue: string;
     setFocusedPort: (port: InputOutputPortModel) => void;
     setFocusedFilter: (port: Node) => void;
+    setLastFocusedPort: (port: InputOutputPortModel) => void;
+    setLastFocusedFilter: (port: Node) => void;
     setInputPort: (port: InputOutputPortModel) => void;
+    setSavedNodeValue: (value: string) => void;
     resetFocus: () => void;
     resetInputPort: () => void;
+    resetLastFocusedPort: () => void;
+    resetLastFocusedFilter: () => void;
+    resetSavedNodeValue: () => void;
 }
 
 export interface DataMapperArrayFiltersState {
@@ -61,11 +70,6 @@ export interface DataMapperArrayFiltersState {
     isCollapsed: boolean;
     setAddedNewFilter: (addedNewFilter: boolean) => void;
     setIsCollapsed: (isCollapsed: boolean) => void;
-}
-
-export interface DataMapperRegenerateNodesState {
-    regenerateNodesState: boolean;
-    regenerateNodes: () => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -107,12 +111,21 @@ export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfig
 export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set) => ({
     focusedPort: undefined,
     focusedFilter: undefined,
+    lastFocusedPort: undefined,
+    lastFocusedFilter: undefined,
+    savedNodeValue: undefined,
     setFocusedPort: (focusedPort: InputOutputPortModel) => set({ focusedPort }),
     setFocusedFilter: (focusedFilter: Node) => set({ focusedFilter }),
+    setLastFocusedPort: (lastFocusedPort: InputOutputPortModel) => set({ lastFocusedPort }),
+    setLastFocusedFilter: (lastFocusedFilter: Node) => set({ lastFocusedFilter }),
+    setSavedNodeValue: (savedNodeValue: string) => set({ savedNodeValue }),
     inputPort: undefined,
     setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
     resetFocus: () => set({ focusedPort: undefined, focusedFilter: undefined }),
-    resetInputPort: () => set({ inputPort: undefined })
+    resetInputPort: () => set({ inputPort: undefined }),
+    resetLastFocusedPort: () => set({ lastFocusedPort: undefined }),
+    resetLastFocusedFilter: () => set({ lastFocusedFilter: undefined }),
+    resetSavedNodeValue: () => set({ savedNodeValue: undefined }),
 }));
 
 export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) => ({
@@ -120,9 +133,4 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
     setAddedNewFilter: (addedNewFilter: boolean)  => set({ addedNewFilter }),
     isCollapsed: false,
     setIsCollapsed: (isCollapsed: boolean)  => set({ isCollapsed }),
-}));
-
-export const useDMRegenerateNodesStore = create<DataMapperRegenerateNodesState>((set, get) => ({
-    regenerateNodesState: false,
-    regenerateNodes: () => set({ regenerateNodesState: !get().regenerateNodesState }),
 }));

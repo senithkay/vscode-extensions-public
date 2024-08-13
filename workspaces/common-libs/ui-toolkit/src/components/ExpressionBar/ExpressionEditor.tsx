@@ -317,7 +317,7 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, undoUncommitedChanges, ...rest } = props;
+    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -495,10 +495,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 await onChange(text);
             }
         },
-        blur: async () => {
+        blur: async (text?: string) => {
             inputRef.current?.blur();
             handleClose();
-            await undoUncommitedChanges();
+            if (text !== undefined) {
+                await onSave(text);
+            }
         },
         shadowRoot: inputRef.current?.shadowRoot,
     }));
