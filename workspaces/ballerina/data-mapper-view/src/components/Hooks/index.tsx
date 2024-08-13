@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
@@ -71,6 +71,7 @@ export const useDiagramModel = (
     diagramModel: DiagramModel,
     onError:(kind: ErrorNodeKind) => void,
     zoomLevel: number,
+    screenWidth: number,
 ): {
     updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
@@ -86,12 +87,20 @@ export const useDiagramModel = (
     const queryExprPosition = context?.selection.selectedST?.position;
     const collapsedFields = context?.collapsedFields;
     const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevScreenWidth = useRef(screenWidth);
 
     const genModel = async () => {
-        if (diagramModel.getZoomLevel() !== zoomLevel && diagramModel.getNodes().length > 0) {
-            // Update only zoom level and offset if zoom level is changed
+        if (prevScreenWidth.current !== screenWidth && diagramModel.getNodes().length > 0) {
+            const diagModelNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+            diagModelNodes.forEach(diagModelNode => {
+                const repositionedNode = nodes.find(newNode => newNode.id === diagModelNode.id);
+                if (repositionedNode) {
+                    diagModelNode.setPosition(repositionedNode.getX(), repositionedNode.getY());
+                }
+            });
             diagramModel.setZoomLevel(zoomLevel);
             diagramModel.setOffset(offSetX, offSetY);
+            prevScreenWidth.current = screenWidth;
             return diagramModel;
         }
         const newModel = new DiagramModel();
@@ -140,7 +149,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, fieldPath, queryExprIndex: queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

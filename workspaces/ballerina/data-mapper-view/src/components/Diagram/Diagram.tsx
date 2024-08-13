@@ -10,7 +10,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
@@ -141,7 +141,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
-	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel, screenWidth);
 
 	engine.setModel(diagramModel);
 
@@ -180,12 +180,17 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 		engine.setModel(currentModel);
 	};
 
-	const handleResize = throttle(() => {
-		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== screenWidth) {
-			setScreenWidth(newScreenWidth);
-		}
-	}, 100);
+	const handleResize = useCallback(
+		throttle(() => {
+		  setScreenWidth((prevWidth) => {
+			const newScreenWidth = window.innerWidth;
+			if (newScreenWidth !== prevWidth) {
+			  return newScreenWidth;
+			}
+			return prevWidth;
+		  });
+		}, 100), []
+	);
 
 	return (
 		<>
