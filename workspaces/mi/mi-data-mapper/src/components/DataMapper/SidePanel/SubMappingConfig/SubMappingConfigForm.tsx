@@ -6,11 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
     AutoComplete,
     Button,
     Codicon,
+    Drawer,
     SidePanel,
     SidePanelBody,
     SidePanelTitleContainer,
@@ -26,9 +27,14 @@ import { Block, FunctionDeclaration, Node, VariableStatement } from "ts-morph";
 import { SourceNodeType, View } from "../../Views/DataMapperView";
 import { getDefaultValue } from "../../../Diagram/utils/common-utils";
 import { DataMapperNodeModel } from "../../../Diagram/Node/commons/DataMapperNode";
+import { ImportNewTypeForm } from "../ImportData/ImportNewTypeForm";
 
 const Field = styled.div`
    margin-bottom: 12px;
+`;
+
+const DrawerContainer = styled.div`
+    width: 312px;
 `;
 
 const ALLOWED_TYPES = ['string', 'number', 'boolean', 'object'];
@@ -44,23 +50,28 @@ interface SMConfigFormData {
 export type SubMappingConfigFormProps = {
     functionST: FunctionDeclaration;
     inputNode: DataMapperNodeModel;
+    configName: string;
+    documentUri: string;
     addView: (view: View) => void;
     updateView: (updatedView: View) => void;
     applyModifications: (fileContent: string) => Promise<void>;
 };
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
-    const { functionST, inputNode, addView, updateView, applyModifications } = props;
+    const { functionST, inputNode, configName, documentUri, addView, updateView, applyModifications } = props;
     const { focusedST, views } = inputNode?.context ?? {};
     const lastView = views && views[views.length - 1];
+
+    const [openedIndex, setOpenedIndex] = useState<number>();
+    const [isImportNewTypeFormOpen, setImportNewTypeFormOpen] = useState<boolean>(false);
 
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
         resetSubMappingConfig
     } = useDMSubMappingConfigPanelStore(state => ({
-            subMappingConfig: state.subMappingConfig,
-            resetSubMappingConfig: state.resetSubMappingConfig,
-        })
+        subMappingConfig: state.subMappingConfig,
+        resetSubMappingConfig: state.resetSubMappingConfig,
+    })
     );
 
     const { control, handleSubmit, setValue, watch, reset } = useForm<SMConfigFormData>({
@@ -88,7 +99,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
         const defaultValue = getDefaultValue(typeKind);
         const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType !== "object" && mappingType);
-        const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}`: ''} = ${defaultValue};`;
+        const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}` : ''} = ${defaultValue};`;
         (functionST.getBody() as Block).insertStatements(nextSubMappingIndex, varStmt);
 
         resetSubMappingConfig();
@@ -146,6 +157,18 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         resetSubMappingConfig();
     };
 
+    const openDrawer = (index: number) => {
+        setOpenedIndex(index);
+    }
+
+    const closeDrawer = (index: number) => {
+        if (index === 0) {
+            setOpenedIndex(undefined);
+        } else {
+            setOpenedIndex(index - 1);
+        }
+    }
+
     return (
         <SidePanel
             isOpen={isSMConfigPanelOpen}
@@ -183,14 +206,17 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                         name="mappingType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete
-                                label="Type (Optional)"
-                                name="mappingType"
-                                items={ALLOWED_TYPES}
-                                nullable={true}
-                                value={field.value}
-                                onValueChange={(e) => {field.onChange(e);}}
-                            />
+                            <>
+                                <AutoComplete
+                                    label="Type (Optional)"
+                                    name="mappingType"
+                                    items={ALLOWED_TYPES}
+                                    nullable={true}
+                                    value={field.value}
+                                    onValueChange={(e) => { field.onChange(e); }}
+                                />
+                                <Button onClick={() => setImportNewTypeFormOpen(true)}>New</Button>
+                            </>
                         )}
                     />
                 </Field>
@@ -233,6 +259,40 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                         </Button>
                     </div>
                 )}
+
+                <Drawer
+                    isOpen={isImportNewTypeFormOpen}
+                    id="drawerImportNewTypeForm"
+                    isSelected={true}
+                    sx={{width:312}}
+                >
+
+                    <ImportNewTypeForm configName={configName} documentUri={documentUri} />
+                    <Button onClick={() => openDrawer(1)}>Add</Button>
+                    <Button onClick={() => closeDrawer(0)}>Close</Button>
+
+                </Drawer>
+                <Drawer
+                    isOpen={openedIndex === 1}
+                    id="drawer2"
+                    isSelected={true}
+                >
+                    <DrawerContainer>
+                        Drawer2 Content
+                        <Button onClick={() => openDrawer(2)}>Add</Button>
+                        <Button onClick={() => closeDrawer(1)}>Close</Button>
+                    </DrawerContainer>
+                </Drawer>
+                <Drawer
+                    isOpen={openedIndex === 2}
+                    id="drawer3"
+                    isSelected={true}
+                >
+                    <DrawerContainer>
+                        Drawer3 Content
+                        <Button onClick={() => closeDrawer(2)}>Close</Button>
+                    </DrawerContainer>
+                </Drawer>
             </SidePanelBody>
         </SidePanel>
     );
