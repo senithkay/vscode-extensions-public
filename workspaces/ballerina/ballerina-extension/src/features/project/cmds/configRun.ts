@@ -8,7 +8,7 @@
  */
 
 import { commands, languages, Uri, window } from "vscode";
-import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "./cmd-runner";
+import { BALLERINA_COMMANDS, getRunCommand, PALETTE_COMMANDS, runCommand } from "./cmd-runner";
 import { ballerinaExtInstance } from "../../../core";
 import { configGenerator } from "../../config-generator/configGenerator";
 import { getConfigCompletions } from "../../config-generator/utils";
@@ -19,8 +19,9 @@ function activateConfigRunCommand() {
     commands.registerCommand(PALETTE_COMMANDS.RUN_CONFIG, async (filePath: Uri) => {
         const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
         if (currentProject) {
-            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
-                currentProject.path!);
+            runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(),
+            getRunCommand(),
+            currentProject.path!);
             return;
         }
     });

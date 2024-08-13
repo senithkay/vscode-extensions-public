@@ -87,6 +87,11 @@
                     "default": false,
                     "description": "Enable printing debug messages on to the Ballerina output channel."
                 },
+                "ballerina.enableRunWatch": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable automatically re-run Ballerina projects upon file changes."
+                },
                 "ballerina.traceLog": {
                     "type": "boolean",
                     "default": false,

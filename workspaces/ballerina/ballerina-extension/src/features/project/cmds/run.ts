@@ -12,7 +12,7 @@ import { commands, Uri, window } from "vscode";
 import {
     TM_EVENT_PROJECT_RUN, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException
 } from "../../telemetry";
-import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES } from "./cmd-runner";
+import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES, getRunCommand } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../../utils/project-utils";
 import { configGenerator } from '../../config-generator/configGenerator';
 
@@ -63,7 +63,8 @@ function activateRunCmdCommand() {
             if (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) {
                 const configPath: string = ballerinaExtInstance.getBallerinaConfigPath();
                 ballerinaExtInstance.setBallerinaConfigPath('');
-                runCommandWithConf(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
+                runCommandWithConf(currentProject, ballerinaExtInstance.getBallerinaCmd(),
+                    getRunCommand(),
                     configPath, currentProject.path!, ...args);
             } else {
                 runCurrentFile();
@@ -81,7 +82,8 @@ function activateRunCmdCommand() {
 }
 
 function runCurrentFile() {
-    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
+    runCommand(getCurrenDirectoryPath(), ballerinaExtInstance.getBallerinaCmd(), 
+        getRunCommand(),
         getCurrentBallerinaFile());
 }
 

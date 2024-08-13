@@ -10,6 +10,7 @@
 import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
 import { Terminal, window, workspace } from "vscode";
 import { isWindows } from "../../../utils";
+import { ballerinaExtInstance } from "../../../core";
 
 
 export enum PALETTE_COMMANDS {
@@ -47,10 +48,9 @@ export enum PALETTE_COMMANDS {
     SHOW_GRAPHQL_DESIGNER_VIEW = 'ballerina.view.graphqlDesigner'
 }
 
-
 export enum BALLERINA_COMMANDS {
-    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", DOC = "doc", ADD = "add", OTHER = "other",
-    PACK = "pack"
+    TEST = "test", BUILD = "build", FORMAT = "format", RUN = "run", RUN_WITH_WATCH = "run --watch", DOC = "doc",
+    ADD = "add", OTHER = "other", PACK = "pack"
 }
 
 export enum PROJECT_TYPE {
@@ -176,4 +176,9 @@ export function createTerminal(path: string, env? : { [key: string]:string }): v
     if (terminal) {
         terminal = window.createTerminal({ name: TERMINAL_NAME, cwd: path, env: env });
     }
+}
+
+export function getRunCommand(): BALLERINA_COMMANDS {
+    return ballerinaExtInstance.enabledRunWithWatch() ?
+        BALLERINA_COMMANDS.RUN_WITH_WATCH : BALLERINA_COMMANDS.RUN;
 }

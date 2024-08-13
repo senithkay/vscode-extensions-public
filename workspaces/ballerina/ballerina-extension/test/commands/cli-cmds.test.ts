@@ -114,4 +114,29 @@ suite("Ballerina Extension CLI Command Tests", () => {
         expect(response.data).to.eql("Hello, World!");
         killPort(9092);
     });
+
+    test("Test Run - Ballerina project", async () => {
+        const projectPath = path.join(PROJECT_ROOT, 'helloService9093Package');
+        const balProject: BallerinaProject = {
+            path: projectPath,
+            version: '0.0.1',
+            packageName: 'helloservice9093project',
+            kind: 'BUILD_PROJECT'
+        };
+
+        runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.RUN_WITH_WATCH, projectPath);
+        await wait(PROJECT_RUN_TIME)
+        const response = await axios.get('http://0.0.0.0:9093/hello/sayHello')
+        expect(response.data).to.eql("Hello, World!");
+        killPort(9093);
+    });
+
+    test("Test Run - Single file", async () => {
+        const filePath = path.join(PROJECT_ROOT, 'hello_world_service_9092.bal');
+        runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.RUN_WITH_WATCH, filePath);
+        await wait(PROJECT_RUN_TIME)
+        const response = await axios.get('http://0.0.0.0:9092/hello/sayHello');
+        expect(response.data).to.eql("Hello, World!");
+        killPort(9092);
+    });
 });
