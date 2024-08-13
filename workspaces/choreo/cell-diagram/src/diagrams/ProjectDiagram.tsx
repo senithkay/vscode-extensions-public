@@ -38,6 +38,7 @@ export interface ProjectDiagramProps {
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
     customTooltips?: CustomTooltips;
+    modelVersion?: string;
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
@@ -49,6 +50,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         animation = true,
         defaultDiagramLayer = DiagramLayer.ARCHITECTURE,
         customTooltips,
+        modelVersion,
         onComponentDoubleClick,
     } = props;
 
@@ -228,6 +230,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         zoomLevel,
         observationSummary: observationSummary.current,
         defaultDiagramLayer,
+        modelVersion : modelVersion || "v1", 
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
