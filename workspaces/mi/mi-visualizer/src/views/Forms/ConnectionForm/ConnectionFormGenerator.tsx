@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, FormActions, FormGroup, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -32,12 +32,8 @@ const Error = styled.span`
     font-size: 12px;
 `;
 
-const Field = styled.div`
-    margin-bottom: 12px;
-`;
-
 const ParamManagerContainer = styled.div`
-    width: ; 100%;
+    width: 100%;
 `;
 
 interface Connection {
@@ -56,6 +52,7 @@ export interface AddConnectionProps {
     changeConnector?: () => void;
     fromSidePanel?: boolean;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 interface Element {
@@ -77,7 +74,7 @@ interface ExpressionValueWithSetter {
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
-    const { allowedConnectionTypes } = props;
+    const { allowedConnectionTypes, handlePopupClose } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [formData, setFormData] = useState(undefined);
@@ -482,9 +479,9 @@ export function AddConnection(props: AddConnectionProps) {
                         }
                     }
                     render={({ field }) => (
-                        <Field>
+                        <>
                             {renderFormElement(element.value, field)}
-                        </Field>
+                        </>
                     )}
                 />;
             } else if (element.type === 'attributeGroup') {
@@ -492,10 +489,9 @@ export function AddConnection(props: AddConnectionProps) {
                     <>
                         {element.value.groupName === "General" ? renderForm(element.value.elements) :
                             <>
-                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                <FormGroup title={element.value.groupName} isCollapsed={false}>
                                     {renderForm(element.value.elements)}
-                                </ComponentCard>
+                                </FormGroup>
                             </>
                         }
                     </>
@@ -537,7 +533,7 @@ export function AddConnection(props: AddConnectionProps) {
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
     return (
-        <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
+        <FormView title={`Add New Connection`} onClose={ handlePopupClose ?? handleOnClose }>
             {!props.fromSidePanel && <TypeChip
                 type={props.connector.name}
                 onClick={props.changeConnector}
@@ -549,7 +545,7 @@ export function AddConnection(props: AddConnectionProps) {
                 <>
                     {ConnectionName}
                     {allowedConnectionTypes && (
-                        <Field>
+                        <>
                             <Controller
                                 name="connectionType"
                                 control={control}
@@ -571,7 +567,7 @@ export function AddConnection(props: AddConnectionProps) {
                                     />
                                 )}
                             />
-                        </Field>
+                        </>
                     )}
                     {formData && formData.elements && formData.elements.length > 0 && (
                         <>

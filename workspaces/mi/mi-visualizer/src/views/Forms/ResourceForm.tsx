@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect } from "react";
 import {
     Button,
     TextField,
@@ -16,9 +16,10 @@ import {
     SidePanelTitleContainer,
     SidePanelBody,
     Codicon,
-    Divider,
     RadioButtonGroup,
     FormCheckBox,
+    FormGroup,
+    Typography
 } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import styled from "@emotion/styled";
@@ -47,26 +48,6 @@ const SidePanelBodyWrapper = styled.div`
     flex-direction: column;
     gap: 10px;
 `;
-
-namespace Section {
-    export const Container = styled.div`
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    `;
-
-    export const Title = styled.h4`
-        display: flex;
-        align-items: center;
-        margin: 0;
-        padding: 2px;
-        width: 100%;
-    `;
-
-    export const IconContainer = styled.div`
-        margin-left: auto;
-    `;
-}
 
 // Schema
 const schema = yup.object({
@@ -180,7 +161,6 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
         resolver: yupResolver(schema),
         mode: "onChange",
     });
-    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
     // Watchers
     const urlStyle = watch("urlStyle");
@@ -221,13 +201,13 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
+                <Typography variant="h3" sx={{margin: 0}}>{`${formData ? "Edit" : "Add"} API Resource`}</Typography>
                 <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody style={{ overflowY: "scroll" }}>
                 <SidePanelBodyWrapper>
-                    <h3>{`${formData ? "Edit" : "Add"} API Resource`}</h3>
                     {urlStyle === "uri-template" && (
                         <TextField
                             id="url-style-uri-template"
@@ -280,89 +260,70 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
                     {/* Only when editing a resource */}
                     {formData && (
                         <Fragment>
-                            <Divider />
-                            <Section.Container>
-                                <Section.Title>
-                                    Advanced Options
-                                    <Section.IconContainer>
-                                        <Codicon
-                                            name={showAdvancedOptions ? "chrome-minimize" : "add"}
-                                            sx={{
-                                                padding: "2px",
-                                                borderRadius: "4px",
-                                                height: "14px",
-                                                backgroundColor: "var(--button-icon-hover-background)",
-                                            }}
-                                            iconSx={{ fontSize: showAdvancedOptions ? "14px" : "15px" }}
-                                            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                            <FormGroup title="Advanced Options">
+                                <React.Fragment>
+                                    <RadioButtonGroup
+                                        id="inSequenceType"
+                                        label="In Sequence"
+                                        options={[
+                                            { id: "inline", content: "In-Line", value: "inline" },
+                                            { id: "named", content: "Named", value: "named" },
+                                        ]}
+                                        orientation="horizontal"
+                                        {...register("inSequenceType")}
+                                    />
+                                    {inSequenceType === "named" && (
+                                        <FormKeylookup
+                                            id="in-sequence-keylookup"
+                                            name="inSequence"
+                                            filterType="sequence"
+                                            path={documentUri}
+                                            control={control}
+                                            errorMsg={errors.inSequence?.message}
                                         />
-                                    </Section.IconContainer>
-                                </Section.Title>
-                                {showAdvancedOptions && (
-                                    <React.Fragment>
-                                        <RadioButtonGroup
-                                            id="inSequenceType"
-                                            label="In Sequence"
-                                            options={[
-                                                { id: "inline", content: "In-Line", value: "inline" },
-                                                { id: "named", content: "Named", value: "named" },
-                                            ]}
-                                            orientation="horizontal"
-                                            {...register("inSequenceType")}
+                                    )}
+                                    <RadioButtonGroup
+                                        id="outSequenceType"
+                                        label="Out Sequence"
+                                        options={[
+                                            { id: "inline", content: "In-Line", value: "inline" },
+                                            { id: "named", content: "Named", value: "named" },
+                                        ]}
+                                        orientation="horizontal"
+                                        {...register("outSequenceType")}
+                                    />
+                                    {outSequenceType === "named" && (
+                                        <FormKeylookup
+                                            id="out-sequence-keylookup"
+                                            name="outSequence"
+                                            filterType="sequence"
+                                            path={documentUri}
+                                            control={control}
+                                            errorMsg={errors.outSequence?.message}
                                         />
-                                        {inSequenceType === "named" && (
-                                            <FormKeylookup
-                                                id="in-sequence-keylookup"
-                                                name="inSequence"
-                                                filterType="sequence"
-                                                path={documentUri}
-                                                control={control}
-                                                errorMsg={errors.inSequence?.message}
-                                            />
-                                        )}
-                                        <RadioButtonGroup
-                                            id="outSequenceType"
-                                            label="Out Sequence"
-                                            options={[
-                                                { id: "inline", content: "In-Line", value: "inline" },
-                                                { id: "named", content: "Named", value: "named" },
-                                            ]}
-                                            orientation="horizontal"
-                                            {...register("outSequenceType")}
+                                    )}
+                                    <RadioButtonGroup
+                                        id="faultSequenceType"
+                                        label="Fault Sequence"
+                                        options={[
+                                            { id: "inline", content: "In-Line", value: "inline" },
+                                            { id: "named", content: "Named", value: "named" },
+                                        ]}
+                                        orientation="horizontal"
+                                        {...register("faultSequenceType")}
+                                    />
+                                    {faultSequenceType === "named" && (
+                                        <FormKeylookup
+                                            id="fault-sequence-keylookup"
+                                            name="faultSequence"
+                                            filterType="sequence"
+                                            path={documentUri}
+                                            control={control}
+                                            errorMsg={errors.faultSequence?.message}
                                         />
-                                        {outSequenceType === "named" && (
-                                            <FormKeylookup
-                                                id="out-sequence-keylookup"
-                                                name="outSequence"
-                                                filterType="sequence"
-                                                path={documentUri}
-                                                control={control}
-                                                errorMsg={errors.outSequence?.message}
-                                            />
-                                        )}
-                                        <RadioButtonGroup
-                                            id="faultSequenceType"
-                                            label="Fault Sequence"
-                                            options={[
-                                                { id: "inline", content: "In-Line", value: "inline" },
-                                                { id: "named", content: "Named", value: "named" },
-                                            ]}
-                                            orientation="horizontal"
-                                            {...register("faultSequenceType")}
-                                        />
-                                        {faultSequenceType === "named" && (
-                                            <FormKeylookup
-                                                id="fault-sequence-keylookup"
-                                                name="faultSequence"
-                                                filterType="sequence"
-                                                path={documentUri}
-                                                control={control}
-                                                errorMsg={errors.faultSequence?.message}
-                                            />
-                                        )}
-                                    </React.Fragment>
-                                )}
-                            </Section.Container>
+                                    )}
+                                </React.Fragment>
+                            </FormGroup>
                         </Fragment>
                     )}
                     <ActionContainer>

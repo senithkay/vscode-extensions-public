@@ -26,6 +26,7 @@ export interface DataServiceDataSourceWizardProps {
     datasources?: any;
     setValue?: any;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 interface OptionProps {
@@ -648,7 +649,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     return (
-        <FormView title='Create Datasource' onClose={handleCancel} hideClose={props.isPopup}>
+        <FormView title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup} >
             <FormProvider {...formMethods}>
             <TextField
                 label="Datasource Identifier"

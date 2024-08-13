@@ -361,17 +361,17 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                             </>)}
                             <FormActions>
                                 <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(handleCreateLocalEntry)}
-                                    disabled={message.isError && !isDirty && !isValid}
-                                >
-                                    {isNewTask ? "Create" : "Update"}
-                                </Button>
-                                <Button
                                     appearance="secondary"
                                     onClick={openOverview}
                                 >
                                     Cancel
+                                </Button>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(handleCreateLocalEntry)}
+                                    disabled={message.isError && !isDirty && !isValid}
+                                >
+                                    {isNewTask ? "Create" : "Save Changes"}
                                 </Button>
                                 {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
                             </FormActions>
