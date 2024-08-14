@@ -1,14 +1,19 @@
 const path = require("path");
 const webpack = require("webpack");
+
 module.exports = {
     entry: "./src/index.tsx",
     target: "web",
-    devtool: "source-map",
-    mode: "development",
+    devtool: !process.env.CI ? "eval-source-map" : undefined,
+    mode: !process.env.CI ? "development" : "production",
     output: {
         path: path.resolve(__dirname, "build"),
         filename: "Visualizer.js",
         library: "visualizerWebview",
+        devtoolModuleFilenameTemplate: function (info) {
+            return "file:///" + encodeURI(info.absoluteResourcePath);
+        },
+        publicPath: "http://localhost:9000/",
     },
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
@@ -65,6 +70,7 @@ module.exports = {
         devMiddleware: {
             mimeTypes: { 'text/css': ['css'] },
         },
+        hot: true,
     },
     plugins: [
         new webpack.ProvidePlugin({
