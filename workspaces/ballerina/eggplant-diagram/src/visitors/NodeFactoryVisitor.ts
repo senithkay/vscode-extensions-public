@@ -10,6 +10,7 @@
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
@@ -229,6 +230,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
             return;
         }
         // skip node creation
+    }
+
+    beginVisitDraft(node: FlowNode, parent?: FlowNode): void {
+        const nodeModel = new DraftNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
     }
 
     skipChildren(): boolean {

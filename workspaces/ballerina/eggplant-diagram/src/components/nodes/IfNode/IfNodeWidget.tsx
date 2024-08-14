@@ -112,11 +112,16 @@ export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
 export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onNodeSelect } = useDiagramContext();
+    const { onNodeSelect, goToSource } = useDiagramContext();
 
-    const handleOnClick = () => {
-        onClick && onClick(model.node);
-        onNodeSelect(model.node);
+    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        if (event.metaKey) {
+            // Handle action when cmd key is pressed
+            goToSource && goToSource(model.node);
+        } else {
+            onClick && onClick(model.node);
+            onNodeSelect && onNodeSelect(model.node);
+        }
     };
 
     return (

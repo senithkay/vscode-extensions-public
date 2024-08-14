@@ -11,26 +11,28 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { Visualizer } from "./Visualizer";
-import { VisualizerContextProvider } from "./Context";
+import { VisualizerContextProvider, RpcContextProvider } from "./Context";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      refetchOnWindowFocus: false,
-      staleTime: 1000,
-      cacheTime: 1000,
+    defaultOptions: {
+        queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            staleTime: 1000,
+            cacheTime: 1000,
+        },
     },
-  },
 });
 
 export function renderWebview(mode: string, target: HTMLElement) {
-  const root = createRoot(target);
-  root.render(
-    <VisualizerContextProvider>
-      <QueryClientProvider client={queryClient}>
-        <Visualizer mode={mode} />
-      </QueryClientProvider>
-    </VisualizerContextProvider>
-  );
+    const root = createRoot(target);
+    root.render(
+        <VisualizerContextProvider>
+            <RpcContextProvider>
+                <QueryClientProvider client={queryClient}>
+                    <Visualizer mode={mode} />
+                </QueryClientProvider>
+            </RpcContextProvider>
+        </VisualizerContextProvider>
+    );
 }

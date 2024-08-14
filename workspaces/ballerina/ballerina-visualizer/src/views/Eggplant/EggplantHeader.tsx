@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Divider } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
@@ -45,7 +45,7 @@ const ProjectSubtitle = styled.h2`
 `;
 
 export function EggplantHeader() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
 
     useEffect(() => {

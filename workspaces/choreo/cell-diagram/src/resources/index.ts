@@ -8,7 +8,4 @@
  */
 
 export * from './constants';
-
 export * from './assets/icons';
-
-export { default as CanvasBackground } from './assets/PatternBg.svg';

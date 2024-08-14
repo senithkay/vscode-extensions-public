@@ -12,3 +12,14 @@ import styled from "@emotion/styled";
 export const ViewWrapper = styled.div`
     padding: 16px;
 `;
+
+export const Text = styled.p`
+    font-size: 14px;
+    color: var(--vscode-sideBarTitle-foreground);
+`;
+
+export const BodyText = styled(Text)`
+    color: var(--vscode-sideBarTitle-foreground);
+    margin: 0 0 8px;
+    opacity: 0.5;
+`;

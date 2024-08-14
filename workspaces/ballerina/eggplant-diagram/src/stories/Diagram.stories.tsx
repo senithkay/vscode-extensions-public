@@ -2,17 +2,15 @@ import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
 
-import basicModel from "./basic.json";
-import basic2Model from "./basic-2.json";
-import basic3Model from "./basic-3.json";
-import advancedModel from "./advanced.json";
-import advanced2Model from "./advanced-2.json";
-import advanced3Model from "./advanced-3.json";
-import advanced4Model from "./advanced-4.json";
-import advanced5Model from "./advanced-5.json";
+import model1 from "./1-start.json";
+import model2 from "./2-action.json";
+import model3 from "./3-if.json";
+import model4 from "./4-if-else-body.json";
+import model5 from "./5-if-then-body.json";
+import model6 from "./6-if-body.json";
 
 export default {
-    title: "Example/Diagram",
+    title: "Eggplant/Diagram",
     component: Diagram,
 } as Meta;
 
@@ -23,42 +21,33 @@ Empty.args = {
     model: { name: "", nodes: [], clients: [] },
 };
 
-export const Basic = Template.bind({});
-Basic.args = {
-    model: basicModel,
+export const Start = Template.bind({});
+Start.args = {
+    model: model1,
 };
 
-export const Basic2 = Template.bind({});
-Basic2.args = {
-    model: basic2Model,
+export const Action = Template.bind({});
+Action.args = {
+    model: model2,
 };
 
-export const Basic3 = Template.bind({});
-Basic3.args = {
-    model: basic3Model,
+export const IfEmpty = Template.bind({});
+IfEmpty.args = {
+    model: model3,
 };
 
-export const Advanced = Template.bind({});
-Advanced.args = {
-    model: advancedModel,
+export const IfElseBody = Template.bind({});
+IfElseBody.args = {
+    model: model4,
 };
 
-export const Advanced2 = Template.bind({});
-Advanced2.args = {
-    model: advanced2Model,
+export const IfThenBody = Template.bind({});
+IfThenBody.args = {
+    model: model5,
 };
 
-export const Advanced3 = Template.bind({});
-Advanced3.args = {
-    model: advanced3Model,
+export const IfBody = Template.bind({});
+IfBody.args = {
+    model: model6,
 };
 
-export const Advanced4 = Template.bind({});
-Advanced4.args = {
-    model: advanced4Model,
-};
-
-export const Advanced5 = Template.bind({});
-Advanced5.args = {
-    model: advanced5Model,
-};

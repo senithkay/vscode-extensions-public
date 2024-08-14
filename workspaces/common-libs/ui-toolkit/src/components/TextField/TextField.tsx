@@ -19,7 +19,7 @@ interface IconProps {
     onClick?: () => void;
 }
 
-interface InputProps {
+export interface InputProps {
     startAdornment?: string | ReactNode;
     endAdornment?: string | ReactNode;
 }
@@ -38,7 +38,7 @@ export interface TextFieldProps extends ComponentProps<"input"> {
     validationMessage?: string;
     sx?: any;
     onTextChange?: (text: string) => void;
-    InputProps?: InputProps;
+    inputProps?: InputProps;
 }
 
 interface ContainerProps {
@@ -63,7 +63,7 @@ const Description = styled.div<ContainerProps>`
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
-        placeholder, description, validationMessage, errorMsg, sx, InputProps, onTextChange,
+        placeholder, description, validationMessage, errorMsg, sx, inputProps, onTextChange,
         labelAdornment, ...rest
     } = props;
 
@@ -78,19 +78,19 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
         props.onChange && props.onChange(e);
     };
 
-    const startAdornment = InputProps?.startAdornment ? (
-        typeof InputProps.startAdornment === "string" ? (
-            <Typography variant="body1">{InputProps.startAdornment}</Typography>
+    const startAdornment = inputProps?.startAdornment ? (
+        typeof inputProps.startAdornment === "string" ? (
+            <Typography variant="body1">{inputProps.startAdornment}</Typography>
         ) : (
-            InputProps.startAdornment
+            inputProps.startAdornment
         )
     ) : undefined;
 
-    const endAdornment = InputProps?.endAdornment ? (
-        typeof InputProps.endAdornment === "string" ? (
-            <Typography variant="body1">{InputProps.endAdornment}</Typography>
+    const endAdornment = inputProps?.endAdornment ? (
+        typeof inputProps.endAdornment === "string" ? (
+            <Typography variant="body1">{inputProps.endAdornment}</Typography>
         ) : (
-            InputProps.endAdornment
+            inputProps.endAdornment
         )
     ) : undefined;
 
@@ -103,7 +103,6 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
 
     return (
         <Container sx={sx}>
-            {startAdornment && startAdornment}
             <VSCodeTextField
                 ref={textFieldRef}
                 style={{ width: "100%" }}
@@ -116,14 +115,15 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 placeholder={placeholder}
                 id={id}
                 {...rest}
-                { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
+                {...!props.name ? { value: props.value ? props.value : "" } : {}} // If name is not provided, then value should be empty (for react-hook-form)
                 onChange={handleChange}
                 onInput={handleChange}
             >
-                {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
+                {startAdornment && <div slot="start">{startAdornment}</div>}
+                {iconComponent && <div onClick={iconClick} slot={position} style={{ display: "flex", alignItems: "center" }}>{iconComponent}</div>}
                 {label && (
                     <LabelContainer>
-                        <div style={{color: "var(--vscode-editor-foreground	)"}}>
+                        <div style={{ color: "var(--vscode-editor-foreground)" }}>
                             <label htmlFor={`${id}-label`}>{label}</label>
                         </div>
                         {(required && label) && (<RequiredFormInput />)}
@@ -135,11 +135,11 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                         {description}
                     </Description>
                 )}
+                {endAdornment && <div slot="end">{endAdornment}</div>}
             </VSCodeTextField>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
             )}
-            {endAdornment && endAdornment}
         </Container>
     );
 });

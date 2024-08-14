@@ -87,6 +87,11 @@
                     "default": false,
                     "description": "Enable printing debug messages on to the Ballerina output channel."
                 },
+                "ballerina.enableLiveReload": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable automatic re-run of Ballerina service projects upon file changes."
+                },
                 "ballerina.traceLog": {
                     "type": "boolean",
                     "default": false,

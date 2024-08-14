@@ -52,6 +52,9 @@ TextFieldWithCustomDescription.args = { value: "Sample Text", label: "TextField"
     </div>
 ), autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
 
+export const TextFieldWithAdornments = Template.bind();
+TextFieldWithAdornments.args = { value: "Sample Text", inputProps: {startAdornment: (<button>S</button>), endAdornment: (<button>E</button>) }, placeholder: "Search", onChange: null };
+
 export const TextFieldWithLabelAdornment = Template.bind();
 TextFieldWithLabelAdornment.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", description: "This is a sample text field component", autoFocus: true, placeholder: "placeholder", labelAdornment: labelAdornment, onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
 

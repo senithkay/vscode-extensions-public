@@ -17,6 +17,7 @@ import {
     hasDiagramZoomAndPosition,
     loadDiagramZoomAndPosition,
     registerListeners,
+    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange } from "../utils/types";
@@ -28,17 +29,16 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
-import styled from "@emotion/styled";
 
 export interface DiagramProps {
     model: Flow;
-    onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
-    title?: string;
+    goToSource?: (node: FlowNode) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onNodeSelect } = props;
+    const { model, onAddNode, onNodeSelect, goToSource } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
     const [hasErrorFlow, setHasErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
@@ -98,7 +98,6 @@ export function Diagram(props: DiagramProps) {
         setDiagramModel(newDiagramModel);
         registerListeners(diagramEngine);
 
-        // setTimeout(() => {
         diagramEngine.setModel(newDiagramModel);
         // remove loader overlay layer
         const overlayLayer = diagramEngine
@@ -109,19 +108,28 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.getModel().removeLayer(overlayLayer);
         }
 
-        const hasPreviousPosition = hasDiagramZoomAndPosition();
-        if (hasPreviousPosition) {
-            // reset canvas position to previous position
-            loadDiagramZoomAndPosition(diagramEngine);
-        } else {
-            // change canvas position to first node
-            const firstNode = newDiagramModel.getNodes().at(0);
-            diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
+        // const hasPreviousPosition = hasDiagramZoomAndPosition();
+        // if (hasPreviousPosition) {
+        //     // reset canvas position to previous position
+        //     loadDiagramZoomAndPosition(diagramEngine);
+        // } else if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
+        //     // change canvas position to first node
+        //     const firstNode = newDiagramModel.getNodes().at(0);
+        //     // diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
+        //     diagramEngine.zoomToFit();
+        // } else {
+        //     console.error(">>> canvas not found");
+        // }
+
+        const hasPreviousPosition = hasDiagramZoomAndPosition(model.fileName);
+        if(!hasPreviousPosition) {
+            resetDiagramZoomAndPosition(model.fileName);
         }
+        loadDiagramZoomAndPosition(diagramEngine);
+
         diagramEngine.repaintCanvas();
         // update the diagram model state
         setDiagramModel(newDiagramModel);
-        // }, 100);
     };
 
     const handleCloseComponentPanel = () => {
@@ -146,6 +154,7 @@ export function Diagram(props: DiagramProps) {
         showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
         onNodeSelect: onNodeSelect,
+        goToSource: goToSource,
     };
 
     return (

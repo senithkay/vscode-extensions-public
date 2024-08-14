@@ -16,6 +16,8 @@ import {
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantFlowModelResponse,
+    EggplantConnectorsRequest,
+    EggplantConnectorsResponse,
     EggplantNodeTemplateRequest,
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
@@ -33,4 +35,5 @@ export interface EggplantDiagramAPI {
     getProjectStructure: () => Promise<ProjectStructureResponse>;
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: CreateComponentRequest) => Promise<CreateComponentResponse>;
+    getEggplantConnectors: (params: EggplantConnectorsRequest) => Promise<EggplantConnectorsResponse>;
 }

@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
 import { NavigationBar } from "./components/NavigationBar"
@@ -25,6 +25,9 @@ import { WelcomeView, ProjectForm, EggplantOverview, AddComponentView, ServiceFo
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
+import PopupPanel from './views/Eggplant/PopupPanel';
+import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
+import { useVisualizerContext } from './Context';
 
 const globalStyles = css`
   *,
@@ -44,7 +47,8 @@ const ComponentViewWrapper = styled.div`
 `;
 
 const MainPanel = () => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
+    const { showPopup, setShowPopup} = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 
@@ -162,6 +166,10 @@ const MainPanel = () => {
         }
     }, [viewComponent]);
 
+    const handleOnClosePopup = () => {
+        setShowPopup(false);
+    }
+
     return (
         <>
             <Global styles={globalStyles} />
@@ -170,6 +178,9 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
+                {showPopup && <PopupPanel onClose={handleOnClosePopup}>
+                    <AddConnectionWizard onClose={handleOnClosePopup} />
+                </PopupPanel>}
             </VisualizerContainer>
         </>
     );

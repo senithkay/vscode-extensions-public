@@ -10,13 +10,11 @@
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import styled from "@emotion/styled";
 
-import { CanvasBackground, MAIN_CELL } from "../resources";
+import { Colors, MAIN_CELL } from "../resources";
 
 export const useStyles = makeStyles(() =>
     createStyles({
         canvas: {
-            backgroundImage: `url('${CanvasBackground}')`,
-            backgroundRepeat: "repeat",
             height: "100%",
             width: "100%",
         },
@@ -34,13 +32,15 @@ export const Container = styled.div`
 `;
 
 export const DiagramContainer = styled.div`
-    background-image: url(${CanvasBackground});
-    height: 100%;
-    width: 100%;
     display: flex;
     align-items: center;
     flex-direction: column;
     justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
+    background-size: 16px 16px;
+    background-color: ${Colors.SURFACE_BRIGHT};
     svg:not(:root) {
         overflow: visible;
     }
