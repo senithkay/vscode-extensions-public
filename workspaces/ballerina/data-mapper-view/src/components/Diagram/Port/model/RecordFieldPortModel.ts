@@ -69,9 +69,6 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
-			sourcePortChanged: () => {
-				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
-			},
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
@@ -104,7 +101,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				} else if (targetPortHasLinks) {
 					modifySpecificFieldSource(lm);
 				} else {
-					lm.addLabel(await createSourceForMapping(lm));
+					await createSourceForMapping(lm);
 				}
 			})
 		});
