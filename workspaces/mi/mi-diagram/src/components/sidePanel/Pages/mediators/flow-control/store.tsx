@@ -140,6 +140,7 @@ const StoreForm = (props: AddMediatorProps) => {
                                 onValueChange={field.onChange}
                                 required={false}
                                 errorMsg={errors?.onStoreSequence?.message?.toString()}
+                                additionalItems={[]}
                             />
                         )}
                     />

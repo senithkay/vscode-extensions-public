@@ -250,6 +250,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.onAcceptSequenceKey?.message?.toString()}
+                                    additionalItems={[]}
                                 />
                             )}
                         />
@@ -295,6 +296,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.onRejectSequenceKey?.message?.toString()}
+                                    additionalItems={[]}
                                 />
                             )}
                         />
@@ -340,6 +342,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.obligationsSequenceKey?.message?.toString()}
+                                    additionalItems={[]}
                                 />
                             )}
                         />
@@ -385,6 +388,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.adviceSequenceKey?.message?.toString()}
+                                    additionalItems={[]}
                                 />
                             )}
                         />

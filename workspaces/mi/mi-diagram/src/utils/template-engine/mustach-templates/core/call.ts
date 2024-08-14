@@ -15,7 +15,7 @@ import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 export function getCallMustacheTemplate() {
   return `
   {{^sourceOrTargetOrEndpoint}}
-  <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} ></call>
+  <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}/>
   {{/sourceOrTargetOrEndpoint}}
   {{#sourceOrTargetOrEndpoint}}
   <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}} {{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
@@ -50,7 +50,7 @@ export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defa
 
   if ((data.sourceType == undefined || data.sourceType == "none")
     && (data.targetType == undefined || data.targetType == "none")
-    && (data.endpoint && (data.endpoint.value == undefined || data.endpoint.value == ""))) {
+    && (data.endpoint && (data.endpoint.value == undefined || data.endpoint.value == "" || data.endpoint.value == "NONE"))) {
     data.sourceOrTargetOrEndpoint = false;
   }
 
@@ -109,8 +109,10 @@ export async function getCallFormDataFromSTNode(data: { [key: string]: any }, no
       .map(line => line.length > 0 ? line.replace(/^(\s+)/, (match, p1) => p1.replaceAll('\t', '    ').replace(leadingSpaces, '')) : '')
       .join('\n')
       .trim();
-  } else {
+  } else if (endpoint) {
     data.endpoint = { isExpression: endpoint?.keyExpression ? true : false, value: endpoint?.key ?? endpoint?.keyExpression ?? "INLINE", namespaces: transformNamespaces(endpoint?.namespaces) }
+  } else {
+    data.endpoint = { isExpression: false, value: "NONE" }
   }
 
   data.enableBlockingCalls = node.blocking;

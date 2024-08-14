@@ -34,7 +34,7 @@ export function getSendXml(data: { [key: string]: any }, dirtyFields?: any, defa
       delete data.namespaces;
     }
   }
-  if (!data.endpoint || data.endpoint == "") {
+  if (!data.endpoint || data.endpoint == "" || data.endpoint == "NONE") {
     delete data.endpoint;
   }
   if (data.skipSerialization) {
@@ -64,8 +64,8 @@ export function getSendFormDataFromSTNode(data: { [key: string]: any }, node: Se
     data.dynamicReceivingSequence = { isExpression: true, value: value, namespaces: node.namespaces };
   }
   data.endpoint = node.endpoint?.key;
-  if (!data.endpoint && !data.receivingSequence && !data.buildMessageBeforeSending) {
-    data.skipSerialization = true;
+  if (!data.endpoint) {
+    data.endpoint = "NONE";
   }
   data.range = node.range;
   return data;

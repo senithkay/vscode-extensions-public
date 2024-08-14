@@ -12,28 +12,15 @@
                     {
                         "type": "attribute",
                         "value": {
-                            "name": "skipSerialization",
-                            "displayName": "Skip Serialization",
-                            "inputType": "checkbox",
-                            "defaultValue": false,
-                            "required": false,
-                            "helpTip": ""
-                        }
-                    },
-                    {
-                        "type": "attribute",
-                        "value": {
                             "name": "endpoint",
                             "displayName": "Select Endpoint",
                             "inputType": "comboOrKey",
                             "required": true,
                             "keyType": "endpoint",
-                            "helpTip": "Choose an existing endpoint, or specify a new one",
-                            "enableCondition": [
-                                {
-                                    "skipSerialization": false
-                                }
-                            ]
+                            "comboValues": [
+                                "NONE"
+                            ],
+                            "helpTip": "Choose an existing endpoint, or specify a new one"
                         }
                     },
                     {
@@ -44,12 +31,7 @@
                             "inputType": "checkbox",
                             "defaultValue": false,
                             "required": false,
-                            "helpTip": "",
-                            "enableCondition": [
-                                {
-                                    "skipSerialization": false
-                                }
-                            ]
+                            "helpTip": ""
                         }
                     },
                     {
@@ -105,11 +87,6 @@
                                             }
                                         ]
                                     }
-                                }
-                            ],
-                            "enableCondition": [
-                                {
-                                    "skipSerialization": "false"
                                 }
                             ]
                         }

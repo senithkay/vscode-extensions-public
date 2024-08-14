@@ -216,6 +216,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.inlineRegistryKey?.message?.toString()}
+                                    additionalItems={[]}
                                 />
                             )}
                         />

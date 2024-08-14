@@ -11,7 +11,8 @@
                 "displayName": "Endpoint",
                 "inputType": "keyOrExpression",
                 "comboValues": [
-                    "INLINE"
+                    "INLINE",
+                    "NONE"
                 ],
                 "required": true,
                 "keyType":"endpoint",

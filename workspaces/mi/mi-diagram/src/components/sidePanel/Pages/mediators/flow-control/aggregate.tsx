@@ -277,6 +277,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={true}
                                     errorMsg={errors?.sequenceKey?.message?.toString()}
+                                    additionalItems={[]}
                                 />
                             )}
                         />

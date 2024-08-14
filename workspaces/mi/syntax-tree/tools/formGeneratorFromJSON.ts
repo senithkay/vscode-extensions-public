@@ -432,6 +432,7 @@ const generateForm = (jsonData: any): string => {
                             openPopup(rpcClient, ${filterType}, fetchItems, handleValueChange);
                         }}`;
                     }
+                    const additionalItems = element.value.comboValues;
 
                     const comboStr = `
                         <Keylookup
@@ -442,6 +443,7 @@ const generateForm = (jsonData: any): string => {
                             onValueChange={field.onChange}
                             required={${isRequired}}
                             errorMsg={${errMsg}}
+                            ${additionalItems !== undefined ? `additionalItems={${JSON.stringify(additionalItems)}}` : `additionalItems={[]}`}
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
