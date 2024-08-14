@@ -19,7 +19,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
-import { ImportDataPanel } from "./ImportDataPanel";
+import { ImportNewTypePanel } from "./ImportNewTypePanel";
 
 export interface ImportType {
     type: string;
@@ -138,7 +138,7 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
             <SidePanelBody>
                 {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
                 {selectedImportType && (
-                    <ImportDataPanel
+                    <ImportNewTypePanel
                         importType={selectedImportType}
                         extension={fileExtension}
                         rowRange={{ start: 15, offset: 10 }}
