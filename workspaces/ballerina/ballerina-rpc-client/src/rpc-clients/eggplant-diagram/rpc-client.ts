@@ -14,6 +14,8 @@ import {
     CreateProjectRequest,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
+    EggplantConnectorsRequest,
+    EggplantConnectorsResponse,
     EggplantDiagramAPI,
     EggplantFlowModelResponse,
     EggplantNodeTemplateRequest,
@@ -26,6 +28,7 @@ import {
     createComponent,
     createProject,
     getAvailableNodes,
+    getEggplantConnectors,
     getFlowModel,
     getNodeTemplate,
     getProjectComponents,
@@ -77,5 +80,9 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
 
     createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
         return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
+    }
+
+    getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
+        return this._messenger.sendRequest(getEggplantConnectors, HOST_EXTENSION, params);
     }
 }

@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DIRECTORY_MAP } from '@wso2-enterprise/ballerina-core';
 import { Button, Codicon, ComponentCard, Icon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { ServiceType } from "./ServiceType";
 import { HttpForm } from "./HttpForm";
 import { SERVICE_VIEW } from "./constants";
@@ -57,7 +57,7 @@ const ButtonWrapper = styled.div`
 `;
 
 export function ServiceForm() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [component, setComponent] = useState(null);
     const [view, setView] = useState(SERVICE_VIEW.TYPE);
 

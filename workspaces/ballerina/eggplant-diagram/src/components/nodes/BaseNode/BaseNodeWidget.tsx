@@ -120,11 +120,16 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onNodeSelect } = useDiagramContext();
+    const { onNodeSelect, goToSource } = useDiagramContext();
 
-    const handleOnClick = () => {
-        onClick && onClick(model.node);
-        onNodeSelect(model.node);
+    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        if (event.metaKey) {
+            // Handle action when cmd key is pressed
+            goToSource && goToSource(model.node);
+        } else {
+            onClick && onClick(model.node);
+            onNodeSelect && onNodeSelect(model.node);
+        }
     };
 
     return (
@@ -146,7 +151,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                         {model.node.metadata.description || "Lorem ipsum dolor sit amet"}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>
+                <NodeStyles.StyledButton appearance="icon" >
                     <MoreVertIcon />
                 </NodeStyles.StyledButton>
             </NodeStyles.Row>

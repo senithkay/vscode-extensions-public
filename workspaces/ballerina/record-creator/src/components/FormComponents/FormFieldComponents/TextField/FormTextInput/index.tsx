@@ -164,7 +164,7 @@ export function FormTextInput(props: FormElementProps<FormTextInputProps>) {
                     disabled={disabled}
                     type={customProps?.secret ? "password" : "text"}
                     errorMsg={isInvalid ? errorMsg : ""}
-                    InputProps={{
+                    inputProps={{
                         startAdornment: customProps?.startAdornment ? (
                             <Typography variant="body1">{customProps.startAdornment}</Typography>
                         ) : undefined,

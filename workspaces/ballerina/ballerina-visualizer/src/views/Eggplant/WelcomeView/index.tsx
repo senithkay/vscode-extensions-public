@@ -9,7 +9,7 @@
 
 import React from "react";
 import { MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
@@ -24,7 +24,7 @@ const TextWrapper = styled.div`
 const Wrapper = styled.div`
     height: calc(100vh - 100px);
     max-width: 800px;
-    padding: 85px 120px;
+    margin: 80px 120px;
     overflow: auto;
 `;
 
@@ -84,7 +84,7 @@ const ButtonContent = styled.div`
 `;
 
 export function WelcomeView() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const goToCreateProject = () => {
         rpcClient.getVisualizerRpcClient().openView({

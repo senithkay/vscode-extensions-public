@@ -50,9 +50,9 @@ interface FormProps {
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit } = props;
-    const { getValues, register, formState } = useForm<FormValues>();
+    const { getValues, register } = useForm<FormValues>();
 
-    console.log(">>> form fields", { formState, values: getValues() });
+    console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = () => {
         onSubmit(getValues());
@@ -65,10 +65,10 @@ export function Form(props: FormProps) {
                     {field.items && (
                         <Dropdown
                             id={field.key}
-                            {...register(field.key, { required: !field.optional })}
+                            {...register(field.key, { required: !field.optional, value: field.value })}
                             label={field.label}
                             items={field.items.map((item) => ({ id: item, content: item, value: item }))}
-                            value={field.items?.at(0)}
+                            value={field.value}
                             required={!field.optional}
                             sx={{ width: "100%" }}
                             containerSx={{ width: "100%" }}
@@ -77,10 +77,11 @@ export function Form(props: FormProps) {
                     {!field.items && (
                         <TextField
                             id={field.key}
-                            {...register(field.key, { required: !field.optional })}
+                            {...register(field.key, { required: !field.optional, value: field.value })}
                             value={field.value}
                             label={field.label}
                             required={!field.optional}
+                            // readOnly={!field.editable}
                             description={field.documentation}
                             sx={{ width: "100%" }}
                         />
@@ -89,7 +90,7 @@ export function Form(props: FormProps) {
             ))}
 
             <S.Footer>
-                <Button appearance="primary" onClick={handleOnSave} disabled={!formState.isValid}>
+                <Button appearance="primary" onClick={handleOnSave}>
                     Save
                 </Button>
             </S.Footer>

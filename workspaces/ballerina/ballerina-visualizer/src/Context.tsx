@@ -7,19 +7,38 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode, useState } from "react";
-import { BallerinaRpcClient, VisualizerContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
+import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
+import { BallerinaRpcClient, VisualizerContext as RpcContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 
+export function RpcContextProvider({ children }: { children: ReactNode }) {
+    const rpcClient = useRef(new BallerinaRpcClient());
+
+    const contextValue: RpcContext = {
+        rpcClient: rpcClient.current,
+    };
+
+    return <Context.Provider value={contextValue}>{children}</Context.Provider>;
+}
+
+interface VisualizerContext {
+    showPopup: boolean;
+    setShowPopup: (showPopup: boolean) => void;
+}
+
+export const VisualizerContext = createContext({
+    showPopup: false,
+    setShowPopup: (showPopup: boolean) => {},
+} as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
+    const [showPopup, setShowPopup] = useState(false);
 
-  const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    rpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
-  });
+    const contextValue = {
+        showPopup: showPopup,
+        setShowPopup: setShowPopup,
+    };
 
-  return (
-    <Context.Provider value={visualizerState}>
-      {children}
-    </Context.Provider>
-  );
+    return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;
 }
+
+export const useVisualizerContext = () => useContext(VisualizerContext);

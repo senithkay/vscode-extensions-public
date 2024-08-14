@@ -18,6 +18,7 @@ import { VerticalScrollCanvasAction } from "../actions/VerticalScrollCanvasActio
 import { IfNodeFactory } from "../components/nodes/IfNode/IfNodeFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
 import { ApiCallNodeFactory } from "../components/nodes/ApiCallNode";
+import { DraftNodeFactory } from "../components/nodes/DraftNode/DraftNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -34,6 +35,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
+    engine.getNodeFactories().registerFactory(new DraftNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
@@ -104,6 +106,13 @@ export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
 };
 
 // check local storage has zoom level and position
-export const hasDiagramZoomAndPosition = () => {
-    return localStorage.getItem("diagram-zoom-level") !== null;
+export const hasDiagramZoomAndPosition = (file: string) => {
+    return localStorage.getItem("diagram-file-path") === file;
 };
+
+export const resetDiagramZoomAndPosition = (file: string) => {
+    localStorage.setItem("diagram-file-path", file);
+    localStorage.setItem("diagram-zoom-level", "100");
+    localStorage.setItem("diagram-offset-x", "0");
+    localStorage.setItem("diagram-offset-y", "0");
+}

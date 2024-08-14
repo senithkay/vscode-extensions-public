@@ -20,11 +20,10 @@ export default function ConnectorIcon(props: ConnectorIconProps) {
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
 
-    if (databaseClients.includes(node.properties.client?.valueType?.split(":").at(0))) {
+    if (databaseClients.includes(node.codedata.module)) {
         return <DatabaseIcon />;
     }
-
-    if (node.properties.client?.valueType?.split(":").at(0) === "http") {
+    if (node.codedata.module === "http") {
         return <HttpIcon />;
     }
     

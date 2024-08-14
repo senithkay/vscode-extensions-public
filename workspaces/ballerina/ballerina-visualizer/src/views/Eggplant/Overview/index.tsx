@@ -15,12 +15,20 @@ import {
     ProjectStructureArtifactResponse,
     ProjectStructureResponse,
 } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ComponentCard, Divider, TextField, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import {
+    Button,
+    Codicon,
+    TextField,
+    Typography,
+    View,
+    ViewContent,
+} from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import { EmptyCard } from "../../../components/EmptyCard";
 import { ButtonCard } from "../../../components/ButtonCard";
+import { useVisualizerContext } from "../../../Context";
 
 interface OverviewProps {
     stateUpdated: boolean;
@@ -108,7 +116,8 @@ const CardGrid = styled.div`
 `;
 
 export function Overview(props: OverviewProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
+    const { setShowPopup } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -140,6 +149,11 @@ export function Overview(props: OverviewProps) {
                 view: MACHINE_VIEW.EggplantComponentView,
             },
         });
+    };
+
+    const handleAddConnection = () => {
+        console.log(">>> Add Connection");
+        setShowPopup(true);
     };
 
     return (
@@ -188,7 +202,7 @@ export function Overview(props: OverviewProps) {
                             <SectionTitle>
                                 <h2 className="text-base mb-4">Connections</h2>
                                 {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].length > 0 && (
-                                    <Button appearance="icon" onClick={handleAddArtifact} tooltip="Add Artifact">
+                                    <Button appearance="icon" onClick={handleAddConnection} tooltip="Add Connection">
                                         <Codicon name="add" />
                                     </Button>
                                 )}
@@ -200,7 +214,10 @@ export function Overview(props: OverviewProps) {
                                             <ButtonCard
                                                 key={index}
                                                 title={res.name}
-                                                description={`Module: ${(res.st as any).initializer?.typeData?.typeSymbol?.moduleID?.moduleName || res.type}`}
+                                                description={`Module: ${
+                                                    (res.st as any).initializer?.typeData?.typeSymbol?.moduleID
+                                                        ?.moduleName || res.type
+                                                }`}
                                                 icon={<Codicon name="link" />}
                                                 onClick={() => goToView(res)}
                                             />
@@ -210,7 +227,7 @@ export function Overview(props: OverviewProps) {
                                     <EmptyCard
                                         description="Set up connections to external services like databases or third-party APIs. Predefine your connections here."
                                         actionText="Add Connection"
-                                        onClick={handleAddArtifact}
+                                        onClick={handleAddConnection}
                                     />
                                 )}
                             </Row>

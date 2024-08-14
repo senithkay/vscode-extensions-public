@@ -7,44 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
-import { Button, Codicon, ComponentCard, Icon, LocationSelector, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-
-const FORM_WIDTH = 600;
+import React, { useState } from "react";
+import { Button, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BodyText } from "../../styles";
 
 const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin: auto; /* Center vertically and horizontally */
+    margin: 80px 120px;
     max-width: 600px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
-
-const BottomMarginTextWrapper = styled.div`
-    font-size: 13px;
-    margin-bottom: 10px;
-`;
-
-const HorizontalCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`;
-
-const IconWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 `;
 
 const ButtonWrapper = styled.div`
@@ -53,32 +26,33 @@ const ButtonWrapper = styled.div`
 `;
 
 export function ProjectForm() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [selectedModule, setSelectedModule] = useState("Main");
     const [name, setName] = useState("");
     const [path, setPath] = useState("");
 
-    const handleSelection = (type: string) => {
-        setSelectedModule(type);
-    }
-
     const handleProjectName = (value: string) => {
         setName(value);
-    }
+    };
 
     const handleCreateProject = () => {
-        rpcClient.getEggplantDiagramRpcClient().createProject({ projectName: name, isService: selectedModule === "Service", projectPath: path });
-    }
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .createProject({ projectName: name, isService: selectedModule === "Service", projectPath: path });
+    };
 
     const handleProjecDirSelection = async () => {
         const projectDirectory = await rpcClient.getCommonRpcClient().askProjectDirPath();
         setPath(projectDirectory.path);
-    }
+    };
 
     return (
         <FormContainer>
-            <Typography variant="h1">New Eggplant Project</Typography>
-            <Typography variant="h4" sx={{ marginTop: 0 }}>Build an eggplant project from scratch</Typography>
+            <Typography variant="h2">Create Your Eggplant Project</Typography>
+            <BodyText>
+                Start by naming your project and selecting a location to save it. This will be the foundation for
+                building your integration.
+            </BodyText>
             <TextField
                 onTextChange={handleProjectName}
                 sx={{ marginTop: 20, marginBottom: 20 }}
@@ -92,8 +66,14 @@ export function ProjectForm() {
                 onSelect={handleProjecDirSelection}
             />
             <ButtonWrapper>
-                <Button disabled={name.length < 2 && path.length < 2} onClick={handleCreateProject} appearance="primary">Create Project</Button>
+                <Button
+                    disabled={name.length < 2 && path.length < 2}
+                    onClick={handleCreateProject}
+                    appearance="primary"
+                >
+                    Create Project
+                </Button>
             </ButtonWrapper>
         </FormContainer>
     );
-};
+}
