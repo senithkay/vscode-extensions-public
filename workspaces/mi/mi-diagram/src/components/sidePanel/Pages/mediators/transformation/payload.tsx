@@ -80,6 +80,11 @@ const PayloadForm = (props: AddMediatorProps) => {
                         "values": [
                             "xml",
                             "json"
+                        ],
+                        "enableCondition": [
+                            {
+                                "0": { isExpression: true }
+                            }
                         ]
                     },
                     {
