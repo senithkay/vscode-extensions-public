@@ -52,7 +52,9 @@
     "@types/swagger-ui-react": "^4.18.3",
     "swagger-ui-react": "5.17.4",
     "uuid": "~9.0.1",
-    "@types/uuid": "~9.0.1"
+    "@types/uuid": "~9.0.1",
+    "react-hot-loader": "~4.13.1",
+    "@pmmmwh/react-refresh-webpack-plugin": "~0.5.15"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",
