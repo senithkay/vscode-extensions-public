@@ -91,6 +91,9 @@ export async function createEggplantService(params: CreateComponentRequest) {
     const fooBalContent = `import ballerina/http;
 
 service ${params.path} on new http:Listener(${params.port}) {
+
+    function init() returns error? {}
+
     resource function get greeting() returns json|http:InternalServerError {
         do {
            
