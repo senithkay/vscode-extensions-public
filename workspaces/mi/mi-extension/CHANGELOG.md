@@ -2,6 +2,9 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [1.0.4] - 2024-08-09
+### Fixes
+- Fixed: Salesforcerest Connector: Update view does not display field values after connection creation ([#109](https://github.com/wso2/mi-vscode/issues/109))
 ## [1.0.3] - 2024-08-01
 
 ### Fixes
