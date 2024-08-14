@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     Button,
     SidePanel,
@@ -17,7 +17,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-import { useDMIOConfigPanelStore } from "../../../../store/store";
+import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportDataPanel } from "./ImportDataPanel";
 
@@ -35,10 +35,11 @@ export enum FileExtension {
 export type ImportDataWizardProps = {
     configName: string;
     documentUri: string;
+    setImportNewTypeFormOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function ImportNewTypeForm(props: ImportDataWizardProps) {
-    const { configName, documentUri } = props;
+    const { configName, documentUri, setImportNewTypeFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
@@ -49,6 +50,11 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
         ioType: state.ioConfigPanelType,
         overwriteSchema: state.isSchemaOverridden,
         setSidePanelOpen: state.setIsIOConfigPanelOpen
+    }));
+
+    const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
+        subMappingConfig: state.subMappingConfig,
+        setSubMappingConfig: state.setSubMappingConfig
     }));
 
     const fileExtension = useMemo(() => {
@@ -95,7 +101,18 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
 
     const onClose = () => {
         setSelectedImportType(undefined);
-        setSidePanelOpen(false);
+        setImportNewTypeFormOpen(false);
+        setSubMappingConfig({
+            ...subMappingConfig,
+            isSMConfigPanelOpen: false
+        });
+    };
+
+    const onBack = () => {
+        setSelectedImportType(undefined);
+        // setSidePanelOpen(false);
+        if(!selectedImportType)
+        setImportNewTypeFormOpen(false);
     };
 
     const handleImportTypeChange = (importType: ImportType) => {
@@ -105,13 +122,11 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
     return (
         <>
             <SidePanelTitleContainer>
-                {selectedImportType && (
-                    <Codicon name="arrow-left"
-                        sx={{ width: "20px" }}
-                        onClick={() => setSelectedImportType(undefined)}
-                    />
-                )}
-                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} Schema`}</span>
+                <Codicon name="arrow-left"
+                    sx={{ width: "20px" }}
+                    onClick={onBack}
+                />
+                <span>{`${overwriteSchema ? "Change" : "Import"} data type`}</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}
