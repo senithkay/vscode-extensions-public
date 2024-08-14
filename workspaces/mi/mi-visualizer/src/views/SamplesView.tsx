@@ -148,11 +148,6 @@ export function SamplesView() {
 
     return (
         <>
-            <NavigationContainer id="nav-bar-main">
-                <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
-                    <Codicon name="arrow-left" />
-                </VSCodeButton>
-            </NavigationContainer>
             <View>
                 <ViewHeader title={getSampleTitle()}>
                     <p>Category</p>
@@ -183,7 +178,7 @@ export function SamplesView() {
                                     sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px" }}>
                                     <SampleContainer key={sample.title}>
                                         <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
-                                        <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
+                                        <img src={images[sample.category]} className="card-image" style={{ width: '50%', minHeight: 94 }} />
                                         <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
                                         {sample.isAvailable ?
                                             <Button appearance="secondary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
