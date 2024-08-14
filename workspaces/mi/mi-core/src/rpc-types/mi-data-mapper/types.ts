@@ -61,6 +61,7 @@ export interface BrowseSchemaRequest {
     ioType: string;
     schemaType: string;
     configName: string;
+    typeName?: string;
 }
 
 export interface BrowseSchemaResponse {

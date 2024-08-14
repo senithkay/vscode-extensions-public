@@ -77,14 +77,15 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
         const request = {
             documentUri: documentUri,
             overwriteSchema: overwriteSchema,
-            resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
+            resourceName: 'Schema', //TODO: unused property need to remove
             content: content,
-            ioType: ioType.toUpperCase(),
+            ioType: "custom", //TODO: use enum 
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
+            typeName: "MyCustomDateType"
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
-            setSidePanelOpen(false);
+            setImportNewTypeFormOpen(false);
             if (response.success) {
                 console.log("Schema imported successfully");
             } else {
@@ -109,10 +110,9 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
     };
 
     const onBack = () => {
+        if (!selectedImportType)
+            setImportNewTypeFormOpen(false);
         setSelectedImportType(undefined);
-        // setSidePanelOpen(false);
-        if(!selectedImportType)
-        setImportNewTypeFormOpen(false);
     };
 
     const handleImportTypeChange = (importType: ImportType) => {

@@ -15,6 +15,8 @@ import { Uri, workspace } from "vscode";
 import { JSONSchema3or4 } from 'to-json-schema';
 import * as ts from "typescript";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../constants";
+import { DMProject } from '../datamapper/DMProject';
+import { navigate } from '../stateMachine';
 
 export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string): Promise<string> {
   const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" });
@@ -88,6 +90,51 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
       tsContent += "\n" + getFunctionDeclaration(tsSources, ioType, isSchemaArray, functionSource);
     }
     fs.writeFileSync(tsFilepath, tsContent);
+  }
+  return "";
+}
+
+export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string, typeName?: string): Promise<string> {
+  const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
+  ioType = ioType.toLowerCase();
+  if (workspaceFolder) {
+    const dataMapperConfigFolder = path.join(
+      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+    const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
+
+
+
+    const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string = "CustomType" /* TODO: Need to remove default value */) => {
+      schema.title = formatTitle(defaultTitle);
+
+      if (schema.type === "array" && schema.items && schema.items.length > 0) {
+        schema.type = "object";
+        schema.properties = schema.items[0].properties;
+      }
+
+
+      function generateInterfaceText(name: string, properties: Array<{ name: string, type: string }>): string {
+        const propertiesText = properties
+          .map(prop => `    ${prop.name}: ${prop.type};`)
+          .join('\n');
+        return `\n\ninterface ${name} {\n${propertiesText}\n}`;
+      }
+
+      const interfaceProperties = Object.keys(schema.properties).map(key => ({ name: key, type: schema.properties[key].type }));
+      return generateInterfaceText(schema.title, interfaceProperties)
+    };
+
+    const project = DMProject.getInstance(tsFilepath).getProject();
+    const sourceFile = project.getSourceFileOrThrow(tsFilepath);
+
+    const newInterfaceText = await readAndConvertSchema(schema, typeName);
+    const interfaces = sourceFile.getInterfaces();
+
+    sourceFile.insertText(interfaces[interfaces.length-1]?.getEnd() || 0, newInterfaceText);
+    sourceFile.formatText();
+    await sourceFile.save();
+    navigate();
+
   }
   return "";
 }
