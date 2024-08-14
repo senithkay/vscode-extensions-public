@@ -539,17 +539,17 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateAPI)}
                     disabled={!isValid || !isDirty}
                 >
                     {apiData ? "Save changes" : "Create"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>
