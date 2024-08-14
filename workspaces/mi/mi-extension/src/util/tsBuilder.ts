@@ -21,7 +21,7 @@ export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schem
   return ts;
 }
 
-export async function updateDMC(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string): Promise<string> {
+export async function updateTsFileIoTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   ioType = ioType.toLowerCase();
   if (workspaceFolder) {

@@ -35,7 +35,7 @@ import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
-import { updateDMC } from "../../util/tsBuilder";
+import { updateTsFileIoTypes } from "../../util/tsBuilder";
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
@@ -128,7 +128,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 }
 
                 try {
-                    await updateDMC(configName, documentUri, schema, ioType);
+                    await updateTsFileIoTypes(configName, documentUri, schema, ioType);
                     await this.formatDMC(documentUri);
                     navigate();
                     return resolve({ success: true });
