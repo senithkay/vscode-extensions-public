@@ -37,6 +37,119 @@ const DrawerContainer = styled.div`
     width: 312px;
 `;
 
+import { css } from "@emotion/css";
+const overlayClasses={
+    localVarFormWrapper: css({
+        width: '100%',
+        maxHeight: 800,
+        overflowY: 'scroll',
+        flexDirection: "row",
+    }),
+    addNewButtonWrapper: css({
+        display: "flex",
+        marginTop: 20,
+        marginLeft: 10,
+        flexDirection: "column",
+        "& button": {
+            marginBottom: 16
+        }
+    }),
+    doneButtonWrapper: css({
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginTop: '16px'
+    }),
+    contentSection: css({
+        display: "flex",
+        width: "75%",
+        justifyContent: "flex-start"
+    }),
+    varMgtToolbar: css({
+        padding: '10px',
+        marginTop: '10px',
+        display: "inline-flex",
+        alignItems: "center",
+        "& a": {
+            cursor: "pointer",
+            color: "var(--vscode-editorInfo-foreground)"
+        },
+        "& a:hover": {
+            textDecoration: "none",
+        }
+    }),
+    localVarControlButton: css({
+        padding: '5px',
+        display: "flex",
+        alignItems: "center",
+        cursor: "pointer",
+    }),
+    deleteLetVarDecl: css({
+        color: "var(--vscode-charts-red)"
+    }),
+    deleteLetVarDeclEnabled: css({
+        color: "var(--vscode-terminal-ansiRed)",
+        fontWeight: 500
+    }),
+    declWrap: css({
+        alignItems: 'center',
+        display: 'inline-block',
+        maxWidth: '500px',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        padding: '5px',
+        verticalAlign: 'middle'
+    }),
+    declExpression: css({
+        background: "var(--vscode-editorHoverWidget-background)",
+        marginLeft: "5px",
+        marginRight: "5px",
+        borderRadius: "4px",
+        border: "1px solid transparent",
+        cursor: 'pointer',
+        padding: 4,
+        transition: 'border 0.2s',
+        '&:hover': {
+            border: "1px solid var(--vscode-pickerGroup-border)"
+        }
+    }),
+    exprPlaceholder: css({
+        background: 'var(--vscode-inputValidation-warningBackground)'
+    }),
+    input: css({
+        maxWidth: '120px',
+        padding: "4px",
+        '&:focus': { outline: 0, border: "1px solid var(--vscode-inputOption-activeBorder)" },
+        background: "var(--vscode-editorHoverWidget-background)",
+        marginLeft: "5px",
+        marginRight: "5px",
+        color: 'var(--vscode-editor-foreground)',
+        borderRadius: "4px",
+        border: "1px solid transparent",
+    }),
+    plusButton: css({
+        margin: '5px 0 5px 10px',
+    }),
+    linePrimaryButton: css({
+        "& > vscode-button": {
+            color: "var(--button-primary-foreground)",
+            backgroundColor: "var(--button-primary-background)",
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+            borderRadius: "3px",
+            padding: "5px",
+            "&:hover": {
+                backgroundColor: "var(--vscode-button-hoverBackground)"
+            }
+        }
+    }),
+    doneButton: css({
+        color: "var(--button-primary-foreground)",
+        padding: "3px",
+    }),
+}
+
 const ALLOWED_TYPES = ['string', 'number', 'boolean', 'object'];
 const ADD_NEW_SUB_MAPPING_HEADER = "Add New Sub Mapping";
 const EDIT_SUB_MAPPING_HEADER = "Edit Sub Mapping";
@@ -215,7 +328,17 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                     value={field.value}
                                     onValueChange={(e) => { field.onChange(e); }}
                                 />
-                                <Button onClick={() => setImportNewTypeFormOpen(true)}>New</Button>
+                               
+                                <div className={overlayClasses.addNewButtonWrapper}>
+                                <Button
+                                    appearance="icon"
+                                    onClick={() => setImportNewTypeFormOpen(true)}
+                                    className={overlayClasses.linePrimaryButton} 
+                                >
+                                    <Codicon sx={{marginTop: 2, marginRight: 5}} name="add"/>
+                                    <div>Add New</div>
+                                </Button>
+                            </div>
                             </>
                         )}
                     />
@@ -267,31 +390,9 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                     sx={{width:312}}
                 >
 
-                    <ImportNewTypeForm configName={configName} documentUri={documentUri} />
-                    <Button onClick={() => openDrawer(1)}>Add</Button>
-                    <Button onClick={() => closeDrawer(0)}>Close</Button>
+                    <ImportNewTypeForm configName={configName} documentUri={documentUri} setImportNewTypeFormOpen={setImportNewTypeFormOpen}/>
+                    
 
-                </Drawer>
-                <Drawer
-                    isOpen={openedIndex === 1}
-                    id="drawer2"
-                    isSelected={true}
-                >
-                    <DrawerContainer>
-                        Drawer2 Content
-                        <Button onClick={() => openDrawer(2)}>Add</Button>
-                        <Button onClick={() => closeDrawer(1)}>Close</Button>
-                    </DrawerContainer>
-                </Drawer>
-                <Drawer
-                    isOpen={openedIndex === 2}
-                    id="drawer3"
-                    isSelected={true}
-                >
-                    <DrawerContainer>
-                        Drawer3 Content
-                        <Button onClick={() => closeDrawer(2)}>Close</Button>
-                    </DrawerContainer>
                 </Drawer>
             </SidePanelBody>
         </SidePanel>
