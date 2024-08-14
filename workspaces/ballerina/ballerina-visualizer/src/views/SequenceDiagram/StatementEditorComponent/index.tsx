@@ -2,7 +2,7 @@
 import React from "react";
 
 import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient, LibraryBrowserRpcClient, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient, LibraryBrowserRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -25,7 +25,7 @@ export interface StatementEditorComponentProps {
     config: any;
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
 
