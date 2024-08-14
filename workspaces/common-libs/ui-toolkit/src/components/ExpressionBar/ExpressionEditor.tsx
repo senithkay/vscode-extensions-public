@@ -265,15 +265,9 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                 </DropdownFooterSection>
                 <DropdownFooterSection>
                     <KeyContainer>
-                        <DropdownFooterKey>TAB</DropdownFooterKey>
-                    </KeyContainer>
-                    <DropdownFooterText>to select.</DropdownFooterText>
-                </DropdownFooterSection>
-                <DropdownFooterSection>
-                    <KeyContainer>
                         <DropdownFooterKey>ENTER</DropdownFooterKey>
                     </KeyContainer>
-                    <DropdownFooterText>to save.</DropdownFooterText>
+                    <DropdownFooterText>to select/save.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -454,16 +448,16 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 case 'Escape':
                     e.preventDefault();
                     handleClose();
-                    break;
+                    return;
                 case 'ArrowDown': {
                     e.preventDefault();
                     navigateDown(hoveredEl);
-                    break;
+                    return;
                 }
                 case 'ArrowUp': {
                     e.preventDefault();
                     navigateUp(hoveredEl);
-                    break;
+                    return;
                 }
                 case 'Tab':
                     e.preventDefault();
@@ -475,7 +469,18 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                             await handleCompletionSelect(item);
                         }
                     }
-                    break;
+                    return;
+                case 'Enter':
+                    e.preventDefault();
+                    if (hoveredEl) {
+                        const item = completions.find(
+                            (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                        );
+                        if (item) {
+                            await handleCompletionSelect(item);
+                        }
+                    }
+                    return;
             }
         }
 
@@ -485,6 +490,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             await handleChange(valueWithClosingBracket, cursorPosition);
             await onSave(valueWithClosingBracket);
             handleClose();
+            return;
         }
     };
 
