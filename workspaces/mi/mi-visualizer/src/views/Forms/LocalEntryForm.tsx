@@ -60,7 +60,7 @@ const initialLocalEntry: InputsFields = {
     name: "",
     type: "",
     inLineTextValue: "",
-    inLineXmlValue: `<xml version="1.0" encoding="UTF-8"></xml>`,
+    inLineXmlValue: "",
     saveInReg: false,
     sourceURL: "",
     //reg form
@@ -219,8 +219,26 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             setXmlErrors({ code: result.err.code, col: result.err.col, line: result.err.line, msg: result.err.msg });
             return false;
         }
+        let xmlDeclarationLine = findXmlDeclarationLine(xmlString);
+        if (xmlDeclarationLine !== -1) {
+            setXmlErrors({ code: "Unexpected declaration", col: 0, line: xmlDeclarationLine, msg: "XML declaration is not expected" });
+            return false;
+        }
         return result;
     };
+
+    const findXmlDeclarationLine = (xmlString: string): number => {
+        const xmlDeclarationRegex = /<\?xml\s+version\s*=\s*["']1\.0["']\s+encoding\s*=\s*["']UTF-8["']\s*\?>/i;
+        const lines = xmlString.split('\n');
+
+        for (let i = 0; i < lines.length; i++) {
+            if (xmlDeclarationRegex.test(lines[i])) {
+                return i + 1;
+            }
+        }
+
+        return -1;
+    }
 
     const handleXMLInputChange = (text: string) => {
         setValue("inLineXmlValue", text);
