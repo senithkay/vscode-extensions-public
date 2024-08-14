@@ -11,7 +11,7 @@ import React from 'react';
 import { LanguageClient } from './lang-service/client';
 import path from 'path';
 import fs from 'fs';
-import { Diagram } from '../../components';
+import { Diagram } from '../components';
 import { log } from "console";
 import { prettyDOM, waitFor, waitForElementToBeRemoved } from "@testing-library/dom";
 import { render, screen } from '@testing-library/react'
