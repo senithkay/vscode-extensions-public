@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
     entry: "./src/index.tsx",
@@ -76,5 +77,6 @@ module.exports = {
         new webpack.ProvidePlugin({
             process: "process/browser",
         }),
+        new ReactRefreshWebpackPlugin(),
     ],
 };
