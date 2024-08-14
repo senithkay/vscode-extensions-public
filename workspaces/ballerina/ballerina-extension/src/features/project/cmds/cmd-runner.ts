@@ -179,6 +179,6 @@ export function createTerminal(path: string, env? : { [key: string]:string }): v
 }
 
 export function getRunCommand(): BALLERINA_COMMANDS {
-    return ballerinaExtInstance.enabledRunWithWatch() ?
+    return ballerinaExtInstance.enabledLiveReload() ?
         BALLERINA_COMMANDS.RUN_WITH_WATCH : BALLERINA_COMMANDS.RUN;
 }
