@@ -14,7 +14,7 @@ import { Transition } from '@headlessui/react';
 import { css } from '@emotion/css';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
-import { ExpressionBarProps, CompletionItem } from './ExpressionBar';
+import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
@@ -316,8 +316,8 @@ const SyntaxEl = (props: SyntaxElProps) => {
     );
 };
 
-export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
-    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, ...rest } = props;
+export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
+    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, undoUncommitedChanges, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -328,8 +328,6 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         prefix: /(\w*)$/,
         suffix: /^(\w*)/,
     };
-
-    useImperativeHandle(ref, () => inputRef.current);
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
@@ -349,6 +347,11 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef]);
+
+    const handleClose = () => {
+        onCancel();
+        setSyntax(undefined);
+    };
 
     const updateSyntax = (currentFnContent: string, newSelectedItem?: CompletionItem) => {
         if (newSelectedItem) {
@@ -384,10 +387,11 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     };
 
     const handleCompletionSelect = async (item: CompletionItem) => {
+        const replacementSpan = item.replacementSpan ?? 0;
         const cursorPosition = inputRef.current.shadowRoot.querySelector('input').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
-        const prefix = value.substring(0, cursorPosition - prefixMatches[1].length);
+        const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
         const suffix = value.substring(cursorPosition + suffixMatches[1].length);
         const newCursorPosition = prefix.length + item.value.length;
         const newTextValue = prefix + item.value + suffix;
@@ -395,11 +399,6 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         await handleChange(newTextValue, newCursorPosition, item);
         setCursor(inputRef, newCursorPosition);
         await onCompletionSelect(newTextValue);
-    };
-
-    const handleClose = () => {
-        onCancel();
-        setSyntax(undefined);
     };
 
     const navigateUp = throttle((hoveredEl: Element) => {
@@ -488,6 +487,21 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             handleClose();
         }
     };
+
+    useImperativeHandle(ref, () => ({
+        focus: async (text?: string) => {
+            inputRef.current?.focus();
+            if (text !== undefined) {
+                await onChange(text);
+            }
+        },
+        blur: async () => {
+            inputRef.current?.blur();
+            handleClose();
+            await undoUncommitedChanges();
+        },
+        shadowRoot: inputRef.current?.shadowRoot,
+    }));
 
     return (
         <Container ref={elementRef}>
