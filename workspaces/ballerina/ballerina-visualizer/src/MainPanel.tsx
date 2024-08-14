@@ -114,7 +114,13 @@ const MainPanel = () => {
                         setViewComponent(<GraphQLDiagram />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
-                        setViewComponent(<SequenceDiagram />)
+                        setViewComponent(
+                            <SequenceDiagram
+                                filePath={value.documentUri}
+                                applyModifications={applyModifications}
+                                targetPosition={value.position}
+
+                            />)
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);

@@ -33,6 +33,7 @@
     "@wso2-enterprise/ballerina-low-code-diagram": "workspace:*",
     "@wso2-enterprise/eggplant-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-side-panel": "workspace:*",
+    "@wso2-enterprise/ballerina-statement-editor": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vscode-uri": "^3.0.8",

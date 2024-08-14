@@ -15,9 +15,11 @@ import {
     PositioningVisitor,
     SizingVisitor,
 } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { PanelContainer, NodeList } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
+import { STModification } from "@wso2-enterprise/ballerina-core";
+import { StatementEditorComponent} from "./StatementEditorComponent"
 
 enum MESSAGE_TYPE {
     ERROR,
@@ -38,11 +40,20 @@ const MessageContainer = styled.div({
     alignItems: "center",
 });
 
-export function SequenceDiagram() {
+interface SequenceDiagramProps {
+    filePath: string;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+    targetPosition: NodePosition;
+}
+
+export function SequenceDiagram(props: SequenceDiagramProps) {
+    const { filePath, applyModifications, targetPosition } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [st, setSt] = useState<STNode>();
     const [showPanel, setShowPanel] = useState<boolean>(false);
+    const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
+    const [statementPosition, setStatementPosition] = useState<NodePosition>();
 
     useEffect(() => {
         getSequenceModel();
@@ -89,13 +100,64 @@ export function SequenceDiagram() {
         return clone;
     }
 
+    const closeStatementEditor = () => {
+        setShowStatementEditor(false);
+        setShowPanel(false);
+    }
+
+    const cancelStatementEditor = () => {
+        setShowStatementEditor(false);
+    }
+
+    const handleAddComponent = (position: NodePosition) => {
+        console.log(position);
+        setShowPanel(true);
+        setStatementPosition(position);
+    }
+
+    const initialSource = "\nvar var1 = 1;"
+
     return (
         <>
-            <Container>{!!st && 
-                <LowCodeDiagram syntaxTree={st} isReadOnly={false} onAddComponent={() => { setShowPanel(true) }} />
+            <Container>{!!st &&
+                <LowCodeDiagram syntaxTree={st} isReadOnly={false} onAddComponent={ handleAddComponent}/>
             }</Container>
             <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
-                <NodeList categories={[]} onSelect={(id: string) => { }} />
+                {showStatementEditor ? 
+                    (
+                        <StatementEditorComponent
+                                label= {"Variable"}
+                                config={{type: "Variable", model: null}}
+                                initialSource = {initialSource}
+                                applyModifications={applyModifications}
+                                currentFile={{
+                                    content: "",
+                                    path: filePath,
+                                    size: 1
+                                }}
+                                onCancel={cancelStatementEditor}
+                                onClose={closeStatementEditor}
+                                syntaxTree={st}
+                                targetPosition={statementPosition}
+                            />
+                    )
+                    :
+                (<NodeList categories={[{
+                    title: "Flow Nodes",
+                    description: "Flow nodes description",
+                    items: [
+                        {
+                            id: "1",
+                            label: "variable",
+                            description: "variable description",
+                            enabled: true,
+                        }
+                    ]
+                }]} onSelect={(id: string) => {
+                    console.log(id);
+                    setShowStatementEditor(true);
+                }} />)
+            }
             </PanelContainer>
         </>
     );

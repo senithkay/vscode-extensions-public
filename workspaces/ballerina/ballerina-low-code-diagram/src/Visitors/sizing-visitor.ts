@@ -182,6 +182,7 @@ export class SizingVisitor implements Visitor {
                 plusBtnViewBox.index = i;
                 plusBtnViewBox.expanded = false;
                 plusBtnViewBox.isLast = true;
+                plusBtnViewBox.targetPosition = node.position; // TODO check the memeber position
                 viewState.plusButtons.push(plusBtnViewBox);
             }
         });
@@ -1824,6 +1825,7 @@ export class SizingVisitor implements Visitor {
                     const plusBtnViewState: PlusViewState = new PlusViewState();
                     plusBtnViewState.index = index;
                     plusBtnViewState.expanded = false;
+                    plusBtnViewState.targetPosition = statement.position;
                     blockViewState.plusButtons.push(plusBtnViewState);
                 }
 

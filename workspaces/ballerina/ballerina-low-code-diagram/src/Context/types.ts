@@ -12,7 +12,7 @@ export enum ViewMode {
 export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
     experimentalEnabled?: boolean;
-    onAddComponent?: () => void;
+    onAddComponent?: (targetPosition: NodePosition) => void;
 }
 
 export interface ZoomStatus {
@@ -39,7 +39,7 @@ export interface LowCodeDiagramProperties {
     experimentalEnabled?: boolean;
     onDiagramDoubleClick?: () => void,
     getListenerSignature?: (functionNode: STNode) => Promise<string>;
-    onAddComponent?: () => void;
+    onAddComponent?: (targetPosition: NodePosition) => void;
 }
 
 export interface LowCodeDiagramState {
