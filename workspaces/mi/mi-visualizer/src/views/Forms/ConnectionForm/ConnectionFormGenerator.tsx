@@ -36,6 +36,10 @@ const ParamManagerContainer = styled.div`
     width: 100%;
 `;
 
+const Field = styled.div`
+    margin-bottom: 12px;
+`;
+
 interface Connection {
     name: string;
     connectionType: string;
@@ -558,29 +562,21 @@ export function AddConnection(props: AddConnectionProps) {
                         required={true}
                     />
                     {allowedConnectionTypes && (
-                        <>
-                            <Controller
-                                name="connectionType"
-                                control={control}
-                                rules={{ required: "Connection type is required" }}
-                                render={({ field }) => (
-                                    <AutoComplete
-                                        label={"Connection Type"}
-                                        items={
-                                            allowedConnectionTypes?.map((type: any) => (
-                                                type
-                                            ))
-                                        }
-                                        required={true}
-                                        value={field.value}
-                                        onValueChange={(e: any) => {
-                                            field.onChange(e);
-                                        }}
-                                        errorMsg={errors.connectionType && errors.connectionType.message.toString()}
-                                    />
-                                )}
-                            />
-                        </>
+                        <Field>
+                            <label>{"Connection Type"}</label> <RequiredFormInput />
+                            <AutoComplete
+                                identifier={"connectionType"}
+                                items={
+                                    allowedConnectionTypes?.map((type: any) => (
+                                        type
+                                    ))
+                                }
+                                value={connectionType}
+                                onValueChange={(e: any) => {
+                                    setConnectionType(e);
+                                }}
+                                required={true} />
+                        </Field>
                     )}
                     {formData && formData.elements && formData.elements.length > 0 && (
                         <>
