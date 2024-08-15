@@ -94,7 +94,7 @@ eggplant = true
     fs.writeFileSync(typesBalPath, EMPTY);
 
     // Create datamappings.bal file
-    const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
+    const datamappingsBalPath = path.join(projectRoot, 'datamappings.bal');
     fs.writeFileSync(datamappingsBalPath, EMPTY);
 
     console.log(`Eggplant project created successfully at ${projectRoot}`);
