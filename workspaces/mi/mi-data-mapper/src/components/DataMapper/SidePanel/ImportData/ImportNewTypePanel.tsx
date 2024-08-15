@@ -36,7 +36,7 @@ interface ImportDataPanelProps {
     importType: ImportType;
     extension: FileExtension;
     rowRange?: RowRange;
-    onSave: (text: string) => void;
+    onSave: (typeName: string, text: string) => void;
 }
 
 export function ImportNewTypePanel(props: ImportDataPanelProps) {
@@ -46,6 +46,7 @@ export function ImportNewTypePanel(props: ImportDataPanelProps) {
 
     const [rows, setRows] = useState(rowRange.start || 1);
     const [fileContent, setFileContent] = useState("");
+    const [typeName, setTypeName] = useState("");
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const hiddenFileInput = useRef(null);
@@ -100,6 +101,10 @@ export function ImportNewTypePanel(props: ImportDataPanelProps) {
         setRows(newRows);
     };
 
+    const handleTypeNameChange = (e: any) => {
+        setTypeName(e.target.value);
+    }
+
     const handleChange = (e: any) => {
         if (rowRange) {
             growTextArea(e.target.value);
@@ -125,7 +130,7 @@ export function ImportNewTypePanel(props: ImportDataPanelProps) {
     };
 
     const handleSave = () => {
-        onSave(fileContent);
+        onSave(typeName, fileContent);
     };
 
     const generatePlaceholder = useMemo(() => {
@@ -148,15 +153,30 @@ export function ImportNewTypePanel(props: ImportDataPanelProps) {
     return (
         <>
             <input hidden={true} accept={extension} type="file" onChange={showFile} ref={hiddenFileInput} />
+            <Controller
+                name="typeName"
+                control={control}
+                render={({ field }) => (
+                    <TextArea
+                        onChange={handleTypeNameChange}
+                        label="Custom Type Name"
+                        placeholder="Type name"
+                        rows={1}
+                        value={typeName}
+                        sx={{ border: "#00ff00", marginBottom:10 }}
+                        errorMsg={errors && errors.typeName?.message.toString()}
+                    />
+                )}
+            />
             <LinkButton
                 onClick={handleClick}
-                sx={{ padding: "5px", gap: "2px"}}
+                sx={{ padding: "5px", gap: "2px" }}
             >
                 <Icon
                     iconSx={{ fontSize: "12px" }}
                     name="file-upload"
                 />
-                    <p className={classes.fileUploadText}>{fileUploadText}</p>
+                <p className={classes.fileUploadText}>{fileUploadText}</p>
             </LinkButton>
             <Controller
                 name="payload"
@@ -169,7 +189,7 @@ export function ImportNewTypePanel(props: ImportDataPanelProps) {
                         resize="vertical"
                         placeholder={generatePlaceholder}
                         value={fileContent}
-                        sx={{border: "#00ff00"}}
+                        sx={{ border: "#00ff00" }}
                         errorMsg={errors && errors.payload?.message.toString()}
                     />
                 )}

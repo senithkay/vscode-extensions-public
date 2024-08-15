@@ -44,14 +44,6 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-
-    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
-        isOpen: state.isIOConfigPanelOpen,
-        ioType: state.ioConfigPanelType,
-        overwriteSchema: state.isSchemaOverridden,
-        setSidePanelOpen: state.setIsIOConfigPanelOpen
-    }));
-
     const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
         subMappingConfig: state.subMappingConfig,
         setSubMappingConfig: state.setSubMappingConfig
@@ -73,18 +65,19 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
     }, [selectedImportType]);
 
 
-    const loadSchema = async (content: string) => {
+    const loadSchema = async (typeName: string, content: string) => {
         const request = {
             documentUri: documentUri,
-            overwriteSchema: overwriteSchema,
+            overwriteSchema: false,
             resourceName: 'Schema', //TODO: unused property need to remove
             content: content,
             ioType: "custom", //TODO: use enum 
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
-            typeName: "MyCustomDateType"
+            typeName: typeName
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
+            setSelectedImportType(undefined);
             setImportNewTypeFormOpen(false);
             if (response.success) {
                 console.log("Schema imported successfully");
@@ -96,8 +89,8 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
         });
     };
 
-    const handleFileUpload = (text: string) => {
-        loadSchema(text);
+    const handleFileUpload = (typeName: string, text: string) => {
+        loadSchema(typeName, text);
     };
 
     const onClose = () => {
@@ -122,11 +115,13 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
     return (
         <>
             <SidePanelTitleContainer>
-                <Codicon name="arrow-left"
-                    sx={{ width: "20px" }}
+                <Button
                     onClick={onBack}
-                />
-                <span>{`${overwriteSchema ? "Change" : "Import"} data type`}</span>
+                    appearance="icon"
+                >
+                    <Codicon name="arrow-left" />
+                </Button>
+                <span style={{padding:10}}>Import custom data type</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}

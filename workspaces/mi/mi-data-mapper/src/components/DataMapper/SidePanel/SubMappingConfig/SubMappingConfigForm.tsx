@@ -33,10 +33,6 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const DrawerContainer = styled.div`
-    width: 312px;
-`;
-
 import { css } from "@emotion/css";
 const overlayClasses={
     localVarFormWrapper: css({
