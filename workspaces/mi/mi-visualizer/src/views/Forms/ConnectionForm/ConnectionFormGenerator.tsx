@@ -187,6 +187,8 @@ export function AddConnection(props: AddConnectionProps) {
             }
         }
         (async () => {
+            // Reset Form on repetitive edits
+            setFormData(undefined);
             await fetchFormData();
         })();
     }, [props.connectionName]);
