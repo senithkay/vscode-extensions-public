@@ -117,7 +117,7 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setShowPopup } = useVisualizerContext();
+    const { setPopupScreen } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -153,7 +153,7 @@ export function Overview(props: OverviewProps) {
 
     const handleAddConnection = () => {
         console.log(">>> Add Connection");
-        setShowPopup(true);
+        setPopupScreen("ADD_CONNECTION");
     };
 
     return (

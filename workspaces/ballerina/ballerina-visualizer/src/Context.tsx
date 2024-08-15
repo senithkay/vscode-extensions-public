@@ -20,22 +20,28 @@ export function RpcContextProvider({ children }: { children: ReactNode }) {
     return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 }
 
+export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
 interface VisualizerContext {
-    showPopup: boolean;
-    setShowPopup: (showPopup: boolean) => void;
+    popupScreen: PopupScreen;
+    screenMetadata: any;
+    setPopupScreen: (screen: PopupScreen) => void;
+    setScreenMetadata: (metadata: any) => void;
 }
 
 export const VisualizerContext = createContext({
-    showPopup: false,
-    setShowPopup: (showPopup: boolean) => {},
+    popupScreen: "EMPTY",
+    setPopupScreen: (screen: PopupScreen) => { },
 } as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
-    const [showPopup, setShowPopup] = useState(false);
+    const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
+    const [metadata, setMetadata] = useState({} as any);
 
-    const contextValue = {
-        showPopup: showPopup,
-        setShowPopup: setShowPopup,
+    const contextValue: VisualizerContext = {
+        popupScreen: popupScreen,
+        screenMetadata: metadata,
+        setPopupScreen: setPopupScreen,
+        setScreenMetadata: setMetadata,
     };
 
     return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;

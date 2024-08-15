@@ -448,11 +448,14 @@ export type EggplantFlowModelResponse = {
 };
 
 export interface EggplantSourceCodeRequest {
+    filePath: string;
     flowNode: FlowNode;
 }
 
 export type EggplantSourceCodeResponse = {
-    textEdits: TextEdit[];
+    textEdits:  {
+        [key: string]: TextEdit[];
+    };
 };
 
 export interface EggplantAvailableNodesRequest {
@@ -465,6 +468,8 @@ export type EggplantAvailableNodesResponse = {
 };
 
 export interface EggplantNodeTemplateRequest {
+    position: LineRange;
+    filePath: string;
     id: CodeData;
 }
 

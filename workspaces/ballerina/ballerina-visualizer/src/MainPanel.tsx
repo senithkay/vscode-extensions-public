@@ -21,7 +21,7 @@ import { SequenceDiagram } from './views/SequenceDiagram';
 import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, EggplantOverview, AddComponentView, ServiceForm } from './views/Eggplant';
+import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
@@ -48,7 +48,7 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const { showPopup, setShowPopup} = useVisualizerContext();
+    const { popupScreen, setPopupScreen } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 
@@ -85,7 +85,8 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isEggplant) {
-                            setViewComponent(<EggplantOverview stateUpdated />);
+                            // setViewComponent(<EggplantOverview stateUpdated />);
+                            setViewComponent(<ComponentDiagram stateUpdated />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
@@ -161,7 +162,7 @@ const MainPanel = () => {
     }, [viewComponent]);
 
     const handleOnClosePopup = () => {
-        setShowPopup(false);
+        setPopupScreen("EMPTY");
     }
 
     return (
@@ -172,8 +173,8 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
-                {showPopup && <PopupPanel onClose={handleOnClosePopup}>
-                    <AddConnectionWizard onClose={handleOnClosePopup} />
+                {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
+                    {popupScreen === "ADD_CONNECTION" && <AddConnectionWizard onClose={handleOnClosePopup} />}
                 </PopupPanel>}
             </VisualizerContainer>
         </>
