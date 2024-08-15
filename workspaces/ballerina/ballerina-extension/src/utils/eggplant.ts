@@ -130,7 +130,7 @@ service ${params.path} on new http:Listener(${params.port}) {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
     history.clear();
-    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 10, endColumn: 1 } });
+    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
     commands.executeCommand("Eggplant.project-explorer.refresh");
 }
 
