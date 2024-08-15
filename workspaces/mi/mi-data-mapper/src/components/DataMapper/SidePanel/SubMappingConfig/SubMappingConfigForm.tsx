@@ -174,9 +174,9 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const [openedIndex, setOpenedIndex] = useState<number>();
     const [isImportCustomTypeFormOpen, setIsImportCustomTypeFormOpen] = useState<boolean>(false);
 
-    const interfaces=functionST.getSourceFile().getInterfaces().map(iface=>iface.getName());
-    const allowedTypes=[...ALLOWED_TYPES,...interfaces];
-    
+    const interfaces = functionST.getSourceFile().getInterfaces().map(iface => iface.getName());
+    const allowedTypes = [...ALLOWED_TYPES, ...interfaces];
+
 
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
@@ -221,6 +221,10 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         await applyModifications(functionST.getSourceFile().getFullText());
     };
 
+    const isArray = (mappingType: string) => {
+        return mappingType.includes('[]');
+    };
+
     const onEdit = async (data: SMConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
         const { mappingName: prevMappingName, mappingType: prevMappingType } = lastView.subMappingInfo;
@@ -236,7 +240,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         }
 
         let updatedNode: Node;
-        if (mappingType !== prevMappingType && mappingType !== "object" && varDecl) {
+        if ((mappingName !== prevMappingName || mappingType !== prevMappingType) && mappingType !== "object" && varDecl) {
             const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);
@@ -327,7 +331,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                     nullable={true}
                                     value={field.value}
                                     onValueChange={(e) => { field.onChange(e); }}
-                                    sx={{height:22}}
+                                    sx={{ height: 22 }}
                                 />
 
                                 <div className={overlayClasses.addNewButtonWrapper}>
