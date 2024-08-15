@@ -16,10 +16,9 @@ import {
     SizingVisitor,
 } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { PanelContainer, NodeList } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { STModification } from "@wso2-enterprise/ballerina-core";
-import { StatementEditorComponent} from "./StatementEditorComponent"
+import { PanelType, useVisualizerContext } from "../../Context";
 
 enum MESSAGE_TYPE {
     ERROR,
@@ -40,24 +39,26 @@ const MessageContainer = styled.div({
     alignItems: "center",
 });
 
-interface SequenceDiagramProps {
-    filePath: string;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
-    targetPosition: NodePosition;
-}
+// interface SequenceDiagramProps {
+//     filePath: string;
+//     applyModifications: (modifications: STModification[]) => Promise<void>;
+// }
 
-export function SequenceDiagram(props: SequenceDiagramProps) {
-    const { filePath, applyModifications, targetPosition } = props;
+export function SequenceDiagram() {
+    // const { filePath, applyModifications } = props;
     const { rpcClient } = useRpcContext();
-
-    const [st, setSt] = useState<STNode>();
-    const [showPanel, setShowPanel] = useState<boolean>(false);
-    const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
-    const [statementPosition, setStatementPosition] = useState<NodePosition>();
+    const { setStatementPosition, parsedST, setParsedST, setActivePanel, activePanel } = useVisualizerContext();
 
     useEffect(() => {
         getSequenceModel();
     }, []);
+
+    useEffect(() => {
+        if (!activePanel?.isActive && activePanel?.contentUpdated) {
+            getSequenceModel();
+            setActivePanel({ isActive: false, contentUpdated: false });
+        }
+    }, [activePanel?.isActive]);
 
     const getSequenceModel = () => {
         rpcClient
@@ -65,7 +66,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             .getSyntaxTree()
             .then((model) => {
                 const parsedModel = sizingAndPositioningST(model.syntaxTree);
-                setSt(parsedModel);
+                setParsedST(parsedModel);
             });
     };
 
@@ -100,18 +101,8 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         return clone;
     }
 
-    const closeStatementEditor = () => {
-        setShowStatementEditor(false);
-        setShowPanel(false);
-    }
-
-    const cancelStatementEditor = () => {
-        setShowStatementEditor(false);
-    }
-
     const handleAddComponent = (position: NodePosition) => {
-        console.log(position);
-        setShowPanel(true);
+        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL, contentUpdated: false });
         setStatementPosition(position);
     }
 
@@ -119,10 +110,10 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
 
     return (
         <>
-            <Container>{!!st &&
-                <LowCodeDiagram syntaxTree={st} isReadOnly={false} onAddComponent={ handleAddComponent}/>
+            <Container>{!!parsedST &&
+                <LowCodeDiagram syntaxTree={parsedST} isReadOnly={false} onAddComponent={handleAddComponent} />
             }</Container>
-            <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
+            {/* <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
                 {showStatementEditor ? 
                     (
                         <StatementEditorComponent
@@ -137,7 +128,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                                 }}
                                 onCancel={cancelStatementEditor}
                                 onClose={closeStatementEditor}
-                                syntaxTree={st}
+                                syntaxTree={parsedST}
                                 targetPosition={statementPosition}
                             />
                     )
@@ -158,7 +149,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     setShowStatementEditor(true);
                 }} />)
             }
-            </PanelContainer>
+            </PanelContainer> */}
         </>
     );
 }

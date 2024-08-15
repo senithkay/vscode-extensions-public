@@ -27,7 +27,8 @@ import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
-import { useVisualizerContext } from './Context';
+import { PanelType, useVisualizerContext } from './Context';
+import { ConstructPanel } from "./views/ConstructPanel";
 
 const globalStyles = css`
   *,
@@ -48,7 +49,7 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const { showPopup, setShowPopup} = useVisualizerContext();
+    const { showPopup, setShowPopup, activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 
@@ -119,12 +120,7 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
-                            <SequenceDiagram
-                                filePath={value.documentUri}
-                                applyModifications={applyModifications}
-                                targetPosition={value.position}
-
-                            />)
+                            <SequenceDiagram />)
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);
@@ -181,6 +177,10 @@ const MainPanel = () => {
                 {showPopup && <PopupPanel onClose={handleOnClosePopup}>
                     <AddConnectionWizard onClose={handleOnClosePopup} />
                 </PopupPanel>}
+                {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
+                    <ConstructPanel applyModifications={applyModifications} />
+                )
+                }
             </VisualizerContainer>
         </>
     );
