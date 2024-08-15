@@ -18,6 +18,15 @@ export function activateProjectExplorer(context: ExtensionContext, isEggplant: b
 	const projectTree = window.createTreeView(VIEWS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	if (isEggplant) {
 		commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+
+		commands.registerCommand(VIEWS.ADD_CONNECTIONS, () => {
+			// Trigger to open the connections popup view
+		});
+
+		commands.registerCommand(VIEWS.ADD_ENTRY_POINT, () => {
+			// Trigger to open the entrypoint view
+		});
+
 		commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
 		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
 	} else {

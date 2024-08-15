@@ -12,6 +12,7 @@ import {
     DIRECTORY_MAP,
     EVENT_TYPE,
     MACHINE_VIEW,
+    MachineStateValue,
     ProjectStructureArtifactResponse,
     ProjectStructureResponse,
 } from "@wso2-enterprise/ballerina-core";
@@ -41,7 +42,13 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
 
-    useEffect(() => {
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
+            fetchContext();
+        }
+    });
+
+    const fetchContext = () => {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getProjectStructure()
@@ -54,6 +61,10 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             .then((res) => {
                 setProjectName(res.workspaces[0].name);
             });
+    }
+
+    useEffect(() => {
+        fetchContext();
     }, []);
 
     const goToView = async (filePath: string, position: NodePosition) => {

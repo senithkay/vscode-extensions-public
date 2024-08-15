@@ -169,17 +169,19 @@ function getEntriesEggplant(components: ProjectStructureResponse): ProjectExplor
         'folder',
         true
     );
+    entryPoints.contextValue = "entryPoint";
     entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES]);
     entries.push(entryPoints);
 
     // Connections
     const connections = new ProjectExplorerEntry(
         "Connections",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
     );
+    connections.contextValue = "connections";
     connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS]);
     entries.push(connections);
 

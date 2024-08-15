@@ -125,10 +125,6 @@ const MainPanel = () => {
                         setNavActive(false);
                         setViewComponent(<WelcomeView />)
                         break;
-                    case MACHINE_VIEW.EggplantWelcome:
-                        setNavActive(false);
-                        setViewComponent(<WelcomeView />)
-                        break;
                     case MACHINE_VIEW.EggplantProjectForm:
                         setViewComponent(<ProjectForm />)
                         break;
