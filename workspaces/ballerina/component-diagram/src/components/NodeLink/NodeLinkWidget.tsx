@@ -51,20 +51,41 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={link.showAddButton && linkColor}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
+                markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head-old)` : ""}
             />
 
             <defs>
                 <marker
-                    markerWidth="4"
-                    markerHeight="4"
-                    refX="3"
-                    refY="2"
-                    viewBox="0 0 4 4"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="6"
+                    refY="4"
+                    viewBox="0 0 8 8"
+                    orient="auto"
+                    id={`${link.getID()}-arrow-head-old`}
+                >
+                    <polygon points="0,8 0,0 6,4" fill={link.showAddButton && linkColor}></polygon>
+                </marker>
+            </defs>
+            <defs>
+                <marker
+                    markerWidth="10"
+                    markerHeight="10"
+                    refX="5"
+                    refY="5"
+                    viewBox="0 0 10 10"
                     orient="auto"
                     id={`${link.getID()}-arrow-head`}
                 >
-                    <polygon points="0,4 0,0 4,2" fill={link.showAddButton && linkColor}></polygon>
+                    <polyline
+                        points="0,5 5,2.5 2,0"
+                        fill="none"
+                        stroke-width="1.5"
+                        stroke={link.showAddButton && linkColor}
+                        stroke-linecap="round"
+                        transform="matrix(1,0,0,1,1.5,2.5)"
+                        stroke-linejoin="round"
+                    ></polyline>
                 </marker>
             </defs>
         </g>

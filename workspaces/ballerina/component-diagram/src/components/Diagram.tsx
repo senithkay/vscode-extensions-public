@@ -7,17 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import {
     autoDistribute,
     createNodesLink,
     generateEngine,
-    hasDiagramZoomAndPosition,
-    loadDiagramZoomAndPosition,
     registerListeners,
-    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
@@ -26,6 +23,7 @@ import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
+import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
 
 export interface DiagramProps {
     project: Project;
@@ -58,7 +56,29 @@ export function Diagram(props: DiagramProps) {
         project.entryPoints.forEach((entryPoint) => {
             const node = new EntryNodeModel(entryPoint);
             nodes.push(node);
+            // add actor node for each entry node
+            const actorNode = new ActorNodeModel({ ...entryPoint, id: entryPoint.id + "-actor" });
+            nodes.push(actorNode);
+            // create link between entry and actor nodes
+            const link = createNodesLink(actorNode, node);
+            if (link) {
+                links.push(link);
+            }
         });
+
+        // if there are no entry nodes, create a new entry node
+        if (project.entryPoints.length === 0) {
+            const node = new EntryNodeModel({ id: "new-entry", name: "New Entry", type: "service" });
+            nodes.push(node);
+            // add actor node for new entry node
+            const actorNode = new ActorNodeModel({ ...node.node, id: "new-entry-actor" });
+            nodes.push(actorNode);
+            // create link between entry and actor nodes
+            const link = createNodesLink(actorNode, node);
+            if (link) {
+                links.push(link);
+            }
+        }
 
         // create connection nodes
         project.connections.forEach((connection) => {
@@ -71,7 +91,6 @@ export function Diagram(props: DiagramProps) {
         nodes.push(node);
 
         // create links between entry and connection nodes
-        // entry node will link to all connection nodes except the new connection node
         project.entryPoints.forEach((entryPoint) => {
             const entryNode = nodes.find((node) => node.getID() === entryPoint.id);
             if (entryNode) {
@@ -85,6 +104,16 @@ export function Diagram(props: DiagramProps) {
                     });
             }
         });
+
+        // create link between new entry and connection nodes
+        const newEntryNode = nodes.find((node) => node.getID() === "new-entry");
+        const newConnectionNode = nodes.find((node) => node.getID() === "new-connection");
+        if (newEntryNode && newConnectionNode) {
+            const link = createNodesLink(newEntryNode, newConnectionNode);
+            if (link) {
+                links.push(link);
+            }
+        }
 
 
         return { nodes, links };
