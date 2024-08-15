@@ -116,7 +116,10 @@
               "name": "inlineRegistryKey",
               "displayName": "Inline Registry Key",
               "inputType": "key",
-              "keyType": "registry",
+              "keyType": [
+                "registry",
+                "localEntry"
+              ],
               "defaultValue": "",
               "required": false,
               "helpTip": "",
