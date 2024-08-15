@@ -203,7 +203,7 @@ const stateMachine = createMachine<MachineContext>(
                         if (context.isEggplant) {
                             const entryPoints = (await new EggplantDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
-                                history.push({ location: { view: MACHINE_VIEW.EggplantComponentView, documentUri: context.documentUri } });
+                                history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                                 return resolve();
                             }
                         }
