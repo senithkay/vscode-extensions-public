@@ -40,15 +40,43 @@
                     "name": "Overview"
                 }
             ]
-        }
+        },
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "Eggplant.project-explorer.add-connection",
+                    "when": "view == Eggplant.project-explorer && viewItem == connections",
+                    "group": "inline"
+                },
+                {
+                    "command": "Eggplant.project-explorer.add-entry-point",
+                    "when": "view == Eggplant.project-explorer && viewItem == entryPoint",
+                    "group": "inline"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "ballerina.open.eggplant.welcome",
+                "title": "Open Welcome",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-connection",
+                "title": "Add Connection",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-entry-point",
+                "title": "Add Entry Point",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
+            }
+        ]
     },
-    "commands": [
-        {
-            "command": "ballerina.open.eggplant.welcome",
-            "title": "Open Welcome",
-            "category": "Eggplant"
-        }
-    ],
     "scripts": {
         "vscode:prepublish": "pnpm run compile",
         "compile": "webpack --mode production --stats-error-details",
