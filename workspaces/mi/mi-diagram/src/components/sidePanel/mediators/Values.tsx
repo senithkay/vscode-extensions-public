@@ -507,7 +507,8 @@ export function getAllMediators(props: GetMediatorsProps) {
     // hide respond mediator if next node is present
     if (props.nextNode && !props.parentNode) {
         allMediators["most popular"] = allMediators["most popular"].filter((mediator: any) => !["Respond"].includes(mediator.title));
-        allMediators["generic"] = allMediators["generic"].filter((mediator: any) => !["Respond"].includes(mediator.title));
+        allMediators["generic"] = allMediators["generic"].filter((mediator: any) => !["Respond", "Drop"].includes(mediator.title));
+        allMediators["other"] = allMediators["other"].filter((mediator: any) => !["Send", "Loopback"].includes(mediator.title));
     }
 
     if (props.parentNode) {
@@ -541,12 +542,6 @@ export function getAllMediators(props: GetMediatorsProps) {
             case MEDIATORS.ENTITLEMENT.toLowerCase():
                 // return {...allMediators, "sequences", "connectors"};
                 return { ...allMediators };
-            case MEDIATORS.ITERATE.toLowerCase():
-            case MEDIATORS.FOREACHMEDIATOR.toLowerCase(): {
-                allMediators["generic"] = allMediators["generic"].filter((mediator: any) => !["Send", "Respond", "Loopback", "Drop"].includes(mediator.title));
-                // return {...allMediators, "sequences", "connectors"};
-                return { ...allMediators };
-            }
         }
     }
     return { ...allMediators };
