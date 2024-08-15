@@ -128,15 +128,6 @@ export function SamplesView() {
         rpcClient.getMiVisualizerRpcClient().downloadSelectedSampleFromGithub(request);
     }
 
-    function handleBackButtonClick() {
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.Welcome
-            }
-        });
-    }
-
     function getSampleTitle() {
         return (
             <div>
