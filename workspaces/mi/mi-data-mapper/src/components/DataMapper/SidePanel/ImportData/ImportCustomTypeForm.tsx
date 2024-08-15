@@ -121,7 +121,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
                 >
                     <Codicon name="arrow-left" />
                 </Button>
-                <span style={{padding:10}}>Import custom data type</span>
+                <span style={{ padding: 10 }}>Import custom data type</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}

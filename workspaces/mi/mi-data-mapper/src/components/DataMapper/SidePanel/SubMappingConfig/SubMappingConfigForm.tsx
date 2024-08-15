@@ -34,7 +34,7 @@ const Field = styled.div`
 `;
 
 import { css } from "@emotion/css";
-const overlayClasses={
+const overlayClasses = {
     localVarFormWrapper: css({
         width: '100%',
         maxHeight: 800,
@@ -324,17 +324,17 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                     value={field.value}
                                     onValueChange={(e) => { field.onChange(e); }}
                                 />
-                               
+
                                 <div className={overlayClasses.addNewButtonWrapper}>
-                                <Button
-                                    appearance="icon"
-                                    onClick={() => setIsImportCustomTypeFormOpen(true)}
-                                    className={overlayClasses.linePrimaryButton} 
-                                >
-                                    <Codicon sx={{marginTop: 2, marginRight: 5}} name="add"/>
-                                    <div>Add New</div>
-                                </Button>
-                            </div>
+                                    <Button
+                                        appearance="icon"
+                                        onClick={() => setIsImportCustomTypeFormOpen(true)}
+                                        className={overlayClasses.linePrimaryButton}
+                                    >
+                                        <Codicon sx={{ marginTop: 2, marginRight: 5 }} name="add" />
+                                        <div>Add New</div>
+                                    </Button>
+                                </div>
                             </>
                         )}
                     />
@@ -383,13 +383,14 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                     isOpen={isImportCustomTypeFormOpen}
                     id="drawerImportCustomTypeForm"
                     isSelected={true}
-                    sx={{width:312}}
+                    sx={{ width: 312 }}
                 >
-
-                    <ImportCustomTypeForm configName={configName} documentUri={documentUri} setIsImportCustomTypeFormOpen={setIsImportCustomTypeFormOpen}/>
-                    
-
+                    <ImportCustomTypeForm
+                        configName={configName}
+                        documentUri={documentUri}
+                        setIsImportCustomTypeFormOpen={setIsImportCustomTypeFormOpen} />
                 </Drawer>
+
             </SidePanelBody>
         </SidePanel>
     );

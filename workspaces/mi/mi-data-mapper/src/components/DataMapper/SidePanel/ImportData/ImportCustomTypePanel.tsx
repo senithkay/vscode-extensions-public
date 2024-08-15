@@ -163,7 +163,7 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
                         placeholder="Type name"
                         rows={1}
                         value={typeName}
-                        sx={{ border: "#00ff00", marginBottom:10 }}
+                        sx={{ border: "#00ff00", marginBottom: 10 }}
                         errorMsg={errors && errors.typeName?.message.toString()}
                     />
                 )}
