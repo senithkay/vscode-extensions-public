@@ -11,7 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
-import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, NEW_CONNECTION } from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, NEW_CONNECTION, CON_NODE_HEIGHT } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
@@ -27,7 +27,7 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: center;
         width: ${CON_NODE_WIDTH}px;
-        height: ${CON_NODE_WIDTH / 3}px;
+        height: ${CON_NODE_HEIGHT}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 50px;
