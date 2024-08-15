@@ -88,6 +88,10 @@ eggplant = true
 
 
 export async function createEggplantService(params: CreateComponentRequest) {
+
+    if (!params.path.startsWith('/')) {
+        params.path = `/${params.path}`;
+    }
     const fooBalContent = `import ballerina/http;
 
 service ${params.path} on new http:Listener(${params.port}) {
