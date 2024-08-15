@@ -9,20 +9,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
-import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from 'ts-morph';
+import { debounce } from 'lodash';
+
+import { css } from '@emotion/css';
+import { ExpressionBar, CompletionItem, ExpressionBarRef } from '@wso2-enterprise/ui-toolkit';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-import { useDMExpressionBarStore } from '../../../store/store';
-import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
+import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
+import { filterCompletions, getInnermostPropAsmtNode } from './utils';
+import { View } from '../Views/DataMapperView';
+import { DMTypeWithValue } from '../../../components/Diagram/Mappings/DMTypeWithValue';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
-import { filterCompletions, getInnermostPropAsmtNode } from './utils';
-import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
-import { View } from '../Views/DataMapperView';
-import { debounce } from 'lodash';
+import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
+import { useDMExpressionBarStore, useDMRegenerateNodesStore } from '../../../store/store';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -49,17 +50,26 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { views, filePath, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
-    const textFieldRef = useRef<HTMLInputElement>(null);
-    const savedTextFieldValue = useRef<string>("");
+    const textFieldRef = useRef<ExpressionBarRef>(null);
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [action, triggerAction] = useState<boolean>(false);
+
+    // Refs for undoing and saving operations
+    const prevFocusedFilter = useRef<Node | undefined>();
+    const prevTypeWithValue = useRef<DMTypeWithValue>();
+    const savedNodeValue = useRef<string | undefined>();
 
     const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
         focusedFilter: state.focusedFilter,
         inputPort: state.inputPort,
         resetInputPort: state.resetInputPort
+    }));
+
+    const { regenerateNodes } = useDMRegenerateNodesStore(state => ({
+        regenerateNodes: state.regenerateNodes
     }));
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
@@ -135,13 +145,40 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         })();
     }, [inputPort]);
 
+    const undoChangesOnPrevSelectedNode = () => {
+        if (prevTypeWithValue.current) {
+            const prevFocusedNode = prevTypeWithValue.current.value;
+            if (
+                prevFocusedNode &&
+                !prevFocusedNode.wasForgotten() &&
+                Node.isPropertyAssignment(prevFocusedNode)
+            ) {
+                const parent = prevFocusedNode.getParent();
+                const propName = prevFocusedNode.getName();
+                prevFocusedNode.remove();
+                const propertyAssignment = parent.addPropertyAssignment({
+                    name: propName,
+                    initializer: savedNodeValue.current
+                });
+                prevTypeWithValue.current.setValue(propertyAssignment);
+                prevTypeWithValue.current = undefined;
+            }
+        } else if (prevFocusedFilter.current) {
+            prevFocusedFilter.current.replaceWithText(savedNodeValue.current);
+            prevFocusedFilter.current = undefined;
+        }
+    };
+
     const disabled = useMemo(() => {
         let value = "";
-        let disabled;
+        let disabled = true;
+
+        undoChangesOnPrevSelectedNode();
     
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
             const focusedNode = focusedPort.typeWithValue.value;
+            prevTypeWithValue.current = focusedPort.typeWithValue;
             if (focusedNode && !focusedNode.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedNode)) {
                     value = focusedNode.getInitializer()?.getText();
@@ -149,35 +186,37 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     value = focusedNode ? focusedNode.getText() : "";
                 }
             }
-
-            if (textFieldRef.current) {
-                textFieldRef.current.focus();
-            }
-
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
-
-            if (textFieldRef.current) {
-                textFieldRef.current.focus();
-            }
-
+            prevFocusedFilter.current = focusedFilter;
             disabled = false;
-        } else if (textFieldRef.current) {
+        } else {
             // If displaying a focused view
             if (views.length > 1 && !views[views.length - 1].subMappingInfo) {
                 setPlaceholder('Click on an output field or a filter to add/edit expressions.');
             } else {
                 setPlaceholder('Click on an output field to add/edit expressions.');
             }
-
-            textFieldRef.current.blur();
         }
     
-        savedTextFieldValue.current = textFieldValue;
+        savedNodeValue.current = value;
+
         setTextFieldValue(value);
+        triggerAction(!action);
+
         return disabled;
-    }, [textFieldRef.current?.innerText, focusedPort, focusedFilter, views]);
+    }, [focusedPort, focusedFilter, views]);
+
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            if (disabled) {
+                textFieldRef.current?.blur();
+            } else if (focusedPort || focusedFilter) {
+                textFieldRef.current?.focus(textFieldValue);
+            }
+        });
+    }, [disabled, action]);
 
     const updateST = useCallback(debounce(async (text: string) => {
         let propertyAssignment: PropertyAssignment;
@@ -212,7 +251,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 }
             }
         } else if (focusedFilter) {
-            focusedFilter.replaceWithText(text);
+            const filter = focusedFilter.replaceWithText(text);
+            prevFocusedFilter.current = filter;
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
@@ -234,8 +274,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             );
 
             const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
-
             focusedPort.typeWithValue.setValue(portValue);
+
+            if (text !== "") {
+                await updateST(text);
+            }
         }
         setCompletions(await getCompletions());
     }, 300), [focusedPort, focusedFilter]);
@@ -246,25 +289,29 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleExpressionSave = async (value: string) => {
-        if (savedTextFieldValue.current === value) {
+        if (savedNodeValue.current === value) {
             return;
         }
-        savedTextFieldValue.current = value;
+        savedNodeValue.current = value;
         await updateST.flush();
         await applyChanges(value);
     }
 
     const handleCompletionSelect = async (value: string) => {
-        if (savedTextFieldValue.current === value) {
+        if (savedNodeValue.current === value) {
             return;
         }
-        savedTextFieldValue.current = value;
+        savedNodeValue.current = value;
         await updateST.flush();
         await applyChanges(value);
     }
 
     const handleCancelCompletions = () => {
         setCompletions([]);
+    }
+
+    const handleUndoUncommitedChanges = async () => {
+        regenerateNodes();
     }
 
     const applyChanges = async (value: string) => {
@@ -277,6 +324,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const applyChangesOnFocusedPort = async (value: string) => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
+        let updatedSourceContent;
         if (focusedFieldValue) {
             if (focusedFieldValue.wasForgotten()) {
                 return;
@@ -284,18 +332,23 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             let targetExpr: Node;
             if (Node.isPropertyAssignment(focusedFieldValue)) {
+                const parent = focusedFieldValue.getParent();
+
                 if (value === '') {
                     focusedFieldValue.remove();
                 }
+
+                updatedSourceContent = parent.getSourceFile().getFullText();
             } else {
                 targetExpr = focusedFieldValue;
                 const replaceWith = value === ''
                     ? getDefaultValue(focusedPort.typeWithValue.type.kind)
                     : value;
 
-                targetExpr.replaceWithText(replaceWith);
+                const updatedNode = targetExpr.replaceWithText(replaceWith);
+                updatedSourceContent = updatedNode.getSourceFile().getFullText();
             }
-            await applyModifications(focusedFieldValue.getSourceFile().getFullText());
+            await applyModifications(updatedSourceContent);
         }
     };
 
@@ -308,7 +361,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             <ExpressionBar
                 id='expression-bar'
                 ref={textFieldRef}
-                disabled={disabled ?? false}
+                disabled={disabled}
                 value={textFieldValue}
                 placeholder={placeholder}
                 completions={completions}
@@ -316,6 +369,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
                 onCancel={handleCancelCompletions}
+                undoUncommitedChanges={handleUndoUncommitedChanges}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>
