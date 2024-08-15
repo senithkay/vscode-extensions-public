@@ -540,7 +540,7 @@ export function AddConnection(props: AddConnectionProps) {
         )} />;
 
     return (
-        <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
+        <FormView title={props.connectionName ? "Update Connection" : "Add New Connection"} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && props.connector.name && <TypeChip
                 type={props.connector.name}
                 onClick={props.changeConnector}
