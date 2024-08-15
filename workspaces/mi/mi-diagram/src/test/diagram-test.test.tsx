@@ -11,7 +11,7 @@ import React from 'react';
 import { LanguageClient } from './lang-service/client';
 import path from 'path';
 import fs from 'fs';
-import { Diagram } from '../../components';
+import { Diagram } from '../components';
 import { log } from "console";
 import { prettyDOM, waitFor, waitForElementToBeRemoved } from "@testing-library/dom";
 import { render, screen } from '@testing-library/react'
@@ -61,7 +61,7 @@ describe('Diagram component', () => {
     describe('renders correctly with valid XML files', () => {
         const dataRoot = path.join(__dirname, 'data', 'input-xml');
         const files = fs.readdirSync(dataRoot);
-        test.each(files)('myFunc work correctly for %s', async (file) => {
+        test.each(files)('Diagram work correctly for resource - %s', async (file) => {
             if (file.endsWith('.xml')) {
                 const uri = path.join(dataRoot, file);
                 const syntaxTree = await langClient.getSyntaxTree({
@@ -71,26 +71,28 @@ describe('Diagram component', () => {
                 });
 
                 if (syntaxTree.syntaxTree.api.resource && syntaxTree.syntaxTree.api.resource.length > 0) {
-                    const dom = render(
-                        <ErrorBoundary>
-                            <Diagram model={syntaxTree.syntaxTree.api.resource[0]} documentUri={uri} />
-                        </ErrorBoundary>);
+                    const model = syntaxTree.syntaxTree.api.resource[0];
+                    await renderAndCheckSnapshot(model, uri);
+                } else {
+                    throw new Error("Resource is undefined or empty.");
+                }
+            }
+        }, 20000);
 
-                    await waitFor(async () => {
-                        expect(await screen.findByTestId(/^diagram-canvas-/)).toBeInTheDocument();
-                        await waitForElementToBeRemoved(await screen.findByTestId("loading-overlay"));
-                    }, { timeout: 10000 })
+        const dssDataRoot = path.join(__dirname, 'data', 'input-xml', 'data-services');
+        const dssFiles = fs.readdirSync(dssDataRoot);
+        test.each(dssFiles)('Diagram work correctly for data service - %s', async (file) => {
+            if (file.endsWith('.xml')) {
+                const uri = path.join(dssDataRoot, file);
+                const syntaxTree = await langClient.getSyntaxTree({
+                    documentIdentifier: {
+                        uri
+                    }
+                });
 
-                    const prettyDom = prettyDOM(dom.container, 1000000, {
-                        highlight: false, filterNode(node) {
-                            return true;
-                        },
-                    });
-
-                    expect(prettyDom).toBeTruthy();
-
-                    const sanitazedDom = (prettyDom as string).replaceAll(/\s+(marker-end|id)="[^"]*"/g, '');
-                    expect(sanitazedDom).toMatchSnapshot();
+                if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
+                    const model = syntaxTree.syntaxTree?.data?.queries[0];
+                    await renderAndCheckSnapshot(model, uri);
                 } else {
                     throw new Error("Resource is undefined or empty.");
                 }
@@ -98,3 +100,27 @@ describe('Diagram component', () => {
         }, 20000);
     });
 });
+
+async function renderAndCheckSnapshot(model: any, uri: string) {
+    const dom = render(
+        <ErrorBoundary>
+            <Diagram model={model} documentUri={uri} />
+        </ErrorBoundary>);
+
+    await waitFor(async () => {
+        expect(await screen.findByTestId(/^diagram-canvas-/)).toBeInTheDocument();
+        await waitForElementToBeRemoved(await screen.findByTestId("loading-overlay"));
+    }, { timeout: 10000 });
+
+    const prettyDom = prettyDOM(dom.container, 1000000, {
+        highlight: false, filterNode(node) {
+            return true;
+        },
+    });
+
+    expect(prettyDom).toBeTruthy();
+
+    const sanitazedDom = (prettyDom as string).replaceAll(/\s+(marker-end|id)="[^"]*"/g, '');
+    expect(sanitazedDom).toMatchSnapshot();
+}
+

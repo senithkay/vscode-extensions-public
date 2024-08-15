@@ -10,7 +10,7 @@
 import path from "path";
 import { LanguageClient } from "./lang-service/client";
 import { getMediatorDescription, readXMLFile } from "./utils/test-utils";
-import { getDataFromST, getXML } from "../template-engine/mustach-templates/templateUtils";
+import { getDataFromST, getXML } from "../utils/template-engine/mustach-templates/templateUtils";
 
 const dataRoot = path.join(__dirname, "data");
 
@@ -303,7 +303,7 @@ describe('Test MI Mediators', () => {
                 const mediatorData = await getDataFromST(type, mediatorST);
                 const generatedXml = getXML(type, mediatorData);
 
-                const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
+                const dataDirectory = path.join(process.cwd(), "src", "test", "data");
                 // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
                 const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${type}.xml`));
                 expect(generatedXml).toEqual(outputFileContent);
