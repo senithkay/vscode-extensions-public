@@ -22,12 +22,13 @@ import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../utils/server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION, isSupportedSLVersion } from '../utils';
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH
+    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
+    ENABLE_LIVE_RELOAD
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -312,12 +313,14 @@ export class BallerinaExtension {
     registerPreInitHandlers(): any {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-            if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
-                || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
-                params.affectsConfiguration(ENABLE_DEBUG_LOG)
-                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
-                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES) ||
-                params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)) {
+            if (params.affectsConfiguration(BALLERINA_HOME) 
+                || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
+                || params.affectsConfiguration(ENABLE_ALL_CODELENS)
+                || params.affectsConfiguration(ENABLE_DEBUG_LOG)
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG)
+                || params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES)
+                || params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)
+                || params.affectsConfiguration(ENABLE_LIVE_RELOAD)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -594,6 +597,10 @@ export class BallerinaExtension {
 
     public enableLSDebug(): boolean {
         return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
+    }
+
+    public enabledLiveReload(): boolean {
+        return isSupportedSLVersion(this, 2201100) && workspace.getConfiguration().get(ENABLE_LIVE_RELOAD);
     }
 
     public enabledPerformanceForecasting(): boolean {
