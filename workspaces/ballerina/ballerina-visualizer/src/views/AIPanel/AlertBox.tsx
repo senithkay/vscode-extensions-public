@@ -51,14 +51,14 @@ export const AlertBox = (props: Props) => {
         <Container variant={variant}>
             {title && <Title>{title}</Title>}
             {subTitle && <SubTitle>{subTitle}</SubTitle>}
-            {/* <VSCodeButton onClick={onClick} appearance={variant} id={`alert-btn${buttonId ? `-${buttonId}` : ''}`}>
+            <VSCodeButton onClick={onClick} appearance={variant} id={`alert-btn${buttonId ? `-${buttonId}` : ''}`}>
                 {iconName && (
                     <>
                         <Codicon name={iconName} /> &nbsp;{" "}
                     </>
                 )}
                 {buttonTitle}
-            </VSCodeButton> */}
+            </VSCodeButton>
         </Container>
     );
 };

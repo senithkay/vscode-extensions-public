@@ -13,7 +13,7 @@ import {
     AIVisualizerState
 } from "@wso2-enterprise/ballerina-core";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-
+import { AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
         // ADD YOUR IMPLEMENTATION HERE
@@ -32,12 +32,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     async login(): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
     }
 
     async logout(): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        StateMachineAI.service().send(AI_EVENT_TYPE.LOGOUT);
     }
 
     async getAIVisualizerState(): Promise<AIVisualizerState> {

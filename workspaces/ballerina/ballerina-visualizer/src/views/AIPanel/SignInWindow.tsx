@@ -31,7 +31,7 @@ export const SignInToCopilotMessage = (props: { showProjectHeader?: boolean }) =
     const { showProjectHeader } = props;
 
     const signInToMIAI = () => {
-        //rpcClient.sendAIStateEvent(AI_EVENT_TYPE.LOGIN);
+        rpcClient.getAiPanelRpcClient().login();
     };
 
 
@@ -43,7 +43,7 @@ export const SignInToCopilotMessage = (props: { showProjectHeader?: boolean }) =
                 subTitle={
                     "Please sign in to enable MI Copilot Artifical Intelligence features"
                 }
-                title={"MI Copilot Account Not Found"}
+                title={"Ballerina Copilot Account Not Found"}
             />
         </Container>
     );

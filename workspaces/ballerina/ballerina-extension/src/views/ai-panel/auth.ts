@@ -9,12 +9,11 @@
 
 import axios from 'axios';
 import { StateMachineAI } from './aiMachine';
-import { AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/ballerina-core';
+import { AIUserTokens, AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { extension } from '../../BalExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
-
-export const USER_CHECK_BACKEND_URL = '/user/usage';
+import { USER_CHECK_BACKEND_URL } from './constants';
 
 export interface AccessToken {
     accessToken: string;
@@ -28,7 +27,7 @@ const CommonReqHeaders = {
     'Accept': 'application/json'
 };
 
-const config = vscode.workspace.getConfiguration('MI');
+const config = vscode.workspace.getConfiguration('ballerina');
 const AUTH_ORG = config.get('authOrg') as string;
 const AUTH_CLIENT_ID = config.get('authClientID') as string;
 const AUTH_REDIRECT_URL = config.get('authRedirectURL') as string;
@@ -37,9 +36,8 @@ export async function getAuthUrl(callbackUri: string): Promise<string> {
 
     // return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
-
-    const state = encodeURIComponent(btoa(JSON.stringify({ callbackUri: 'vscode://wso2.micro-integrator/signin' })));
-    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=${AUTH_REDIRECT_URL}&client_id=${AUTH_CLIENT_ID}&scope=openid%20email&state=${state}`;
+    const state = encodeURIComponent(btoa(JSON.stringify({ callbackUri })));
+    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev&client_id=${AUTH_CLIENT_ID}&scope=openid%20email&state=${state}`;
 }
 
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {

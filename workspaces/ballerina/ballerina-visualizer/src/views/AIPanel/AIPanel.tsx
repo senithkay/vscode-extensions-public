@@ -16,6 +16,7 @@ import { AIChat } from './AIChat';
 import { SignInToCopilotMessage } from './SignInWindow';
 import { WaitingForLoginMessage } from './WaitingForSignIn';
 import { DisabledWindow } from './DisabledWindow';
+import DocumentOutput from './DocumentOutput';
 
 const LoaderWrapper = styled.div`
     display: flex;

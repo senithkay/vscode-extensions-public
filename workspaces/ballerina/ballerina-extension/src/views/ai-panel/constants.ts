@@ -7,3 +7,4 @@ export const AI_AUTH_URL = "https://api.asgardeo.io/t/ballerinacopilotdev/oauth2
 export const AI_TOKEN_URL = "https://api.asgardeo.io/t/ballerinacopilotdev/oauth2/token";
 export const AI_CLIENT_ID = "XpQ6lphi7kjKkWzumYyqqNf7CjIa";
 export const AI_CLIENT_SECRET = "q8M81q2xmMqjK_3GBcshF6B7Le1JmgOtj4wclWDzfjsa";
+export const USER_CHECK_BACKEND_URL = '/user/usage';

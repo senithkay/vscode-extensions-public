@@ -27,6 +27,7 @@ export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
         })
     );
 
+    console.log("AI Panel activated");
     vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri) {
             if (uri.path === '/signin') {

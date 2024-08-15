@@ -156,12 +156,10 @@ const aiStateMachine = createMachine<AiMachineContext>({
 
 
 async function checkToken(context, event): Promise<UserToken> {
-    console.log("checkToken");
     return new Promise(async (resolve, reject) => {
         try {
             const token = await extension.context.secrets.get('BallerinaAIUser');
             if (token) {
-                console.log("found token in secrets");
                 const config = vscode.workspace.getConfiguration('Ballerina');
                 const ROOT_URL = config.get('rootUrl') as string;
                 const url = ROOT_URL + USER_CHECK_BACKEND_URL;
@@ -174,15 +172,11 @@ async function checkToken(context, event): Promise<UserToken> {
                 });
                 if (response.ok) {
                     const responseBody = await response.json() as AIUserTokens;
-                    console.log("token is valid");
                     resolve({ token, userToken: responseBody });
                 } else {
                     if (response.status === 401 || response.status === 403) {
-                        console.log("token is invalid");
-                        console.log("refreshing token");
                         const newToken = await refreshAuthCode();
                         if (newToken != "") {
-                            console.log("token refreshed");
                             const tokenFetchResponse = await fetch(url, {
                                 method: 'GET',
                                 headers: {
@@ -192,7 +186,6 @@ async function checkToken(context, event): Promise<UserToken> {
                             });
                             if (tokenFetchResponse.ok) {
                                 const responseBody = await tokenFetchResponse.json() as AIUserTokens;
-                                console.log("token refreshed successfully");
                                 resolve({ token: newToken, userToken: responseBody });
                             } else {
                                 console.log("Error: " + tokenFetchResponse.statusText);
@@ -233,9 +226,10 @@ async function openLogin(context, event) {
 
 async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
-        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.micro-integrator/signin`)
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.ballerina/signin`)
     );
     const oauthURL = await getAuthUrl(callbackUri.toString());
+    console.log("oauthURL", oauthURL);
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
 
@@ -250,6 +244,7 @@ export const StateMachineAI = {
     context: () => { return aiStateService.getSnapshot().context; },
     state: () => { return aiStateService.getSnapshot().value as AIMachineStateValue; },
     sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
+
 };
 
 export function openAIWebview(initialPrompt?: string) {
