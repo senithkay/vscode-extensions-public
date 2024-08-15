@@ -6,17 +6,16 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createMachine, interpret } from 'xstate';
+
+import { assign, createMachine, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { extension } from './eggplantExtentionContext';
-import { commands } from 'vscode';
-import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 
 interface MachineContext {
-    errorCode: string | null;
+    isEggplant: boolean;
 }
 
 const stateMachine = createMachine<MachineContext>({
@@ -24,8 +23,8 @@ const stateMachine = createMachine<MachineContext>({
     id: 'eggplant',
     initial: 'initialize',
     predictableActionArguments: true,
-    context: { // Add this
-        errorCode: null,
+    context: {
+        isEggplant: false
     },
     states: {
         initialize: {
@@ -34,23 +33,18 @@ const stateMachine = createMachine<MachineContext>({
                 onDone: [
                     {
                         target: 'ready',
-                        cond: (context, event) => event.data === true,
+                        actions: assign({
+                            isEggplant: (context, event) => event.data,
+                        })
                     },
-                    {
-                        target: 'new',
-                        cond: (context, event) => event.data === false,
-                    }
                 ],
                 onError: {
-                    target: 'new'
+                    target: 'disabled'
                 }
             }
         },
         ready: {
             entry: "activateExplorer"
-        },
-        new: {
-            entry: "showWelcome"
         },
         disabled: {
             // define what should happen when the project is not detected
@@ -59,11 +53,7 @@ const stateMachine = createMachine<MachineContext>({
 }, {
     actions: {
         activateExplorer: (context, event) => {
-            activateProjectExplorer(extension.context);
-            commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
-        },
-        showWelcome: (context, event) => {
-            commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);
+            activateProjectExplorer(extension.context, context.isEggplant);
         }
     },
 });
@@ -95,9 +85,6 @@ async function checkIfEggplantProject(): Promise<boolean> {
         }
     } catch (err) {
         console.error(err);
-    }
-    if (!isEggplant) {
-        throw new Error("Eggplant project not found");
     }
     return isEggplant;
 }

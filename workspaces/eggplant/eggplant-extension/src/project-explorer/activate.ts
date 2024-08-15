@@ -7,16 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { StateMachine } from '../stateMachine';
 import { COMMANDS, VIEWS } from '../constants';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, commands, window, workspace } from 'vscode';
+import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 
-export function activateProjectExplorer(context: ExtensionContext) {
-	const projectExplorerDataProvider = new ProjectExplorerEntryProvider();
+export function activateProjectExplorer(context: ExtensionContext, isEggplant: boolean) {
+	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isEggplant);
 	const projectTree = window.createTreeView(VIEWS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
-	commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
-
+	if (isEggplant) {
+		commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+		commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+	} else {
+		projectTree.onDidChangeVisibility(res => {
+			if (res.visible) {
+				commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);
+			}
+		});
+	}
 	context.subscriptions.push(workspace.onDidDeleteFiles(() => {
 		projectExplorerDataProvider.refresh();
 	}));
