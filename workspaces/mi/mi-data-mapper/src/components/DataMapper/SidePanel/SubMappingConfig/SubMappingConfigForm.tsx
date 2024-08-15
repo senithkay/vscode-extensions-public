@@ -27,7 +27,7 @@ import { Block, FunctionDeclaration, Node, VariableStatement } from "ts-morph";
 import { SourceNodeType, View } from "../../Views/DataMapperView";
 import { getDefaultValue } from "../../../Diagram/utils/common-utils";
 import { DataMapperNodeModel } from "../../../Diagram/Node/commons/DataMapperNode";
-import { ImportNewTypeForm } from "../ImportData/ImportNewTypeForm";
+import { ImportCustomTypeForm } from "../ImportData/ImportCustomTypeForm";
 
 const Field = styled.div`
    margin-bottom: 12px;
@@ -172,7 +172,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const lastView = views && views[views.length - 1];
 
     const [openedIndex, setOpenedIndex] = useState<number>();
-    const [isImportNewTypeFormOpen, setImportNewTypeFormOpen] = useState<boolean>(false);
+    const [importCustomTypeFormOpen, setImportCustomTypeFormOpen] = useState<boolean>(false);
 
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
@@ -328,7 +328,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                 <div className={overlayClasses.addNewButtonWrapper}>
                                 <Button
                                     appearance="icon"
-                                    onClick={() => setImportNewTypeFormOpen(true)}
+                                    onClick={() => setImportCustomTypeFormOpen(true)}
                                     className={overlayClasses.linePrimaryButton} 
                                 >
                                     <Codicon sx={{marginTop: 2, marginRight: 5}} name="add"/>
@@ -380,13 +380,13 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                 )}
 
                 <Drawer
-                    isOpen={isImportNewTypeFormOpen}
-                    id="drawerImportNewTypeForm"
+                    isOpen={importCustomTypeFormOpen}
+                    id="drawerImportCustomTypeForm"
                     isSelected={true}
                     sx={{width:312}}
                 >
 
-                    <ImportNewTypeForm configName={configName} documentUri={documentUri} setImportNewTypeFormOpen={setImportNewTypeFormOpen}/>
+                    <ImportCustomTypeForm configName={configName} documentUri={documentUri} setImportCustomTypeFormOpen={setImportCustomTypeFormOpen}/>
                     
 
                 </Drawer>

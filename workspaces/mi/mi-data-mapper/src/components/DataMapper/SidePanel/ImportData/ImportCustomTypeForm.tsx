@@ -19,7 +19,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
-import { ImportNewTypePanel } from "./ImportNewTypePanel";
+import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
 
 export interface ImportType {
     type: string;
@@ -32,14 +32,14 @@ export enum FileExtension {
     CSV = ".csv"
 }
 
-export type ImportDataWizardProps = {
+export type ImportCustomTypeFormProps = {
     configName: string;
     documentUri: string;
-    setImportNewTypeFormOpen: Dispatch<SetStateAction<boolean>>;
+    setImportCustomTypeFormOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export function ImportNewTypeForm(props: ImportDataWizardProps) {
-    const { configName, documentUri, setImportNewTypeFormOpen } = props;
+export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
+    const { configName, documentUri, setImportCustomTypeFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
@@ -78,7 +78,7 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSelectedImportType(undefined);
-            setImportNewTypeFormOpen(false);
+            setImportCustomTypeFormOpen(false);
             if (response.success) {
                 console.log("Schema imported successfully");
             } else {
@@ -95,7 +95,7 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
 
     const onClose = () => {
         setSelectedImportType(undefined);
-        setImportNewTypeFormOpen(false);
+        setImportCustomTypeFormOpen(false);
         setSubMappingConfig({
             ...subMappingConfig,
             isSMConfigPanelOpen: false
@@ -104,7 +104,7 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
 
     const onBack = () => {
         if (!selectedImportType)
-            setImportNewTypeFormOpen(false);
+            setImportCustomTypeFormOpen(false);
         setSelectedImportType(undefined);
     };
 
@@ -133,7 +133,7 @@ export function ImportNewTypeForm(props: ImportDataWizardProps) {
             <SidePanelBody>
                 {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
                 {selectedImportType && (
-                    <ImportNewTypePanel
+                    <ImportCustomTypePanel
                         importType={selectedImportType}
                         extension={fileExtension}
                         rowRange={{ start: 15, offset: 10 }}

@@ -32,14 +32,14 @@ interface RowRange {
     offset: number;
 }
 
-interface ImportDataPanelProps {
+interface ImportCustomTypePanelProps {
     importType: ImportType;
     extension: FileExtension;
     rowRange?: RowRange;
     onSave: (typeName: string, text: string) => void;
 }
 
-export function ImportNewTypePanel(props: ImportDataPanelProps) {
+export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
     const { importType, extension, rowRange, onSave } = props;
     const classes = useStyles();
     const { clearErrors, control, formState: { errors }, setError, watch } = useForm();
