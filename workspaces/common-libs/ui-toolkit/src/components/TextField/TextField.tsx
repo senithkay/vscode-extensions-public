@@ -73,7 +73,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
     React.useImperativeHandle(ref, () => textFieldRef.current);
 
     const { iconComponent, position = "start", onClick: iconClick } = icon || {};
-    
+
     const handleInput = (e: any) => {
         onTextChange && onTextChange(e.target.value);
         props.onChange && props.onChange(e);
