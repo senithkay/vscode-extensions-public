@@ -7,25 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./icons/nodes/BranchIcon";
-export * from "./icons/nodes/CallIcon";
-export * from "./icons/nodes/CodeIcon";
-export * from "./icons/nodes/CallIcon";
-export * from "./icons/nodes/LogIcon";
-export * from "./icons/nodes/SendIcon";
-export * from "./icons/nodes/MoreVertIcon";
 export * from "./icons/nodes/PlusIcon";
+export * from "./icons/nodes/LinkIcon";
 export * from "./icons/nodes/CloseIcon";
 export * from "./icons/nodes/HttpIcon";
+export * from "./icons/nodes/PersonIcon";
 export * from "./icons/nodes/DatabaseIcon";
-export * from "./icons/nodes/ApiIcon";
-export * from "./icons/nodes/VarIcon";
-export * from "./icons/nodes/LoopIcon";
-export * from "./icons/nodes/BreakIcon";
-export * from "./icons/nodes/ContinueIcon";
-export * from "./icons/nodes/StopIcon";
-export * from "./icons/nodes/BombIcon";
-export * from "./icons/nodes/SecurityIcon";
-export * from "./icons/nodes/LockIcon";
-export * from "./icons/nodes/TransformIcon";
-

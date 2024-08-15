@@ -69,7 +69,7 @@ export function Diagram(props: DiagramProps) {
 
         // if there are no entry nodes, create a new entry node
         if (project.entryPoints.length === 0) {
-            const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry", type: "service" });
+            const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry Point", type: "service" });
             nodes.push(node);
             // add actor node for new entry node
             const actorNode = new ActorNodeModel({ ...node.node, id: NEW_ENTRY + ACTOR_SUFFIX });

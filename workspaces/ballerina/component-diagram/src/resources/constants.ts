@@ -89,7 +89,7 @@ export const ACTOR_SUFFIX = "-actor";
 
 // sizing
 export const ENTRY_NODE_WIDTH = 180;
-export const CON_NODE_WIDTH = 120;
+export const CON_NODE_WIDTH = 200;
 export const ACTOR_NODE_WIDTH = 50;
 export const NODE_BORDER_WIDTH = 1.5;
 export const NODE_PADDING = 8;

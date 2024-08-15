@@ -14,11 +14,12 @@ import { EntryNodeModel } from "./EntryNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, NEW_ENTRY } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
+import { HttpIcon, PlusIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
-        selected: boolean;
         hovered: boolean;
+        inactive?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -28,22 +29,24 @@ export namespace NodeStyles {
         width: ${ENTRY_NODE_WIDTH}px;
         height: ${ENTRY_NODE_WIDTH}px;
         border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 50%;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
 
-    export const Header = styled.div<{}>`
+    export const Header = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 2px;
+        gap: 10px;
         width: 100%;
-        padding: 8px;
+        & svg {
+            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+            opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
+        }
     `;
 
     export const StyledButton = styled(Button)`
@@ -71,12 +74,14 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText)`
+    export const Title = styled(StyledText)<NodeStyleProp>`
         max-width: ${ENTRY_NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
+        color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+        opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
     `;
 
     export const Description = styled(StyledText)`
@@ -95,9 +100,11 @@ export namespace NodeStyles {
     export const Row = styled.div`
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
+        gap: 6px;
         width: 100%;
+        padding: 0 20px;
     `;
 
     export const Hr = styled.hr`
@@ -110,7 +117,7 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
@@ -125,9 +132,10 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         }
     };
 
+    const isNewEntryPoint = model.node.id === NEW_ENTRY;
+
     return (
         <NodeStyles.Node
-            selected={model.isSelected()}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -135,8 +143,12 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
-                <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.name}</NodeStyles.Title>
+                <NodeStyles.Header hovered={isHovered} inactive={isNewEntryPoint}>
+                    {isNewEntryPoint ? <PlusIcon /> : <HttpIcon />}
+                    <NodeStyles.Title hovered={isHovered} inactive={isNewEntryPoint}>
+                        {model.node.name}
+                    </NodeStyles.Title>
+                    {!isNewEntryPoint && <NodeStyles.Description>{model.node.type}</NodeStyles.Description>}
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

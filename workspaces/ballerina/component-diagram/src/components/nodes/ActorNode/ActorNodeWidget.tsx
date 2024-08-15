@@ -13,10 +13,10 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ActorNodeModel } from "./ActorNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ACTOR_NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
+import { PersonIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
-        selected: boolean;
         hovered: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
@@ -27,12 +27,15 @@ export namespace NodeStyles {
         width: ${ACTOR_NODE_WIDTH}px;
         height: ${ACTOR_NODE_WIDTH}px;
         border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 50%;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
+        & svg {
+            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+            opacity: ${(props: NodeStyleProp) => (props.hovered ? 1 : 0.7)};
+        }
     `;
 
     export const Header = styled.div<{}>`
@@ -121,7 +124,6 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
 
     return (
         <NodeStyles.Node
-            selected={model.isSelected()}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -130,6 +132,7 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Header>
+                    <PersonIcon />
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
