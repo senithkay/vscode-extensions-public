@@ -25,9 +25,23 @@ export type EntryPoint = {
     id: string;
     name: string;
     type: EntryPointType;
+    location?: Location;
 };
 
 export type Connection = {
     id: string;
     name: string;
+    location?: Location;
+};
+
+export type Location = {
+    filePath: string;
+    position: NodePosition;
+};
+
+export type NodePosition = {
+    startLine?: number;
+    startColumn?: number;
+    endLine?: number;
+    endColumn?: number;
 };

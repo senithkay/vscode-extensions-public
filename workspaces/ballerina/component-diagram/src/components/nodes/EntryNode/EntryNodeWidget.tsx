@@ -11,8 +11,9 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
-import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH } from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, NEW_ENTRY } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
+import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -28,7 +29,7 @@ export namespace NodeStyles {
         height: ${ENTRY_NODE_WIDTH}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 50%;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -109,14 +110,19 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onAddEntryPoint, onEntryPointSelect } = useDiagramContext();
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        // event.stopPropagation();
+        if (model.node.id === NEW_ENTRY) {
+            onAddEntryPoint();
+        } else {
+            onEntryPointSelect(model.node);
+        }
     };
 
     return (

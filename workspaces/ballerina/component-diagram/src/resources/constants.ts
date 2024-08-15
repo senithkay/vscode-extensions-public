@@ -83,9 +83,13 @@ export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
 export const LOADING_OVERLAY = "loading-overlay";
 
+export const NEW_ENTRY = "new-entry";
+export const NEW_CONNECTION = "new-connection";
+export const ACTOR_SUFFIX = "-actor";
+
 // sizing
-export const ENTRY_NODE_WIDTH = 120;
-export const CON_NODE_WIDTH = 80;
+export const ENTRY_NODE_WIDTH = 180;
+export const CON_NODE_WIDTH = 120;
 export const ACTOR_NODE_WIDTH = 50;
 export const NODE_BORDER_WIDTH = 1.5;
 export const NODE_PADDING = 8;

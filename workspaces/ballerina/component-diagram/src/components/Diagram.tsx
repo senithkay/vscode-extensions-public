@@ -24,6 +24,7 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
+import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY } from "../resources/constants";
 
 export interface DiagramProps {
     project: Project;
@@ -34,7 +35,7 @@ export interface DiagramProps {
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project } = props;
+    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -57,7 +58,7 @@ export function Diagram(props: DiagramProps) {
             const node = new EntryNodeModel(entryPoint);
             nodes.push(node);
             // add actor node for each entry node
-            const actorNode = new ActorNodeModel({ ...entryPoint, id: entryPoint.id + "-actor" });
+            const actorNode = new ActorNodeModel({ ...entryPoint, id: entryPoint.id + ACTOR_SUFFIX });
             nodes.push(actorNode);
             // create link between entry and actor nodes
             const link = createNodesLink(actorNode, node);
@@ -68,10 +69,10 @@ export function Diagram(props: DiagramProps) {
 
         // if there are no entry nodes, create a new entry node
         if (project.entryPoints.length === 0) {
-            const node = new EntryNodeModel({ id: "new-entry", name: "New Entry", type: "service" });
+            const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry", type: "service" });
             nodes.push(node);
             // add actor node for new entry node
-            const actorNode = new ActorNodeModel({ ...node.node, id: "new-entry-actor" });
+            const actorNode = new ActorNodeModel({ ...node.node, id: NEW_ENTRY + ACTOR_SUFFIX });
             nodes.push(actorNode);
             // create link between entry and actor nodes
             const link = createNodesLink(actorNode, node);
@@ -87,7 +88,7 @@ export function Diagram(props: DiagramProps) {
         });
 
         // create new connection node
-        const node = new ConnectionNodeModel({ id: "new-connection", name: "New Connection" });
+        const node = new ConnectionNodeModel({ id: NEW_CONNECTION, name: "New Connection" });
         nodes.push(node);
 
         // create links between entry and connection nodes
@@ -95,7 +96,7 @@ export function Diagram(props: DiagramProps) {
             const entryNode = nodes.find((node) => node.getID() === entryPoint.id);
             if (entryNode) {
                 nodes
-                    .filter((node) => node instanceof ConnectionNodeModel && node.getID() !== "new-connection")
+                    .filter((node) => node instanceof ConnectionNodeModel && node.getID() !== NEW_CONNECTION)
                     .forEach((connectionNode) => {
                         const link = createNodesLink(entryNode, connectionNode);
                         if (link) {
@@ -106,8 +107,8 @@ export function Diagram(props: DiagramProps) {
         });
 
         // create link between new entry and connection nodes
-        const newEntryNode = nodes.find((node) => node.getID() === "new-entry");
-        const newConnectionNode = nodes.find((node) => node.getID() === "new-connection");
+        const newEntryNode = nodes.find((node) => node.getID() === NEW_ENTRY);
+        const newConnectionNode = nodes.find((node) => node.getID() === NEW_CONNECTION);
         if (newEntryNode && newConnectionNode) {
             const link = createNodesLink(newEntryNode, newConnectionNode);
             if (link) {
@@ -145,7 +146,11 @@ export function Diagram(props: DiagramProps) {
     };
 
     const context: DiagramContextState = {
-        project: project,
+        project,
+        onAddEntryPoint,
+        onAddConnection,
+        onEntryPointSelect,
+        onConnectionSelect,
     };
 
     return (

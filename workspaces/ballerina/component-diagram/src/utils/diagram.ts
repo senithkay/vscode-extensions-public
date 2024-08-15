@@ -13,7 +13,6 @@ import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../compone
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
 import { NodeModel } from "./types";
-import { VerticalScrollCanvasAction } from "../actions/VerticalScrollCanvasAction";
 import { ConnectionNodeFactory } from "../components/nodes/ConnectionNode/ConnectionNodeFactory";
 import { ActorNodeFactory } from "../components/nodes/ActorNode/ActorNodeFactory";
 
@@ -58,8 +57,8 @@ export function genDagreEngine() {
     return new DagreEngine({
         graph: {
             rankdir: "LR",
-            nodesep: 120,
-            ranksep: 200,
+            nodesep: 160,
+            ranksep: 300,
             marginx: 100,
             marginy: 100,
             ranker: "longest-path"
