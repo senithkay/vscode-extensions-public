@@ -10,8 +10,8 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { ConnectionNodeModel } from "./ConnectionNodeModel";
-import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH } from "../../../resources/constants";
+import { ActorNodeModel } from "./ActorNodeModel";
+import { Colors, NODE_BORDER_WIDTH, ACTOR_NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 
 export namespace NodeStyles {
@@ -24,8 +24,8 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        width: ${CON_NODE_WIDTH}px;
-        height: ${CON_NODE_WIDTH}px;
+        width: ${ACTOR_NODE_WIDTH}px;
+        height: ${ACTOR_NODE_WIDTH}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
@@ -71,7 +71,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${CON_NODE_WIDTH - 50}px;
+        max-width: ${ACTOR_NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -80,7 +80,7 @@ export namespace NodeStyles {
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${CON_NODE_WIDTH - 80}px;
+        max-width: ${ACTOR_NODE_WIDTH - 80}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
@@ -104,14 +104,14 @@ export namespace NodeStyles {
     `;
 }
 
-interface ConnectionNodeWidgetProps {
-    model: ConnectionNodeModel;
+interface ActorNodeWidgetProps {
+    model: ActorNodeModel;
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ActorNodeWidgetProps, "children"> {}
 
-export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
+export function ActorNodeWidget(props: ActorNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -130,7 +130,6 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.name}</NodeStyles.Title>
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

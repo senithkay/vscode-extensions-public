@@ -86,6 +86,7 @@ export const LOADING_OVERLAY = "loading-overlay";
 // sizing
 export const ENTRY_NODE_WIDTH = 120;
 export const CON_NODE_WIDTH = 80;
+export const ACTOR_NODE_WIDTH = 50;
 export const NODE_BORDER_WIDTH = 1.5;
 export const NODE_PADDING = 8;
 

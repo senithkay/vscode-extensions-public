@@ -12,7 +12,7 @@ import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
 import { EntryPoint } from "../../../utils/types";
 
-export class EntryNodeModel extends NodeModel {
+export class ActorNodeModel extends NodeModel {
     readonly node: EntryPoint;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
@@ -20,7 +20,7 @@ export class EntryNodeModel extends NodeModel {
     constructor(node: EntryPoint) {
         super({
             id: node.id,
-            type: NodeTypes.ENTRY_NODE,
+            type: NodeTypes.ACTOR_NODE,
             // locked: true,
         });
         this.node = node;

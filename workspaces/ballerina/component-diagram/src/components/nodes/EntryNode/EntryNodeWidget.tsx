@@ -21,7 +21,7 @@ export namespace NodeStyles {
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: center;
         align-items: center;
         width: ${ENTRY_NODE_WIDTH}px;

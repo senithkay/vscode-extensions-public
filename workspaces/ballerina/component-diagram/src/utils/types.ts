@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ActorNodeModel } from "../components/nodes/ActorNode";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 import { EntryNodeModel } from "../components/nodes/EntryNode";
 
-export type NodeModel = EntryNodeModel | ConnectionNodeModel;
+export type NodeModel = EntryNodeModel | ConnectionNodeModel | ActorNodeModel;
 
 export type Project = {
     name: string;

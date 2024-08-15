@@ -58,11 +58,11 @@ export function genDagreEngine() {
     return new DagreEngine({
         graph: {
             rankdir: "LR",
-            nodesep: 150,
+            nodesep: 120,
             ranksep: 200,
             marginx: 100,
             marginy: 100,
-            ranker: "tight-tree",
+            ranker: "longest-path"
         },
     });
 }
