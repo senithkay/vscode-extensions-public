@@ -35,11 +35,11 @@ export enum FileExtension {
 export type ImportCustomTypeFormProps = {
     configName: string;
     documentUri: string;
-    setImportCustomTypeFormOpen: Dispatch<SetStateAction<boolean>>;
+    setIsImportCustomTypeFormOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
-    const { configName, documentUri, setImportCustomTypeFormOpen } = props;
+    const { configName, documentUri, setIsImportCustomTypeFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
@@ -78,7 +78,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSelectedImportType(undefined);
-            setImportCustomTypeFormOpen(false);
+            setIsImportCustomTypeFormOpen(false);
             if (response.success) {
                 console.log("Schema imported successfully");
             } else {
@@ -95,7 +95,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
 
     const onClose = () => {
         setSelectedImportType(undefined);
-        setImportCustomTypeFormOpen(false);
+        setIsImportCustomTypeFormOpen(false);
         setSubMappingConfig({
             ...subMappingConfig,
             isSMConfigPanelOpen: false
@@ -104,7 +104,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
 
     const onBack = () => {
         if (!selectedImportType)
-            setImportCustomTypeFormOpen(false);
+            setIsImportCustomTypeFormOpen(false);
         setSelectedImportType(undefined);
     };
 

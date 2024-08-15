@@ -172,7 +172,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const lastView = views && views[views.length - 1];
 
     const [openedIndex, setOpenedIndex] = useState<number>();
-    const [importCustomTypeFormOpen, setImportCustomTypeFormOpen] = useState<boolean>(false);
+    const [isImportCustomTypeFormOpen, setIsImportCustomTypeFormOpen] = useState<boolean>(false);
 
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
@@ -328,7 +328,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                 <div className={overlayClasses.addNewButtonWrapper}>
                                 <Button
                                     appearance="icon"
-                                    onClick={() => setImportCustomTypeFormOpen(true)}
+                                    onClick={() => setIsImportCustomTypeFormOpen(true)}
                                     className={overlayClasses.linePrimaryButton} 
                                 >
                                     <Codicon sx={{marginTop: 2, marginRight: 5}} name="add"/>
@@ -380,13 +380,13 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                 )}
 
                 <Drawer
-                    isOpen={importCustomTypeFormOpen}
+                    isOpen={isImportCustomTypeFormOpen}
                     id="drawerImportCustomTypeForm"
                     isSelected={true}
                     sx={{width:312}}
                 >
 
-                    <ImportCustomTypeForm configName={configName} documentUri={documentUri} setImportCustomTypeFormOpen={setImportCustomTypeFormOpen}/>
+                    <ImportCustomTypeForm configName={configName} documentUri={documentUri} setIsImportCustomTypeFormOpen={setIsImportCustomTypeFormOpen}/>
                     
 
                 </Drawer>
