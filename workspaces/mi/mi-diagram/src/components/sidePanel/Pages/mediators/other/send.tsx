@@ -21,6 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block",
@@ -50,6 +51,7 @@ const SendForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             endpoint: sidePanelContext?.formValues?.endpoint || "",
+            inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "",
             buildMessageBeforeSending: sidePanelContext?.formValues?.buildMessageBeforeSending || false,
             receivingSequenceType: sidePanelContext?.formValues?.receivingSequenceType || "Default",
             staticReceivingSequence: sidePanelContext?.formValues?.staticReceivingSequence || "",
@@ -127,6 +129,18 @@ const SendForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </Field>
+
+                    {watch("endpoint") == "INLINE" &&
+                    <Field>
+                        <Controller
+                            name="inlineEndpoint"
+                            control={control}
+                            render={({ field }) => (
+                                <CodeTextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.inlineEndpoint?.message?.toString()} />
+                            )}
+                        />
+                    </Field>
+                    }
 
                     <Field>
                         <Controller

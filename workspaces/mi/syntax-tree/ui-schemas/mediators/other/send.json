@@ -26,6 +26,21 @@
                     {
                         "type": "attribute",
                         "value": {
+                            "name": "inlineEndpoint",
+                            "displayName": "Inline Endpoint",
+                            "inputType": "codeTextArea",
+                            "required": false,
+                            "helpTip": "Define your endpoint as an XML",
+                            "enableCondition": [
+                                {
+                                    "endpoint": "INLINE"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
                             "name": "buildMessageBeforeSending",
                             "displayName": "Build Message Before Sending",
                             "inputType": "checkbox",

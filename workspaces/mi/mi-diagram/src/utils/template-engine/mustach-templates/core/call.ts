@@ -110,7 +110,7 @@ export async function getCallFormDataFromSTNode(data: { [key: string]: any }, no
       .join('\n')
       .trim();
   } else if (endpoint) {
-    data.endpoint = { isExpression: endpoint?.keyExpression ? true : false, value: endpoint?.key ?? endpoint?.keyExpression ?? "INLINE", namespaces: transformNamespaces(endpoint?.namespaces) }
+    data.endpoint = { isExpression: endpoint?.keyExpression ? true : false, value: endpoint?.key ?? endpoint?.keyExpression, namespaces: transformNamespaces(endpoint?.namespaces) }
   } else {
     data.endpoint = { isExpression: false, value: "NONE" }
   }

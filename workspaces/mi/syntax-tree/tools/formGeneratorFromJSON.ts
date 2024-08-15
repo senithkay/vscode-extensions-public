@@ -453,6 +453,13 @@ const generateForm = (jsonData: any): string => {
                         ? `{[${element.value.keyType.map((item: string) => `'${item}'`).join(',')}]}`
                         : `'${element.value.keyType}'`;
                     const additionalItems = element.value.comboValues;
+                    let addNewStr = '';
+                    if (element.value.isCreateNew) {
+                        addNewStr = `
+                        onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                            openPopup(rpcClient, ${filterType}, fetchItems, handleValueChange);
+                        }}`;
+                    }
                     const keyOrExpStr = `
                         <FormKeylookup
                         control={control}
@@ -462,7 +469,7 @@ const generateForm = (jsonData: any): string => {
                         allowItemCreate={false}
                         required={${element.value.required}}
                         errorMsg={errors?.${element.value.name}?.message?.toString()}
-                        canChangeEx={true}
+                        canChangeEx={true} ${addNewStr}
                         exprToggleEnabled={true}
                         openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                         ${additionalItems !== undefined ? `additionalItems={${JSON.stringify(additionalItems)}}` : `additionalItems={[]}`}

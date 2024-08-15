@@ -7,8 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 import { Send } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getSendMustacheTemplate() {
   return `
@@ -47,7 +49,7 @@ export function getSendXml(data: { [key: string]: any }, dirtyFields?: any, defa
   return output;
 }
 
-export function getSendFormDataFromSTNode(data: { [key: string]: any }, node: Send) {
+export async function getSendFormDataFromSTNode(data: { [key: string]: any }, node: Send, documentUri: string, rpcClient: RpcClient) {
   data.skipSerialization = false;
   data.buildMessageBeforeSending = node.buildmessage;
   data.description = node.description;
@@ -61,10 +63,31 @@ export function getSendFormDataFromSTNode(data: { [key: string]: any }, node: Se
     if (match && match.length > 1) {
       value = match[1];
     }
-    data.dynamicReceivingSequence = { isExpression: true, value: value, namespaces: node.namespaces };
+    data.dynamicReceivingSequence = { isExpression: true, value: value, namespaces: transformNamespaces(node.namespaces) };
   }
-  data.endpoint = node.endpoint?.key;
-  if (!data.endpoint) {
+  const endpoint = node.endpoint;
+  if (endpoint && (endpoint?.key == undefined && endpoint?.keyExpression == undefined)) {
+    data.endpoint = "INLINE";
+    let endpointClosePosition = endpoint.selfClosed ? endpoint.range.startTagRange.end : endpoint.range.endTagRange?.end;
+    if (!endpointClosePosition) {
+      endpointClosePosition = node.range.endTagRange.start;
+    }
+    const xml = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
+      documentUri,
+      range: {
+        start: endpoint.spaces.startingTagSpace.leadingSpace.range.start,
+        end: endpointClosePosition
+      }
+    });
+    const leadingSpaces = xml.text.match(/^(\s+)<endpoint/)[1].replace(/\n/g, '').replaceAll('\t', '    ');
+    data.inlineEndpoint = xml.text
+      .split('\n')
+      .map(line => line.length > 0 ? line.replace(/^(\s+)/, (match, p1) => p1.replaceAll('\t', '    ').replace(leadingSpaces, '')) : '')
+      .join('\n')
+      .trim();
+  } else if (endpoint) {
+    data.endpoint = endpoint.key ?? endpoint.keyExpression;
+  } else {
     data.endpoint = "NONE";
   }
   data.range = node.range;

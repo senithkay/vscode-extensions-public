@@ -13,7 +13,7 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Text
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -129,9 +129,12 @@ const CallForm = (props: AddMediatorProps) => {
                                 required={true}
                                 errorMsg={errors?.endpoint?.message?.toString()}
                                 canChangeEx={true}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, 'endpoint', fetchItems, handleValueChange);
+                                }}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                                additionalItems={["INLINE","NONE"]}
+                                additionalItems={["NONE"]}
                             />
                         )}
                     />
