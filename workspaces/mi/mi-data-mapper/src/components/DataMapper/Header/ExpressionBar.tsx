@@ -13,6 +13,7 @@ import { Block, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, t
 import { debounce } from 'lodash';
 
 import { css } from '@emotion/css';
+import { useMutation } from '@tanstack/react-query';
 import { ExpressionBar, CompletionItem, ExpressionBarRef } from '@wso2-enterprise/ui-toolkit';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
@@ -163,9 +164,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         let disabled = true;
 
         if (focusedPort) {
+            setLastFocusedPort(focusedPort);
             setPlaceholder('Insert a value for the selected port.');
             const focusedNode = focusedPort.typeWithValue.value;
-            setLastFocusedPort(focusedPort);
             if (focusedNode && !focusedNode.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedNode)) {
                     value = focusedNode.getInitializer()?.getText();
@@ -178,8 +179,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
-
+            
             setLastFocusedFilter(focusedFilter);
+            setSavedNodeValue(value);
             disabled = false;
         } else {
             // If displaying a focused view
@@ -200,6 +202,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     useEffect(() => {
         requestAnimationFrame(async () => {
+            // Get the value to be processed
             let value = "";
             const focusedNode = lastFocusedPort?.typeWithValue.value;
             if (focusedNode && !focusedNode.wasForgotten()) {
@@ -210,14 +213,20 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 }
             } else if (lastFocusedFilter) {
                 value = lastFocusedFilter.getText();
-            } else if (!focusedPort) {
+            } else if (!lastFocusedPort && !lastFocusedFilter) {
                 value = undefined;
             }
 
+            // Handle TextField focus and blur
             if (disabled) {
                 await textFieldRef.current?.blur(value);
-            } else if (focusedPort || focusedFilter) {
+            } else if (lastFocusedPort || lastFocusedFilter) {
                 await textFieldRef.current?.focus(value);
+            }
+
+            // Reset the text field value if there is no focused port or filter
+            if (!focusedPort && !focusedFilter) {
+                setTextFieldValue("");
             }
         });
     }, [disabled, action]);
@@ -282,6 +291,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             if (text !== "") {
                 await updateST(text);
+                return;
             }
         }
         setCompletions(await getCompletions());
@@ -291,28 +301,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setTextFieldValue(text);
         await updateST(text);
     };
-
-    const handleExpressionSave = async (value: string) => {
-        if (savedNodeValue === value) {
-            return;
-        }
-        setSavedNodeValue(value);
-        await updateST.flush();
-        await applyChanges(value);
-    }
-
-    const handleCompletionSelect = async (value: string) => {
-        if (savedNodeValue === value) {
-            return;
-        }
-        setSavedNodeValue(value);
-        await updateST.flush();
-        await applyChanges(value);
-    }
-
-    const handleCancelCompletions = () => {
-        setCompletions([]);
-    }
 
     const applyChanges = async (value: string) => {
         if (lastFocusedPort) {
@@ -346,7 +334,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     : value;
 
                 const updatedNode = targetExpr.replaceWithText(replaceWith);
-                focusedPort.typeWithValue.setValue(updatedNode);
                 updatedSourceContent = updatedNode.getSourceFile().getFullText();
             }
             resetLastFocusedPort();
@@ -359,6 +346,35 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         resetLastFocusedFilter();
         await applyModifications(updatedSourceContent);
     };
+
+    const handleExpressionSave = async (value: string) => {
+        if (savedNodeValue === value) {
+            return;
+        }
+        setSavedNodeValue(value);
+        await updateST.flush();
+        await applyChanges(value);
+    }
+
+    const handleCompletionSelect = async (value: string) => {
+        if (savedNodeValue === value) {
+            return;
+        }
+        setSavedNodeValue(value);
+        await updateST.flush();
+        await applyChanges(value);
+    }
+
+    const handleCancelCompletions = () => {
+        setCompletions([]);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useDisableOnChange = (fn: (...args: any[]) => Promise<any>) => {
+        return useMutation({
+            mutationFn: fn
+        });
+    }
 
     return (
         <div className={classes.exprBarContainer}>
@@ -373,6 +389,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
                 onCancel={handleCancelCompletions}
+                useTransaction={useDisableOnChange}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>

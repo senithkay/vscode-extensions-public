@@ -45,6 +45,7 @@ export type ExpressionBarBaseProps = {
     onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
     onCancel: () => void;
+    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {

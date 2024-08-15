@@ -19,6 +19,7 @@ import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
+import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
 // Types
 type StyleBase = {
@@ -311,7 +312,7 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, ...rest } = props;
+    const { value, disabled, sx, completions, onChange, onSave, onCancel, onCompletionSelect, useTransaction, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -395,6 +396,23 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         await onCompletionSelect(newTextValue);
     };
 
+    const handleExpressionSave = async (value: string) => {
+        const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
+        await handleChange(valueWithClosingBracket, cursorPosition);
+        await onSave(valueWithClosingBracket);
+        handleClose();
+    }
+
+    // Mutation functions
+    const {
+        isLoading: isSelectingCompletion,
+        mutate: handleCompletionSelectMutation
+    } = useTransaction(handleCompletionSelect);
+    const {
+        isLoading: isSavingExpression,
+        mutate: handleExpressionSaveMutation
+    } = useTransaction(handleExpressionSave);
+
     const navigateUp = throttle((hoveredEl: Element) => {
         if (hoveredEl) {
             hoveredEl.classList.remove('hovered');
@@ -466,7 +484,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                             (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
                         );
                         if (item) {
-                            await handleCompletionSelect(item);
+                            await handleCompletionSelectMutation(item);
                         }
                     }
                     return;
@@ -477,7 +495,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                             (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
                         );
                         if (item) {
-                            await handleCompletionSelect(item);
+                            await handleCompletionSelectMutation(item);
                         }
                     }
                     return;
@@ -486,10 +504,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
-            await handleChange(valueWithClosingBracket, cursorPosition);
-            await onSave(valueWithClosingBracket);
-            handleClose();
+            await handleExpressionSaveMutation(value);
             return;
         }
     };
@@ -499,13 +514,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             inputRef.current?.focus();
             if (text !== undefined) {
                 await onChange(text);
+                setCursor(inputRef, text.length);
             }
         },
         blur: async (text?: string) => {
             inputRef.current?.blur();
-            handleClose();
             if (text !== undefined) {
-                await onSave(text);
+                await handleExpressionSaveMutation(text);
             }
         },
         shadowRoot: inputRef.current?.shadowRoot,
@@ -519,8 +534,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
                 sx={{ width: '100%', ...sx }}
+                disabled={disabled || isSelectingCompletion || isSavingExpression}
                 {...rest}
             />
+            {(isSelectingCompletion || isSavingExpression) && <ProgressIndicator sx={{ top: "100%" }} />}
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
@@ -540,7 +557,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 name="close"
                                 onClick={handleClose}
                             />
-                            <Dropdown ref={listBoxRef} items={completions} onCompletionSelect={handleCompletionSelect} />
+                            <Dropdown ref={listBoxRef} items={completions} onCompletionSelect={handleCompletionSelectMutation} />
                             <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
                         </Transition>
                     </DropdownContainer>,
