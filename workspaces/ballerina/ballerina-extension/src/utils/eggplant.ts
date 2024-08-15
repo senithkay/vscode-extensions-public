@@ -70,6 +70,8 @@ export function createEggplantProjectPure(name: string, projectPath: string) {
         fs.mkdirSync(projectRoot);
     }
 
+    const EMPTY = "// THIS IS AN AUTO GENERATED FILE\n";
+
     const ballerinaTomlContent = `
 [package]
 org = "wso2"
@@ -82,6 +84,19 @@ eggplant = true
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
     fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
+
+    // Create connections.bal file
+    const connectionsBalPath = path.join(projectRoot, 'connections.bal');
+    fs.writeFileSync(connectionsBalPath, EMPTY);
+
+    // Create types.bal file
+    const typesBalPath = path.join(projectRoot, 'types.bal');
+    fs.writeFileSync(typesBalPath, EMPTY);
+
+    // Create datamappings.bal file
+    const datamappingsBalPath = path.join(projectRoot, 'datamappings.bal');
+    fs.writeFileSync(datamappingsBalPath, EMPTY);
+
     console.log(`Eggplant project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
 }
