@@ -44,14 +44,14 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const [dirContent, setDirContent] = useState([]);
 
     const schema = yup.object({
-        name: yup.string().required("Project Name is required").matches(/^[a-zA-Z0-9]*$/, "Project name cannot contain spaces or special characters")
+        name: yup.string().required("Project Name is required").matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Project name cannot contain spaces or special characters")
             .test('validateFolderName',
                 'A subfolder with same name already exists', value => {
                     return !dirContent.includes(value)
                 }),
         directory: yup.string().required("Project Directory is required"),
-        groupID: yup.string().notRequired().default("com.microintegrator.projects").matches(/^[a-zA-Z0-9.]*$/, "Group id cannot contain spaces or special characters"),
-        artifactID: yup.string().notRequired().matches(/^[a-zA-Z0-9]*$/, "Artifact id cannot contain spaces or special characters"),
+        groupID: yup.string().notRequired().default("com.microintegrator.projects").matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Group id cannot contain spaces or special characters"),
+        artifactID: yup.string().notRequired().matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Artifact id cannot contain spaces or special characters"),
         version: yup.string().notRequired().default("1.0.0").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
         viewMore: yup.boolean().notRequired().default(false),
     });
@@ -105,6 +105,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
             <TextField
                 id='name'
                 label="Project Name"
+                required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}
             />
