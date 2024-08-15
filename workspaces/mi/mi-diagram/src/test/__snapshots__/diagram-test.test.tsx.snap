@@ -10812,6 +10812,1314 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookup.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"19,2\\"
+          >
+            <g
+              data-testid=\\"link-19,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"dblookup-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"mediatorNode-dblookup-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"dblookup-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1gt6rr1\\"
+                    >
+                      <div
+                        class=\\"css-1g74jrw\\"
+                      >
+                        <i
+                          class=\\"fw-DBLookup\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-kyfez4\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            DB Lookup
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-1vc2u59\\"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"dblookup-5-3\\"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookupWithDescription.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"18,2\\"
+          >
+            <g
+              data-testid=\\"link-18,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"dblookup-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"mediatorNode-dblookup-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"dblookup-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1gt6rr1\\"
+                    >
+                      <div
+                        class=\\"css-1g74jrw\\"
+                      >
+                        <i
+                          class=\\"fw-DBLookup\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-1f8ti7d\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            DB Lookup
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-1vc2u59\\"
+                            >
+                              DB Lookup Description
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"dblookup-5-3\\"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReport.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"18,2\\"
+          >
+            <g
+              data-testid=\\"link-18,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"dbreport-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"mediatorNode-dbreport-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"dbreport-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1gt6rr1\\"
+                    >
+                      <div
+                        class=\\"css-1g74jrw\\"
+                      >
+                        <i
+                          class=\\"fw-DBReport\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-kyfez4\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            DB Report
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-1vc2u59\\"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"dbreport-5-3\\"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReportWithDescription.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"18,2\\"
+          >
+            <g
+              data-testid=\\"link-18,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"dbreport-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"mediatorNode-dbreport-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"dbreport-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1gt6rr1\\"
+                    >
+                      <div
+                        class=\\"css-1g74jrw\\"
+                      >
+                        <i
+                          class=\\"fw-DBReport\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-1f8ti7d\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            DB Report
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-1vc2u59\\"
+                            >
+                              DB Report Description
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"dbreport-5-3\\"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
 exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapper.xml 1`] = `
 "<div>
   <div
@@ -11421,1314 +12729,6 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                     class=\\"port css-1l1tlbe\\"
                     data-name=\\"out\\"
                     data-nodeid=\\"datamapper-5-3\\"
-                  />
-                </div>
-              </div>
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Dblookup.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"19,2\\"
-          >
-            <g
-              data-testid=\\"link-19,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"dblookup-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"mediatorNode-dblookup-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-17lt5ih\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"dblookup-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1gt6rr1\\"
-                    >
-                      <div
-                        class=\\"css-1g74jrw\\"
-                      >
-                        <i
-                          class=\\"fw-DBLookup\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-kyfez4\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            DB Lookup
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-1vc2u59\\"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"dblookup-5-3\\"
-                  />
-                </div>
-              </div>
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DblookupWithDescription.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"18,2\\"
-          >
-            <g
-              data-testid=\\"link-18,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"dblookup-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"mediatorNode-dblookup-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-17lt5ih\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"dblookup-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1gt6rr1\\"
-                    >
-                      <div
-                        class=\\"css-1g74jrw\\"
-                      >
-                        <i
-                          class=\\"fw-DBLookup\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-1f8ti7d\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            DB Lookup
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-1vc2u59\\"
-                            >
-                              DB Lookup Description
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"dblookup-5-3\\"
-                  />
-                </div>
-              </div>
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Dbreport.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"18,2\\"
-          >
-            <g
-              data-testid=\\"link-18,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"dbreport-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"mediatorNode-dbreport-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-17lt5ih\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"dbreport-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1gt6rr1\\"
-                    >
-                      <div
-                        class=\\"css-1g74jrw\\"
-                      >
-                        <i
-                          class=\\"fw-DBReport\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-kyfez4\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            DB Report
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-1vc2u59\\"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"dbreport-5-3\\"
-                  />
-                </div>
-              </div>
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DbreportWithDescription.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"18,2\\"
-          >
-            <g
-              data-testid=\\"link-18,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"dbreport-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"mediatorNode-dbreport-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-17lt5ih\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"dbreport-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1gt6rr1\\"
-                    >
-                      <div
-                        class=\\"css-1g74jrw\\"
-                      >
-                        <i
-                          class=\\"fw-DBReport\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-1f8ti7d\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            DB Report
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-1vc2u59\\"
-                            >
-                              DB Report Description
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"dbreport-5-3\\"
                   />
                 </div>
               </div>
