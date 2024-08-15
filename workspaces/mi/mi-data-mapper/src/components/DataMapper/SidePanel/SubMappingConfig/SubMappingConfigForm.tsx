@@ -174,6 +174,10 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const [openedIndex, setOpenedIndex] = useState<number>();
     const [isImportCustomTypeFormOpen, setIsImportCustomTypeFormOpen] = useState<boolean>(false);
 
+    const interfaces=functionST.getSourceFile().getInterfaces().map(iface=>iface.getName());
+    const allowedTypes=[...ALLOWED_TYPES,...interfaces];
+    
+
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
         resetSubMappingConfig
@@ -319,10 +323,11 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                 <AutoComplete
                                     label="Type (Optional)"
                                     name="mappingType"
-                                    items={ALLOWED_TYPES}
+                                    items={allowedTypes}
                                     nullable={true}
                                     value={field.value}
                                     onValueChange={(e) => { field.onChange(e); }}
+                                    sx={{height:22}}
                                 />
 
                                 <div className={overlayClasses.addNewButtonWrapper}>
