@@ -12,3 +12,4 @@ export { ProjectForm } from "./ProjectForm";
 export { Overview as EggplantOverview } from "./Overview";
 export { AddComponentView } from "./ComponentView";
 export { ServiceForm } from "./ServiceForm";
+export { ComponentDiagram } from "./ComponentDiagram";
