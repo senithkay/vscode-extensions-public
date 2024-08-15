@@ -208,7 +208,6 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.onAcceptBranchsequenceKey?.message?.toString()}
-                                    additionalItems={[]}
                                 />
                             )}
                         />
@@ -254,7 +253,6 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.onRejectBranchsequenceKey?.message?.toString()}
-                                    additionalItems={[]}
                                 />
                             )}
                         />
@@ -340,7 +338,6 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.policyKey?.message?.toString()}
-                                    additionalItems={[]}
                                 />
                             )}
                         />

@@ -124,7 +124,6 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                                 onValueChange={field.onChange}
                                 required={false}
                                 errorMsg={errors?.schema?.message?.toString()}
-                                additionalItems={[]}
                             />
                         )}
                     />

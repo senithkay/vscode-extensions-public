@@ -189,7 +189,6 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={true}
                                     errorMsg={errors?.serviceName?.message?.toString()}
-                                    additionalItems={[]}
                                 />
                             )}
                         />

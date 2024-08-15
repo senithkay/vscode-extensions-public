@@ -170,7 +170,6 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.sequenceKey?.message?.toString()}
-                                    additionalItems={[]}
                                 />
                             )}
                         />

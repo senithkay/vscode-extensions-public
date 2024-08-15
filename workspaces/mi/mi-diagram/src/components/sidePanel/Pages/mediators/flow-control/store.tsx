@@ -121,7 +121,6 @@ const StoreForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                                additionalItems={[]}
                             />
                         )}
                     />
@@ -140,7 +139,6 @@ const StoreForm = (props: AddMediatorProps) => {
                                 onValueChange={field.onChange}
                                 required={false}
                                 errorMsg={errors?.onStoreSequence?.message?.toString()}
-                                additionalItems={[]}
                             />
                         )}
                     />

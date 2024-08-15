@@ -138,7 +138,6 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 onValueChange={field.onChange}
                                 required={true}
                                 errorMsg={errors?.targetTemplate?.message?.toString()}
-                                additionalItems={[]}
                             />
                         )}
                     />
@@ -183,7 +182,6 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 onValueChange={field.onChange}
                                 required={false}
                                 errorMsg={errors?.onError?.message?.toString()}
-                                additionalItems={[]}
                             />
                         )}
                     />

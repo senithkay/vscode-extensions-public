@@ -189,7 +189,6 @@ const SendForm = (props: AddMediatorProps) => {
                                         onValueChange={field.onChange}
                                         required={false}
                                         errorMsg={errors?.staticReceivingSequence?.message?.toString()}
-                                        additionalItems={[]}
                                     />
                                 )}
                             />

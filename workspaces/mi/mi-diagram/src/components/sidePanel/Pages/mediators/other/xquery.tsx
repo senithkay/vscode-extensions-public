@@ -208,7 +208,6 @@ const XQueryForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={false}
                                     errorMsg={errors?.staticScriptKey?.message?.toString()}
-                                    additionalItems={[]}
                                 />
                             )}
                         />

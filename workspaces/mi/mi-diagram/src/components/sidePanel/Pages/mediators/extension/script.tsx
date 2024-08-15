@@ -186,7 +186,6 @@ const ScriptForm = (props: AddMediatorProps) => {
                                 canChangeEx={true}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                                additionalItems={[]}
                             />
                         )}
                     />

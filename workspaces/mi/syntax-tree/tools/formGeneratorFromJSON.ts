@@ -442,8 +442,8 @@ const generateForm = (jsonData: any): string => {
                             allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
                             onValueChange={field.onChange}
                             required={${isRequired}}
-                            errorMsg={${errMsg}}
-                            ${additionalItems !== undefined ? `additionalItems={${JSON.stringify(additionalItems)}}` : `additionalItems={[]}`}
+                            errorMsg={${errMsg}} ${additionalItems !== undefined ? `
+                            additionalItems={${JSON.stringify(additionalItems)}}` : ``}
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
@@ -471,8 +471,8 @@ const generateForm = (jsonData: any): string => {
                         errorMsg={errors?.${element.value.name}?.message?.toString()}
                         canChangeEx={true} ${addNewStr}
                         exprToggleEnabled={true}
-                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                        ${additionalItems !== undefined ? `additionalItems={${JSON.stringify(additionalItems)}}` : `additionalItems={[]}`}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)} ${additionalItems !== undefined ? `
+                        additionalItems={${JSON.stringify(additionalItems)}}` : ``}
                     />`;
                     fields +=
                         fixIndentation(keyOrExpStr, indentation);
