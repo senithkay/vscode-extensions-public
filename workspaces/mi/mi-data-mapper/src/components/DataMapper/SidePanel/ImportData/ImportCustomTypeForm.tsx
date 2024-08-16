@@ -44,9 +44,12 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
+    const { subMappingConfig, setSubMappingConfig, resetSubMappingConfig,subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
         subMappingConfig: state.subMappingConfig,
-        setSubMappingConfig: state.setSubMappingConfig
+        setSubMappingConfig: state.setSubMappingConfig,
+        resetSubMappingConfig: state.resetSubMappingConfig,
+        subMappingConfigFromData:state.subMappingConfigFormData,
+        setSubMappingConfigFormData: state.setSubMappingConfigFormData
     }));
 
     const fileExtension = useMemo(() => {
@@ -79,6 +82,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSelectedImportType(undefined);
             setIsImportCustomTypeFormOpen(false);
+            setSubMappingConfigFormData({...subMappingConfigFromData, mappingType:typeName})
             if (response.success) {
                 console.log("Schema imported successfully");
             } else {
@@ -96,15 +100,14 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
     const onClose = () => {
         setSelectedImportType(undefined);
         setIsImportCustomTypeFormOpen(false);
-        setSubMappingConfig({
-            ...subMappingConfig,
-            isSMConfigPanelOpen: false
-        });
+        resetSubMappingConfig();
     };
 
     const onBack = () => {
-        if (!selectedImportType)
+        if (!selectedImportType) {
             setIsImportCustomTypeFormOpen(false);
+            setSubMappingConfigFormData(undefined);
+        }
         setSelectedImportType(undefined);
     };
 

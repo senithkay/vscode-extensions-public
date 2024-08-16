@@ -7,14 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { create } from "zustand";
-import { Node } from "ts-morph"; 
+import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
+import { SubMappingConfigForm } from "src/components/DataMapper/SidePanel/SubMappingConfig/SubMappingConfigForm";
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
     nextSubMappingIndex: number;
     suggestedNextSubMappingName: string;
+}
+
+export interface SubMappingConfigFormData {
+    mappingName: string;
+    mappingType: string | undefined;
+    isArray: boolean;
 }
 
 export interface DataMapperSearchState {
@@ -43,6 +50,8 @@ export interface DataMapperSubMappingConfigPanelState {
     subMappingConfig: SubMappingConfig;
     setSubMappingConfig: (subMappingConfig: SubMappingConfig) => void;
     resetSubMappingConfig: () => void;
+    subMappingConfigFormData: SubMappingConfigFormData;
+    setSubMappingConfigFormData: (subMappingConfigFormData: SubMappingConfigFormData) => void
 }
 
 export interface DataMapperExpressionBarState {
@@ -73,7 +82,7 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
 
 export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set) => ({
     collapsedFields: [],
-    setCollapsedFields: (collapsedFields: string[])  => set({ collapsedFields }),
+    setCollapsedFields: (collapsedFields: string[]) => set({ collapsedFields }),
 }));
 
 export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set) => ({
@@ -91,12 +100,17 @@ export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfig
         nextSubMappingIndex: -1,
         suggestedNextSubMappingName: undefined
     },
-    setSubMappingConfig: (subMappingConfig: SubMappingConfig)  => set({ subMappingConfig }),
-    resetSubMappingConfig: ()  => set({ subMappingConfig: {
-        isSMConfigPanelOpen: false,
-        nextSubMappingIndex: -1,
-        suggestedNextSubMappingName: undefined
-    }}),
+    setSubMappingConfig: (subMappingConfig: SubMappingConfig) => set({ subMappingConfig }),
+    resetSubMappingConfig: () => set({
+        subMappingConfig: {
+            isSMConfigPanelOpen: false,
+            nextSubMappingIndex: -1,
+            suggestedNextSubMappingName: undefined
+        },
+        subMappingConfigFormData: undefined
+    }),
+    subMappingConfigFormData: undefined,
+    setSubMappingConfigFormData: (subMappingConfigFormData: SubMappingConfigFormData) => set({ subMappingConfigFormData })
 }));
 
 export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set) => ({
@@ -112,7 +126,7 @@ export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set
 
 export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) => ({
     addedNewFilter: false,
-    setAddedNewFilter: (addedNewFilter: boolean)  => set({ addedNewFilter }),
+    setAddedNewFilter: (addedNewFilter: boolean) => set({ addedNewFilter }),
     isCollapsed: false,
-    setIsCollapsed: (isCollapsed: boolean)  => set({ isCollapsed }),
+    setIsCollapsed: (isCollapsed: boolean) => set({ isCollapsed }),
 }));

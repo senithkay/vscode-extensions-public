@@ -105,7 +105,7 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
 
 
     const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string = "CustomType" /* TODO: Need to remove default value */) => {
-      schema.title = formatTitle(defaultTitle);
+      schema.title = defaultTitle;
 
       if (schema.type === "array" && schema.items && schema.items.length > 0) {
         schema.type = "object";

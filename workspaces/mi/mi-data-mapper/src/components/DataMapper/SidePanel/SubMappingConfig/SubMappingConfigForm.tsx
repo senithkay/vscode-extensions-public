@@ -22,7 +22,7 @@ import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Controller, useForm } from 'react-hook-form';
 
-import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
+import { useDMSubMappingConfigPanelStore, SubMappingConfigFormData } from "../../../../store/store";
 import { Block, FunctionDeclaration, Node, VariableStatement } from "ts-morph";
 import { SourceNodeType, View } from "../../Views/DataMapperView";
 import { getDefaultValue } from "../../../Diagram/utils/common-utils";
@@ -150,11 +150,7 @@ const ALLOWED_TYPES = ['string', 'number', 'boolean', 'object'];
 const ADD_NEW_SUB_MAPPING_HEADER = "Add New Sub Mapping";
 const EDIT_SUB_MAPPING_HEADER = "Edit Sub Mapping";
 
-interface SMConfigFormData {
-    mappingName: string;
-    mappingType: string | undefined;
-    isArray: boolean;
-}
+
 
 export type SubMappingConfigFormProps = {
     functionST: FunctionDeclaration;
@@ -171,7 +167,6 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const { focusedST, views } = inputNode?.context ?? {};
     const lastView = views && views[views.length - 1];
 
-    const [openedIndex, setOpenedIndex] = useState<number>();
     const [isImportCustomTypeFormOpen, setIsImportCustomTypeFormOpen] = useState<boolean>(false);
 
     const interfaces = functionST.getSourceFile().getInterfaces().map(iface => iface.getName());
@@ -180,33 +175,60 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
 
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
-        resetSubMappingConfig
+        resetSubMappingConfig,
+        subMappingConfigFormData,
+        setSubMappingConfigFormData
     } = useDMSubMappingConfigPanelStore(state => ({
         subMappingConfig: state.subMappingConfig,
         resetSubMappingConfig: state.resetSubMappingConfig,
+        subMappingConfigFormData: state.subMappingConfigFormData,
+        setSubMappingConfigFormData: state.setSubMappingConfigFormData
     })
     );
 
-    const { control, handleSubmit, setValue, watch, reset } = useForm<SMConfigFormData>({
-        defaultValues: {
-            mappingName: `${suggestedNextSubMappingName}`
+    // console.log({ subMappingConfigFormData })
+
+    let defaultValues;
+    if (subMappingConfigFormData) {
+        defaultValues = {
+            mappingName: subMappingConfigFormData.mappingName,
+            mappingType: subMappingConfigFormData.mappingType,
+            isArray: subMappingConfigFormData.isArray
         }
-    });
+    } else {
+        defaultValues = {
+            mappingName: suggestedNextSubMappingName,
+            mappingType: null,
+            isArray: false
+        }
+    }
+
+    const { control, handleSubmit, setValue, watch, reset, getValues } = useForm<SubMappingConfigFormData>({ defaultValues });
 
     const isEdit = isSMConfigPanelOpen && nextSubMappingIndex === -1 && !suggestedNextSubMappingName;
+    
+    const getIsArray = (mappingType: string) => {
+        return mappingType.includes('[]');
+    };
+
+    const getBaseType = (mappingType: string) => {
+        return mappingType.replace('[]', '');
+    };
 
     useEffect(() => {
         if (isEdit) {
             const { mappingName, mappingType } = lastView.subMappingInfo;
-
             setValue('mappingName', mappingName);
-            setValue('mappingType', mappingType);
+            setValue('mappingType', getBaseType(mappingType));
+            setValue('isArray', getIsArray(mappingType));
         } else {
-            setValue('mappingName', suggestedNextSubMappingName);
+            setValue('mappingName', defaultValues.mappingName);
+            setValue('mappingType', defaultValues.mappingType);
+            setValue('isArray', defaultValues.isArray);
         }
-    }, [isEdit, suggestedNextSubMappingName, setValue]);
+    }, [isEdit, defaultValues.mappingName, defaultValues.mappingType, defaultValues.isArray, setValue]);
 
-    const onAdd = async (data: SMConfigFormData) => {
+    const onAdd = async (data: SubMappingConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
 
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
@@ -221,13 +243,15 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         await applyModifications(functionST.getSourceFile().getFullText());
     };
 
-    const isArray = (mappingType: string) => {
-        return mappingType.includes('[]');
-    };
+    
+    const onEdit = async (data: SubMappingConfigFormData) => {
 
-    const onEdit = async (data: SMConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
-        const { mappingName: prevMappingName, mappingType: prevMappingType } = lastView.subMappingInfo;
+        let { mappingName: prevMappingName, mappingType: prevMappingType } = lastView.subMappingInfo;
+
+        const prevIsArray = getIsArray(prevMappingType);
+        prevMappingType = getBaseType(prevMappingType);
+
         let updatedName: string;
         let updatedType: string;
 
@@ -240,7 +264,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         }
 
         let updatedNode: Node;
-        if ((mappingName !== prevMappingName || mappingType !== prevMappingType) && mappingType !== "object" && varDecl) {
+        if ((mappingName !== prevMappingName || mappingType !== prevMappingType || isArray !== prevIsArray) && mappingType !== "object" && varDecl) {
             const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);
@@ -274,16 +298,10 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         resetSubMappingConfig();
     };
 
-    const openDrawer = (index: number) => {
-        setOpenedIndex(index);
-    }
-
-    const closeDrawer = (index: number) => {
-        if (index === 0) {
-            setOpenedIndex(undefined);
-        } else {
-            setOpenedIndex(index - 1);
-        }
+    const openImportCustomTypeForm = () => {
+        setSubMappingConfigFormData(getValues());
+        console.log(getValues());
+        setIsImportCustomTypeFormOpen(true);
     }
 
     return (
@@ -337,7 +355,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                 <div className={overlayClasses.addNewButtonWrapper}>
                                     <Button
                                         appearance="icon"
-                                        onClick={() => setIsImportCustomTypeFormOpen(true)}
+                                        onClick={openImportCustomTypeForm}
                                         className={overlayClasses.linePrimaryButton}
                                     >
                                         <Codicon sx={{ marginTop: 2, marginRight: 5 }} name="add" />
