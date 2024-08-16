@@ -50,8 +50,9 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getAccessToken(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        return StateMachineAI.context().token;
+        return new Promise(async (resolve) => {
+            resolve(StateMachineAI.context().token as string);
+        });
     }
 
     async refreshAccessToken(): Promise<void> {
