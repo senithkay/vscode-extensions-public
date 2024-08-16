@@ -37,6 +37,22 @@ const IssueTrackerLink = styled.div({
     marginLeft: '10px',
 });
 
+const TroubleshootingGuide = styled.div`
+  text-align: left;
+  margin-top: 20px;
+`;
+
+const TroubleshootingHeader = styled.h3`
+  font-size: 15px;
+  margin-bottom: 10px;
+`;
+
+const TroubleshootingList = styled.ol`
+  font-size: 13px;
+  margin-left: 15px;
+  margin-bottom: 20px;
+`;
+
 export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
     const { rpcClient } = useVisualizerContext();
     const issueUrl = "https://github.com/wso2/ballerina-plugin-vscode/issues";
@@ -67,9 +83,17 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
                 }
                 title={"Error in establishing Connection"}
             />
-            <IssueTrackerLink>
-                Please raise an issue in our&nbsp; <a href={issueUrl}>issue tracker</a> .
-            </IssueTrackerLink>
+            <TroubleshootingGuide>
+                <TroubleshootingHeader>Troubleshooting Guide</TroubleshootingHeader>
+                <TroubleshootingList>
+                    <li>Check your internet connection</li>
+                    <li>Try logging out and logging in again</li>
+                    <li>Try restarting VSCode</li>
+                </TroubleshootingList>
+                <IssueTrackerLink>
+                    Please raise an issue in our&nbsp; <a href={issueUrl}>issue tracker</a> .
+                </IssueTrackerLink>
+            </TroubleshootingGuide>
         </Container>
     );
 };
