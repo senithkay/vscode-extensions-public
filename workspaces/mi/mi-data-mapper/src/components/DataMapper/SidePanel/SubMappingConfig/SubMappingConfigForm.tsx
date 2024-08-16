@@ -12,6 +12,8 @@ import {
     Button,
     Codicon,
     Drawer,
+    Icon,
+    LinkButton,
     SidePanel,
     SidePanelBody,
     SidePanelTitleContainer,
@@ -30,6 +32,8 @@ import { DataMapperNodeModel } from "../../../Diagram/Node/commons/DataMapperNod
 import { ImportCustomTypeForm } from "../ImportData/ImportCustomTypeForm";
 
 const Field = styled.div`
+   display: flex;
+   flex-direction: column;
    margin-bottom: 12px;
 `;
 
@@ -186,8 +190,6 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     })
     );
 
-    // console.log({ subMappingConfigFormData })
-
     let defaultValues;
     if (subMappingConfigFormData) {
         defaultValues = {
@@ -206,7 +208,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const { control, handleSubmit, setValue, watch, reset, getValues } = useForm<SubMappingConfigFormData>({ defaultValues });
 
     const isEdit = isSMConfigPanelOpen && nextSubMappingIndex === -1 && !suggestedNextSubMappingName;
-    
+
     const getIsArray = (mappingType: string) => {
         return mappingType.includes('[]');
     };
@@ -243,7 +245,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         await applyModifications(functionST.getSourceFile().getFullText());
     };
 
-    
+
     const onEdit = async (data: SubMappingConfigFormData) => {
 
         const { mappingName, mappingType, isArray } = data;
@@ -300,7 +302,6 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
 
     const openImportCustomTypeForm = () => {
         setSubMappingConfigFormData(getValues());
-        console.log(getValues());
         setIsImportCustomTypeFormOpen(true);
     }
 
@@ -331,7 +332,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                 {...field}
                                 label="Sub Mapping Name"
                                 size={50}
-                                placeholder={suggestedNextSubMappingName}
+                                placeholder={defaultValues.mappingName}
                             />
                         )}
                     />
@@ -351,8 +352,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                     onValueChange={(e) => { field.onChange(e); }}
                                     sx={{ height: 22 }}
                                 />
-
-                                <div className={overlayClasses.addNewButtonWrapper}>
+                                {/* <div className={overlayClasses.addNewButtonWrapper}>
                                     <Button
                                         appearance="icon"
                                         onClick={openImportCustomTypeForm}
@@ -361,10 +361,30 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                         <Codicon sx={{ marginTop: 2, marginRight: 5 }} name="add" />
                                         <div>Add New</div>
                                     </Button>
-                                </div>
+                                </div> */}
                             </>
                         )}
                     />
+                    
+                    <LinkButton
+                        onClick={openImportCustomTypeForm}
+                        sx={{ padding: "5px", gap: "2px", display:"block" }}
+                    >
+                        <Icon
+                            iconSx={{ fontSize: "12px" }}
+                            name="add"
+                        />
+                        <p style={{ fontSize: "12px" }}>Add New Type</p>
+                       
+                    </LinkButton>
+                    <Button
+                        appearance="icon"
+                        onClick={openImportCustomTypeForm}
+                        className={overlayClasses.linePrimaryButton}
+                    >
+                        <Codicon sx={{ marginTop: 2, marginRight: 5 }} name="add" />
+                        <div>Add Newx</div>
+                    </Button>
                 </Field>
                 <Field>
                     <Controller
