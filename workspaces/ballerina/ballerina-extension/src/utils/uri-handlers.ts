@@ -11,6 +11,7 @@ import { window, Uri, ProviderResult } from "vscode";
 import { BallerinaExtension } from "../core";
 import { handleOpenFile, handleOpenRepo } from ".";
 import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_URL_START, TM_EVENT_OPEN_REPO_URL_START, sendTelemetryEvent } from "../features/telemetry";
+import { exchangeAuthCode } from "../views/ai-panel/auth";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
     window.registerUriHandler({
@@ -24,7 +25,7 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_URL_START, CMP_OPEN_VSCODE_URL);
                     if ((gistId && fileName) || repoFileUrl) {
                         handleOpenFile(ballerinaExtInstance, gistId, fileName, repoFileUrl);
-                    }else {
+                    } else {
                         window.showErrorMessage(`Gist or the file not found!`);
                     }
                     break;
@@ -38,6 +39,16 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                         window.showErrorMessage(`Repository url not found!`);
                     }
                     break;
+                case '/signin':
+                    console.log("Signin callback hit");
+                    const query = new URLSearchParams(uri.query);
+                    const code = query.get('code');
+                    console.log("Code: " + code);
+                    if (code) {
+                        exchangeAuthCode(code);
+                    } else {
+                        // Handle error here
+                    }
             }
         }
     });

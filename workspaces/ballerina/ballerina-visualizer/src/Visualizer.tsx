@@ -9,7 +9,7 @@
 
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { MachineStateValue } from "@wso2-enterprise/ballerina-core";
+import { MachineStateValue, AIMachineStateValue} from "@wso2-enterprise/ballerina-core";
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 import AIPanel from "./views/AIPanel/AIPanel";
@@ -17,13 +17,24 @@ import AIPanel from "./views/AIPanel/AIPanel";
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<MachineStateValue>('initialize');
+    const [aiState, setAIState] = React.useState<AIMachineStateValue>('Initialize');
 
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setState(newState);
-    });
+    if (mode === "visualizer") {
+        rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            setState(newState);
+        });
+    }
+
+    if (mode === "ai") {
+        rpcClient?.onAIPanelStateChanged((newState: AIMachineStateValue) => {
+            setAIState(newState);
+        });
+    }
 
     useEffect(() => {
-        rpcClient.webviewReady();
+        if (mode === "visualizer") {
+            rpcClient.webviewReady();
+        }
     }, []);
 
     return (
@@ -33,7 +44,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case "visualizer":
                         return <VisualizerComponent state={state} />
                     case "ai":
-                        return <AIPanel />
+                        return <AIPanel state={aiState} />
                 }
             })()}
         </>

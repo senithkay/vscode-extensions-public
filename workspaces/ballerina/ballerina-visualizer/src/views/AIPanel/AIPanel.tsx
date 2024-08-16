@@ -33,19 +33,13 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-const AIPanel = () => {
+const AIPanel = (props: { state: AIMachineStateValue }) => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
-    const [state, setState] = React.useState<AIMachineStateValue>();
-
-
-    rpcClient?.onAIPanelStateChanged((newState: AIMachineStateValue) => {
-        setState(newState);
-    });
 
     useEffect(() => {
         fetchContext();
-    }, [state]);
+    }, [props.state]);
 
     const fetchContext = () => {
         rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView) => {

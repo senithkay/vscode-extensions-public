@@ -46,13 +46,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getAiPanelState(): Promise<AIVisualizerState> {
-        const state = { state: StateMachineAI.state() };
-        return state;
+        return { state: StateMachineAI.state() };
     }
 
     async getAccessToken(): Promise<string> {
         // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return StateMachineAI.context().token;
     }
 
     async refreshAccessToken(): Promise<void> {

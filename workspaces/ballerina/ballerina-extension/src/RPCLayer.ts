@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation, aiStateChanged } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';

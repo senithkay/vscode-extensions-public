@@ -46,7 +46,7 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
         code: authCode,
         grant_type: 'authorization_code',
         // redirect_uri: 'vscode://wso2.micro-integrator/signin',
-        redirect_uri: AUTH_REDIRECT_URL,
+        redirect_uri: 'https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev',
         scope: 'openid email'
     });
     try {
@@ -74,28 +74,28 @@ export async function exchangeAuthCode(authCode: string) {
             console.log("Refresh token: " + response.refreshToken);
             console.log("Login time: " + response.loginTime);
             console.log("Expiration time: " + response.expirationTime);
-            await extension.context.secrets.store('MIAIUser', response.accessToken);
-            await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
+            await extension.context.secrets.store('BallerinaAIUser', response.accessToken);
+            await extension.context.secrets.store('BallerinaAIRefreshToken', response.refreshToken ?? '');
 
-            const config = vscode.workspace.getConfiguration('MI');
-            const ROOT_URL = config.get('rootUrl') as string;
-            const url = ROOT_URL + USER_CHECK_BACKEND_URL;
+            // const config = vscode.workspace.getConfiguration('ballerina');
+            // const ROOT_URL = config.get('rootUrl') as string;
+            // const url = ROOT_URL + USER_CHECK_BACKEND_URL;
 
-            const fetch_response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${response.accessToken}`,
-                },
-            });
+            // const fetch_response = await fetch(url, {
+            //     method: 'GET',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${response.accessToken}`,
+            //     },
+            // });
 
-            if (fetch_response.ok) {
-                const responseBody = await fetch_response.json() as AIUserTokens;
-                const context = StateMachineAI.context();
-                context.userTokens = responseBody;
-            } else {
-                throw new Error(`Error while checking token usage: ${fetch_response.statusText}`);
-            }
+            // if (fetch_response.ok) {
+            //     const responseBody = await fetch_response.json() as AIUserTokens;
+            //     const context = StateMachineAI.context();
+            //     context.userTokens = responseBody;
+            // } else {
+            //     throw new Error(`Error while checking token usage: ${fetch_response.statusText}`);
+            // }
 
             StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
         } catch (error: any) {

@@ -30,6 +30,7 @@ import { StateMachine } from './stateMachine';
 import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
 import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
+import { RPCLayer } from './RPCLayer';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
