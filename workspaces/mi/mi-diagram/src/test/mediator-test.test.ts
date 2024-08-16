@@ -10,7 +10,7 @@
 import path from "path";
 import { LanguageClient } from "./lang-service/client";
 import { getMediatorDescription, readXMLFile } from "./utils/test-utils";
-import { getDataFromST, getXML } from "../template-engine/mustach-templates/templateUtils";
+import { getDataFromST, getXML } from "../utils/template-engine/mustach-templates/templateUtils";
 
 const dataRoot = path.join(__dirname, "data");
 
@@ -73,7 +73,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "JSONTransform",
+        type: "JSON Transform",
         expectedDescription: "JSON Transform Description",
         expectedDefaultDescription: undefined
     },
@@ -83,7 +83,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "PayloadFactory",
+        type: "Payload Factory",
         expectedDescription: "Payload Description",
         expectedDefaultDescription: undefined
     },
@@ -103,7 +103,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "Call",
+        type: "Call Endpoint",
         expectedDescription: "Call Description",
         expectedDefaultDescription: undefined
     },
@@ -128,7 +128,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: "defseq"
     },
     {
-        type: "CallTemplate",
+        type: "Call Template",
         expectedDescription: "CallTemplate Description",
         expectedDefaultDescription: undefined
     },
@@ -138,7 +138,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "PropertyGroup",
+        type: "Property Group",
         expectedDescription: "Property Group Description",
         expectedDefaultDescription: undefined
     },
@@ -163,7 +163,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "EntitlementService",
+        type: "Entitlement Service",
         expectedDescription: "Entitlement Service Description",
         expectedDefaultDescription: undefined
     },
@@ -178,12 +178,12 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: "sdfa"
     },
     {
-        type: "Dblookup",
+        type: "DB Lookup",
         expectedDescription: "DB Lookup Description",
         expectedDefaultDescription: undefined
     },
     {
-        type: "Dbreport",
+        type: "DB Report",
         expectedDescription: "DB Report Description",
         expectedDefaultDescription: undefined
     },
@@ -263,7 +263,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "ConditionalRouter",
+        type: "Conditional Router",
         expectedDescription: "Conditional Router Description",
         expectedDefaultDescription: undefined
     },
@@ -303,9 +303,9 @@ describe('Test MI Mediators', () => {
                 const mediatorData = await getDataFromST(type, mediatorST);
                 const generatedXml = getXML(type, mediatorData);
 
-                const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
+                const dataDirectory = path.join(process.cwd(), "src", "test", "data");
                 // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
-                const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${type}.xml`));
+                const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${fileName}.xml`));
                 expect(generatedXml).toEqual(outputFileContent);
                 done();
             } catch (error) {
