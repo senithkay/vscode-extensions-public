@@ -106,7 +106,6 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
     const onBack = () => {
         if (!selectedImportType) {
             setIsImportCustomTypeFormOpen(false);
-            setSubMappingConfigFormData(undefined);
         }
         setSelectedImportType(undefined);
     };

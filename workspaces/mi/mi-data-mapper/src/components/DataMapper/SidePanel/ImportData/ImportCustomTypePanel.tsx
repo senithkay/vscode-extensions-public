@@ -42,18 +42,22 @@ interface ImportCustomTypePanelProps {
 export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
     const { importType, extension, rowRange, onSave } = props;
     const classes = useStyles();
-    const { clearErrors, control, formState: { errors }, setError, watch } = useForm();
+    const { clearErrors, control, formState: { errors }, setError, watch, setValue, handleSubmit } = useForm({
+        defaultValues: {
+            typeName: '',
+            payload: ''
+        },
+        mode: 'onChange'
+    });
 
-    const [rows, setRows] = useState(rowRange.start || 1);
-    const [fileContent, setFileContent] = useState("");
-    const [typeName, setTypeName] = useState("");
+    const [payloadRows, setPayloadRows] = useState(rowRange.start || 1);
 
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const payloadTextAreaRef = useRef<HTMLTextAreaElement>(null);
     const hiddenFileInput = useRef(null);
 
     useEffect(() => {
-        if (textAreaRef.current) {
-            const textarea = textAreaRef.current.shadowRoot.querySelector("textarea");
+        if (payloadTextAreaRef.current) {
+            const textarea = payloadTextAreaRef.current.shadowRoot.querySelector("textarea");
             const handleOnKeyDown = (event: KeyboardEvent) => {
                 if (event.key === "Tab") {
                     event.preventDefault();
@@ -67,49 +71,43 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
                 textarea.removeEventListener("keydown", handleOnKeyDown);
             };
         }
-    }, [textAreaRef]);
+    }, [payloadTextAreaRef]);
 
-    useEffect(() => {
-        if (!fileContent) return;
+    const validatePayload = (value: string) => {
         try {
             switch (importType.type) {
                 case 'JSON':
-                    validateJSON(fileContent);
+                    validateJSON(value);
                     break;
                 case 'CSV':
-                    validateCSV(fileContent);
+                    validateCSV(value);
                     break;
                 case 'XML':
-                    validateXML(fileContent);
+                    validateXML(value);
                     break;
                 case 'JSONSCHEMA':
-                    validateJSON(fileContent);
+                    validateJSONSchema(value);
                     break;
                 default:
                     break;
             }
-            clearErrors("payload");
+            return true;
         } catch (error) {
-            setError("payload", { message: `Invalid ${importType.label} format.` });
+            return `Invalid ${importType.label} format.`;
         }
-    }, [fileContent, importType]);
+    };
 
-    const growTextArea = (text: string) => {
+    const growPayloadTextArea = (text: string) => {
         const { start, offset } = rowRange;
         const lineCount = text.split("\n").length;
         const newRows = Math.max(start, Math.min(start + offset, lineCount));
-        setRows(newRows);
+        setPayloadRows(newRows);
     };
 
-    const handleTypeNameChange = (e: any) => {
-        setTypeName(e.target.value);
-    }
-
-    const handleChange = (e: any) => {
+    const handlePayloadChange = (e: any) => {
         if (rowRange) {
-            growTextArea(e.target.value);
+            growPayloadTextArea(e.target.value);
         }
-        setFileContent(e.target.value);
     };
 
     const handleClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
@@ -124,13 +122,13 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
         reader.onload = async (loadEvent: any) => {
             if (`.${ext}` === extension) {
                 const text = loadEvent.target.result as string;
-                setFileContent(text);
+                setValue('payload', text, { shouldValidate: true });
             }
         };
     };
 
-    const handleSave = () => {
-        onSave(typeName, fileContent);
+    const handleSave = (data: { typeName: string; payload: string }) => {
+        onSave(data.typeName, data.payload);
     };
 
     const generatePlaceholder = useMemo(() => {
@@ -156,13 +154,13 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
             <Controller
                 name="typeName"
                 control={control}
+                rules={{ required: "Type name is required" }}
                 render={({ field }) => (
                     <TextArea
-                        onChange={handleTypeNameChange}
+                        {...field}
                         label="Custom Type Name"
                         placeholder="Type name"
                         rows={1}
-                        value={typeName}
                         sx={{ border: "#00ff00", marginBottom: 10 }}
                         errorMsg={errors && errors.typeName?.message.toString()}
                     />
@@ -181,14 +179,18 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
             <Controller
                 name="payload"
                 control={control}
+                rules={{
+                    required: "Payload is required",
+                    validate: validatePayload
+                }}
                 render={({ field }) => (
                     <TextArea
-                        ref={textAreaRef}
-                        onChange={handleChange}
-                        rows={rows}
+                        {...field}
+                        ref={payloadTextAreaRef}
+                        onChange={(e) => { field.onChange(e); handlePayloadChange(e) }}
+                        rows={payloadRows}
                         resize="vertical"
                         placeholder={generatePlaceholder}
-                        value={fileContent}
                         sx={{ border: "#00ff00" }}
                         errorMsg={errors && errors.payload?.message.toString()}
                     />
@@ -197,7 +199,7 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
             <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={handleSave}
+                    onClick={handleSubmit(handleSave)}
                     disabled={false}
                 >
                     Save
