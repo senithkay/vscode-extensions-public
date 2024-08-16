@@ -55,7 +55,7 @@ const TroubleshootingList = styled.ol`
 
 export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
     const { rpcClient } = useVisualizerContext();
-    const issueUrl = "https://github.com/wso2/ballerina-plugin-vscode/issues";
+    const issueUrl = "https://github.com/wso2/mi-vscode/issues";
     const Retry = () => {
         rpcClient.sendAIStateEvent(AI_EVENT_TYPE.RETRY);
     };
@@ -79,7 +79,7 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
                 buttonTitle="Retry"
                 onClick={Retry}
                 subTitle={
-                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again. If the issue persists, try logging out and logging in again."
+                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
                 }
                 title={"Error in establishing Connection"}
             />
