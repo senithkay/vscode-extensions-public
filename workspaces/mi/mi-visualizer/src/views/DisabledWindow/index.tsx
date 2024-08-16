@@ -10,10 +10,9 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { AlertBox } from "../AlertBox/AlertBox";
@@ -26,32 +25,42 @@ const Container = styled.div`
     gap: 8px;
 `;
 
-const WideVSCodeButton = styled(VSCodeButton)`
-    width: 100%;
-    max-width: 300px;
-    margin: 15px 0 15px 0;
-    align-self: center;
-`;
+const HeaderButtons = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginRight: '10px',
+});
 
 export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
     const { rpcClient } = useVisualizerContext();
-    const { showProjectHeader } = props;
 
     const Retry = () => {
         rpcClient.sendAIStateEvent(AI_EVENT_TYPE.RETRY);
     };
 
+    async function handleLogout() {
+        await rpcClient.getMiDiagramRpcClient().logoutFromMIAccount();
+    }
 
     return (
         <Container>
-                <AlertBox
-                    buttonTitle="Retry"
-                    onClick={Retry} 
-                    subTitle={
-                                "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
-                    }
-                    title={"Error in establishing Connection"}
-                />
+            <HeaderButtons>
+                <Button
+                    appearance="icon"
+                    onClick={() => handleLogout()}
+                    tooltip="Logout"
+                >
+                    <Codicon name="sign-out" />&nbsp;&nbsp;Logout
+                </Button>
+            </HeaderButtons>
+            <AlertBox
+                buttonTitle="Retry"
+                onClick={Retry}
+                subTitle={
+                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again. If the issue persists, try logging in again."
+                }
+                title={"Error in establishing Connection"}
+            />
         </Container>
     );
 };
