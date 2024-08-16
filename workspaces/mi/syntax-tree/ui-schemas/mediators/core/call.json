@@ -11,8 +11,9 @@
                 "displayName": "Endpoint",
                 "inputType": "keyOrExpression",
                 "comboValues": [
-                    "INLINE"
+                    "NONE"
                 ],
+                "isCreateNew":true,
                 "required": true,
                 "keyType":"endpoint",
                 "helpTip": "Choose an existing endpoint, or specify a new one"

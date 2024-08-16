@@ -9,9 +9,9 @@
 import { promises as fs } from 'fs';
 import { parseString } from 'xml2js';
 import deepEqual from 'deep-equal';
-import { getNodeDescription } from '../../node';
+import { getNodeDescription } from '../../utils/node';
 import Mustache from 'mustache';
-import { escapeXml } from '../../commons';
+import { escapeXml } from '../../utils/commons';
 
 Mustache.escape = escapeXml;
 
