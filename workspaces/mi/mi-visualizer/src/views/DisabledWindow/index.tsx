@@ -68,7 +68,7 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
                 title={"Error in establishing Connection"}
             />
             <IssueTrackerLink>
-                Please raise an issue in our&nbsp; <a href="your-link-url">issue tracker</a> .
+                Please raise an issue in our&nbsp; <a href={issueUrl}>issue tracker</a> .
             </IssueTrackerLink>
         </Container>
     );
