@@ -21,6 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block",
@@ -49,8 +50,8 @@ const SendForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            skipSerialization: sidePanelContext?.formValues?.skipSerialization || false,
             endpoint: sidePanelContext?.formValues?.endpoint || "",
+            inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "",
             buildMessageBeforeSending: sidePanelContext?.formValues?.buildMessageBeforeSending || false,
             receivingSequenceType: sidePanelContext?.formValues?.receivingSequenceType || "Default",
             staticReceivingSequence: sidePanelContext?.formValues?.staticReceivingSequence || "",
@@ -104,17 +105,6 @@ const SendForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="skipSerialization"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Skip Serialization</VSCodeCheckbox>
-                            )}
-                        />
-                    </Field>
-
-                    {watch("skipSerialization") == false &&
-                    <Field>
-                        <Controller
                             name="endpoint"
                             control={control}
                             rules={
@@ -134,13 +124,24 @@ const SendForm = (props: AddMediatorProps) => {
                                     onValueChange={field.onChange}
                                     required={true}
                                     errorMsg={errors?.endpoint?.message?.toString()}
+                                    additionalItems={["NONE"]}
                                 />
+                            )}
+                        />
+                    </Field>
+
+                    {watch("endpoint") == "INLINE" &&
+                    <Field>
+                        <Controller
+                            name="inlineEndpoint"
+                            control={control}
+                            render={({ field }) => (
+                                <CodeTextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.inlineEndpoint?.message?.toString()} />
                             )}
                         />
                     </Field>
                     }
 
-                    {watch("skipSerialization") == false &&
                     <Field>
                         <Controller
                             name="buildMessageBeforeSending"
@@ -150,9 +151,7 @@ const SendForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </Field>
-                    }
 
-                    {watch("skipSerialization") == false &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Receiving Sequence</Typography>
 
@@ -177,46 +176,45 @@ const SendForm = (props: AddMediatorProps) => {
                         </Field>
 
                         {watch("receivingSequenceType") == "Static" &&
-                            <Field>
-                                <Controller
-                                    name="staticReceivingSequence"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Keylookup
-                                            value={field.value}
-                                            filterType='sequence'
-                                            label="Static Receiving Sequence"
-                                            allowItemCreate={false}
-                                            onValueChange={field.onChange}
-                                            required={false}
-                                            errorMsg={errors?.staticReceivingSequence?.message?.toString()}
-                                        />
-                                    )}
-                                />
-                            </Field>
+                        <Field>
+                            <Controller
+                                name="staticReceivingSequence"
+                                control={control}
+                                render={({ field }) => (
+                                    <Keylookup
+                                        value={field.value}
+                                        filterType='sequence'
+                                        label="Static Receiving Sequence"
+                                        allowItemCreate={false}
+                                        onValueChange={field.onChange}
+                                        required={false}
+                                        errorMsg={errors?.staticReceivingSequence?.message?.toString()}
+                                    />
+                                )}
+                            />
+                        </Field>
                         }
 
                         {watch("receivingSequenceType") == "Dynamic" &&
-                            <Field>
-                                <Controller
-                                    name="dynamicReceivingSequence"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <ExpressionField
-                                            {...field} label="Dynamic Receiving Sequence"
-                                            placeholder=""
-                                            required={false}
-                                            errorMsg={errors?.dynamicReceivingSequence?.message?.toString()}
-                                            canChange={false}
-                                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                                        />
-                                    )}
-                                />
-                            </Field>
+                        <Field>
+                            <Controller
+                                name="dynamicReceivingSequence"
+                                control={control}
+                                render={({ field }) => (
+                                    <ExpressionField
+                                        {...field} label="Dynamic Receiving Sequence"
+                                        placeholder=""
+                                        required={false}
+                                        errorMsg={errors?.dynamicReceivingSequence?.message?.toString()}
+                                        canChange={false}
+                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                    />
+                                )}
+                            />
+                        </Field>
                         }
 
                     </ComponentCard>
-                    }
 
                     <Field>
                         <Controller
