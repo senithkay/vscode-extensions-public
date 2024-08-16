@@ -11,14 +11,15 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
-import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, NEW_CONNECTION } from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, NEW_CONNECTION, CON_NODE_HEIGHT } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
+import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
-        selected: boolean;
         hovered: boolean;
+        inactive?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -26,23 +27,21 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: center;
         width: ${CON_NODE_WIDTH}px;
-        height: ${CON_NODE_WIDTH}px;
+        height: ${CON_NODE_HEIGHT}px;
         border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 50%;
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 50px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
 
-    export const Header = styled.div<{}>`
+    export const Header = styled.div`
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 2px;
-        width: 100%;
+        gap: 6px;
         padding: 8px;
     `;
 
@@ -71,12 +70,14 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText)`
+    export const Title = styled(StyledText)<NodeStyleProp>`
         max-width: ${CON_NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
+        color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+        opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
     `;
 
     export const Description = styled(StyledText)`
@@ -92,12 +93,18 @@ export namespace NodeStyles {
         opacity: 0.7;
     `;
 
-    export const Row = styled.div`
+    export const Row = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
+        gap: 6px;
         width: 100%;
+        padding: 0 20px;
+        & svg {
+            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+            opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
+        }
     `;
 
     export const Hr = styled.hr`
@@ -110,7 +117,7 @@ interface ConnectionNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> {}
 
 export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const { model, engine } = props;
@@ -125,18 +132,23 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         }
     };
 
+    const isNewConnection = model.node.id === NEW_CONNECTION;
+
     return (
         <NodeStyles.Node
-            selected={model.isSelected()}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
+            <NodeStyles.Row hovered={isHovered} inactive={isNewConnection}>
+                {isNewConnection ? <PlusIcon /> : <DatabaseIcon />}
                 <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.name}</NodeStyles.Title>
+                    <NodeStyles.Title hovered={isHovered} inactive={isNewConnection}>
+                        {model.node.name}
+                    </NodeStyles.Title>
+                    {!isNewConnection && <NodeStyles.Description>Connection</NodeStyles.Description>}
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

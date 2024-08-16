@@ -10,12 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import {
-    autoDistribute,
-    createNodesLink,
-    generateEngine,
-    registerListeners,
-} from "../utils/diagram";
+import { autoDistribute, createNodesLink, generateEngine, registerListeners } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -69,7 +64,7 @@ export function Diagram(props: DiagramProps) {
 
         // if there are no entry nodes, create a new entry node
         if (project.entryPoints.length === 0) {
-            const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry", type: "service" });
+            const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry Point", type: "service" });
             nodes.push(node);
             // add actor node for new entry node
             const actorNode = new ActorNodeModel({ ...node.node, id: NEW_ENTRY + ACTOR_SUFFIX });
@@ -116,6 +111,14 @@ export function Diagram(props: DiagramProps) {
             }
         }
 
+        // create link between new connection and first entry node
+        const firstEntryNode = nodes.find((node) => node instanceof EntryNodeModel);
+        if (newConnectionNode && firstEntryNode && project.connections.length === 0) {
+            const link = createNodesLink(firstEntryNode, newConnectionNode);
+            if (link) {
+                links.push(link);
+            }
+        }
 
         return { nodes, links };
     };
