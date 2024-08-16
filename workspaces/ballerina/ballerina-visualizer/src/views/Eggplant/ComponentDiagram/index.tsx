@@ -42,12 +42,6 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
 
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
-            fetchContext();
-        }
-    });
-
     const fetchContext = () => {
         rpcClient
             .getEggplantDiagramRpcClient()
