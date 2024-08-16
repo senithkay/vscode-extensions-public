@@ -21,9 +21,9 @@ module.exports = {
         "^react$": "<rootDir>/node_modules/react/index.js",
     },
     setupFilesAfterEnv: [
-        '<rootDir>/src/utils/test/jest.env.ts',
+        '<rootDir>/src/test/jest.env.ts',
     ],
-    setupFiles: ['<rootDir>/src/utils/test/matchMedia.ts'],
+    setupFiles: ['<rootDir>/src/test/matchMedia.ts'],
     "transformIgnorePatterns": [
         "<rootDir>/node_modules/(?!(@wso2-enterprise)/)"
     ]
