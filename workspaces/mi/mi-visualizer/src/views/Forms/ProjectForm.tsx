@@ -25,7 +25,6 @@ type InputsFields = {
     groupID?: string;
     artifactID?: string;
     version?: string;
-    viewMore?: boolean;
 };
 
 const initialEndpoint: InputsFields = {
@@ -34,7 +33,6 @@ const initialEndpoint: InputsFields = {
     groupID: 'com.microintegrator.projects',
     artifactID: 'Sample1',
     version: '1.0.0',
-    viewMore: false,
 };
 
 export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
@@ -51,9 +49,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 }),
         directory: yup.string().required("Project Directory is required"),
         groupID: yup.string().notRequired().default("com.microintegrator.projects").matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Group id cannot contain spaces or special characters"),
-        artifactID: yup.string().notRequired().matches(/^[a-zA-Z0-9_-]([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Artifact id cannot contain spaces or special characters"),
+        artifactID: yup.string().notRequired().matches(/^[a-zA-Z0-9_-]?([a-zA-Z0-9_-]*\.?[a-zA-Z0-9_-])*$/, "Artifact id cannot contain spaces or special characters"),
         version: yup.string().notRequired().default("1.0.0").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
-        viewMore: yup.boolean().notRequired().default(false),
     });
 
     const {
@@ -78,7 +75,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
 
     useEffect(() => {
         setValue("artifactID", getValues("name"));
-    }, [watch("viewMore")]);
+    }, [watch("name")]);
 
     const handleProjecDirSelection = async () => {
         const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
