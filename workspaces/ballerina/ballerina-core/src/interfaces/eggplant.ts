@@ -44,6 +44,7 @@ export type FlowNode = {
 export type Metadata = {
     label: string;
     description: string;
+    icon?: string;
     keywords?: string[];
 };
 

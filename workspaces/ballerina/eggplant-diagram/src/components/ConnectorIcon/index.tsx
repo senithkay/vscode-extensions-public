@@ -20,12 +20,24 @@ export default function ConnectorIcon(props: ConnectorIconProps) {
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
 
+    if (node.metadata.icon && isValidUrl(node.metadata.icon)) {
+        return <img src={node.metadata.icon} alt={node.codedata.module} style={{ width: "25px" }} />;
+    }
     if (databaseClients.includes(node.codedata.module)) {
         return <DatabaseIcon />;
     }
     if (node.codedata.module === "http") {
         return <HttpIcon />;
     }
-    
-    return < ApiIcon />;
+
+    return <ApiIcon />;
+}
+
+function isValidUrl(url: string): boolean {
+    try {
+        new URL(url);
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
