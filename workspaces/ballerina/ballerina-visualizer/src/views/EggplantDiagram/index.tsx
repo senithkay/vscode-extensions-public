@@ -115,10 +115,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
-            position: {
-                startLine: parent.codedata.lineRange.startLine,
-                endLine: parent.codedata.lineRange.endLine,
-            },
+            position: target,
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
@@ -147,10 +144,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({ 
-                position: {
-                    startLine: topNodeRef.current.codedata.lineRange.startLine,
-                    endLine: topNodeRef.current.codedata.lineRange.endLine,
-                },
+                position: targetRef.current,
                 filePath: model.fileName,
                 id: node.codedata })
             .then((response) => {
@@ -171,7 +165,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     const handleOnFormSubmit = (data: FormValues) => {
         console.log(">>> on form submit", data);
-        if (selectedNodeRef.current && topNodeRef.current) {
+        if (selectedNodeRef.current && targetRef.current) {
             let updatedNode: FlowNode = {
                 ...selectedNodeRef.current,
                 codedata: {

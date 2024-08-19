@@ -29,6 +29,7 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
+import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 
 export interface DiagramProps {
     model: Flow;
@@ -85,6 +86,13 @@ export function Diagram(props: DiagramProps) {
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
 
+        const addTargetVisitor = new LinkTargetVisitor(
+            model,
+            nodes,
+            hasErrorFlow ? (showErrorFlow ? "On Failure" : "Body") : undefined
+        );
+        traverseFlow(flowModel, addTargetVisitor);
+
         return { nodes, links };
     };
 
@@ -108,21 +116,8 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.getModel().removeLayer(overlayLayer);
         }
 
-        // const hasPreviousPosition = hasDiagramZoomAndPosition();
-        // if (hasPreviousPosition) {
-        //     // reset canvas position to previous position
-        //     loadDiagramZoomAndPosition(diagramEngine);
-        // } else if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
-        //     // change canvas position to first node
-        //     const firstNode = newDiagramModel.getNodes().at(0);
-        //     // diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
-        //     diagramEngine.zoomToFit();
-        // } else {
-        //     console.error(">>> canvas not found");
-        // }
-
         const hasPreviousPosition = hasDiagramZoomAndPosition(model.fileName);
-        if(!hasPreviousPosition) {
+        if (!hasPreviousPosition) {
             resetDiagramZoomAndPosition(model.fileName);
         }
         loadDiagramZoomAndPosition(diagramEngine);

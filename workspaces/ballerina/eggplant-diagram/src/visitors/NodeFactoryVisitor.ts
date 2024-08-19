@@ -211,7 +211,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     endVisitConditional(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
     }
-    
+
     endVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
     }

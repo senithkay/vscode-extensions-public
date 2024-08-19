@@ -9,7 +9,7 @@
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
-import { NodeModel } from "../../utils/types";
+import { LinePosition, NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -26,6 +26,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     label: string;
     sourceNode: NodeModel;
     targetNode: NodeModel;
+    target: LinePosition;
     // options
     showArrow: boolean;
     showAddButton = true;
@@ -77,6 +78,14 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     setTargetNode(node: NodeModel) {
         this.targetNode = node;
+    }
+
+    setTarget(target: LinePosition) {
+        this.target = target;
+    }
+
+    getTarget(): LinePosition {
+        return this.target;
     }
 
     getSVGPath(): string {
