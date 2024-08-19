@@ -39,8 +39,8 @@ interface MarkdownRendererProps {
 }
 
 interface ChatEntry {
-    role: string;
-    content: string;
+    actor: string;
+    message: string;
 }
 
 interface ApiResponse {
@@ -128,7 +128,7 @@ const ResetsInBadge = styled.div`
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
-var projectUuid = "";
+var projectUuid = "123";
 var backendRootUri = "";
 
 let controller = new AbortController();
@@ -167,104 +167,81 @@ export function AIChat() {
 
     }, []);
 
-    // useEffect(() => {
-    //     projectUuid = "";
-    //     const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-    //     const localStorageQuestionFile = `Question-AIGenerationChat-${projectUuid}`;
-    //     const storedChatArray = localStorage.getItem(localStorageFile);
-    //     const storedQuestion = localStorage.getItem(localStorageQuestionFile);
-    //     const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-    //     rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
-    //         timeToReset = machineView.userTokens.time_to_reset;
-    //         timeToReset = timeToReset / (60 * 60 * 24);
-    //         const maxTokens = machineView.userTokens.max_usage;
-    //         if (maxTokens == -1) {
-    //             remainingTokenPercentage = "Unlimited";
-    //         } else {
-    //             const remainingTokens = machineView.userTokens.remaining_tokens;
-    //             remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-    //             if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-    //                 remaingTokenLessThanOne = true;
-    //             } else {
-    //                 remaingTokenLessThanOne = false;
-    //             }
-    //             remainingTokenPercentage = Math.round(remainingTokenPercentage);
-    //             if (remainingTokenPercentage < 0) {
-    //                 remainingTokenPercentage = 0;
-    //             }
-    //         }
+    useEffect(() => {
+        // projectUuid = "123";
+        const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+        const storedChatArray = localStorage.getItem(localStorageFile);
+        rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
+            // timeToReset = machineView.userTokens.time_to_reset;
+            // timeToReset = timeToReset / (60 * 60 * 24);
+            // const maxTokens = machineView.userTokens.max_usage;
+            // if (maxTokens == -1) {
+            //     remainingTokenPercentage = "Unlimited";
+            // } else {
+            //     const remainingTokens = machineView.userTokens.remaining_tokens;
+            //     remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+            //     if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
+            //         remaingTokenLessThanOne = true;
+            //     } else {
+            //         remaingTokenLessThanOne = false;
+            //     }
+            //     remainingTokenPercentage = Math.round(remainingTokenPercentage);
+            //     if (remainingTokenPercentage < 0) {
+            //         remainingTokenPercentage = 0;
+            //     }
+            // }
 
 
-    //         if (machineView.initialPrompt) {
-    //             setMessages(prevMessages => [
-    //                 ...prevMessages,
-    //                 { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
-    //             ]);
-    //             addChatEntry("user", machineView.initialPrompt);
-    //             handleSend2(false, true);
-    //             //rpcClient.getVisualizerRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
-    //         } else {
-    //             if (storedChatArray) {
-    //                 if (storedQuestion) {
-    //                     setMessages(prevMessages => [
-    //                         ...prevMessages,
-    //                         { role: "", content: storedQuestion, type: "question" },
-    //                     ]);
-    //                 }
-    //                 if (storedCodeBlocks) {
-    //                     const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
-    //                     codeBlocks.push(...codeBlocksFromStorage);
-    //                 }
-    //                 console.log("Code Blocks: " + codeBlocks);
-    //                 const chatArrayFromStorage = JSON.parse(storedChatArray);
-    //                 chatArray = chatArrayFromStorage;
+            // if (machineView.initialPrompt) {
+            //     setMessages(prevMessages => [
+            //         ...prevMessages,
+            //         { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+            //     ]);
+            //     addChatEntry("user", machineView.initialPrompt);
+            //     handleSend2(false, true);
+            //     //rpcClient.getVisualizerRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+            // } else {
+                if (storedChatArray) {
+                    const chatArrayFromStorage = JSON.parse(storedChatArray);
+                    chatArray = chatArrayFromStorage;
 
-    //                 // Add the messages from the chat array to the view
-    //                 setMessages((prevMessages) => [
-    //                     ...prevMessages,
-    //                     ...chatArray.map((entry: ChatEntry) => {
-    //                         let role, type;
-    //                         if (entry.role === 'user') {
-    //                             role = 'User';
-    //                             type = 'user_message';
-    //                         } else if (entry.role === 'assistant') {
-    //                             role = 'MI Copilot';
-    //                             type = 'assistant_message';
-    //                         }
-    //                         return {
-    //                             role: role,
-    //                             type: type,
-    //                             content: entry.content,
-    //                         };
-    //                     }),
-    //                 ]);
+                    // Add the messages from the chat array to the view
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        ...chatArray.map((entry: ChatEntry) => {
+                            let role, type;
+                            if (entry.actor === 'user') {
+                                role = 'User';
+                                type = 'user_message';
+                            } else if (entry.actor === 'assistant') {
+                                role = 'Ballerina Copilot';
+                                type = 'assistant_message';
+                            }
+                            return {
+                                role: role,
+                                type: type,
+                                content: entry.message,
+                            };
+                        }),
+                    ]);
 
-    //                 // Set initial messages only if chatArray's length is 0
-    //             } else {
-    //                 if (chatArray.length === 0) {
-    //                     setMessages((prevMessages) => [
-    //                         ...prevMessages
-    //                     ]);
-    //                     if (storedQuestion) {
-    //                         setMessages(prevMessages => [
-    //                             ...prevMessages,
-    //                             { role: "", content: storedQuestion, type: "question" },
-    //                         ]);
-    //                     } else {
-    //                         console.log("Fetching initial questions");
-    //                         generateSuggestions();
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     });
+                    // Set initial messages only if chatArray's length is 0
+                } else {
+                    if (chatArray.length === 0) {
+                        setMessages((prevMessages) => [
+                            ...prevMessages
+                        ]);
+                    }
+                }
+            // }
+        });
 
-    // }, []);
+    }, []);
 
     function addChatEntry(role: string, content: string): void {
         chatArray.push({
-            role,
-            content,
+            actor: role,
+            message: content,
         });
 
         localStorage.setItem(`chatArray-AIGenerationChat-${projectUuid}`, JSON.stringify(chatArray));
@@ -373,15 +350,11 @@ export function AIChat() {
         if (userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
-        console.log(chatArray);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
         setIsLoading(true);
         let assistant_response = "";
-        if (!isQuestion && !isInitialPrompt) {
-            addChatEntry("user", userInput);
-        }
         setUserInput("");
         setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
         if (isQuestion) {
@@ -405,13 +378,17 @@ export function AIChat() {
             }
         }
         rpcClient.getAiPanelRpcClient().getAccessToken().then((token) => {
-            fetch("https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/ballerina-copilot-api-byo/v1/code", {
+            let url = "http://localhost:9094/ai/code";
+            let payload = JSON.stringify({ "usecase": userInput , "chatHistory": chatArray });
+            console.log("Payload: " + payload);
+            // let url = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/ballerina-copilot-api-byo/v1/code";
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ "usecase": userInput }),
+                body: JSON.stringify({ "usecase": userInput , "chatHistory": chatArray }),
                 signal: signal,
             }).then(async response => {
                 console.log(response);
@@ -438,8 +415,11 @@ export function AIChat() {
                 const reader = response.body?.getReader();
                 const decoder = new TextDecoder();
                 let result = '';
+                let buffer = '';
                 let codeBuffer = '';
                 let codeLoad = false;
+                remainingTokenPercentage = "Unlimited";
+                let inCodeBlock = false;
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
@@ -447,284 +427,277 @@ export function AIChat() {
                         break;
                     }
 
-                    const chunk = decoder.decode(value, { stream: true });
-                    result += chunk;
+                    buffer += decoder.decode(value, { stream: true });
 
-                    const lines = result.split('\n');
-                    for (let i = 0; i < lines.length - 1; i++) {
-                        try {
-                            console.log(lines[i]);
-                            const json = JSON.parse(lines[i]);
-                            const tokenUsage = json.usage;
-                            const maxTokens = tokenUsage.max_usage;
-                            if (maxTokens == -1) {
-                                remainingTokenPercentage = "Unlimited";
-                            } else {
-                                const remainingTokens = tokenUsage.remaining_tokens;
-                                remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                                if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-                                    remaingTokenLessThanOne = true;
-                                } else {
-                                    remaingTokenLessThanOne = false;
-                                }
-                                remainingTokenPercentage = Math.round(remainingTokenPercentage);
-                                if (remainingTokenPercentage < 0) {
-                                    remainingTokenPercentage = 0;
-                                }
+                    let boundary = buffer.indexOf("\n\n");
+                    while (boundary !== -1) {
+                      const chunk = buffer.slice(0, boundary + 2);
+                      buffer = buffer.slice(boundary + 2);
+                
+                      try {
+                        const event = parseSSEEvent(chunk);
+                        // console.log(`Event: ${event.event}`);
+                        if (event.event == "content_block_delta") {
+                            let textDelta = event.body.text;
+                            assistant_response += (textDelta);
+                            // console.log("Text Delta: " + textDelta);
+
+                            if (textDelta.includes("```ballerina")) {
+                                console.log("Here backticks" + textDelta);
+                                setIsCodeLoading(true);
+                                inCodeBlock = true;
+                            } else if (inCodeBlock) {
+                                codeBlocks.push(textDelta);
+                                console.log("Code block " + textDelta);
+                                inCodeBlock = false;
+                            } else if (textDelta.includes("```")) {
+                                console.log("Ending backtick" + textDelta);
+                                setIsCodeLoading(false);
                             }
-                            if (json.content == null) {
-                                addChatEntry("assistant", assistant_response);
-                                const questions = json.questions
-                                    .map((question: string, index: number) => {
-                                        return { type: "question", role: "Question", content: question, id: index };
-                                    });
 
-                                setMessages(prevMessages => [
-                                    ...prevMessages,
-                                    ...questions,
-                                ]);
-                            } else {
-                                assistant_response += json.content;
-                                if (json.content.includes("``")) {
-                                    setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
-                                }
-
-                                setMessages(prevMessages => {
-                                    const newMessages = [...prevMessages];
-                                    newMessages[newMessages.length - 1].content += json.content;
-                                    return newMessages;
-                                });
-
-                                const regex = /```[\s\S]*?```/g;
-                                let match;
-                                while ((match = regex.exec(assistant_response)) !== null) {
-                                    if (!codeBlocks.includes(match[0])) {
-                                        codeBlocks.push(match[0]);
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            setIsLoading(false);
-                            console.error('Error parsing JSON:', error);
+                            setMessages(prevMessages => {
+                                const newMessages = [...prevMessages];
+                                newMessages[newMessages.length - 1].content += textDelta;
+                                return newMessages;
+                            });
                         }
+                      } catch (error) {
+                        console.error("Failed to parse SSE event:", error);
+                      }
+                    
+
+                      boundary = buffer.indexOf("\n\n");
                     }
-                    result = lines[lines.length - 1];
+                    // console.log(assistant_response);
 
                 }
-
-
+                addChatEntry("user", userInput);
+                addChatEntry("assistant", assistant_response);
             });
         });
     }
 
-    async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-        if (userInput === "" && !isQuestion && !isInitialPrompt) {
-            return;
-        }
-        console.log(chatArray);
-        var context: GetWorkspaceContextResponse[] = [];
-        setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
-        setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-        setIsLoading(true);
-        let assistant_response = "";
-        if (!isQuestion && !isInitialPrompt) {
-            addChatEntry("user", userInput);
-        }
-        setUserInput("");
-        setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
-        if (isQuestion) {
-            setLastQuestionIndex(messages.length - 4);
-            setMessages(prevMessages => [
-                ...prevMessages,
-                { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-            ]);
-        } else {
-            if (userInput != "") {
-                setMessages(prevMessages => [
-                    ...prevMessages,
-                    { role: "User", content: userInput, type: "user_message" },
-                    { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-                ]);
-            } else {
-                setMessages(prevMessages => [
-                    ...prevMessages,
-                    { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-                ]);
-            }
+    const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
 
-        }
-        var backendUrl = ""
-        var view = ""
-        //Get machine view
-        //const machineView = await rpcClient.getAiPanelRpcClient().getMachineView();
+        var selectiveCodeBlocks: string[] = [];
+        selectiveCodeBlocks.push(codeSegment);
+        console.log("TODO: Write to file");
+        // await rpcClient.getAiPanelRpcClient().writeContentToFile({ content: selectiveCodeBlocks }).then((response) => {
+        //     console.log(response);
+        // });
 
-        // if (view == "Overview") {
-        //     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-        //         context = [response]; // Wrap the response in an array
-        //     });
-        // } else if (view == "Artifact") {
-        //     await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-        //         context = [response]; // Wrap the response in an array
-        //     });
-        // }
-        console.log(context[0].context);
-        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        try {
-            var response = await fetch(backendRootUri + backendUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile: JSON.stringify(uploadedFile) }),
-                signal: signal,
-            })
-            if (!response.ok && response.status != 401) {
-                setIsLoading(false);
-                setMessages(prevMessages => {
-                    const newMessages = [...prevMessages];
-                    const statusText = getStatusText(response.status);
-                    let error = `Failed to fetch response. Status: ${statusText}`;
-                    console.log("Response status: ", response.status);
-                    if (response.status == 429) {
-                        response.json().then(body => {
-                            console.log(body.detail);
-                            error += body.detail;
-                            console.log("Error: ", error);
-                        });
-                    }
-                    newMessages[newMessages.length - 1].content += error;
-                    newMessages[newMessages.length - 1].type = 'Error';
-                    return newMessages;
-                });
-                throw new Error('Failed to fetch response');
-            }
-            if (response.status == 401) {
-                await rpcClient.getAiPanelRpcClient().refreshAccessToken();
-                const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-                response = await fetch(backendRootUri + backendUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-                    signal: signal,
-                })
-                if (!response.ok) {
-                    setIsLoading(false);
-                    setMessages(prevMessages => {
-                        const newMessages = [...prevMessages];
-                        const statusText = getStatusText(response.status);
-                        newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
-                        newMessages[newMessages.length - 1].type = 'Error';
-                        return newMessages;
-                    });
-                    throw new Error('Failed to fetch response');
-                }
-            }
-        } catch (error) {
-            setIsLoading(false);
-            setMessages(prevMessages => {
-                const newMessages = [...prevMessages];
-                newMessages[newMessages.length - 1].content += 'Network error. Please check your connectivity.';
-                newMessages[newMessages.length - 1].type = 'Error';
-                return newMessages;
-            });
-            console.error('Network error:', error);
-        }
+    }
 
-        // Remove the user uploaded file after sending it to the backend
-        handleRemoveFile();
+    
+    
+    // async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
+    //     if (userInput === "" && !isQuestion && !isInitialPrompt) {
+    //         return;
+    //     }
+    //     console.log(chatArray);
+    //     var context: GetWorkspaceContextResponse[] = [];
+    //     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
+    //     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
+    //     setIsLoading(true);
+    //     let assistant_response = "";
+    //     if (!isQuestion && !isInitialPrompt) {
+    //         addChatEntry("user", userInput);
+    //     }
+    //     setUserInput("");
+    //     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
+    //     if (isQuestion) {
+    //         setLastQuestionIndex(messages.length - 4);
+    //         setMessages(prevMessages => [
+    //             ...prevMessages,
+    //             { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
+    //         ]);
+    //     } else {
+    //         if (userInput != "") {
+    //             setMessages(prevMessages => [
+    //                 ...prevMessages,
+    //                 { role: "User", content: userInput, type: "user_message" },
+    //                 { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
+    //             ]);
+    //         } else {
+    //             setMessages(prevMessages => [
+    //                 ...prevMessages,
+    //                 { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
+    //             ]);
+    //         }
 
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let result = '';
-        let codeBuffer = '';
-        let codeLoad = false;
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-                setIsLoading(false);
-                break;
-            }
+    //     }
+    //     var backendUrl = ""
+    //     var view = ""
+    //     //Get machine view
+    //     //const machineView = await rpcClient.getAiPanelRpcClient().getMachineView();
 
-            const chunk = decoder.decode(value, { stream: true });
-            result += chunk;
+    //     // if (view == "Overview") {
+    //     //     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
+    //     //         context = [response]; // Wrap the response in an array
+    //     //     });
+    //     // } else if (view == "Artifact") {
+    //     //     await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+    //     //         context = [response]; // Wrap the response in an array
+    //     //     });
+    //     // }
+    //     console.log(context[0].context);
+    //     const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+    //     try {
+    //         var response = await fetch(backendRootUri + backendUrl, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${token}`,
+    //             },
+    //             body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile: JSON.stringify(uploadedFile) }),
+    //             signal: signal,
+    //         })
+    //         if (!response.ok && response.status != 401) {
+    //             setIsLoading(false);
+    //             setMessages(prevMessages => {
+    //                 const newMessages = [...prevMessages];
+    //                 const statusText = getStatusText(response.status);
+    //                 let error = `Failed to fetch response. Status: ${statusText}`;
+    //                 console.log("Response status: ", response.status);
+    //                 if (response.status == 429) {
+    //                     response.json().then(body => {
+    //                         console.log(body.detail);
+    //                         error += body.detail;
+    //                         console.log("Error: ", error);
+    //                     });
+    //                 }
+    //                 newMessages[newMessages.length - 1].content += error;
+    //                 newMessages[newMessages.length - 1].type = 'Error';
+    //                 return newMessages;
+    //             });
+    //             throw new Error('Failed to fetch response');
+    //         }
+    //         if (response.status == 401) {
+    //             await rpcClient.getAiPanelRpcClient().refreshAccessToken();
+    //             const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+    //             response = await fetch(backendRootUri + backendUrl, {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'Authorization': `Bearer ${token}`,
+    //                 },
+    //                 body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+    //                 signal: signal,
+    //             })
+    //             if (!response.ok) {
+    //                 setIsLoading(false);
+    //                 setMessages(prevMessages => {
+    //                     const newMessages = [...prevMessages];
+    //                     const statusText = getStatusText(response.status);
+    //                     newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+    //                     newMessages[newMessages.length - 1].type = 'Error';
+    //                     return newMessages;
+    //                 });
+    //                 throw new Error('Failed to fetch response');
+    //             }
+    //         }
+    //     } catch (error) {
+    //         setIsLoading(false);
+    //         setMessages(prevMessages => {
+    //             const newMessages = [...prevMessages];
+    //             newMessages[newMessages.length - 1].content += 'Network error. Please check your connectivity.';
+    //             newMessages[newMessages.length - 1].type = 'Error';
+    //             return newMessages;
+    //         });
+    //         console.error('Network error:', error);
+    //     }
 
-            const lines = result.split('\n');
-            for (let i = 0; i < lines.length - 1; i++) {
-                try {
-                    const json = JSON.parse(lines[i]);
-                    const tokenUsage = json.usage;
-                    const maxTokens = tokenUsage.max_usage;
-                    if (maxTokens == -1) {
-                        remainingTokenPercentage = "Unlimited";
-                    } else {
-                        const remainingTokens = tokenUsage.remaining_tokens;
-                        remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                        if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-                            remaingTokenLessThanOne = true;
-                        } else {
-                            remaingTokenLessThanOne = false;
-                        }
-                        remainingTokenPercentage = Math.round(remainingTokenPercentage);
-                        if (remainingTokenPercentage < 0) {
-                            remainingTokenPercentage = 0;
-                        }
-                    }
-                    if (json.content == null) {
-                        addChatEntry("assistant", assistant_response);
-                        const questions = json.questions
-                            .map((question: string, index: number) => {
-                                return { type: "question", role: "Question", content: question, id: index };
-                            });
+    //     // Remove the user uploaded file after sending it to the backend
+    //     handleRemoveFile();
 
-                        setMessages(prevMessages => [
-                            ...prevMessages,
-                            ...questions,
-                        ]);
-                    } else {
-                        assistant_response += json.content;
-                        if (json.content.includes("``")) {
-                            setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
-                        }
+    //     const reader = response.body?.getReader();
+    //     const decoder = new TextDecoder();
+    //     let result = '';
+    //     let codeBuffer = '';
+    //     let codeLoad = false;
+    //     while (true) {
+    //         const { done, value } = await reader.read();
+    //         if (done) {
+    //             setIsLoading(false);
+    //             break;
+    //         }
 
-                        setMessages(prevMessages => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content += json.content;
-                            return newMessages;
-                        });
+    //         const chunk = decoder.decode(value, { stream: true });
+    //         result += chunk;
 
-                        const regex = /```[\s\S]*?```/g;
-                        let match;
-                        while ((match = regex.exec(assistant_response)) !== null) {
-                            if (!codeBlocks.includes(match[0])) {
-                                codeBlocks.push(match[0]);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    setIsLoading(false);
-                    console.error('Error parsing JSON:', error);
-                }
-            }
-            result = lines[lines.length - 1];
+    //         const lines = result.split('\n');
+    //         for (let i = 0; i < lines.length - 1; i++) {
+    //             try {
+    //                 const json = JSON.parse(lines[i]);
+    //                 const tokenUsage = json.usage;
+    //                 const maxTokens = tokenUsage.max_usage;
+    //                 if (maxTokens == -1) {
+    //                     remainingTokenPercentage = "Unlimited";
+    //                 } else {
+    //                     const remainingTokens = tokenUsage.remaining_tokens;
+    //                     remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+    //                     if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
+    //                         remaingTokenLessThanOne = true;
+    //                     } else {
+    //                         remaingTokenLessThanOne = false;
+    //                     }
+    //                     remainingTokenPercentage = Math.round(remainingTokenPercentage);
+    //                     if (remainingTokenPercentage < 0) {
+    //                         remainingTokenPercentage = 0;
+    //                     }
+    //                 }
+    //                 if (json.content == null) {
+    //                     addChatEntry("assistant", assistant_response);
+    //                     const questions = json.questions
+    //                         .map((question: string, index: number) => {
+    //                             return { type: "question", role: "Question", content: question, id: index };
+    //                         });
 
-        }
+    //                     setMessages(prevMessages => [
+    //                         ...prevMessages,
+    //                         ...questions,
+    //                     ]);
+    //                 } else {
+    //                     assistant_response += json.content;
+    //                     if (json.content.includes("``")) {
+    //                         setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
+    //                     }
+
+    //                     setMessages(prevMessages => {
+    //                         const newMessages = [...prevMessages];
+    //                         newMessages[newMessages.length - 1].content += json.content;
+    //                         return newMessages;
+    //                     });
+
+    //                     const regex = /```[\s\S]*?```/g;
+    //                     let match;
+    //                     while ((match = regex.exec(assistant_response)) !== null) {
+    //                         if (!codeBlocks.includes(match[0])) {
+    //                             codeBlocks.push(match[0]);
+    //                         }
+    //                     }
+    //                 }
+    //             } catch (error) {
+    //                 setIsLoading(false);
+    //                 console.error('Error parsing JSON:', error);
+    //             }
+    //         }
+    //         result = lines[lines.length - 1];
+
+    //     }
 
 
 
-        if (result) {
-            try {
-                const json = JSON.parse(result);
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-            }
-        }
-        localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
+    //     if (result) {
+    //         try {
+    //             const json = JSON.parse(result);
+    //         } catch (error) {
+    //             console.error('Error parsing JSON:', error);
+    //         }
+    //     }
+    //     localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
 
-    };
+    // };
 
 
     async function handleStop() {
@@ -738,9 +711,6 @@ export function AIChat() {
         setIsLoading(false);
         setIsCodeLoading(false);
     }
-
-
-
 
     function splitHalfGeneratedCode(content: string) {
         const segments = [];
@@ -763,9 +733,10 @@ export function AIChat() {
     }
 
     function splitContent(content: string) {
+        console.log("Message to be splitted : " + content);
         const segments = [];
         let match;
-        const regex = /```xml([\s\S]*?)```/g;
+        const regex = /```ballerina([\s\S]*?)```/g;
         let start = 0;
 
         while ((match = regex.exec(content)) !== null) {
@@ -779,6 +750,7 @@ export function AIChat() {
         if (start < content.length) {
             segments.push(...splitHalfGeneratedCode(content.slice(start)));
         }
+        console.log("Split segments " + segments);
         return segments;
     }
 
@@ -823,8 +795,6 @@ export function AIChat() {
 
         //clear the local storage
         localStorage.removeItem(`chatArray-AIGenerationChat-${projectUuid}`);
-        localStorage.removeItem(`Question-AIGenerationChat-${projectUuid}`);
-
     }
 
     const questionMessages = messages.filter(message => message.type === "question");
@@ -868,14 +838,10 @@ export function AIChat() {
         <AIChatView>
             <Header>
                 <Badge>
-                    Remaining Free Usage: {
-                        remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
-                            (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
-                    }
+                    Remaining Free Usage: {'Unlimited'}
                     <br />
                     <ResetsInBadge>
-                        {remainingTokenPercentage !== "Unlimited" &&
-                            `Resets in: ${timeToReset < 1 ? "< 1 day" : `${Math.round(timeToReset)} days`}`}
+                        {`Resets in: 30 days`}
                     </ResetsInBadge>
                 </Badge>
                 <HeaderButtons>
@@ -925,7 +891,7 @@ export function AIChat() {
                                     key={i}
                                     segmentText={segment.text}
                                     loading={segment.loading}
-                                    handleAddSelectiveCodetoWorkspace={() => { }}
+                                    handleAddSelectiveCodetoWorkspace={handleAddSelectiveCodetoWorkspace}
                                 />
                             ) : (
                                 message.type == "Error" ? (
@@ -1059,6 +1025,8 @@ function identifyLanguage(segmentText: string): string {
         return "xml";
     } else if (segmentText.includes('```toml')) {
         return "toml";
+    } else if (segmentText.startsWith('```ballerina')) {
+        return "ballerina";
     } else if (segmentText.startsWith('```')) {
         // Split the string to get the first line
         const firstLine = segmentText.split('\n', 1)[0];
@@ -1073,25 +1041,33 @@ function identifyLanguage(segmentText: string): string {
 const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleAddSelectiveCodetoWorkspace }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const language = identifyLanguage(segmentText);
-    let name = "";
+    // const language = identifyLanguage(segmentText);
+    const language = "ballerina";
+    let name = "Ballerina file";
 
-    switch (language) {
-        case "xml":
-            const xmlMatch = segmentText.match(/(name|key)="([^"]+)"/);
-            name = xmlMatch ? xmlMatch[2] : "XML File";
-            break;
-        case "toml":
-            name = "deployment.toml"; // Default name
-            break;
-        default:
-            name = `${language} file`;
-            break;
-    }
+    // switch (language) {
+    //     case "xml":
+    //         const xmlMatch = segmentText.match(/(name|key)="([^"]+)"/);
+    //         name = xmlMatch ? xmlMatch[2] : "XML File";
+    //         break;
+    //     case "toml":
+    //         name = "deployment.toml"; // Default name
+    //         break;
+    //     case "ballerina":
+    //         name = "Ballerina file";
+    //         break;
+    //     default:
+    //         name = `${language} file`;
+    //         break;
+    // }
 
     if (loading) {
         name = "Generating " + name + "...";
     }
+
+    console.log("Segment : " +segmentText.trim());
+    console.log("Language : " +language);
+    console.log("IsOpen : " +isOpen);
 
     return (
         <div>
@@ -1103,7 +1079,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                    {!loading && language === 'xml' &&
+                    {!loading && language === 'ballerina' &&
                         <Button
                             appearance="icon"
                             onClick={(e) => {
@@ -1123,3 +1099,52 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
         </div>
     );
 };
+
+
+// Define the different event body types
+interface ContentBlockDeltaBody {
+    text: string;
+  }
+  
+  interface OtherEventBody {
+    // Define properties for other event types as needed
+    [key: string]: any;
+  }
+  
+  // Define the SSEEvent type with a discriminated union for the body
+  type SSEEvent = 
+    | { event: "content_block_delta"; body: ContentBlockDeltaBody }
+    | { event: string; body: OtherEventBody };
+  
+  /**
+   * Parses a chunk of text to extract the SSE event and body.
+   * @param chunk - The chunk of text from the SSE stream.
+   * @returns The parsed SSE event containing the event name and body (if present).
+   * @throws Will throw an error if the data field is not valid JSON.
+   */
+  function parseSSEEvent(chunk: string): SSEEvent {
+    let event: string | undefined;
+    let body: any;
+  
+    chunk.split("\n").forEach(line => {
+      if (line.startsWith("event: ")) {
+        event = line.slice(7);
+      } else if (line.startsWith("data: ")) {
+        try {
+          body = JSON.parse(line.slice(6));
+        } catch (e) {
+          throw new Error("Invalid JSON data in SSE event");
+        }
+      }
+    });
+  
+    if (!event) {
+      throw new Error("Event field is missing in SSE event");
+    }
+  
+    if (event === "content_block_delta") {
+      return { event, body: body as ContentBlockDeltaBody };
+    } else {
+      return { event, body: body as OtherEventBody };
+    }
+  }
