@@ -241,10 +241,10 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                             </>
                         )}
                     />
-                   
+
                     <LinkButton
                         onClick={openImportCustomTypeForm}
-                        sx={{ padding: "5px", gap: "2px" }}
+                        sx={{ padding: "5px", gap: "2px", marginTop: "5px" }}
                     >
                         <Codicon
                             iconSx={{ fontSize: "12px" }}
