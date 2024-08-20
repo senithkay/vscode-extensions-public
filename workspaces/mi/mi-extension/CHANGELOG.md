@@ -65,6 +65,7 @@ All notable changes to the "micro-integrator" extension will be documented in th
 - Fixed: New inbound creation not shown when an inbound form is opened ([#254](https://github.com/wso2/mi-vscode/issues/254))  
 - Fixed: Parameters are messed in Inbound endpoints ([#255](https://github.com/wso2/mi-vscode/issues/255))  
 - Fixed: Inbound Endpoint hidden attributes are missing in source XML ([#264](https://github.com/wso2/mi-vscode/issues/264))  
+- Fixed: Cannot uncheck attribute linked as enableCondition in Inbound endpoints ([#354](https://github.com/wso2/mi-vscode/issues/354))
 ### Improvements
 
 Improved: Not possible to provide a description for the Aggregate mediator ([#174](https://github.com/wso2/mi-vscode/issues/174))  
