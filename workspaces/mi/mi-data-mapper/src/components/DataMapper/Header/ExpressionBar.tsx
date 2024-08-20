@@ -152,7 +152,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                         textFieldValue.substring(0, cursorPosition) +
                         inputAccessExpr +
                         textFieldValue.substring(cursorPosition);
-                    await onChangeTextField(updatedText);
+                    await handleChange(updatedText);
                     resetInputPort();
                 }
             }
@@ -297,11 +297,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions(await getCompletions());
     }, 300), [focusedPort, focusedFilter]);
 
-    const onChangeTextField = async (text: string) => {
-        setTextFieldValue(text);
-        await updateST(text);
-    };
-
     const applyChanges = async (value: string) => {
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
@@ -347,6 +342,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyModifications(updatedSourceContent);
     };
 
+    const handleChange = async (text: string) => {
+        setTextFieldValue(text);
+        await updateST(text);
+    };
+
     const handleExpressionSave = async (value: string) => {
         if (savedNodeValue === value) {
             return;
@@ -385,7 +385,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 value={textFieldValue}
                 placeholder={placeholder}
                 completions={completions}
-                onChange={onChangeTextField}
+                onChange={handleChange}
                 onCompletionSelect={handleCompletionSelect}
                 onSave={handleExpressionSave}
                 onCancel={handleCancelCompletions}
