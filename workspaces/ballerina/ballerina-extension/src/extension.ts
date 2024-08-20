@@ -140,12 +140,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
-            // cmds.forEach((cmd) => {
-            //     const cmdID: string = cmd.command;
-            //     commands.registerCommand(cmdID, () => {
-            //         ballerinaExtInstance.showMessageInstallBallerina();
-            //     });
-            // });
+            cmds.forEach((cmd) => {
+                const cmdID: string = cmd.command;
+                commands.registerCommand(cmdID, () => {
+                    ballerinaExtInstance.showMessageInstallBallerina();
+                });
+            });
         }
         // When plugins fails to start, provide a warning upon each command execution
         else if (!ballerinaExtInstance.langClient) {

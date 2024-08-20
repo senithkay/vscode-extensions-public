@@ -39,9 +39,6 @@ export class RPCLayer {
             StateMachineAI.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
-            // StateMachine.service().onTransition((state) => {
-            //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-            // });
         }
 
         RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
