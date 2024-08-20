@@ -15,13 +15,13 @@ interface ConnectorIconProps {
     node: FlowNode;
 }
 
-export default function ConnectorIcon(props: ConnectorIconProps) {
+export function ConnectorIcon(props: ConnectorIconProps) {
     const { node } = props;
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
 
     if (node.metadata.icon && isValidUrl(node.metadata.icon)) {
-        return <img src={node.metadata.icon} alt={node.codedata.module} style={{ width: "25px" }} />;
+        return <img src={node.metadata.icon} alt={node.codedata.module} style={{ width: "24px" }} />;
     }
     if (databaseClients.includes(node.codedata.module)) {
         return <DatabaseIcon />;
@@ -32,6 +32,8 @@ export default function ConnectorIcon(props: ConnectorIconProps) {
 
     return <ApiIcon />;
 }
+
+export default ConnectorIcon;
 
 function isValidUrl(url: string): boolean {
     try {
