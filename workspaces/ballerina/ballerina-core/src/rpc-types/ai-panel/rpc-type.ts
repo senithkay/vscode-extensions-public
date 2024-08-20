@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -19,3 +19,5 @@ export const logout: NotificationType<void> = { method: `${_preFix}/logout` };
 export const getAiPanelState: RequestType<void, AIVisualizerState> = { method: `${_preFix}/getAiPanelState` };
 export const getAccessToken: RequestType<void, string> = { method: `${_preFix}/getAccessToken` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
+export const getProjectUuid: RequestType<void, string> = { method: `${_preFix}/getProjectUuid` };
+export const addToProject: NotificationType<AddToProjectRequest> = { method: `${_preFix}/addToProject` };

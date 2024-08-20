@@ -11,9 +11,12 @@
 import {
     AIPanelAPI,
     AIVisualizerState,
+    AddToProjectRequest,
+    addToProject,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getProjectUuid,
     login,
     logout,
     refreshAccessToken,
@@ -55,5 +58,13 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     refreshAccessToken(): void {
         return this._messenger.sendNotification(refreshAccessToken, HOST_EXTENSION);
+    }
+
+    getProjectUuid(): Promise<string> {
+        return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
+    }
+
+    addToProject(params: AddToProjectRequest): void {
+        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
     }
 }

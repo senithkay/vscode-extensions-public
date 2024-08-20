@@ -128,7 +128,7 @@ const ResetsInBadge = styled.div`
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
-var projectUuid = "123";
+var projectUuid = "";
 var backendRootUri = "";
 
 let controller = new AbortController();
@@ -138,6 +138,9 @@ var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
+
+//TOOD: Add the backend URL
+//TODO: Add better error handling from backend. stream error type and non 200 status codes
 
 export function AIChat() {
     const { rpcClient } = useVisualizerContext();
@@ -168,39 +171,12 @@ export function AIChat() {
     }, []);
 
     useEffect(() => {
-        // projectUuid = "123";
-        const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
-        const storedChatArray = localStorage.getItem(localStorageFile);
-        rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
-            // timeToReset = machineView.userTokens.time_to_reset;
-            // timeToReset = timeToReset / (60 * 60 * 24);
-            // const maxTokens = machineView.userTokens.max_usage;
-            // if (maxTokens == -1) {
-            //     remainingTokenPercentage = "Unlimited";
-            // } else {
-            //     const remainingTokens = machineView.userTokens.remaining_tokens;
-            //     remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-            //     if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-            //         remaingTokenLessThanOne = true;
-            //     } else {
-            //         remaingTokenLessThanOne = false;
-            //     }
-            //     remainingTokenPercentage = Math.round(remainingTokenPercentage);
-            //     if (remainingTokenPercentage < 0) {
-            //         remainingTokenPercentage = 0;
-            //     }
-            // }
-
-
-            // if (machineView.initialPrompt) {
-            //     setMessages(prevMessages => [
-            //         ...prevMessages,
-            //         { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
-            //     ]);
-            //     addChatEntry("user", machineView.initialPrompt);
-            //     handleSend2(false, true);
-            //     //rpcClient.getVisualizerRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
-            // } else {
+        rpcClient?.getAiPanelRpcClient().getProjectUuid().then((response) => {
+            projectUuid = response;
+            // projectUuid = "123";
+            const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
+            const storedChatArray = localStorage.getItem(localStorageFile);
+            rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
                 if (storedChatArray) {
                     const chatArrayFromStorage = JSON.parse(storedChatArray);
                     chatArray = chatArrayFromStorage;
@@ -233,9 +209,9 @@ export function AIChat() {
                         ]);
                     }
                 }
-            // }
+                // }
+            });
         });
-
     }, []);
 
     function addChatEntry(role: string, content: string): void {
@@ -288,64 +264,7 @@ export function AIChat() {
         }
     }
 
-    // async function generateSuggestions() {
-    //     try {
-    //         setIsLoading(true);
-    //         setIsSuggestionLoading(true); // Set loading state to true at the start
-    //         const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
-    //         var context: GetWorkspaceContextResponse[] = [];
-    //         //Get machine view
-    //         const machineView = await rpcClient.getAiPanelRpcClient().getAiPanelState();
-    //         switch (machineView) {
-    //             // case MACHINE_VIEW.Overview:
-    //             //     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-    //             //         context = [response]; // Wrap the response in an array
-    //             //     });
-    //             //     break;
-    //             default:
-    //                 console.log("Other");
-    //             // await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-    //             //     context = [response]; // Wrap the response in an array
-    //             // });
-    //         }
-    //         console.log(JSON.stringify({ messages: chatArray, context: context[0].context }));
-    //         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-    //         const response = await fetch(url, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${token}`,
-    //             },
-    //             body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
-    //             signal: signal,
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error("Failed to fetch initial questions");
-    //         }
-    //         const data = await response.json() as ApiResponse;
-    //         if (data.event === "suggestion_generation_success") {
-    //             // Extract questions from the response
-    //             const initialQuestions = data.questions.map(question => ({
-    //                 role: "",
-    //                 content: question,
-    //                 type: "question"
-    //             }));
-    //             // Update the state with the fetched questions
-    //             setMessages(prevMessages => [...prevMessages, ...initialQuestions]);
-    //         } else {
-    //             throw new Error("Failed to generate suggestions: " + data.error);
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //         setIsLoading(false);
-    //         setIsSuggestionLoading(false);
-    //     } finally {
-    //         setIsLoading(false);
-    //         setIsSuggestionLoading(false); // Set loading state to false after fetch is successful or if an error occurs
-    //     }
-    // }
-
-    async function handleSend2(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
+    async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
         // Step 1: Add the user input to the chat array
         if (userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
@@ -378,17 +297,13 @@ export function AIChat() {
             }
         }
         rpcClient.getAiPanelRpcClient().getAccessToken().then((token) => {
-            let url = "http://localhost:9094/ai/code";
-            let payload = JSON.stringify({ "usecase": userInput , "chatHistory": chatArray });
-            console.log("Payload: " + payload);
-            // let url = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/ballerina-copilot-api-byo/v1/code";
-            fetch(url, {
+            fetch(backendRootUri +"/code", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ "usecase": userInput , "chatHistory": chatArray }),
+                body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray }),
                 signal: signal,
             }).then(async response => {
                 console.log(response);
@@ -431,42 +346,42 @@ export function AIChat() {
 
                     let boundary = buffer.indexOf("\n\n");
                     while (boundary !== -1) {
-                      const chunk = buffer.slice(0, boundary + 2);
-                      buffer = buffer.slice(boundary + 2);
-                
-                      try {
-                        const event = parseSSEEvent(chunk);
-                        // console.log(`Event: ${event.event}`);
-                        if (event.event == "content_block_delta") {
-                            let textDelta = event.body.text;
-                            assistant_response += (textDelta);
-                            // console.log("Text Delta: " + textDelta);
+                        const chunk = buffer.slice(0, boundary + 2);
+                        buffer = buffer.slice(boundary + 2);
 
-                            if (textDelta.includes("```ballerina")) {
-                                console.log("Here backticks" + textDelta);
-                                setIsCodeLoading(true);
-                                inCodeBlock = true;
-                            } else if (inCodeBlock) {
-                                codeBlocks.push(textDelta);
-                                console.log("Code block " + textDelta);
-                                inCodeBlock = false;
-                            } else if (textDelta.includes("```")) {
-                                console.log("Ending backtick" + textDelta);
-                                setIsCodeLoading(false);
+                        try {
+                            const event = parseSSEEvent(chunk);
+                            // console.log(`Event: ${event.event}`);
+                            if (event.event == "content_block_delta") {
+                                let textDelta = event.body.text;
+                                assistant_response += (textDelta);
+                                // console.log("Text Delta: " + textDelta);
+
+                                if (textDelta.includes("```ballerina")) {
+                                    console.log("Here backticks" + textDelta);
+                                    setIsCodeLoading(true);
+                                    inCodeBlock = true;
+                                } else if (inCodeBlock) {
+                                    codeBlocks.push(textDelta);
+                                    console.log("Code block " + textDelta);
+                                    inCodeBlock = false;
+                                } else if (textDelta.includes("```")) {
+                                    console.log("Ending backtick" + textDelta);
+                                    setIsCodeLoading(false);
+                                }
+
+                                setMessages(prevMessages => {
+                                    const newMessages = [...prevMessages];
+                                    newMessages[newMessages.length - 1].content += textDelta;
+                                    return newMessages;
+                                });
                             }
-
-                            setMessages(prevMessages => {
-                                const newMessages = [...prevMessages];
-                                newMessages[newMessages.length - 1].content += textDelta;
-                                return newMessages;
-                            });
+                        } catch (error) {
+                            console.error("Failed to parse SSE event:", error);
                         }
-                      } catch (error) {
-                        console.error("Failed to parse SSE event:", error);
-                      }
-                    
 
-                      boundary = buffer.indexOf("\n\n");
+
+                        boundary = buffer.indexOf("\n\n");
                     }
                     // console.log(assistant_response);
 
@@ -479,226 +394,12 @@ export function AIChat() {
 
     const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
 
-        var selectiveCodeBlocks: string[] = [];
-        selectiveCodeBlocks.push(codeSegment);
-        console.log("TODO: Write to file");
-        // await rpcClient.getAiPanelRpcClient().writeContentToFile({ content: selectiveCodeBlocks }).then((response) => {
-        //     console.log(response);
-        // });
+        // var selectiveCodeBlocks: string[] = [];
+        // selectiveCodeBlocks.push(codeSegment);
+        // console.log("TODO: Write to file");
+        await rpcClient.getAiPanelRpcClient().addToProject({ content: codeSegment });
 
     }
-
-    
-    
-    // async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-    //     if (userInput === "" && !isQuestion && !isInitialPrompt) {
-    //         return;
-    //     }
-    //     console.log(chatArray);
-    //     var context: GetWorkspaceContextResponse[] = [];
-    //     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
-    //     setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-    //     setIsLoading(true);
-    //     let assistant_response = "";
-    //     if (!isQuestion && !isInitialPrompt) {
-    //         addChatEntry("user", userInput);
-    //     }
-    //     setUserInput("");
-    //     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
-    //     if (isQuestion) {
-    //         setLastQuestionIndex(messages.length - 4);
-    //         setMessages(prevMessages => [
-    //             ...prevMessages,
-    //             { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-    //         ]);
-    //     } else {
-    //         if (userInput != "") {
-    //             setMessages(prevMessages => [
-    //                 ...prevMessages,
-    //                 { role: "User", content: userInput, type: "user_message" },
-    //                 { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-    //             ]);
-    //         } else {
-    //             setMessages(prevMessages => [
-    //                 ...prevMessages,
-    //                 { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-    //             ]);
-    //         }
-
-    //     }
-    //     var backendUrl = ""
-    //     var view = ""
-    //     //Get machine view
-    //     //const machineView = await rpcClient.getAiPanelRpcClient().getMachineView();
-
-    //     // if (view == "Overview") {
-    //     //     await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-    //     //         context = [response]; // Wrap the response in an array
-    //     //     });
-    //     // } else if (view == "Artifact") {
-    //     //     await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-    //     //         context = [response]; // Wrap the response in an array
-    //     //     });
-    //     // }
-    //     console.log(context[0].context);
-    //     const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-    //     try {
-    //         var response = await fetch(backendRootUri + backendUrl, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${token}`,
-    //             },
-    //             body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile: JSON.stringify(uploadedFile) }),
-    //             signal: signal,
-    //         })
-    //         if (!response.ok && response.status != 401) {
-    //             setIsLoading(false);
-    //             setMessages(prevMessages => {
-    //                 const newMessages = [...prevMessages];
-    //                 const statusText = getStatusText(response.status);
-    //                 let error = `Failed to fetch response. Status: ${statusText}`;
-    //                 console.log("Response status: ", response.status);
-    //                 if (response.status == 429) {
-    //                     response.json().then(body => {
-    //                         console.log(body.detail);
-    //                         error += body.detail;
-    //                         console.log("Error: ", error);
-    //                     });
-    //                 }
-    //                 newMessages[newMessages.length - 1].content += error;
-    //                 newMessages[newMessages.length - 1].type = 'Error';
-    //                 return newMessages;
-    //             });
-    //             throw new Error('Failed to fetch response');
-    //         }
-    //         if (response.status == 401) {
-    //             await rpcClient.getAiPanelRpcClient().refreshAccessToken();
-    //             const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-    //             response = await fetch(backendRootUri + backendUrl, {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'Authorization': `Bearer ${token}`,
-    //                 },
-    //                 body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-    //                 signal: signal,
-    //             })
-    //             if (!response.ok) {
-    //                 setIsLoading(false);
-    //                 setMessages(prevMessages => {
-    //                     const newMessages = [...prevMessages];
-    //                     const statusText = getStatusText(response.status);
-    //                     newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
-    //                     newMessages[newMessages.length - 1].type = 'Error';
-    //                     return newMessages;
-    //                 });
-    //                 throw new Error('Failed to fetch response');
-    //             }
-    //         }
-    //     } catch (error) {
-    //         setIsLoading(false);
-    //         setMessages(prevMessages => {
-    //             const newMessages = [...prevMessages];
-    //             newMessages[newMessages.length - 1].content += 'Network error. Please check your connectivity.';
-    //             newMessages[newMessages.length - 1].type = 'Error';
-    //             return newMessages;
-    //         });
-    //         console.error('Network error:', error);
-    //     }
-
-    //     // Remove the user uploaded file after sending it to the backend
-    //     handleRemoveFile();
-
-    //     const reader = response.body?.getReader();
-    //     const decoder = new TextDecoder();
-    //     let result = '';
-    //     let codeBuffer = '';
-    //     let codeLoad = false;
-    //     while (true) {
-    //         const { done, value } = await reader.read();
-    //         if (done) {
-    //             setIsLoading(false);
-    //             break;
-    //         }
-
-    //         const chunk = decoder.decode(value, { stream: true });
-    //         result += chunk;
-
-    //         const lines = result.split('\n');
-    //         for (let i = 0; i < lines.length - 1; i++) {
-    //             try {
-    //                 const json = JSON.parse(lines[i]);
-    //                 const tokenUsage = json.usage;
-    //                 const maxTokens = tokenUsage.max_usage;
-    //                 if (maxTokens == -1) {
-    //                     remainingTokenPercentage = "Unlimited";
-    //                 } else {
-    //                     const remainingTokens = tokenUsage.remaining_tokens;
-    //                     remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-    //                     if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-    //                         remaingTokenLessThanOne = true;
-    //                     } else {
-    //                         remaingTokenLessThanOne = false;
-    //                     }
-    //                     remainingTokenPercentage = Math.round(remainingTokenPercentage);
-    //                     if (remainingTokenPercentage < 0) {
-    //                         remainingTokenPercentage = 0;
-    //                     }
-    //                 }
-    //                 if (json.content == null) {
-    //                     addChatEntry("assistant", assistant_response);
-    //                     const questions = json.questions
-    //                         .map((question: string, index: number) => {
-    //                             return { type: "question", role: "Question", content: question, id: index };
-    //                         });
-
-    //                     setMessages(prevMessages => [
-    //                         ...prevMessages,
-    //                         ...questions,
-    //                     ]);
-    //                 } else {
-    //                     assistant_response += json.content;
-    //                     if (json.content.includes("``")) {
-    //                         setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
-    //                     }
-
-    //                     setMessages(prevMessages => {
-    //                         const newMessages = [...prevMessages];
-    //                         newMessages[newMessages.length - 1].content += json.content;
-    //                         return newMessages;
-    //                     });
-
-    //                     const regex = /```[\s\S]*?```/g;
-    //                     let match;
-    //                     while ((match = regex.exec(assistant_response)) !== null) {
-    //                         if (!codeBlocks.includes(match[0])) {
-    //                             codeBlocks.push(match[0]);
-    //                         }
-    //                     }
-    //                 }
-    //             } catch (error) {
-    //                 setIsLoading(false);
-    //                 console.error('Error parsing JSON:', error);
-    //             }
-    //         }
-    //         result = lines[lines.length - 1];
-
-    //     }
-
-
-
-    //     if (result) {
-    //         try {
-    //             const json = JSON.parse(result);
-    //         } catch (error) {
-    //             console.error('Error parsing JSON:', error);
-    //         }
-    //     }
-    //     localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
-
-    // };
-
 
     async function handleStop() {
         // Abort the fetch
@@ -758,33 +459,6 @@ export function AIChat() {
         await rpcClient.getAiPanelRpcClient().logout();
     }
 
-    // const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    //     if (e.key === 'Enter' && !e.shiftKey) {
-    //         e.preventDefault();
-    //         handleSend();
-    //     }
-    // };
-
-    // function handleQuestionClick(content: string) {
-    //     const question = content;
-
-    //     //remove numbering from question and take only the text of it
-    //     const questionText = question.replace(/^\d+\.\s/, "");
-    //     setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
-    //     setLastQuestionIndex(messages.length);
-
-    //     if (questionText) {
-    //         addChatEntry("user", questionText);
-
-    //         setMessages((prevMessages) => [
-    //             ...prevMessages,
-    //             { role: "User", content: questionText, type: "user_message" },
-    //         ]);
-
-    //         handleSend(true, false);
-    //     }
-    // }
-
     function handleClearChat(): void {
         codeBlocks.length = 0;
         chatArray.length = 0;
@@ -806,7 +480,7 @@ export function AIChat() {
     const handleTextKeydown = (event: any) => {
         if (event.key === "Enter" && !event.shiftKey && userInput !== "") {
             event.preventDefault();
-            handleSend2(false, false);
+            handleSend(false, false);
             setUserInput("");
         }
     };
@@ -951,18 +625,6 @@ export function AIChat() {
                     </FlexRow>
                 )}
                 <FlexRow>
-                    <VSCodeButton
-                        appearance="secondary"
-                        onClick={() => document.getElementById('fileInput').click()}
-                        style={{ width: "35px", marginBottom: "4px" }}>
-                        <span className={`codicon codicon-new-file`}></span>
-                    </VSCodeButton>
-                    <input
-                        id="fileInput"
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={(e: any) => handleFileAttach(e)}
-                    />
                     <VSCodeTextArea
                         value={userInput}
                         onInput={(e: any) => {
@@ -982,7 +644,7 @@ export function AIChat() {
                     </VSCodeTextArea>
                     <VSCodeButton
                         appearance="secondary"
-                        onClick={() => isLoading ? handleStop() : handleSend2(false, false)}
+                        onClick={() => isLoading ? handleStop() : handleSend(false, false)}
                         style={{ width: "35px", marginBottom: "4px" }}>
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
@@ -1065,9 +727,9 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
         name = "Generating " + name + "...";
     }
 
-    console.log("Segment : " +segmentText.trim());
-    console.log("Language : " +language);
-    console.log("IsOpen : " +isOpen);
+    console.log("Segment : " + segmentText.trim());
+    console.log("Language : " + language);
+    console.log("IsOpen : " + isOpen);
 
     return (
         <div>
@@ -1104,47 +766,47 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
 // Define the different event body types
 interface ContentBlockDeltaBody {
     text: string;
-  }
-  
-  interface OtherEventBody {
+}
+
+interface OtherEventBody {
     // Define properties for other event types as needed
     [key: string]: any;
-  }
-  
-  // Define the SSEEvent type with a discriminated union for the body
-  type SSEEvent = 
+}
+
+// Define the SSEEvent type with a discriminated union for the body
+type SSEEvent =
     | { event: "content_block_delta"; body: ContentBlockDeltaBody }
     | { event: string; body: OtherEventBody };
-  
-  /**
-   * Parses a chunk of text to extract the SSE event and body.
-   * @param chunk - The chunk of text from the SSE stream.
-   * @returns The parsed SSE event containing the event name and body (if present).
-   * @throws Will throw an error if the data field is not valid JSON.
-   */
-  function parseSSEEvent(chunk: string): SSEEvent {
+
+/**
+ * Parses a chunk of text to extract the SSE event and body.
+ * @param chunk - The chunk of text from the SSE stream.
+ * @returns The parsed SSE event containing the event name and body (if present).
+ * @throws Will throw an error if the data field is not valid JSON.
+ */
+function parseSSEEvent(chunk: string): SSEEvent {
     let event: string | undefined;
     let body: any;
-  
+
     chunk.split("\n").forEach(line => {
-      if (line.startsWith("event: ")) {
-        event = line.slice(7);
-      } else if (line.startsWith("data: ")) {
-        try {
-          body = JSON.parse(line.slice(6));
-        } catch (e) {
-          throw new Error("Invalid JSON data in SSE event");
+        if (line.startsWith("event: ")) {
+            event = line.slice(7);
+        } else if (line.startsWith("data: ")) {
+            try {
+                body = JSON.parse(line.slice(6));
+            } catch (e) {
+                throw new Error("Invalid JSON data in SSE event");
+            }
         }
-      }
     });
-  
+
     if (!event) {
-      throw new Error("Event field is missing in SSE event");
+        throw new Error("Event field is missing in SSE event");
     }
-  
+
     if (event === "content_block_delta") {
-      return { event, body: body as ContentBlockDeltaBody };
+        return { event, body: body as ContentBlockDeltaBody };
     } else {
-      return { event, body: body as OtherEventBody };
+        return { event, body: body as OtherEventBody };
     }
-  }
+}
