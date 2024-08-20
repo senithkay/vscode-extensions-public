@@ -40,8 +40,8 @@ export type ExpressionBarBaseProps = {
     sx?: React.CSSProperties;
     completions: CompletionItem[];
     onChange: (value: string) => Promise<void>;
-    onFocus?: () => void;
-    onBlur?: () => void;
+    onFocus?: () => Promise<void>;
+    onBlur?: () => Promise<void>;
     onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
     onCancel: () => void;

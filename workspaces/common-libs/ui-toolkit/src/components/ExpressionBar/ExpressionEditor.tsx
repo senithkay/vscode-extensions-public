@@ -312,7 +312,20 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { value, disabled, sx, completions, onChange, onSave, onCancel, onCompletionSelect, useTransaction, ...rest } = props;
+    const {
+        value,
+        disabled,
+        sx,
+        completions,
+        onChange,
+        onSave,
+        onCancel,
+        onCompletionSelect,
+        useTransaction,
+        onFocus,
+        onBlur,
+        ...rest
+    } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -512,6 +525,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     useImperativeHandle(ref, () => ({
         focus: async (text?: string) => {
             inputRef.current?.focus();
+            await onFocus?.();
             if (text !== undefined) {
                 await onChange(text);
                 setCursor(inputRef, text.length);
@@ -519,6 +533,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         },
         blur: async (text?: string) => {
             inputRef.current?.blur();
+            await onBlur?.();
             if (text !== undefined) {
                 await handleExpressionSaveMutation(text);
             }
