@@ -878,22 +878,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (jsonData.localEntry["#text"]) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
-                    } else if (firstEntryKey) {
-                        response.type = "In-Line XML Entry";
-                        const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                        if (firstEntryKey) {
-                            const xmlObj = {
-                                [firstEntryKey]: {
-                                    ...jsonData.localEntry[firstEntryKey]
-                                }
-                            }
-                            const builder = new XMLBuilder(options);
-                            let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
-                            response.inLineXmlValue = xml;
-                        }
                     } else if (jsonData.localEntry["@_"]["src"]) {
                         response.type = "Source URL Entry";
                         response.sourceURL = jsonData.localEntry["@_"]["src"];
+                    } else if (firstEntryKey) {
+                        response.type = "In-Line XML Entry";
+                        const xmlObj = {
+                            [firstEntryKey]: {
+                                ...jsonData.localEntry[firstEntryKey]
+                            }
+                        }
+                        const builder = new XMLBuilder(options);
+                        let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
+                        response.inLineXmlValue = xml;
                     }
                 }
                 resolve(response);

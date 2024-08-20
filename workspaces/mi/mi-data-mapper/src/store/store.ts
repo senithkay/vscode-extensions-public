@@ -72,6 +72,11 @@ export interface DataMapperArrayFiltersState {
     setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
+export interface DataMapperRegenerateNodesState {
+    regenerateNodesState: boolean;
+    regenerateNodes: () => void;
+}
+
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     inputSearch: "",
     outputSearch: "",
@@ -129,4 +134,9 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
     setAddedNewFilter: (addedNewFilter: boolean) => set({ addedNewFilter }),
     isCollapsed: false,
     setIsCollapsed: (isCollapsed: boolean) => set({ isCollapsed }),
+}));
+
+export const useDMRegenerateNodesStore = create<DataMapperRegenerateNodesState>((set, get) => ({
+    regenerateNodesState: false,
+    regenerateNodes: () => set({ regenerateNodesState: !get().regenerateNodesState }),
 }));

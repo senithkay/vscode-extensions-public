@@ -14,7 +14,7 @@ import { checkAttributesExist, transformNamespaces } from "../../../commons";
 export function getIterateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}}{{#preservePayload}} preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
         {{#isAnnonymousSequence}}
         <target>
             <sequence></sequence>
@@ -28,10 +28,10 @@ export function getIterateMustacheTemplate() {
     {{^isNewMediator}}
     {{#editIterate}}
     {{#isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}}{{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isSelfClosed}}
     {{^isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}}{{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{/isSelfClosed}}
     {{/editIterate}}
     {{#editTarget}}

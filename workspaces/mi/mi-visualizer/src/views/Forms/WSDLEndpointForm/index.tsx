@@ -23,6 +23,7 @@ export interface WsdlEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -239,7 +240,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     return (
         <FormView
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
-            onClose={openOverview}
+            onClose={props.handlePopupClose ?? openOverview}
             hideClose={props.isPopup}
         >
             <TypeChip
@@ -277,17 +278,17 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateWsdlEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

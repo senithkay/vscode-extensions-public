@@ -1,6 +1,600 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Aggregate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for data service - DataService1.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-z1gfq8\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"690\\"
+      width=\\"100\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-50px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"1,1\\"
+          >
+            <g
+              data-testid=\\"link-1,1\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"1,2\\"
+          >
+            <g
+              data-testid=\\"link-1,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"1,3\\"
+          >
+            <g
+              data-testid=\\"link-1,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"1,4\\"
+          >
+            <g
+              data-testid=\\"link-1,4\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"1,5\\"
+          >
+            <g
+              data-testid=\\"link-1,5\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-50px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-start-2-1\\"
+            style=\\"top: 40px; left: 0px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-start-2-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-start-2-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-start-2-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"query-inputMapping-2-1\\"
+            style=\\"top: 130px; left: -25px;\\"
+          >
+            <div
+              data-testid=\\"dataServiceNode-query-inputMapping-2-1\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"query-inputMapping-2-1\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row;\\"
+                  >
+                    <div
+                      class=\\"css-18bfde4\\"
+                      style=\\"width: 100%; left: 0px;\\"
+                    >
+                      <div
+                        class=\\"css-kyfez4\\"
+                      >
+                        <div
+                          class=\\"css-h55zw6\\"
+                          style=\\"text-align: center; max-width: 100%; width: 100%;\\"
+                        >
+                          Input Mapping
+                        </div>
+                      </div>
+                      <div
+                        class=\\"css-1p80e1b\\"
+                      >
+                        <div
+                          class=\\"css-1t1qebt\\"
+                        >
+                          <div
+                            class=\\"css-1vc2u59\\"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"query-inputMapping-2-1\\"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"query-query-2-1\\"
+            style=\\"top: 240px; left: -25px;\\"
+          >
+            <div
+              data-testid=\\"dataServiceNode-query-query-2-1\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"query-query-2-1\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row;\\"
+                  >
+                    <div
+                      class=\\"css-18bfde4\\"
+                      style=\\"width: 100%; left: 0px;\\"
+                    >
+                      <div
+                        class=\\"css-kyfez4\\"
+                      >
+                        <div
+                          class=\\"css-h55zw6\\"
+                          style=\\"text-align: center; max-width: 100%; width: 100%;\\"
+                        >
+                          Query
+                        </div>
+                      </div>
+                      <div
+                        class=\\"css-1p80e1b\\"
+                      >
+                        <div
+                          class=\\"css-1t1qebt\\"
+                        >
+                          <div
+                            class=\\"css-1vc2u59\\"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"query-query-2-1\\"
+                  />
+                </div>
+              </div>
+              <div
+                class=\\"css-8pd5lt\\"
+              >
+                <svg
+                  height=\\"100\\"
+                  style=\\"position: absolute; left: -100px; top: 30px;\\"
+                  width=\\"100\\"
+                >
+                  <line
+                    style=\\"stroke: var(--vscode-button-background); stroke-width: 4;\\"
+                    x1=\\"0\\"
+                    x2=\\"100\\"
+                    y1=\\"0\\"
+                    y2=\\"0\\"
+                  />
+                </svg>
+                <div
+                  style=\\"display: flex; flex-direction: row;\\"
+                >
+                  <div
+                    class=\\"css-18bfde4\\"
+                    style=\\"width: 100%; left: 0px;\\"
+                  >
+                    <div
+                      class=\\"css-kyfez4\\"
+                    >
+                      <div
+                        class=\\"css-h55zw6\\"
+                        style=\\"text-align: center; max-width: 100%; width: 100%;\\"
+                      >
+                        Datasource
+                      </div>
+                    </div>
+                    <div
+                      class=\\"css-1p80e1b\\"
+                    >
+                      <div
+                        class=\\"css-1t1qebt\\"
+                      >
+                        <div
+                          class=\\"css-1vc2u59\\"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"query-transformation-2-1\\"
+            style=\\"top: 350px; left: -25px;\\"
+          >
+            <div
+              data-testid=\\"dataServiceNode-query-transformation-2-1\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"query-transformation-2-1\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row;\\"
+                  >
+                    <div
+                      class=\\"css-18bfde4\\"
+                      style=\\"width: 100%; left: 0px;\\"
+                    >
+                      <div
+                        class=\\"css-kyfez4\\"
+                      >
+                        <div
+                          class=\\"css-h55zw6\\"
+                          style=\\"text-align: center; max-width: 100%; width: 100%;\\"
+                        >
+                          Transformation
+                        </div>
+                      </div>
+                      <div
+                        class=\\"css-1p80e1b\\"
+                      >
+                        <div
+                          class=\\"css-1t1qebt\\"
+                        >
+                          <div
+                            class=\\"css-1vc2u59\\"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"query-transformation-2-1\\"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"query-outputMapping-2-1\\"
+            style=\\"top: 460px; left: -25px;\\"
+          >
+            <div
+              data-testid=\\"dataServiceNode-query-outputMapping-2-1\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-17lt5ih\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"query-outputMapping-2-1\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row;\\"
+                  >
+                    <div
+                      class=\\"css-18bfde4\\"
+                      style=\\"width: 100%; left: 0px;\\"
+                    >
+                      <div
+                        class=\\"css-kyfez4\\"
+                      >
+                        <div
+                          class=\\"css-h55zw6\\"
+                          style=\\"text-align: center; max-width: 100%; width: 100%;\\"
+                        >
+                          Output Mapping
+                        </div>
+                      </div>
+                      <div
+                        class=\\"css-1p80e1b\\"
+                      >
+                        <div
+                          class=\\"css-1t1qebt\\"
+                        >
+                          <div
+                            class=\\"css-1vc2u59\\"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"query-outputMapping-2-1\\"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"end-2-1\\"
+            style=\\"top: 570px; left: 38px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-end-2-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"end-2-1\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"end-2-1\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Aggregate.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -304,7 +898,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-cjkiyf\\"
                       >
                         <i
                           class=\\"fw-Aggregate\\"
@@ -468,7 +1062,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for AggregateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - AggregateWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -772,7 +1366,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-cjkiyf\\"
                       >
                         <i
                           class=\\"fw-Aggregate\\"
@@ -936,7 +1530,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Bam.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Bam.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -1177,7 +1771,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-t7l6co\\"
                       >
                         <i
                           class=\\"fw-Bean\\"
@@ -1262,7 +1856,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for BamWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BamWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -1590,7 +2184,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Bean.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Bean.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -1916,7 +2510,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for BeanWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BeanWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -2157,7 +2751,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-t7l6co\\"
                       >
                         <i
                           class=\\"fw-Bean\\"
@@ -2244,7 +2838,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Builder.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Builder.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -2485,7 +3079,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-as7sio\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Builder\\"
@@ -2570,7 +3164,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for BuilderWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BuilderWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -2811,7 +3405,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-as7sio\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Builder\\"
@@ -2898,7 +3492,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Cache.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Cache.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -3202,7 +3796,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-Cache\\"
@@ -3366,7 +3960,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CacheWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CacheWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -3670,7 +4264,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-Cache\\"
@@ -3836,401 +4430,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Call.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"10,2\\"
-          >
-            <g
-              data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"call-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"callNode-call-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-8dz80v\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"call-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1wk9l6y\\"
-                    >
-                      <div
-                        class=\\"css-14uaptq\\"
-                      >
-                        <i
-                          class=\\"fw-Call\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-kyfez4\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            Call
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-1vc2u59\\"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"call-5-3\\"
-                  />
-                </div>
-              </div>
-              <div
-                class=\\"css-1e0hp15\\"
-              >
-                <div
-                  class=\\"css-1t1qebt\\"
-                >
-                  <svg
-                    height=\\"50\\"
-                    viewBox=\\"0 0 103 40\\"
-                    width=\\"110\\"
-                  >
-                    <circle
-                      cx=\\"80\\"
-                      cy=\\"20\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                      r=\\"22\\"
-                      stroke=\\"#a8a8a8\\"
-                      stroke-width=\\"2\\"
-                    />
-                    <g
-                      transform=\\"translate(80,20)\\"
-                    >
-                      <foreignobject
-                        height=\\"25\\"
-                        overflow=\\"visible\\"
-                        width=\\"25\\"
-                      >
-                        <div
-                          style=\\"transform: translate(-50%, -50%);\\"
-                        >
-                          <div
-                            class=\\"css-pxp5xx\\"
-                          >
-                            <i
-                              class=\\"fw-NamedEndpoint\\"
-                            />
-                          </div>
-                        </div>
-                      </foreignobject>
-                    </g>
-                    <line
-                      style=\\"stroke: var(--vscode-button-background); stroke-width: 2; marker-end: url(#call-5-3-arrow-head);\\"
-                      x1=\\"0\\"
-                      x2=\\"57\\"
-                      y1=\\"20\\"
-                      y2=\\"20\\"
-                    />
-                    <defs>
-                      <marker
-                        markerHeight=\\"4\\"
-                        markerWidth=\\"4\\"
-                        orient=\\"auto\\"
-                        refX=\\"3\\"
-                        refY=\\"2\\"
-                        viewBox=\\"0 0 4 4\\"
-                      >
-                        <polygon
-                          fill=\\"var(--vscode-button-background)\\"
-                          points=\\"0,4 0,0 4,2\\"
-                        />
-                      </marker>
-                    </defs>
-                  </svg>
-                </div>
-              </div>
-              <div
-                class=\\"css-abcnmy\\"
-              />
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallDataService.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallDataService.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -4558,7 +4758,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallDataServiceWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallDataServiceWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -4886,7 +5086,797 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallSequence.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallEndpoint.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"10,2\\"
+          >
+            <g
+              data-testid=\\"link-10,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"call-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"callNode-call-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-8dz80v\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"call-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1wk9l6y\\"
+                    >
+                      <div
+                        class=\\"css-pxp5xx\\"
+                      >
+                        <i
+                          class=\\"fw-Default\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-kyfez4\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            Call Endpoint
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-1vc2u59\\"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"call-5-3\\"
+                  />
+                </div>
+              </div>
+              <div
+                class=\\"css-1e0hp15\\"
+              >
+                <div
+                  class=\\"css-1t1qebt\\"
+                >
+                  <svg
+                    height=\\"50\\"
+                    viewBox=\\"0 0 103 40\\"
+                    width=\\"110\\"
+                  >
+                    <circle
+                      cx=\\"80\\"
+                      cy=\\"20\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                      r=\\"22\\"
+                      stroke=\\"#a8a8a8\\"
+                      stroke-width=\\"2\\"
+                    />
+                    <g
+                      transform=\\"translate(80,20)\\"
+                    >
+                      <foreignobject
+                        height=\\"25\\"
+                        overflow=\\"visible\\"
+                        width=\\"25\\"
+                      >
+                        <div
+                          style=\\"transform: translate(-50%, -50%);\\"
+                        >
+                          <div
+                            class=\\"css-pxp5xx\\"
+                          >
+                            <i
+                              class=\\"fw-NamedEndpoint\\"
+                            />
+                          </div>
+                        </div>
+                      </foreignobject>
+                    </g>
+                    <line
+                      style=\\"stroke: var(--vscode-button-background); stroke-width: 2; marker-end: url(#call-5-3-arrow-head);\\"
+                      x1=\\"0\\"
+                      x2=\\"57\\"
+                      y1=\\"20\\"
+                      y2=\\"20\\"
+                    />
+                    <defs>
+                      <marker
+                        markerHeight=\\"4\\"
+                        markerWidth=\\"4\\"
+                        orient=\\"auto\\"
+                        refX=\\"3\\"
+                        refY=\\"2\\"
+                        viewBox=\\"0 0 4 4\\"
+                      >
+                        <polygon
+                          fill=\\"var(--vscode-button-background)\\"
+                          points=\\"0,4 0,0 4,2\\"
+                        />
+                      </marker>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+              <div
+                class=\\"css-abcnmy\\"
+              />
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallEndpointWithDescription.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"10,2\\"
+          >
+            <g
+              data-testid=\\"link-10,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"call-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"callNode-call-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-8dz80v\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"call-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1wk9l6y\\"
+                    >
+                      <div
+                        class=\\"css-pxp5xx\\"
+                      >
+                        <i
+                          class=\\"fw-Default\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-1f8ti7d\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            Call Endpoint
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-1vc2u59\\"
+                            >
+                              Call Description
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"call-5-3\\"
+                  />
+                </div>
+              </div>
+              <div
+                class=\\"css-1e0hp15\\"
+              >
+                <div
+                  class=\\"css-1t1qebt\\"
+                >
+                  <svg
+                    height=\\"50\\"
+                    viewBox=\\"0 0 103 40\\"
+                    width=\\"110\\"
+                  >
+                    <circle
+                      cx=\\"80\\"
+                      cy=\\"20\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                      r=\\"22\\"
+                      stroke=\\"#a8a8a8\\"
+                      stroke-width=\\"2\\"
+                    />
+                    <g
+                      transform=\\"translate(80,20)\\"
+                    >
+                      <foreignobject
+                        height=\\"25\\"
+                        overflow=\\"visible\\"
+                        width=\\"25\\"
+                      >
+                        <div
+                          style=\\"transform: translate(-50%, -50%);\\"
+                        >
+                          <div
+                            class=\\"css-pxp5xx\\"
+                          >
+                            <i
+                              class=\\"fw-NamedEndpoint\\"
+                            />
+                          </div>
+                        </div>
+                      </foreignobject>
+                    </g>
+                    <line
+                      style=\\"stroke: var(--vscode-button-background); stroke-width: 2; marker-end: url(#call-5-3-arrow-head);\\"
+                      x1=\\"0\\"
+                      x2=\\"57\\"
+                      y1=\\"20\\"
+                      y2=\\"20\\"
+                    />
+                    <defs>
+                      <marker
+                        markerHeight=\\"4\\"
+                        markerWidth=\\"4\\"
+                        orient=\\"auto\\"
+                        refX=\\"3\\"
+                        refY=\\"2\\"
+                        viewBox=\\"0 0 4 4\\"
+                      >
+                        <polygon
+                          fill=\\"var(--vscode-button-background)\\"
+                          points=\\"0,4 0,0 4,2\\"
+                        />
+                      </marker>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+              <div
+                class=\\"css-abcnmy\\"
+              />
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallSequence.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -5214,7 +6204,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallSequenceWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallSequenceWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -5542,7 +6532,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallTemplate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallTemplate.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -5783,7 +6773,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-CallTemplate\\"
@@ -5800,7 +6790,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            CallTemplate
+                            Call Template
                           </div>
                         </div>
                         <div
@@ -5868,7 +6858,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallTemplateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallTemplateWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -6109,7 +7099,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-CallTemplate\\"
@@ -6126,7 +7116,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            CallTemplate
+                            Call Template
                           </div>
                         </div>
                         <div
@@ -6196,403 +7186,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CallWithDescription.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"10,2\\"
-          >
-            <g
-              data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"call-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"callNode-call-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-8dz80v\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"call-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1wk9l6y\\"
-                    >
-                      <div
-                        class=\\"css-14uaptq\\"
-                      >
-                        <i
-                          class=\\"fw-Call\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-1f8ti7d\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            Call
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-1vc2u59\\"
-                            >
-                              Call Description
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"call-5-3\\"
-                  />
-                </div>
-              </div>
-              <div
-                class=\\"css-1e0hp15\\"
-              >
-                <div
-                  class=\\"css-1t1qebt\\"
-                >
-                  <svg
-                    height=\\"50\\"
-                    viewBox=\\"0 0 103 40\\"
-                    width=\\"110\\"
-                  >
-                    <circle
-                      cx=\\"80\\"
-                      cy=\\"20\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                      r=\\"22\\"
-                      stroke=\\"#a8a8a8\\"
-                      stroke-width=\\"2\\"
-                    />
-                    <g
-                      transform=\\"translate(80,20)\\"
-                    >
-                      <foreignobject
-                        height=\\"25\\"
-                        overflow=\\"visible\\"
-                        width=\\"25\\"
-                      >
-                        <div
-                          style=\\"transform: translate(-50%, -50%);\\"
-                        >
-                          <div
-                            class=\\"css-pxp5xx\\"
-                          >
-                            <i
-                              class=\\"fw-NamedEndpoint\\"
-                            />
-                          </div>
-                        </div>
-                      </foreignobject>
-                    </g>
-                    <line
-                      style=\\"stroke: var(--vscode-button-background); stroke-width: 2; marker-end: url(#call-5-3-arrow-head);\\"
-                      x1=\\"0\\"
-                      x2=\\"57\\"
-                      y1=\\"20\\"
-                      y2=\\"20\\"
-                    />
-                    <defs>
-                      <marker
-                        markerHeight=\\"4\\"
-                        markerWidth=\\"4\\"
-                        orient=\\"auto\\"
-                        refX=\\"3\\"
-                        refY=\\"2\\"
-                        viewBox=\\"0 0 4 4\\"
-                      >
-                        <polygon
-                          fill=\\"var(--vscode-button-background)\\"
-                          points=\\"0,4 0,0 4,2\\"
-                        />
-                      </marker>
-                    </defs>
-                  </svg>
-                </div>
-              </div>
-              <div
-                class=\\"css-abcnmy\\"
-              />
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Callout.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Callout.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -6833,7 +7427,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Callout\\"
@@ -6918,7 +7512,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CalloutWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CalloutWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -7159,7 +7753,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Callout\\"
@@ -7246,7 +7840,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Class.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Class.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -7572,7 +8166,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ClassWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ClassWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -7900,7 +8494,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Clone.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Clone.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -8204,7 +8798,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-q4be3z\\"
                       >
                         <i
                           class=\\"fw-Clone\\"
@@ -8404,7 +8998,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CloneWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CloneWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -8708,7 +9302,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-q4be3z\\"
                       >
                         <i
                           class=\\"fw-Clone\\"
@@ -8910,7 +9504,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Command.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Command.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -9151,7 +9745,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-t7l6co\\"
                       >
                         <i
                           class=\\"fw-Command\\"
@@ -9236,7 +9830,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for CommandWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CommandWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -9477,7 +10071,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-t7l6co\\"
                       >
                         <i
                           class=\\"fw-Command\\"
@@ -9564,7 +10158,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ConditionalRouter.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ConditionalRouter.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -9805,7 +10399,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-ConditionalRouter\\"
@@ -9822,7 +10416,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            ConditionalRouter
+                            Conditional Router
                           </div>
                         </div>
                         <div
@@ -9890,7 +10484,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ConditionalRouterWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ConditionalRouterWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -10131,7 +10725,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-ConditionalRouter\\"
@@ -10148,7 +10742,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            ConditionalRouter
+                            Conditional Router
                           </div>
                         </div>
                         <div
@@ -10218,663 +10812,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for DataMapper.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"6,2\\"
-          >
-            <g
-              data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"datamapper-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"referenceNode-datamapper-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-1f8szr7\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"datamapper-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1wk9l6y\\"
-                    >
-                      <div
-                        class=\\"css-8xubpm\\"
-                      >
-                        <i
-                          class=\\"fw-dataMapper\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-1f8ti7d\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            DataMapper
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-19culks\\"
-                            >
-                              DM
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"datamapper-5-3\\"
-                  />
-                </div>
-              </div>
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for DataMapperWithDescription.xml 1`] = `
-"<div>
-  <div
-    class=\\"css-x0z1wx\\"
-    data-testid=\\"diagram-container\\"
-  >
-    <div
-      class=\\"css-w72lj\\"
-      color=\\"var(--vscode-foreground)\\"
-      data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
-      width=\\"150\\"
-    >
-      <div
-        class=\\"css-1oicui2\\"
-        cursor=\\"Default\\"
-        overflow=\\"hidden\\"
-      >
-        <svg
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <g
-            data-linkid=\\"5,3\\"
-          >
-            <g
-              data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-          <g
-            data-linkid=\\"6,2\\"
-          >
-            <g
-              data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
-            >
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"transparent\\"
-                stroke-width=\\"16\\"
-              />
-              <path
-                d=\\"M 0 0 L 0 0\\"
-                fill=\\"none\\"
-                stroke=\\"var(--vscode-button-background)\\"
-                stroke-dasharray=\\"0\\"
-                stroke-width=\\"2\\"
-              />
-              <foreignobject
-                height=\\"30\\"
-                width=\\"20\\"
-                x=\\"-10\\"
-                y=\\"-15\\"
-              >
-                <div
-                  class=\\"css-1ozmmzr-Component\\"
-                >
-                  <svg
-                    height=\\"24\\"
-                    viewBox=\\"0 0 24 24\\"
-                    width=\\"24\\"
-                    xmlns=\\"http://www.w3.org/2000/svg\\"
-                  >
-                    <path
-                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
-                      fill=\\"var(--vscode-editor-background)\\"
-                    />
-                    <path
-                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
-                      fill=\\"var(--vscode-button-background)\\"
-                    />
-                  </svg>
-                </div>
-              </foreignobject>
-              <defs>
-                <marker
-                  markerHeight=\\"4\\"
-                  markerWidth=\\"4\\"
-                  orient=\\"auto\\"
-                  refX=\\"3\\"
-                  refY=\\"2\\"
-                  viewBox=\\"0 0 4 4\\"
-                >
-                  <polygon
-                    fill=\\"var(--vscode-button-background)\\"
-                    points=\\"0,4 0,0 4,2\\"
-                  />
-                </marker>
-              </defs>
-            </g>
-          </g>
-        </svg>
-        <div
-          class=\\"css-poo601\\"
-          style=\\"transform: translate(
-				-75px,
-				0px)
-			scale(
-				1
-			);\\"
-        >
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"start-resource-3-1\\"
-            style=\\"top: 40px; left: 25px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"startNode-start-resource-3-1\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-              <svg
-                height=\\"40\\"
-                viewBox=\\"0 0 100 40\\"
-                width=\\"100\\"
-              >
-                <rect
-                  fill=\\"var(--vscode-button-background)\\"
-                  height=\\"40\\"
-                  rx=\\"20\\"
-                  width=\\"100\\"
-                  x=\\"0\\"
-                  y=\\"0\\"
-                />
-                <rect
-                  fill=\\"var(--vscode-editor-background)\\"
-                  height=\\"36\\"
-                  rx=\\"18\\"
-                  width=\\"96\\"
-                  x=\\"2\\"
-                  y=\\"2\\"
-                />
-                <text
-                  alignment-baseline=\\"central\\"
-                  fill=\\"var(--vscode-foreground)\\"
-                  text-anchor=\\"middle\\"
-                  x=\\"50%\\"
-                  y=\\"50%\\"
-                >
-                  Start
-                </text>
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"start-resource-3-1\\"
-              />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"datamapper-5-3\\"
-            style=\\"top: 130px; left: 0px;\\"
-          >
-            <div
-              data-testid=\\"referenceNode-datamapper-5-3\\"
-            >
-              <div
-                class=\\"css-6hu434\\"
-              >
-                <div
-                  class=\\"css-1f8szr7\\"
-                >
-                  <div
-                    class=\\"port css-3hvpph\\"
-                    data-name=\\"in\\"
-                    data-nodeid=\\"datamapper-5-3\\"
-                  />
-                  <div
-                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
-                  >
-                    <div
-                      class=\\"css-1wk9l6y\\"
-                    >
-                      <div
-                        class=\\"css-8xubpm\\"
-                      >
-                        <i
-                          class=\\"fw-dataMapper\\"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        class=\\"css-18bfde4\\"
-                      >
-                        <div
-                          class=\\"css-1f8ti7d\\"
-                        >
-                          <div
-                            class=\\"css-h55zw6\\"
-                          >
-                            DataMapper
-                          </div>
-                        </div>
-                        <div
-                          class=\\"css-1p80e1b\\"
-                        >
-                          <div
-                            class=\\"css-1t1qebt\\"
-                          >
-                            <div
-                              class=\\"css-19culks\\"
-                            >
-                              Data Mapper Description
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class=\\"port css-1l1tlbe\\"
-                    data-name=\\"out\\"
-                    data-nodeid=\\"datamapper-5-3\\"
-                  />
-                </div>
-              </div>
-              <div />
-            </div>
-          </div>
-          <div
-            class=\\"node css-nlpftr\\"
-            data-nodeid=\\"inSequence-4-2\\"
-            style=\\"top: 250px; left: 63px;\\"
-          >
-            <div
-              class=\\"css-2ttski\\"
-              data-testid=\\"endNode-inSequence-4-2\\"
-            >
-              <div
-                class=\\"port \\"
-                data-name=\\"in\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-              <svg
-                height=\\"24\\"
-                viewBox=\\"0 0 32 32\\"
-                width=\\"24\\"
-              >
-                <circle
-                  cx=\\"16\\"
-                  cy=\\"16\\"
-                  fill=\\"var(--vscode-button-background)\\"
-                  r=\\"14\\"
-                />
-              </svg>
-              <div
-                class=\\"port \\"
-                data-name=\\"out\\"
-                data-nodeid=\\"inSequence-4-2\\"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div />
-  </div>
-</div>"
-`;
-
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Dblookup.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookup.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -11115,7 +11053,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-dfhaf9\\"
+                        class=\\"css-1g74jrw\\"
                       >
                         <i
                           class=\\"fw-DBLookup\\"
@@ -11132,7 +11070,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            Dblookup
+                            DB Lookup
                           </div>
                         </div>
                         <div
@@ -11200,7 +11138,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for DblookupWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookupWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -11441,7 +11379,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-dfhaf9\\"
+                        class=\\"css-1g74jrw\\"
                       >
                         <i
                           class=\\"fw-DBLookup\\"
@@ -11458,7 +11396,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            Dblookup
+                            DB Lookup
                           </div>
                         </div>
                         <div
@@ -11528,7 +11466,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Dbreport.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReport.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -11769,7 +11707,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-dfhaf9\\"
+                        class=\\"css-1g74jrw\\"
                       >
                         <i
                           class=\\"fw-DBReport\\"
@@ -11786,7 +11724,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            Dbreport
+                            DB Report
                           </div>
                         </div>
                         <div
@@ -11854,7 +11792,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for DbreportWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReportWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -12095,7 +12033,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-dfhaf9\\"
+                        class=\\"css-1g74jrw\\"
                       >
                         <i
                           class=\\"fw-DBReport\\"
@@ -12112,7 +12050,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            Dbreport
+                            DB Report
                           </div>
                         </div>
                         <div
@@ -12182,7 +12120,663 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Drop.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapper.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"6,2\\"
+          >
+            <g
+              data-testid=\\"link-6,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"datamapper-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"referenceNode-datamapper-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-1f8szr7\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"datamapper-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1wk9l6y\\"
+                    >
+                      <div
+                        class=\\"css-190r2ix\\"
+                      >
+                        <i
+                          class=\\"fw-dataMapper\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-1f8ti7d\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            DataMapper
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-19culks\\"
+                            >
+                              DM
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"datamapper-5-3\\"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapperWithDescription.xml 1`] = `
+"<div>
+  <div
+    class=\\"css-x0z1wx\\"
+    data-testid=\\"diagram-container\\"
+  >
+    <div
+      class=\\"css-w72lj\\"
+      color=\\"var(--vscode-foreground)\\"
+      data-testid=\\"diagram-canvas-flow\\"
+      height=\\"480\\"
+      width=\\"150\\"
+    >
+      <div
+        class=\\"css-1oicui2\\"
+        cursor=\\"Default\\"
+        overflow=\\"hidden\\"
+      >
+        <svg
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <g
+            data-linkid=\\"5,3\\"
+          >
+            <g
+              data-testid=\\"link-5,3\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid=\\"6,2\\"
+          >
+            <g
+              data-testid=\\"link-6,2\\"
+              pointer-events=\\"all\\"
+            >
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"transparent\\"
+                stroke-width=\\"16\\"
+              />
+              <path
+                d=\\"M 0 0 L 0 0\\"
+                fill=\\"none\\"
+                stroke=\\"var(--vscode-button-background)\\"
+                stroke-dasharray=\\"0\\"
+                stroke-width=\\"2\\"
+              />
+              <foreignobject
+                height=\\"30\\"
+                width=\\"20\\"
+                x=\\"-10\\"
+                y=\\"-15\\"
+              >
+                <div
+                  class=\\"css-1ozmmzr-Component\\"
+                >
+                  <svg
+                    height=\\"24\\"
+                    viewBox=\\"0 0 24 24\\"
+                    width=\\"24\\"
+                    xmlns=\\"http://www.w3.org/2000/svg\\"
+                  >
+                    <path
+                      d=\\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\"
+                      fill=\\"var(--vscode-editor-background)\\"
+                    />
+                    <path
+                      d=\\"M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2\\"
+                      fill=\\"var(--vscode-button-background)\\"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight=\\"4\\"
+                  markerWidth=\\"4\\"
+                  orient=\\"auto\\"
+                  refX=\\"3\\"
+                  refY=\\"2\\"
+                  viewBox=\\"0 0 4 4\\"
+                >
+                  <polygon
+                    fill=\\"var(--vscode-button-background)\\"
+                    points=\\"0,4 0,0 4,2\\"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class=\\"css-poo601\\"
+          style=\\"transform: translate(
+				-75px,
+				0px)
+			scale(
+				1
+			);\\"
+        >
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"start-resource-3-1\\"
+            style=\\"top: 40px; left: 25px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"startNode-start-resource-3-1\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+              <svg
+                height=\\"40\\"
+                viewBox=\\"0 0 100 40\\"
+                width=\\"100\\"
+              >
+                <rect
+                  fill=\\"var(--vscode-button-background)\\"
+                  height=\\"40\\"
+                  rx=\\"20\\"
+                  width=\\"100\\"
+                  x=\\"0\\"
+                  y=\\"0\\"
+                />
+                <rect
+                  fill=\\"var(--vscode-editor-background)\\"
+                  height=\\"36\\"
+                  rx=\\"18\\"
+                  width=\\"96\\"
+                  x=\\"2\\"
+                  y=\\"2\\"
+                />
+                <text
+                  alignment-baseline=\\"central\\"
+                  fill=\\"var(--vscode-foreground)\\"
+                  text-anchor=\\"middle\\"
+                  x=\\"50%\\"
+                  y=\\"50%\\"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"start-resource-3-1\\"
+              />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"datamapper-5-3\\"
+            style=\\"top: 130px; left: 0px;\\"
+          >
+            <div
+              data-testid=\\"referenceNode-datamapper-5-3\\"
+            >
+              <div
+                class=\\"css-6hu434\\"
+              >
+                <div
+                  class=\\"css-1f8szr7\\"
+                >
+                  <div
+                    class=\\"port css-3hvpph\\"
+                    data-name=\\"in\\"
+                    data-nodeid=\\"datamapper-5-3\\"
+                  />
+                  <div
+                    style=\\"display: flex; flex-direction: row; width: 150px;\\"
+                  >
+                    <div
+                      class=\\"css-1wk9l6y\\"
+                    >
+                      <div
+                        class=\\"css-190r2ix\\"
+                      >
+                        <i
+                          class=\\"fw-dataMapper\\"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class=\\"css-18bfde4\\"
+                      >
+                        <div
+                          class=\\"css-1f8ti7d\\"
+                        >
+                          <div
+                            class=\\"css-h55zw6\\"
+                          >
+                            DataMapper
+                          </div>
+                        </div>
+                        <div
+                          class=\\"css-1p80e1b\\"
+                        >
+                          <div
+                            class=\\"css-1t1qebt\\"
+                          >
+                            <div
+                              class=\\"css-19culks\\"
+                            >
+                              Data Mapper Description
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class=\\"port css-1l1tlbe\\"
+                    data-name=\\"out\\"
+                    data-nodeid=\\"datamapper-5-3\\"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class=\\"node css-nlpftr\\"
+            data-nodeid=\\"inSequence-4-2\\"
+            style=\\"top: 250px; left: 63px;\\"
+          >
+            <div
+              class=\\"css-2ttski\\"
+              data-testid=\\"endNode-inSequence-4-2\\"
+            >
+              <div
+                class=\\"port \\"
+                data-name=\\"in\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+              <svg
+                height=\\"24\\"
+                viewBox=\\"0 0 32 32\\"
+                width=\\"24\\"
+              >
+                <circle
+                  cx=\\"16\\"
+                  cy=\\"16\\"
+                  fill=\\"var(--vscode-button-background)\\"
+                  r=\\"14\\"
+                />
+              </svg>
+              <div
+                class=\\"port \\"
+                data-name=\\"out\\"
+                data-nodeid=\\"inSequence-4-2\\"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Drop.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -12508,7 +13102,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for DropWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DropWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -12836,7 +13430,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Ejb.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Ejb.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -13077,7 +13671,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-t7l6co\\"
                       >
                         <i
                           class=\\"fw-EJB\\"
@@ -13162,7 +13756,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for EjbWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EjbWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -13403,7 +13997,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-t7l6co\\"
                       >
                         <i
                           class=\\"fw-EJB\\"
@@ -13490,7 +14084,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Enqueue.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Enqueue.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -13731,7 +14325,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Enqueue\\"
@@ -13816,7 +14410,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for EnqueueWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EnqueueWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -14057,7 +14651,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Enqueue\\"
@@ -14144,7 +14738,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Enrich.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Enrich.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -14385,7 +14979,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-ke0gha\\"
                       >
                         <i
                           class=\\"fw-Enrich\\"
@@ -14470,7 +15064,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for EnrichWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EnrichWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -14711,7 +15305,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-ke0gha\\"
                       >
                         <i
                           class=\\"fw-Enrich\\"
@@ -14798,7 +15392,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for EntitlementService.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EntitlementService.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -15291,10 +15885,10 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-t6fr2i\\"
+                        class=\\"css-pxp5xx\\"
                       >
                         <i
-                          class=\\"fw-Entitlement\\"
+                          class=\\"fw-Default\\"
                         />
                       </div>
                     </div>
@@ -15308,7 +15902,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            EntitlementService
+                            Entitlement Service
                           </div>
                         </div>
                         <div
@@ -15665,7 +16259,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for EntitlementServiceWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EntitlementServiceWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -16158,10 +16752,10 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-t6fr2i\\"
+                        class=\\"css-pxp5xx\\"
                       >
                         <i
-                          class=\\"fw-Entitlement\\"
+                          class=\\"fw-Default\\"
                         />
                       </div>
                     </div>
@@ -16175,7 +16769,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            EntitlementService
+                            Entitlement Service
                           </div>
                         </div>
                         <div
@@ -16534,7 +17128,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Event.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Event.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -16775,7 +17369,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-Event\\"
@@ -16860,7 +17454,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for EventWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EventWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -17101,7 +17695,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-Event\\"
@@ -17188,7 +17782,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for FastXSLT.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FastXSLT.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -17429,7 +18023,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-FastXSLT\\"
@@ -17514,7 +18108,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for FastXSLTWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FastXSLTWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -17755,7 +18349,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-FastXSLT\\"
@@ -17842,7 +18436,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Fault.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Fault.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -18083,7 +18677,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-ke0gha\\"
                       >
                         <i
                           class=\\"fw-Fault\\"
@@ -18168,7 +18762,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for FaultWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FaultWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -18409,7 +19003,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-ke0gha\\"
                       >
                         <i
                           class=\\"fw-Fault\\"
@@ -18496,7 +19090,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Filter.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Filter.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -19131,7 +19725,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for FilterWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FilterWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -19766,7 +20360,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ForEach.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEach.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -20070,7 +20664,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-q4be3z\\"
                       >
                         <i
                           class=\\"fw-ForEach\\"
@@ -20234,7 +20828,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ForEachWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEachWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -20538,7 +21132,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-q4be3z\\"
                       >
                         <i
                           class=\\"fw-ForEach\\"
@@ -20704,7 +21298,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Header.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Header.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -20945,7 +21539,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-1osxtv0\\"
                       >
                         <i
                           class=\\"fw-header\\"
@@ -21030,7 +21624,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for HeaderWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - HeaderWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -21271,7 +21865,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-1osxtv0\\"
                       >
                         <i
                           class=\\"fw-header\\"
@@ -21358,7 +21952,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Iterate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Iterate.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -21662,7 +22256,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-1of8dar\\"
                       >
                         <i
                           class=\\"fw-Iterate\\"
@@ -21826,7 +22420,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for IterateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - IterateWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -22130,7 +22724,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-1of8dar\\"
                       >
                         <i
                           class=\\"fw-Iterate\\"
@@ -22296,7 +22890,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for JSONTransform.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - JSONTransform.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -22537,7 +23131,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-ke0gha\\"
                       >
                         <i
                           class=\\"fw-JSONTransform\\"
@@ -22554,7 +23148,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            JSONTransform
+                            JSON Transform
                           </div>
                         </div>
                         <div
@@ -22622,7 +23216,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for JSONTransformWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - JSONTransformWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -22863,7 +23457,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-ke0gha\\"
                       >
                         <i
                           class=\\"fw-JSONTransform\\"
@@ -22880,7 +23474,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            JSONTransform
+                            JSON Transform
                           </div>
                         </div>
                         <div
@@ -22950,7 +23544,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Log.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Log.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -23278,7 +23872,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for LogWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - LogWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -23606,7 +24200,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Loopback.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Loopback.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -23847,7 +24441,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-LoopBack\\"
@@ -23932,7 +24526,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for LoopbackWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - LoopbackWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -24173,7 +24767,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-LoopBack\\"
@@ -24260,7 +24854,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for NTLM.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - NTLM.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -24501,7 +25095,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-t6fr2i\\"
+                        class=\\"css-1g2f6tx\\"
                       >
                         <i
                           class=\\"fw-NTLM\\"
@@ -24586,7 +25180,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for NTLMWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - NTLMWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -24827,7 +25421,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-t6fr2i\\"
+                        class=\\"css-1g2f6tx\\"
                       >
                         <i
                           class=\\"fw-NTLM\\"
@@ -24914,7 +25508,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for OAuth.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - OAuth.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -25240,7 +25834,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for OAuthWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - OAuthWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -25568,7 +26162,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PayloadFactory.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PayloadFactory.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -25809,7 +26403,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-dnrpfx\\"
                       >
                         <i
                           class=\\"fw-PayloadFactory\\"
@@ -25826,7 +26420,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            PayloadFactory
+                            Payload Factory
                           </div>
                         </div>
                         <div
@@ -25894,7 +26488,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PayloadFactoryWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PayloadFactoryWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -26135,7 +26729,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-dnrpfx\\"
                       >
                         <i
                           class=\\"fw-PayloadFactory\\"
@@ -26152,7 +26746,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            PayloadFactory
+                            Payload Factory
                           </div>
                         </div>
                         <div
@@ -26222,7 +26816,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Property.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Property.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -26463,7 +27057,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-Property\\"
@@ -26550,7 +27144,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PropertyGroup.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyGroup.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -26791,7 +27385,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-PropertyGroup\\"
@@ -26808,7 +27402,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            PropertyGroup
+                            Property Group
                           </div>
                         </div>
                         <div
@@ -26876,7 +27470,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PropertyGroupWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyGroupWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -27117,7 +27711,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-PropertyGroup\\"
@@ -27134,7 +27728,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                           <div
                             class=\\"css-h55zw6\\"
                           >
-                            PropertyGroup
+                            Property Group
                           </div>
                         </div>
                         <div
@@ -27204,7 +27798,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PropertyWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -27445,7 +28039,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-14uaptq\\"
+                        class=\\"css-1tyk8pj\\"
                       >
                         <i
                           class=\\"fw-Property\\"
@@ -27532,7 +28126,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PublishEvent.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PublishEvent.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -27773,7 +28367,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-PublishEvent\\"
@@ -27858,7 +28452,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for PublishEventWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PublishEventWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -28099,7 +28693,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-PublishEvent\\"
@@ -28186,7 +28780,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Respond.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Respond.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -28512,7 +29106,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for RespondWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RespondWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -28840,7 +29434,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Rewrite.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Rewrite.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -29081,7 +29675,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-URLRewrite\\"
@@ -29166,7 +29760,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for RewriteWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RewriteWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -29407,7 +30001,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-URLRewrite\\"
@@ -29494,7 +30088,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Rule.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Rule.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -29735,7 +30329,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-Rule\\"
@@ -29820,7 +30414,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for RuleWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RuleWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -30061,7 +30655,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-Rule\\"
@@ -30148,7 +30742,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Script.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Script.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -30389,7 +30983,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1fycsnb\\"
+                        class=\\"css-ups6nh\\"
                       >
                         <i
                           class=\\"fw-Script\\"
@@ -30474,7 +31068,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ScriptWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ScriptWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -30715,7 +31309,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1fycsnb\\"
+                        class=\\"css-ups6nh\\"
                       >
                         <i
                           class=\\"fw-Script\\"
@@ -30802,7 +31396,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Send.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Send.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -31043,7 +31637,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-Send\\"
@@ -31196,7 +31790,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for SendWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SendWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -31437,7 +32031,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-Send\\"
@@ -31592,7 +32186,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Smooks.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Smooks.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -31833,7 +32427,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Smooks\\"
@@ -31918,7 +32512,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for SmooksWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SmooksWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -32159,7 +32753,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1djxa7p\\"
                       >
                         <i
                           class=\\"fw-Smooks\\"
@@ -32246,7 +32840,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Spring.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Spring.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -32487,7 +33081,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-Spring\\"
@@ -32572,7 +33166,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for SpringWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SpringWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -32813,7 +33407,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-Spring\\"
@@ -32900,7 +33494,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Store.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Store.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -33226,7 +33820,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for StoreWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - StoreWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -33554,7 +34148,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Switch.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Switch.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -34225,7 +34819,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for SwitchWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SwitchWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -34896,7 +35490,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Throttle.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Throttle.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -35529,7 +36123,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ThrottleWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ThrottleWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -36164,7 +36758,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Transaction.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Transaction.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -36405,7 +36999,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-Transaction\\"
@@ -36490,7 +37084,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for TransactionWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - TransactionWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -36731,7 +37325,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-znnhbi\\"
                       >
                         <i
                           class=\\"fw-Transaction\\"
@@ -36818,7 +37412,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for Validate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Validate.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -37122,7 +37716,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-cjkiyf\\"
                       >
                         <i
                           class=\\"fw-Validate\\"
@@ -37286,7 +37880,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for ValidateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ValidateWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -37590,7 +38184,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1wk9l6y\\"
                     >
                       <div
-                        class=\\"css-5ne68v\\"
+                        class=\\"css-cjkiyf\\"
                       >
                         <i
                           class=\\"fw-Validate\\"
@@ -37756,7 +38350,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for XQuery.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XQuery.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -37997,7 +38591,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-XQuery\\"
@@ -38082,7 +38676,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for XQueryWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XQueryWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -38323,7 +38917,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-1941fe0\\"
+                        class=\\"css-1y9wcek\\"
                       >
                         <i
                           class=\\"fw-XQuery\\"
@@ -38410,7 +39004,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for XSLT.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XSLT.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -38651,7 +39245,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-1osxtv0\\"
                       >
                         <i
                           class=\\"fw-XSLT\\"
@@ -38736,7 +39330,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files myFunc work correctly for XSLTWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XSLTWithDescription.xml 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -38977,7 +39571,7 @@ exports[`Diagram component renders correctly with valid XML files myFunc work co
                       class=\\"css-1gt6rr1\\"
                     >
                       <div
-                        class=\\"css-8xubpm\\"
+                        class=\\"css-1osxtv0\\"
                       >
                         <i
                           class=\\"fw-XSLT\\"

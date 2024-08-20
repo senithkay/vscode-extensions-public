@@ -182,7 +182,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             providerURL: yup.string().required().when('type', {
                 is: "JMS Message Store",
                 then: (schema) => schema.required("Provide URL is required")
-                    .matches(/^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                    .matches(/^(tcp|ssl|http|https|vm|failover|discovery):\/\/([a-zA-Z0-9.\-_]+)(:\d+)?(\/[a-zA-Z0-9.\-_]+)*(\?[a-zA-Z0-9.\-_]+=([a-zA-Z0-9.\-_]+)(&[a-zA-Z0-9.\-_]+=([a-zA-Z0-9.\-_]+))*)?$|^([a-zA-Z0-9.\-_]+\/[a-zA-Z0-9.\-_]+)$|^localhost(:\d+)?$/i,
                         "Invalid Provider URL"),
                 otherwise: (schema) => schema.notRequired()
             }),
@@ -253,7 +253,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         getValues,
         watch,
         control,
-        setValue
+        setValue,
+        trigger
     } = useForm<InputsFields>({
         defaultValues: initialMessageStore,
         resolver: yupResolver(schema),
@@ -430,6 +431,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     setStoreName(messageStore.name);
                     setType(messageStore.type);
                     reset(messageStore);
+                    trigger();
                 }
             })();
         } else {
