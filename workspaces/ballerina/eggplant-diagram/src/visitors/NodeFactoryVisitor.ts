@@ -156,7 +156,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.id,
                     branchEmptyNodeModel.viewState.x,
                     branchEmptyNodeModel.viewState.y,
-                    false
+                    true
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
