@@ -75,6 +75,7 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
                 title={"Error in establishing Connection"}
             />
             <AlertBox
+                variant="secondary"
                 buttonTitle="Logout"
                 onClick={handleLogout}
                 subTitle={
