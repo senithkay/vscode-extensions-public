@@ -350,41 +350,23 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                                     nullable={true}
                                     value={field.value}
                                     onValueChange={(e) => { field.onChange(e); }}
-                                    sx={{ height: 22 }}
+                                    borderBox
                                 />
-                                {/* <div className={overlayClasses.addNewButtonWrapper}>
-                                    <Button
-                                        appearance="icon"
-                                        onClick={openImportCustomTypeForm}
-                                        className={overlayClasses.linePrimaryButton}
-                                    >
-                                        <Codicon sx={{ marginTop: 2, marginRight: 5 }} name="add" />
-                                        <div>Add New</div>
-                                    </Button>
-                                </div> */}
                             </>
                         )}
                     />
-                    
+                   
                     <LinkButton
                         onClick={openImportCustomTypeForm}
-                        sx={{ padding: "5px", gap: "2px", display:"block" }}
+                        sx={{ padding: "5px", gap: "2px" }}
                     >
-                        <Icon
+                        <Codicon
                             iconSx={{ fontSize: "12px" }}
                             name="add"
                         />
-                        <p style={{ fontSize: "12px" }}>Add New Type</p>
-                       
+                        <p style={{ fontSize: "12px" }}>Add new type</p>
                     </LinkButton>
-                    <Button
-                        appearance="icon"
-                        onClick={openImportCustomTypeForm}
-                        className={overlayClasses.linePrimaryButton}
-                    >
-                        <Codicon sx={{ marginTop: 2, marginRight: 5 }} name="add" />
-                        <div>Add Newx</div>
-                    </Button>
+
                 </Field>
                 <Field>
                     <Controller
