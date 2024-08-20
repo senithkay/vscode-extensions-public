@@ -128,7 +128,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 }
 
                 try {
-                    if (ioType === "input" || ioType === "output")
+                    if (ioType === "INPUT" || ioType === "OUTPUT")
                         await updateTsFileIoTypes(configName, documentUri, schema, ioType);
                     else
                         await updateTsFileCustomTypes(configName, documentUri, schema, ioType, typeName);
