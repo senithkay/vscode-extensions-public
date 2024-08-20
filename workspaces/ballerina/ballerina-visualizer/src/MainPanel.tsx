@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
 import { NavigationBar } from "./components/NavigationBar"
@@ -21,10 +21,13 @@ import { SequenceDiagram } from './views/SequenceDiagram';
 import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, EggplantOverview, AddComponentView, ServiceForm } from './views/Eggplant';
+import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
+import PopupPanel from './views/Eggplant/PopupPanel';
+import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
+import { useVisualizerContext } from './Context';
 
 const globalStyles = css`
   *,
@@ -44,7 +47,8 @@ const ComponentViewWrapper = styled.div`
 `;
 
 const MainPanel = () => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
+    const { popupScreen, setPopupScreen } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 
@@ -81,7 +85,8 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isEggplant) {
-                            setViewComponent(<EggplantOverview stateUpdated />);
+                            // setViewComponent(<EggplantOverview stateUpdated />);
+                            setViewComponent(<ComponentDiagram stateUpdated />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
@@ -120,10 +125,6 @@ const MainPanel = () => {
                         setNavActive(false);
                         setViewComponent(<WelcomeView />)
                         break;
-                    case MACHINE_VIEW.EggplantWelcome:
-                        setNavActive(false);
-                        setViewComponent(<WelcomeView />)
-                        break;
                     case MACHINE_VIEW.EggplantProjectForm:
                         setViewComponent(<ProjectForm />)
                         break;
@@ -156,6 +157,10 @@ const MainPanel = () => {
         }
     }, [viewComponent]);
 
+    const handleOnClosePopup = () => {
+        setPopupScreen("EMPTY");
+    }
+
     return (
         <>
             <Global styles={globalStyles} />
@@ -164,6 +169,9 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
+                {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
+                    {popupScreen === "ADD_CONNECTION" && <AddConnectionWizard onClose={handleOnClosePopup} />}
+                </PopupPanel>}
             </VisualizerContainer>
         </>
     );

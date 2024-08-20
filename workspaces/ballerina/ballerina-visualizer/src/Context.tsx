@@ -7,19 +7,44 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode, useState } from "react";
-import { BallerinaRpcClient, VisualizerContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
+import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
+import { BallerinaRpcClient, VisualizerContext as RpcContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 
+export function RpcContextProvider({ children }: { children: ReactNode }) {
+    const rpcClient = useRef(new BallerinaRpcClient());
+
+    const contextValue: RpcContext = {
+        rpcClient: rpcClient.current,
+    };
+
+    return <Context.Provider value={contextValue}>{children}</Context.Provider>;
+}
+
+export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
+interface VisualizerContext {
+    popupScreen: PopupScreen;
+    screenMetadata: any;
+    setPopupScreen: (screen: PopupScreen) => void;
+    setScreenMetadata: (metadata: any) => void;
+}
+
+export const VisualizerContext = createContext({
+    popupScreen: "EMPTY",
+    setPopupScreen: (screen: PopupScreen) => { },
+} as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
+    const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
+    const [metadata, setMetadata] = useState({} as any);
 
-  const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
-    rpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
-  });
+    const contextValue: VisualizerContext = {
+        popupScreen: popupScreen,
+        screenMetadata: metadata,
+        setPopupScreen: setPopupScreen,
+        setScreenMetadata: setMetadata,
+    };
 
-  return (
-    <Context.Provider value={visualizerState}>
-      {children}
-    </Context.Provider>
-  );
+    return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;
 }
+
+export const useVisualizerContext = () => useContext(VisualizerContext);

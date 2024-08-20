@@ -9,11 +9,18 @@
 
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 
-export type NodeModel = BaseNodeModel | EmptyNodeModel | IfNodeModel | StartNodeModel | ApiCallNodeModel;
+export type NodeModel =
+    | BaseNodeModel
+    | EmptyNodeModel
+    | DraftNodeModel
+    | IfNodeModel
+    | StartNodeModel
+    | ApiCallNodeModel;
 
 export type {
     Flow,

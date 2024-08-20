@@ -72,7 +72,8 @@ async function getContext(): Promise<VisualizerLocation> {
             identifier: context.identifier,
             position: context.position,
             syntaxTree: context.syntaxTree,
-            isEggplant: context.isEggplant
+            isEggplant: context.isEggplant,
+            projectUri: context.projectUri
         });
     });
 }

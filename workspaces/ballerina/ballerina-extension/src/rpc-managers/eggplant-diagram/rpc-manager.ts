@@ -9,14 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    BallerinaProjectComponents,
-    ComponentInfo,
     CreateComponentRequest,
     CreateComponentResponse,
     CreateProjectRequest,
     DIRECTORY_MAP,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
+    EggplantConnectorsRequest,
+    EggplantConnectorsResponse,
     EggplantDiagramAPI,
     EggplantFlowModelRequest,
     EggplantFlowModelResponse,
@@ -25,13 +25,13 @@ import {
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
     ProjectComponentsResponse,
-    ProjectStructureArtifactResponse,
     ProjectStructureResponse,
     STModification,
     SyntaxTree,
+    TextEdit,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
@@ -96,10 +96,26 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async updateSource(params: EggplantSourceCodeResponse): Promise<void> {
-        if (params.textEdits && params.textEdits.length > 0) {
+        let fileUri: Uri;
+        let edits: TextEdit[];
+
+        // HACK: get the first key and value from the object
+        // TODO: need to update below logic to support multiple files
+        for (const [key, value] of Object.entries(params.textEdits)) {
+            fileUri = Uri.parse(key);
+            edits = value;
+            break;
+        }
+        console.log(">>> source code gathered data", {
+            filePath: fileUri.toString(),
+            fileUri,
+            edits,
+        });
+
+        if (edits && edits.length > 0) {
             const modificationList: STModification[] = [];
 
-            for (const edit of params.textEdits) {
+            for (const edit of edits) {
                 const stModification: STModification = {
                     startLine: edit.range.start.line,
                     startColumn: edit.range.start.character,
@@ -111,12 +127,8 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                         STATEMENT: edit.newText,
                     },
                 };
-
                 modificationList.push(stModification);
             }
-
-            const context = StateMachine.context();
-            const fileUri = Uri.parse(context.documentUri!);
 
             console.log(">>> eggplant saving source", {
                 documentIdentifier: { uri: fileUri.toString() },
@@ -186,10 +198,10 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
         return new Promise(async (resolve) => {
             const workspaces = workspace.workspaceFolders;
-            const response: WorkspaceFolder[] = (workspaces ?? []).map(space => ({
+            const response: WorkspaceFolder[] = (workspaces ?? []).map((space) => ({
                 index: space.index,
                 fsPath: space.uri.fsPath,
-                name: space.name
+                name: space.name,
             }));
             resolve({ workspaces: response });
         });
@@ -210,7 +222,10 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getProjectStructure(): Promise<ProjectStructureResponse> {
         return new Promise(async (resolve) => {
             const projectPath = StateMachine.context().projectUri;
-            const res: ProjectStructureResponse = await buildProjectStructure(projectPath, StateMachine.context().langClient);
+            const res: ProjectStructureResponse = await buildProjectStructure(
+                projectPath,
+                StateMachine.context().langClient
+            );
             resolve(res);
         });
     }
@@ -218,9 +233,26 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getProjectComponents(): Promise<ProjectComponentsResponse> {
         return new Promise(async (resolve) => {
             const components = await StateMachine.langClient().getBallerinaProjectComponents({
-                documentIdentifiers: [{ uri: Uri.file(StateMachine.context().projectUri).toString() }]
+                documentIdentifiers: [{ uri: Uri.file(StateMachine.context().projectUri).toString() }],
             });
             resolve({ components });
+        });
+    }
+
+    async getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getEggplantConnectors(params)
+                .then((model) => {
+                    console.log(">>> eggplant connectors from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching connectors from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
         });
     }
 }

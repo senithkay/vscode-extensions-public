@@ -114,7 +114,7 @@ namespace S {
 interface GroupListProps {
     category: Category;
     expand?: boolean;
-    onSelect: (node: Node) => void;
+    onSelect: (node: Node, category: string) => void;
 }
 
 export function GroupList(props: GroupListProps) {
@@ -149,7 +149,11 @@ export function GroupList(props: GroupListProps) {
                     <S.BodyText>{category.description}</S.BodyText>
                     <S.Grid columns={2}>
                         {nodes.map((node, index) => (
-                            <S.Component key={node.id + index} enabled={node.enabled} onClick={() => onSelect(node)}>
+                            <S.Component
+                                key={node.id + index}
+                                enabled={node.enabled}
+                                onClick={() => onSelect(node, category.title)}
+                            >
                                 <S.ComponentIcon>{node.icon || <LogIcon />}</S.ComponentIcon>
                                 <S.ComponentTitle>{node.label}</S.ComponentTitle>
                             </S.Component>

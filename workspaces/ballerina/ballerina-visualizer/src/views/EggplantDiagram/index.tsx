@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
     NodeList,
@@ -29,16 +29,18 @@ import {
     LineRange,
 } from "@wso2-enterprise/ballerina-core";
 import {
+    addDraftNodeToDiagram,
     convertEggplantCategoriesToSidePanelCategories,
     convertNodePropertiesToFormFields,
     getContainerTitle,
     getFormProperties,
     updateNodeProperties,
 } from "./../../utils/eggplant";
-import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { getColorByMethod } from "../../utils/utils";
+import { useVisualizerContext } from "../../Context";
 
 const Container = styled.div`
     width: 100%;
@@ -49,7 +51,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -66,7 +68,8 @@ export interface EggplantDiagramProps {
 }
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
+    const { setPopupScreen, setScreenMetadata } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
@@ -76,6 +79,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
+    const originalFlowModel = useRef<Flow>();
 
     useEffect(() => {
         getSequenceModel();
@@ -97,6 +101,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
         targetRef.current = undefined;
+        // restore original model
+        if (originalFlowModel.current) {
+            setModel(originalFlowModel.current);
+            originalFlowModel.current = undefined;
+        }
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
@@ -106,12 +115,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
-            parentNodeLineRange: {
+            position: {
                 startLine: parent.codedata.lineRange.startLine,
                 endLine: parent.codedata.lineRange.endLine,
             },
-            parentNodeKind: parent.codedata.node,
-            branchLabel: "label" in parent ? parent.label : undefined,
+            filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
         rpcClient
@@ -119,18 +127,32 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             .getAvailableNodes(getNodeRequest)
             .then((response) => {
                 console.log(">>> Available nodes", response);
+                if (!response.categories) {
+                    console.error(">>> Error getting available nodes", response);
+                    return;
+                }
                 setCategories(convertEggplantCategoriesToSidePanelCategories(response.categories as Category[]));
+                // add draft node to model
+                const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
+                originalFlowModel.current = model;
+                setModel(updatedFlowModel);
             });
     };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         setShowSidePanel(true);
 
-        const node = metadata as AvailableNode;
+        const { node, category } = metadata as { node: AvailableNode; category?: string };
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ id: node.codedata })
+            .getNodeTemplate({ 
+                position: {
+                    startLine: topNodeRef.current.codedata.lineRange.startLine,
+                    endLine: topNodeRef.current.codedata.lineRange.endLine,
+                },
+                filePath: model.fileName,
+                id: node.codedata })
             .then((response) => {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
@@ -143,7 +165,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 }
                 // get node properties
                 setSidePanelView(SidePanelView.FORM);
-                setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
+                setFields(convertNodePropertiesToFormFields(formProperties, model.connections, category));
             });
     };
 
@@ -181,7 +203,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
             rpcClient
                 .getEggplantDiagramRpcClient()
-                .getSourceCode({ flowNode: updatedNode })
+                .getSourceCode({
+                    filePath: model.fileName,
+                    flowNode: updatedNode
+                })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
@@ -222,6 +247,20 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
     };
 
+    const handleOnAddConnection = () => {
+        setPopupScreen("ADD_CONNECTION");
+    };
+
+    const handleOnGoToSource = (node: FlowNode) => {
+        const targetPosition: NodePosition = {
+            startLine: node.codedata.lineRange.startLine.line,
+            startColumn: node.codedata.lineRange.startLine.offset,
+            endLine: node.codedata.lineRange.endLine.line,
+            endColumn: node.codedata.lineRange.endLine.offset,
+        };
+        rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
+    };
+
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
 
     const DiagramTitle = (
@@ -243,7 +282,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 model={model}
                                 onAddNode={handleOnAddNode}
                                 onNodeSelect={handleOnEditNode}
-                                title={getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}
+                                goToSource={handleOnGoToSource}
                             />
                         )}
                     </Container>
@@ -253,10 +292,19 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
-                onBack={sidePanelView === SidePanelView.FORM ? handleOnFormBack : undefined}
+                onBack={
+                    sidePanelView === SidePanelView.FORM && topNodeRef.current !== undefined
+                        ? handleOnFormBack
+                        : undefined
+                }
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <NodeList categories={categories} onSelect={handleOnSelectNode} onClose={handleOnCloseSidePanel} />
+                    <NodeList
+                        categories={categories}
+                        onSelect={handleOnSelectNode}
+                        onAddConnection={handleOnAddConnection}
+                        onClose={handleOnCloseSidePanel}
+                    />
                 )}
                 {sidePanelView === SidePanelView.FORM && <Form formFields={fields} onSubmit={handleOnFormSubmit} />}
             </PanelContainer>

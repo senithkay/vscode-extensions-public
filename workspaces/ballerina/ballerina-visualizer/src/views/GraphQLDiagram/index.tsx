@@ -9,11 +9,11 @@
 
 import React, { useEffect } from "react";
 import { GraphqlDesignServiceParams, GraphqlDesignService, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 
 export function GraphQLDiagram() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
     const [graphqlModdel, setGraphqlModel] = React.useState<GraphqlDesignService>();
 

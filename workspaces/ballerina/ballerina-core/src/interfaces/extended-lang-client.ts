@@ -448,17 +448,19 @@ export type EggplantFlowModelResponse = {
 };
 
 export interface EggplantSourceCodeRequest {
+    filePath: string;
     flowNode: FlowNode;
 }
 
 export type EggplantSourceCodeResponse = {
-    textEdits: TextEdit[];
+    textEdits:  {
+        [key: string]: TextEdit[];
+    };
 };
 
 export interface EggplantAvailableNodesRequest {
-    parentNodeLineRange: LineRange;
-    parentNodeKind: string;
-    branchLabel?: string;
+    position: LineRange;
+    filePath: string;
 }
 
 export type EggplantAvailableNodesResponse = {
@@ -466,12 +468,22 @@ export type EggplantAvailableNodesResponse = {
 };
 
 export interface EggplantNodeTemplateRequest {
+    position: LineRange;
+    filePath: string;
     id: CodeData;
 }
 
 export type EggplantNodeTemplateResponse = {
     flowNode: FlowNode;
 };
+
+export type EggplantConnectorsRequest = {
+    keyword: string;
+}
+
+export type EggplantConnectorsResponse = {
+    categories: Category[];
+}
 
 // <------------ EGGPLANT INTERFACES --------->
 
@@ -490,6 +502,7 @@ export interface EggplantInterface extends BaseLangClientInterface {
     getSourceCode: (params: EggplantSourceCodeRequest) => Promise<EggplantSourceCodeResponse>;
     getAvailableNodes: (params: EggplantAvailableNodesRequest) => Promise<EggplantAvailableNodesResponse>;
     getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
+    getEggplantConnectors: (params: EggplantConnectorsRequest) => Promise<EggplantConnectorsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends EggplantInterface {

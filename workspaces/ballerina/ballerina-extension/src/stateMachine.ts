@@ -5,7 +5,7 @@ import { activateBallerina } from './extension';
 import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW, DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { Uri, workspace } from 'vscode';
+import { commands, Uri, workspace } from 'vscode';
 import { RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as fs from 'fs';
@@ -205,7 +205,7 @@ const stateMachine = createMachine<MachineContext>(
                         if (context.isEggplant) {
                             const entryPoints = (await new EggplantDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
-                                history.push({ location: { view: MACHINE_VIEW.EggplantComponentView, documentUri: context.documentUri } });
+                                history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                                 return resolve();
                             }
                         }
@@ -364,6 +364,9 @@ export function updateView() {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+    if (StateMachine.context().isEggplant) {
+        commands.executeCommand("Eggplant.project-explorer.refresh");
+    }
 }
 
 async function checkForProjects() {

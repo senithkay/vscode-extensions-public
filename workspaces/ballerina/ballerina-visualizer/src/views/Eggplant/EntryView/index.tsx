@@ -9,8 +9,8 @@
 
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { Transition } from "@headlessui/react";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
@@ -90,7 +90,7 @@ const transitionEffect = {
 };
 
 export function AddEntryView() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<any>(undefined);
     const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [viewMore, setViewMore] = React.useState<boolean>(false);

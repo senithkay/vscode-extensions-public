@@ -8,14 +8,14 @@
  */
 
 import React, { useEffect } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { MachineStateValue, AIMachineStateValue} from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { AIMachineStateValue, MachineStateValue } from "@wso2-enterprise/ballerina-core";
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 import AIPanel from "./views/AIPanel/AIPanel";
 
 export function Visualizer({ mode }: { mode: string }) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [state, setState] = React.useState<MachineStateValue>('initialize');
     const [aiState, setAIState] = React.useState<AIMachineStateValue>('Initialize');
 
