@@ -25,10 +25,9 @@ import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler'
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 export class RPCLayer {
-    static _messenger: Messenger;
+    static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
-        RPCLayer._messenger = new Messenger();
         if (isWebviewPanel(webViewPanel)) {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
@@ -40,7 +39,13 @@ export class RPCLayer {
                 RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
             });
         }
+    }
 
+    static create(webViewPanel: WebviewPanel | WebviewView) {
+        return new RPCLayer(webViewPanel);
+    }
+
+    static init() {
         RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
         registerLangClientRpcHandlers(RPCLayer._messenger);
@@ -52,10 +57,6 @@ export class RPCLayer {
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
         registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
         registerAiPanelRpcHandlers(RPCLayer._messenger);
-    }
-
-    static create(webViewPanel: WebviewPanel | WebviewView) {
-        return new RPCLayer(webViewPanel);
     }
 
 }
