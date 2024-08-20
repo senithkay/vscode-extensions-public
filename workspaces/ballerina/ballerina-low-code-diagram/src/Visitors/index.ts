@@ -6,3 +6,4 @@ export * from "./action-invocation-finder";
 export * from "./block-statement-finder";
 export * from "./InvocationMatricsVisitor";
 export * from "./InvocationPerformanceVisitor";
+export * from "./symbol-finder-visitor";

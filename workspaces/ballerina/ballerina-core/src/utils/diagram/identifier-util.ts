@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,8 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { CaptureBindingPattern, LocalVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-
-import { STSymbolInfo } from "../../types";
+import { STSymbolInfo } from "../../interfaces/store";
 
 export function getAllVariablesForAi(symbolInfo: STSymbolInfo): { [key: string]: any } {
     const variableCollection: { [key: string]: any } = {};

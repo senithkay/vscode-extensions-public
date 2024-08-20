@@ -1,5 +1,7 @@
-import { templates } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { compile } from "handlebars";
+import templates from "../../templates/components";
 
 export async function getTriggerTemplate(templateName: string) {
     const resp = await fetch(`/templates/triggers/${templateName}.hbs`);

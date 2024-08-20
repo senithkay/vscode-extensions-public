@@ -6,8 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { StatementViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STSymbolInfo } from "@wso2-enterprise/ballerina-core";
 import {
     ActionStatement,
     AssignmentStatement,
@@ -32,6 +31,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
+import { StatementViewState } from "../ViewState";
 
 const moduleEndpoints: Map<string, STNode> = new Map();
 const localEndpoints: Map<string, STNode> = new Map();
@@ -47,7 +47,7 @@ const moduleVariables: Map<string, STNode> = new Map();
 const constants: Map<string, STNode> = new Map();
 const enums: Map<string, STNode> = new Map();
 
-class SymbolFindingVisitor implements Visitor {
+export class SymbolFindingVisitor implements Visitor {
     public beginVisitLocalVarDecl(node: LocalVarDecl) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
         if (stmtViewState && stmtViewState.isEndpoint && node?.typedBindingPattern?.bindingPattern
@@ -285,4 +285,4 @@ export function getSymbolInfo(): STSymbolInfo {
     }
 }
 
-export const visitor = new SymbolFindingVisitor();
+export const SymbolVisitor = new SymbolFindingVisitor();

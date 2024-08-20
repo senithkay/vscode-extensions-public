@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2020, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -6,18 +7,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FlushStatementConfig, FormField, ReceivestatementConfig, SendStatementConfig, STModification, WaitStatementConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, StringTemplateExpression } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ConfigurableFormState, ConstantConfigFormState, HeaderObjectConfig, ModuleVariableFormState, STModification } from "../../interfaces/ballerina";
+import { SendStatementConfig, ReceivestatementConfig, WaitStatementConfig, FlushStatementConfig, FormField, HTTPServiceConfigState } from "../../interfaces/config-spec";
 
-import { ConfigurableFormState } from "../components/FormComponents/ConfigForms/ConfigurableForm/util";
-import { ConstantConfigFormState } from "../components/FormComponents/ConfigForms/ConstantConfigForm/util";
-import { ListenerConfig } from "../components/FormComponents/ConfigForms/ListenerConfigForm/util/types";
-import { ModuleVariableFormState } from "../components/FormComponents/ConfigForms/ModuleVariableForm/util";
-import { HTTPServiceConfigState } from "../components/FormComponents/ConfigForms/ServiceConfigForm/forms/HttpService/util/reducer";
-import { HeaderObjectConfig } from "../components/FormComponents/ConnectorExtensions/HTTPWizard/HTTPHeaders";
-import { getFormattedModuleName, getParams } from "../components/Portals/utils";
-import { keywords } from "../components/Portals/utils/constants";
-
+import { getParams } from "./utils";
 import { getComponentSource } from "./template-utils";
 
 /* tslint:disable ordered-imports */
@@ -267,47 +261,6 @@ export function updatePropertyStatement(property: string, targetPosition: NodePo
     return propertyStatement;
 }
 
-export function createResource(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
-    const resource: STModification = {
-        startLine: targetPosition.startLine,
-        startColumn: 0,
-        endLine: targetPosition.startLine,
-        endColumn: 0,
-        type: "RESOURCE",
-        config: {
-            "METHOD": method,
-            "PATH": path,
-            "QUERY_PARAM": queryParam,
-            "PAYLOAD": payload,
-            "ADD_CALLER": isCaller,
-            "ADD_REQUEST": isRequest,
-            "ADD_RETURN": addReturn
-        }
-    };
-    return resource;
-}
-
-export function updateResourceSignature(method: string, path: string, queryParam: string, payload: string, isCaller: boolean, isRequest: boolean, addReturn: string, targetPosition: NodePosition): STModification {
-    const resourceSignature: STModification = {
-        startLine: targetPosition.startLine,
-        startColumn: targetPosition.startColumn,
-        endLine: targetPosition.endLine,
-        endColumn: targetPosition.endColumn,
-        type: "RESOURCE_SIGNATURE",
-        config: {
-            "METHOD": method,
-            "PATH": path,
-            "QUERY_PARAM": queryParam,
-            "PAYLOAD": payload,
-            "ADD_CALLER": isCaller,
-            "ADD_REQUEST": isRequest,
-            "ADD_RETURN": addReturn
-        }
-    };
-
-    return resourceSignature;
-}
-
 export function createLogStatement(type: string, logExpr: string, targetPosition?: NodePosition): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
@@ -384,36 +337,6 @@ export function updateReturnStatement(returnExpr: string, targetPosition: NodePo
     return returnStatement;
 }
 
-export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {
-    const moduleName = module;
-    const formattedName = getFormattedModuleName(module);
-    if (keywords.includes(moduleName)) {
-        module = module.replace(moduleName, "'" + moduleName);
-    }
-    let moduleNameStr = org + "/" + module;
-
-    const subModuleName = moduleName.split('.').pop();
-    if (moduleName.includes('.') && subModuleName !== formattedName) {
-        if (keywords.includes(subModuleName)) {
-            module = module.replace(subModuleName, "'" + subModuleName);
-        }
-        // add alias if module name is different with formatted name
-        moduleNameStr = org + "/" + module + " as " + formattedName;
-    }
-
-    const importStatement: STModification = {
-        startLine: 0,
-        startColumn: 0,
-        endLine: 0,
-        endColumn: 0,
-        type: "IMPORT",
-        config: {
-            "TYPE": moduleNameStr
-        }
-    };
-
-    return importStatement;
-}
 
 export function createObjectDeclaration(type: string, variableName: string, params: string[], targetPosition: NodePosition): STModification {
     const objectDeclaration: STModification = {
@@ -971,79 +894,6 @@ export function updateConstDeclaration(config: ConstantConfigFormState, targetPo
     };
 }
 
-export function createServiceDeclartion(
-    config: HTTPServiceConfigState, targetPosition: NodePosition, isLastMember?: boolean): STModification {
-    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
-
-    const modification: STModification = {
-        startLine: targetPosition.startLine,
-        endLine: targetPosition.startLine,
-        startColumn: isLastMember ? targetPosition.endColumn : 0,
-        endColumn: isLastMember ? targetPosition.endColumn : 0,
-        type: ''
-    };
-
-    if (createNewListener && fromVar) {
-        return {
-            ...modification,
-            type: 'SERVICE_AND_LISTENER_DECLARATION',
-            config: {
-                'LISTENER_NAME': listenerName,
-                'PORT': listenerPort,
-                'BASE_PATH': serviceBasePath,
-            }
-        };
-    } else if (!fromVar) {
-        return {
-            ...modification,
-            type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
-            config: {
-                'PORT': listenerPort,
-                'BASE_PATH': serviceBasePath,
-            }
-        };
-
-    } else {
-        return {
-            ...modification,
-            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER',
-            config: {
-                'LISTENER_NAME': listenerName,
-                'BASE_PATH': serviceBasePath,
-            }
-        };
-    }
-}
-
-export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean,
-                                         isLastMember?: boolean): STModification {
-    const { listenerName, listenerPort } = config;
-    let modification: STModification;
-    if (isNew) {
-        modification = {
-            startLine: targetPosition.startLine,
-            endLine: targetPosition.startLine,
-            startColumn: isLastMember ? targetPosition.endColumn : 0,
-            endColumn: isLastMember ? targetPosition.endColumn : 0,
-            type: ''
-        };
-    } else {
-        modification = {
-            ...targetPosition,
-            type: ''
-        };
-    }
-
-    return {
-        ...modification,
-        type: 'LISTENER_DECLARATION',
-        config: {
-            'LISTENER_NAME': listenerName,
-            'PORT': listenerPort
-        }
-    };
-}
-
 export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
     const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
 
@@ -1201,43 +1051,6 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     };
 
     return requestGeneration;
-}
-
-
-export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
-                                        targetPosition: NodePosition, isLastMember?: boolean): STModification {
-    const functionStatement: STModification = {
-        startLine: targetPosition.startLine,
-        startColumn: isLastMember ? targetPosition.endColumn : 0,
-        endLine: targetPosition.startLine,
-        endColumn: isLastMember ? targetPosition.endColumn : 0,
-        type: "FUNCTION_DEFINITION",
-        config: {
-            "ACCESS_MODIFIER": accessModifier,
-            "NAME": name,
-            "PARAMETERS": parameters,
-            "RETURN_TYPE": returnTypes
-        }
-    };
-
-    return functionStatement;
-}
-
-export function updateFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
-    const functionStatement: STModification = {
-        startLine: targetPosition.startLine,
-        startColumn: targetPosition.startColumn,
-        endLine: targetPosition.endLine,
-        endColumn: targetPosition.endColumn,
-        type: "FUNCTION_DEFINITION_SIGNATURE",
-        config: {
-            "NAME": name,
-            "PARAMETERS": parameters,
-            "RETURN_TYPE": returnTypes
-        }
-    };
-
-    return functionStatement;
 }
 
 export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
