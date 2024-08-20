@@ -190,7 +190,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     })
     );
 
-    let defaultValues;
+    let defaultValues: { mappingName: string; mappingType: string | null; isArray: boolean };
     if (subMappingConfigFormData) {
         defaultValues = {
             mappingName: subMappingConfigFormData.mappingName,
