@@ -301,6 +301,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                     sx={{ width: 312 }}
                 >
                     <ImportCustomTypeForm
+                        functionST={functionST}
                         configName={configName}
                         documentUri={documentUri}
                         setIsImportCustomTypeFormOpen={setIsImportCustomTypeFormOpen} />

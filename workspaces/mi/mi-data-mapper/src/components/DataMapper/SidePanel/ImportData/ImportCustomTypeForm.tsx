@@ -20,6 +20,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
+import { FunctionDeclaration } from "ts-morph";
 
 export interface ImportType {
     type: string;
@@ -33,22 +34,23 @@ export enum FileExtension {
 }
 
 export type ImportCustomTypeFormProps = {
+    functionST: FunctionDeclaration;
     configName: string;
     documentUri: string;
     setIsImportCustomTypeFormOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
-    const { configName, documentUri, setIsImportCustomTypeFormOpen } = props;
+    const { functionST, configName, documentUri, setIsImportCustomTypeFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { subMappingConfig, setSubMappingConfig, resetSubMappingConfig,subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
+    const { subMappingConfig, setSubMappingConfig, resetSubMappingConfig, subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
         subMappingConfig: state.subMappingConfig,
         setSubMappingConfig: state.setSubMappingConfig,
         resetSubMappingConfig: state.resetSubMappingConfig,
-        subMappingConfigFromData:state.subMappingConfigFormData,
+        subMappingConfigFromData: state.subMappingConfigFormData,
         setSubMappingConfigFormData: state.setSubMappingConfigFormData
     }));
 
@@ -82,7 +84,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSelectedImportType(undefined);
             setIsImportCustomTypeFormOpen(false);
-            setSubMappingConfigFormData({...subMappingConfigFromData, mappingType:typeName})
+            setSubMappingConfigFormData({ ...subMappingConfigFromData, mappingType: typeName })
             if (response.success) {
                 console.log("Schema imported successfully");
             } else {
@@ -136,6 +138,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
                 {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
                 {selectedImportType && (
                     <ImportCustomTypePanel
+                        functionST={functionST}
                         importType={selectedImportType}
                         extension={fileExtension}
                         rowRange={{ start: 15, offset: 10 }}

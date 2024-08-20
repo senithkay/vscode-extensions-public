@@ -15,6 +15,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { FileExtension, ImportType } from "./ImportDataForm";
 import { validateCSV, validateJSON, validateJSONSchema, validateXML } from "./ImportDataUtils";
+import { FunctionDeclaration, ts } from "ts-morph";
 
 const ErrorMessage = styled.span`
    color: var(--vscode-errorForeground);
@@ -33,6 +34,7 @@ interface RowRange {
 }
 
 interface ImportCustomTypePanelProps {
+    functionST: FunctionDeclaration;
     importType: ImportType;
     extension: FileExtension;
     rowRange?: RowRange;
@@ -40,14 +42,14 @@ interface ImportCustomTypePanelProps {
 }
 
 export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
-    const { importType, extension, rowRange, onSave } = props;
+    const { functionST, importType, extension, rowRange, onSave } = props;
     const classes = useStyles();
     const { control, formState: { errors }, setValue, handleSubmit } = useForm({
         defaultValues: {
             typeName: '',
             payload: ''
         },
-        mode: 'onChange'
+        mode: 'onTouched'
     });
 
     const [payloadRows, setPayloadRows] = useState(rowRange.start || 1);
@@ -95,6 +97,28 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
         } catch (error) {
             return `Invalid ${importType.label} format.`;
         }
+    };
+
+    const validateTypeName = (value: string) => {
+        try {
+
+            if (value[0] !== value[0].toUpperCase()) return "Type name must start with a capital";
+
+            if(!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)) return "Invalid type name";
+
+            const sourceFile = functionST.getSourceFile();
+            if (sourceFile.getInterface(value) ||
+                sourceFile.getClass(value) ||
+                sourceFile.getTypeAlias(value) ||
+                sourceFile.getEnum(value)
+            ) return "Type name is not available";
+
+            sourceFile.addInterface({ name: value }).remove(); //added for just in case
+
+        } catch (error) {
+            return "Invalid type name";
+        }
+        return true;
     };
 
     const growPayloadTextArea = (text: string) => {
@@ -154,7 +178,10 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
             <Controller
                 name="typeName"
                 control={control}
-                rules={{ required: "Type name is required" }}
+                rules={{
+                    required: "Type name is required",
+                    validate: validateTypeName
+                }}
                 render={({ field }) => (
                     <TextArea
                         {...field}
