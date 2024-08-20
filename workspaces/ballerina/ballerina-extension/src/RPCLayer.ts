@@ -46,6 +46,7 @@ export class RPCLayer {
     }
 
     static init() {
+        // ----- Main Webview RPC Methods
         RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
         registerLangClientRpcHandlers(RPCLayer._messenger);
@@ -56,7 +57,10 @@ export class RPCLayer {
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
         registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
+
+        // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
+        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
     }
 
 }

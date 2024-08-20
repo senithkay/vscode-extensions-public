@@ -31,7 +31,7 @@ export const DisabledWindow = (props: { showProjectHeader?: boolean }) => {
     const { showProjectHeader } = props;
 
     const Retry = () => {
-        //rpcClient.sendAIStateEvent(AI_EVENT_TYPE.RETRY);
+        rpcClient.sendAIStateEvent(AI_EVENT_TYPE.RETRY);
     };
 
 
@@ -41,7 +41,7 @@ export const DisabledWindow = (props: { showProjectHeader?: boolean }) => {
                 buttonTitle="Retry"
                 onClick={Retry}
                 subTitle={
-                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
+                    "An error occurred while trying to establish a connection with the Ballerina Copilot server. Please click retry to try again."
                 }
                 title={"Error in establishing Connection"}
             />

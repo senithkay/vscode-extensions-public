@@ -11,7 +11,7 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { AIMachineStateValue, MachineStateValue, VisualizerLocation, aiStateChanged, getVisualizerLocation, stateChanged, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { AIMachineStateValue, AI_EVENT_TYPE, MachineStateValue, VisualizerLocation, aiStateChanged, getVisualizerLocation, sendAIStateEvent, stateChanged, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -97,6 +97,10 @@ export class BallerinaRpcClient {
 
     onAIPanelStateChanged(callback: (state: AIMachineStateValue) => void) {
         this.messenger.onNotification(aiStateChanged, callback);
+    }
+
+    sendAIStateEvent(event: AI_EVENT_TYPE) {
+        this.messenger.sendRequest(sendAIStateEvent, HOST_EXTENSION, event);
     }
 
     webviewReady(): void {

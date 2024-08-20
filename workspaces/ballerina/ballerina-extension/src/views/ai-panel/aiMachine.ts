@@ -149,6 +149,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
     services: {
         checkToken: checkToken,
         openLogin: openLogin,
+        getSuggestions: getSuggestions,
         removeToken: async (context, event) => {
             await extension.context.secrets.delete('BallerinaAIUser');
         },
@@ -213,6 +214,11 @@ async function checkToken(context, event): Promise<UserToken> {
 }
 
 
+async function getSuggestions() {
+    return new Promise(async (resolve, reject) => {
+        resolve("");
+    });
+}
 
 async function openLogin(context, event) {
     return new Promise(async (resolve, reject) => {
