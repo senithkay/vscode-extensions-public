@@ -29,6 +29,7 @@ import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
 import { PanelType, useVisualizerContext } from './Context';
 import { ConstructPanel } from "./views/ConstructPanel";
+import { EditPanel } from "./views/EditPanel";
 
 const globalStyles = css`
   *,
@@ -181,6 +182,10 @@ const MainPanel = () => {
                     <ConstructPanel applyModifications={applyModifications} />
                 )
                 }
+                {activePanel?.isActive && activePanel.name === PanelType.STATEMENTEDITOR && (
+                    <EditPanel applyModifications={applyModifications} />
+                )
+            }
             </VisualizerContainer>
         </>
     );

@@ -13,6 +13,7 @@ export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
     experimentalEnabled?: boolean;
     onAddComponent?: (targetPosition: NodePosition) => void;
+    onEditComponent?: (model: STNode, targetPosition: NodePosition, componentType?: string) => void;
 }
 
 export interface ZoomStatus {
@@ -40,6 +41,7 @@ export interface LowCodeDiagramProperties {
     onDiagramDoubleClick?: () => void,
     getListenerSignature?: (functionNode: STNode) => Promise<string>;
     onAddComponent?: (targetPosition: NodePosition) => void;
+    onEditComponent?: (model: STNode, targetPosition: NodePosition, componentType?: string) => void;
 }
 
 export interface LowCodeDiagramState {

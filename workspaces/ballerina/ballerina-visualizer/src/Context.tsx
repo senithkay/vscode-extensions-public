@@ -32,6 +32,12 @@ interface PanelDetails {
     contentUpdated?: boolean;
 }
 
+interface ComponentInfo {
+    model: STNode;
+    position: NodePosition;
+    componentType: string;
+}
+
 interface VisualizerContext {
     showPopup: boolean;
     setShowPopup: (showPopup: boolean) => void;
@@ -41,6 +47,8 @@ interface VisualizerContext {
     setStatementPosition: (position: NodePosition) => void;
     parsedST: STNode;
     setParsedST: (parsedST: STNode) => void;
+    componentInfo?: ComponentInfo;
+    setComponentInfo?: (componentInfo: ComponentInfo) => void;
 }
 
 export const VisualizerContext = createContext({
@@ -51,7 +59,10 @@ export const VisualizerContext = createContext({
     statementPosition: undefined,
     setStatementPosition: (position: NodePosition) => { },
     parsedST: undefined,
-    setParsedST: (parsedST: STNode) => { }
+    setParsedST: (parsedST: STNode) => { },
+    componentInfo: undefined,
+    setComponentInfo: (componentInfo: ComponentInfo) => { },
+
 } as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
@@ -59,6 +70,7 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
     const [activePanel, setActivePanel] = useState({ isActive: false });
     const [statementPosition, setStatementPosition] = useState<NodePosition>();
     const [parsedST, setParsedST] = useState<STNode>();
+    const [componentInfo, setComponentInfo] = useState<ComponentInfo>();
 
 
     const contextValue = {
@@ -69,7 +81,9 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
         statementPosition: statementPosition,
         setStatementPosition: setStatementPosition,
         parsedST: parsedST,
-        setParsedST: setParsedST
+        setParsedST: setParsedST,
+        componentInfo: componentInfo,
+        setComponentInfo: setComponentInfo,
     };
 
     return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;

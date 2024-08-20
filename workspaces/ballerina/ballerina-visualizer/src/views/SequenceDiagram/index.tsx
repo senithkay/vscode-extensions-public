@@ -14,10 +14,13 @@ import {
     initVisitor,
     PositioningVisitor,
     SizingVisitor,
+    SymbolVisitor,
+    cleanLocalSymbols,
+    cleanModuleLevelSymbols,
+    getSymbolInfo,
 } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import styled from "@emotion/styled";
-import { STModification } from "@wso2-enterprise/ballerina-core";
 import { PanelType, useVisualizerContext } from "../../Context";
 
 enum MESSAGE_TYPE {
@@ -47,7 +50,7 @@ const MessageContainer = styled.div({
 export function SequenceDiagram() {
     // const { filePath, applyModifications } = props;
     const { rpcClient } = useRpcContext();
-    const { setStatementPosition, parsedST, setParsedST, setActivePanel, activePanel } = useVisualizerContext();
+    const { setStatementPosition, parsedST, setParsedST, setActivePanel, activePanel, setComponentInfo } = useVisualizerContext();
 
     useEffect(() => {
         getSequenceModel();
@@ -97,6 +100,9 @@ export function SequenceDiagram() {
             );
         }
         traversNode(st, new PositioningVisitor());
+        cleanLocalSymbols();
+        cleanModuleLevelSymbols();
+        traversNode(st, SymbolVisitor);
         const clone = { ...st };
         return clone;
     }
@@ -106,12 +112,18 @@ export function SequenceDiagram() {
         setStatementPosition(position);
     }
 
+    const handleEditComponent = (model: STNode, targetPosition: NodePosition, componentType: string) => {
+        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR, contentUpdated: false });
+        setStatementPosition(targetPosition);
+        setComponentInfo({ model, position: targetPosition, componentType });
+    }
+
     const initialSource = "\nvar var1 = 1;"
 
     return (
         <>
             <Container>{!!parsedST &&
-                <LowCodeDiagram syntaxTree={parsedST} isReadOnly={false} onAddComponent={handleAddComponent} />
+                <LowCodeDiagram syntaxTree={parsedST} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} />
             }</Container>
             {/* <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
                 {showStatementEditor ? 

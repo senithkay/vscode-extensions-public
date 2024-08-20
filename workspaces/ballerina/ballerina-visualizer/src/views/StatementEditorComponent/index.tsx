@@ -44,7 +44,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
     const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: { formArgs: {
-                targetPosition: {startLine: targetPosition.endLine, startColumn: targetPosition.endColumn, endLine: targetPosition.endLine, endColumn: targetPosition.endColumn},
+                targetPosition: targetPosition,
                 } },
             config: config,
             onWizardClose: onClose,
