@@ -18,8 +18,8 @@ import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../constants";
 import { DMProject } from '../datamapper/DMProject';
 import { navigate } from '../stateMachine';
 
-export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string): Promise<string> {
-  const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" });
+export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true): Promise<string> {
+  const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment);
   return ts;
 }
 
@@ -112,25 +112,17 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
         schema.properties = schema.items[0].properties;
       }
 
-
-      function generateInterfaceText(name: string, properties: Array<{ name: string, type: string }>): string {
-        const propertiesText = properties
-          .map(prop => `    ${prop.name}: ${prop.type};`)
-          .join('\n');
-        return `\n\ninterface ${name} {\n${propertiesText}\n}`;
-      }
-
-      const interfaceProperties = Object.keys(schema.properties).map(key => ({ name: key, type: schema.properties[key].type }));
-      return generateInterfaceText(schema.title, interfaceProperties)
+      const interfaceText = await generateTSInterfacesFromSchemaFile(schema, schema.title, false);
+      return interfaceText;
     };
 
     const project = DMProject.getInstance(tsFilepath).getProject();
     const sourceFile = project.getSourceFileOrThrow(tsFilepath);
 
-    const newInterfaceText = await readAndConvertSchema(schema, typeName);
+    const customInterfaceText = await readAndConvertSchema(schema, typeName);
     const interfaces = sourceFile.getInterfaces();
 
-    sourceFile.insertText(interfaces[interfaces.length-1]?.getEnd() || 0, newInterfaceText);
+    sourceFile.insertText(interfaces[interfaces.length - 1]?.getEnd() + 1 || 0, "\n" + customInterfaceText);
     sourceFile.formatText();
     await sourceFile.save();
     navigate();
