@@ -200,7 +200,7 @@ export function AIProjectGenerationChat() {
                     }
                 }
 
-                if (machineView.initialPrompt) {
+                if (machineView.initialPrompt.aiPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
                         { role: "User", content: machineView.initialPrompt.aiPrompt, type: "initial_prompt" },

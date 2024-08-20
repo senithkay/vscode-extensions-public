@@ -66,15 +66,6 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
 
     return (
         <Container>
-            <HeaderButtons>
-                <Button
-                    appearance="icon"
-                    onClick={() => handleLogout()}
-                    tooltip="Logout"
-                >
-                    <Codicon name="sign-out" />&nbsp;&nbsp;Logout
-                </Button>
-            </HeaderButtons>
             <AlertBox
                 buttonTitle="Retry"
                 onClick={Retry}
@@ -82,6 +73,15 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
                     "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
                 }
                 title={"Error in establishing Connection"}
+            />
+            <AlertBox
+                variant="secondary"
+                buttonTitle="Logout"
+                onClick={handleLogout}
+                subTitle={
+                    "Try logging out and logging back in again."
+                }
+                title={"Still having trouble?"}
             />
             <TroubleshootingGuide>
                 <TroubleshootingHeader>Troubleshooting Guide</TroubleshootingHeader>
