@@ -248,7 +248,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     );
                 }
 
-                if (!getValues(getNameForController(element.value.name)) && element.value.defaultValue) {
+                if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
                     setValue(getNameForController(element.value.name), element.value.defaultValue)
                 }
 
