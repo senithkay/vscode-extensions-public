@@ -42,7 +42,7 @@ interface ImportCustomTypePanelProps {
 export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
     const { importType, extension, rowRange, onSave } = props;
     const classes = useStyles();
-    const { clearErrors, control, formState: { errors }, setError, watch, setValue, handleSubmit } = useForm({
+    const { control, formState: { errors }, setValue, handleSubmit } = useForm({
         defaultValues: {
             typeName: '',
             payload: ''

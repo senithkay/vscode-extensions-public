@@ -74,7 +74,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
             overwriteSchema: false,
             resourceName: 'Schema', //TODO: unused property need to remove
             content: content,
-            ioType: "custom", //TODO: use enum 
+            ioType: "CUSTOM", //TODO: use enum 
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
             typeName: typeName
