@@ -14,7 +14,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 import { AlertBox } from "./AlertBox";
 
@@ -27,7 +27,7 @@ const Container = styled.div`
 `;
 
 export const DisabledWindow = (props: { showProjectHeader?: boolean }) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const { showProjectHeader } = props;
 
     const Retry = () => {

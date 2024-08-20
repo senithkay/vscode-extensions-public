@@ -10,7 +10,7 @@
  */
 import React, { useEffect, useState } from "react";
 import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -140,7 +140,7 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 export function AIChat() {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [state, setState] = useState<VisualizerLocation | null>(null);
     const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
     const [userInput, setUserInput] = useState("");

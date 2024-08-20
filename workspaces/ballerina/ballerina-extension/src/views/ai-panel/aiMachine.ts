@@ -79,7 +79,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             }
         },
-
         loggedOut: {
             invoke: {
                 src: 'removeToken'
@@ -90,7 +89,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             }
         },
-
         Ready: {
             invoke: {
                 src: 'getSuggestions',
@@ -112,7 +110,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             }
         },
-
         disabled: {
             invoke: {
                 src: 'disableExtension'
@@ -123,7 +120,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 }
             }
         },
-
         WaitingForLogin: {
             invoke: {
                 src: 'openLogin',
@@ -140,7 +136,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 FAILIER: "loggedOut"
             }
         },
-
         Executing: {
             on: {
                 COMPLETE: "Ready",

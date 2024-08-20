@@ -27,6 +27,7 @@
     "@wso2-enterprise/ballerina-graphql-design-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-low-code-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
+    "@wso2-enterprise/component-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-side-panel": "workspace:*",
     "@wso2-enterprise/data-mapper-view": "workspace:*",
     "@wso2-enterprise/eggplant-diagram": "workspace:*",
@@ -41,7 +42,9 @@
     "react-dom": "^18.2.0",
     "react-markdown": "~9.0.1",
     "react-syntax-highlighter": "~15.5.0",
-    "vscode-uri": "^3.0.8"
+    "vscode-uri": "^3.0.8",
+    "lodash": "~4.17.21",
+    "@types/lodash": "~4.17.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.33",

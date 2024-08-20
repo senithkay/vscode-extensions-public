@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AIMachineStateValue } from '@wso2-enterprise/ballerina-core';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { AIChat } from './AIChat';
@@ -34,7 +34,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
 `;
 
 const AIPanel = (props: { state: AIMachineStateValue }) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
     useEffect(() => {
