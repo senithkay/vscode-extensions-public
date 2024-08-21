@@ -340,6 +340,8 @@ export function AIProjectGenerationChat() {
                 response.json().then(body => {
                     error += body.detail;
                 });
+            } else if (response.status == 422) {
+                error = "Something went wrong. Please clear the chat and try again.";
             }
             newMessages[newMessages.length - 1].content += error;
             newMessages[newMessages.length - 1].type = 'Error';
@@ -528,7 +530,7 @@ export function AIProjectGenerationChat() {
                 }
             } else if (!response.ok) {
                 handleFetchError(response);
-                throw new Error('Failed to fetch response');
+                // throw new Error('Failed to fetch response');
             }
             return response;
         };
@@ -689,6 +691,9 @@ export function AIProjectGenerationChat() {
     }
 
     function splitContent(content: string) {
+        if (!content) {
+            return [];
+        }
         const segments = [];
         let match;
         const regex = /```xml([\s\S]*?)```/g;
