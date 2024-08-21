@@ -131,6 +131,8 @@ const ResetsInBadge = styled.div`
 
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
+const ERROR_MESSAGE_422 = "Something went wrong. Please clear the chat and try again.";
+
 var projectUuid = "";
 var backendRootUri = "";
 
@@ -341,7 +343,7 @@ export function AIProjectGenerationChat() {
                     error += body.detail;
                 });
             } else if (response.status == 422) {
-                error = "Something went wrong. Please clear the chat and try again.";
+                error = ERROR_MESSAGE_422;
             }
             newMessages[newMessages.length - 1].content += error;
             newMessages[newMessages.length - 1].type = 'Error';
@@ -530,7 +532,6 @@ export function AIProjectGenerationChat() {
                 }
             } else if (!response.ok) {
                 handleFetchError(response);
-                // throw new Error('Failed to fetch response');
             }
             return response;
         };
