@@ -296,99 +296,98 @@ export function AIChat() {
                 ]);
             }
         }
-        rpcClient.getAiPanelRpcClient().getAccessToken().then((token) => {
-            fetch(backendRootUri +"/code", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray }),
-                signal: signal,
-            }).then(async response => {
-                console.log(response);
-                if (!response.ok && response.status != 401) {
+        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+        fetch(backendRootUri + "/code", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray }),
+            signal: signal,
+        }).then(async response => {
+            console.log(response);
+            if (!response.ok && response.status != 401) {
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const statusText = getStatusText(response.status);
+                    let error = `Failed to fetch response. Status: ${statusText}`;
+                    console.log("Response status: ", response.status);
+                    if (response.status == 429) {
+                        response.json().then(body => {
+                            console.log(body.detail);
+                            error += body.detail;
+                            console.log("Error: ", error);
+                        });
+                    }
+                    newMessages[newMessages.length - 1].content += error;
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Failed to fetch response');
+            }
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            let result = '';
+            let buffer = '';
+            let codeBuffer = '';
+            let codeLoad = false;
+            remainingTokenPercentage = "Unlimited";
+            let inCodeBlock = false;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
                     setIsLoading(false);
-                    setMessages(prevMessages => {
-                        const newMessages = [...prevMessages];
-                        const statusText = getStatusText(response.status);
-                        let error = `Failed to fetch response. Status: ${statusText}`;
-                        console.log("Response status: ", response.status);
-                        if (response.status == 429) {
-                            response.json().then(body => {
-                                console.log(body.detail);
-                                error += body.detail;
-                                console.log("Error: ", error);
+                    break;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+
+                let boundary = buffer.indexOf("\n\n");
+                while (boundary !== -1) {
+                    const chunk = buffer.slice(0, boundary + 2);
+                    buffer = buffer.slice(boundary + 2);
+
+                    try {
+                        const event = parseSSEEvent(chunk);
+                        // console.log(`Event: ${event.event}`);
+                        if (event.event == "content_block_delta") {
+                            let textDelta = event.body.text;
+                            assistant_response += (textDelta);
+                            // console.log("Text Delta: " + textDelta);
+
+                            if (textDelta.includes("```ballerina")) {
+                                console.log("Here backticks" + textDelta);
+                                setIsCodeLoading(true);
+                                inCodeBlock = true;
+                            } else if (inCodeBlock) {
+                                codeBlocks.push(textDelta);
+                                console.log("Code block " + textDelta);
+                                inCodeBlock = false;
+                            } else if (textDelta.includes("```")) {
+                                console.log("Ending backtick" + textDelta);
+                                setIsCodeLoading(false);
+                            }
+
+                            setMessages(prevMessages => {
+                                const newMessages = [...prevMessages];
+                                newMessages[newMessages.length - 1].content += textDelta;
+                                return newMessages;
                             });
                         }
-                        newMessages[newMessages.length - 1].content += error;
-                        newMessages[newMessages.length - 1].type = 'Error';
-                        return newMessages;
-                    });
-                    throw new Error('Failed to fetch response');
-                }
-                const reader = response.body?.getReader();
-                const decoder = new TextDecoder();
-                let result = '';
-                let buffer = '';
-                let codeBuffer = '';
-                let codeLoad = false;
-                remainingTokenPercentage = "Unlimited";
-                let inCodeBlock = false;
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        setIsLoading(false);
-                        break;
+                    } catch (error) {
+                        console.error("Failed to parse SSE event:", error);
                     }
 
-                    buffer += decoder.decode(value, { stream: true });
 
-                    let boundary = buffer.indexOf("\n\n");
-                    while (boundary !== -1) {
-                        const chunk = buffer.slice(0, boundary + 2);
-                        buffer = buffer.slice(boundary + 2);
-
-                        try {
-                            const event = parseSSEEvent(chunk);
-                            // console.log(`Event: ${event.event}`);
-                            if (event.event == "content_block_delta") {
-                                let textDelta = event.body.text;
-                                assistant_response += (textDelta);
-                                // console.log("Text Delta: " + textDelta);
-
-                                if (textDelta.includes("```ballerina")) {
-                                    console.log("Here backticks" + textDelta);
-                                    setIsCodeLoading(true);
-                                    inCodeBlock = true;
-                                } else if (inCodeBlock) {
-                                    codeBlocks.push(textDelta);
-                                    console.log("Code block " + textDelta);
-                                    inCodeBlock = false;
-                                } else if (textDelta.includes("```")) {
-                                    console.log("Ending backtick" + textDelta);
-                                    setIsCodeLoading(false);
-                                }
-
-                                setMessages(prevMessages => {
-                                    const newMessages = [...prevMessages];
-                                    newMessages[newMessages.length - 1].content += textDelta;
-                                    return newMessages;
-                                });
-                            }
-                        } catch (error) {
-                            console.error("Failed to parse SSE event:", error);
-                        }
-
-
-                        boundary = buffer.indexOf("\n\n");
-                    }
-                    // console.log(assistant_response);
-
+                    boundary = buffer.indexOf("\n\n");
                 }
-                addChatEntry("user", userInput);
-                addChatEntry("assistant", assistant_response);
-            });
+                // console.log(assistant_response);
+
+            }
+            addChatEntry("user", userInput);
+            addChatEntry("assistant", assistant_response);
         });
     }
 

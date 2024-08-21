@@ -389,5 +389,6 @@ async function checkForProjects() {
     } catch (err) {
         console.error(err);
     }
+    commands.executeCommand('setContext', 'isEggplantProject', isEggplant);
     return { isEggplant, projectUri };
 }

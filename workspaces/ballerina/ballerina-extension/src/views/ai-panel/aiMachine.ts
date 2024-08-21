@@ -90,18 +90,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
             }
         },
         Ready: {
-            invoke: {
-                src: 'getSuggestions',
-                onDone: {
-                    target: "Ready"
-                },
-                onError: {
-                    target: "Ready",
-                    actions: assign({
-                        errorCode: (context, event) => event.data
-                    })
-                }
-            },
             on: {
                 LOGOUT: "loggedOut",
                 EXECUTE: "Executing",
@@ -149,7 +137,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
     services: {
         checkToken: checkToken,
         openLogin: openLogin,
-        getSuggestions: getSuggestions,
         removeToken: async (context, event) => {
             await extension.context.secrets.delete('BallerinaAIUser');
         },
@@ -213,13 +200,6 @@ async function checkToken(context, event): Promise<UserToken> {
     });
 }
 
-
-async function getSuggestions() {
-    return new Promise(async (resolve, reject) => {
-        resolve("");
-    });
-}
-
 async function openLogin(context, event) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -249,8 +229,7 @@ export const StateMachineAI = {
     service: () => { return aiStateService; },
     context: () => { return aiStateService.getSnapshot().context; },
     state: () => { return aiStateService.getSnapshot().value as AIMachineStateValue; },
-    sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
-
+    sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); }
 };
 
 export function openAIWebview(initialPrompt?: string) {

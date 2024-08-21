@@ -86,7 +86,6 @@ async function checkIfEggplantProject(): Promise<boolean> {
     } catch (err) {
         console.error(err);
     }
-    vscode.commands.executeCommand('setContext', 'isEggplantProject', isEggplant);
     return isEggplant;
 }
 

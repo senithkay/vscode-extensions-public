@@ -26,21 +26,5 @@ export function activateAiPanel(ballerinaExtInstance: BallerinaExtension) {
             extension.initialPrompt = undefined;
         })
     );
-
     console.log("AI Panel activated");
-    vscode.window.registerUriHandler({
-        handleUri(uri: vscode.Uri) {
-            if (uri.path === '/signin') {
-                console.log("Signin callback hit");
-                const query = new URLSearchParams(uri.query);
-                const code = query.get('code');
-                console.log("Code: " + code);
-                if (code) {
-                    exchangeAuthCode(code);
-                } else {
-                    // Handle error here
-                }
-            }
-        }
-    });
 }

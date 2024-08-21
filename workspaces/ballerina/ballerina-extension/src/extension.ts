@@ -76,10 +76,10 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
 export async function activate(context: ExtensionContext) {
     extension.context = context;
-    // Wait for the ballerina extension to be ready
-    await StateMachine.initialize();
     // Init RPC Layer methods
     RPCLayer.init();
+    // Wait for the ballerina extension to be ready
+    await StateMachine.initialize();
     // Then return the ballerina extension context
     return ballerinaExtInstance;
 }

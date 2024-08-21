@@ -53,14 +53,6 @@
                     "when": "view == Eggplant.project-explorer && viewItem == entryPoint",
                     "group": "inline"
                 }
-            ],
-            "editor/title": [
-                {
-                    "command": "ballerina.open.ai.panel",
-                    "group": "navigation@1",
-                    "when": "isBalVisualizerActive && isEggplantProject",
-                    "title": "Open AI Panel"
-                }
             ]
         },
         "commands": [
@@ -87,12 +79,6 @@
                 "icon": "$(add)",
                 "group": "navigation",
                 "category": "Eggplant"
-            },
-            {
-                "command": "ballerina.open.ai.panel",
-                "title": "Open AI Panel",
-                "category": "Eggplant",
-                "icon": "$(wand)"
             }
         ]
     },
