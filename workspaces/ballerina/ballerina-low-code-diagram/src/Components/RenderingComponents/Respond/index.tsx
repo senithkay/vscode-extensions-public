@@ -128,7 +128,8 @@ export function Respond(props: RespondProps) {
         if (renderEditForm) {
             const overlayFormConfig = getOverlayFormConfig("Respond", model.position, WizardType.EXISTING,
                 blockViewState, undefined, stSymbolInfo, model);
-            renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
+            diagramContext.props.onEditComponent(model, model.position, "Respond");
+            // renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
         }
     }
 

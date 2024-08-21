@@ -87,7 +87,7 @@ export function ConstructPanel(props: ConstructPanelProps) {
     );
 }
 
-function shouldSkipSemicolon(nodeId: string) {
+export function shouldSkipSemicolon(nodeId: string) {
     if (nodeId === "If" || nodeId === "While" || nodeId === "Foreach") {
         return true;
     }

@@ -183,7 +183,8 @@ export function ForEach(props: ForeachProps) {
             conditionPosition: conditionUpdatePosition,
             model
         }, stSymbolInfo, model);
-        renderEditForm(model, model.position, conditionConfigFormState as ConfigOverlayFormStatus, onCancel);
+        diagramContext.props.onEditComponent(model, model.position, "Foreach");
+        // renderEditForm(model, model.position, conditionConfigFormState as ConfigOverlayFormStatus, onCancel);
         // setForEachConfigOverlayState(conditionConfigFormState);
     };
 
