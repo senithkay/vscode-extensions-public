@@ -9,15 +9,11 @@
 import { promises as fs } from 'fs';
 import { parseString } from 'xml2js';
 import deepEqual from 'deep-equal';
-import { getNodeDescription } from '../../node';
-import { getDataFromST, getXML } from '../../template-engine/mustach-templates/templateUtils';
-import path from 'path';
+import { getNodeDescription } from '../../utils/node';
 import Mustache from 'mustache';
-import { escapeXml } from '../../commons';
+import { escapeXml } from '../../utils/commons';
 
 Mustache.escape = escapeXml;
-
-const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
 
 /**
  * Reads the content of an XML file.
@@ -88,22 +84,6 @@ export function normalizeXML(xml: string): string {
         .trim();
 }
 
-
-/**
- * Function to test the XML generation of a mediator.
- * @param mediatorType The type of the mediator.
- * @param st The syntax tree of the mediator.
- */
-export async function isValidMediatorXML(mediatorType: string, st: any): Promise<boolean> {
-    const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
-    
-    const mediatorData = await getDataFromST(mediatorType, mediatorST);
-    const generatedXml = getXML(mediatorType, mediatorData);
-
-    // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
-    const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`));
-    return outputFileContent === generatedXml;
-}
 /**
  * Function to test the description of a mediator.
  * @param mediatorType The type of the mediator.

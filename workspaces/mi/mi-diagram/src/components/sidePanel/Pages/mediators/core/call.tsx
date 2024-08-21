@@ -13,7 +13,7 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Text
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -111,22 +111,30 @@ const CallForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (
                             <FormKeylookup
                                 control={control}
                                 name='endpoint'
-                                label="Select Endpoint"
+                                label="Endpoint"
                                 filterType='endpoint'
                                 allowItemCreate={false}
                                 required={true}
                                 errorMsg={errors?.endpoint?.message?.toString()}
                                 canChangeEx={true}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, 'endpoint', fetchItems, handleValueChange);
+                                }}
                                 exprToggleEnabled={true}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                                additionalItems={["INLINE"]}
+                                additionalItems={["NONE"]}
                             />
                         )}
                     />

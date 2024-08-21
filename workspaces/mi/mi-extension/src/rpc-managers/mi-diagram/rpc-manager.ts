@@ -206,7 +206,8 @@ import {
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    onDownloadProgress
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -458,7 +459,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
-                this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
+                await this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
             }
 
@@ -599,7 +600,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -667,7 +668,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -725,7 +726,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -781,7 +782,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -837,7 +838,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (directory.includes('localEntries')) {
                 directory = directory.replace('localEntries', 'local-entries');
             }
-            const filePath = this.getFilePath(directory, name);
+            const filePath = await this.getFilePath(directory, name);
 
             if (params.getContentOnly) {
                 resolve({ filePath: "", fileContent: xmlData });
@@ -877,22 +878,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (jsonData.localEntry["#text"]) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
-                    } else if (firstEntryKey) {
-                        response.type = "In-Line XML Entry";
-                        const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                        if (firstEntryKey) {
-                            const xmlObj = {
-                                [firstEntryKey]: {
-                                    ...jsonData.localEntry[firstEntryKey]
-                                }
-                            }
-                            const builder = new XMLBuilder(options);
-                            let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
-                            response.inLineXmlValue = xml;
-                        }
                     } else if (jsonData.localEntry["@_"]["src"]) {
                         response.type = "Source URL Entry";
                         response.sourceURL = jsonData.localEntry["@_"]["src"];
+                    } else if (firstEntryKey) {
+                        response.type = "In-Line XML Entry";
+                        const xmlObj = {
+                            [firstEntryKey]: {
+                                ...jsonData.localEntry[firstEntryKey]
+                            }
+                        }
+                        const builder = new XMLBuilder(options);
+                        let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
+                        response.inLineXmlValue = xml;
                     }
                 }
                 resolve(response);
@@ -914,7 +912,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (getTemplateParams.directory.includes('messageStores')) {
                 getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores');
             }
-            const filePath = this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
+            const filePath = await this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -1104,7 +1102,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (directory.includes('inboundEndpoints')) {
                 directory = directory.replace('inboundEndpoints', 'inbound-endpoints');
             }
-            const filePath = this.getFilePath(directory, attributes.name as string);
+            const filePath = await this.getFilePath(directory, attributes.name as string);
 
             const xmlData = getInboundEndpointXmlWrapper({ attributes, parameters });
 
@@ -1381,7 +1379,7 @@ ${endpointAttributes}
             };
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
-            const filePath = this.getFilePath(directory, templateParams.name);
+            const filePath = await this.getFilePath(directory, templateParams.name);
             if (params.sequence) {
                 await this.createSequence(params.sequence);
             }
@@ -1496,7 +1494,7 @@ ${endpointAttributes}
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateName);
+                const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1605,7 +1603,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getHttpEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1777,7 +1775,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getAddressEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1881,7 +1879,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getWsdlEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1987,7 +1985,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getDefaultEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -2397,7 +2395,7 @@ ${endpointAttributes}
             if (directory.includes('messageProcessors')) {
                 directory = directory.replace('messageProcessors', 'message-processors');
             }
-            const filePath = this.getFilePath(directory, messageProcessorName);
+            const filePath = await this.getFilePath(directory, messageProcessorName);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -3073,6 +3071,32 @@ ${endpointAttributes}
                     responseType: 'stream',
                     headers: {
                         'User-Agent': 'My Client'
+                    },
+                    onDownloadProgress: (progressEvent) => {
+                        const totalLength = progressEvent.total || 0;
+                        if (totalLength !== 0) {
+                            const progress = Math.round((progressEvent.loaded * 100) / totalLength);
+
+                            const formatSize = (sizeInBytes: number) => {
+                                const sizeInKB = sizeInBytes / 1024;
+                                if (sizeInKB < 1024) {
+                                    return `${Math.floor(sizeInKB)} KB`;
+                                } else {
+                                    return `${Math.floor(sizeInKB / 1024)} MB`;
+                                }
+                            };
+
+                            // Notify the visualizer
+                            RPCLayer._messenger.sendNotification(
+                                onDownloadProgress,
+                                { type: 'webview', webviewType: VisualizerWebview.viewType },
+                                { 
+                                    percentage: progress,
+                                    downloadedAmount: formatSize(progressEvent.loaded),
+                                    downloadSize: formatSize(totalLength)
+                                }
+                            );
+                        }
                     }
                 });
 
@@ -3484,7 +3508,7 @@ ${endpointAttributes}
             if (directory.includes('dataSources')) {
                 directory = directory.replace('dataSources', 'data-sources');
             }
-            const filePath = this.getFilePath(directory, params.name);
+            const filePath = await this.getFilePath(directory, params.name);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -3738,6 +3762,43 @@ ${endpointAttributes}
 
             resolve();
         });
+    }
+
+    async updateArtifactInRegistry(filePath: string, newFileName: string): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const fileName = path.basename(filePath);
+            const options = {
+                ignoreAttributes: false,
+                attributeNamePrefix: "@",
+                parseTagValue: true,
+                format: true,
+            };
+            const parser = new XMLParser(options);
+            const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
+            const artifactXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+            if (!fs.existsSync(artifactXMLPath)) {
+                resolve(false);
+            }
+            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+            const artifactXMLData = parser.parse(artifactXML);
+            if (Array.isArray(artifactXMLData.artifacts.artifact)) {
+                var artifacts = artifactXMLData.artifacts.artifact;
+                artifacts.forEach((artifact: any) => {
+                    if (artifact.item.file === fileName) {
+                        artifact.item.file = `${newFileName}.xml`;
+                    }
+                });
+            } else {
+                if (artifactXMLData.artifacts.artifact.item.file === fileName ) {
+                    artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
+                }
+            }
+            const builder = new XMLBuilder(options);
+            const updatedXmlString = builder.build(artifactXMLData);
+            fs.writeFileSync(artifactXMLPath, updatedXmlString);
+            resolve(true);
+        });
+
     }
 
     async refreshAccessToken(): Promise<void> {
@@ -4551,33 +4612,37 @@ ${endpointAttributes}
         });
     }
 
-    renameFile(params: FileRenameRequest): void {
+    async renameFile(params: FileRenameRequest): Promise<void> {
         try {
             fs.renameSync(params.existingPath, params.newPath);
+            const newFileName = path.basename(params.newPath);
+            await this.updateArtifactInRegistry(params.existingPath, newFileName.substring(0, newFileName.lastIndexOf('.')));
         } catch (error) {
             console.error(`Error renaming file: ${error}`);
         }
     }
 
-    getFilePath(directory: string, fileName: string): string {
-        let filePath: string;
-        if (directory.endsWith('.xml')) {
-            if (path.basename(directory).split('.')[0] !== fileName) {
-                fs.unlinkSync(directory);
-                filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+    async getFilePath(directory: string, fileName: string): Promise<string> {
+        return new Promise(async (resolve) => {
+            let filePath: string;
+            if (directory.endsWith('.xml')) {
+                if (path.basename(directory).split('.')[0] !== fileName) {
+                    fs.unlinkSync(directory);
+                    filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+                    await this.updateArtifactInRegistry(directory, fileName);
+                } else {
+                    filePath = directory;
+                }
             } else {
-                filePath = directory;
+                filePath = path.join(directory, `${fileName}.xml`);
             }
-        } else {
-            filePath = path.join(directory, `${fileName}.xml`);
-        }
-        return filePath;
+            resolve(filePath);
+        });
     }
 
     async openUpdateExtensionPage(): Promise<void> {
         const extensionId = 'wso2.micro-integrator';
         const url = `vscode:extension/${extensionId}`;
-        console.log("open update ext view url *****", url)
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
     }
 }

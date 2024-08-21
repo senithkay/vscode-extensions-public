@@ -40,17 +40,18 @@ export interface Parameters {
 }
 
 export interface ConditionParams {
-    [key: number]: string | ConditionParams;
+    [key: number]: string | ConditionParams | ExpressionFieldValue;
 }
 
 export interface EnableCondition {
-    [key: string]: (ConditionParams | EnableCondition)[];
+    [key: string]: (ConditionParams | EnableCondition | ExpressionFieldValue)[];
 }
 
 export interface ParamField {
     id?: number;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
     label?: string;
+    placeholder?: string;
     defaultValue?: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
@@ -89,7 +90,7 @@ export function convertToObject(input: (ConditionParams | string | ConditionPara
     }
     const result: EnableCondition = {};
     let currentKey: string | null = null;
-    let currentValues: (ConditionParams | EnableCondition)[] = [];
+    let currentValues: (ConditionParams | EnableCondition | ExpressionFieldValue)[] = [];
 
     for (const item of input) {
         if (typeof item === 'string') {
@@ -107,6 +108,9 @@ export function convertToObject(input: (ConditionParams | string | ConditionPara
             const parms: ConditionParams[] = item;
             const ec = convertToObject(parms);
             currentValues.push(ec);
+        } else if (typeof item === "object") {
+            result[currentKey!] = [item];
+            currentValues = [];
         }
     }
     if (currentValues.length > 0) {
@@ -196,8 +200,17 @@ export function isFieldEnabled(params: Param[], ec?: EnableCondition): boolean {
         params.forEach(par => {
             if (item[par.id]) {
                 const satisfiedConditionValue = item[par.id];
-                // if the condition is not satisfied, then the param is enabled
-                paramEnabled = (par.value === satisfiedConditionValue);
+                if (typeof par.value === 'object') {
+                    const value = par.value as ExpressionFieldValue;
+                    const condition = satisfiedConditionValue as ExpressionFieldValue;
+                    if (value.isExpression === condition?.isExpression) {
+                        paramEnabled = true;
+                    }
+                } else {
+                    if (par.value === satisfiedConditionValue) {
+                        paramEnabled = true;
+                    }
+                }
             }
         });
     });
@@ -242,6 +255,11 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
 export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
     const paramField = paramFields[paramId];
     return paramField?.label;
+}
+
+export const getParamFieldPlaceholderFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.placeholder;
 }
 
 const getParamFieldTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
@@ -327,6 +345,7 @@ export function ParamManager(props: ParamManagerProps) {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
                 type,
+                placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,
                 isEnabled: paramVal.isEnabled,
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),

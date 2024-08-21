@@ -13,6 +13,7 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
+import { DataMapperNodeModel } from "../../Diagram/Node/commons/DataMapperNode";
 
 export interface DataMapperHeaderProps {
     filePath: string;

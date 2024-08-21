@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CallExpression, Node, SyntaxKind, ts } from "ts-morph";
+import { CallExpression, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from "ts-morph";
 import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 import { View } from "../Views/DataMapperView";
@@ -101,8 +101,9 @@ export function filterCompletions(
         return {
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
-            value: entry.name,
+            value: entry.insertText || entry.name,
             kind: details.kind as CompletionItemKind,
+            replacementSpan: entry.replacementSpan?.length
         }
     } else if (isFunction || isMethod) {
         if (isMethod || (isFunction && details.sourceDisplay)) {
@@ -140,4 +141,23 @@ export function filterCompletions(
     }
 
     return undefined;
+}
+
+// Function to get the innermost property assignment node from the given property assignment node
+// which allways contains a single property assignment inside the initializer
+export function getInnermostPropAsmtNode(propertyAssignment: PropertyAssignment): PropertyAssignment {
+    let currentNode: PropertyAssignment = propertyAssignment;
+
+    while (Node.isObjectLiteralExpression(currentNode.getInitializer())) {
+        const initializer = currentNode.getInitializer() as ObjectLiteralExpression;
+        const properties = initializer.getProperties();
+
+        if (properties.length === 1 && Node.isPropertyAssignment(properties[0])) {
+            currentNode = properties[0] as PropertyAssignment;
+        } else {
+            break;
+        }
+    }
+
+    return currentNode as PropertyAssignment;
 }

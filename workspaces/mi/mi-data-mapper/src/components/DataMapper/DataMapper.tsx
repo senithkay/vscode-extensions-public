@@ -116,7 +116,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     useEffect(() => {
         generateNodes();
         setupKeyboardShortcuts();
-    
+
         return () => {
             KeyboardNavigationManager.getClient().resetMouseTrapInstance();
         };
@@ -132,7 +132,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             diagnostics, addView, goToSource, applyModifications
         );
         const nodeInitVisitor = new NodeInitVisitor(context);
-    
+
         if (lastView.subMappingInfo !== undefined) {
             await handleSubMapping(lastView, context, nodeInitVisitor, subMappingTypes);
         } else {
@@ -156,7 +156,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
         const nodeList = buildNodeListForSubMappings(context, nodeInitVisitor, subMappingDetails);
         setNodes(nodeList);
     };
-    
+
     const handleDefaultMapping = (
         lastView: View,
         context: DataMapperContext,

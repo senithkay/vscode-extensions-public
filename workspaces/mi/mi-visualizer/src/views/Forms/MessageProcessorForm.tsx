@@ -511,17 +511,17 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                     )}
                     <FormActions>
                         <Button
+                            appearance="secondary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
                             appearance="primary"
                             onClick={handleSubmit(handleCreateMessageProcessor)}
                             disabled={!isDirty}
                         >
                             {isNewMessageProcessor ? "Create" : "Save Changes"}
-                        </Button>
-                        <Button
-                            appearance="secondary"
-                            onClick={handleCancel}
-                        >
-                            Cancel
                         </Button>
                     </FormActions>
                 </>}

@@ -34,9 +34,11 @@ const Container = styled.div`
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
     render() {
         return (
-            <Container>
-                <ProgressRing />
-            </Container>
+            <div data-testid={"loading-overlay"}>
+                <Container>
+                    <ProgressRing />
+                </Container>
+            </div>
         );
     }
 }

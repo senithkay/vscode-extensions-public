@@ -30,7 +30,7 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
         }
         return id;
     }
-    return null;
+    return Date.now().toString();
 }
 
 export function getNodeDescription(name: string, stNode: any): string {

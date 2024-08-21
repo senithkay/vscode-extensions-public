@@ -29,6 +29,7 @@ export type CompletionItem = {
     description: string;
     kind: CompletionItemKind;
     args?: string[];
+    replacementSpan?: number;
 };
 
 export type ExpressionBarBaseProps = {
@@ -37,16 +38,24 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
+    completions: CompletionItem[];
     onChange: (value: string) => Promise<void>;
     onFocus?: () => void;
     onBlur?: () => void;
     onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
-    getCompletions: () => Promise<CompletionItem[]>;
+    onCancel: () => void;
+    undoUncommitedChanges: () => Promise<void>;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
     id?: string;
+};
+
+export type ExpressionBarRef = {
+    focus: (text?: string) => Promise<void>;
+    blur: () => Promise<void>;
+    shadowRoot: ShadowRoot;
 };
 
 // Styled Components
@@ -72,7 +81,7 @@ namespace Ex {
     `;
 }
 
-export const ExpressionBar = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
+export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
     const { id, ...rest } = props;
 
     return (

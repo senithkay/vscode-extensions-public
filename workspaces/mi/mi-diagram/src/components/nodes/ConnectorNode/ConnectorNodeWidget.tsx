@@ -55,6 +55,24 @@ namespace S {
         font-size: var(--type-ramp-base-font-size);
     `;
 
+    export const ConnectionContainer = styled.div`
+        position: absolute;
+        top: 60px;
+        left: 235px;
+        transform: translateX(-50%);
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
+    `;
+
+    export const ConnectionText = styled.div`
+        max-width: 130px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    `;
+
     export const IconContainer = styled.div`
         padding: 0 4px;
         display: flex;
@@ -171,7 +189,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
-                    operationName: (node).stNode.tag.split(".")[1]
+                    operationName: (node).stNode.tag.split(".")[1],
+                    connectionName: (node.stNode as Connector).configKey
                 },
                 iconPath: iconPath,
                 parentNode: node.mediatorName
@@ -180,7 +199,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     }
 
     return (
-        <div >
+        <div data-testid={`connectorNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
@@ -271,6 +290,12 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     </svg>
                 </Tooltip>
             </S.CircleContainer>
+            {(node.stNode as Connector).configKey &&
+                <S.ConnectionContainer>
+                    <S.ConnectionText>
+                        {FirstCharToUpperCase((node.stNode as Connector).configKey)}
+                    </S.ConnectionText>
+                </S.ConnectionContainer>}
             <Popover
                 anchorEl={popoverAnchorEl}
                 open={isPopoverOpen}

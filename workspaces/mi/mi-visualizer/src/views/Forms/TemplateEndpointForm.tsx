@@ -33,6 +33,7 @@ export interface Region {
 export interface TemplateEndpointWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type InputsFields = {
@@ -78,6 +79,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required")
@@ -116,7 +118,8 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -174,6 +177,13 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
+    }, [watch("name")]);
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
@@ -233,7 +243,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview} hideClose={props.isPopup}>
             <TypeChip
                 type={"Template Endpoint"}
                 onClick={changeType}
@@ -282,17 +292,17 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             </>)}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

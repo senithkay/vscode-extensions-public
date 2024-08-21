@@ -23,6 +23,7 @@ export interface WsdlEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -102,7 +103,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -134,6 +136,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -183,6 +186,13 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         })();
     }, [props.path]);
 
+    useEffect(() => {
+        setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
+    }, [isTemplate ? watch("templateName") : watch("endpointName")]);
+
     const handleUpdateWsdlEndpoint = async (values: any) => {
         const updateWsdlEndpointParams: UpdateWsdlEndpointRequest = {
             directory: props.path,
@@ -230,7 +240,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     return (
         <FormView
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
-            onClose={openOverview}
+            onClose={props.handlePopupClose ?? openOverview}
             hideClose={props.isPopup}
         >
             <TypeChip
@@ -268,17 +278,17 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateWsdlEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

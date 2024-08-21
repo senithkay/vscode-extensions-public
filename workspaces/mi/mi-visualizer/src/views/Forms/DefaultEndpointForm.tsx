@@ -25,6 +25,7 @@ export interface DefaultEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type InputsFields = {
@@ -166,7 +167,8 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -196,6 +198,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const paramTemplateConfigs: ParamConfig = {
         paramValues: [],
@@ -298,6 +301,13 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
+    }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const addressingVersions: OptionProps[] = [
         {value: "final"},
@@ -419,7 +429,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel} hideClose={props.isPopup}>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup}>
             <TypeChip
                 type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"}
                 onClick={changeType}
@@ -607,17 +617,17 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateDefaultEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>
