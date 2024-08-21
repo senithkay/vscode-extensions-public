@@ -9,13 +9,16 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AddToProjectRequest,
+    addToProject,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getProjectUuid,
     login,
     logout,
     refreshAccessToken,
-    updateProject,
+    updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -29,4 +32,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAiPanelState, () => rpcManger.getAiPanelState());
     messenger.onRequest(getAccessToken, () => rpcManger.getAccessToken());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
+    messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
 }

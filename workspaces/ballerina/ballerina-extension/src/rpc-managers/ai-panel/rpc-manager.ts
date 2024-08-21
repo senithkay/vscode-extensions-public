@@ -10,14 +10,24 @@
  */
 import {
     AIPanelAPI,
-    AIVisualizerState
+    AIVisualizerState,
+    AI_EVENT_TYPE,
+    AddToProjectRequest
 } from "@wso2-enterprise/ballerina-core";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
+import * as vscode from 'vscode';
+import * as crypto from 'crypto';
+import path from "path";
+import * as fs from 'fs';
+
+
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const config = vscode.workspace.getConfiguration('ballerina');
+            const BACKEND_URL = config.get('rootUrl') as string;
+            resolve(BACKEND_URL);
+        });
     }
 
     async updateProject(): Promise<void> {
@@ -58,5 +68,69 @@ export class AiPanelRpcManager implements AIPanelAPI {
     async refreshAccessToken(): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
+    }
+
+    async getProjectUuid(): Promise<string> {
+        // ADD YOUR IMPLEMENTATION HERE
+        return new Promise(async (resolve) => {
+            console.log("Implementing getProjectUuid");
+            // Check if there is at least one workspace folder
+            if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+                console.error("No workspace folder is open.");
+                resolve("");
+                return;
+            }
+
+            // Use the path of the first workspace folder
+            const workspaceFolderPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+
+            // Create a hash of the workspace folder path
+            const hash = crypto.createHash('sha256');
+            hash.update(workspaceFolderPath);
+            const hashedWorkspaceFolderPath = hash.digest('hex');
+
+            console.log("Workspace folder path hashed successfully.");
+            resolve(hashedWorkspaceFolderPath);
+        });
+    }
+
+    async addToProject(req: AddToProjectRequest): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        console.log("Implementing addToProject");
+
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error("No workspaces found.");
+        }
+
+        const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
+        // Check if workspaceFolderPath is a Ballerina project
+        // Assuming a Ballerina project must contain a 'Ballerina.toml' file
+        const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
+        if (!fs.existsSync(ballerinaProjectFile)) {
+            throw new Error("Not a Ballerina project.");
+        }
+
+        const mainBalPath = path.join(workspaceFolderPath, 'main.bal');
+        if (fs.existsSync(mainBalPath)) {
+            // main.bal exists, check its content
+            const mainBalContent = fs.readFileSync(mainBalPath, 'utf8');
+            const balNewContent = `import ballerina/io;
+
+public function main() {
+    io:println("Hello, World!");
+}`;
+            if (mainBalContent.includes(balNewContent)) {
+                // Replace the content with the new content from the req
+                fs.writeFileSync(mainBalPath, req.content.trim());
+            } else {
+                // Create a new file called generated.bal and add the content there
+                const generatedBalPath = path.join(workspaceFolderPath, 'generated.bal');
+                fs.writeFileSync(generatedBalPath, req.content.trim());
+            }
+        } else {
+            // main.bal does not exist, write the content to that file
+            fs.writeFileSync(mainBalPath, req.content.trim());
+        }
     }
 }

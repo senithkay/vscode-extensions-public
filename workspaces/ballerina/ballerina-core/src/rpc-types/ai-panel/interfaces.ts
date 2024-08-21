@@ -13,3 +13,6 @@ import { AIMachineStateValue } from "../../state-machine-types";
 export interface AIVisualizerState {
     state: AIMachineStateValue;
 }
+export interface AddToProjectRequest {
+    content: string;
+}
