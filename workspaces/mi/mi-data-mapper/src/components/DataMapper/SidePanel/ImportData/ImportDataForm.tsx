@@ -70,7 +70,6 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         const request = {
             documentUri: documentUri,
             overwriteSchema: overwriteSchema,
-            resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
             content: content,
             ioType: ioType.toUpperCase(),
             schemaType: selectedImportType.type.toLowerCase(),

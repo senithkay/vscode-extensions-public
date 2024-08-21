@@ -57,7 +57,6 @@ export interface BrowseSchemaRequest {
     documentUri: string;
     overwriteSchema?: boolean;
     content: string;
-    resourceName: string;
     ioType: string;
     schemaType: string;
     configName: string;

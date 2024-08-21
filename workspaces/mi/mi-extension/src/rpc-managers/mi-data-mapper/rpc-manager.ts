@@ -104,7 +104,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
-            const { documentUri, overwriteSchema, resourceName, content, ioType, schemaType, configName, typeName } = params;
+            const { documentUri, overwriteSchema, content, ioType, schemaType, configName, typeName } = params;
             if (overwriteSchema) {
                 const response = await window.showInformationMessage(
                     "Are you sure you want to override the existing schema?\n\nPlease note that this will remove all existing mappings.",
