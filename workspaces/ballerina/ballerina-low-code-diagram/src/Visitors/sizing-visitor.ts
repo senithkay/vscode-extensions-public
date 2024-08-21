@@ -285,6 +285,12 @@ export class SizingVisitor implements Visitor {
                 plusBtnViewState.collapsedClicked = false;
                 plusBtnViewState.collapsedPlusDuoExpanded = false;
                 plusBtnViewState.isLast = true;
+                plusBtnViewState.targetPosition = {
+                    startLine: body.position.endLine,
+                    startColumn: body.position.endColumn - 1,
+                    endLine: body.position.endLine,
+                    endColumn: body.position.endColumn - 1
+                }
                 bodyViewState.plusButtons = [];
                 bodyViewState.plusButtons.push(plusBtnViewState);
                 viewState.initPlus = plusBtnViewState;
@@ -390,6 +396,12 @@ export class SizingVisitor implements Visitor {
                 plusBtnViewState.collapsedClicked = false;
                 plusBtnViewState.collapsedPlusDuoExpanded = false;
                 plusBtnViewState.isLast = true;
+                plusBtnViewState.targetPosition = {
+                    startLine: body.position.endLine,
+                    startColumn: body.position.endColumn - 1,
+                    endLine: body.position.endLine1,
+                    endColumn: body.position.endColumn - 1
+                }
                 bodyViewState.plusButtons = [];
                 bodyViewState.plusButtons.push(plusBtnViewState);
                 viewState.initPlus = plusBtnViewState;
@@ -1516,6 +1528,12 @@ export class SizingVisitor implements Visitor {
             plusBtnViewBox.index = lastStatementIndex;
             plusBtnViewBox.expanded = false;
             plusBtnViewBox.isLast = true;
+            plusBtnViewBox.targetPosition = {
+                startLine: node.position.endLine,
+                startColumn: node.position.endColumn - 1,
+                endLine: node.position.endLine,
+                endColumn: node.position.endColumn - 1
+            }
             blockViewState.plusButtons.push(plusBtnViewBox);
         }
 
@@ -1825,7 +1843,13 @@ export class SizingVisitor implements Visitor {
                     const plusBtnViewState: PlusViewState = new PlusViewState();
                     plusBtnViewState.index = index;
                     plusBtnViewState.expanded = false;
-                    plusBtnViewState.targetPosition = statement.position;
+                    console.log('sizing Visitor targetP', statement.position)
+                    plusBtnViewState.targetPosition = {
+                        startLine: statement.position.startLine,
+                        startColumn: statement.position.startColumn,
+                        endLine: statement.position.startLine,
+                        endColumn: statement.position.startColumn
+                    };
                     blockViewState.plusButtons.push(plusBtnViewState);
                 }
 
