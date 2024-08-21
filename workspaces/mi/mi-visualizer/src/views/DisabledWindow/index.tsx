@@ -37,9 +37,25 @@ const IssueTrackerLink = styled.div({
     marginLeft: '10px',
 });
 
+const TroubleshootingGuide = styled.div`
+  text-align: left;
+  margin-top: 20px;
+`;
+
+const TroubleshootingHeader = styled.h3`
+  font-size: 15px;
+  margin-bottom: 10px;
+`;
+
+const TroubleshootingList = styled.ol`
+  font-size: 13px;
+  margin-left: 15px;
+  margin-bottom: 20px;
+`;
+
 export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
     const { rpcClient } = useVisualizerContext();
-    const issueUrl = "https://github.com/wso2/ballerina-plugin-vscode/issues";
+    const issueUrl = "https://github.com/wso2/mi-vscode/issues";
     const Retry = () => {
         rpcClient.sendAIStateEvent(AI_EVENT_TYPE.RETRY);
     };
@@ -50,26 +66,34 @@ export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
 
     return (
         <Container>
-            <HeaderButtons>
-                <Button
-                    appearance="icon"
-                    onClick={() => handleLogout()}
-                    tooltip="Logout"
-                >
-                    <Codicon name="sign-out" />&nbsp;&nbsp;Logout
-                </Button>
-            </HeaderButtons>
             <AlertBox
                 buttonTitle="Retry"
                 onClick={Retry}
                 subTitle={
-                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again. If the issue persists, try logging out and logging in again."
+                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
                 }
                 title={"Error in establishing Connection"}
             />
-            <IssueTrackerLink>
-                Please raise an issue in our&nbsp; <a href={issueUrl}>issue tracker</a> .
-            </IssueTrackerLink>
+            <AlertBox
+                variant="secondary"
+                buttonTitle="Logout"
+                onClick={handleLogout}
+                subTitle={
+                    "Try logging out and logging back in again."
+                }
+                title={"Still having trouble?"}
+            />
+            <TroubleshootingGuide>
+                <TroubleshootingHeader>Troubleshooting Guide</TroubleshootingHeader>
+                <TroubleshootingList>
+                    <li>Check your internet connection</li>
+                    <li>Try logging out and logging in again</li>
+                    <li>Try restarting VSCode</li>
+                </TroubleshootingList>
+                <IssueTrackerLink>
+                    Please raise an issue in our&nbsp; <a href={issueUrl}>issue tracker</a> .
+                </IssueTrackerLink>
+            </TroubleshootingGuide>
         </Container>
     );
 };

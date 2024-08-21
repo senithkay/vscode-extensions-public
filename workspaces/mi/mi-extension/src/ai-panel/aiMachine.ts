@@ -139,7 +139,8 @@ const aiStateMachine = createMachine<AiMachineContext>({
             on: {
                 RETRY: {
                     target: "initialize",
-                }
+                },
+                LOGOUT: "loggedOut",
             }
         },
 

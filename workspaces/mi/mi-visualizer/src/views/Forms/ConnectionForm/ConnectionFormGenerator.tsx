@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, FormActions, FormGroup, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormActions, FormGroup, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -131,8 +131,6 @@ export function AddConnection(props: AddConnectionProps) {
         const fetchFormData = async () => {
             // If connectionName is provided, it is an update operation
             if (props.connectionName) {
-                setValue('name', props.connectionName);
-
                 const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
                     documentUri: props.path,
                     connectorName: null
@@ -143,20 +141,20 @@ export function AddConnection(props: AddConnectionProps) {
                 if (!connectionFound) {
                     return
                 }
-                // Set Form Data
-                setValue('connectionType', connectionFound.connectionType);
                 const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
                     documentUri: props.path, connectorName: connectionFound.connectorName
                 });
-
-                setValue('name', connector.name)
+                props.connector.name = connector.name;
 
                 const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
                 setFormData(connectionFormJSON.formJSON);
-                reset();
+                reset({
+                    name: props.connectionName,
+                    connectionType: connectionFound.connectionType,
+                });
 
                 const parameters = connectionFound.parameters
 
@@ -533,7 +531,7 @@ export function AddConnection(props: AddConnectionProps) {
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
     return (
-        <FormView title={`Add New Connection`} onClose={ handlePopupClose ?? handleOnClose }>
+        <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
                 type={props.connector.name}
                 onClick={props.changeConnector}

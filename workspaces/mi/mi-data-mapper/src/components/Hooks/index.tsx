@@ -89,6 +89,7 @@ export const useDiagramModel = (
     diagramModel: DiagramModel,
     onError:(kind: ErrorNodeKind) => void,
     zoomLevel: number,
+    screenWidth: number
 ): {
     updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
@@ -104,12 +105,20 @@ export const useDiagramModel = (
     const lastView = views ? views[views.length - 1] : undefined;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevScreenWidth = useRef(screenWidth);
 
     const genModel = async () => {
-        if (diagramModel.getZoomLevel() !== zoomLevel && diagramModel.getNodes().length > 0) {
-            // Update only zoom level and offset if zoom level is changed
+        if (prevScreenWidth.current !== screenWidth && diagramModel.getNodes().length > 0) {
+            const diagModelNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+            diagModelNodes.forEach(diagModelNode => {
+                const repositionedNode = nodes.find(newNode => newNode.id === diagModelNode.id);
+                if (repositionedNode) {
+                    diagModelNode.setPosition(repositionedNode.getX(), repositionedNode.getY());
+                }
+            });
             diagramModel.setZoomLevel(zoomLevel);
             diagramModel.setOffset(offSetX, offSetY);
+            prevScreenWidth.current = screenWidth;
             return diagramModel;
         }
         const newModel = new DiagramModel();
@@ -151,7 +160,10 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery([
+        'genModel',
+        { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, screenWidth }
+    ], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };
