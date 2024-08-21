@@ -42,26 +42,28 @@ const MessageContainer = styled.div({
     alignItems: "center",
 });
 
-// interface SequenceDiagramProps {
-//     filePath: string;
-//     applyModifications: (modifications: STModification[]) => Promise<void>;
-// }
+interface SequenceDiagramProps {
+    syntaxTree: STNode;
+}
 
-export function SequenceDiagram() {
-    // const { filePath, applyModifications } = props;
+export function SequenceDiagram(props: SequenceDiagramProps) {
+    const { syntaxTree } = props;
     const { rpcClient } = useRpcContext();
     const { setStatementPosition, parsedST, setParsedST, setActivePanel, activePanel, setComponentInfo } = useVisualizerContext();
 
     useEffect(() => {
+        console.log("====SequenceDiagram.tsx: useEffect", syntaxTree);
         getSequenceModel();
-    }, []);
+    }, [syntaxTree]);
 
-    useEffect(() => {
-        if (!activePanel?.isActive && activePanel?.contentUpdated) {
-            getSequenceModel();
-            setActivePanel({ isActive: false, contentUpdated: false });
-        }
-    }, [activePanel?.isActive]);
+    // useEffect(() => {
+    //     console.log("Activepanel: useEffect");
+    //     if (!activePanel?.isActive && activePanel?.contentUpdated) {
+    //         console.log("Activepanel: getSequenceModel");
+    //         getSequenceModel();
+    //         setActivePanel({ isActive: false, contentUpdated: false });
+    //     }
+    // }, [activePanel?.isActive]);
 
     const getSequenceModel = () => {
         rpcClient
@@ -108,17 +110,15 @@ export function SequenceDiagram() {
     }
 
     const handleAddComponent = (position: NodePosition) => {
-        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL, contentUpdated: false });
+        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL });
         setStatementPosition(position);
     }
 
     const handleEditComponent = (model: STNode, targetPosition: NodePosition, componentType: string) => {
-        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR, contentUpdated: false });
+        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR });
         setStatementPosition(targetPosition);
         setComponentInfo({ model, position: targetPosition, componentType });
     }
-
-    const initialSource = "\nvar var1 = 1;"
 
     return (
         <>

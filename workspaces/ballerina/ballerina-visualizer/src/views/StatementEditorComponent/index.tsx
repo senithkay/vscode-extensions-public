@@ -23,6 +23,7 @@ export interface StatementEditorComponentProps {
     syntaxTree: STNode;
     targetPosition: NodePosition;
     config: any;
+    skipSemicolon?: boolean;
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
     const { rpcClient } = useRpcContext();
@@ -38,7 +39,8 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         onCancel,
         onClose,
         targetPosition,
-        config
+        config,
+        skipSemicolon
     } = props;
 
     const stmtEditorComponent = StatementEditorWrapper(
@@ -60,7 +62,8 @@ function StatementEditorC(props: StatementEditorComponentProps) {
                 content: currentFile.content,
                 originalContent: currentFile.content
             },
-            onCancel
+            onCancel,
+            skipSemicolon: skipSemicolon ? skipSemicolon : false
         }
     );
 
