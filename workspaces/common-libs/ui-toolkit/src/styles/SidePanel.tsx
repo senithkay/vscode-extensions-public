@@ -8,13 +8,17 @@
  */
 import styled from "@emotion/styled";
 
+interface SidePanelProps {
+    sx?: any;
+}
+
 export const SidePanelBody = styled.div`
     height: calc(100% - 87px); // 87px is the height of the title container and top and down paddings (55px + 16px + 16px)
     overflow-y: auto;
     padding: 16px;
 `;
 
-export const SidePanelTitleContainer = styled.div`
+export const SidePanelTitleContainer = styled.div<SidePanelProps>`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -24,4 +28,5 @@ export const SidePanelTitleContainer = styled.div`
     font: inherit;
     font-weight: bold;
     color: var(--vscode-editor-foreground);
+    ${(props: SidePanelProps) => props.sx};
 `;

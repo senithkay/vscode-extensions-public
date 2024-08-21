@@ -117,7 +117,7 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen } = useVisualizerContext();
+    const { setPopupScreen, setSidePanel } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -154,6 +154,10 @@ export function Overview(props: OverviewProps) {
     const handleAddConnection = () => {
         console.log(">>> Add Connection");
         setPopupScreen("ADD_CONNECTION");
+    };
+
+    const handleAddShema = () => {
+        setSidePanel("RECORD_EDITOR");
     };
 
     return (
@@ -239,7 +243,7 @@ export function Overview(props: OverviewProps) {
                                 <SectionTitle>
                                     <h2 className="text-base">Schemas</h2>
                                     {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].length > 0 && (
-                                        <Button appearance="icon" onClick={handleAddArtifact} tooltip="Add Artifact">
+                                        <Button appearance="icon" onClick={handleAddShema} tooltip="Add Artifact">
                                             <Codicon name="add" />
                                         </Button>
                                     )}
@@ -262,7 +266,7 @@ export function Overview(props: OverviewProps) {
                                         <EmptyCard
                                             description="Create and manage data types using JSON schema. Generate reusable types for your integration."
                                             actionText="Add Schema"
-                                            onClick={handleAddArtifact}
+                                            onClick={handleAddShema}
                                         />
                                     )}
                                 </div>

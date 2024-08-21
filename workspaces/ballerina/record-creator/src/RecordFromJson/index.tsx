@@ -30,7 +30,7 @@ import { checkDiagnostics, getUpdatedSource } from "../components/FormComponents
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
 import { FileSelect, FormContainer, FormWrapper, InputContainer, InputWrapper, LabelWrapper, useStyles } from "../style";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
@@ -242,7 +242,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 <RecordOverview
                     type="JSON"
                     undoRedoManager={undoRedoManager}
-                    prevST={fullST.syntaxTree}
+                    prevST={fullST}
                     definitions={formState.importedRecord}
                     onComplete={onCancel}
                     onCancel={onCancel}
@@ -250,12 +250,10 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             ) : (
                 <FormContainer data-testid="module-variable-config-form">
                     {!isHeaderHidden && (
-                        <FormHeaderSection
-                            onCancel={onCancel}
-                            formTitle="Import Sample JSON"
-                            formType={""}
-                            defaultMessage=""
-                        />
+                        <SidePanelTitleContainer sx={{paddingLeft: 20}}>
+                            <Typography variant="h3" sx={{margin: 0}}>Import Sample JSON</Typography>
+                            <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
+                        </SidePanelTitleContainer>
                     )}
                     <FormWrapper id="json-input-container" test-id="json-input-container">
                         <FormTextInput
