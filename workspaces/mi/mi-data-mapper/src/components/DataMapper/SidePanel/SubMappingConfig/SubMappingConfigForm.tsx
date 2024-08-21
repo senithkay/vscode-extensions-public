@@ -100,7 +100,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     };
 
     const getBaseType = (mappingType: string) => {
-        return mappingType.replace('[]', '');
+        return mappingType.replaceAll('[]', '');
     };
 
     useEffect(() => {
