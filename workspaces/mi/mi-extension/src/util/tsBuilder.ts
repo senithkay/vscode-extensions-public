@@ -94,7 +94,7 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
   return "";
 }
 
-export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string, typeName?: string): Promise<string> {
+export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string, typeName: string): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   ioType = ioType.toLowerCase();
   if (workspaceFolder) {
@@ -104,8 +104,8 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
 
 
 
-    const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string = "CustomType" /* TODO: Need to remove default value */) => {
-      schema.title = defaultTitle;
+    const readAndConvertSchema = async (schema: JSONSchema3or4, title: string) => {
+      schema.title = title;
 
       if (schema.type === "array" && schema.items && schema.items.length > 0) {
         schema.type = "object";

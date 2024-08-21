@@ -130,8 +130,11 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 try {
                     if (ioType === "INPUT" || ioType === "OUTPUT")
                         await updateTsFileIoTypes(configName, documentUri, schema, ioType);
-                    else
+                    else if (ioType === "CUSTOM" && typeName)
                         await updateTsFileCustomTypes(configName, documentUri, schema, ioType, typeName);
+                    else {
+                        throw new Error(`Invalid ioType: ${ioType}`);
+                    }
 
                     await this.formatDMC(documentUri);
                     navigate();
