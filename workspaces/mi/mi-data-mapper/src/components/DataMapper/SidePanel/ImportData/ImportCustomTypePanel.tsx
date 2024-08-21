@@ -102,7 +102,7 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
     const validateTypeName = (value: string) => {
         try {
 
-            if (value[0] !== value[0].toUpperCase()) return "Type name must start with a capital";
+            if (value[0] !== value[0].toUpperCase()) return "Type name must start with a capital"; //TODO: need to remove after clarifying autocapitalize
 
             if(!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)) return "Invalid type name";
 
@@ -113,7 +113,7 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
                 sourceFile.getEnum(value)
             ) return "Type name is not available";
 
-            sourceFile.addInterface({ name: value }).remove(); //added for just in case
+            sourceFile.addInterface({ name: value }).remove(); //To catch any other remaining issues
 
         } catch (error) {
             return "Invalid type name";
