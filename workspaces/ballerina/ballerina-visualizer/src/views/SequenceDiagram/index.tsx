@@ -19,9 +19,10 @@ import {
     cleanModuleLevelSymbols,
     getSymbolInfo,
 } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import styled from "@emotion/styled";
 import { PanelType, useVisualizerContext } from "../../Context";
+import { removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
 
 enum MESSAGE_TYPE {
     ERROR,
@@ -44,10 +45,11 @@ const MessageContainer = styled.div({
 
 interface SequenceDiagramProps {
     syntaxTree: STNode;
+    applyModifications: (modifications: STModification[]) => void;
 }
 
 export function SequenceDiagram(props: SequenceDiagramProps) {
-    const { syntaxTree } = props;
+    const { syntaxTree, applyModifications } = props;
     const { rpcClient } = useRpcContext();
     const { setStatementPosition, parsedST, setParsedST, setActivePanel, activePanel, setComponentInfo } = useVisualizerContext();
 
@@ -120,10 +122,31 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         setComponentInfo({ model, position: targetPosition, componentType });
     }
 
+    const handleDeleteComponent = (model: STNode) => {
+        const modifications: STModification[] = [];
+
+        // delete action
+        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody) {
+            const ifElseRemovePosition = model.position;
+            ifElseRemovePosition.endLine = model.elseBody.elseBody.position.startLine;
+            ifElseRemovePosition.endColumn = model.elseBody.elseBody.position.startColumn;
+
+            const deleteConfig: STModification = removeStatement(ifElseRemovePosition);
+            modifications.push(deleteConfig);
+            applyModifications(modifications);
+        } else {
+            const deleteAction: STModification = removeStatement(
+                model.position
+            );
+            modifications.push(deleteAction);
+            applyModifications(modifications);
+        }
+    }
+
     return (
         <>
             <Container>{!!parsedST &&
-                <LowCodeDiagram syntaxTree={parsedST} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} />
+                <LowCodeDiagram syntaxTree={parsedST} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} onDeleteComponent={handleDeleteComponent} />
             }</Container>
             {/* <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
                 {showStatementEditor ? 

@@ -121,7 +121,7 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
-                            <SequenceDiagram syntaxTree={value?.syntaxTree}  />)
+                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications}  />)
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);
