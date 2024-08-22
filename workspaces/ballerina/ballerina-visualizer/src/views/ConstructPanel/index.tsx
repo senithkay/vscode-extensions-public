@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import React, { useEffect, useState } from "react";
 import { PanelContainer, NodeList } from "@wso2-enterprise/ballerina-side-panel";
 import { useVisualizerContext } from '../../Context';
@@ -15,7 +24,7 @@ export function ConstructPanel(props: ConstructPanelProps) {
     const { applyModifications } = props;
     const { rpcClient } = useRpcContext();
 
-    const { activePanel, setActivePanel, statementPosition, parsedST } = useVisualizerContext();
+    const { activePanel, setActivePanel, statementPosition, parsedST, setPopupScreen } = useVisualizerContext();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
     const [filePath, setFilePath] = useState<string>();
     const [initialSource, setInitialSource] = useState<string>();

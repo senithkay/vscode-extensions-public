@@ -58,15 +58,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         getSequenceModel();
     }, [syntaxTree]);
 
-    // useEffect(() => {
-    //     console.log("Activepanel: useEffect");
-    //     if (!activePanel?.isActive && activePanel?.contentUpdated) {
-    //         console.log("Activepanel: getSequenceModel");
-    //         getSequenceModel();
-    //         setActivePanel({ isActive: false, contentUpdated: false });
-    //     }
-    // }, [activePanel?.isActive]);
-
     const getSequenceModel = () => {
         rpcClient
             .getLangClientRpcClient()

@@ -1,13 +1,17 @@
-// tslint:disable: no-implicit-dependencies
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import React from "react";
 
 import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LangClientRpcClient, LibraryBrowserRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-
-
-
 
 export interface StatementEditorComponentProps {
     label: string;
@@ -45,9 +49,11 @@ function StatementEditorC(props: StatementEditorComponentProps) {
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
-            formArgs: { formArgs: {
-                targetPosition: targetPosition,
-                } },
+            formArgs: {
+                formArgs: {
+                    targetPosition: targetPosition,
+                }
+            },
             config: config,
             onWizardClose: onClose,
             syntaxTree: syntaxTree,
@@ -55,7 +61,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             langServerRpcClient: langServerRpcClient,
             libraryBrowserRpcClient: libraryBrowserRPCClient,
             label: label,
-            initialSource:  initialSource,
+            initialSource: initialSource,
             applyModifications,
             currentFile: {
                 ...currentFile,
@@ -67,7 +73,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         }
     );
 
-    return  stmtEditorComponent;
+    return stmtEditorComponent;
 }
 
 export const StatementEditorComponent = React.memo(StatementEditorC);
