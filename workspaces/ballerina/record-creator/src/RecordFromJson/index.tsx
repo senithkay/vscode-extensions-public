@@ -32,8 +32,6 @@ import { Context } from "../Context";
 import { FileSelect, FormContainer, FormWrapper, InputContainer, InputWrapper, LabelWrapper, useStyles } from "../style";
 import { Button, CheckBox, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
-import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
-import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
 
 interface RecordState {
     isLoading?: boolean;
@@ -138,8 +136,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     };
     const debouncedNameChanged = debounce(onNameChange, debounceDelay);
 
-    const onSeparateDefinitionSelection = (mode: string[]) => {
-        dispatchFromState({ type: "checkSeparateDef", payload: mode.length > 0 });
+    const onSeparateDefinitionSelection = (mode: boolean) => {
+        dispatchFromState({ type: "checkSeparateDef", payload: mode });
     };
 
     const formatRecord = (block: string) => {
@@ -223,6 +221,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             },
                         });
                     }
+                    // TODO: Fix the flow after the Demo
+                    onCancel();
                     onSave(updatedBlock, newPosition);
                     onUpdate && onUpdate(true);
                 } else {
@@ -289,12 +289,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             />
                         </InputContainer>
                         {formState.isLoading && <TextPreloaderVertical position="absolute" />}
-                        <CheckBoxGroup
-                            values={["Make Separate Record Definitions"]}
-                            defaultValues={formState.isSeparateDef ? ["Make Separate Record Definitions"] : []}
-                            onChange={onSeparateDefinitionSelection}
-                        />
-                        {/* <CheckBox label="Make Separate Record Definitions" value="option-1" checked={values.option1} onChange={(checked: boolean) => setValues({...values, option1: checked })} /> */}
+                        <CheckBox label="Make Separate Record Definitions" value="Make Separate Record Definitions" checked={formState.isSeparateDef} onChange={onSeparateDefinitionSelection} />
                         <FormActionButtons
                             cancelBtnText="Back"
                             saveBtnText="Save"

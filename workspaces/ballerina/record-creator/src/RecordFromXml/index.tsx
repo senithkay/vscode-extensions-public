@@ -163,6 +163,8 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                                 modifiedPosition: newPosition,
                             },
                         });
+                        // TODO: Fix the flow after the Demo
+                        onCancel();
                     } else {
                         recordST = await getRecordST({ codeSnippet: updatedBlock.trim() }, langServerRpcClient);
                         newPosition = {
@@ -179,6 +181,8 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                             },
                         });
                     }
+                    // TODO: Fix the flow after the Demo
+                    onCancel();
                     onSave(updatedBlock, newPosition);
                     onUpdate && onUpdate(true);
                 } else {

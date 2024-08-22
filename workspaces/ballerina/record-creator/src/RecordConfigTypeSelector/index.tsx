@@ -11,7 +11,6 @@ import React from "react";
 import { useIntl } from "react-intl";
 import styled from "@emotion/styled";
 import { Button, Codicon, Icon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
-import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 import { RecordFormWrapper } from "../style";
 
 export interface RecordConfigTypeProps {
@@ -37,7 +36,7 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
         <>
             {!isDataMapper && (
                 <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
-                    <Typography variant="h3" sx={{ margin: 0 }}>Record</Typography>
+                    <Typography variant="h3" sx={{ margin: 0 }}>Create Record</Typography>
                     <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
                 </SidePanelTitleContainer>
             )}

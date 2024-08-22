@@ -171,7 +171,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
             {!selectedRecord ? (
                 <>
                     <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
-                        <Typography variant="h3" sx={{ margin: 0 }}>Record</Typography>
+                        <Typography variant="h3" sx={{ margin: 0 }}>Record Overview</Typography>
                         <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
                     </SidePanelTitleContainer>
                     {listRecords?.length > 0 && (
