@@ -15,6 +15,7 @@ import { RPCLayer } from '../../RPCLayer';
 import { extension } from '../../BalExtensionContext';
 import { StateMachineAI } from './aiMachine';
 import { AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
+import { StateMachine } from '../../stateMachine';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
@@ -32,7 +33,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            "Ballerina Copilot",
+            StateMachine.context().isEggplant ? "Eggplant Copilot" : "Ballerina Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -40,6 +41,10 @@ export class AiPanelWebview {
                 retainContextWhenHidden: true,
             }
         );
+        panel.iconPath = {
+            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-hubot.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-hubot.svg'))
+        };
         return panel;
     }
 
