@@ -60,12 +60,6 @@ export function constructList() {
                 label: "Return",
                 description: constructMessage.returnStatement.defaultMessage,
                 enabled: true,
-            },
-            {
-                id: "Respond",
-                label: "Respond",
-                description: constructMessage.respondStatement.defaultMessage,
-                enabled: true,
             }
         ]
     }]
