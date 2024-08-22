@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, SidePanelBody, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
+import { FormFieldEditor } from "../editors/FormFieldEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -52,7 +53,15 @@ export function Form(props: FormProps) {
     const { formFields, onSubmit } = props;
     const { getValues, register } = useForm<FormValues>();
 
-    console.log(">>> form fields", { formFields, values: getValues() });
+    console.log(">>> form fields123", { formFields, values: getValues() });
+
+    console.log("TEST TEST");
+
+    console.log(">>> SAMPLE", formFields[0]);
+    const registerField = register(formFields[0].key, { required: !formFields[0].optional, value: formFields[0].value });
+    console.log(">>> field", registerField);
+
+    console.log("TEST TEST TEST");
 
     const handleOnSave = () => {
         onSubmit(getValues());
@@ -62,30 +71,7 @@ export function Form(props: FormProps) {
         <S.Container>
             {formFields.map((field) => (
                 <S.Row key={field.key}>
-                    {field.items && (
-                        <Dropdown
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            label={field.label}
-                            items={field.items.map((item) => ({ id: item, content: item, value: item }))}
-                            value={field.value}
-                            required={!field.optional}
-                            sx={{ width: "100%" }}
-                            containerSx={{ width: "100%" }}
-                        />
-                    )}
-                    {!field.items && (
-                        <TextField
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            value={field.value}
-                            label={field.label}
-                            required={!field.optional}
-                            // readOnly={!field.editable}
-                            description={field.documentation}
-                            sx={{ width: "100%" }}
-                        />
-                    )}
+                    <FormFieldEditor field={field} register={register} />
                 </S.Row>
             ))}
 
