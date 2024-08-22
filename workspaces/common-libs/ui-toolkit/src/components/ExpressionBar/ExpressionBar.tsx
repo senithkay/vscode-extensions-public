@@ -53,9 +53,10 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 };
 
 export type ExpressionBarRef = {
+    shadowRoot: ShadowRoot;
     focus: (text?: string) => Promise<void>;
     blur: (text?: string) => Promise<void>;
-    shadowRoot: ShadowRoot;
+    saveExpression: (text?: string) => Promise<void>;
 };
 
 // Styled Components

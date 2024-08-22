@@ -382,12 +382,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleChange = async (text: string, cursorPosition?: number, selectedItem?: CompletionItem) => {
-        if (text === value) {
-            return;
-        }
-
+        // Update the text field value
         await onChange(text);
-        // Check whether the cursor is inside a function
+
+        // Update selected argument if the cursor is inside a function
         const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
         if (isCursorInFunction) {
             updateSyntax(currentFnContent, selectedItem);
@@ -411,7 +409,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleExpressionSave = async (value: string) => {
         const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
-        await handleChange(valueWithClosingBracket, cursorPosition);
+        
+        // If expression is updated
+        if (value !== valueWithClosingBracket) {
+            await handleChange(valueWithClosingBracket, cursorPosition);
+        }
+
         await onSave(valueWithClosingBracket);
         handleClose();
     }
@@ -523,22 +526,22 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     useImperativeHandle(ref, () => ({
-        focus: async (text?: string) => {
+        shadowRoot: inputRef.current?.shadowRoot,
+        focus: async () => {
             inputRef.current?.focus();
             await onFocus?.();
-            if (text !== undefined) {
-                await onChange(text);
-                setCursor(inputRef, text.length);
-            }
         },
         blur: async (text?: string) => {
             inputRef.current?.blur();
-            await onBlur?.();
+            // Trigger save event on blur
             if (text !== undefined) {
                 await handleExpressionSaveMutation(text);
             }
+            await onBlur?.();
         },
-        shadowRoot: inputRef.current?.shadowRoot,
+        saveExpression: async (text?: string) => {
+            await handleExpressionSaveMutation(text);
+        }
     }));
 
     return (

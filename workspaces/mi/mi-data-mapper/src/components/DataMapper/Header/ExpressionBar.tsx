@@ -51,6 +51,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
     const textFieldRef = useRef<ExpressionBarRef>(null);
+    const cursorPositionBeforeSaving = useRef<number>(0);
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -70,21 +71,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         resetSavedNodeValue,
         resetLastFocusedPort,
         resetLastFocusedFilter,
-    } = useDMExpressionBarStore((state) => ({
-        focusedPort: state.focusedPort,
-        focusedFilter: state.focusedFilter,
-        lastFocusedPort: state.lastFocusedPort,
-        lastFocusedFilter: state.lastFocusedFilter,
-        inputPort: state.inputPort,
-        savedNodeValue: state.savedNodeValue,
-        resetInputPort: state.resetInputPort,
-        setLastFocusedPort: state.setLastFocusedPort,
-        setLastFocusedFilter: state.setLastFocusedFilter,
-        setSavedNodeValue: state.setSavedNodeValue,
-        resetLastFocusedPort: state.resetLastFocusedPort,
-        resetLastFocusedFilter: state.resetLastFocusedFilter,
-        resetSavedNodeValue: state.resetSavedNodeValue,
-    }));
+    } = useDMExpressionBarStore(state => state);
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
         if (!focusedPort && !focusedFilter) {
@@ -132,104 +119,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
 
         return [];
-    }
-
-    useEffect(() => {
-        (async () => {
-            if (inputPort) {
-                // Keep the text field focused when an input port is selected
-                if (textFieldRef.current) {
-                    const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
-                    if (focusedPort || focusedFilter) {
-                        inputElement.focus();
-                    } else {
-                        inputElement.blur();
-                    }
-                    // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
-                    const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
-                    const updatedText =
-                        textFieldValue.substring(0, cursorPosition) +
-                        inputAccessExpr +
-                        textFieldValue.substring(cursorPosition);
-                    await handleChange(updatedText);
-                    resetInputPort();
-                }
-            }
-        })();
-    }, [inputPort]);
-
-    const disabled = useMemo(() => {
-        let value = "";
-        let disabled = true;
-
-        if (focusedPort) {
-            setLastFocusedPort(focusedPort);
-            setPlaceholder('Insert a value for the selected port.');
-            const focusedNode = focusedPort.typeWithValue.value;
-            if (focusedNode && !focusedNode.wasForgotten()) {
-                if (Node.isPropertyAssignment(focusedNode)) {
-                    value = focusedNode.getInitializer()?.getText();
-                } else {
-                    value = focusedNode ? focusedNode.getText() : "";
-                }
-            }
-
-            setSavedNodeValue(value);
-            disabled = focusedPort.isDisabled();
-        } else if (focusedFilter) {
-            value = focusedFilter.getText();
-            
-            setLastFocusedFilter(focusedFilter);
-            setSavedNodeValue(value);
-            disabled = false;
-        } else {
-            // If displaying a focused view
-            if (views.length > 1 && !views[views.length - 1].subMappingInfo) {
-                setPlaceholder('Click on an output field or a filter to add/edit expressions.');
-            } else {
-                setPlaceholder('Click on an output field to add/edit expressions.');
-            }
-
-            resetSavedNodeValue();
-        }
-
-        setTextFieldValue(value);
-        triggerAction(!action);
-
-        return disabled;
-    }, [focusedPort, focusedFilter, views]);
-
-    useEffect(() => {
-        requestAnimationFrame(async () => {
-            // Get the value to be processed
-            let value = "";
-            const focusedNode = lastFocusedPort?.typeWithValue.value;
-            if (focusedNode && !focusedNode.wasForgotten()) {
-                if (Node.isPropertyAssignment(focusedNode)) {
-                    value = focusedNode.getInitializer()?.getText();
-                } else {
-                    value = focusedNode.getText();
-                }
-            } else if (lastFocusedFilter) {
-                value = lastFocusedFilter.getText();
-            } else if (!lastFocusedPort && !lastFocusedFilter) {
-                value = undefined;
-            }
-
-            // Handle TextField focus and blur
-            if (disabled) {
-                await textFieldRef.current?.blur(value);
-            } else if (lastFocusedPort || lastFocusedFilter) {
-                await textFieldRef.current?.focus(value);
-            }
-
-            // Reset the text field value if there is no focused port or filter
-            if (!focusedPort && !focusedFilter) {
-                setTextFieldValue("");
-            }
-        });
-    }, [disabled, action]);
+    };
 
     const updateST = useCallback(debounce(async (text: string) => {
         let propertyAssignment: PropertyAssignment;
@@ -263,41 +153,144 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     focusedPort.typeWithValue.setValue(propertyAssignment);
                 }
             }
+
+            setLastFocusedPort(focusedPort);
         } else if (focusedFilter) {
             const filter = focusedFilter.replaceWithText(text);
             setLastFocusedFilter(filter);
-        } else {
-            const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-            const fnBody = focusedNode.context.functionST.getBody() as Block;
-
-            let objLitExpr: ObjectLiteralExpression;
-            let parentPort = focusedPort?.parentModel;
-
-            while (parentPort) {
-                const parentValue = parentPort.typeWithValue?.value;
-                if (parentValue && Node.isObjectLiteralExpression(parentValue)) {
-                    objLitExpr = parentValue;
-                    break;
-                }
-                parentPort = parentPort?.parentModel;
-            }
-
-            propertyAssignment = await createSourceForUserInput(
-                focusedPort?.typeWithValue, objLitExpr, "", fnBody
-            );
-
-            const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
-            focusedPort.typeWithValue.setValue(portValue);
-
-            if (text !== "") {
-                await updateST(text);
-                return;
-            }
         }
+
         setCompletions(await getCompletions());
     }, 300), [focusedPort, focusedFilter]);
 
+    useEffect(() => {
+        (async () => {
+            if (inputPort) {
+                // Keep the text field focused when an input port is selected
+                if (textFieldRef.current) {
+                    const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
+                    if (focusedPort || focusedFilter) {
+                        inputElement.focus();
+                    } else {
+                        inputElement.blur();
+                    }
+                    // Update the expression text when an input port is selected
+                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+                    const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
+                    const updatedText =
+                        textFieldValue.substring(0, cursorPosition) +
+                        inputAccessExpr +
+                        textFieldValue.substring(cursorPosition);
+                    await handleChange(updatedText);
+                    resetInputPort();
+                }
+            }
+        })();
+    }, [inputPort]);
+
+    const disabled = useMemo(() => {
+        let value = "";
+        let disabled = true;
+
+        if (focusedPort) {
+            setPlaceholder('Insert a value for the selected port.');
+            const focusedNode = focusedPort.typeWithValue.value;
+            if (focusedNode && !focusedNode.wasForgotten()) {
+                if (Node.isPropertyAssignment(focusedNode)) {
+                    value = focusedNode.getInitializer()?.getText();
+                } else {
+                    value = focusedNode.getText();
+                }
+            }
+
+            setSavedNodeValue(value);
+            disabled = focusedPort.isDisabled();
+        } else if (focusedFilter) {
+            value = focusedFilter.getText();
+            
+            setLastFocusedFilter(focusedFilter);
+            setSavedNodeValue(value);
+            disabled = false;
+        } else {
+            // If displaying a focused view
+            if (views.length > 1 && !views[views.length - 1].subMappingInfo) {
+                setPlaceholder('Click on an output field or a filter to add/edit expressions.');
+            } else {
+                setPlaceholder('Click on an output field to add/edit expressions.');
+            }
+
+            resetSavedNodeValue();
+        }
+
+        // Set cursor position
+        cursorPositionBeforeSaving.current = value.length;
+        
+        setTextFieldValue(value);
+        triggerAction(!action);
+
+        return disabled;
+    }, [focusedPort, focusedFilter, views]);
+
+    useEffect(() => {
+        requestAnimationFrame(async () => {
+            // Get the value to be saved
+            let value = "";
+            const focusedNode = lastFocusedPort?.typeWithValue.value;
+            if (focusedNode && !focusedNode.wasForgotten()) {
+                if (Node.isPropertyAssignment(focusedNode)) {
+                    value = focusedNode.getInitializer()?.getText();
+                } else {
+                    value = focusedNode.getText();
+                }
+            } else if (lastFocusedFilter) {
+                value = lastFocusedFilter.getText();
+            } else if (!lastFocusedPort && !lastFocusedFilter) {
+                value = undefined;
+            }
+
+            const portChanged = !!(lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort?.fieldFQN);
+            if (disabled) {
+                await textFieldRef.current?.blur(value);
+            } else if (portChanged) {
+                await textFieldRef.current?.saveExpression(value);
+                await textFieldRef.current?.focus();
+            } else {
+                await textFieldRef.current?.focus();
+            }
+        });
+    }, [disabled, action]);
+
+    const initializeValue = async () => {
+        const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
+        const fnBody = focusedNode.context.functionST.getBody() as Block;
+
+        let objLitExpr: ObjectLiteralExpression;
+        let parentPort = focusedPort?.parentModel;
+
+        while (parentPort) {
+            const parentValue = parentPort.typeWithValue?.value;
+            if (parentValue && Node.isObjectLiteralExpression(parentValue)) {
+                objLitExpr = parentValue;
+                break;
+            }
+            parentPort = parentPort?.parentModel;
+        }
+
+        const propertyAssignment = await createSourceForUserInput(
+            focusedPort?.typeWithValue, objLitExpr, "", fnBody
+        );
+
+        const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
+        focusedPort.typeWithValue.setValue(portValue);
+    }
+
     const applyChanges = async (value: string) => {
+        await updateST.flush();
+        setSavedNodeValue(value);
+
+        // Save the cursor position before saving
+        cursorPositionBeforeSaving.current = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
         } else if (lastFocusedFilter) {
@@ -331,14 +324,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 const updatedNode = targetExpr.replaceWithText(replaceWith);
                 updatedSourceContent = updatedNode.getSourceFile().getFullText();
             }
-            resetLastFocusedPort();
             await applyModifications(updatedSourceContent);
         }
     };
 
     const applyChangesOnFocusedFilter = async () => {
         const updatedSourceContent = lastFocusedFilter.getSourceFile().getFullText();
-        resetLastFocusedFilter();
         await applyModifications(updatedSourceContent);
     };
 
@@ -347,26 +338,41 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await updateST(text);
     };
 
-    const handleExpressionSave = async (value: string) => {
+    const updateSource = async (value: string) => {
         if (savedNodeValue === value) {
             return;
         }
-        setSavedNodeValue(value);
-        await updateST.flush();
-        await applyChanges(value);
-    }
-
-    const handleCompletionSelect = async (value: string) => {
-        if (savedNodeValue === value) {
-            return;
-        }
-        setSavedNodeValue(value);
-        await updateST.flush();
         await applyChanges(value);
     }
 
     const handleCancelCompletions = () => {
         setCompletions([]);
+    }
+
+    const handleFocus = async () => {
+        const focusedNode = focusedPort?.typeWithValue.value;
+        if (!focusedNode && !focusedFilter) {
+            await initializeValue();
+        }
+        setCompletions(await getCompletions());
+
+        // Set the cursor position to the last saved position
+        textFieldRef.current.shadowRoot.querySelector('input').setSelectionRange(
+            cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
+        );
+
+        // Update the last focused port and filter
+        setLastFocusedPort(focusedPort);
+        setLastFocusedFilter(focusedFilter);
+    }
+
+    const handleBlur = async () => {
+        // Reset the last focused port and filter
+        resetLastFocusedPort();
+        resetLastFocusedFilter();
+
+        // Reset text field value
+        setTextFieldValue("");
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -386,10 +392,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 placeholder={placeholder}
                 completions={completions}
                 onChange={handleChange}
-                onCompletionSelect={handleCompletionSelect}
-                onSave={handleExpressionSave}
+                onCompletionSelect={updateSource}
+                onSave={updateSource}
                 onCancel={handleCancelCompletions}
                 useTransaction={useDisableOnChange}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>
