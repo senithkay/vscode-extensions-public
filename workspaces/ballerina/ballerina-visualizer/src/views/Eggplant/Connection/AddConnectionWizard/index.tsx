@@ -38,14 +38,17 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const [fields, setFields] = useState<FormField[]>([]);
     const selectedNodeRef = useRef<FlowNode>();
 
-    const handleOnSelectConnector = (connector: AvailableNode) => {
+    const handleOnSelectConnector = async (connector: AvailableNode) => {
         if (!connector.codedata) {
             console.error(">>> Error selecting connector. No codedata found");
             return;
         }
+
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ id: connector.codedata })
+            .getNodeTemplate({
+                position: null, filePath: "", id: connector.codedata
+            })
             .then((response) => {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
@@ -62,23 +65,10 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             });
     };
 
-    const handleOnFormSubmit = (data: FormValues) => {
+    const handleOnFormSubmit = async (data: FormValues) => {
         console.log(">>> on form submit", data);
         if (selectedNodeRef.current) {
             let updatedNode: FlowNode = cloneDeep(selectedNodeRef.current);
-
-            // HACK: update node position
-            updatedNode.codedata.lineRange = {
-                ...updatedNode.codedata.lineRange,
-                startLine: {
-                    line: 2,
-                    offset: 0,
-                },
-                endLine: {
-                    line: 2,
-                    offset: 0,
-                }
-            }
 
             if (selectedNodeRef.current.branches?.at(0)?.properties) {
                 // branch properties
@@ -97,9 +87,23 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             }
             console.log(">>> Updated node", updatedNode);
 
+            // get connections.bal file path
+            const visualizerLocation = await rpcClient.getVisualizerLocation();
+            let connectionsFilePath = "";
+            if (visualizerLocation.projectUri) {
+                connectionsFilePath = visualizerLocation.projectUri + "/connections.bal";
+            }
+            if(connectionsFilePath === "") {
+                console.error(">>> Error updating source code. No connections.bal file found");
+                return;
+            }
+
             rpcClient
                 .getEggplantDiagramRpcClient()
-                .getSourceCode({ flowNode: updatedNode })
+                .getSourceCode({
+                    filePath: connectionsFilePath,
+                    flowNode: updatedNode
+                })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {

@@ -683,6 +683,11 @@
       "projectFolder": "workspaces/ballerina/eggplant-diagram",
       "versionPolicyName": "ballerina-extension"
     },
+    {
+      "packageName": "@wso2-enterprise/component-diagram",
+      "projectFolder": "workspaces/ballerina/component-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/eggplant-overview",
     //   "projectFolder": "workspaces/eggplant/eggplant-overview",

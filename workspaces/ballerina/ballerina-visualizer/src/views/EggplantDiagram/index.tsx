@@ -51,7 +51,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -69,7 +69,7 @@ export interface EggplantDiagramProps {
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setShowPopup} = useVisualizerContext();
+    const { setPopupScreen, setScreenMetadata } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
@@ -146,7 +146,13 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ id: node.codedata })
+            .getNodeTemplate({ 
+                position: {
+                    startLine: topNodeRef.current.codedata.lineRange.startLine,
+                    endLine: topNodeRef.current.codedata.lineRange.endLine,
+                },
+                filePath: model.fileName,
+                id: node.codedata })
             .then((response) => {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
@@ -197,7 +203,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
             rpcClient
                 .getEggplantDiagramRpcClient()
-                .getSourceCode({ flowNode: updatedNode })
+                .getSourceCode({
+                    filePath: model.fileName,
+                    flowNode: updatedNode
+                })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
@@ -239,7 +248,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     };
 
     const handleOnAddConnection = () => {
-        setShowPopup(true);
+        setPopupScreen("ADD_CONNECTION");
     };
 
     const handleOnGoToSource = (node: FlowNode) => {

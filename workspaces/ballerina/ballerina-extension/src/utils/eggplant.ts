@@ -70,6 +70,8 @@ export function createEggplantProjectPure(name: string, projectPath: string) {
         fs.mkdirSync(projectRoot);
     }
 
+    const EMPTY = "// THIS IS AN AUTO GENERATED FILE\n";
+
     const ballerinaTomlContent = `
 [package]
 org = "wso2"
@@ -82,15 +84,35 @@ eggplant = true
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
     fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
+
+    // Create connections.bal file
+    const connectionsBalPath = path.join(projectRoot, 'connections.bal');
+    fs.writeFileSync(connectionsBalPath, EMPTY);
+
+    // Create types.bal file
+    const typesBalPath = path.join(projectRoot, 'types.bal');
+    fs.writeFileSync(typesBalPath, EMPTY);
+
+    // Create datamappings.bal file
+    const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
+    fs.writeFileSync(datamappingsBalPath, EMPTY);
+
     console.log(`Eggplant project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
 }
 
 
 export async function createEggplantService(params: CreateComponentRequest) {
+
+    if (!params.path.startsWith('/')) {
+        params.path = `/${params.path}`;
+    }
     const fooBalContent = `import ballerina/http;
 
 service ${params.path} on new http:Listener(${params.port}) {
+
+    function init() returns error? {}
+
     resource function get greeting() returns json|http:InternalServerError {
         do {
            
@@ -108,7 +130,7 @@ service ${params.path} on new http:Listener(${params.port}) {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
     history.clear();
-    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 10, endColumn: 1 } });
+    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
     commands.executeCommand("Eggplant.project-explorer.refresh");
 }
 

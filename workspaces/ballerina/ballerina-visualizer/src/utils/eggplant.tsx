@@ -86,7 +86,7 @@ export function convertNodePropertiesToFormFields(
                     optional: expression.optional,
                     editable: isFieldEditable(expression, connections, clientName),
                     documentation: expression.metadata.description,
-                    value: getFormFieldValue(expression, connections, clientName),
+                    value: getFormFieldValue(expression, clientName),
                     // items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
                 };
                 formFields.push(formField);
@@ -109,13 +109,11 @@ function isFieldEditable(expression: Property, connections?: FlowNode[], clientN
     return expression.editable;
 }
 
-function getFormFieldValue(expression: Property, connections?: FlowNode[], clientName?: string) {
+function getFormFieldValue(expression: Property, clientName?: string) {
     if (
-        connections &&
         clientName &&
         expression.valueType === "Identifier" &&
-        expression.metadata.label === "Connection" &&
-        connections.find((connection) => connection.properties?.variable?.value === clientName)
+        expression.metadata.label === "Connection"
     ) {
         console.log(">>> client name as set field value", clientName);
         return clientName;

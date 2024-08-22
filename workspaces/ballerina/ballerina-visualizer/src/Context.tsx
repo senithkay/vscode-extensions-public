@@ -21,6 +21,8 @@ export function RpcContextProvider({ children }: { children: ReactNode }) {
     return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 }
 
+
+
 export enum PanelType {
     STATEMENTEDITOR = "STATEMENTEDITOR",
     CONSTRUCTPANEL = "CONSTRUCTPANEL",
@@ -38,9 +40,13 @@ interface ComponentInfo {
     componentType: string;
 }
 
+export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
+
 interface VisualizerContext {
-    showPopup: boolean;
-    setShowPopup: (showPopup: boolean) => void;
+    popupScreen: PopupScreen;
+    screenMetadata: any;
+    setPopupScreen: (screen: PopupScreen) => void;
+    setScreenMetadata: (metadata: any) => void;
     activePanel: PanelDetails;
     setActivePanel: (panelDetails: PanelDetails) => void;
     statementPosition: NodePosition;
@@ -52,8 +58,8 @@ interface VisualizerContext {
 }
 
 export const VisualizerContext = createContext({
-    showPopup: false,
-    setShowPopup: (showPopup: boolean) => { },
+    popupScreen: "EMPTY",
+    setPopupScreen: (screen: PopupScreen) => {  },
     activePanel: { isActive: false },
     setActivePanel: (panelDetails: PanelDetails) => { },
     statementPosition: undefined,
@@ -66,16 +72,19 @@ export const VisualizerContext = createContext({
 } as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
-    const [showPopup, setShowPopup] = useState(false);
+    const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
+    const [metadata, setMetadata] = useState({} as any);
     const [activePanel, setActivePanel] = useState({ isActive: false });
     const [statementPosition, setStatementPosition] = useState<NodePosition>();
     const [parsedST, setParsedST] = useState<STNode>();
     const [componentInfo, setComponentInfo] = useState<ComponentInfo>();
 
 
-    const contextValue = {
-        showPopup: showPopup,
-        setShowPopup: setShowPopup,
+    const contextValue: VisualizerContext = {
+        popupScreen: popupScreen,
+        screenMetadata: metadata,
+        setPopupScreen: setPopupScreen,
+        setScreenMetadata: setMetadata,
         activePanel: activePanel,
         setActivePanel: setActivePanel,
         statementPosition: statementPosition,
