@@ -18,6 +18,16 @@ export const MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL = `/suggestions/initial
 export const MI_SUGGESTIVE_QUESTIONS_BACKEND_URL = `/suggestions`;
 export const MI_UNIT_TEST_GENERATION_BACKEND_URL = `/unit-test/generate`;
 
+// MI Copilot Error Messages
+export const COPILOT_ERROR_MESSAGES = {
+    BAD_REQUEST: 'Bad Request',
+    UNAUTHORIZED: 'Unauthorized',
+    FORBIDDEN: 'Forbidden',
+    NOT_FOUND: 'Not Found',
+    TOKEN_COUNT_EXCEEDED: 'Token Count Exceeded',
+    ERROR_422: "Something went wrong. Please clear the chat and try again.",
+};
+
 
 // Default Editor Info
 export const TAB_SIZE = 4; // 4 spaces
