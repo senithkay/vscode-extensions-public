@@ -11,7 +11,6 @@ import { NodeLinkModel } from "../components/NodeLink";
 import { getNodeIdFromModel } from "../utils/node";
 import { Flow, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
-import { isEqual } from "lodash";
 
 export class LinkTargetVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
@@ -85,6 +84,7 @@ export class LinkTargetVisitor implements BaseVisitor {
                         line: activeDoBranch.codedata.lineRange.startLine.line,
                         offset: activeDoBranch.codedata.lineRange.startLine.offset + 1, // HACK: need to fix with LS extension
                     });
+                    outLink.setTopNode(activeDoBranch);
                 });
                 return;
             }
@@ -94,6 +94,7 @@ export class LinkTargetVisitor implements BaseVisitor {
                         line: activeDoBranch.codedata.lineRange.startLine.line,
                         offset: activeDoBranch.codedata.lineRange.startLine.offset + 1, // HACK: need to fix with LS extension
                     });
+                    outLink.setTopNode(activeDoBranch);
                 });
                 return;
             }
@@ -104,6 +105,7 @@ export class LinkTargetVisitor implements BaseVisitor {
                     line: node.codedata.lineRange.startLine.line,
                     offset: node.codedata.lineRange.startLine.offset, // FIXME: need to fix with LS extension 
                 });
+                outLink.setTopNode(node);
             });
         }
     }
@@ -116,20 +118,24 @@ export class LinkTargetVisitor implements BaseVisitor {
 
         const thenLink = outLinks.find((link) => link.label === "Then");
         if (thenLink) {
-            const line = node.branches.find((branch) => branch.label === "Then").codedata.lineRange.startLine;
+            const thenBranch = node.branches.find((branch) => branch.label === "Then");
+            const line = thenBranch.codedata.lineRange.startLine;
             thenLink.setTarget({
                 line: line.line,
                 offset: line.offset + 1, // HACK: need to fix with LS extension
             });
+            thenLink.setTopNode(thenBranch);
         }
 
         const elseLink = outLinks.find((link) => link.label === "Else");
         if (elseLink) {
-            const line = node.branches.find((branch) => branch.label === "Else").codedata.lineRange.startLine;
+            const elseBranch = node.branches.find((branch) => branch.label === "Else");
+            const line = elseBranch.codedata.lineRange.startLine;
             elseLink.setTarget({
                 line: line.line,
                 offset: line.offset + 6, //HACK: need to fix with LS extension
             });
+            elseLink.setTopNode(elseBranch);
         }
 
         // update end-if link target
@@ -147,6 +153,7 @@ export class LinkTargetVisitor implements BaseVisitor {
             if (outLink && node.codedata?.lineRange?.endLine) {
                 outLink.setTarget(node.codedata.lineRange.endLine);
             }
+            outLink.setTopNode(node);
         });
     }
 

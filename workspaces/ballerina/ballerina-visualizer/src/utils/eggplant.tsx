@@ -13,7 +13,7 @@ import {
     FormField,
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
-import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
+import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/eggplant-diagram";
 import {
     Category,
     AvailableNode,
@@ -182,7 +182,7 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
         codedata: {
             node: "DRAFT",
             lineRange: {
-                fileName: flowModel.fileName,
+                fileName: newFlowModel.fileName,
                 ...target,
             },
         },
@@ -190,10 +190,18 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
         returning: false,
     };
 
-    // Hack: Adding draft node to the first branch of the first node
-    // TODO: Handle multiple branches and multiple places
-    if (newFlowModel.nodes.at(1).branches.at(0).children) {
-        newFlowModel.nodes.at(1).branches.at(0).children.push(draftNode);
-    }
-    return newFlowModel;
+    const addNodeVisitor = new AddNodeVisitor(newFlowModel, parent as FlowNode, draftNode);
+    traverseFlow(newFlowModel, addNodeVisitor);
+    const newFlow = addNodeVisitor.getUpdatedFlow();
+    return newFlow;
+}
+
+export function removeDraftNodeFromDiagram(flowModel: Flow) {
+    const newFlowModel = cloneDeep(flowModel);
+    const draftNodeId = "draft";
+    console.log(">>> removeDraftNodeFromDiagram", newFlowModel, draftNodeId);
+    const removeNodeVisitor = new RemoveNodeVisitor(newFlowModel, draftNodeId);
+    traverseFlow(newFlowModel, removeNodeVisitor);
+    const newFlow = removeNodeVisitor.getUpdatedFlow();
+    return newFlow;
 }

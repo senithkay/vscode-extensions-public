@@ -9,7 +9,7 @@
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
-import { LinePosition, NodeModel } from "../../utils/types";
+import { Branch, FlowNode, LinePosition, NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;
 
@@ -26,6 +26,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     label: string;
     sourceNode: NodeModel;
     targetNode: NodeModel;
+    topNode: FlowNode | Branch; // top statement node or parent block node
     target: LinePosition;
     // options
     showArrow: boolean;
@@ -78,6 +79,14 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     setTargetNode(node: NodeModel) {
         this.targetNode = node;
+    }
+
+    setTopNode(node: FlowNode | Branch) {
+        this.topNode = node;
+    }
+
+    getTopNode(): FlowNode | Branch {
+        return this.topNode;
     }
 
     setTarget(target: LinePosition) {

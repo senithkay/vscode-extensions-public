@@ -132,10 +132,6 @@ export class SizingVisitor implements BaseVisitor {
         this.setNodeSize(node, EMPTY_NODE_WIDTH, EMPTY_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
     }
 
-    endVisitDraft(node: FlowNode, parent?: FlowNode): void {
-        this.setNodeSize(node, DRAFT_NODE_WIDTH + VSCODE_MARGIN, DRAFT_NODE_HEIGHT);
-    }
-
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

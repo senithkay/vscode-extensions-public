@@ -34,6 +34,7 @@ import {
     convertNodePropertiesToFormFields,
     getContainerTitle,
     getFormProperties,
+    removeDraftNodeFromDiagram,
     updateNodeProperties,
 } from "./../../utils/eggplant";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -51,7 +52,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -69,7 +70,7 @@ export interface EggplantDiagramProps {
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen, setScreenMetadata } = useVisualizerContext();
+    const { setPopupScreen } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
@@ -103,7 +104,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         targetRef.current = undefined;
         // restore original model
         if (originalFlowModel.current) {
-            setModel(originalFlowModel.current);
+            setModel(removeDraftNodeFromDiagram(model));
             originalFlowModel.current = undefined;
         }
     };
@@ -143,10 +144,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ 
+            .getNodeTemplate({
                 position: targetRef.current,
                 filePath: model.fileName,
-                id: node.codedata })
+                id: node.codedata,
+            })
             .then((response) => {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
@@ -199,7 +201,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 .getEggplantDiagramRpcClient()
                 .getSourceCode({
                     filePath: model.fileName,
-                    flowNode: updatedNode
+                    flowNode: updatedNode,
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);

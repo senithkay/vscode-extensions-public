@@ -41,8 +41,11 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
-        const sourceNode = link.sourceNode as BaseNodeModel;
-        let node = sourceNode.node;
+        let node = link.getTopNode();
+        if (!node ) {
+            console.error(">>> NodeLinkWidget: handleAddNode: top node not found");
+            node = (link.sourceNode as BaseNodeModel).node;
+        }
 
         if (link.getTarget()) {
             const targetLine = link.getTarget();

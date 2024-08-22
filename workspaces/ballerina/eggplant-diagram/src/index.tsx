@@ -8,5 +8,12 @@
  */
 
 export { Diagram } from "./components/Diagram";
+
+// components
 export { NodeIcon } from "./components/NodeIcon";
 export { ConnectorIcon } from "./components/ConnectorIcon";
+
+// traversing utils
+export { traverseFlow } from "./utils/ast";
+export { AddNodeVisitor } from "./visitors/AddNodeVisitor";
+export { RemoveNodeVisitor } from "./visitors/RemoveNodeVisitor";
