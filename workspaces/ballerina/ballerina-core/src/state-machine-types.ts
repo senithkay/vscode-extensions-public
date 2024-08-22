@@ -61,6 +61,7 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isEggplant?: boolean;
+    recordFilePath?: string;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

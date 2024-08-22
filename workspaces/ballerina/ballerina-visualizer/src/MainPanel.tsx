@@ -58,20 +58,31 @@ const MainPanel = () => {
     } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
-    const [projectRootPath, setProjectRootPath] = useState<string>("");
+    const [recordPath, setRecordPath] = useState<string>("");
     const [recordFullST, setRecordFullST] = useState<STNode>();
 
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
-            fetchContext();
-        }
-    });
-
-    const applyModifications = async (modifications: STModification[]) => {
+    const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
-        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
-            astModifications: modifications,
+        let filePath;
+        let m: STModification[];
+        if (isRecordModification) {
+            filePath =  (await rpcClient.getVisualizerLocation()).recordFilePath;
+            if (modifications.length === 1) {
+                // Change the start position of the modification to the beginning of the file
+                m = [{
+                    ...modifications[0],
+                    startLine: 0,
+                    startColumn: 0,
+                    endLine: 0,
+                    endColumn: 0
+                }];
+            }
+        } else {
+            filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+            m = modifications;
+        }
+        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
+            astModifications: m,
             documentIdentifier: {
                 uri: URI.file(filePath).toString()
             }
@@ -83,24 +94,13 @@ const MainPanel = () => {
                 fileUri: filePath
             });
         }
+        if (isRecordModification) {
+            setRecordFullST(syntaxTree);
+        }
     };
 
     const applyRecordModifications = async (modifications: STModification[]) => {
-        const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
-            astModifications: modifications,
-            documentIdentifier: {
-                uri: URI.file(`${projectRootPath}/types.bal`).toString()
-            }
-        });
-        if (parseSuccess) {
-            rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
-            await langServerRPCClient.updateFileContent({
-                content: newSource,
-                fileUri: `${projectRootPath}/types.bal`
-            });
-        }
-        setRecordFullST(syntaxTree);
+        applyModifications(modifications, true);
     };
 
     const fetchContext = () => {
@@ -173,7 +173,9 @@ const MainPanel = () => {
         fetchContext();
         rpcClient.getVisualizerLocation().then((vl) => {
             const projectRoot = vl.projectUri;
-            setProjectRootPath(projectRoot);
+            console.log(">>> project root path", projectRoot);
+            setRecordPath(vl.recordFilePath);
+            console.log(">>> record file path", vl.recordFilePath);
             console.log(">>> project root path", projectRoot);
         });
         console.log(">>> visualizer location", rpcClient.getVisualizerLocation());
@@ -192,7 +194,7 @@ const MainPanel = () => {
 
     const handleOnClosePopup = () => {
         setPopupScreen("EMPTY");
-    }
+    };
 
     return (
         <>
@@ -210,8 +212,8 @@ const MainPanel = () => {
                     onClose={() => setSidePanel("EMPTY")}
                     width={600}
                 >
-                    {sidePanel === "RECORD_EDITOR" && projectRootPath && (
-                        <RecordEditor 
+                    {sidePanel === "RECORD_EDITOR" && recordPath && (
+                        <RecordEditor
                             onClose={() => setSidePanel("EMPTY")}
                             applyModifications={applyRecordModifications}
                             importStatements={[]}
@@ -223,7 +225,7 @@ const MainPanel = () => {
                             targetPosition={{ startLine: 0, startColumn: 0 }}
                             currentFile={{
                                 content: "",
-                                path: `${projectRootPath}/types.bal`,
+                                path: recordPath,
                                 size: 0
                             }}
                             isDataMapper={false}

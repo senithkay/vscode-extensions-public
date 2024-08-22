@@ -21,6 +21,7 @@ import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagra
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
 import { registerEggplantDiagramRpcHandlers } from './rpc-managers/eggplant-diagram/rpc-handler';
+import path from 'path';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -67,7 +68,8 @@ async function getContext(): Promise<VisualizerLocation> {
             position: context.position,
             syntaxTree: context.syntaxTree,
             isEggplant: context.isEggplant,
-            projectUri: context.projectUri
+            projectUri: context.projectUri,
+            recordFilePath: path.join(context.projectUri, 'types.bal'),
         });
     });
 }
