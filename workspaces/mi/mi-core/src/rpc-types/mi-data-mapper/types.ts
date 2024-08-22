@@ -63,7 +63,7 @@ export interface BrowseSchemaRequest {
     documentUri: string;
     overwriteSchema?: boolean;
     content: string;
-    ioType: string;
+    ioType: IOType;
     schemaType: string;
     configName: string;
     typeName?: string;

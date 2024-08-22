@@ -17,15 +17,15 @@ import * as ts from "typescript";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../constants";
 import { DMProject } from '../datamapper/DMProject';
 import { navigate } from '../stateMachine';
+import { IOType } from '@wso2-enterprise/mi-core';
 
 export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4, schemaTitle: string, addMetaDataComment: boolean = true): Promise<string> {
   const ts = compile(schema, "Schema", schemaTitle, { bannerComment: "" }, addMetaDataComment);
   return ts;
 }
 
-export async function updateTsFileIoTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string): Promise<string> {
+export async function updateTsFileIoTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: IOType): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
-  ioType = ioType.toLowerCase();
   if (workspaceFolder) {
     const dataMapperConfigFolder = path.join(
       workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
@@ -35,12 +35,12 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
     const functionSource = getFunctionFromSource(tsSource, "mapFunction");
     let tsContent = "";
 
-    const inputSchemaTitle = getTitleFromComment(tsSources, "input");
-    const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string, ioType: string, inputSchemaTitle: string) => {
+    const inputSchemaTitle = getTitleFromComment(tsSources, IOType.Input);
+    const readAndConvertSchema = async (schema: JSONSchema3or4, defaultTitle: string, ioType: IOType, inputSchemaTitle: string) => {
       const isSchemaArray = schema.type === "array";
       let schemaTitle = schema.title;
       schema.title = schema.title ? formatTitle(schema.title) : defaultTitle;
-      if (ioType === 'output' && inputSchemaTitle === schemaTitle) {
+      if (ioType === IOType.Output && inputSchemaTitle === schemaTitle) {
         // to differentiate between input and output interfaces if both have same title
         schema.title = `Output${schema.title}`;
       }
@@ -57,8 +57,8 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
       tsInterfaces,
       isSchemaArray,
       schemaTitle
-    } = await readAndConvertSchema(schema, (ioType === "input") ? "Root" : "OutputRoot", ioType.toLowerCase(), inputSchemaTitle);
-    function findIndexByComment(tsSources, type) {
+    } = await readAndConvertSchema(schema, (ioType === IOType.Input) ? "Root" : "OutputRoot", ioType, inputSchemaTitle);
+    function findIndexByComment(tsSources: ts.SourceFile[], type: IOType) {
       for (let i = 0; i < tsSources.length; i++) {
         const source = tsSources[i];
         const commentRange = ts.getTrailingCommentRanges(source.getFullText().trim(), 0);
@@ -73,7 +73,7 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
     }
 
     let index = 0;
-    if (ioType === "input" || ioType === "output") {
+    if (ioType === IOType.Input || ioType === IOType.Output) {
       index = findIndexByComment(tsSources, ioType);
       if (index !== -1) {
         tsSources.splice(index, 1, ts.createSourceFile(`${schemaTitle}.ts`, tsInterfaces, ts.ScriptTarget.Latest, true));
@@ -94,9 +94,8 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
   return "";
 }
 
-export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, ioType: string, typeName: string): Promise<string> {
+export async function updateTsFileCustomTypes(dmName: string, sourcePath: string, schema: JSONSchema3or4, typeName: string): Promise<string> {
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
-  ioType = ioType.toLowerCase();
   if (workspaceFolder) {
     const dataMapperConfigFolder = path.join(
       workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
@@ -184,13 +183,13 @@ function getInterfaceNameFromSource(source: ts.SourceFile): string {
   return interfaceName;
 }
 
-function getTitleFromComment(sources: ts.SourceFile[], ioType: string): string {
+function getTitleFromComment(sources: ts.SourceFile[], ioType: IOType): string {
   for (let source of sources) {
     const commentText = source.getFullText();
     const commentRange = ts.getTrailingCommentRanges(commentText, 0);
     if (commentRange) {
       const comment = commentText.substring(commentRange[0].pos, commentRange[0].end);
-      if (!comment.includes(`${ioType.toLowerCase()}Type`)) {
+      if (!comment.includes(`${ioType}Type`)) {
         continue;
       }
       const titleMatch = comment.match(/title\s*:\s*"([^"]+)"/);
@@ -218,26 +217,26 @@ function getFunctionFromSource(source: ts.SourceFile, functionName: string): ts.
   return functionNode;
 }
 
-function getFunctionDeclaration(tsSources: ts.SourceFile[], ioType: string, isSchemaArray: boolean,
+function getFunctionDeclaration(tsSources: ts.SourceFile[], ioType: IOType, isSchemaArray: boolean,
   functionSource: ts.FunctionDeclaration): string {
   let inputInterfaceName = "Root";
   let outputInterfaceName = "OutputRoot";
 
-  const isInputArray = isSchemaArray && ioType === "input" || functionSource?.parameters[0].type?.kind === ts.SyntaxKind.ArrayType;
-  const isOutputArray = isSchemaArray && ioType === "output" || functionSource?.type?.kind === ts.SyntaxKind.ArrayType;
+  const isInputArray = isSchemaArray && ioType === IOType.Input || functionSource?.parameters[0].type?.kind === ts.SyntaxKind.ArrayType;
+  const isOutputArray = isSchemaArray && ioType === IOType.Output || functionSource?.type?.kind === ts.SyntaxKind.ArrayType;
 
   tsSources.forEach(source => {
     const commentRange = ts.getTrailingCommentRanges(source.getFullText(), 0);
     if (commentRange) {
       const comment = source.getFullText().substring(commentRange[0].pos, commentRange[0].end);
-      if (comment.includes("inputType")) {
+      if (comment.includes(`${IOType.Input}Type`)) {
         inputInterfaceName = getInterfaceNameFromSource(source);
-      } else if (comment.includes("outputType")) {
+      } else if (comment.includes(`${IOType.Output}Type`)) {
         outputInterfaceName = getInterfaceNameFromSource(source);
       }
     }
   });
-  let functionMetaData = getFunctionMetaDataComment(getTitleFromComment(tsSources, "input"), getTitleFromComment(tsSources, "output"));
+  let functionMetaData = getFunctionMetaDataComment(getTitleFromComment(tsSources, IOType.Input), getTitleFromComment(tsSources, IOType.Output));
   return `${functionMetaData}export function mapFunction(input: ${inputInterfaceName}${isInputArray ? "[]" : ""}): ${outputInterfaceName}${isOutputArray ? "[]" : ""} {\n\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`;
 }
 

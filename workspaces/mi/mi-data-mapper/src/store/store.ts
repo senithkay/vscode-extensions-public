@@ -11,6 +11,7 @@ import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
 import { SubMappingConfigForm } from "src/components/DataMapper/SidePanel/SubMappingConfig/SubMappingConfigForm";
+import { IOType } from "@wso2-enterprise/mi-core";
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
@@ -40,8 +41,8 @@ export interface DataMapperCollapsedFieldsState {
 export interface DataMapperIOConfigPanelState {
     isIOConfigPanelOpen: boolean;
     setIsIOConfigPanelOpen: (isIOConfigPanelOpen: boolean) => void;
-    ioConfigPanelType: string;
-    setIOConfigPanelType: (ioConfigPanelType: string) => void;
+    ioConfigPanelType: IOType;
+    setIOConfigPanelType: (ioConfigPanelType: IOType) => void;
     isSchemaOverridden: boolean;
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => void;
 }
@@ -93,8 +94,8 @@ export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>(
 export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set) => ({
     isIOConfigPanelOpen: false,
     setIsIOConfigPanelOpen: (isIOConfigPanelOpen: boolean) => set({ isIOConfigPanelOpen }),
-    ioConfigPanelType: 'input',
-    setIOConfigPanelType: (ioConfigPanelType: string) => set({ ioConfigPanelType }),
+    ioConfigPanelType: IOType.Input,
+    setIOConfigPanelType: (ioConfigPanelType: IOType) => set({ ioConfigPanelType }),
     isSchemaOverridden: false,
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => set({ isSchemaOverridden }),
 }));

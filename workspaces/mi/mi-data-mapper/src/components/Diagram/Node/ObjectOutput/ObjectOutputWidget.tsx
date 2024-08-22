@@ -28,6 +28,7 @@ import {
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { IOType } from '@wso2-enterprise/mi-core';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -150,7 +151,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		if (focuesOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
-			setIOConfigPanelType("Output");
+			setIOConfigPanelType(IOType.Output);
 			setIsSchemaOverridden(true);
 			setIsIOConfigPanelOpen(true);
 		}

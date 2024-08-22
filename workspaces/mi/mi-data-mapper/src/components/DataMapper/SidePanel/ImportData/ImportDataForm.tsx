@@ -71,7 +71,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
             documentUri: documentUri,
             overwriteSchema: overwriteSchema,
             content: content,
-            ioType: ioType.toUpperCase(),
+            ioType: ioType,
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
         }
@@ -114,7 +114,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         onClick={() => setSelectedImportType(undefined)}
                     />
                 )}
-                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} Schema`}</span>
+                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} schema`}</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}

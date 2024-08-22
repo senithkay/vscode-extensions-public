@@ -21,6 +21,7 @@ import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
 import { FunctionDeclaration } from "ts-morph";
+import { IOType } from "@wso2-enterprise/mi-core";
 
 export interface ImportType {
     type: string;
@@ -75,7 +76,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
             documentUri: documentUri,
             overwriteSchema: false,
             content: content,
-            ioType: "CUSTOM", //TODO: use enum 
+            ioType: IOType.Other,
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
             typeName: typeName
