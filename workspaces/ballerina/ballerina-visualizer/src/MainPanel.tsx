@@ -21,13 +21,14 @@ import { SequenceDiagram } from './views/SequenceDiagram';
 import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, AddComponentView, ServiceForm, EggplantOverview } from './views/Eggplant';
+import { WelcomeView, ProjectForm, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
 import { useVisualizerContext } from './Context';
+import { Typography } from '@wso2-enterprise/ui-toolkit';
 
 const globalStyles = css`
   *,
@@ -48,7 +49,7 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const { popupScreen, setPopupScreen } = useVisualizerContext();
+    const { popupScreen, setPopupScreen, popupMessage, setPopupMessage } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 
@@ -160,6 +161,10 @@ const MainPanel = () => {
         setPopupScreen("EMPTY");
     }
 
+    const handleOnCloseMessage = () => {
+        setPopupMessage(false);
+    }
+
     return (
         <>
             <Global styles={globalStyles} />
@@ -171,6 +176,11 @@ const MainPanel = () => {
                 {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
                     {popupScreen === "ADD_CONNECTION" && <AddConnectionWizard onClose={handleOnClosePopup} />}
                 </PopupPanel>}
+                {popupMessage &&
+                    <PopupMessage onClose={handleOnCloseMessage}>
+                        <Typography variant='h3'>This feature is coming soon!</Typography>
+                    </PopupMessage>
+                }
             </VisualizerContainer>
         </>
     );

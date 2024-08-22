@@ -16,6 +16,7 @@ import { SERVICE_VIEW } from "./constants";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
+import { useVisualizerContext } from "../../../Context";
 
 const FormContainer = styled.div`
     display: flex;
@@ -59,6 +60,8 @@ export function HttpForm(props: HttpFormProps) {
     const [selectedModule, setSelectedModule] = useState<ServiceType>("Scratch");
     const [isLoading, setIsLoading] = useState(false);
 
+    const { setPopupMessage } = useVisualizerContext();
+    
     const handleCreateService = () => {
         setIsLoading(true);
         rpcClient.getEggplantDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, name, path, port });
@@ -111,7 +114,7 @@ export function HttpForm(props: HttpFormProps) {
                                 title="Import From OAS"
                                 description="Import an existing OpenAPI Specification file to set up your service."
                                 active={selectedModule === "OAS"}
-                                onClick={() => handleSelection("OAS")}
+                                onClick={() => setPopupMessage(true)}
                             />
                         </CardGrid>
 

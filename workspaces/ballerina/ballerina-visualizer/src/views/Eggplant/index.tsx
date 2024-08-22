@@ -13,3 +13,4 @@ export { Overview as EggplantOverview } from "./Overview";
 export { AddComponentView } from "./ComponentView";
 export { ServiceForm } from "./ServiceForm";
 export { ComponentDiagram } from "./ComponentDiagram";
+export { PopupMessage } from "./PopupMessage";

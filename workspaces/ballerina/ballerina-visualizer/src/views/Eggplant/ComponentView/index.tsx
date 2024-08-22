@@ -15,6 +15,7 @@ import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
+import { useVisualizerContext } from "../../../Context";
 
 const Container = styled.div({
     display: "flex",
@@ -53,6 +54,8 @@ export function AddComponentView() {
     const { rpcClient } = useRpcContext();
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<any>(undefined);
 
+    const { setPopupMessage } = useVisualizerContext();
+
     const handleClick = async (key: DIRECTORY_MAP) => {
         if (key === DIRECTORY_MAP.SERVICES) {
             await rpcClient.getVisualizerRpcClient().openView({
@@ -62,12 +65,7 @@ export function AddComponentView() {
                 },
             });
         } else {
-            await rpcClient.getVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.EggplantServiceForm,
-                },
-            });
+            setPopupMessage(true);
         }
     };
 
@@ -100,7 +98,7 @@ export function AddComponentView() {
                             />
                             <ButtonCard
                                 icon={<Codicon name="calendar" />}
-                                title="Task"
+                                title="Automation"
                                 description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
                                 onClick={() => handleClick(DIRECTORY_MAP.TASKS)}
                             />
@@ -161,8 +159,8 @@ export function AddComponentView() {
                                 </LinkButton>
                             )}
                         </PanelFooter> */}
-                        <br />
-                        <Title variant="h2">Generate Entry Point with Copilot</Title>
+                        {/* <br /> */}
+                        {/* <Title variant="h2">Generate Entry Point with Copilot</Title>
                         <BodyText>
                             Describe your project entry point in detail and click 'Generate' to create it using AI.{" "}
                         </BodyText>
@@ -173,7 +171,7 @@ export function AddComponentView() {
                         />
                         <Button onClick={() => {}} appearance="primary" sx={{ marginTop: "4px" }}>
                             Generate
-                        </Button>
+                        </Button> */}
                     </AddPanel>
                 </Container>
             </ViewContent>

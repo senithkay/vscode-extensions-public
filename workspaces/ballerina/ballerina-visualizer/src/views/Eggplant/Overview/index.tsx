@@ -117,7 +117,7 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen } = useVisualizerContext();
+    const { setPopupScreen, setPopupMessage } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -159,7 +159,7 @@ export function Overview(props: OverviewProps) {
     return (
         <View>
             <ViewContent padding>
-                <EggplantHeader />
+                <EggplantHeader showAI={projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].length === 0} />
                 {/*  Main Content with Two Columns */}
                 <GridContainer>
                     {/*  Left Column */}
@@ -214,10 +214,9 @@ export function Overview(props: OverviewProps) {
                                             <ButtonCard
                                                 key={index}
                                                 title={res.name}
-                                                description={`Module: ${
-                                                    (res.st as any).initializer?.typeData?.typeSymbol?.moduleID
-                                                        ?.moduleName || res.type
-                                                }`}
+                                                description={`Module: ${(res.st as any).initializer?.typeData?.typeSymbol?.moduleID
+                                                    ?.moduleName || res.type
+                                                    }`}
                                                 icon={<Codicon name="link" />}
                                                 onClick={() => goToView(res)}
                                             />
@@ -273,7 +272,7 @@ export function Overview(props: OverviewProps) {
                                 <SectionTitle>
                                     <h2 className="text-base">Functions</h2>
                                     {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].length > 0 && (
-                                        <Button appearance="icon" onClick={handleAddArtifact} tooltip="Add Artifact">
+                                        <Button appearance="icon" onClick={() => setPopupMessage(true)} tooltip="Add Function">
                                             <Codicon name="add" />
                                         </Button>
                                     )}
@@ -299,7 +298,7 @@ export function Overview(props: OverviewProps) {
                                         <EmptyCard
                                             description="Add reusable functions to be used within your entry points. Enhance your integration with custom logic"
                                             actionText="Add Function"
-                                            onClick={handleAddArtifact}
+                                            onClick={() => setPopupMessage(true)}
                                         />
                                     )}
                                 </div>
@@ -315,11 +314,11 @@ export function Overview(props: OverviewProps) {
                         <EmptyCard
                             description="Manage environment variables and secrets. Share them across different entry points and functions in your project."
                             actionText="Add Configuration"
-                            onClick={handleAddArtifact}
+                            onClick={() => setPopupMessage(true)}
                         />
                     </SectionContainer>
                 </GridContainer>
             </ViewContent>
-        </View>
+        </View >
     );
 }

@@ -23,8 +23,10 @@ export function RpcContextProvider({ children }: { children: ReactNode }) {
 export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
 interface VisualizerContext {
     popupScreen: PopupScreen;
+    popupMessage: boolean;
     screenMetadata: any;
     setPopupScreen: (screen: PopupScreen) => void;
+    setPopupMessage: (value: boolean) => void;
     setScreenMetadata: (metadata: any) => void;
 }
 
@@ -35,12 +37,15 @@ export const VisualizerContext = createContext({
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
     const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
+    const [popupMessage, setPopupMessage] = useState(false);
     const [metadata, setMetadata] = useState({} as any);
 
     const contextValue: VisualizerContext = {
         popupScreen: popupScreen,
+        popupMessage: popupMessage,
         screenMetadata: metadata,
         setPopupScreen: setPopupScreen,
+        setPopupMessage: setPopupMessage,
         setScreenMetadata: setMetadata,
     };
 
