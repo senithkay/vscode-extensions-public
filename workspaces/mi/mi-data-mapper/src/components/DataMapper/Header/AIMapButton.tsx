@@ -23,7 +23,6 @@ const ButtonContainer = styled.div`
 `;
 
 const StyledButton = styled(Button) <{ isLoading: boolean }>`
-  text-transform: none;
   box-sizing: border-box;
   box-shadow: 0px 1px 2px var(--vscode-widget-shadow);
   border-radius: 3px;
@@ -42,8 +41,8 @@ const AIMapButton: React.FC<AIMapButtonProps> = ({ onClick, isLoading }) => {
   return (
     <ButtonContainer>
       <StyledButton
-        appearance={isLoading ? "secondary" : "primary"}
-        tooltip="Generate Mapping using AI"
+        appearance= "secondary" 
+        tooltip="Generate Mappings using AI"
         onClick={async () => {
           if (!isLoading) {
             await onClick();
@@ -53,7 +52,7 @@ const AIMapButton: React.FC<AIMapButtonProps> = ({ onClick, isLoading }) => {
         isLoading={isLoading}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
-          <Codicon name="sync" />
+          <Codicon name="wand" />
           <span style={{ marginLeft: "3px" }}>Map</span>
         </div>
       </StyledButton>

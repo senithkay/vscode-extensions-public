@@ -80,9 +80,11 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                             <DeleteButton
                                 appearance="secondary"
                                 onClick={handleDataMapClearButtonClick}
-                                tooltip='Clear AI Mapping'
+                                tooltip='Clear All Mapping'
                             >
-                                <Codicon name="trash" />
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <span>Clear</span>
+                                </div>
                             </DeleteButton>
                         </IOFilterBar>
                     </>
