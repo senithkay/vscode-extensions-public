@@ -128,7 +128,7 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
         setPayloadRows(newRows);
     };
 
-    const handlePayloadChange = (e: any) => {
+    const handlePayloadChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (rowRange) {
             growPayloadTextArea(e.target.value);
         }

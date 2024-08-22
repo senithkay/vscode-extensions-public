@@ -10,14 +10,13 @@
 import React, { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     Button,
-    SidePanel,
     SidePanelTitleContainer,
     SidePanelBody,
     Codicon
 } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
+import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
 import { FunctionDeclaration } from "ts-morph";
@@ -47,7 +46,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { subMappingConfig, setSubMappingConfig, resetSubMappingConfig, subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
+    const { resetSubMappingConfig, subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
         subMappingConfig: state.subMappingConfig,
         setSubMappingConfig: state.setSubMappingConfig,
         resetSubMappingConfig: state.resetSubMappingConfig,
