@@ -104,22 +104,22 @@ export type TargetMetadata = {
 };
 
 export enum DIRECTORY_MAP {
-    SERVICES = 'services',
-    TASKS = 'tasks',
-    TRIGGERS = 'triggers',
-    CONNECTIONS = 'connections',
-    SCHEMAS = 'schemas',
-    CONFIGURATIONS = 'configurations'
+    SERVICES = "services",
+    TASKS = "tasks",
+    TRIGGERS = "triggers",
+    CONNECTIONS = "connections",
+    SCHEMAS = "schemas",
+    CONFIGURATIONS = "configurations",
 }
 
 export interface ProjectStructureResponse {
     directoryMap: {
-        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[]
-        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -130,7 +130,7 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode
+    st?: STNode;
 }
 export type Item = Category | AvailableNode;
 
@@ -147,7 +147,15 @@ export type AvailableNode = {
 
 export type DiagramLabel = "On Fail" | "Body";
 
-export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targetType" | "variable" | "expression";
+export type NodePropertyKey =
+    | "method"
+    | "path"
+    | "condition"
+    | "client"
+    | "targetType"
+    | "variable"
+    | "expression"
+    | "connection";
 
 export type BranchKind = "block" | "worker";
 

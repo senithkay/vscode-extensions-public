@@ -90,6 +90,8 @@ export const LOADING_OVERLAY = "loading-overlay";
 export const NODE_WIDTH = 280;
 export const NODE_HEIGHT = 50;
 
+export const LABEL_HEIGHT = 20;
+
 export const NODE_BORDER_WIDTH = 1.5;
 
 export const NODE_PADDING = 8;

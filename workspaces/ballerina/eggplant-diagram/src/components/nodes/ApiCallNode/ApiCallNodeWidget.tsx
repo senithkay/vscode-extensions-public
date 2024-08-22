@@ -13,6 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
     Colors,
+    LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_HEIGHT,
@@ -31,7 +32,7 @@ export namespace NodeStyles {
         display: flex;
         flex-direction: row;
         /* justify-content: space-between; */
-        align-items: center;
+        align-items: flex-start;
     `;
 
     export type NodeStyleProp = {
@@ -68,7 +69,7 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        right: 116px;
+        right: 136px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -172,23 +173,35 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
 
-            <svg width={NODE_GAP_X + NODE_HEIGHT} height={NODE_HEIGHT} viewBox="0 0 103 40">
+            <svg width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT} height={NODE_HEIGHT + LABEL_HEIGHT} viewBox="0 0 130 70">
                 <circle
                     cx="80"
-                    cy="20"
+                    cy="24"
                     r="22"
                     fill={Colors.SURFACE_DIM}
                     stroke={model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
                 />
-                <foreignObject x="68" y="8" width="44" height="44" fill={Colors.ON_SURFACE}>
+                <text
+                    x="80"
+                    y="66"
+                    textAnchor="middle"
+                    fill={Colors.ON_SURFACE}
+                    fontSize="14px"
+                    fontFamily="GilmerRegular"
+                >
+                    {model.node.properties.connection.value.length > 16
+                        ? `${model.node.properties.connection.value.slice(0, 16)}...`
+                        : model.node.properties.connection.value}
+                </text>
+                <foreignObject x="68" y="12" width="44" height="44" fill={Colors.ON_SURFACE}>
                     <ConnectorIcon node={model.node} />
                 </foreignObject>
                 <line
                     x1="0"
-                    y1="20"
+                    y1="25"
                     x2="57"
-                    y2="20"
+                    y2="25"
                     style={{
                         stroke: model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                         strokeWidth: 1.5,

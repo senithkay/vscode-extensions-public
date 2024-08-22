@@ -13,6 +13,7 @@ import {
     EMPTY_NODE_CONTAINER_WIDTH,
     EMPTY_NODE_WIDTH,
     IF_NODE_WIDTH,
+    LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_GAP_Y,
@@ -57,7 +58,7 @@ export class SizingVisitor implements BaseVisitor {
 
     private createApiCallNode(node: FlowNode): void {
         const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
-        const containerWidth = width + NODE_GAP_X + NODE_HEIGHT;
+        const containerWidth = width + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
         const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height, containerWidth);
     }
