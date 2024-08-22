@@ -121,7 +121,13 @@ export function Overview(props: OverviewProps) {
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
-    useEffect(() => {
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            fetchContext();
+        }
+    });
+
+    const fetchContext = () => {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getProjectStructure()
@@ -134,6 +140,10 @@ export function Overview(props: OverviewProps) {
             .then((res) => {
                 setProjectName(res.workspaces[0].name);
             });
+    }
+
+    useEffect(() => {
+        fetchContext();
     }, []);
 
     const goToView = async (res: ProjectStructureArtifactResponse) => {
@@ -218,10 +228,9 @@ export function Overview(props: OverviewProps) {
                                             <ButtonCard
                                                 key={index}
                                                 title={res.name}
-                                                description={`Module: ${
-                                                    (res.st as any).initializer?.typeData?.typeSymbol?.moduleID
-                                                        ?.moduleName || res.type
-                                                }`}
+                                                description={`Module: ${(res.st as any).initializer?.typeData?.typeSymbol?.moduleID
+                                                    ?.moduleName || res.type
+                                                    }`}
                                                 icon={<Codicon name="link" />}
                                                 onClick={() => goToView(res)}
                                             />

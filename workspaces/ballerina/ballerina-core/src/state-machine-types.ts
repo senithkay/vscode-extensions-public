@@ -64,6 +64,7 @@ export interface VisualizerLocation {
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+export const projectContentUpdated: NotificationType<boolean> = { method: 'projectContentUpdated' };
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 

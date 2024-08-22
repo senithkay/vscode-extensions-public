@@ -30,7 +30,7 @@ import { checkDiagnostics, getUpdatedSource } from "../components/FormComponents
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
 import { FileSelect, FormContainer, FormWrapper, InputContainer, InputWrapper, LabelWrapper, useStyles } from "../style";
-import { Button, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, CheckBox, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
@@ -205,6 +205,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                                 modifiedPosition: newPosition,
                             },
                         });
+                        // TODO: Fix the flow after the Demo
+                        onCancel();
                     } else {
                         recordST = await getRecordST({ codeSnippet: updatedBlock.trim() }, langServerRpcClient);
                         newPosition = {
@@ -292,6 +294,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             defaultValues={formState.isSeparateDef ? ["Make Separate Record Definitions"] : []}
                             onChange={onSeparateDefinitionSelection}
                         />
+                        {/* <CheckBox label="Make Separate Record Definitions" value="option-1" checked={values.option1} onChange={(checked: boolean) => setValues({...values, option1: checked })} /> */}
                         <FormActionButtons
                             cancelBtnText="Back"
                             saveBtnText="Save"
