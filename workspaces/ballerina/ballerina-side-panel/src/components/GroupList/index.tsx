@@ -40,6 +40,7 @@ namespace S {
 
     export const TitleRow = styled(Row)<{}>`
         cursor: pointer;
+        padding: 0 5px;
     `;
 
     export const Title = styled.div<{}>`
@@ -93,7 +94,7 @@ namespace S {
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
-        width: 120px;
+        width: 115px;
         word-break: break-all;
     `;
 

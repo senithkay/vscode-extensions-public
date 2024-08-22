@@ -49,9 +49,13 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
         }
     });
 
+    // HACK: use the icon of the first item in the category
+    const icon = category.items.at(0)?.metadata.icon;
+
     return {
         title: category.metadata.label,
         description: category.metadata.description,
+        icon: icon ? <img src={icon} alt={category.metadata.label} style={{ width: "20px" }} /> : undefined,
         items: items,
     };
 }
