@@ -19,7 +19,8 @@ jobs:
         uses: ./.github/actions/build
         with:
           eggplant: true
-          ref: rewrite
+          ballerina: true
+          ref: ui-refresh
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
       - name: Notification - Ballerina
@@ -27,4 +28,11 @@ jobs:
         with:
           title: Ballerina
           fileName: ballerina
-          api: ${{ secrets.TOOLING_TEAM_CHAT_API }}
+          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
+
+      - name: Notification - EggPlant
+        uses: ./.github/actions/dailyBuildNotification
+        with:
+          title: EggPlant
+          fileName: eggplant
+          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
