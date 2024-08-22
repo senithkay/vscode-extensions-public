@@ -14,7 +14,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL, COPILOT_ERROR_MESSAGES } from "../../constants";
 import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VSCodeButton, VSCodeTextArea, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
@@ -200,7 +200,7 @@ export function AIProjectGenerationChat() {
                     }
                 }
 
-                if (machineView.initialPrompt) {
+                if (machineView.initialPrompt.aiPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
                         { role: "User", content: machineView.initialPrompt.aiPrompt, type: "initial_prompt" },
@@ -320,11 +320,11 @@ export function AIProjectGenerationChat() {
 
     function getStatusText(status: number) {
         switch (status) {
-            case 400: return 'Bad Request';
-            case 401: return 'Unauthorized';
-            case 403: return 'Forbidden';
-            case 404: return 'Not Found';
-            case 429: return 'Token Count Exceeded';
+            case 400: return COPILOT_ERROR_MESSAGES.BAD_REQUEST;
+            case 401: return COPILOT_ERROR_MESSAGES.UNAUTHORIZED;
+            case 403: return COPILOT_ERROR_MESSAGES.FORBIDDEN;
+            case 404: return COPILOT_ERROR_MESSAGES.NOT_FOUND;
+            case 429: return COPILOT_ERROR_MESSAGES.TOKEN_COUNT_EXCEEDED;
             // Add more status codes as needed
             default: return '';
         }
@@ -340,6 +340,8 @@ export function AIProjectGenerationChat() {
                 response.json().then(body => {
                     error += body.detail;
                 });
+            } else if (response.status == 422) {
+                error = COPILOT_ERROR_MESSAGES.ERROR_422;
             }
             newMessages[newMessages.length - 1].content += error;
             newMessages[newMessages.length - 1].type = 'Error';
@@ -528,7 +530,6 @@ export function AIProjectGenerationChat() {
                 }
             } else if (!response.ok) {
                 handleFetchError(response);
-                throw new Error('Failed to fetch response');
             }
             return response;
         };
@@ -689,6 +690,9 @@ export function AIProjectGenerationChat() {
     }
 
     function splitContent(content: string) {
+        if (!content) {
+            return [];
+        }
         const segments = [];
         let match;
         const regex = /```xml([\s\S]*?)```/g;

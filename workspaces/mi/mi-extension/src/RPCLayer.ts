@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel, window } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, sendAIStateEvent, AI_EVENT_TYPE, aiStateChanged, themeChanged, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged } from '@wso2-enterprise/mi-core';
+import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, sendAIStateEvent, AI_EVENT_TYPE, aiStateChanged, themeChanged, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged, webviewReady } from '@wso2-enterprise/mi-core';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
@@ -27,6 +27,9 @@ export class RPCLayer {
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
         if (isWebviewPanel(webViewPanel)) {
+            RPCLayer._messenger.onNotification(webviewReady, () => {
+                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, StateMachine.state());
+            });
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);

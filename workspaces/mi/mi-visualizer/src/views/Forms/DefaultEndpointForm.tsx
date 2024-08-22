@@ -25,6 +25,7 @@ export interface DefaultEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type InputsFields = {
@@ -428,7 +429,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel} hideClose={props.isPopup}>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup}>
             <TypeChip
                 type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"}
                 onClick={changeType}
@@ -616,17 +617,17 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateDefaultEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

@@ -19,6 +19,7 @@ import { MIDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { hasFields } from "./components/Diagram/utils/node-utils";
+import { useDMRegenerateNodesStore } from "./store/store";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -64,6 +65,10 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     const { rpcClient } = useVisualizerContext();
 
+    const { regenerateNodesState } = useDMRegenerateNodesStore(state => ({
+        regenerateNodesState: state.regenerateNodesState
+    }));
+
     const functionST = useMemo(() => {
 
         const project = new Project({
@@ -107,7 +112,7 @@ export function DataMapperView(props: DataMapperViewProps) {
 
         return fnST;
 
-    }, [rpcClient, filePath, fileContent, functionName]);
+    }, [rpcClient, filePath, fileContent, functionName, regenerateNodesState]);
 
     const applyModifications = async (fileContent: string) => {
         await updateFileContent(fileContent);

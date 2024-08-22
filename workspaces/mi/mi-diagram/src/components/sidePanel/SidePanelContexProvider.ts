@@ -15,7 +15,7 @@ export interface SidePanelPage {
     content: ReactNode;
     isOpen: boolean;
     title?: string;
-    icon?: string;
+    icon?: string | ReactNode;
 }
 
 interface SidePanelContext {

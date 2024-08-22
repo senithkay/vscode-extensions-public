@@ -370,7 +370,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
             endpoint={endpoint.name}
             trailingSpace={props.trailingSpace} />;
 
-        sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`);
+        sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`, (<Icon name="HTTPEndpoint" sx={{ height: 25, width: 25, fontSize: 22, color: "#3e97d3" }} />));
     }
 
     const getConnectionLabel = (connectorName: string, connectionType: string) => {
@@ -394,7 +394,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                             <h4>Available Connections</h4>
                             {Object.values(connections).some(({ connections }) => connections.length > 0) && (
                                 <LinkButton onClick={() => addNewConnection()}>
-                                    + Add new connection
+                                    <Codicon name="plus"/>Add new connection
                                 </LinkButton>
                             )}
                         </SectionTitleWrapper>
@@ -404,7 +404,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                     No connections available. Please create a new connection.
                                 </MessageWrapper>
                                 <LinkButton onClick={() => addNewConnection()}>
-                                    + Add new connection
+                                    <Codicon name="plus"/>Add new connection
                                 </LinkButton>
                             </>
                         ) : filteredConnections && (
@@ -567,7 +567,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                             <h4>Available Endpoints</h4>
                             {endpoints.length > 0 && (
                                 <LinkButton onClick={() => addNewEndpoint()}>
-                                    + Add new endpoint
+                                    <Codicon name="plus"/> Add new endpoint
                                 </LinkButton>
                             )}
                         </SectionTitleWrapper>
@@ -577,7 +577,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                     No Endpoints available. Please create a new endpoint.
                                 </MessageWrapper>
                                 <LinkButton onClick={() => addNewEndpoint()}>
-                                    + Add new endpoint
+                                    <Codicon name="plus" /> Add new endpoint
                                 </LinkButton>
                             </>
                         ) : filteredEndpoints && filteredEndpoints.length > 0 && (

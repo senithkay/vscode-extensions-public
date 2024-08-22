@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { VisualizerContextProvider } from "./Context";

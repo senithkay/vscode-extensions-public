@@ -87,6 +87,7 @@ const NameLabel = styled(IconLabel)`
 export interface ConnectionStoreProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
@@ -398,9 +399,11 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                     connector={selectedConnector}
                     isPopup={props.isPopup}
                     changeConnector={changeConnector}
-                    path={props.path} />
+                    path={props.path}
+                    handlePopupClose={props.handlePopupClose}
+                />
             ) : (
-                <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
+                <FormView title={`Add New Connection`} onClose={props.handlePopupClose ?? handleOnClose} hideClose={props.isPopup}>
                     <span>Please select a connector to create a connection.</span>
                     {isGeneratingForm ? (
                         <LoaderWrapper>

@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, LinkButton, ProgressIndicator, FormCheckBox } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, LinkButton, ProgressIndicator, FormCheckBox, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -459,7 +459,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                 {element.required === 'true' && <RequiredFormInput />}
                             </div>
                             <LinkButton onClick={() => addNewConnection()}>
-                                Add new connection
+                                <Codicon name="plus"/>Add new connection
                             </LinkButton>
                         </div>
                         <AutoComplete
@@ -498,7 +498,7 @@ const AddConnector = (props: AddConnectorProps) => {
                     element.value.name = "configKey";
                 }
 
-                if (!getValues(getNameForController(element.value.name)) && element.value.defaultValue) {
+                if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
                     setValue(getNameForController(element.value.name), element.value.defaultValue)
                 }
 
@@ -657,7 +657,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                                     <label>{"Connection"}</label>
                                                 </div>
                                                 <LinkButton onClick={() => addNewConnection()}>
-                                                    Add new connection
+                                                    <Codicon name="plus"/>Add new connection
                                                 </LinkButton>
                                             </div>
                                             <AutoComplete
@@ -714,7 +714,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                                     <label>{"Connection"}</label>
                                                 </div>
                                                 <LinkButton onClick={() => addNewConnection()}>
-                                                    Add new connection
+                                                    <Codicon name="plus"/>Add new connection
                                                 </LinkButton>
                                             </div>
                                             <AutoComplete

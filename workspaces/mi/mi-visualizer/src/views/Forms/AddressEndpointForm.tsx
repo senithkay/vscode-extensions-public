@@ -25,6 +25,7 @@ export interface AddressEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type InputsFields = {
@@ -432,7 +433,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel} hideClose={props.isPopup}>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup}>
             <TypeChip
                 type={isTemplate ? "Address Endpoint Template" : "Address Endpoint"}
                 onClick={changeType}
@@ -626,17 +627,17 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateAddressEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

@@ -394,9 +394,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
             </>}
             {typeof formState === 'object' && 'open' in formState && (
                 <PopUpContainer>
-                    <FormView title='' onClose={handleOnClose}>
-                        <PopupPanel formState={formState} />
-                    </FormView>
+                    <PopupPanel formState={formState} handleClose={handleOnClose} />
                 </PopUpContainer>
             )}
         </ViewContainer>
