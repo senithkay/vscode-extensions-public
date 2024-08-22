@@ -1843,7 +1843,6 @@ export class SizingVisitor implements Visitor {
                     const plusBtnViewState: PlusViewState = new PlusViewState();
                     plusBtnViewState.index = index;
                     plusBtnViewState.expanded = false;
-                    console.log('sizing Visitor targetP', statement.position)
                     plusBtnViewState.targetPosition = {
                         startLine: statement.position.startLine,
                         startColumn: statement.position.startColumn,
