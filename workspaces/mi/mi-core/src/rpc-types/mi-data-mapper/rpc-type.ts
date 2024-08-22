@@ -47,3 +47,4 @@ export const getCompletions: RequestType<GetCompletionsRequest, GetCompletionsRe
 export const getDMDiagnostics: RequestType<GetDMDiagnosticsRequest, GetDMDiagnosticsResponse> = { method: `${_preFix}/getDMDiagnostics` };
 export const getMappingFromOpenAI: RequestType<void, void> = { method: `${_preFix}/getMappingFromOpenAI` };
 export const writeDataMapping: NotificationType<DataMapWriteRequest> = { method: `${_preFix}/writeDataMapping` };
+export const confirmMappingAction: RequestType<void, boolean> = { method: `${_preFix}/confirmMappingAction` };

@@ -41,4 +41,5 @@ export interface MIDataMapperAPI {
     getDMDiagnostics: (params: GetDMDiagnosticsRequest) => Promise<GetDMDiagnosticsResponse>;
     getMappingFromOpenAI: () => void;
     writeDataMapping: (params: DataMapWriteRequest)=> void;
+    confirmMappingAction: ()=> Promise<boolean>;
 }

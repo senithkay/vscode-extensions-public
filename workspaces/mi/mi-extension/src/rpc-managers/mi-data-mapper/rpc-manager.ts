@@ -200,19 +200,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
-    // Function to ask whether the user wants to replace all existing mappings with ai generated mappings
-    async confirmMappingAction(action: 'MappingEnd' | 'ShouldReplace'): Promise<boolean> {
+// Function to ask whether the user wants to replace all existing mappings with ai generated mappings
+    async confirmMappingAction(): Promise<boolean> {
         // Define the message based on the action
-        let message = '';
-        switch(action) {
-        case 'ShouldReplace': 
-            message = "Are you sure? Please note this will overwrite any and all existing mappings.";
-            break;
-        case 'MappingEnd':
-            message =  "Mappings have been generated automatically. Do you want to undo the changes?";
-            break;
-        }
-    
+        let message = "This will replace any existing mappings with AI. Are you sure?";
         // Show the confirmation dialog
         const response = await window.showInformationMessage(
         message,
@@ -220,9 +211,11 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         "Yes",
         "No"
         );
-        
         // If user confirms the action by choosing Yes, return true. Otherwise, return false.
-        return response === "Yes";
+        if (!response || response === "No") {
+            return false;
+        }
+        return true;
     }
 
     // Function to read the TypeScript file which contains the schema interfaces to be mapped

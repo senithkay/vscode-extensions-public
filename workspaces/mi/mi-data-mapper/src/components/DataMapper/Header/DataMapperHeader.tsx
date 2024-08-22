@@ -37,10 +37,41 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 
     const { rpcClient } = useVisualizerContext();
 
+    const showMappingEndNotification = async () => {
+        const message = "You may freely edit these mappings or try again. \n\n Please note that automated mapping is powered by AI. Thus, mistakes and surprises are inevitable.";
+        rpcClient.getMiVisualizerRpcClient().retrieveContext({
+          key: "showDmLandingMessage",
+          contextType: "workspace"
+        }).then((response) => {
+          if (response.value ?? true) {
+            rpcClient.getMiVisualizerRpcClient().showNotification({
+              message: message,
+              options: ["Don't show this again"],
+              type: "info",
+            }).then((response) => {
+              if (response.selection) {
+                rpcClient.getMiVisualizerRpcClient().updateContext({
+                  key: "showDmLandingMessage",
+                  value: false,
+                  contextType: "workspace"
+                });
+              }
+           });
+         }
+       });
+      };
+
     const handleDataMapButtonClick = async () => {
-        props.setIsLoading(true);
         try {
-            await rpcClient.getMiDataMapperRpcClient().getMappingFromOpenAI();
+            let choice = await rpcClient.getMiDataMapperRpcClient().confirmMappingAction();
+            if (choice) {
+                props.setIsLoading(true);
+                await rpcClient.getMiDataMapperRpcClient().getMappingFromOpenAI();
+                showMappingEndNotification();
+            }
+            else {
+                return;
+            }
         } catch (error) {
             console.error(error);
         } finally {
