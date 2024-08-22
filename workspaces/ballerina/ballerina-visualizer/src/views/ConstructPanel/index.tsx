@@ -59,7 +59,7 @@ export function ConstructPanel(props: ConstructPanelProps) {
 
 
     return (
-        <PanelContainer title="Components" show={activePanel?.isActive} onClose={() => { setActivePanel({ isActive: false }) }}>
+        <PanelContainer title="Add Constructs" show={activePanel?.isActive} onClose={() => { setActivePanel({ isActive: false }) }}>
             {showStatementEditor && filePath ?
                 (
                     <StatementEditorComponent
@@ -68,7 +68,7 @@ export function ConstructPanel(props: ConstructPanelProps) {
                         initialSource={initialSource}
                         applyModifications={applyModifications}
                         currentFile={{
-                            content: "",
+                            content: parsedST?.source || "",
                             path: filePath,
                             size: 1
                         }}
