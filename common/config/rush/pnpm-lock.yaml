@@ -2307,7 +2307,7 @@ importers:
 
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
-      '@playwright/test': ~1.37.1
+      '@playwright/test': ~1.46.0
       '@types/fs-extra': ~11.0.1
       '@types/node': ~20.4.7
       '@types/unzipper': ~0.10.6
@@ -2318,18 +2318,18 @@ importers:
       fs-extra: ~11.1.1
       got: v11.8.3
       hpagent: ~1.2.0
-      playwright-core: ~1.37.0
+      playwright-core: ~1.46.0
       targz: ~1.0.1
       typescript: ^4.9.4
       unzipper: ~0.10.14
     dependencies:
-      '@playwright/test': 1.37.1
+      '@playwright/test': 1.46.0
       '@vscode/vsce': 2.21.1
       compare-versions: 6.0.0
       fs-extra: 11.1.1
       got: 11.8.3
       hpagent: 1.2.0
-      playwright-core: 1.37.1
+      playwright-core: 1.46.0
       targz: 1.0.1
       unzipper: 0.10.14
     devDependencies:
@@ -3282,7 +3282,7 @@ importers:
       '@babel/core': ^7.24.4
       '@babel/plugin-transform-typescript': ^7.16.1
       '@iarna/toml': ^2.2.5
-      '@playwright/test': ~1.37.1
+      '@playwright/test': ~1.46.0
       '@types/fs-extra': ~11.0.4
       '@types/json-schema': 7.0.15
       '@types/lodash': ~4.14.199
@@ -3349,7 +3349,7 @@ importers:
       '@babel/core': 7.24.4
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.4
       '@iarna/toml': 2.2.5
-      '@playwright/test': 1.37.1
+      '@playwright/test': 1.46.0
       '@types/fs-extra': 11.0.4
       '@types/json-schema': 7.0.15
       '@types/lodash': 4.14.202
@@ -11794,6 +11794,15 @@ packages:
       playwright-core: 1.37.1
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
+
+  /@playwright/test/1.46.0:
+    resolution: {integrity: sha512-/QYft5VArOrGRP5pgkrfKksqsKA6CEFyGQ/gjNe6q0y4tZ1aaPfq4gIjudr1s3D+pXyrPRdsy4opKDrjBabE5w==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      playwright: 1.46.0
+    dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.11_bqo55rngdrakdb65vm4enlxnaa:
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
@@ -41893,6 +41902,23 @@ packages:
     resolution: {integrity: sha512-17EuQxlSIYCmEMwzMqusJ2ztDgJePjrbttaefgdsiqeLWidjYz9BxXaTaZWxH1J95SHGk6tjE+dwgWILJoUZfA==}
     engines: {node: '>=16'}
     hasBin: true
+    dev: true
+
+  /playwright-core/1.46.0:
+    resolution: {integrity: sha512-9Y/d5UIwuJk8t3+lhmMSAJyNP1BUC/DqP3cQJDQQL/oWqAiuPTLgy7Q5dzglmTLwcBRdetzgNM/gni7ckfTr6A==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dev: false
+
+  /playwright/1.46.0:
+    resolution: {integrity: sha512-XYJ5WvfefWONh1uPAUAi0H2xXV5S3vrtcnXe6uAOgdGi3aSpqOSXX08IAjXW34xitfuOJsvXU5anXZxPSEQiJw==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.46.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
 
   /please-upgrade-node/3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
