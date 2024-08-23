@@ -2080,7 +2080,7 @@ importers:
   ../../workspaces/choreo/choreo-extension:
     specifiers:
       '@istanbuljs/nyc-config-typescript': ^1.0.2
-      '@playwright/test': ~1.37.0
+      '@playwright/test': ~1.46.0
       '@types/byline': ^4.2.33
       '@types/chai': ^4.2.18
       '@types/glob': ^8.0.0
@@ -2174,7 +2174,7 @@ importers:
       which: 3.0.1
     devDependencies:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
-      '@playwright/test': 1.37.1
+      '@playwright/test': 1.46.0
       '@types/byline': 4.2.36
       '@types/glob': 8.1.0
       '@types/js-yaml': 4.0.9
@@ -11785,24 +11785,12 @@ packages:
     dev: true
     optional: true
 
-  /@playwright/test/1.37.1:
-    resolution: {integrity: sha512-bq9zTli3vWJo8S3LwB91U0qDNQDpEXnw7knhxLM0nwDvexQAwx9tO8iKDZSqqneVq+URd/WIoz+BALMqUTgdSg==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dependencies:
-      '@types/node': 20.11.16
-      playwright-core: 1.37.1
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
   /@playwright/test/1.46.0:
     resolution: {integrity: sha512-/QYft5VArOrGRP5pgkrfKksqsKA6CEFyGQ/gjNe6q0y4tZ1aaPfq4gIjudr1s3D+pXyrPRdsy4opKDrjBabE5w==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
       playwright: 1.46.0
-    dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.11_bqo55rngdrakdb65vm4enlxnaa:
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
@@ -41898,17 +41886,10 @@ packages:
       find-up: 3.0.0
     dev: true
 
-  /playwright-core/1.37.1:
-    resolution: {integrity: sha512-17EuQxlSIYCmEMwzMqusJ2ztDgJePjrbttaefgdsiqeLWidjYz9BxXaTaZWxH1J95SHGk6tjE+dwgWILJoUZfA==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: true
-
   /playwright-core/1.46.0:
     resolution: {integrity: sha512-9Y/d5UIwuJk8t3+lhmMSAJyNP1BUC/DqP3cQJDQQL/oWqAiuPTLgy7Q5dzglmTLwcBRdetzgNM/gni7ckfTr6A==}
     engines: {node: '>=18'}
     hasBin: true
-    dev: false
 
   /playwright/1.46.0:
     resolution: {integrity: sha512-XYJ5WvfefWONh1uPAUAi0H2xXV5S3vrtcnXe6uAOgdGi3aSpqOSXX08IAjXW34xitfuOJsvXU5anXZxPSEQiJw==}
@@ -41918,7 +41899,6 @@ packages:
       playwright-core: 1.46.0
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
 
   /please-upgrade-node/3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}

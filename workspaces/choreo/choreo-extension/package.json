@@ -278,7 +278,7 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@playwright/test": "~1.37.0",
+    "@playwright/test": "~1.46.0",
     "@types/byline": "^4.2.33",
     "@types/glob": "^8.0.0",
     "@types/js-yaml": "^4.0.5",
