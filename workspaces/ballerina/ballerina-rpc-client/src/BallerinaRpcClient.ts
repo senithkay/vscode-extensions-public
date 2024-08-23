@@ -103,6 +103,10 @@ export class BallerinaRpcClient {
         this.messenger.sendRequest(sendAIStateEvent, HOST_EXTENSION, event);
     }
 
+    onProjectContentUpdated(callback: (state: boolean) => void) {
+        this.messenger.onNotification(projectContentUpdated, callback);
+    }
+    
     webviewReady(): void {
         this.messenger.sendNotification(webviewReady, HOST_EXTENSION);
     }

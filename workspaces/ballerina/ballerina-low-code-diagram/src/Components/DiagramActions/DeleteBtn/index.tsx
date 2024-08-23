@@ -58,7 +58,7 @@ export function DeleteBtn(props: DeleteBtnProps) {
 
     const onBtnClick = () => {
         if (!isButtonDisabled) {
-            if (isReferencedInCode && renderDialogBox) {
+            if (isReferencedInCode && renderDialogBox) { // TODO: fix the renderDialogBox
                 renderDialogBox("Delete", onDeleteConfirm, closeConfirmDialog, {
                     x: cx + (showOnRight ? (-(DefaultConfig.deleteConfirmOffset.x)) / 2 : DefaultConfig.deleteConfirmOffset.x),
                     y: cy + (showOnRight ? 0 : DefaultConfig.deleteConfirmOffset.y),
@@ -90,8 +90,9 @@ export function DeleteBtn(props: DeleteBtnProps) {
             onConnectorDeleteEvent();
         }
         // delete logic
-        if (model && deleteComponent) {
-            deleteComponent(model, closeConfirmDialog)
+        if (model) {
+            diagramContext.props.onDeleteComponent(model);
+            // deleteComponent(model, closeConfirmDialog)
         } else if (onDraftDelete) {
             onDraftDelete();
         }

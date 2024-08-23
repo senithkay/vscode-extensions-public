@@ -32,7 +32,7 @@ export interface DataMapperViewProps {
     filePath: string;
     langServerRpcClient: LangClientRpcClient;
     libraryBrowserRpcClient?: LibraryBrowserRpcClient;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
+    applyModifications: (modifications: STModification[], isRecordModification?: boolean) => Promise<void>;
     goToFunction?: (componentInfo: HistoryEntry) => Promise<void>;
     onClose?: () => void;
     renderRecordPanel?: (props: {

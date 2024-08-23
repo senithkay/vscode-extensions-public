@@ -34,6 +34,7 @@ import {
     convertNodePropertiesToFormFields,
     getContainerTitle,
     getFormProperties,
+    removeDraftNodeFromDiagram,
     updateNodeProperties,
 } from "./../../utils/eggplant";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -51,7 +52,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -69,7 +70,7 @@ export interface EggplantDiagramProps {
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen, setScreenMetadata } = useVisualizerContext();
+    const { setPopupScreen } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
@@ -103,7 +104,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         targetRef.current = undefined;
         // restore original model
         if (originalFlowModel.current) {
-            setModel(originalFlowModel.current);
+            setModel(removeDraftNodeFromDiagram(model));
             originalFlowModel.current = undefined;
         }
     };
@@ -115,10 +116,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
-            position: {
-                startLine: parent.codedata.lineRange.startLine,
-                endLine: parent.codedata.lineRange.endLine,
-            },
+            position: target,
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
@@ -146,13 +144,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         console.log(">>> on select panel node", { nodeId, metadata });
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ 
-                position: {
-                    startLine: topNodeRef.current.codedata.lineRange.startLine,
-                    endLine: topNodeRef.current.codedata.lineRange.endLine,
-                },
+            .getNodeTemplate({
+                position: targetRef.current,
                 filePath: model.fileName,
-                id: node.codedata })
+                id: node.codedata,
+            })
             .then((response) => {
                 console.log(">>> FlowNode template", response);
                 selectedNodeRef.current = response.flowNode;
@@ -171,7 +167,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     const handleOnFormSubmit = (data: FormValues) => {
         console.log(">>> on form submit", data);
-        if (selectedNodeRef.current && topNodeRef.current) {
+        if (selectedNodeRef.current && targetRef.current) {
             let updatedNode: FlowNode = {
                 ...selectedNodeRef.current,
                 codedata: {
@@ -205,7 +201,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 .getEggplantDiagramRpcClient()
                 .getSourceCode({
                     filePath: model.fileName,
-                    flowNode: updatedNode
+                    flowNode: updatedNode,
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);

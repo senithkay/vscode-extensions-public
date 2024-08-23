@@ -131,7 +131,8 @@ export function Return(props: ReturnProps) {
     const onEditClick = () => {
         const overlayFormConfig = getOverlayFormConfig("Return", model.position, WizardType.EXISTING,
             blockViewState, undefined, stSymbolInfo, model);
-        renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
+        diagramContext.props.onEditComponent(model, model.position, "Return");
+        // renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel, onSave);
     }
 
     const onSave = () => {

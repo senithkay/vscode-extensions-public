@@ -632,6 +632,7 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ballerina-side-panel': workspace:*
       '@wso2-enterprise/component-diagram': workspace:*
+      '@wso2-enterprise/ballerina-statement-editor': workspace:*
       '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/eggplant-diagram': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
@@ -675,6 +676,7 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
       '@wso2-enterprise/component-diagram': link:../component-diagram
+      '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
       '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
       '@wso2-enterprise/overview-view': link:../overview-view
@@ -9703,7 +9705,7 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@types/node': 20.11.16
+      '@types/node': 20.11.27
       playwright-core: 1.37.1
     optionalDependencies:
       fsevents: 2.3.2
@@ -21226,7 +21228,7 @@ packages:
   /@types/byline/4.2.36:
     resolution: {integrity: sha512-dO55KDSaOSE+3T8TwP66mzn0u/PM/aSedVMr1tby7WBNjfLIuS6IbYXi1mlau49sVSVB+gXKJscWE0JO3tlXDw==}
     dependencies:
-      '@types/node': 20.11.16
+      '@types/node': 20.11.27
     dev: true
 
   /@types/cacheable-request/6.0.3:
@@ -21366,7 +21368,7 @@ packages:
     resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 20.11.16
+      '@types/node': 20.11.27
 
   /@types/glob/7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -21483,7 +21485,7 @@ packages:
   /@types/jsdom/21.1.6:
     resolution: {integrity: sha512-/7kkMsC+/kMs7gAYmmBR9P0vGTnOoLhQhyhQJSlXGI5bzTHp6xdo0TtKWQAsz6pmSAeVqKSbqeyP6hytqr9FDw==}
     dependencies:
-      '@types/node': 20.11.16
+      '@types/node': 20.11.27
       '@types/tough-cookie': 4.0.5
       parse5: 7.1.2
     dev: false
@@ -21618,6 +21620,7 @@ packages:
     resolution: {integrity: sha512-gKb0enTmRCzXSSUJDq6/sPcqrfCv2mkkG6Jt/clpn5eiCbKTY+SgZUxo+p8ZKMof5dCp9vHQUAB7wOUTod22wQ==}
     dependencies:
       undici-types: 5.26.5
+    dev: true
 
   /@types/node/20.11.27:
     resolution: {integrity: sha512-qyUZfMnCg1KEz57r7pzFtSGt49f6RPkPBis3Vo4PbS7roQEDn22hiHzl/Lo1q4i4hDEgBJmBF/NTNg2XR0HbFg==}
@@ -21888,7 +21891,7 @@ packages:
   /@types/unzipper/0.10.9:
     resolution: {integrity: sha512-vHbmFZAw8emNAOVkHVbS3qBnbr0x/qHQZ+ei1HE7Oy6Tyrptl+jpqnOX+BF5owcu/HZLOV0nJK+K9sjs1Ox2JA==}
     dependencies:
-      '@types/node': 20.11.16
+      '@types/node': 20.11.27
     dev: true
 
   /@types/use-sync-external-store/0.0.3:

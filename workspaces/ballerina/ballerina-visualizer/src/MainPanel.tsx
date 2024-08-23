@@ -23,12 +23,16 @@ import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { WelcomeView, ProjectForm, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
-import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ServiceDeclaration, STNode } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
-import { useVisualizerContext } from './Context';
 import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { PanelType, useVisualizerContext } from './Context';
+import { SidePanel } from '@wso2-enterprise/ui-toolkit';
+import { RecordEditor } from '@wso2-enterprise/record-creator';
+import { ConstructPanel } from "./views/ConstructPanel";
+import { EditPanel } from "./views/EditPanel";
 
 const globalStyles = css`
   *,
@@ -49,9 +53,18 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const { popupScreen, setPopupScreen, popupMessage, setPopupMessage } = useVisualizerContext();
+    const {
+        popupScreen,
+        sidePanel,
+        setPopupScreen,
+        setSidePanel,
+        popupMessage,
+        setPopupMessage
+        , activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
+    const [recordPath, setRecordPath] = useState<string>("");
+    const [recordFullST, setRecordFullST] = useState<STNode>();
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
@@ -59,11 +72,28 @@ const MainPanel = () => {
         }
     });
 
-    const applyModifications = async (modifications: STModification[]) => {
+    const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
-        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
-            astModifications: modifications,
+        let filePath;
+        let m: STModification[];
+        if (isRecordModification) {
+            filePath = (await rpcClient.getVisualizerLocation()).recordFilePath;
+            if (modifications.length === 1) {
+                // Change the start position of the modification to the beginning of the file
+                m = [{
+                    ...modifications[0],
+                    startLine: 0,
+                    startColumn: 0,
+                    endLine: 0,
+                    endColumn: 0
+                }];
+            }
+        } else {
+            filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+            m = modifications;
+        }
+        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
+            astModifications: m,
             documentIdentifier: {
                 uri: URI.file(filePath).toString()
             }
@@ -75,6 +105,13 @@ const MainPanel = () => {
                 fileUri: filePath
             });
         }
+        if (isRecordModification) {
+            setRecordFullST(syntaxTree);
+        }
+    };
+
+    const applyRecordModifications = async (modifications: STModification[]) => {
+        applyModifications(modifications, true);
     };
 
     const fetchContext = () => {
@@ -119,7 +156,8 @@ const MainPanel = () => {
                         setViewComponent(<GraphQLDiagram />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
-                        setViewComponent(<SequenceDiagram />)
+                        setViewComponent(
+                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />)
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);
@@ -144,6 +182,14 @@ const MainPanel = () => {
 
     useEffect(() => {
         fetchContext();
+        rpcClient.getVisualizerLocation().then((vl) => {
+            const projectRoot = vl.projectUri;
+            console.log(">>> project root path", projectRoot);
+            setRecordPath(vl.recordFilePath);
+            console.log(">>> record file path", vl.recordFilePath);
+            console.log(">>> project root path", projectRoot);
+        });
+        console.log(">>> visualizer location", rpcClient.getVisualizerLocation());
     }, []);
 
     useEffect(() => {
@@ -159,7 +205,7 @@ const MainPanel = () => {
 
     const handleOnClosePopup = () => {
         setPopupScreen("EMPTY");
-    }
+    };
 
     const handleOnCloseMessage = () => {
         setPopupMessage(false);
@@ -180,6 +226,44 @@ const MainPanel = () => {
                     <PopupMessage onClose={handleOnCloseMessage}>
                         <Typography variant='h3'>This feature is coming soon!</Typography>
                     </PopupMessage>
+                }
+                <SidePanel
+                    isOpen={sidePanel !== "EMPTY"}
+                    onClose={() => setSidePanel("EMPTY")}
+                    width={600}
+                >
+                    {sidePanel === "RECORD_EDITOR" && recordPath && (
+                        <RecordEditor
+                            onClose={() => setSidePanel("EMPTY")}
+                            applyModifications={applyRecordModifications}
+                            importStatements={[]}
+                            langServerRpcClient={rpcClient.getLangClientRpcClient()}
+                            libraryBrowserRpcClient={null}
+                            onCancel={() => setSidePanel("EMPTY")}
+                            onCancelStatementEditor={() => setSidePanel("EMPTY")}
+                            recordCreatorRpcClient={rpcClient.getRecordCreatorRpcClient()}
+                            targetPosition={{ startLine: 0, startColumn: 0 }}
+                            currentFile={{
+                                content: "",
+                                path: recordPath,
+                                size: 0
+                            }}
+                            isDataMapper={false}
+                            showHeader={false}
+                            fullST={recordFullST}
+                        />
+                    )}
+                </SidePanel>
+                {sidePanel !== "EMPTY" && <SidePanel onClose={() => setSidePanel("EMPTY")}>
+                    {sidePanel === "RECORD_EDITOR" && <div>Record Editor</div>}
+                </SidePanel>}
+                {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
+                    <ConstructPanel applyModifications={applyModifications} />
+                )
+                }
+                {activePanel?.isActive && activePanel.name === PanelType.STATEMENTEDITOR && (
+                    <EditPanel applyModifications={applyModifications} />
+                )
                 }
             </VisualizerContainer>
         </>

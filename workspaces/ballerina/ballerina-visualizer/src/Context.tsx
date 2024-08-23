@@ -9,6 +9,7 @@
 
 import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
 import { BallerinaRpcClient, VisualizerContext as RpcContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export function RpcContextProvider({ children }: { children: ReactNode }) {
     const rpcClient = useRef(new BallerinaRpcClient());
@@ -20,25 +21,71 @@ export function RpcContextProvider({ children }: { children: ReactNode }) {
     return <Context.Provider value={contextValue}>{children}</Context.Provider>;
 }
 
+
+
+export enum PanelType {
+    STATEMENTEDITOR = "STATEMENTEDITOR",
+    CONSTRUCTPANEL = "CONSTRUCTPANEL",
+};
+
+interface PanelDetails {
+    isActive: boolean;
+    name?: PanelType;
+    contentUpdated?: boolean;
+}
+
+interface ComponentInfo {
+    model: STNode;
+    position: NodePosition;
+    componentType: string;
+}
+
 export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
+export type SidePanel = "EMPTY" | "RECORD_EDITOR";
+
 interface VisualizerContext {
     popupScreen: PopupScreen;
     popupMessage: boolean;
-    screenMetadata: any;
     setPopupScreen: (screen: PopupScreen) => void;
     setPopupMessage: (value: boolean) => void;
+    sidePanel: SidePanel;
+    screenMetadata: any;
+    setSidePanel: (panel: SidePanel) => void;
     setScreenMetadata: (metadata: any) => void;
+    activePanel: PanelDetails;
+    setActivePanel: (panelDetails: PanelDetails) => void;
+    statementPosition: NodePosition;
+    setStatementPosition: (position: NodePosition) => void;
+    parsedST: STNode;
+    setParsedST: (parsedST: STNode) => void;
+    componentInfo?: ComponentInfo;
+    setComponentInfo?: (componentInfo: ComponentInfo) => void;
 }
 
 export const VisualizerContext = createContext({
     popupScreen: "EMPTY",
-    setPopupScreen: (screen: PopupScreen) => { },
+    setPopupScreen: (screen: PopupScreen) => {  },
+    activePanel: { isActive: false },
+    setActivePanel: (panelDetails: PanelDetails) => { },
+    statementPosition: undefined,
+    setStatementPosition: (position: NodePosition) => { },
+    parsedST: undefined,
+    setParsedST: (parsedST: STNode) => { },
+    componentInfo: undefined,
+    setComponentInfo: (componentInfo: ComponentInfo) => { },
+
 } as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
     const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
     const [popupMessage, setPopupMessage] = useState(false);
+    const [sidePanel, setSidePanel] = useState("EMPTY" as SidePanel);
     const [metadata, setMetadata] = useState({} as any);
+    const [activePanel, setActivePanel] = useState({ isActive: false });
+    const [statementPosition, setStatementPosition] = useState<NodePosition>();
+    const [parsedST, setParsedST] = useState<STNode>();
+    const [componentInfo, setComponentInfo] = useState<ComponentInfo>();
+
 
     const contextValue: VisualizerContext = {
         popupScreen: popupScreen,
@@ -46,7 +93,17 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
         screenMetadata: metadata,
         setPopupScreen: setPopupScreen,
         setPopupMessage: setPopupMessage,
+        sidePanel: sidePanel,
+        setSidePanel: setSidePanel,
         setScreenMetadata: setMetadata,
+        activePanel: activePanel,
+        setActivePanel: setActivePanel,
+        statementPosition: statementPosition,
+        setStatementPosition: setStatementPosition,
+        parsedST: parsedST,
+        setParsedST: setParsedST,
+        componentInfo: componentInfo,
+        setComponentInfo: setComponentInfo,
     };
 
     return <VisualizerContext.Provider value={contextValue}>{children}</VisualizerContext.Provider>;

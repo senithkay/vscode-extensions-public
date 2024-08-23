@@ -142,7 +142,17 @@ export function ConnectorView(props: ConnectorViewProps) {
                                                     " / " +
                                                     (connector as AvailableNode).codedata.module
                                                 }
-                                                icon={<Codicon name="package" />}
+                                                icon={
+                                                    connector.metadata.icon ? (
+                                                        <img
+                                                            src={connector.metadata.icon}
+                                                            alt={connector.metadata.label}
+                                                            style={{ width: "24px" }}
+                                                        />
+                                                    ) : (
+                                                        <Codicon name="package" />
+                                                    )
+                                                }
                                                 onClick={() => {
                                                     onSelectConnector(connector as AvailableNode);
                                                 }}

@@ -117,11 +117,17 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen, setPopupMessage } = useVisualizerContext();
+    const { setPopupScreen, setPopupMessage, setSidePanel } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
-    useEffect(() => {
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            fetchContext();
+        }
+    });
+
+    const fetchContext = () => {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getProjectStructure()
@@ -134,6 +140,10 @@ export function Overview(props: OverviewProps) {
             .then((res) => {
                 setProjectName(res.workspaces[0].name);
             });
+    }
+
+    useEffect(() => {
+        fetchContext();
     }, []);
 
     const goToView = async (res: ProjectStructureArtifactResponse) => {
@@ -154,6 +164,10 @@ export function Overview(props: OverviewProps) {
     const handleAddConnection = () => {
         console.log(">>> Add Connection");
         setPopupScreen("ADD_CONNECTION");
+    };
+
+    const handleAddShema = () => {
+        setSidePanel("RECORD_EDITOR");
     };
 
     return (
@@ -238,7 +252,7 @@ export function Overview(props: OverviewProps) {
                                 <SectionTitle>
                                     <h2 className="text-base">Schemas</h2>
                                     {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].length > 0 && (
-                                        <Button appearance="icon" onClick={handleAddArtifact} tooltip="Add Artifact">
+                                        <Button appearance="icon" onClick={handleAddShema} tooltip="Add Artifact">
                                             <Codicon name="add" />
                                         </Button>
                                     )}
@@ -261,7 +275,7 @@ export function Overview(props: OverviewProps) {
                                         <EmptyCard
                                             description="Create and manage data types using JSON schema. Generate reusable types for your integration."
                                             actionText="Add Schema"
-                                            onClick={handleAddArtifact}
+                                            onClick={handleAddShema}
                                         />
                                     )}
                                 </div>

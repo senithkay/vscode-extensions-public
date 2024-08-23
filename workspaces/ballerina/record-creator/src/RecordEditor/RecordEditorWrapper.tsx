@@ -16,6 +16,7 @@ import { RecordEditorProps } from ".";
 export function RecordEditorWrapper(props: RecordEditorProps) {
     const {
         model,
+        fullST: fullSyntaxTree,
         isDataMapper,
         onCancel,
         showHeader,
@@ -51,7 +52,7 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
                 importStatements,
                 currentReferences,
                 ballerinaVersion,
-                fullST,
+                fullST : fullSyntaxTree || fullST.syntaxTree,
                 ballerinaProjectComponents,
             },
             api: {
@@ -60,7 +61,7 @@ export function RecordEditorWrapper(props: RecordEditorProps) {
                 onClose,
             },
         };
-    }, [isFetchingBallerinaVersion, isFetchingFullST, isFetchingBallerinaProjectComponents]);
+    }, [isFetchingBallerinaVersion, isFetchingFullST, isFetchingBallerinaProjectComponents, fullSyntaxTree]);
 
     return (
         <Context.Provider value={contextValue}>

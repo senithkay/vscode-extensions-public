@@ -8,9 +8,9 @@
  */
 
 import React, { useState } from "react";
-import { Button, Codicon, Icon, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { LogIcon } from "../../resources";
+import { CallIcon, LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
 import { Category, Node } from "./../NodeList/types";
 
@@ -40,6 +40,7 @@ namespace S {
 
     export const TitleRow = styled(Row)<{}>`
         cursor: pointer;
+        padding: 0 5px;
     `;
 
     export const Title = styled.div<{}>`
@@ -93,7 +94,7 @@ namespace S {
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
-        width: 120px;
+        width: 115px;
         word-break: break-all;
     `;
 
@@ -136,9 +137,7 @@ export function GroupList(props: GroupListProps) {
     return (
         <S.Card>
             <S.TitleRow onClick={handleToggleList}>
-                <S.ComponentIcon>
-                    <LogIcon />
-                </S.ComponentIcon>
+                <S.ComponentIcon>{category.icon || <LogIcon />}</S.ComponentIcon>
                 <S.Title>{category.title}</S.Title>
                 <S.CardAction>
                     {openList ? <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />}
@@ -154,7 +153,7 @@ export function GroupList(props: GroupListProps) {
                                 enabled={node.enabled}
                                 onClick={() => onSelect(node, category.title)}
                             >
-                                <S.ComponentIcon>{node.icon || <LogIcon />}</S.ComponentIcon>
+                                <S.ComponentIcon>{node.icon || <CallIcon />}</S.ComponentIcon>
                                 <S.ComponentTitle>{node.label}</S.ComponentTitle>
                             </S.Component>
                         ))}

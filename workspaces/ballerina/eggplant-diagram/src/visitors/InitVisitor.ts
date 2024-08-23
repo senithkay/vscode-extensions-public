@@ -24,9 +24,7 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
+        node.viewState = this.getDefaultViewState();
     }
 
     endVisitNode(node: FlowNode, parent?: FlowNode): void {
@@ -47,9 +45,7 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
+        node.viewState = this.getDefaultViewState();
         // add empty node if branch is empty
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {

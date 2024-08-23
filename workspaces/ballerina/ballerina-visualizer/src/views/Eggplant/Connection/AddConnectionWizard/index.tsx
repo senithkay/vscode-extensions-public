@@ -36,6 +36,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
     const [fields, setFields] = useState<FormField[]>([]);
+    const selectedConnectorRef = useRef<AvailableNode>();
     const selectedNodeRef = useRef<FlowNode>();
 
     const handleOnSelectConnector = async (connector: AvailableNode) => {
@@ -43,11 +44,14 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             console.error(">>> Error selecting connector. No codedata found");
             return;
         }
+        selectedConnectorRef.current = connector;
 
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
-                position: null, filePath: "", id: connector.codedata
+                position: null,
+                filePath: "",
+                id: connector.codedata,
             })
             .then((response) => {
                 console.log(">>> FlowNode template", response);
@@ -93,7 +97,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             if (visualizerLocation.projectUri) {
                 connectionsFilePath = visualizerLocation.projectUri + "/connections.bal";
             }
-            if(connectionsFilePath === "") {
+            if (connectionsFilePath === "") {
                 console.error(">>> Error updating source code. No connections.bal file found");
                 return;
             }
@@ -102,7 +106,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 .getEggplantDiagramRpcClient()
                 .getSourceCode({
                     filePath: connectionsFilePath,
-                    flowNode: updatedNode
+                    flowNode: updatedNode,
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
@@ -128,7 +132,12 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         <Container>
             {currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
             {currentStep === WizardStep.CONNECTION_CONFIG && (
-                <ConnectionConfigView fields={fields} onSubmit={handleOnFormSubmit} onBack={handleOnBack} />
+                <ConnectionConfigView
+                    name={selectedConnectorRef.current?.metadata.label}
+                    fields={fields}
+                    onSubmit={handleOnFormSubmit}
+                    onBack={handleOnBack}
+                />
             )}
         </Container>
     );

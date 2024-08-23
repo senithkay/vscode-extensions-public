@@ -545,6 +545,46 @@ export interface XMLToRecordConverterDiagnostic {
     severity?: DIAGNOSTIC_SEVERITY;
 }
 
+
+export interface ConstantConfigFormState {
+    isPublic: boolean;
+    isTypeDefined: boolean;
+    constantName: string;
+    constantValue: string;
+    constantType: string;
+    isExpressionValid: boolean;
+}
+
+export interface ConfigurableFormState {
+    isPublic: boolean;
+    varType: string;
+    varName: string;
+    varValue: string;
+    isExpressionValid: boolean;
+    hasDefaultValue: boolean;
+    label: string;
+}
+
+export interface ListenerConfig {
+    listenerName: string,
+    listenerPort: string,
+    listenerType: string
+    isExpressionValid: boolean;
+}
+
+export interface ModuleVariableFormState {
+    varType: string;
+    varName: string;
+    varValue: string;
+    varOptions: string[];
+}
+
+export interface HeaderObjectConfig {
+    requestName?: string;
+    objectKey: string;
+    objectValue: string;
+}
+
 export interface CommandResponse {
     error: boolean;
     message: string;

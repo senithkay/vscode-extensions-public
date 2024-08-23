@@ -12,6 +12,7 @@ export type Item = Category | Node;
 export type Category = {
     title: string;
     description: string;
+    icon?: React.JSX.Element;
     items: Item[];
 };
 
