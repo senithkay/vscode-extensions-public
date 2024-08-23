@@ -178,7 +178,8 @@ export class LangClientRpcManager implements LangClientAPI {
                     // Skip saving document and keep in dirty mode
                     resolve({ status: true });
                 }
-                status = await doc.save();
+                const status = await doc.save();
+                resolve({ status });
             } else {
                 StateMachine.langClient().didChange({
                     contentChanges: [
@@ -193,10 +194,9 @@ export class LangClientRpcManager implements LangClientAPI {
                 });
                 writeFileSync(normalizedFilePath, content);
                 StateMachine.langClient().updateStatusBar();
+                updateView();
             }
-            updateView();
-            notifyCurrentWebview();
-            resolve({ status });
+            resolve({ status: false });
         });
     }
 
