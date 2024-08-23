@@ -21,7 +21,7 @@ interface FormFieldEditorProps {
 export function FormFieldEditor(props: FormFieldEditorProps) {
     const { field } = props;
 
-    if (field.items) {
+    if (field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT") {
         return <DropdownEditor {...props} />;
     } else {
         return <TextEditor {...props} />;

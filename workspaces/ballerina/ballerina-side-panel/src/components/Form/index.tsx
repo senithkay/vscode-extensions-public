@@ -53,15 +53,7 @@ export function Form(props: FormProps) {
     const { formFields, onSubmit } = props;
     const { getValues, register } = useForm<FormValues>();
 
-    console.log(">>> form fields123", { formFields, values: getValues() });
-
-    console.log("TEST TEST");
-
-    console.log(">>> SAMPLE", formFields[0]);
-    const registerField = register(formFields[0].key, { required: !formFields[0].optional, value: formFields[0].value });
-    console.log(">>> field", registerField);
-
-    console.log("TEST TEST TEST");
+    console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = () => {
         onSubmit(getValues());
