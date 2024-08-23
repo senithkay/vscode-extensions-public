@@ -5,7 +5,10 @@ import fs from "fs";
 
 export async function getBrowser(folder: string, version: string, quality: ReleaseQuality): Promise<Browser> {
     const codeUtil = new CodeUtil(folder, quality);
-    await codeUtil.downloadVSCode(version);
+    const vscodePath = path.join(folder, `Visual Studio Code.app`);
+    if (!fs.existsSync(vscodePath)) {
+        await codeUtil.downloadVSCode(version);
+    }
     const browser = await codeUtil.getBrowser();
     return browser;
 }
