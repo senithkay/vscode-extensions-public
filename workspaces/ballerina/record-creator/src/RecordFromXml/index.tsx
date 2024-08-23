@@ -28,7 +28,7 @@ import {
     InputWrapper,
     useStyles,
 } from "../style";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
 
 interface RecordState {
@@ -163,6 +163,8 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                                 modifiedPosition: newPosition,
                             },
                         });
+                        // TODO: Fix the flow after the Demo
+                        onCancel();
                     } else {
                         recordST = await getRecordST({ codeSnippet: updatedBlock.trim() }, langServerRpcClient);
                         newPosition = {
@@ -179,6 +181,8 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                             },
                         });
                     }
+                    // TODO: Fix the flow after the Demo
+                    onCancel();
                     onSave(updatedBlock, newPosition);
                     onUpdate && onUpdate(true);
                 } else {
@@ -196,21 +200,19 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                 <RecordOverview
                     type="XML"
                     undoRedoManager={undoRedoManager}
-                    prevST={fullST.syntaxTree}
+                    prevST={fullST}
                     definitions={formState.importedRecord}
                     onComplete={onCancel}
                     onCancel={onCancel}
                 />
             ) : (
                 <FormContainer data-testid="xml-record-config-form">
-                    {!isHeaderHidden && (
-                        <FormHeaderSection
-                            onCancel={onCancel}
-                            formTitle="Import Sample XML"
-                            formType={""}
-                            defaultMessage="Import Sample XML"
-                        />
-                    )}
+                        {!isHeaderHidden && (
+                            <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
+                                <Typography variant="h3" sx={{ margin: 0 }}>Import Sample XML</Typography>
+                                <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
+                            </SidePanelTitleContainer>
+                        )}
                     <FormWrapper>
                         <InputContainer id="xml-input-container" test-id="xml-input-container">
                             <InputWrapper>

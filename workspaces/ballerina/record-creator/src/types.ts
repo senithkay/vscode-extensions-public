@@ -13,7 +13,7 @@ import {
     LibraryBrowserRpcClient,
     RecordCreatorRpcClient
 } from "@wso2-enterprise/ballerina-rpc-client";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface SimpleField {
     name: string;
@@ -79,7 +79,7 @@ export interface RecordCreatorContext {
     props: IStatementEditorComponentProps & {
         recordCreatorRpcClient: RecordCreatorRpcClient;
         ballerinaVersion: string;
-        fullST: SyntaxTreeResponse;
+        fullST: STNode;
         ballerinaProjectComponents: BallerinaProjectComponents;
     };
     api: IStatementEditorComponentApi & {};
