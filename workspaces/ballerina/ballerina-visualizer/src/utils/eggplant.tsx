@@ -208,3 +208,21 @@ export function removeDraftNodeFromDiagram(flowModel: Flow) {
     const newFlow = removeNodeVisitor.getUpdatedFlow();
     return newFlow;
 }
+
+export function enrichNodePropertiesWithValueConstraint(
+    nodeProps: NodeProperties,
+    nodePropsWithValConstrant: NodeProperties
+) {
+    const enrichedNodeProperties: NodeProperties = { ...nodeProps };
+
+    for (const key in enrichedNodeProperties) {
+        if (enrichedNodeProperties.hasOwnProperty(key)) {
+            const expression = enrichedNodeProperties[key as NodePropertyKey];
+            if (expression) {
+                expression.valueTypeConstraint = nodePropsWithValConstrant[key as NodePropertyKey].valueTypeConstraint;
+            }
+        }
+    }
+
+    return enrichedNodeProperties;
+}
