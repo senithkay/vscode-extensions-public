@@ -412,7 +412,9 @@ jobs:
         run: |
           cd workspaces/mi/mi-extension
           npx playwright install --with-deps
-          xvfb-run --auto-servernum pnpm run e2e-test
+          xvfb-run --auto-servernum npx playwright test
+        env:
+          DEBUG: pw:browser*  
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
