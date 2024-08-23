@@ -411,6 +411,7 @@ jobs:
       - name: Run Test
         run: |
           cd workspaces/mi/mi-extension
+          npx playwright install --with-deps
           xvfb-run --auto-servernum pnpm run e2e-test
 
       - name: Upload test results
