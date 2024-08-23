@@ -102,6 +102,7 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
                             'connectors': '',
                         },
                     },
+                    'java': ''
                 },
                 'test': {
                     'wso2mi': '',
