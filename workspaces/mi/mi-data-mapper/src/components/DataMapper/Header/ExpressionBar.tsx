@@ -92,8 +92,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
 
         if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
+            let nodeValue = "";
+            if (Node.isPropertyAssignment(nodeForSuggestions)) {
+                nodeValue = nodeForSuggestions.getInitializer()?.getText();
+            } else {
+                nodeValue = nodeForSuggestions.getText();
+            }
+
             const fileContent = nodeForSuggestions.getSourceFile().getFullText();
-            const cursorPosition = nodeForSuggestions.getEnd();
+            const relativeCursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+            const offset = nodeValue.length - relativeCursorPosition;
+            const cursorPosition = nodeForSuggestions.getEnd() - offset;
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
                 filePath,
                 fileContent,
