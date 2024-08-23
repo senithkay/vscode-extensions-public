@@ -51,7 +51,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
     const textFieldRef = useRef<ExpressionBarRef>(null);
-    const cursorPositionBeforeSaving = useRef<number>(0);
+    const cursorPositionBeforeSaving = useRef<number | undefined>();
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -76,7 +76,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         resetLastFocusedFilter,
     } = useDMExpressionBarStore(state => state);
 
-    const portChanged = !!(lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort?.fieldFQN);
+    const portChanged = !!(focusedPort && lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort.fieldFQN);
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
         if (!focusedPort && !focusedFilter) {
@@ -217,13 +217,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 }
             }
 
-            setSavedNodeValue(value);
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
             
-            setLastFocusedFilter(focusedFilter);
-            setSavedNodeValue(value);
             disabled = false;
         } else {
             // If displaying a focused view
@@ -240,6 +237,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         cursorPositionBeforeSaving.current = value.length;
         
         setTextFieldValue(value);
+        setSavedNodeValue(value);
         triggerAction(!action);
 
         return disabled;
@@ -325,6 +323,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
                 if (value === '') {
                     focusedFieldValue.remove();
+                } else if (focusedFieldValue.getInitializer()?.getText() !== value) {
+                    const propName = focusedFieldValue.getName();
+                    focusedFieldValue.remove();
+                    parent.addPropertyAssignment({
+                        name: propName,
+                        initializer: value
+                    });
                 }
 
                 updatedSourceContent = parent.getSourceFile().getFullText();
@@ -352,12 +357,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const updateSource = async (value: string) => {
-        if (savedNodeValue === value) {
+        if (savedNodeValue === value || (portChanged && lastSavedNodeValue === value)) {
             return;
-        } else {
-            if (portChanged && lastSavedNodeValue === value) {
-                return;
-            }
         }
         await applyChanges(value);
     }

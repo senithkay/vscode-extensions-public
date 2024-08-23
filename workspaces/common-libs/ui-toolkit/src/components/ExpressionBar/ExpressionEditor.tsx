@@ -408,13 +408,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleExpressionSave = async (value: string) => {
-        const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
-        
-        // If expression is updated
-        if (value !== valueWithClosingBracket) {
-            await handleChange(valueWithClosingBracket, cursorPosition);
-        }
-
+        const valueWithClosingBracket = addClosingBracketIfNeeded(value);
         await onSave(valueWithClosingBracket);
         handleClose();
     }
