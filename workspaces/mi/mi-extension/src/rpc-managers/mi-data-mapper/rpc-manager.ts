@@ -317,7 +317,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             }
 
             const request = {
-                tsFile: tsContent
+                ts_file: tsContent
             };
             // Function to make a request to the backend to get the data mapping
             const makeRequest = async (url: string, token: string) => {

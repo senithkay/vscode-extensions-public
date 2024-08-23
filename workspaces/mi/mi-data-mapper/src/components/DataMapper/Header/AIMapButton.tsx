@@ -42,7 +42,7 @@ const AIMapButton: React.FC<AIMapButtonProps> = ({ onClick, isLoading }) => {
     <ButtonContainer>
       <StyledButton
         appearance= "secondary" 
-        tooltip="Generate Mappings using AI"
+        tooltip="Generates Mappings using AI"
         onClick={async () => {
           if (!isLoading) {
             await onClick();

@@ -38,7 +38,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { rpcClient } = useVisualizerContext();
 
     const showMappingEndNotification = async () => {
-        const message = "You may freely edit these mappings or try again. \n\n Please note that automated mapping is powered by AI. Thus, mistakes and surprises are inevitable.";
+        const message = "You may freely edit these mappings or try again. \n\n Please note that automatic mapping is powered by AI. Thus, mistakes and surprises are inevitable.";
         rpcClient.getMiVisualizerRpcClient().retrieveContext({
           key: "showDmLandingMessage",
           contextType: "workspace"
