@@ -52,17 +52,20 @@ export interface DataMapperExpressionBarState {
     lastFocusedFilter: Node;
     inputPort: InputOutputPortModel;
     savedNodeValue: string;
+    lastSavedNodeValue: string;
     setFocusedPort: (port: InputOutputPortModel) => void;
     setFocusedFilter: (port: Node) => void;
     setLastFocusedPort: (port: InputOutputPortModel) => void;
     setLastFocusedFilter: (port: Node) => void;
     setInputPort: (port: InputOutputPortModel) => void;
     setSavedNodeValue: (value: string) => void;
+    setLastSavedNodeValue: (value: string) => void;
     resetFocus: () => void;
     resetInputPort: () => void;
     resetLastFocusedPort: () => void;
     resetLastFocusedFilter: () => void;
     resetSavedNodeValue: () => void;
+    resetLastSavedNodeValue: () => void;
 }
 
 export interface DataMapperArrayFiltersState {
@@ -114,18 +117,21 @@ export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set
     lastFocusedPort: undefined,
     lastFocusedFilter: undefined,
     savedNodeValue: undefined,
+    lastSavedNodeValue: undefined,
     inputPort: undefined,
     setFocusedPort: (focusedPort: InputOutputPortModel) => set({ focusedPort }),
     setFocusedFilter: (focusedFilter: Node) => set({ focusedFilter }),
     setLastFocusedPort: (lastFocusedPort: InputOutputPortModel) => set({ lastFocusedPort }),
     setLastFocusedFilter: (lastFocusedFilter: Node) => set({ lastFocusedFilter }),
     setSavedNodeValue: (savedNodeValue: string) => set({ savedNodeValue }),
+    setLastSavedNodeValue: (lastSavedNodeValue: string) => set({ lastSavedNodeValue }),
     setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
     resetFocus: () => set({ focusedPort: undefined, focusedFilter: undefined }),
     resetInputPort: () => set({ inputPort: undefined }),
     resetLastFocusedPort: () => set({ lastFocusedPort: undefined }),
     resetLastFocusedFilter: () => set({ lastFocusedFilter: undefined }),
     resetSavedNodeValue: () => set({ savedNodeValue: undefined }),
+    resetLastSavedNodeValue: () => set({ lastSavedNodeValue: undefined }),
 }));
 
 export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) => ({

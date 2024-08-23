@@ -64,14 +64,19 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         lastFocusedFilter,
         inputPort,
         savedNodeValue,
+        lastSavedNodeValue,
         setLastFocusedPort,
         setLastFocusedFilter,
         resetInputPort,
         setSavedNodeValue,
+        setLastSavedNodeValue,
         resetSavedNodeValue,
+        resetLastSavedNodeValue,
         resetLastFocusedPort,
         resetLastFocusedFilter,
     } = useDMExpressionBarStore(state => state);
+
+    const portChanged = !!(lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort?.fieldFQN);
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
         if (!focusedPort && !focusedFilter) {
@@ -248,7 +253,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 value = undefined;
             }
 
-            const portChanged = !!(lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort?.fieldFQN);
             if (disabled) {
                 await textFieldRef.current?.blur(value);
             } else if (portChanged) {
@@ -258,7 +262,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 await textFieldRef.current?.focus();
             }
         });
-    }, [disabled, action]);
+    }, [disabled, action, lastFocusedPort, lastFocusedFilter]);
 
     const initializeValue = async () => {
         const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
@@ -341,6 +345,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const updateSource = async (value: string) => {
         if (savedNodeValue === value) {
             return;
+        } else {
+            if (portChanged && lastSavedNodeValue === value) {
+                return;
+            }
         }
         await applyChanges(value);
     }
@@ -364,12 +372,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         // Update the last focused port and filter
         setLastFocusedPort(focusedPort);
         setLastFocusedFilter(focusedFilter);
+        setLastSavedNodeValue(savedNodeValue);
     }
 
     const handleBlur = async () => {
         // Reset the last focused port and filter
         resetLastFocusedPort();
         resetLastFocusedFilter();
+        resetLastSavedNodeValue();
 
         // Reset text field value
         setTextFieldValue("");

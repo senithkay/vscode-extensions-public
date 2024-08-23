@@ -528,16 +528,16 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     useImperativeHandle(ref, () => ({
         shadowRoot: inputRef.current?.shadowRoot,
         focus: async () => {
-            inputRef.current?.focus();
             await onFocus?.();
+            inputRef.current?.focus();
         },
         blur: async (text?: string) => {
-            inputRef.current?.blur();
             // Trigger save event on blur
             if (text !== undefined) {
                 await handleExpressionSaveMutation(text);
             }
             await onBlur?.();
+            inputRef.current?.blur();
         },
         saveExpression: async (text?: string) => {
             await handleExpressionSaveMutation(text);
