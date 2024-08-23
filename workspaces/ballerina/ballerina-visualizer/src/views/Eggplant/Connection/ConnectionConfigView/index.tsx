@@ -36,13 +36,14 @@ const Row = styled.div`
 `;
 
 interface ConnectionConfigViewProps {
+    name: string;
     fields: FormField[];
     onSubmit: (data: FormValues) => void;
     onBack: () => void;
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { fields, onSubmit, onBack } = props;
+    const { name, fields, onSubmit, onBack } = props;
 
     return (
         <Container>
@@ -50,7 +51,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                 <Button appearance="icon" onClick={onBack}>
                     <Codicon name="arrow-left" />
                 </Button>
-                <Typography variant="h2">Configure Connector</Typography>
+                <Typography variant="h2">Configure {name} Connector</Typography>
             </Row>
             <BodyText>
                 Provide the necessary configuration details for the selected connector to complete the setup.

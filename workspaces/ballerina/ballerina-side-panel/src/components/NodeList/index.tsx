@@ -25,6 +25,7 @@ namespace S {
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 8px;
         padding: 16px;
     `;
 
@@ -181,6 +182,7 @@ namespace S {
 
 interface NodeListProps {
     categories: Category[];
+    showAiPanel?: boolean;
     onSelect: (id: string, metadata?: any) => void;
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
@@ -188,12 +190,12 @@ interface NodeListProps {
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, onSelect, onSearchTextChange, onAddConnection, onClose } = props;
+    const { categories, showAiPanel, onSelect, onSearchTextChange, onAddConnection, onClose } = props;
 
     console.log(">>> categories", { categories });
 
     const [searchText, setSearchText] = useState<string>("");
-    const [showConnectionPanel, setShowConnectionPanel] = useState(false);
+    const [showGeneratePanel, setShowGeneratePanel] = useState(false);
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
@@ -312,29 +314,31 @@ export function NodeList(props: NodeListProps) {
         <S.Container>
             <S.HeaderContainer>
                 <S.Row>
-                    <Switch
-                        leftLabel="Search"
-                        rightLabel="Generate"
-                        checked={showConnectionPanel}
-                        checkedColor={Colors.PRIMARY}
-                        enableTransition={true}
-                        onChange={() => {
-                            setShowConnectionPanel(!showConnectionPanel);
-                        }}
-                        sx={{
-                            margin: "auto",
-                            zIndex: "2",
-                            border: "unset",
-                        }}
-                        disabled={false}
-                    />
+                    {showAiPanel && (
+                        <Switch
+                            leftLabel="Search"
+                            rightLabel="Generate"
+                            checked={showGeneratePanel}
+                            checkedColor={Colors.PRIMARY}
+                            enableTransition={true}
+                            onChange={() => {
+                                setShowGeneratePanel(!showGeneratePanel);
+                            }}
+                            sx={{
+                                margin: "auto",
+                                zIndex: "2",
+                                border: "unset",
+                            }}
+                            disabled={false}
+                        />
+                    )}
                     {onClose && (
                         <S.CloseButton appearance="icon" onClick={onClose}>
                             <CloseIcon />
                         </S.CloseButton>
                     )}
                 </S.Row>
-                {!showConnectionPanel && (
+                {!showGeneratePanel && (
                     <S.Row>
                         <S.StyledSearchInput
                             value={searchText}
@@ -346,8 +350,8 @@ export function NodeList(props: NodeListProps) {
                     </S.Row>
                 )}
             </S.HeaderContainer>
-            {!showConnectionPanel && <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>}
-            {showConnectionPanel && (
+            {!showGeneratePanel && <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>}
+            {showAiPanel && showGeneratePanel && (
                 <S.PanelBody>
                     <S.AiContainer>
                         <S.Title>Describe what you want you want to do</S.Title>

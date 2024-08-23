@@ -12,8 +12,6 @@ import {
     DIRECTORY_MAP,
     EVENT_TYPE,
     MACHINE_VIEW,
-    MachineStateValue,
-    ProjectStructureArtifactResponse,
     ProjectStructureResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
