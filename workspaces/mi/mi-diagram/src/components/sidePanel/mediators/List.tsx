@@ -76,6 +76,7 @@ export function Mediators(props: MediatorProps) {
                             {(values as any[]).map((action: { form: ReactNode, operationName: React.Key; tooltip: string; title: string; }) => (
                                 <Tooltip content={action.tooltip} position='bottom' sx={{zIndex: 2010}}>
                                     <ComponentCard
+                                        id={action.title}
                                         key={action.operationName}
                                         onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title, getMediatorIconsFromFont(action.operationName as string, key === "most popular"))}
                                         sx={{
