@@ -413,8 +413,16 @@ jobs:
           cd workspaces/mi/mi-extension
           xvfb-run --auto-servernum pnpm run e2e-test
 
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MI-e2e-test-results-${{ github.run_attempt }}
+          path: workspaces/mi/mi-extension/test-results/**
+          
       - name: Upload recordings
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: MI-e2e-test-recording-${{ github.run_attempt }}
           path: workspaces/mi/mi-extension/src/test/test-resources/videos/**
