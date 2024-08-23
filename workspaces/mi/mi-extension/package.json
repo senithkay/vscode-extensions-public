@@ -189,7 +189,7 @@
       },
       {
         "command": "MI.importCAPP",
-        "title": "Import from car file(CAPP)",
+        "title": "Import project from car file(CAPP)",
         "category": "MI"
       },
       {
