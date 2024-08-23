@@ -382,3 +382,40 @@ jobs:
         run: |
           cd workspaces/mi/mi-diagram
           xvfb-run --auto-servernum pnpm run test
+
+  UITest_MI:
+    name: Run MI UI tests
+    needs: Build_Stage
+    if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - name: Run Test
+        run: |
+          cd workspaces/mi/mi-extension
+          xvfb-run --auto-servernum pnpm run e2e-test
+
+      - name: Upload recordings
+        uses: actions/upload-artifact@v4
+        with:
+          name: MI-e2e-test-recording-${{ github.run_attempt }}
+          path: workspaces/mi/mi-extension/src/test/test-resources/videos/**
+        
