@@ -99,7 +99,7 @@ export class LinkTargetVisitor implements BaseVisitor {
                 return;
             }
         } else {
-            console.log(">>> top level do block not found");
+            console.log(">>> top level do block not found", node);
             outLinks.forEach((outLink) => {
                 outLink.setTarget({
                     line: node.codedata.lineRange.startLine.line,
