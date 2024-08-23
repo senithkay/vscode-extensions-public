@@ -375,7 +375,8 @@ export function IfElse(props: IfElseProps) {
                 conditionPosition: getExpressions()?.values[0]?.position,
                 model
             }, stSymbolInfo, model);
-            renderEditForm(model, model.position, conditionConfigState as ConfigOverlayFormStatus, onCancel);
+            diagramContext.props.onEditComponent(model, model.position, "If");
+            // renderEditForm(model, model.position, conditionConfigState as ConfigOverlayFormStatus, onCancel);
             // setIfElseConditionConfigState(conditionConfigState);
         };
 

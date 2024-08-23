@@ -10,7 +10,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-core";
-import { BlockStatement, FunctionBodyBlock, LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, FunctionBodyBlock, LocalVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
 import { Context } from "../../../Context/diagram";
@@ -25,7 +25,7 @@ import "./style.scss";
 
 export interface PlusProps {
     viewState: PlusViewState,
-    model?: BlockStatement | FunctionBodyBlock,
+    model: BlockStatement | FunctionBodyBlock,
     initPlus: boolean
 }
 
@@ -84,28 +84,28 @@ export const PlusButton = (props: PlusProps) => {
     // On click for the plus button in plus collapse button.
     const handlePlusClick = () => {
         // TODO: need to wire this with diagram
-        diagramContext.props.onAddComponent();
+        diagramContext.props.onAddComponent(viewState.targetPosition);
         return;
-        setStates({
-            isPlusHolderShown: true
-        });
-        viewState.expanded = true;
-        viewState.selectedComponent = "STATEMENT";
-        viewState.collapsedClicked = false;
-        viewState.collapsedPlusDuoExpanded = false;
-        viewState.selected = true;
-        diagramRedraw(syntaxTree);
-        setPlusHolder(renderPlusWidget("PlusElements", {
-            position: { x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) },
-            onClose: handleOnClose,
-            onChange: handlePlusHolderItemClick,
-            initPlus: initPlus,
-            isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
-            isResource: (model.viewState as BlockViewState)?.isResource,
-            overlayId: overlayId,
-            overlayNode: overlayNode,
-            hasWorkerDecl: hasWorkerDecl
-        }, viewState as PlusViewState));
+        // setStates({
+        //     isPlusHolderShown: true
+        // });
+        // viewState.expanded = true;
+        // viewState.selectedComponent = "STATEMENT";
+        // viewState.collapsedClicked = false;
+        // viewState.collapsedPlusDuoExpanded = false;
+        // viewState.selected = true;
+        // diagramRedraw(syntaxTree);
+        // setPlusHolder(renderPlusWidget("PlusElements", {
+        //     position: { x: (x - (DefaultConfig.plusHolder.width / 2)), y: (y) },
+        //     onClose: handleOnClose,
+        //     onChange: handlePlusHolderItemClick,
+        //     initPlus: initPlus,
+        //     isCallerAvailable: (model.viewState as BlockViewState)?.isCallerAvailable,
+        //     isResource: (model.viewState as BlockViewState)?.isResource,
+        //     overlayId: overlayId,
+        //     overlayNode: overlayNode,
+        //     hasWorkerDecl: hasWorkerDecl
+        // }, viewState as PlusViewState));
     };
 
     const handleOnClose = () => {

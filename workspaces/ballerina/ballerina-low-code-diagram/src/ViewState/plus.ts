@@ -1,5 +1,5 @@
 import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-core";
-import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
+import { LocalVarDecl, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { ViewState } from "./view-state";
 
@@ -23,6 +23,7 @@ export class PlusViewState extends ViewState {
     public isAPICallsExistingCreateCollapsed: boolean = false;
     public allowWorker: boolean = false;
     public selected: boolean = false;
+    public targetPosition: NodePosition;
     constructor() {
         super();
     }

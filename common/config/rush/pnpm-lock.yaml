@@ -628,6 +628,7 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ballerina-side-panel': workspace:*
       '@wso2-enterprise/component-diagram': workspace:*
+      '@wso2-enterprise/ballerina-statement-editor': workspace:*
       '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/eggplant-diagram': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
@@ -669,6 +670,7 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
       '@wso2-enterprise/component-diagram': link:../component-diagram
+      '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
       '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
       '@wso2-enterprise/overview-view': link:../overview-view
@@ -6713,17 +6715,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -23104,7 +23095,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

@@ -208,9 +208,12 @@ export function DataProcessor(props: ProcessorProps) {
             }
             const overlayFormConfig = getOverlayFormConfig(processType, model.position, WizardType.EXISTING,
                 blockViewState, undefined, stSymbolInfo, model);
-            if (renderEditForm) {
-                renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
-            }
+
+            diagramContext.props.onEditComponent(model, model.position, processType);
+
+            // if (renderEditForm) {
+            //     renderEditForm(model, model.position, overlayFormConfig as ConfigOverlayFormStatus, onCancel);
+            // }
         }
     };
 

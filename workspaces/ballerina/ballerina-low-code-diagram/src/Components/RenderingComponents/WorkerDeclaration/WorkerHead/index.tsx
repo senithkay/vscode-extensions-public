@@ -38,7 +38,8 @@ export function WorkerHead(props: WorkerHeadProps) {
         };
 
         if (renderEditForm) {
-            renderEditForm(model, model.position, workerConfig);
+            diagramContext.props.onEditComponent(model, model.position, 'Worker');
+            // renderEditForm(model, model.position, workerConfig);
         }
     }
 

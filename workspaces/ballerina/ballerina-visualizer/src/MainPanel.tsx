@@ -27,9 +27,11 @@ import { FunctionDefinition, ServiceDeclaration, STNode } from '@wso2-enterprise
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
-import { useVisualizerContext } from './Context';
+import { PanelType, useVisualizerContext } from './Context';
 import { SidePanel } from '@wso2-enterprise/ui-toolkit';
 import { RecordEditor } from '@wso2-enterprise/record-creator';
+import { ConstructPanel } from "./views/ConstructPanel";
+import { EditPanel } from "./views/EditPanel";
 
 const globalStyles = css`
   *,
@@ -55,7 +57,7 @@ const MainPanel = () => {
         sidePanel,
         setPopupScreen,
         setSidePanel
-    } = useVisualizerContext();
+    , activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
     const [recordPath, setRecordPath] = useState<string>("");
@@ -146,7 +148,8 @@ const MainPanel = () => {
                         setViewComponent(<GraphQLDiagram />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
-                        setViewComponent(<SequenceDiagram />)
+                        setViewComponent(
+                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications}  />)
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);
@@ -237,6 +240,14 @@ const MainPanel = () => {
                 {sidePanel !== "EMPTY" && <SidePanel onClose={() => setSidePanel("EMPTY")}>
                     {sidePanel === "RECORD_EDITOR" && <div>Record Editor</div>}
                 </SidePanel>}
+                {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
+                    <ConstructPanel applyModifications={applyModifications} />
+                )
+                }
+                {activePanel?.isActive && activePanel.name === PanelType.STATEMENTEDITOR && (
+                    <EditPanel applyModifications={applyModifications} />
+                )
+            }
             </VisualizerContainer>
         </>
     );

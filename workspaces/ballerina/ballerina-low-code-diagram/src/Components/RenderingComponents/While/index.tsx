@@ -208,7 +208,8 @@ export function While(props: WhileProps) {
             conditionPosition: conditionExpr.position,
             model
         }, stSymbolInfo, model);
-        renderEditForm(model, model.position, conditionConfigState as ConfigOverlayFormStatus, onCancel, onSave);
+        diagramContext.props.onEditComponent(model, model.position, "While");
+        // renderEditForm(model, model.position, conditionConfigState as ConfigOverlayFormStatus, onCancel, onSave);
     };
 
     const onDraftDelete = () => {

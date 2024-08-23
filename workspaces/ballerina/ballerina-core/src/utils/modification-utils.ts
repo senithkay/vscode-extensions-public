@@ -8,10 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { ListenerConfigFormState, STModification, ServiceConfigState } from "..";
+import { ListenerConfigFormState, STModification, ServiceConfigState, getComponentSource } from "..";
 import { getInsertComponentSource } from "./template-utils";
-import { compile } from "handlebars";
-import { templates } from "..";
 
 export const keywords = [
     "if", "else", "fork", "join", "while", "foreach",
@@ -124,11 +122,6 @@ export function updateFunctionSignature(
     };
 
     return functionStatement;
-}
-
-export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {
-    const hbTemplate = compile(templates[insertTempName]);
-    return hbTemplate(config);
 }
 
 export function getSource(modification: STModification): string {
