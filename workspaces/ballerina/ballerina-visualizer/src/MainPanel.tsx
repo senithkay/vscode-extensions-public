@@ -63,6 +63,12 @@ const MainPanel = () => {
     const [recordPath, setRecordPath] = useState<string>("");
     const [recordFullST, setRecordFullST] = useState<STNode>();
 
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
+            fetchContext();
+        }
+    });
+
     const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
         let filePath;
