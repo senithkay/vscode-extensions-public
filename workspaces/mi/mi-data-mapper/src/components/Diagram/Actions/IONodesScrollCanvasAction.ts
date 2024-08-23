@@ -69,7 +69,7 @@ export class IONodesScrollCanvasAction extends Action {
                     handleInputScroll(diagramEngine, yDelta);
                 } else if (isOutputScrollable) {
                     handleOutputScroll(diagramEngine, yDelta);
-                } else if (!element) {
+                } else {
                     handleInputScroll(diagramEngine, yDelta);
                     handleOutputScroll(diagramEngine, yDelta);
                 }
