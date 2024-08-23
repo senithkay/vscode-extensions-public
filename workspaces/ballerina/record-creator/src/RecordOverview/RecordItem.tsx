@@ -42,7 +42,7 @@ export function RecordItem(props: ParamItemProps) {
                 />
             </div>
             <div className={classes.iconSection}>
-                <Button appearance="icon" onClick={handleEdit} sx={{ height: "14px", width: "14px" }}>
+                <Button appearance="icon" onClick={handleEdit} sx={{ height: "14px", width: "14px", marginRight: "5px" }}>
                     <Codicon name="edit" />
                 </Button>
             </div>

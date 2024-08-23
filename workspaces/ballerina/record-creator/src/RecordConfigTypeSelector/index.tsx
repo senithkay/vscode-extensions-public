@@ -10,8 +10,7 @@
 import React from "react";
 import { useIntl } from "react-intl";
 import styled from "@emotion/styled";
-import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
+import { Button, Codicon, Icon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { RecordFormWrapper } from "../style";
 
 export interface RecordConfigTypeProps {
@@ -22,7 +21,7 @@ export interface RecordConfigTypeProps {
 }
 
 export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
-    const { isDataMapper, onImportFromJson, onImportFromXml } = props;
+    const { isDataMapper, onImportFromJson, onImportFromXml, onCancel } = props;
     const intl = useIntl();
     const importJsonButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.option.importJson",
@@ -36,10 +35,10 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
     return (
         <>
             {!isDataMapper && (
-                <FormHeaderSection
-                    formTitle="lowcode.develop.configForms.recordEditor.codePanel.title"
-                    defaultMessage="Record"
-                />
+                <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
+                    <Typography variant="h3" sx={{ margin: 0 }}>Create Record</Typography>
+                    <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
+                </SidePanelTitleContainer>
             )}
             <RecordFormWrapper>
                 <CreateButtonWrapper>

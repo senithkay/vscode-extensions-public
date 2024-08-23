@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { RecordTypeDesc, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorComponentProps } from "../types";
 import { RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
@@ -39,11 +39,13 @@ export interface RecordEditorCProps {
 
 export interface RecordEditorProps extends RecordEditorCProps, StatementEditorComponentProps {
     recordCreatorRpcClient: RecordCreatorRpcClient;
+    fullST?: STNode;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
     const {
         model,
+        fullST,
         isDataMapper,
         onCancel,
         showHeader,
@@ -65,6 +67,7 @@ export function RecordEditor(props: RecordEditorProps) {
             <IntlProvider locale="en" defaultLocale="en" messages={messages}>
                 <RecordEditorWrapper
                     model={model}
+                    fullST={fullST}
                     isDataMapper={isDataMapper}
                     onCancel={onCancel}
                     showHeader={showHeader}

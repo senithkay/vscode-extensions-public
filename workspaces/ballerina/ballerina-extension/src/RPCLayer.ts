@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
@@ -21,6 +21,7 @@ import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagra
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
 import { registerEggplantDiagramRpcHandlers } from './rpc-managers/eggplant-diagram/rpc-handler';
+import path from 'path';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -67,7 +68,8 @@ async function getContext(): Promise<VisualizerLocation> {
             position: context.position,
             syntaxTree: context.syntaxTree,
             isEggplant: context.isEggplant,
-            projectUri: context.projectUri
+            projectUri: context.projectUri,
+            recordFilePath: path.join(context.projectUri, 'types.bal'),
         });
     });
 }
@@ -75,4 +77,8 @@ async function getContext(): Promise<VisualizerLocation> {
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;
     return title === VisualizerWebview.panelTitle;
+}
+
+export function notifyCurrentWebview() {
+    RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: VisualizerWebview.viewType }, true);
 }

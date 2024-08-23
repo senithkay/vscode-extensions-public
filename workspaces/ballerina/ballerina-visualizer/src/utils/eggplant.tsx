@@ -13,7 +13,7 @@ import {
     FormField,
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
-import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
+import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/eggplant-diagram";
 import {
     Category,
     AvailableNode,
@@ -49,9 +49,13 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
         }
     });
 
+    // HACK: use the icon of the first item in the category
+    const icon = category.items.at(0)?.metadata.icon;
+
     return {
         title: category.metadata.label,
         description: category.metadata.description,
+        icon: icon ? <img src={icon} alt={category.metadata.label} style={{ width: "20px" }} /> : undefined,
         items: items,
     };
 }
@@ -110,11 +114,7 @@ function isFieldEditable(expression: Property, connections?: FlowNode[], clientN
 }
 
 function getFormFieldValue(expression: Property, clientName?: string) {
-    if (
-        clientName &&
-        expression.valueType === "Identifier" &&
-        expression.metadata.label === "Connection"
-    ) {
+    if (clientName && expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
         console.log(">>> client name as set field value", clientName);
         return clientName;
     }
@@ -182,7 +182,7 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
         codedata: {
             node: "DRAFT",
             lineRange: {
-                fileName: flowModel.fileName,
+                fileName: newFlowModel.fileName,
                 ...target,
             },
         },
@@ -190,10 +190,18 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
         returning: false,
     };
 
-    // Hack: Adding draft node to the first branch of the first node
-    // TODO: Handle multiple branches and multiple places
-    if (newFlowModel.nodes.at(1).branches.at(0).children) {
-        newFlowModel.nodes.at(1).branches.at(0).children.push(draftNode);
-    }
-    return newFlowModel;
+    const addNodeVisitor = new AddNodeVisitor(newFlowModel, parent as FlowNode, draftNode);
+    traverseFlow(newFlowModel, addNodeVisitor);
+    const newFlow = addNodeVisitor.getUpdatedFlow();
+    return newFlow;
+}
+
+export function removeDraftNodeFromDiagram(flowModel: Flow) {
+    const newFlowModel = cloneDeep(flowModel);
+    const draftNodeId = "draft";
+    console.log(">>> removeDraftNodeFromDiagram", newFlowModel, draftNodeId);
+    const removeNodeVisitor = new RemoveNodeVisitor(newFlowModel, draftNodeId);
+    traverseFlow(newFlowModel, removeNodeVisitor);
+    const newFlow = removeNodeVisitor.getUpdatedFlow();
+    return newFlow;
 }

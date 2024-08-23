@@ -61,9 +61,11 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isEggplant?: boolean;
+    recordFilePath?: string;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+export const projectContentUpdated: NotificationType<boolean> = { method: 'projectContentUpdated' };
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 

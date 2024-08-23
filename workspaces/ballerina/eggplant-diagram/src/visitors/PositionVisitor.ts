@@ -58,9 +58,6 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
-    // beginVisitBlock(node: Branch, parent?: FlowNode): void {
-    //     this.lastNodeY = node.viewState.y;
-    // }
     beginVisitConditional(node: Branch, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y;
     }

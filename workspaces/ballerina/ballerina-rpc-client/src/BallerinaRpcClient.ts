@@ -11,7 +11,7 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { MachineStateValue, VisualizerLocation, getVisualizerLocation, stateChanged, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { MachineStateValue, VisualizerLocation, getVisualizerLocation, stateChanged, projectContentUpdated, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -89,6 +89,10 @@ export class BallerinaRpcClient {
         this.messenger.onNotification(stateChanged, callback);
     }
 
+    onProjectContentUpdated(callback: (state: boolean) => void) {
+        this.messenger.onNotification(projectContentUpdated, callback);
+    }
+    
     webviewReady(): void {
         this.messenger.sendNotification(webviewReady, HOST_EXTENSION);
     }
