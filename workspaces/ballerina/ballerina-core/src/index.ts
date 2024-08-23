@@ -60,6 +60,9 @@ export * from "./rpc-types/common/rpc-type";
 export * from "./rpc-types/common/interfaces";
 export * from "./rpc-types/persist-diagram";
 export * from "./rpc-types/persist-diagram/rpc-type";
+export * from "./rpc-types/ai-panel";
+export * from "./rpc-types/ai-panel/rpc-type";
+export * from "./rpc-types/ai-panel/interfaces";
 
 // ------ History class and interface -------->
 export * from "./history";

@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
 import { EggplantDiagramRpcManager } from './rpc-managers/eggplant-diagram/rpc-manager';
+import { StateMachineAI } from './views/ai-panel/aiMachine';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -165,6 +166,7 @@ const stateMachine = createMachine<MachineContext>(
                 try {
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
+                    StateMachineAI.initialize();
                     resolve(ls.langClient);
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
@@ -387,5 +389,6 @@ async function checkForProjects() {
     } catch (err) {
         console.error(err);
     }
+    commands.executeCommand('setContext', 'isEggplantProject', isEggplant);
     return { isEggplant, projectUri };
 }

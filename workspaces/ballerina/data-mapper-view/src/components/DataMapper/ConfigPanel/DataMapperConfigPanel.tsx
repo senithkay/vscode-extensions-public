@@ -421,7 +421,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         <SidePanel
             isOpen={true}
             alignment="right"
-            sx={{transition: "all 0.3s ease-in-out", width: 600}}
+            sx={{ transition: "all 0.3s ease-in-out", width: 600 }}
         >
             <div>
                 <WizardFormControlExtended
@@ -543,7 +543,7 @@ const CloseButton = styled(Button)`
     margin-left: auto;
 `
 
-export const Title = styled.div(() => ({
+export const Title = styled.div((element) => ({
     color: 'inherit',
     fontSize: "13px",
     letterSpacing: "normal",
