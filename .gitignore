@@ -74,3 +74,5 @@ playwright-report/
 # storybook
 .storybook-out/
 **/storybook-static/
+
+extensions.json
