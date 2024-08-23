@@ -564,3 +564,20 @@ export const EmptyLogicCondition = () => {
         </>
     );
 };
+
+// Story for ParamManager with error message
+export const ParamManagerWithError = () => {
+    const [params, setParams] = useState(paramConfigs);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
+                ...param,
+                icon: "query",
+                key: `Key`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }))
+        };
+        setParams(modifiedParams);
+    };
+    return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} errorMessage={"Something went wrong"} />;
+};

@@ -48,16 +48,25 @@ export function Mediators(props: MediatorProps) {
     });
 
     const searchForm = (value: string, search?: boolean) => {
+        const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '');
+        const searchValue = normalizeString(value || '');
+
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
-            const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) =>
-                search ? (key === "most popular" ? null : mediator.title.toLowerCase().includes(value?.toLowerCase())) : mediator.operationName.toLowerCase() === value?.toLowerCase());
+            const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) => {
+                if (search) {
+                    if (key === "most popular") return null;
+                    return normalizeString(mediator.operationName).includes(searchValue);
+                } else {
+                    return normalizeString(mediator.operationName) === searchValue;
+                }
+            });
+
             if (filtered.length > 0) {
                 acc[key] = filtered;
             }
             return acc;
-        }
-            , {});
-    }
+        }, {});
+    };
 
     const MediatorList = () => {
         let mediators: any;
@@ -78,7 +87,7 @@ export function Mediators(props: MediatorProps) {
                                     <ComponentCard
                                         id={action.title}
                                         key={action.operationName}
-                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title, getMediatorIconsFromFont(action.operationName as string, key === "most popular"))}
+                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.operationName.toString(), getMediatorIconsFromFont(action.operationName as string, key === "most popular"))}
                                         sx={{
                                             '&:hover, &.active': {
                                                 '.icon svg g': {
@@ -104,7 +113,7 @@ export function Mediators(props: MediatorProps) {
                                             {getMediatorIconsFromFont(action.operationName as string, key === "most popular")}
                                         </IconContainer>
                                         <div >
-                                            <IconLabel>{FirstCharToUpperCase(action.title)}</IconLabel>
+                                            <IconLabel>{FirstCharToUpperCase(action.operationName.toString())}</IconLabel>
                                         </div>
                                     </ComponentCard>
                                 </Tooltip>
