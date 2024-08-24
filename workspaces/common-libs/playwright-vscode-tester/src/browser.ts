@@ -48,7 +48,8 @@ export class VSBrowser {
             '--disable-site-isolation-trials',
             '--disable-dev-shm-usage',
             '--disable-ipc-flooding-protection',
-            '--enable-precise-memory-info'
+            '--enable-precise-memory-info',
+            '--disable-workspace-trust'
         ];
 
         if (this.extensionsFolder) {
