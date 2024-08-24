@@ -408,11 +408,19 @@ jobs:
           node: 16.x
           rush-install: true
 
+      - name: install packages
+        run: |
+          sudo apt-get install xvfb
+          sudo apt-get install -y gnome-keyring
+          sudo apt-get install libsecret-1.0
+          sudo apt install dbus-x11
+          cd workspaces/mi/mi-extension && npx playwright install
+          
       - name: Run Test
         run: |
-          cd workspaces/mi/mi-extension
+          export $(dbus-launch)
           export DISPLAY=:98.0
-          xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" pnpm run e2e-test
+          cd workspaces/mi/mi-extension && xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" npx playwright test
         env:
           DEBUG: pw:browser*  
 
