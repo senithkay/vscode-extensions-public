@@ -111,7 +111,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
             if (!firstChildNodeModel) {
-                console.error("Branch node model not found", { branch, node, parent, nodes: this.nodes });
+                // check non empty children. empty branches will handel later in below logic
+                // console.log("Branch node model not found", {
+                //     branch,
+                //     node,
+                //     parent,
+                //     nodes: this.nodes,
+                // });
                 return;
             }
 

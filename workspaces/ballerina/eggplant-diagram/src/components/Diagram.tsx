@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
@@ -41,10 +41,10 @@ export interface DiagramProps {
 export function Diagram(props: DiagramProps) {
     const { model, onAddNode, onNodeSelect, goToSource } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
-    const [hasErrorFlow, setHasErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
+    const hasErrorFlow = useRef(false);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -61,7 +61,7 @@ export function Diagram(props: DiagramProps) {
         console.log(">>> rearranged models", { flowModel, model });
         const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
         if (globalErrorHandleBlock) {
-            setHasErrorFlow(true);
+            hasErrorFlow.current = true;
             const branchKind: NodeKind = showErrorFlow ? "ON_FAILURE" : "BODY";
             const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.codedata.node === branchKind);
             if (subFlow) {
@@ -69,7 +69,7 @@ export function Diagram(props: DiagramProps) {
                 flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
             }
         } else {
-            setHasErrorFlow(false);
+            hasErrorFlow.current = false;
         }
 
         const initVisitor = new InitVisitor(flowModel);
@@ -88,7 +88,7 @@ export function Diagram(props: DiagramProps) {
         const addTargetVisitor = new LinkTargetVisitor(
             model,
             nodes,
-            hasErrorFlow ? (showErrorFlow ? "On Failure" : "Body") : undefined
+            hasErrorFlow.current ? (showErrorFlow ? "On Failure" : "Body") : undefined
         );
         traverseFlow(flowModel, addTargetVisitor);
 
@@ -153,7 +153,7 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
-            {hasErrorFlow && (
+            {hasErrorFlow.current && (
                 <Switch
                     leftLabel="Flow"
                     rightLabel="On Error"

@@ -44,7 +44,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         let node = link.getTopNode();
         if (!node) {
             console.error(">>> NodeLinkWidget: handleAddNode: top node not found");
-            node = (link.sourceNode as BaseNodeModel).node;
+            return;
         }
 
         const target = link.getTarget();
@@ -110,13 +110,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 </foreignObject>
             )}
             {link.showAddButton && (
-                <foreignObject
-                    x={addButtonPosition.x - 10}
-                    y={addButtonPosition.y - 10}
-                    width="20"
-                    height="20"
-                    onClick={handleAddNode}
-                >
+                <foreignObject x={addButtonPosition.x - 10} y={addButtonPosition.y - 10} width="20" height="20">
                     <div
                         css={css`
                             display: ${isHovered ? "flex" : "none"};
@@ -125,6 +119,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             cursor: pointer;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
                         `}
+                        onClick={handleAddNode}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path

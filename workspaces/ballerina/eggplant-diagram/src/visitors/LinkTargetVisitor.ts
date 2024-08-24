@@ -64,11 +64,11 @@ export class LinkTargetVisitor implements BaseVisitor {
         if (!outLinks) {
             return;
         }
-
         outLinks.forEach((outLink) => {
             // set target position
             if (outLink && node.codedata?.lineRange?.endLine) {
                 outLink.setTarget(node.codedata.lineRange.endLine);
+                outLink.setTopNode(node);
             }
         });
     }
