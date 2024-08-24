@@ -116,7 +116,6 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             setSuggestedModel(undefined);
             suggestedText.current = undefined;
         }
-
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
@@ -245,6 +244,58 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         }
     };
 
+    const handleOnAddComment = (comment: string, target: LineRange) => {
+        console.log(">>> on add comment", { comment, target });
+        const updatedNode: FlowNode = {
+            id: "40715",
+            metadata: {
+                label: "Comment",
+                description: "This is a comment",
+            },
+            codedata: {
+                node: "COMMENT",
+                lineRange: {
+                    fileName: "currency.bal",
+                    ...target,
+                },
+            },
+            returning: false,
+            properties: {
+                comment: {
+                    metadata: {
+                        label: "Comment",
+                        description: "Comment to describe the flow",
+                    },
+                    valueType: "STRING",
+                    value: `\n${comment}\n`,
+                    optional: false,
+                    editable: true,
+                },
+            },
+            branches: [],
+            flags: 0,
+        };
+
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getSourceCode({
+                filePath: model.fileName,
+                flowNode: updatedNode,
+            })
+            .then((response) => {
+                console.log(">>> Updated source code", response);
+                if (response.textEdits) {
+                    // clear memory
+                    setFields([]);
+                    selectedNodeRef.current = undefined;
+                    handleOnCloseSidePanel();
+                } else {
+                    console.error(">>> Error updating source code", response);
+                    // handle error
+                }
+            });
+    };
+
     const handleOnEditNode = (node: FlowNode) => {
         console.log(">>> on edit node", node);
         selectedNodeRef.current = node;
@@ -285,7 +336,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     };
 
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
-    const flowModel = (originalFlowModel.current && suggestedModel) ? suggestedModel : model;
+    const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const DiagramTitle = (
         <React.Fragment>
@@ -305,6 +356,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                             <Diagram
                                 model={flowModel}
                                 onAddNode={handleOnAddNode}
+                                onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                             />
