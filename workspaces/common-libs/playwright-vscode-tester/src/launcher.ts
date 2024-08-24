@@ -6,7 +6,7 @@ import { ReleaseQuality } from './codeUtil';
 export const startVSCode = async (resourcesFolder: string, vscodeVersion: string,
     releaseType: ReleaseQuality = ReleaseQuality.Stable, enableRecorder = false, extensionsFolder?: string, projectPath?: string) => {
 
-    const browser = await getBrowser(resourcesFolder, vscodeVersion, releaseType);
+    const browser = await getBrowser(resourcesFolder, vscodeVersion, releaseType, extensionsFolder);
     const browserOptions = await getBrowserLaunchOptions(resourcesFolder, vscodeVersion, releaseType, projectPath, extensionsFolder);
 
     const args = [...browserOptions.args];

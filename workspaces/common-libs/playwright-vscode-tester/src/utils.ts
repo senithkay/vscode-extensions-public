@@ -3,13 +3,23 @@ import { CodeUtil, ReleaseQuality } from "./codeUtil";
 import { BrowserLaunchOptions, Browser } from "./types";
 import fs from "fs";
 
-export async function getBrowser(folder: string, version: string, quality: ReleaseQuality): Promise<Browser> {
+export async function getBrowser(folder: string, version: string, quality: ReleaseQuality, extensionsFolder?: string): Promise<Browser> {
     const codeUtil = new CodeUtil(folder, quality);
     const vscodePath = path.join(folder, `Visual Studio Code.app`);
     if (!fs.existsSync(vscodePath)) {
         await codeUtil.downloadVSCode(version);
     }
     const browser = await codeUtil.getBrowser();
+
+    if (extensionsFolder) {
+        const files = path.resolve(extensionsFolder);
+        const vsixFiles = fs.readdirSync(files).filter(file => file.endsWith('.vsix'));
+        for (const vsix of vsixFiles) {
+            const vsixPath = path.join(files, vsix);
+            codeUtil.installExtension(vsixPath);
+        }
+    }
+
     return browser;
 }
 
@@ -21,15 +31,5 @@ export async function getBrowserLaunchOptions(folder: string, version: string, q
     }
     const options = await codeUtil.getCypressBrowserOptions({ vscodeVersion: version, resources });
 
-    // install all vsix extensions in the folder
-    if (extensionsFolder) {
-        const files = path.resolve(extensionsFolder);
-        const vsixFiles = fs.readdirSync(files).filter(file => file.endsWith('.vsix'));
-        for (const vsix of vsixFiles) {
-            const vsixPath = path.join(files, vsix);
-            codeUtil.installExtension(vsixPath);
-        }
-    }
-    
     return options;
 }
