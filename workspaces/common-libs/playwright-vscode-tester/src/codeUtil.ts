@@ -381,7 +381,10 @@ export class CodeUtil {
         const browser = new VSBrowser(literalVersion, this.releaseType, runOptions.resources);
         const launchArgs = await browser.getLaunchArgs()
         
-        process.env = finalEnv;
+        process.env = {
+            ...process.env,
+            ...finalEnv,
+        }
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
         // process.env.VSCODE_APPDATA = path.join(browser.getStoragePath(), 'settings');
