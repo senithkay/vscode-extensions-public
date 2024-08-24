@@ -34,12 +34,13 @@ import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 export interface DiagramProps {
     model: Flow;
     onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
-    onNodeSelect?: (node: FlowNode) => void;
-    goToSource?: (node: FlowNode) => void;
+    onAddComment: (comment: string, target: LineRange) => void;
+    onNodeSelect: (node: FlowNode) => void;
+    goToSource: (node: FlowNode) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onNodeSelect, goToSource } = props;
+    const { model, onAddNode, onAddComment, onNodeSelect, goToSource } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -147,6 +148,7 @@ export function Diagram(props: DiagramProps) {
         },
         showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
+        onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
     };

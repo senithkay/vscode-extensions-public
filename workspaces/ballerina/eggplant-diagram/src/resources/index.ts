@@ -8,13 +8,9 @@
  */
 
 export * from "./icons/nodes/BranchIcon";
-export * from "./icons/nodes/CallIcon";
 export * from "./icons/nodes/CodeIcon";
 export * from "./icons/nodes/CallIcon";
 export * from "./icons/nodes/LogIcon";
-export * from "./icons/nodes/SendIcon";
-export * from "./icons/nodes/MoreVertIcon";
-export * from "./icons/nodes/PlusIcon";
 export * from "./icons/nodes/CloseIcon";
 export * from "./icons/nodes/HttpIcon";
 export * from "./icons/nodes/DatabaseIcon";
@@ -28,4 +24,9 @@ export * from "./icons/nodes/BombIcon";
 export * from "./icons/nodes/SecurityIcon";
 export * from "./icons/nodes/LockIcon";
 export * from "./icons/nodes/TransformIcon";
+export * from "./icons/nodes/CommentIcon";
 
+export * from "./icons/PlusIcon";
+export * from "./icons/SendIcon";
+export * from "./icons/MoreVertIcon";
+export * from "./icons/AddCommentIcon";
