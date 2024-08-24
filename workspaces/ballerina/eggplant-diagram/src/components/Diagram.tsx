@@ -58,7 +58,7 @@ export function Diagram(props: DiagramProps) {
         // TODO: move to a separate function
         // get only do block
         let flowModel = cloneDeep(model);
-        console.log(">>> flow model", { flowModel, model });
+        console.log(">>> rearranged models", { flowModel, model });
         const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
         if (globalErrorHandleBlock) {
             setHasErrorFlow(true);
@@ -78,7 +78,6 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(flowModel, positionVisitor);
-        console.log(">>> flow model", flowModel);
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(flowModel, nodeVisitor);

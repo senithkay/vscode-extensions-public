@@ -33,7 +33,7 @@ export namespace NodeStyles {
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+                props.selected ? Colors.SECONDARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -132,9 +132,11 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         }
     };
 
+    const highlighted = model.node.suggested;
+
     return (
         <NodeStyles.Node
-            selected={model.isSelected()}
+            selected={highlighted}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
