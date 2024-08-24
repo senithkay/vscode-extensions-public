@@ -190,7 +190,7 @@ export function AIChat() {
                                 role = 'User';
                                 type = 'user_message';
                             } else if (entry.actor === 'assistant') {
-                                role = 'Ballerina Copilot';
+                                role = 'Eggplant Copilot';
                                 type = 'assistant_message';
                             }
                             return {
@@ -296,8 +296,30 @@ export function AIChat() {
                 ]);
             }
         }
+
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        fetch(backendRootUri + "/code", {
+        console.log("Used token : " + token);
+        async function fetchWithToken(url: string, options: RequestInit) {
+            let response = await fetch(url, options);
+            if (response.status === 401) {
+                console.log("Token expired. Refreshing token...");
+                // await rpcClient.getAiPanelRpcClient().refreshAccessToken();
+                const newToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
+                console.log("refreshed token : " + newToken);
+                if (newToken) {
+                    options.headers = {
+                        ...options.headers,
+                        'Authorization': `Bearer ${newToken}`,
+                    };
+                    response = await fetch(url, options);
+                }
+            }
+            return response;
+        }
+
+
+
+        const response = await fetchWithToken(backendRootUri + "/code", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -305,90 +327,98 @@ export function AIChat() {
             },
             body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray }),
             signal: signal,
-        }).then(async response => {
-            console.log(response);
-            if (!response.ok && response.status != 401) {
-                setIsLoading(false);
-                setMessages(prevMessages => {
-                    const newMessages = [...prevMessages];
-                    const statusText = getStatusText(response.status);
-                    let error = `Failed to fetch response. Status: ${statusText}`;
-                    console.log("Response status: ", response.status);
-                    if (response.status == 429) {
-                        response.json().then(body => {
-                            console.log(body.detail);
-                            error += body.detail;
-                            console.log("Error: ", error);
-                        });
-                    }
-                    newMessages[newMessages.length - 1].content += error;
-                    newMessages[newMessages.length - 1].type = 'Error';
-                    return newMessages;
-                });
-                throw new Error('Failed to fetch response');
-            }
-            const reader = response.body?.getReader();
-            const decoder = new TextDecoder();
-            let result = '';
-            let buffer = '';
-            let codeBuffer = '';
-            let codeLoad = false;
-            remainingTokenPercentage = "Unlimited";
-            let inCodeBlock = false;
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    setIsLoading(false);
-                    break;
-                }
-
-                buffer += decoder.decode(value, { stream: true });
-
-                let boundary = buffer.indexOf("\n\n");
-                while (boundary !== -1) {
-                    const chunk = buffer.slice(0, boundary + 2);
-                    buffer = buffer.slice(boundary + 2);
-
-                    try {
-                        const event = parseSSEEvent(chunk);
-                        // console.log(`Event: ${event.event}`);
-                        if (event.event == "content_block_delta") {
-                            let textDelta = event.body.text;
-                            assistant_response += (textDelta);
-                            // console.log("Text Delta: " + textDelta);
-
-                            if (textDelta.includes("```ballerina")) {
-                                console.log("Here backticks" + textDelta);
-                                setIsCodeLoading(true);
-                                inCodeBlock = true;
-                            } else if (inCodeBlock) {
-                                codeBlocks.push(textDelta);
-                                console.log("Code block " + textDelta);
-                                inCodeBlock = false;
-                            } else if (textDelta.includes("```")) {
-                                console.log("Ending backtick" + textDelta);
-                                setIsCodeLoading(false);
-                            }
-
-                            setMessages(prevMessages => {
-                                const newMessages = [...prevMessages];
-                                newMessages[newMessages.length - 1].content += textDelta;
-                                return newMessages;
-                            });
-                        }
-                    } catch (error) {
-                        console.error("Failed to parse SSE event:", error);
-                    }
-
-
-                    boundary = buffer.indexOf("\n\n");
-                }
-                // console.log(assistant_response);
-
-            }
-            addChatEntry("user", userInput);
-            addChatEntry("assistant", assistant_response);
         });
+
+        if (!response.ok) {
+            setIsLoading(false);
+            setMessages(prevMessages => {
+                const newMessages = [...prevMessages];
+                const statusText = getStatusText(response.status);
+                let error = `Failed to fetch response. Status: ${statusText}`;
+                console.log("Response status: ", response.status);
+                if (response.status == 429) {
+                    response.json().then(body => {
+                        console.log(body.detail);
+                        error += body.detail;
+                        console.log("Error: ", error);
+                    });
+                }
+                newMessages[newMessages.length - 1].content += error;
+                newMessages[newMessages.length - 1].type = 'Error';
+                return newMessages;
+            });
+            throw new Error('Failed to fetch response');
+        }
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let result = '';
+        let buffer = '';
+        let codeBuffer = '';
+        let codeLoad = false;
+        remainingTokenPercentage = "Unlimited";
+        let inCodeBlock = false;
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+
+                try {
+                    const event = parseSSEEvent(chunk);
+                    // console.log(`Event: ${event.event}`);
+                    if (event.event == "content_block_delta") {
+                        let textDelta = event.body.text;
+                        assistant_response += (textDelta);
+                        // console.log("Text Delta: " + textDelta);
+
+                        if (textDelta.includes("```ballerina")) {
+                            console.log("Here backticks" + textDelta);
+                            setIsCodeLoading(true);
+                            inCodeBlock = true;
+                        } else if (inCodeBlock) {
+                            codeBlocks.push(textDelta);
+                            console.log("Code block " + textDelta);
+                            inCodeBlock = false;
+                        } else if (textDelta.includes("```")) {
+                            console.log("Ending backtick" + textDelta);
+                            setIsCodeLoading(false);
+                        }
+
+                        setMessages(prevMessages => {
+                            const newMessages = [...prevMessages];
+                            newMessages[newMessages.length - 1].content += textDelta;
+                            return newMessages;
+                        });
+                    } else if (event.event == "error") {
+                        console.log("Streaming Error: " + event.body);
+                        setIsLoading(false);
+                        setMessages(prevMessages => {
+                            const newMessages = [...prevMessages];
+                            newMessages[newMessages.length - 1].content += 'Unknown error occurred while streaming. Please retry';
+                            newMessages[newMessages.length - 1].type = 'Error';
+                            return newMessages;
+                        });
+                        throw new Error('Streaming error');
+                    }
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+            // console.log(assistant_response);
+
+        }
+        addChatEntry("user", userInput);
+        addChatEntry("assistant", assistant_response);
     }
 
     const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
@@ -433,7 +463,6 @@ export function AIChat() {
     }
 
     function splitContent(content: string) {
-        console.log("Message to be splitted : " + content);
         const segments = [];
         let match;
         const regex = /```ballerina([\s\S]*?)```/g;
@@ -450,7 +479,6 @@ export function AIChat() {
         if (start < content.length) {
             segments.push(...splitHalfGeneratedCode(content.slice(start)));
         }
-        console.log("Split segments " + segments);
         return segments;
     }
 
@@ -725,10 +753,6 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
     if (loading) {
         name = "Generating " + name + "...";
     }
-
-    console.log("Segment : " + segmentText.trim());
-    console.log("Language : " + language);
-    console.log("IsOpen : " + isOpen);
 
     return (
         <div>

@@ -21,3 +21,4 @@ export const getAccessToken: RequestType<void, string> = { method: `${_preFix}/g
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
 export const getProjectUuid: RequestType<void, string> = { method: `${_preFix}/getProjectUuid` };
 export const addToProject: NotificationType<AddToProjectRequest> = { method: `${_preFix}/addToProject` };
+export const getRefreshToken: RequestType<void, string> = { method: `${_preFix}/getRefreshToken` };
