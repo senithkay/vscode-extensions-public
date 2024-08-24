@@ -38,6 +38,7 @@ export type FlowNode = {
     branches: Branch[];
     flags?: number;
     returning: boolean;
+    suggested?: boolean;
     viewState?: ViewState;
 };
 

@@ -73,16 +73,20 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const { setPopupScreen } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
+    const [suggestedModel, setSuggestedModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
+
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
     const originalFlowModel = useRef<Flow>();
+    const suggestedText = useRef<string>();
 
     useEffect(() => {
+        console.log(">>> Updating sequence model...", param.syntaxTree);
         getSequenceModel();
     }, [param.syntaxTree]);
 
@@ -102,17 +106,22 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
         targetRef.current = undefined;
+
         // restore original model
         if (originalFlowModel.current) {
-            setModel(removeDraftNodeFromDiagram(model));
+            const updatedModel = removeDraftNodeFromDiagram(model);
+            // console.log(">>> Restoring original model", updatedModel);
+            setModel(updatedModel);
             originalFlowModel.current = undefined;
+            setSuggestedModel(undefined);
+            suggestedText.current = undefined;
         }
+
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
         console.log(">>> opening panel...", { parent, target });
-        setShowSidePanel(true);
-        setSidePanelView(SidePanelView.NODE_LIST);
+
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
@@ -120,6 +129,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
+        // save original model
+        originalFlowModel.current = model;
+        // show side panel with available nodes
         rpcClient
             .getEggplantDiagramRpcClient()
             .getAvailableNodes(getNodeRequest)
@@ -132,8 +144,23 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 setCategories(convertEggplantCategoriesToSidePanelCategories(response.categories as Category[]));
                 // add draft node to model
                 const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
-                originalFlowModel.current = model;
+
                 setModel(updatedFlowModel);
+                setShowSidePanel(true);
+                setSidePanelView(SidePanelView.NODE_LIST);
+            });
+        // get ai suggestions
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getAiSuggestions({ position: target, filePath: model.fileName })
+            .then((model) => {
+                console.log(">>> ai suggested new flow", model);
+                if (model.flowModel) {
+                    // add draft node to model
+                    const updatedFlowModel = addDraftNodeToDiagram(model.flowModel, parent, target);
+                    setSuggestedModel(updatedFlowModel);
+                    suggestedText.current = model.suggestion;
+                }
             });
     };
 
@@ -258,6 +285,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     };
 
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+    const flowModel = (originalFlowModel.current && suggestedModel) ? suggestedModel : model;
 
     const DiagramTitle = (
         <React.Fragment>
@@ -275,7 +303,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     <Container>
                         {model && (
                             <Diagram
-                                model={model}
+                                model={flowModel}
                                 onAddNode={handleOnAddNode}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
