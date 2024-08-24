@@ -15,9 +15,7 @@ import { NodeLinkModel } from "./NodeLinkModel";
 import {
     Colors,
     NODE_BORDER_WIDTH,
-    NODE_HEIGHT,
     NODE_PADDING,
-    NODE_WIDTH,
     POPUP_BOX_HEIGHT,
     POPUP_BOX_WIDTH,
 } from "../../resources/constants";
@@ -41,10 +39,10 @@ const fadeInZoomIn = keyframes`
 `;
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
-    const { onAddNode, onAddComment } = useDiagramContext();
+    const { onAddNode } = useDiagramContext();
+
     const [isHovered, setIsHovered] = useState(false);
     const [showCommentBox, setShowCommentBox] = useState(false);
-    const [showPromptBox, setShowPromptBox] = useState(false);
 
     const linkColor = isHovered ? Colors.PRIMARY : Colors.ON_SURFACE;
 
@@ -68,12 +66,20 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const handleAddComment = () => {
         setShowCommentBox(true);
     };
+
     const handleCloseCommentBox = () => {
         setShowCommentBox(false);
         setIsHovered(false);
     };
 
-    const handleAddPrompt = () => {};
+    const handleAddPrompt = () => {
+        const target = link.getTarget();
+        if (!target) {
+            console.error(">>> NodeLinkWidget: handleAddPrompt: target not found");
+            return;
+        }
+        // onAddPrompt({ startLine: target, endLine: target });
+    };
 
     return (
         <g pointerEvents={"all"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>

@@ -31,8 +31,8 @@ export namespace NodeStyles {
     export const Node = styled.div`
         display: flex;
         flex-direction: row;
-        /* justify-content: space-between; */
         align-items: flex-start;
+        cursor: pointer;
     `;
 
     export type NodeStyleProp = {
@@ -53,7 +53,6 @@ export namespace NodeStyles {
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
     `;
 
     export const Header = styled.div<{}>`

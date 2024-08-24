@@ -27,7 +27,7 @@ export namespace NodeStyles {
         justify-content: space-between;
         align-items: center;
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
+        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`
