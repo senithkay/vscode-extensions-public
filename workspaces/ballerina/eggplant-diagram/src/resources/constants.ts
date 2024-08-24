@@ -111,7 +111,7 @@ export const DRAFT_NODE_HEIGHT= NODE_HEIGHT;
 export const DRAFT_NODE_BORDER_WIDTH = 2;
 
 // popup box
-export const POPUP_BOX_WIDTH = NODE_WIDTH + NODE_GAP_X;
+export const POPUP_BOX_WIDTH = NODE_WIDTH + NODE_GAP_X + 20;
 export const POPUP_BOX_HEIGHT = 40;
 
 // HACK
