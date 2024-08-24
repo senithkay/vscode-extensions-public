@@ -61,8 +61,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return nodeModel;
     }
 
-    private createEmptyNode(id: string, x: number, y: number, visible = true): EmptyNodeModel {
-        const nodeModel = new EmptyNodeModel(id, visible);
+    private createEmptyNode(id: string, x: number, y: number, visible = true, showButton = false): EmptyNodeModel {
+        const nodeModel = new EmptyNodeModel(id, visible, showButton);
         nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
@@ -156,11 +156,17 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.id,
                     branchEmptyNodeModel.viewState.x,
                     branchEmptyNodeModel.viewState.y,
+                    true,
                     true
                 );
-                const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
+                const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
+                    label: branch.label,
+                    brokenLine: true,
+                    showAddButton: false,
+                });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
                     brokenLine: true,
+                    showAddButton: false,
                     alignBottom: true,
                 });
                 if (linkIn && linkOut) {

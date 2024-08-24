@@ -42,20 +42,17 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
 
     const handleAddNode = () => {
         let node = link.getTopNode();
-        if (!node ) {
+        if (!node) {
             console.error(">>> NodeLinkWidget: handleAddNode: top node not found");
             node = (link.sourceNode as BaseNodeModel).node;
         }
 
-        if (link.getTarget()) {
-            const targetLine = link.getTarget();
-            onAddNode(node, { startLine: targetLine, endLine: targetLine });
-            return;
-        } else {
-            // TEST
-            onAddNode(node, { startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } });
+        const target = link.getTarget();
+        if (!target) {
+            console.error(">>> NodeLinkWidget: handleAddNode: target not found");
             return;
         }
+        onAddNode(node, { startLine: target, endLine: target });
     };
 
     return (
@@ -71,7 +68,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 id={link.getID()}
                 d={link.getSVGPath()}
                 fill={"none"}
-                stroke={link.showAddButton && linkColor}
+                stroke={linkColor}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
                 markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
@@ -80,7 +77,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 <foreignObject x={addButtonPosition.x - 50} y={addButtonPosition.y - 10} width="100" height="100">
                     <div
                         css={css`
-                            display: ${isHovered ? "none" : "flex"};
+                            display: ${isHovered && link.showAddButton ? "none" : "flex"};
                             justify-content: center;
                             align-items: center;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
@@ -92,7 +89,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 justifyContent: "center",
                                 alignItems: "center",
                                 borderRadius: "20px",
-                                border: `1.5px solid ${link.showAddButton && linkColor}`,
+                                border: `1.5px solid ${linkColor}`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                 padding: "2px 10px",
                                 boxSizing: "border-box",
@@ -101,7 +98,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                         >
                             <span
                                 style={{
-                                    color: link.showAddButton && linkColor,
+                                    color: linkColor,
                                     fontSize: "14px",
                                     userSelect: "none",
                                 }}
