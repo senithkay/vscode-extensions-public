@@ -19,4 +19,5 @@ export interface AIPanelAPI {
     refreshAccessToken: () => void;
     getProjectUuid: () => Promise<string>;
     addToProject: (content: AddToProjectRequest) => void;
+    getRefreshToken: () => Promise<string>;
 }

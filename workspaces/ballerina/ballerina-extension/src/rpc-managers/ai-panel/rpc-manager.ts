@@ -14,11 +14,13 @@ import {
     AI_EVENT_TYPE,
     AddToProjectRequest
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import * as vscode from 'vscode';
+import axios from "axios";
 import * as crypto from 'crypto';
-import path from "path";
 import * as fs from 'fs';
+import path from "path";
+import * as vscode from 'vscode';
+import { extension } from "../../BalExtensionContext";
+import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -60,8 +62,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getAccessToken(): Promise<string> {
+        // return new Promise(async (resolve) => {
+        //     resolve(StateMachineAI.context().token as string);
+        // });
         return new Promise(async (resolve) => {
-            resolve(StateMachineAI.context().token as string);
+            const token = await extension.context.secrets.get('BallerinaAIUser');
+            resolve(token as string);
         });
     }
 
@@ -132,5 +138,44 @@ public function main() {
             // main.bal does not exist, write the content to that file
             fs.writeFileSync(mainBalPath, req.content.trim());
         }
+    }
+
+    async getRefreshToken(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const CommonReqHeaders = {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+                'Accept': 'application/json'
+            };
+
+            const config = vscode.workspace.getConfiguration('ballerina');
+            const AUTH_ORG = config.get('authOrg') as string;
+            const AUTH_CLIENT_ID = config.get('authClientID') as string;
+
+            const refresh_token = await extension.context.secrets.get('BallerinaAIRefreshToken');
+            if (!refresh_token) {
+                throw new Error("Refresh token is not available.");
+            } else {
+                try {
+                    console.log("Refreshing token...");
+                    const params = new URLSearchParams({
+                        client_id: AUTH_CLIENT_ID,
+                        refresh_token: refresh_token,
+                        grant_type: 'refresh_token',
+                        scope: 'openid'
+                    });
+                    const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
+                    const newAccessToken = response.data.access_token;
+                    const newRefreshToken = response.data.refresh_token;
+                    await extension.context.secrets.store('BallerinaAIUser', newAccessToken);
+                    await extension.context.secrets.store('BallerinaAIRefreshToken', newRefreshToken);
+                    console.log("Token refreshed successfully!");
+                    const token = await extension.context.secrets.get('BallerinaAIUser');
+                    resolve(token);
+                } catch (error: any) {
+                    const errMsg = "Error while refreshing token! " + error?.message;
+                    console.error(errMsg);
+                }
+            }
+        });
     }
 }

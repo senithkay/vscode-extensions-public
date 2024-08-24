@@ -12,7 +12,7 @@ import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/ballerina-core';
 import { AiPanelWebview } from './webview';
-import { getAuthUrl, refreshAuthCode } from './auth';
+import { getAuthUrl } from './auth';
 import { extension } from '../../BalExtensionContext';
 import fetch from 'node-fetch';
 import { log } from '../../utils/logger';
@@ -139,6 +139,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
         openLogin: openLogin,
         removeToken: async (context, event) => {
             await extension.context.secrets.delete('BallerinaAIUser');
+            await extension.context.secrets.delete('BallerinaAIRefreshToken');
         },
     }
 });
