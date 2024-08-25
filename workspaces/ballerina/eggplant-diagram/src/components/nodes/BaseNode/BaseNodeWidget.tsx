@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
@@ -121,8 +121,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const { onNodeSelect, goToSource } = useDiagramContext();
 
-    const [isHovered, setIsHovered] = React.useState(false);
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | SVGSVGElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
