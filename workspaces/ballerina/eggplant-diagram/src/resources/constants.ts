@@ -116,7 +116,7 @@ export const POPUP_BOX_WIDTH = NODE_WIDTH + NODE_GAP_X + 20;
 export const POPUP_BOX_HEIGHT = 40;
 
 // button node
-export const BUTTON_NODE_WIDTH = NODE_WIDTH / 2;
+export const BUTTON_NODE_WIDTH = 160;
 export const BUTTON_NODE_HEIGHT = 30;
 
 // HACK

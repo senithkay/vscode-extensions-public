@@ -300,10 +300,10 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 requestOptions
             );
             const data = await response.json();
-            console.log(">>> suggested content data", data);
+            console.log(">>> ai suggested content data", data);
             const suggestedContent = (data as any).completions.at(0);
             if (!suggestedContent) {
-                console.log(">>> suggested content not found");
+                console.log(">>> ai suggested content not found");
                 return new Promise((resolve) => {
                     resolve(undefined);
                 });

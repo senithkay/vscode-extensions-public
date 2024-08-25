@@ -71,7 +71,7 @@ export function ButtonNodeWidget(props: ButtonNodeWidgetProps) {
         <PopupStyles.Container>
             <PopupStyles.Row>
                 <Button
-                    appearance="primary"
+                    appearance="secondary"
                     onClick={handleOnAcceptClick}
                     buttonSx={{
                         height: 18,
