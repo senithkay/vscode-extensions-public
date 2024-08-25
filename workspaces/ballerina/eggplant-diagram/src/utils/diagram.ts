@@ -13,12 +13,14 @@ import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../compone
 import { EmptyNodeFactory } from "../components/nodes/EmptyNode";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
-import { NodeModel } from "./types";
+import { LinkableNodeModel, NodeModel } from "./types";
 import { VerticalScrollCanvasAction } from "../actions/VerticalScrollCanvasAction";
 import { IfNodeFactory } from "../components/nodes/IfNode/IfNodeFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
 import { ApiCallNodeFactory } from "../components/nodes/ApiCallNode";
 import { DraftNodeFactory } from "../components/nodes/DraftNode/DraftNodeFactory";
+import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
+import { NodeTypes } from "../resources/constants";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -36,6 +38,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
     engine.getNodeFactories().registerFactory(new DraftNodeFactory());
+    engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
@@ -75,8 +78,15 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 
 // create link between nodes
 export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
-    const sourcePort = sourceNode.getOutPort();
-    const targetPort = targetNode.getInPort();
+    if (sourceNode.getType() === NodeTypes.BUTTON_NODE || targetNode.getType() === NodeTypes.BUTTON_NODE) {
+        console.log(">>> Button node cannot be connected to another node");
+        return;
+    }
+    const source = sourceNode as LinkableNodeModel;
+    const target = targetNode as LinkableNodeModel;
+
+    const sourcePort = source.getOutPort();
+    const targetPort = target.getInPort();
     const link = createPortsLink(sourcePort, targetPort, options);
     link.setSourceNode(sourceNode);
     link.setTargetNode(targetNode);
@@ -115,4 +125,4 @@ export const resetDiagramZoomAndPosition = (file: string) => {
     localStorage.setItem("diagram-zoom-level", "100");
     localStorage.setItem("diagram-offset-x", "0");
     localStorage.setItem("diagram-offset-y", "0");
-}
+};

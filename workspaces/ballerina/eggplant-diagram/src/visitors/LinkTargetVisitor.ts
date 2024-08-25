@@ -8,8 +8,10 @@
  */
 
 import { NodeLinkModel } from "../components/NodeLink";
+import { EmptyNodeModel } from "../components/nodes/EmptyNode";
+import { NodeTypes } from "../resources/constants";
 import { getNodeIdFromModel } from "../utils/node";
-import { Flow, FlowNode, NodeModel } from "../utils/types";
+import { Flow, FlowNode, LinkableNodeModel, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class LinkTargetVisitor implements BaseVisitor {
@@ -33,10 +35,17 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
 
-        return this.getOutLinksFromModel(model);
+        return this.getOutLinksFromModel(model as LinkableNodeModel);
     }
 
-    private getOutLinksFromModel(model: NodeModel): NodeLinkModel[] {
+    private getOutLinksFromModel(nodeModel: NodeModel): NodeLinkModel[] {
+        if (nodeModel.getType() === NodeTypes.BUTTON_NODE) {
+            console.log(">>> getOutLinksFromNode: button node not supported");
+            return;
+        }
+
+        const model = nodeModel as LinkableNodeModel;
+
         const outPort = model.getOutPort();
         if (!outPort) {
             console.log(">>> out port not found", { model });
@@ -62,11 +71,11 @@ export class LinkTargetVisitor implements BaseVisitor {
         if (!outLinks) {
             return;
         }
-
         outLinks.forEach((outLink) => {
             // set target position
             if (outLink && node.codedata?.lineRange?.endLine) {
                 outLink.setTarget(node.codedata.lineRange.endLine);
+                outLink.setTopNode(node);
             }
         });
     }
@@ -99,11 +108,11 @@ export class LinkTargetVisitor implements BaseVisitor {
                 return;
             }
         } else {
-            console.log(">>> top level do block not found");
+            console.log(">>> top level do block not found", node);
             outLinks.forEach((outLink) => {
                 outLink.setTarget({
                     line: node.codedata.lineRange.startLine.line,
-                    offset: node.codedata.lineRange.startLine.offset, // FIXME: need to fix with LS extension 
+                    offset: node.codedata.lineRange.startLine.offset, // FIXME: need to fix with LS extension
                 });
                 outLink.setTopNode(node);
             });
@@ -125,6 +134,17 @@ export class LinkTargetVisitor implements BaseVisitor {
                 offset: line.offset + 1, // HACK: need to fix with LS extension
             });
             thenLink.setTopNode(thenBranch);
+            // if then branch is empty, target node is empty node.
+            // improve empty node with target position and top node
+            const firstNode = thenLink.targetNode;
+            if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
+                const emptyNode = firstNode as EmptyNodeModel;
+                emptyNode.setTopNode(thenBranch);
+                emptyNode.setTarget({
+                    line: line.line,
+                    offset: line.offset + 1, // HACK: need to fix with LS extension
+                });
+            }
         }
 
         const elseLink = outLinks.find((link) => link.label === "Else");
@@ -136,6 +156,17 @@ export class LinkTargetVisitor implements BaseVisitor {
                 offset: line.offset + 6, //HACK: need to fix with LS extension
             });
             elseLink.setTopNode(elseBranch);
+            // if else branch is empty, target node is empty node.
+            // improve empty node with target position and top node
+            const firstNode = elseLink.targetNode;
+            if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
+                const emptyNode = firstNode as EmptyNodeModel;
+                emptyNode.setTopNode(elseBranch);
+                emptyNode.setTarget({
+                    line: line.line,
+                    offset: line.offset + 6, // HACK: need to fix with LS extension
+                });
+            }
         }
 
         // update end-if link target

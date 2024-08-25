@@ -72,6 +72,7 @@ const MainPanel = () => {
         }
     });
 
+    // TODO: Need to refactor this function. use util apply modifications function
     const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
         let filePath;
@@ -184,12 +185,8 @@ const MainPanel = () => {
         fetchContext();
         rpcClient.getVisualizerLocation().then((vl) => {
             const projectRoot = vl.projectUri;
-            console.log(">>> project root path", projectRoot);
             setRecordPath(vl.recordFilePath);
-            console.log(">>> record file path", vl.recordFilePath);
-            console.log(">>> project root path", projectRoot);
         });
-        console.log(">>> visualizer location", rpcClient.getVisualizerLocation());
     }, []);
 
     useEffect(() => {

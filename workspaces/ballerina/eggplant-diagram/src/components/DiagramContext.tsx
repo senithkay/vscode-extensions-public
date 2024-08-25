@@ -19,8 +19,13 @@ export interface DiagramContextState {
     };
     showErrorFlow: boolean;
     onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
+    onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
+    suggestions?: {
+        onAccept(): void;
+        onDiscard(): void;
+    };
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -32,8 +37,13 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     },
     showErrorFlow: false,
     onAddNode: () => {},
+    onAddComment: () => {},
     onNodeSelect: () => {},
     goToSource: () => {},
+    suggestions: {
+        onAccept: () => {},
+        onDiscard: () => {},
+    },
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

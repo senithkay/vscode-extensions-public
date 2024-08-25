@@ -38,6 +38,7 @@ export type FlowNode = {
     branches: Branch[];
     flags?: number;
     returning: boolean;
+    suggested?: boolean;
     viewState?: ViewState;
 };
 
@@ -63,6 +64,7 @@ export type CodeData = {
     object?: string;
     symbol?: string;
     lineRange?: ELineRange;
+    sourceCode?: string;
 };
 
 export type Branch = {
@@ -155,6 +157,7 @@ export type NodePropertyKey =
     | "targetType"
     | "variable"
     | "expression"
+    | "comment"
     | "connection";
 
 export type BranchKind = "block" | "worker";
@@ -187,4 +190,5 @@ export type NodeKind =
     | "BODY"
     | "NEW_DATA"
     | "UPDATE_DATA"
-    | "NEW_CONNECTION";
+    | "NEW_CONNECTION"
+    | "COMMENT";

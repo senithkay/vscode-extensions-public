@@ -27,7 +27,7 @@ export namespace NodeStyles {
         justify-content: space-between;
         align-items: center;
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
+        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`
@@ -124,9 +124,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
         }
     };
 
+    const highlighted = model.node.suggested;
+
     return (
         <NodeStyles.Node
-            selected={model.isSelected()}
+            selected={highlighted}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -144,7 +146,9 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             rx="5"
                             ry="5"
                             fill={Colors.SURFACE_DIM}
-                            stroke={isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                            stroke={
+                                highlighted ? Colors.SECONDARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT
+                            }
                             strokeWidth={NODE_BORDER_WIDTH}
                             transform="rotate(45 28 28)"
                         />

@@ -171,7 +171,7 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): st
 
 export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch, target: LineRange) {
     const newFlowModel = cloneDeep(flowModel);
-    console.log(">>> addDraftNodeToDiagram", newFlowModel, parent, target);
+    console.log(">>> addDraftNodeToDiagram", { newFlowModel, parent, target });
 
     const draftNode: FlowNode = {
         id: "draft",
@@ -193,6 +193,7 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
     const addNodeVisitor = new AddNodeVisitor(newFlowModel, parent as FlowNode, draftNode);
     traverseFlow(newFlowModel, addNodeVisitor);
     const newFlow = addNodeVisitor.getUpdatedFlow();
+    console.log(">>> new model with draft node", { newFlow });
     return newFlow;
 }
 

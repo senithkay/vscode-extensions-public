@@ -8,6 +8,9 @@ import model3 from "./3-if.json";
 import model4 from "./4-if-else-body.json";
 import model5 from "./5-if-then-body.json";
 import model6 from "./6-if-body.json";
+import model7 from "./7-if-then-body-draft.json";
+import model8 from "./8-comment.json";
+import model9 from "./9-suggested.json";
 
 export default {
     title: "Eggplant/Diagram",
@@ -51,3 +54,17 @@ IfBody.args = {
     model: model6,
 };
 
+export const IfThenBodyDraft = Template.bind({});
+IfThenBodyDraft.args = {
+    model: model7,
+};
+
+export const Comment = Template.bind({});
+Comment.args = {
+    model: model8,
+};
+
+export const Suggested = Template.bind({});
+Suggested.args = {
+    model: model9,
+};

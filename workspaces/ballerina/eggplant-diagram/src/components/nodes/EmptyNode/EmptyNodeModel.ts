@@ -10,15 +10,18 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
-import { FlowNode } from "@wso2-enterprise/ballerina-core";
+import { Branch, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 
 export class EmptyNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
     protected visible: boolean;
     protected parentFlowNode: FlowNode;
+    readonly showButton: boolean;
+    topNode: FlowNode | Branch; // top statement node or parent block node
+    target: LinePosition;
 
-    constructor(id: string, visible = true) {
+    constructor(id: string, visible = true, button = false) {
         super({
             id,
             type: NodeTypes.EMPTY_NODE,
@@ -27,6 +30,7 @@ export class EmptyNodeModel extends NodeModel {
         this.addInPort("in");
         this.addOutPort("out");
         this.visible = visible;
+        this.showButton = button;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -67,5 +71,21 @@ export class EmptyNodeModel extends NodeModel {
 
     isVisible(): boolean {
         return this.visible;
+    }
+
+    setTopNode(node: FlowNode | Branch) {
+        this.topNode = node;
+    }
+
+    getTopNode(): FlowNode | Branch {
+        return this.topNode;
+    }
+
+    setTarget(target: LinePosition) {
+        this.target = target;
+    }
+
+    getTarget(): LinePosition {
+        return this.target;
     }
 }

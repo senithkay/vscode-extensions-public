@@ -31,8 +31,8 @@ export namespace NodeStyles {
     export const Node = styled.div`
         display: flex;
         flex-direction: row;
-        /* justify-content: space-between; */
         align-items: flex-start;
+        cursor: pointer;
     `;
 
     export type NodeStyleProp = {
@@ -49,11 +49,10 @@ export namespace NodeStyles {
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+                props.selected ? Colors.SECONDARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
     `;
 
     export const Header = styled.div<{}>`
@@ -148,13 +147,15 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
         }
     };
 
+    const highlighted = model.node.suggested;
+
     return (
         <NodeStyles.Node
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.Box selected={model.isSelected()} hovered={isHovered}>
+            <NodeStyles.Box selected={highlighted} hovered={isHovered}>
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
                     <NodeStyles.Icon>
@@ -173,13 +174,17 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
 
-            <svg width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT} height={NODE_HEIGHT + LABEL_HEIGHT} viewBox="0 0 130 70">
+            <svg
+                width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT}
+                height={NODE_HEIGHT + LABEL_HEIGHT}
+                viewBox="0 0 130 70"
+            >
                 <circle
                     cx="80"
                     cy="24"
                     r="22"
                     fill={Colors.SURFACE_DIM}
-                    stroke={model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                    stroke={highlighted ? Colors.SECONDARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
                 />
                 <text
@@ -203,7 +208,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     x2="57"
                     y2="25"
                     style={{
-                        stroke: model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
+                        stroke: highlighted ? Colors.SECONDARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                         strokeWidth: 1.5,
                         markerEnd: `url(#${model.node.id}-arrow-head)`,
                     }}
@@ -220,7 +225,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     >
                         <polygon
                             points="0,4 0,0 4,2"
-                            fill={model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                            fill={highlighted ? Colors.SECONDARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
                         ></polygon>
                     </marker>
                 </defs>
