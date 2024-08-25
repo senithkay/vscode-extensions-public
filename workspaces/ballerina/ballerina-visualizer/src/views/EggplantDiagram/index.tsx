@@ -40,7 +40,7 @@ import {
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { getColorByMethod } from "../../utils/utils";
+import { applyModifications, getColorByMethod, textToModifications } from "../../utils/utils";
 import { useVisualizerContext } from "../../Context";
 
 const Container = styled.div`
@@ -335,6 +335,35 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
+    // ai suggestions callbacks
+    const onAcceptSuggestions = () => {
+        if (!suggestedModel) {
+            return;
+        }
+        // save suggested text
+        const modifications = textToModifications(suggestedText.current, {
+            startLine: targetRef.current.startLine.line,
+            startColumn: targetRef.current.startLine.offset,
+            endLine: targetRef.current.endLine.line,
+            endColumn: targetRef.current.endLine.offset,
+        });
+        applyModifications(rpcClient, modifications);
+
+        // clear diagram
+        onDiscardSuggestions();
+        handleOnCloseSidePanel();
+    };
+
+    const onDiscardSuggestions = () => {
+        if (!suggestedModel) {
+            return;
+        }
+        const updatedModel = removeDraftNodeFromDiagram(model);
+        setModel(updatedModel);
+        setSuggestedModel(undefined);
+        suggestedText.current = undefined;
+    };
+
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -359,6 +388,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
+                                suggestions={{
+                                    onAccept: onAcceptSuggestions,
+                                    onDiscard: onDiscardSuggestions,
+                                }}
                             />
                         )}
                     </Container>

@@ -37,10 +37,15 @@ export interface DiagramProps {
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
+    // ai suggestions callbacks
+    suggestions?: {
+        onAccept(): void;
+        onDiscard(): void;
+    };
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onAddComment, onNodeSelect, goToSource } = props;
+    const { model, onAddNode, onAddComment, onNodeSelect, goToSource, suggestions } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -151,6 +156,10 @@ export function Diagram(props: DiagramProps) {
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
+        suggestions: {
+            onAccept: suggestions.onAccept,
+            onDiscard: suggestions.onDiscard,
+        },
     };
 
     return (

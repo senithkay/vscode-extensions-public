@@ -69,6 +69,7 @@ const MainPanel = () => {
         }
     });
 
+    // TODO: Need to refactor this function. use util apply modifications function
     const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
         let filePath;

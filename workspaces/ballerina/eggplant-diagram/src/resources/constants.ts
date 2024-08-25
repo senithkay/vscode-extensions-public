@@ -80,6 +80,7 @@ export enum NodeTypes {
     IF_NODE = "if-node",
     START_NODE = "start-node",
     API_CALL_NODE = "api-call-node",
+    BUTTON_NODE = "button-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -107,12 +108,16 @@ export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
 
 // draft node
 export const DRAFT_NODE_WIDTH = NODE_WIDTH;
-export const DRAFT_NODE_HEIGHT= NODE_HEIGHT;
+export const DRAFT_NODE_HEIGHT = NODE_HEIGHT;
 export const DRAFT_NODE_BORDER_WIDTH = 2;
 
 // popup box
 export const POPUP_BOX_WIDTH = NODE_WIDTH + NODE_GAP_X + 20;
 export const POPUP_BOX_HEIGHT = 40;
+
+// button node
+export const BUTTON_NODE_WIDTH = NODE_WIDTH / 2;
+export const BUTTON_NODE_HEIGHT = 30;
 
 // HACK
 export const VSCODE_MARGIN = 20;

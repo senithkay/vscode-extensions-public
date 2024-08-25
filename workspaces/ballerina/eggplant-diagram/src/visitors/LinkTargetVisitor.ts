@@ -11,7 +11,7 @@ import { NodeLinkModel } from "../components/NodeLink";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { NodeTypes } from "../resources/constants";
 import { getNodeIdFromModel } from "../utils/node";
-import { Flow, FlowNode, NodeModel } from "../utils/types";
+import { Flow, FlowNode, LinkableNodeModel, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class LinkTargetVisitor implements BaseVisitor {
@@ -35,10 +35,17 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
 
-        return this.getOutLinksFromModel(model);
+        return this.getOutLinksFromModel(model as LinkableNodeModel);
     }
 
-    private getOutLinksFromModel(model: NodeModel): NodeLinkModel[] {
+    private getOutLinksFromModel(nodeModel: NodeModel): NodeLinkModel[] {
+        if (nodeModel.getType() === NodeTypes.BUTTON_NODE) {
+            console.log(">>> getOutLinksFromNode: button node not supported");
+            return;
+        }
+
+        const model = nodeModel as LinkableNodeModel;
+
         const outPort = model.getOutPort();
         if (!outPort) {
             console.log(">>> out port not found", { model });

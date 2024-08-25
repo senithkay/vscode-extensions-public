@@ -10,11 +10,12 @@
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { ButtonNodeModel } from "../components/nodes/ButtonNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { EMPTY_NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
+import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -24,6 +25,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     links: NodeLinkModel[] = [];
     private skipChildrenVisit = false;
     private lastNodeModel: NodeModel | undefined; // last visited flow node
+    private hasSuggestedNode = false;
 
     constructor() {
         console.log(">>> node factory visitor started");
@@ -79,6 +81,17 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
+            // if node is the first suggested node
+            // add button node top of this node
+            if (node.suggested && !this.hasSuggestedNode) {
+                this.hasSuggestedNode = true;
+                const buttonNodeModel = new ButtonNodeModel();
+                buttonNodeModel.setPosition(
+                    node.viewState.x + NODE_WIDTH/2 + 20,
+                    node.viewState.y - BUTTON_NODE_HEIGHT + 10
+                );
+                this.nodes.push(buttonNodeModel);
+            }
         }
     }; // only ui nodes have id
 
