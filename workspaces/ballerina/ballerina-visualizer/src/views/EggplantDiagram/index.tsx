@@ -161,8 +161,8 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 console.log(">>> ai suggested new flow", model);
                 if (model.flowModel) {
                     // add draft node to model
-                    const updatedFlowModel = addDraftNodeToDiagram(model.flowModel, parent, target);
-                    setSuggestedModel(updatedFlowModel);
+                    // const updatedFlowModel = addDraftNodeToDiagram(model.flowModel, parent, target);
+                    setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
             });
