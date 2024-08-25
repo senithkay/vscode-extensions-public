@@ -549,7 +549,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 disabled={disabled || isSelectingCompletion || isSavingExpression}
                 {...rest}
             />
-            {(isSelectingCompletion || isSavingExpression) && <ProgressIndicator sx={{ top: "100%" }} />}
+            {(isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
