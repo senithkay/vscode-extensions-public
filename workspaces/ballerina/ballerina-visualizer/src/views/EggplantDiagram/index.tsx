@@ -120,8 +120,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
         // clear previous click if had
-        if(topNodeRef.current || targetRef.current) {
-            console.log(">>> Clearing previous click", { topNodeRef: topNodeRef.current, targetRef: targetRef.current });
+        if (topNodeRef.current || targetRef.current) {
+            console.log(">>> Clearing previous click", {
+                topNodeRef: topNodeRef.current,
+                targetRef: targetRef.current,
+            });
             handleOnCloseSidePanel();
             return;
         }
@@ -160,8 +163,6 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             .then((model) => {
                 console.log(">>> ai suggested new flow", model);
                 if (model.flowModel) {
-                    // add draft node to model
-                    // const updatedFlowModel = addDraftNodeToDiagram(model.flowModel, parent, target);
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
@@ -355,16 +356,14 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         applyModifications(rpcClient, modifications);
 
         // clear diagram
-        onDiscardSuggestions();
         handleOnCloseSidePanel();
+        onDiscardSuggestions();
     };
 
     const onDiscardSuggestions = () => {
         if (!suggestedModel) {
             return;
         }
-        const updatedModel = removeDraftNodeFromDiagram(model);
-        setModel(updatedModel);
         setSuggestedModel(undefined);
         suggestedText.current = undefined;
     };
