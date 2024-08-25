@@ -44,8 +44,8 @@ namespace S {
         align-items: center;
         width: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
         height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
-        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.ON_SURFACE : "transparent")};
-        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.OUTLINE_VARIANT : "transparent")};
+        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY_CONTAINER : "transparent")};
         border-radius: 50%;
         cursor: ${(props: CircleStyleProp) => (props.clickable ? "pointer" : "default")};
     `;

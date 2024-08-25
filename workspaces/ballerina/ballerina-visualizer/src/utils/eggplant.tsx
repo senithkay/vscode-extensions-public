@@ -85,7 +85,7 @@ export function convertNodePropertiesToFormFields(
             if (expression) {
                 const formField: FormField = {
                     key,
-                    label: expression.metadata.label,
+                    label: expression.metadata?.label || "",
                     type: expression.valueType,
                     optional: expression.optional,
                     editable: isFieldEditable(expression, connections, clientName),

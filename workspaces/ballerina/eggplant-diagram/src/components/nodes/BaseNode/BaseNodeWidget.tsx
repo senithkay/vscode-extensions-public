@@ -11,7 +11,14 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
-import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
+import {
+    Colors,
+    DRAFT_NODE_BORDER_WIDTH,
+    NODE_BORDER_WIDTH,
+    NODE_HEIGHT,
+    NODE_PADDING,
+    NODE_WIDTH,
+} from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
@@ -20,7 +27,7 @@ import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
-        selected: boolean;
+        disabled: boolean;
         hovered: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
@@ -31,12 +38,14 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        border: ${NODE_BORDER_WIDTH}px ${(props: NodeStyleProp) => props.selected ? "dashed" : "solid"};
-            ${(props: NodeStyleProp) =>
-                props.selected ? Colors.OUTLINE_VARIANT : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
+        opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
+        border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
+        border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
+        border-color: ${(props: NodeStyleProp) =>
+            props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        border-radius: 10px;
         cursor: pointer;
     `;
 
@@ -152,8 +161,6 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         setAnchorEl(null);
     };
 
-    const highlighted = model.node.suggested;
-
     const menuItems: Item[] = [
         {
             id: "edit",
@@ -166,8 +173,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
 
     return (
         <NodeStyles.Node
-            selected={highlighted}
             hovered={isHovered}
+            disabled={model.node.suggested}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >

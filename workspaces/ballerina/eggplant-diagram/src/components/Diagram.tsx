@@ -156,10 +156,7 @@ export function Diagram(props: DiagramProps) {
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
-        suggestions: {
-            onAccept: suggestions.onAccept,
-            onDiscard: suggestions.onDiscard,
-        },
+        suggestions: suggestions,
     };
 
     return (
