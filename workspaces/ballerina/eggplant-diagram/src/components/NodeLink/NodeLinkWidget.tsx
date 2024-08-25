@@ -44,7 +44,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const [isHovered, setIsHovered] = useState(false);
     const [showCommentBox, setShowCommentBox] = useState(false);
 
-    const linkColor = isHovered ? Colors.PRIMARY : Colors.ON_SURFACE;
+    const linkColor = isHovered ? Colors.SECONDARY : Colors.PRIMARY;
 
     const addButtonPosition = link.getAddButtonPosition();
 
