@@ -10,6 +10,7 @@ import model5 from "./5-if-then-body.json";
 import model6 from "./6-if-body.json";
 import model7 from "./7-if-then-body-draft.json";
 import model8 from "./8-comment.json";
+import model9 from "./9-suggested.json";
 
 export default {
     title: "Eggplant/Diagram",
@@ -61,4 +62,9 @@ IfThenBodyDraft.args = {
 export const Comment = Template.bind({});
 Comment.args = {
     model: model8,
+};
+
+export const Suggested = Template.bind({});
+Suggested.args = {
+    model: model9,
 };
