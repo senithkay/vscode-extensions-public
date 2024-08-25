@@ -39,6 +39,7 @@ export interface DiagramProps {
     goToSource: (node: FlowNode) => void;
     // ai suggestions callbacks
     suggestions?: {
+        fetching: boolean;
         onAccept(): void;
         onDiscard(): void;
     };

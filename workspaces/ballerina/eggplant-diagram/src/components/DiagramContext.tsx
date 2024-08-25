@@ -23,6 +23,7 @@ export interface DiagramContextState {
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
     suggestions?: {
+        fetching: boolean;
         onAccept(): void;
         onDiscard(): void;
     };
@@ -41,6 +42,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     onNodeSelect: () => {},
     goToSource: () => {},
     suggestions: {
+        fetching: false,
         onAccept: () => {},
         onDiscard: () => {},
     },

@@ -57,6 +57,11 @@ IfBody.args = {
 export const IfThenBodyDraft = Template.bind({});
 IfThenBodyDraft.args = {
     model: model7,
+    suggestions: {
+        fetching: false,
+        onAccept: () => {},
+        onDiscard: () => {},
+    }
 };
 
 export const Comment = Template.bind({});

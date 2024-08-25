@@ -393,6 +393,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                                 suggestions={{
+                                    fetching: false,
                                     onAccept: onAcceptSuggestions,
                                     onDiscard: onDiscardSuggestions,
                                 }}
