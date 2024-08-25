@@ -109,9 +109,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
         // restore original model
         if (originalFlowModel.current) {
-            const updatedModel = removeDraftNodeFromDiagram(model);
-            // console.log(">>> Restoring original model", updatedModel);
-            setModel(updatedModel);
+            // const updatedModel = removeDraftNodeFromDiagram(model);
+            // setModel(updatedModel);
+            getSequenceModel();
             originalFlowModel.current = undefined;
             setSuggestedModel(undefined);
             suggestedText.current = undefined;
@@ -119,8 +119,13 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
-        console.log(">>> opening panel...", { parent, target });
-
+        // clear previous click if had
+        if(topNodeRef.current || targetRef.current) {
+            console.log(">>> Clearing previous click", { topNodeRef: topNodeRef.current, targetRef: targetRef.current });
+            handleOnCloseSidePanel();
+            return;
+        }
+        // handle add new node
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
