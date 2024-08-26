@@ -78,6 +78,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
+    const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
@@ -157,6 +158,12 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 setSidePanelView(SidePanelView.NODE_LIST);
             });
         // get ai suggestions
+        setFetchingAiSuggestions(true);
+        const suggestionFetchingTimeout = setTimeout(() => {
+            console.log(">>> AI suggestion fetching timeout");
+            setFetchingAiSuggestions(false);
+        }, 10000); // 10 seconds
+
         rpcClient
             .getEggplantDiagramRpcClient()
             .getAiSuggestions({ position: target, filePath: model.fileName })
@@ -166,6 +173,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
+            })
+            .finally(() => {
+                clearTimeout(suggestionFetchingTimeout);
+                setFetchingAiSuggestions(false);
             });
     };
 
@@ -393,7 +404,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                                 suggestions={{
-                                    fetching: false,
+                                    fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,
                                     onDiscard: onDiscardSuggestions,
                                 }}
