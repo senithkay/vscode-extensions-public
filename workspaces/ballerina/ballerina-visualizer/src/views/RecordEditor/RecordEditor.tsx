@@ -23,10 +23,10 @@ const DrawerContainer = styled.div`
 
 export interface RecordEditorProps {
     isRecordEditorOpen: boolean;
-    fields: FormField[];
+    fields?: FormField[];
     rpcClient: BallerinaRpcClient;
     onClose: () => void;
-    updateFields: (fields: FormField[]) => void;
+    updateFields?: (fields: FormField[]) => void;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
@@ -45,21 +45,34 @@ export function RecordEditor(props: RecordEditorProps) {
     };
 
     const handleCancelRecordEditor = (recordName: string | undefined) => {   
-        const updatedFormValues = fields.map((formField: FormField) => {
-            if (formField.key === "type") {
-                return { ...formField, value: recordName ?? '' };
-            }
-            return formField;
-        });
-        updateFields(updatedFormValues);
+        if (fields) {
+            const updatedFormValues = fields.map((formField: FormField) => {
+                if (formField.key === "type") {
+                    return { ...formField, value: recordName ?? '' };
+                }
+                return formField;
+            });
+            updateFields(updatedFormValues);
+        }
         onClose();
     };
 
     const applyRecordModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
         const filePath =  (await rpcClient.getVisualizerLocation()).recordFilePath;
+        let updatedModifications = modifications;
+        if (modifications.length === 1) {
+            // Change the start position of the modification to the beginning of the file
+            updatedModifications = [{
+                ...modifications[0],
+                startLine: 0,
+                startColumn: 0,
+                endLine: 0,
+                endColumn: 0
+            }];
+        }
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
-            astModifications: modifications,
+            astModifications: updatedModifications,
             documentIdentifier: {
                 uri: URI.file(filePath ?? '').toString()
             }
