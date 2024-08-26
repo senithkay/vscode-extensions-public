@@ -32,7 +32,7 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.w / 2;
 
         const thenBranch = node.branches.find((branch) => branch.label === "Then");
@@ -86,6 +86,10 @@ export class PositionVisitor implements BaseVisitor {
                 ? parent.viewState.x + (parent.viewState.w - VSCODE_MARGIN) / 2
                 : this.diagramCenterX;
             node.viewState.x = centerX - node.viewState.w / 2;
+            // if top node is comment, align with comment
+            if (parent.codedata.node === "COMMENT") {
+                node.viewState.x = parent.viewState.x - NODE_PADDING / 2;
+            }
             return;
         }
         // normal node flow
