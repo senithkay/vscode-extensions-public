@@ -509,7 +509,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     <Form
                         formFields={fields}
                         openRecordEditor={handleOpenRecordEditor}
-                        onSubmit={suggestedText.current ? undefined : handleOnFormSubmit}
+                        onSubmit={handleOnFormSubmit}
                     />
                 )}
                 {isRecordEditorOpen && (
