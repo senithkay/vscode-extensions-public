@@ -146,12 +146,6 @@ function generateTreeData(project: vscode.WorkspaceFolder, components: ProjectSt
 
     projectRootEntry.contextValue = 'eggplant-project';
 
-    projectRootEntry.command = {
-        "title": "Visualize",
-        "command": SHARED_COMMANDS.SHOW_VISUALIZER,
-        "arguments": [vscode.Uri.parse(projectRootPath), false]
-    };
-
     const children = getEntriesEggplant(components);
     projectRootEntry.children = children;
 
