@@ -23,10 +23,10 @@ export function DropdownEditor(props: DropdownEditorProps) {
     return (
         <Dropdown
             id={field.key}
-            {...register(field.key, { required: !field.optional, value: field.value })}
+            {...register(field.key, { required: !field.optional, value: field.value !== "" ? field.value : field.items[0] })}
             label={field.label}
             items={field.items.map((item) => ({ id: item, content: item, value: item }))}
-            value={field.value}
+            defaultValue={field.items[0]}
             required={!field.optional}
             sx={{ width: "100%" }}
             containerSx={{ width: "100%" }}

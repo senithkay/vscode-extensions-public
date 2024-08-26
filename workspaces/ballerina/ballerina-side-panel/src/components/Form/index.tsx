@@ -10,10 +10,12 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Codicon, LinkButton, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
-import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
+
+import { FormField, FormValues } from "./types";
 import { FormFieldEditor } from "../editors/FormFieldEditor";
 import { Colors } from "../../resources/constants";
+import { isDropdownField } from "../editors/utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -44,13 +46,6 @@ namespace S {
         margin-top: 12px;
     `;
 
-    export const AddTypeContainer = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        flex-grow: 1;
-        justify-content: flex-end;
-    `;
-
     export const DrawerContainer = styled.div<{}>`
         width: 400px;
     `;
@@ -71,13 +66,17 @@ interface FormProps {
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit, openRecordEditor } = props;
-    const { getValues, register, reset } = useForm<FormValues>();
+    const { getValues,register, setValue, handleSubmit, reset } = useForm<FormValues>();
 
     useEffect(() => {
         // Reset form with new values when formFields change
         const defaultValues: FormValues = {};
         formFields.forEach((field) => {
-            defaultValues[field.key] = field.value;
+            if (isDropdownField(field)) {
+                defaultValues[field.key] = field.value !== "" ? field.value : field.items[0];
+            } else {
+                defaultValues[field.key] = field.value;
+            }
         });
         reset(defaultValues);
     }, [formFields, reset]);
@@ -86,8 +85,9 @@ export function Form(props: FormProps) {
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
-    const handleOnSave = () => {
-        onSubmit(getValues());
+    const handleOnSave = (data: FormValues) => {
+        console.log(">>> form values", data);
+        onSubmit(data);
     };
 
     const handleOpenRecordEditor = (open: boolean) => {
@@ -173,7 +173,7 @@ export function Form(props: FormProps) {
                 })}
 
             <S.Footer>
-                <Button appearance="primary" onClick={handleOnSave}>
+                <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
                     Save
                 </Button>
             </S.Footer>
