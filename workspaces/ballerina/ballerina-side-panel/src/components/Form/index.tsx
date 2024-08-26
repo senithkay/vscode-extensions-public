@@ -55,16 +55,14 @@ namespace S {
 }
 
 // Component to return a Codicon icon
-function addType(name: string, onClick?: () => void) {
-    return (
-        <S.AddTypeContainer>
-            <LinkButton onClick={onClick}>
-                <Codicon name={name} />
-                Add Type
-            </LinkButton>
-        </S.AddTypeContainer>
-    );
-}
+const addType = (name: string, onClick?: () => void) => (
+    <S.AddTypeContainer>
+        <LinkButton onClick={onClick}>
+            <Codicon name={name} />
+            Add Type
+        </LinkButton>
+    </S.AddTypeContainer>
+);
 
 interface FormProps {
     formFields: FormField[];
@@ -86,14 +84,6 @@ export function Form(props: FormProps) {
         openRecordEditor(true);
     };
 
-    const addType = (name: string, onClick?: () => void) => (
-        <S.AddTypeContainer>
-            <LinkButton onClick={onClick}>
-                <Codicon name={name} />
-                Add Type
-            </LinkButton>
-        </S.AddTypeContainer>
-    );
     // TODO: support multiple type fields
     return (
         <S.Container>
