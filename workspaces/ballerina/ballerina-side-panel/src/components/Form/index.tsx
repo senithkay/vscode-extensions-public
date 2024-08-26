@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Codicon, LinkButton, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
@@ -66,12 +66,21 @@ namespace S {
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
-    openRecordEditor?: (isOpen: boolean) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
 }
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit, openRecordEditor } = props;
-    const { getValues, register } = useForm<FormValues>();
+    const { getValues, register, reset } = useForm<FormValues>();
+
+    useEffect(() => {
+        // Reset form with new values when formFields change
+        const defaultValues: FormValues = {};
+        formFields.forEach((field) => {
+            defaultValues[field.key] = field.value;
+        });
+        reset(defaultValues);
+    }, [formFields, reset]);
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
@@ -79,6 +88,10 @@ export function Form(props: FormProps) {
 
     const handleOnSave = () => {
         onSubmit(getValues());
+    };
+
+    const handleOpenRecordEditor = (open: boolean) => {
+        openRecordEditor?.(open, getValues());
     };
 
     const handleOnShowAdvancedOptions = () => {
@@ -107,7 +120,11 @@ export function Form(props: FormProps) {
                 if (!field.optional) {
                     return (
                         <S.Row key={field.key}>
-                            <FormFieldEditor field={field} register={register} openRecordEditor={openRecordEditor} />
+                            <FormFieldEditor
+                                field={field}
+                                register={register}
+                                openRecordEditor={handleOpenRecordEditor}
+                            />
                         </S.Row>
                     );
                 }
@@ -148,7 +165,7 @@ export function Form(props: FormProps) {
                                 <FormFieldEditor
                                     field={field}
                                     register={register}
-                                    openRecordEditor={openRecordEditor}
+                                    openRecordEditor={handleOpenRecordEditor}
                                 />
                             </S.Row>
                         );
