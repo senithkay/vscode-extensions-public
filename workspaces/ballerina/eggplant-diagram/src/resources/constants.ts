@@ -80,6 +80,7 @@ export enum NodeTypes {
     IF_NODE = "if-node",
     START_NODE = "start-node",
     API_CALL_NODE = "api-call-node",
+    COMMENT_NODE = "comment-node",
     BUTTON_NODE = "button-node",
 }
 
