@@ -125,8 +125,7 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.getModel().removeLayer(overlayLayer);
         }
 
-        const hasPreviousPosition = hasDiagramZoomAndPosition(model.fileName);
-        if (!hasPreviousPosition) {
+        if (nodes.length < 3) {
             resetDiagramZoomAndPosition(model.fileName);
         }
         loadDiagramZoomAndPosition(diagramEngine);
