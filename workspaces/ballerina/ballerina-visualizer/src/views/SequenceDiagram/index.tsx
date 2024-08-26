@@ -23,6 +23,7 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 import styled from "@emotion/styled";
 import { PanelType, useVisualizerContext } from "../../Context";
 import { removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
+import { URI } from "vscode-uri";
 
 enum MESSAGE_TYPE {
     ERROR,
@@ -51,10 +52,9 @@ interface SequenceDiagramProps {
 export function SequenceDiagram(props: SequenceDiagramProps) {
     const { syntaxTree, applyModifications } = props;
     const { rpcClient } = useRpcContext();
-    const { setStatementPosition, parsedST, setParsedST, setActivePanel, activePanel, setComponentInfo } = useVisualizerContext();
+    const { setStatementPosition, setActivePanel, setComponentInfo, setActiveFileInfo, activeFileInfo } = useVisualizerContext();
 
     useEffect(() => {
-        console.log("====SequenceDiagram.tsx: useEffect", syntaxTree);
         getSequenceModel();
     }, [syntaxTree]);
 
@@ -62,9 +62,13 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         rpcClient
             .getLangClientRpcClient()
             .getSyntaxTree()
-            .then((model) => {
+            .then(async (model) => {
                 const parsedModel = sizingAndPositioningST(model.syntaxTree);
-                setParsedST(parsedModel);
+                const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+                const fullST = await rpcClient.getLangClientRpcClient().getST({
+                    documentIdentifier: { uri: URI.file(filePath).toString() }
+                });
+                setActiveFileInfo({ fullST: fullST?.syntaxTree, filePath, activeSequence: parsedModel });
             });
     };
 
@@ -136,8 +140,8 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
 
     return (
         <>
-            <Container>{!!parsedST &&
-                <LowCodeDiagram syntaxTree={parsedST} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} onDeleteComponent={handleDeleteComponent} />
+            <Container>{!!activeFileInfo?.activeSequence &&
+                <LowCodeDiagram syntaxTree={activeFileInfo?.activeSequence} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} onDeleteComponent={handleDeleteComponent} />
             }</Container>
             {/* <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
                 {showStatementEditor ? 
