@@ -27,11 +27,14 @@ import {
     Category,
     AvailableNode,
     LineRange,
+    EVENT_TYPE,
+    VisualizerLocation,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
     convertEggplantCategoriesToSidePanelCategories,
     convertNodePropertiesToFormFields,
+    enrichNodePropertiesWithValueConstraint,
     getContainerTitle,
     getFormProperties,
     removeDraftNodeFromDiagram,
@@ -42,6 +45,7 @@ import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../utils/utils";
 import { useVisualizerContext } from "../../Context";
+import { RecordEditor } from "../RecordEditor/RecordEditor";
 
 const Container = styled.div`
     width: 100%;
@@ -78,7 +82,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
-
+    const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
+    const [isRecordEditorOpen, setIsRecordEditorOpen] = useState(false);
+    
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
@@ -157,6 +163,12 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 setSidePanelView(SidePanelView.NODE_LIST);
             });
         // get ai suggestions
+        setFetchingAiSuggestions(true);
+        const suggestionFetchingTimeout = setTimeout(() => {
+            console.log(">>> AI suggestion fetching timeout");
+            setFetchingAiSuggestions(false);
+        }, 10000); // 10 seconds
+
         rpcClient
             .getEggplantDiagramRpcClient()
             .getAiSuggestions({ position: target, filePath: model.fileName })
@@ -166,6 +178,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
+            })
+            .finally(() => {
+                clearTimeout(suggestionFetchingTimeout);
+                setFetchingAiSuggestions(false);
             });
     };
 
@@ -273,7 +289,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                         description: "Comment to describe the flow",
                     },
                     valueType: "STRING",
-                    value: `\n${comment}\n`,
+                    value: `\n${comment}\n\n`, // HACK: add extra new lines to get last position right
                     optional: false,
                     editable: true,
                 },
@@ -308,16 +324,34 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         topNodeRef.current = undefined;
         targetRef.current = node.codedata.lineRange;
 
-        const formProperties = getFormProperties(node);
-        console.log(">>> Form properties", formProperties);
-        if (Object.keys(formProperties).length === 0) {
+        const formPropertiesFromNode = getFormProperties(node);
+        console.log(">>> Form properties", formPropertiesFromNode);
+        if (Object.keys(formPropertiesFromNode).length === 0) {
             // nothing to render
             return;
         }
-        // get node properties
-        setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
-        setSidePanelView(SidePanelView.FORM);
-        setShowSidePanel(true);
+
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getNodeTemplate({ 
+                position: {
+                    startLine: targetRef.current.startLine,
+                    endLine: targetRef.current.endLine,
+                },
+                filePath: model.fileName,
+                id: node.codedata })
+            .then((response) => {
+                selectedNodeRef.current = response.flowNode;
+                const formPropertiesFromNodeTemplate = getFormProperties(response.flowNode);
+                const enrichedNodeProperties = enrichNodePropertiesWithValueConstraint(
+                    formPropertiesFromNode, formPropertiesFromNodeTemplate
+                );
+
+                // get node properties
+                setFields(convertNodePropertiesToFormFields(enrichedNodeProperties, model.connections));
+                setSidePanelView(SidePanelView.FORM);
+                setShowSidePanel(true);
+            });
     };
 
     const handleOnFormBack = () => {
@@ -341,6 +375,18 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
+    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+        // Get f.value and assign that value to field value
+        const updatedFields = fields.map((field) => {
+            const updatedField = { ...field };
+            if (f[field.key]) {
+                updatedField.value = f[field.key];
+            }
+            return updatedField;
+        });
+        setFields(updatedFields);
+        setIsRecordEditorOpen(isOpen);
+    };
     // ai suggestions callbacks
     const onAcceptSuggestions = () => {
         if (!suggestedModel) {
@@ -368,6 +414,16 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         suggestedText.current = undefined;
     };
 
+    const handleOpenView = async (filePath: string, position: NodePosition) => {
+        console.log(">>> open view: ", { filePath, position })
+        const context: VisualizerLocation = {
+            documentUri: model.fileName,
+            position: position
+        }
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
+
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -392,7 +448,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
+                                openView={handleOpenView}
                                 suggestions={{
+                                    fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,
                                     onDiscard: onDiscardSuggestions,
                                 }}
@@ -419,7 +477,14 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                         onClose={handleOnCloseSidePanel}
                     />
                 )}
-                {sidePanelView === SidePanelView.FORM && <Form formFields={fields} onSubmit={handleOnFormSubmit} />}
+                {sidePanelView === SidePanelView.FORM && <Form formFields={fields} openRecordEditor={handleOpenRecordEditor} onSubmit={handleOnFormSubmit} />} 
+                <RecordEditor
+                    fields={fields}
+                    isRecordEditorOpen={isRecordEditorOpen}
+                    onClose={() => setIsRecordEditorOpen(false)}
+                    updateFields={(updatedFields) => setFields(updatedFields)}
+                    rpcClient={rpcClient}
+                />
             </PanelContainer>
         </>
     );

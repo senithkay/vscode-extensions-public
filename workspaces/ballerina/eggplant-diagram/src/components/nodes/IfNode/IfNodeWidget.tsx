@@ -18,7 +18,7 @@ import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
-        selected: boolean;
+        disabled: boolean;
         hovered: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
@@ -124,11 +124,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
         }
     };
 
-    const highlighted = model.node.suggested;
+    const disabled = model.node.suggested;
 
     return (
         <NodeStyles.Node
-            selected={highlighted}
+            disabled={disabled}
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -146,10 +146,10 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             rx="5"
                             ry="5"
                             fill={Colors.SURFACE_DIM}
-                            stroke={
-                                highlighted ? Colors.SECONDARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT
-                            }
+                            stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                             strokeWidth={NODE_BORDER_WIDTH}
+                            strokeDasharray={disabled ? "4 2" : "none"}
+                            opacity={disabled ? 0.7 : 1}
                             transform="rotate(45 28 28)"
                         />
                         <svg x="20" y="15" width="30" height="30" viewBox="0 0 24 24">

@@ -70,6 +70,20 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return nodeModel;
     }
 
+    private addSuggestionsButton(node: FlowNode): void {
+        // if node is the first suggested node
+        // add button node top of this node
+        if (node.suggested && !this.hasSuggestedNode) {
+            this.hasSuggestedNode = true;
+            const buttonNodeModel = new ButtonNodeModel();
+            buttonNodeModel.setPosition(
+                node.viewState.x + NODE_WIDTH / 2 + 20,
+                node.viewState.y - BUTTON_NODE_HEIGHT + 10
+            );
+            this.nodes.push(buttonNodeModel);
+        }
+    }
+
     getNodes(): NodeModel[] {
         return this.nodes;
     }
@@ -81,17 +95,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
-            // if node is the first suggested node
-            // add button node top of this node
-            if (node.suggested && !this.hasSuggestedNode) {
-                this.hasSuggestedNode = true;
-                const buttonNodeModel = new ButtonNodeModel();
-                buttonNodeModel.setPosition(
-                    node.viewState.x + NODE_WIDTH/2 + 20,
-                    node.viewState.y - BUTTON_NODE_HEIGHT + 10
-                );
-                this.nodes.push(buttonNodeModel);
-            }
+
+            this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id
 
@@ -106,6 +111,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const nodeModel = new IfNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
+        this.addSuggestionsButton(node);
         this.lastNodeModel = undefined;
     }
 
@@ -244,6 +250,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {
         if (node.id) {
             this.createApiCallNode(node);
+            this.addSuggestionsButton(node);
         }
     }
 

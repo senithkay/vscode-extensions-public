@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { Flow, NodeKind, FlowNode, Branch, LineRange } from "../utils/types";
+import { Flow, NodeKind, FlowNode, Branch, LineRange, NodePosition } from "../utils/types";
 
 export interface DiagramContextState {
     flow: Flow;
@@ -22,7 +22,9 @@ export interface DiagramContextState {
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
+    openView: (filePath: string, position: NodePosition) => void;
     suggestions?: {
+        fetching: boolean;
         onAccept(): void;
         onDiscard(): void;
     };
@@ -40,7 +42,9 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     onAddComment: () => {},
     onNodeSelect: () => {},
     goToSource: () => {},
+    openView: () => {},
     suggestions: {
+        fetching: false,
         onAccept: () => {},
         onDiscard: () => {},
     },

@@ -8,22 +8,27 @@
  */
 
 import React from "react";
+import { FormField } from "../Form/types";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
-import { Property } from "../../utils/types";
+import { FieldValues, UseFormRegister } from "react-hook-form";
 
 interface TextEditorProps {
-    property : Property;
-    onChange: (property : Property) => void;
+    field: FormField;
+    register: UseFormRegister<FieldValues>;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { property, onChange } = props;
-
-    const handleOnChange = (value: string) => {
-        onChange({ ...property, value });
-    };
+    const { field, register } = props;
 
     return (
-        <TextField value={property.value ? property.value.toString() : ""} onTextChange={handleOnChange} />
+        <TextField
+            id={field.key}
+            {...register(field.key, { required: !field.optional, value: field.value })}
+            value={field.value}
+            label={field.label}
+            required={!field.optional}
+            description={field.documentation}
+            sx={{ width: "100%" }}
+        />
     );
 }

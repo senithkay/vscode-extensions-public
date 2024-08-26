@@ -41,4 +41,5 @@ export type {
     NodeProperties,
     NodePropertyKey,
     ViewState,
+    NodePosition,
 } from "@wso2-enterprise/ballerina-core";

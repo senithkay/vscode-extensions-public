@@ -90,10 +90,6 @@ export const useIONodesStyles = () => ({
         opacity: 0.8
     }),
     treeLabelDisabled: css({
-        backgroundColor: "var(--vscode-editorWidget-background)",
-        '&:hover': {
-            backgroundColor: 'var(--vscode-editorWidget-background)',
-        },
         cursor: 'not-allowed',
         opacity: 0.5
     }),
@@ -109,13 +105,9 @@ export const useIONodesStyles = () => ({
 		fontSize: "14px",
 	}),
     typeLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		color: "var(--vscode-icon-foreground)",
 		opacity: 0.5
 	}),
     valueLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		color: "var(--vscode-input-foreground)",
 		opacity: 0.5
 	}),
     treeLabelPortSelected: css({
@@ -185,11 +177,11 @@ export const useIONodesStyles = () => ({
             height: "40px",
             border: "1px solid var(--vscode-welcomePage-tileBorder)",
             color: "var(--button-primary-foreground)",
-            backgroundColor: "var(--button-primary-background)",
+            backgroundColor: "var(--vscode-button-secondaryBackground)",
             borderRadius: "0px",
             textTransform: "none",
             "&:hover": {
-                backgroundColor: "var(--vscode-button-hoverBackground)"
+                backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
             },
         },
         "& > vscode-button > *": {

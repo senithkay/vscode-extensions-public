@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, SidePanelBody, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
+import { FormFieldEditor } from "../editors/FormFieldEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -41,51 +42,58 @@ namespace S {
         font-size: 14px;
         margin-top: 12px;
     `;
+
+    export const AddTypeContainer = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+        justify-content: flex-end;
+    `;
+
+    export const DrawerContainer = styled.div<{}>`
+        width: 400px;
+    `;
 }
 
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
 }
 
 export function Form(props: FormProps) {
-    const { formFields, onSubmit } = props;
-    const { getValues, register } = useForm<FormValues>();
+    const { formFields, onSubmit, openRecordEditor } = props;
+    const { getValues, register, reset } = useForm<FormValues>();
+
+    useEffect(() => {
+        // Reset form with new values when formFields change
+        const defaultValues: FormValues = {};
+        formFields.forEach((field) => {
+            defaultValues[field.key] = field.value;
+        });
+        reset(defaultValues);
+    }, [formFields, reset]);
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = () => {
         onSubmit(getValues());
     };
+
+    const handleOpenRecordEditor = (open: boolean) => {
+        openRecordEditor?.(open, getValues());
+    };
+
     // TODO: support multiple type fields
     return (
         <S.Container>
             {formFields.map((field) => (
                 <S.Row key={field.key}>
-                    {field.items && (
-                        <Dropdown
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            label={field.label}
-                            items={field.items.map((item) => ({ id: item, content: item, value: item }))}
-                            value={field.value}
-                            required={!field.optional}
-                            sx={{ width: "100%" }}
-                            containerSx={{ width: "100%" }}
-                        />
-                    )}
-                    {!field.items && (
-                        <TextField
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            value={field.value}
-                            label={field.label}
-                            required={!field.optional}
-                            // readOnly={!field.editable}
-                            description={field.documentation}
-                            sx={{ width: "100%" }}
-                        />
-                    )}
+                    <FormFieldEditor
+                        field={field}
+                        register={register}
+                        openRecordEditor={handleOpenRecordEditor}
+                    />
                 </S.Row>
             ))}
 
