@@ -13,6 +13,7 @@ import { FieldValues, UseFormRegister } from "react-hook-form";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
+import { Colors } from "../../resources/constants";
 
 const AddTypeContainer = styled.div<{}>`
     display: flex;
@@ -29,13 +30,12 @@ interface TypeEditorProps {
 
 const addType = (name: string, onClick?: () => void) => (
     <AddTypeContainer>
-        <LinkButton onClick={onClick}>
-            <Codicon name={name} />
+        <LinkButton onClick={onClick} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <Codicon name={name} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
             Add Type
         </LinkButton>
     </AddTypeContainer>
 );
-
 
 export function TypeEditor(props: TypeEditorProps) {
     const { field, register, openRecordEditor } = props;

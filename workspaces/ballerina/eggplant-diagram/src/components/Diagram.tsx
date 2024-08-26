@@ -41,6 +41,7 @@ export interface DiagramProps {
     openView?: (filePath: string, position: NodePosition) => void;
     // ai suggestions callbacks
     suggestions?: {
+        fetching: boolean;
         onAccept(): void;
         onDiscard(): void;
     };
@@ -159,10 +160,7 @@ export function Diagram(props: DiagramProps) {
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
         openView: openView,
-        suggestions: {
-            onAccept: suggestions.onAccept,
-            onDiscard: suggestions.onDiscard,
-        },
+        suggestions: suggestions,
     };
 
     return (

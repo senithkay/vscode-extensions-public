@@ -44,4 +44,7 @@ export interface BaseVisitor {
 
     beginVisitDraft?(node: FlowNode, parent?: FlowNode): void;
     endVisitDraft?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitComment?(node: FlowNode, parent?: FlowNode): void;
+    endVisitComment?(node: FlowNode, parent?: FlowNode): void;
 }

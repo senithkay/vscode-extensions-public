@@ -47,7 +47,8 @@ export function RecordEditor(props: RecordEditorProps) {
     const handleCancelRecordEditor = (recordName: string | undefined) => {   
         if (fields) {
             const updatedFormValues = fields.map((formField: FormField) => {
-                if (formField.key === "type") {
+                // Check if recordName is type of string
+                if (formField.key === "type" && typeof recordName === 'string') {
                     return { ...formField, value: recordName ?? '' };
                 }
                 return formField;

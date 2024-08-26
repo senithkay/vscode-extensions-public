@@ -8,9 +8,8 @@
  */
 
 import React, { useEffect } from "react";
-
 import { useForm } from "react-hook-form";
-import { Button, SidePanelBody, Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField, FormValues } from "./types";
@@ -54,26 +53,33 @@ namespace S {
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
-    openRecordEditor?: (isOpen: boolean) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
 }
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit, openRecordEditor } = props;
-    const { register, setValue, handleSubmit } = useForm<FormValues>();
+    const { getValues,register, setValue, handleSubmit, reset } = useForm<FormValues>();
 
     useEffect(() => {
+        // Reset form with new values when formFields change
+        const defaultValues: FormValues = {};
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
-                setValue(field.key, field.items[0]);
+                defaultValues[field.key] = field.value !== "" ? field.value : field.items[0];
             } else {
-                setValue(field.key, field.value);
+                defaultValues[field.key] = field.value;
             }
         });
+        reset(defaultValues);
     }, [formFields, setValue]);
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> form values", data);
         onSubmit(data);
+    };
+
+    const handleOpenRecordEditor = (open: boolean) => {
+        openRecordEditor?.(open, getValues());
     };
 
     // TODO: support multiple type fields
@@ -84,7 +90,7 @@ export function Form(props: FormProps) {
                     <FormFieldEditor
                         field={field}
                         register={register}
-                        openRecordEditor={openRecordEditor}
+                        openRecordEditor={handleOpenRecordEditor}
                     />
                 </S.Row>
             ))}

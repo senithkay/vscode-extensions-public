@@ -12,7 +12,7 @@ import { LinePosition } from "../../utils/types";
 import { useDiagramContext } from "../DiagramContext";
 import styled from "@emotion/styled";
 import { Colors, NODE_PADDING, POPUP_BOX_HEIGHT, POPUP_BOX_WIDTH } from "../../resources/constants";
-import { Button, TextField } from "@wso2-enterprise/ui-toolkit";
+import { TextField } from "@wso2-enterprise/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`
@@ -36,6 +36,14 @@ export namespace PopupStyles {
         gap: 4px;
         width: 100%;
     `;
+
+    export const InfoText = styled.div`
+        font-size: 11px;
+        font-family: monospace;
+        color: ${Colors.ON_SURFACE};
+        opacity: 0.7;
+        height: 14px;
+    `;
 }
 
 interface AddCommentPopupProps {
@@ -54,6 +62,9 @@ export function AddCommentPopup(props: AddCommentPopupProps) {
             if (event.key === "Escape") {
                 onClose();
             }
+            if (event.key === "Enter") {
+                handleAddComment();
+            }
         };
 
         document.addEventListener("keydown", handleKeyDown);
@@ -61,7 +72,7 @@ export function AddCommentPopup(props: AddCommentPopupProps) {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, []);
+    }, [comment]);
 
     const handleAddComment = () => {
         if (!target) {
@@ -77,17 +88,13 @@ export function AddCommentPopup(props: AddCommentPopupProps) {
 
     return (
         <PopupStyles.Container>
-            <PopupStyles.Row>
-                <TextField
-                    placeholder="Add a comment here (press ESC to cancel)"
-                    onTextChange={handleOnCommentChange}
-                    value={comment}
-                    sx={{ width: "100%" }}
-                />
-                <Button appearance="primary" onClick={handleAddComment}>
-                    Add
-                </Button>
-            </PopupStyles.Row>
+            <TextField
+                placeholder="Add a comment here"
+                onTextChange={handleOnCommentChange}
+                value={comment}
+                sx={{ width: "100%", height: 28 }}
+            />
+            <PopupStyles.InfoText>Press Enter to add a comment. Press Esc to cancel.</PopupStyles.InfoText>
         </PopupStyles.Container>
     );
 }
