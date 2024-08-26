@@ -19,6 +19,9 @@ export class ExtendedPage {
     }
 
     async waitUntilExtensionReady() {
+        if (process.env.CI) {
+            return Promise.resolve();
+        }
         await this._page.waitForSelector('a:has-text("Activating Extensions...")', { timeout: 60000 });
         await this._page.waitForSelector('a:has-text("Activating Extensions...")', { state: 'detached' });
     }

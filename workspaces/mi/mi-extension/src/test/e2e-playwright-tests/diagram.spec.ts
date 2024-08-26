@@ -41,9 +41,7 @@ test.beforeAll(async () => {
 test('Create new project', async () => {
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
-  if (!process.env.CI) {
-    await page.waitUntilExtensionReady();
-  }
+  await page.waitUntilExtensionReady();
 
   await page.selectSidebarItem('Micro Integrator');
   const welcomePage = new Welcome(page.page);
