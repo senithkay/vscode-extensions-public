@@ -19,7 +19,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -140,12 +140,13 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             if (model.node.codedata.node === "DATA_MAPPER") {
                 // TODO: Find the file path and the position of the actual data mapper function
                 // The below logic fetch the position of the function invocation, hence it will open the component overview
-                openView && openView(model.node.codedata.lineRange.fileName, {
-                    startLine: model.node.codedata.lineRange.startLine.line,
-                    startColumn: model.node.codedata.lineRange.startLine.offset,
-                    endLine: model.node.codedata.lineRange.endLine.line,
-                    endColumn: model.node.codedata.lineRange.endLine.offset
-                });
+                openView &&
+                    openView(model.node.codedata.lineRange.fileName, {
+                        startLine: model.node.codedata.lineRange.startLine.line,
+                        startColumn: model.node.codedata.lineRange.startLine.offset,
+                        endLine: model.node.codedata.lineRange.endLine.line,
+                        endColumn: model.node.codedata.lineRange.endLine.offset,
+                    });
             } else {
                 onGoToSource();
             }
@@ -168,7 +169,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
@@ -203,7 +204,9 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        {model.node.metadata.description || "Lorem ipsum dolor sit amet"}
+                        <Tooltip content={model.node.metadata.description}>
+                            {model.node.metadata.description || "..."}
+                        </Tooltip>
                     </NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
