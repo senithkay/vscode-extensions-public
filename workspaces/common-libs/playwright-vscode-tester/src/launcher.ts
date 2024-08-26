@@ -24,8 +24,8 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
         recordVideo: {
             dir: path.join(resourcesFolder, 'videos'),
             size: {
-                width: 1280,
-                height: 720,
+                width: 1920,
+                height: 1080,
             },
         },
     });
