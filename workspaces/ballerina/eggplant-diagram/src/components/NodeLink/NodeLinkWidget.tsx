@@ -12,15 +12,10 @@ import { css, keyframes } from "@emotion/react";
 import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import {
-    Colors,
-    NODE_BORDER_WIDTH,
-    NODE_PADDING,
-    POPUP_BOX_HEIGHT,
-    POPUP_BOX_WIDTH,
-} from "../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, NODE_PADDING, POPUP_BOX_HEIGHT, POPUP_BOX_WIDTH } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
 import AddCommentPopup from "../AddCommentPopup";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -42,7 +37,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const { onAddNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
-    const [showCommentBox, setShowCommentBox] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isCommentBoxOpen = Boolean(anchorEl);
 
     const linkColor = isHovered ? Colors.SECONDARY : Colors.PRIMARY;
 
@@ -63,15 +59,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         onAddNode(node, { startLine: target, endLine: target });
     };
 
-    const handleAddComment = () => {
-        setShowCommentBox(true);
-    };
-
-    const handleCloseCommentBox = () => {
-        setShowCommentBox(false);
-        setIsHovered(false);
-    };
-
     const handleAddPrompt = () => {
         const target = link.getTarget();
         if (!target) {
@@ -79,6 +66,15 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             return;
         }
         // onAddPrompt({ startLine: target, endLine: target });
+    };
+
+    const handleAddComment = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleCloseCommentBox = () => {
+        setAnchorEl(null);
+        setIsHovered(false);
     };
 
     return (
@@ -199,14 +195,20 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     </div>
                 </foreignObject>
             )}
-            {showCommentBox && (
-                <foreignObject
-                    x={addButtonPosition.x - (POPUP_BOX_WIDTH + (NODE_BORDER_WIDTH + NODE_PADDING)) / 2}
-                    y={addButtonPosition.y - POPUP_BOX_HEIGHT / 2 + NODE_BORDER_WIDTH}
-                    width={POPUP_BOX_WIDTH + (NODE_BORDER_WIDTH + NODE_PADDING) * 2}
-                    height={POPUP_BOX_HEIGHT + NODE_BORDER_WIDTH * 2}
-                >
-                    <AddCommentPopup target={link.getTarget()} onClose={handleCloseCommentBox} />
+            {isCommentBoxOpen && (
+                <foreignObject>
+                    <Popover
+                        open={isCommentBoxOpen}
+                        anchorEl={anchorEl}
+                        handleClose={handleCloseCommentBox}
+                        sx={{
+                            padding: 0,
+                            borderRadius: 0,
+                            backgroundColor: "unset",
+                        }}
+                    >
+                        <AddCommentPopup target={link.getTarget()} onClose={handleCloseCommentBox} />
+                    </Popover>
                 </foreignObject>
             )}
             <defs>

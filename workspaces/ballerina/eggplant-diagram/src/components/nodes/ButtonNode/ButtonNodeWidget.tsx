@@ -52,18 +52,16 @@ interface ButtonNodeWidgetProps {
 export interface NodeWidgetProps extends Omit<ButtonNodeWidgetProps, "children"> {}
 
 export function ButtonNodeWidget(props: ButtonNodeWidgetProps) {
-    const {
-        suggestions: { onAccept, onDiscard },
-    } = useDiagramContext();
+    const { suggestions } = useDiagramContext();
 
     const handleOnAcceptClick = () => {
-        if (onAccept) {
-            onAccept();
+        if (suggestions?.onAccept) {
+            suggestions.onAccept();
         }
     };
     const handleOnDiscardClick = () => {
-        if (onDiscard) {
-            onDiscard();
+        if (suggestions?.onDiscard) {
+            suggestions.onDiscard();
         }
     };
 

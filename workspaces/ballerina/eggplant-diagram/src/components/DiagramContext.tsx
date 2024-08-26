@@ -24,6 +24,7 @@ export interface DiagramContextState {
     goToSource: (node: FlowNode) => void;
     openView: (filePath: string, position: NodePosition) => void;
     suggestions?: {
+        fetching: boolean;
         onAccept(): void;
         onDiscard(): void;
     };
@@ -43,6 +44,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     goToSource: () => {},
     openView: () => {},
     suggestions: {
+        fetching: false,
         onAccept: () => {},
         onDiscard: () => {},
     },

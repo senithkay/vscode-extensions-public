@@ -9,7 +9,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Button, SidePanelBody, Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
 import { FormFieldEditor } from "../editors/FormFieldEditor";
@@ -54,16 +54,6 @@ namespace S {
         width: 400px;
     `;
 }
-
-// Component to return a Codicon icon
-const addType = (name: string, onClick?: () => void) => (
-    <S.AddTypeContainer>
-        <LinkButton onClick={onClick}>
-            <Codicon name={name} />
-            Add Type
-        </LinkButton>
-    </S.AddTypeContainer>
-);
 
 interface FormProps {
     formFields: FormField[];

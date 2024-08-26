@@ -22,6 +22,7 @@ import {
 } from "../../../resources/constants";
 import { useDiagramContext } from "../../DiagramContext";
 import AddCommentPopup from "../../AddCommentPopup";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -43,8 +44,8 @@ namespace S {
         align-items: center;
         width: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
         height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
-        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.ON_SURFACE : "transparent")};
-        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.OUTLINE_VARIANT : "transparent")};
+        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY_CONTAINER : "transparent")};
         border-radius: 50%;
         cursor: ${(props: CircleStyleProp) => (props.clickable ? "pointer" : "default")};
     `;
@@ -79,7 +80,8 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
     const { onAddNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
-    const [showCommentBox, setShowCommentBox] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isCommentBoxOpen = Boolean(anchorEl);
 
     // useEffect(() => {
     //   if(isHovered){
@@ -101,12 +103,12 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
         onAddNode(topNode, { startLine: target, endLine: target });
     };
 
-    const handleAddComment = () => {
-        setShowCommentBox(true);
+    const handleAddComment = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
     };
 
     const handleCloseCommentBox = () => {
-        setShowCommentBox(false);
+        setAnchorEl(null);
         setIsHovered(false);
     };
 
@@ -125,7 +127,7 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
         <S.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <S.Circle show={node.isVisible()} clickable={node.showButton}>
                 <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                {node.showButton && !showCommentBox && (
+                {node.showButton && (
                     <div
                         css={css`
                             display: flex;
@@ -168,7 +170,7 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                                 d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
                             />
                             <path
-                                fill={isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                                fill={Colors.PRIMARY}
                                 d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                             />
                         </svg>
@@ -194,16 +196,18 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                         </svg>
                     </div>
                 )}
-                {showCommentBox && (
-                    <div
-                        style={{
-                            width: POPUP_BOX_WIDTH + (NODE_BORDER_WIDTH + NODE_PADDING) * 2,
-                            height: POPUP_BOX_HEIGHT + NODE_BORDER_WIDTH * 2,
-                        }}
-                    >
-                        <AddCommentPopup target={node.getTarget()} onClose={handleCloseCommentBox} />
-                    </div>
-                )}
+                <Popover
+                    open={isCommentBoxOpen}
+                    anchorEl={anchorEl}
+                    handleClose={handleCloseCommentBox}
+                    sx={{
+                        padding: 0,
+                        borderRadius: 0,
+                        backgroundColor: "unset",
+                    }}
+                >
+                    <AddCommentPopup target={node.getTarget()} onClose={handleCloseCommentBox} />
+                </Popover>
                 <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
             </S.Circle>
         </S.Node>

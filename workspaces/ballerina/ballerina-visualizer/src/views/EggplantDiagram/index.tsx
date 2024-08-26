@@ -82,7 +82,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
+    const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [isRecordEditorOpen, setIsRecordEditorOpen] = useState(false);
+    
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
@@ -161,6 +163,12 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 setSidePanelView(SidePanelView.NODE_LIST);
             });
         // get ai suggestions
+        setFetchingAiSuggestions(true);
+        const suggestionFetchingTimeout = setTimeout(() => {
+            console.log(">>> AI suggestion fetching timeout");
+            setFetchingAiSuggestions(false);
+        }, 10000); // 10 seconds
+
         rpcClient
             .getEggplantDiagramRpcClient()
             .getAiSuggestions({ position: target, filePath: model.fileName })
@@ -170,6 +178,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
+            })
+            .finally(() => {
+                clearTimeout(suggestionFetchingTimeout);
+                setFetchingAiSuggestions(false);
             });
     };
 
@@ -277,7 +289,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                         description: "Comment to describe the flow",
                     },
                     valueType: "STRING",
-                    value: `\n${comment}\n`,
+                    value: `\n${comment}\n\n`, // HACK: add extra new lines to get last position right
                     optional: false,
                     editable: true,
                 },
@@ -429,6 +441,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
                                 suggestions={{
+                                    fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,
                                     onDiscard: onDiscardSuggestions,
                                 }}
