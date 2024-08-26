@@ -45,6 +45,11 @@
         "menus": {
             "view/item/context": [
                 {
+                    "command": "ballerina.show.visualizer",
+                    "when": "view == Eggplant.project-explorer && viewItem == eggplant-project",
+                    "group": "inline"
+                },
+                {
                     "command": "Eggplant.project-explorer.add-connection",
                     "when": "view == Eggplant.project-explorer && viewItem == connections",
                     "group": "inline"
