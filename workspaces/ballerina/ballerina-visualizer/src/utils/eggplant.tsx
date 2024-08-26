@@ -89,7 +89,7 @@ export function convertNodePropertiesToFormFields(
                     type: expression.valueType,
                     optional: expression.optional,
                     editable: isFieldEditable(expression, connections, clientName),
-                    documentation: expression.metadata.description,
+                    documentation: expression.metadata?.description || "",
                     value: getFormFieldValue(expression, clientName),
                     items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
                 };
