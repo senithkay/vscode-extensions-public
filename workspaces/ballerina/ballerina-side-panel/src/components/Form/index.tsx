@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
@@ -63,7 +63,16 @@ interface FormProps {
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit, openRecordEditor } = props;
-    const { getValues, register } = useForm<FormValues>();
+    const { getValues, register, reset } = useForm<FormValues>();
+
+    useEffect(() => {
+        // Reset form with new values when formFields change
+        const defaultValues: FormValues = {};
+        formFields.forEach((field) => {
+            defaultValues[field.key] = field.value;
+        });
+        reset(defaultValues);
+    }, [formFields, reset]);
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
