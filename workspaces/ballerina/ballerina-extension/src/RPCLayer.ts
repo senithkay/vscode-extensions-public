@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
@@ -21,13 +21,15 @@ import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagra
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
 import { registerEggplantDiagramRpcHandlers } from './rpc-managers/eggplant-diagram/rpc-handler';
+import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
+import { AiPanelWebview } from './views/ai-panel/webview';
+import { StateMachineAI } from './views/ai-panel/aiMachine';
 import path from 'path';
 
 export class RPCLayer {
-    static _messenger: Messenger;
+    static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
-        RPCLayer._messenger = new Messenger();
         if (isWebviewPanel(webViewPanel)) {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
@@ -35,11 +37,18 @@ export class RPCLayer {
             });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            // StateMachine.service().onTransition((state) => {
-            //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-            // });
+            StateMachineAI.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+            });
         }
+    }
 
+    static create(webViewPanel: WebviewPanel | WebviewView) {
+        return new RPCLayer(webViewPanel);
+    }
+
+    static init() {
+        // ----- Main Webview RPC Methods
         RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
         registerLangClientRpcHandlers(RPCLayer._messenger);
@@ -50,10 +59,10 @@ export class RPCLayer {
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
         registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
-    }
 
-    static create(webViewPanel: WebviewPanel | WebviewView) {
-        return new RPCLayer(webViewPanel);
+        // ----- AI Webview RPC Methods
+        registerAiPanelRpcHandlers(RPCLayer._messenger);
+        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
     }
 
 }

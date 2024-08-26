@@ -13,6 +13,8 @@ import {
     CreateComponentResponse,
     CreateProjectRequest,
     DIRECTORY_MAP,
+    EggplantAiSuggestionsRequest,
+    EggplantAiSuggestionsResponse,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantConnectorsRequest,
@@ -24,6 +26,7 @@ import {
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
+    EggplantSuggestedFlowModelRequest,
     ProjectComponentsResponse,
     ProjectStructureResponse,
     STModification,
@@ -33,13 +36,15 @@ import {
     WorkspacesResponse,
     buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import { Uri, workspace } from "vscode";
 import { StateMachine, updateView } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
+import { logger } from "vscode-debugadapter";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getFlowModel(): Promise<EggplantFlowModelResponse> {
+        console.log(">>> requesting eggplant flow model from ls");
         return new Promise((resolve) => {
             const context = StateMachine.context();
             if (!context.position) {
@@ -158,6 +163,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
+        console.log(">>> requesting eggplant available nodes from ls", params);
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getAvailableNodes(params)
@@ -175,6 +181,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
+        console.log(">>> requesting eggplant node template from ls", params);
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
@@ -249,6 +256,91 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 })
                 .catch((error) => {
                     console.log(">>> error fetching connectors from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+
+    async getAiSuggestions(params: EggplantAiSuggestionsRequest): Promise<EggplantAiSuggestionsResponse> {
+        console.log(">>> requesting eggplant ai suggestions from ls", params);
+        return new Promise(async (resolve) => {
+            const { filePath, position } = params;
+
+            // Read file content using fs module
+            const content = readFileSync(filePath, "utf-8");
+            if (!content) {
+                console.log(">>> file content not found");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            const lines = content.split("\n");
+            const before = lines.slice(0, position.startLine.line + 1);
+            // before[position.startLine.line] = before[position.startLine.line].substring(0, position.startLine.offset); // FIXME
+            const after = lines.slice(position.endLine.line + 1);
+            // after[position.endLine.line] = after[position.endLine.line].substring(position.endLine.offset); // FIXME
+            const beforeContent = before.join("\n") + "\n";
+            const afterContent = after.join("\n");
+
+            // get suggestions from ai
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prefix: beforeContent,
+                    suffix: afterContent,
+                }),
+            };
+            console.log(">>> get ai suggestions request", requestOptions);
+            const response = await fetch(
+                "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/completion-api/v1.0/completion",
+                requestOptions
+            );
+            const data = await response.json();
+            console.log(">>> ai suggested content data", data);
+            const suggestedContent = (data as any).completions.at(0);
+            if (!suggestedContent) {
+                console.log(">>> ai suggested content not found");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            // get flow model from ls
+            const context = StateMachine.context();
+            if (!context.position) {
+                console.log(">>> position not found in the context");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            const request: EggplantSuggestedFlowModelRequest = {
+                filePath: Uri.parse(context.documentUri!).fsPath,
+                startLine: {
+                    line: context.position.startLine ?? 0,
+                    offset: context.position.startColumn ?? 0,
+                },
+                endLine: {
+                    line: context.position.endLine ?? 0,
+                    offset: context.position.endColumn ?? 0,
+                },
+                text: suggestedContent,
+                position: position.startLine,
+            };
+            console.log(">>> request eggplant suggested flow model", request);
+
+            StateMachine.langClient()
+                .getSuggestedFlowModel(request)
+                .then((model) => {
+                    console.log(">>> eggplant suggested flow model from ls", model);
+                    resolve({ flowModel: model.flowModel, suggestion: suggestedContent });
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching eggplant suggested flow model from ls", error);
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });

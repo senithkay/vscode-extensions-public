@@ -14,6 +14,7 @@ import {
     BreakIcon,
     CallIcon,
     CodeIcon,
+    CommentIcon,
     ContinueIcon,
     LockIcon,
     LoopIcon,
@@ -63,6 +64,9 @@ export function NodeIcon(props: NodeIconProps) {
             return <TransformIcon />;
         case "NEW_CONNECTION":
             return <PlusIcon />;
+        case "COMMENT":
+            return <CommentIcon />;
+        
         default:
             return <CodeIcon />;
     }

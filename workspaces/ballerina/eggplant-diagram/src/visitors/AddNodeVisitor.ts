@@ -33,7 +33,17 @@ export class AddNodeVisitor implements BaseVisitor {
         });
     }
 
-    // if find target node then add new node after the target node
+    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+        // check flow nodes if one of them is target node, then add new node after the target node
+        this.flow.nodes.forEach((flowNode) => {
+            if (this.topNode && flowNode.id === this.topNode.id) {
+                console.log(">>> http-api add new node", { target: flowNode, new: this.newNode });
+                const index = this.flow.nodes.indexOf(flowNode);
+                this.flow.nodes.splice(index + 1, 0, this.newNode);
+                this.skipChildrenVisit = true;
+            }
+        });
+    }
 
     beginVisitErrorHandler(node: FlowNode, parent?: FlowNode): void {
         if (this.skipChildrenVisit) {

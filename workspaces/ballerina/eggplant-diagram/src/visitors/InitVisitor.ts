@@ -48,6 +48,15 @@ export class InitVisitor implements BaseVisitor {
         node.viewState = this.getDefaultViewState();
         // add empty node if branch is empty
         node.branches?.forEach((branch) => {
+            // if branch is not empty remove empty node
+            if (branch.children && branch.children.length > 0) {
+                const emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
+                if (emptyNodeIndex >= 0) {
+                    branch.children.splice(emptyNodeIndex, 1);
+                }
+            }
+
+            // if branch is empty add empty node
             if (!branch.children || branch.children.length === 0) {
                 // empty branch
                 // add empty node as `add new node` button

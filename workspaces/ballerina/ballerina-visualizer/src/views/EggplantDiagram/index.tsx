@@ -40,7 +40,7 @@ import {
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { getColorByMethod } from "../../utils/utils";
+import { applyModifications, getColorByMethod, textToModifications } from "../../utils/utils";
 import { useVisualizerContext } from "../../Context";
 import { RecordEditor } from "../RecordEditor/RecordEditor";
 
@@ -74,6 +74,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const { setPopupScreen } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
+    const [suggestedModel, setSuggestedModel] = useState<Flow>();
     const [showSidePanel, setShowSidePanel] = useState(false);
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
@@ -83,8 +84,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
     const originalFlowModel = useRef<Flow>();
+    const suggestedText = useRef<string>();
 
     useEffect(() => {
+        console.log(">>> Updating sequence model...", param.syntaxTree);
         getSequenceModel();
     }, [param.syntaxTree]);
 
@@ -104,17 +107,29 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         selectedNodeRef.current = undefined;
         topNodeRef.current = undefined;
         targetRef.current = undefined;
+
         // restore original model
         if (originalFlowModel.current) {
-            setModel(removeDraftNodeFromDiagram(model));
+            // const updatedModel = removeDraftNodeFromDiagram(model);
+            // setModel(updatedModel);
+            getSequenceModel();
             originalFlowModel.current = undefined;
+            setSuggestedModel(undefined);
+            suggestedText.current = undefined;
         }
     };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
-        console.log(">>> opening panel...", { parent, target });
-        setShowSidePanel(true);
-        setSidePanelView(SidePanelView.NODE_LIST);
+        // clear previous click if had
+        if (topNodeRef.current || targetRef.current) {
+            console.log(">>> Clearing previous click", {
+                topNodeRef: topNodeRef.current,
+                targetRef: targetRef.current,
+            });
+            handleOnCloseSidePanel();
+            return;
+        }
+        // handle add new node
         topNodeRef.current = parent;
         targetRef.current = target;
         const getNodeRequest: EggplantAvailableNodesRequest = {
@@ -122,6 +137,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
+        // save original model
+        originalFlowModel.current = model;
+        // show side panel with available nodes
         rpcClient
             .getEggplantDiagramRpcClient()
             .getAvailableNodes(getNodeRequest)
@@ -134,8 +152,21 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 setCategories(convertEggplantCategoriesToSidePanelCategories(response.categories as Category[]));
                 // add draft node to model
                 const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
-                originalFlowModel.current = model;
+
                 setModel(updatedFlowModel);
+                setShowSidePanel(true);
+                setSidePanelView(SidePanelView.NODE_LIST);
+            });
+        // get ai suggestions
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getAiSuggestions({ position: target, filePath: model.fileName })
+            .then((model) => {
+                console.log(">>> ai suggested new flow", model);
+                if (model.flowModel) {
+                    setSuggestedModel(model.flowModel);
+                    suggestedText.current = model.suggestion;
+                }
             });
     };
 
@@ -220,6 +251,58 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         }
     };
 
+    const handleOnAddComment = (comment: string, target: LineRange) => {
+        console.log(">>> on add comment", { comment, target });
+        const updatedNode: FlowNode = {
+            id: "40715",
+            metadata: {
+                label: "Comment",
+                description: "This is a comment",
+            },
+            codedata: {
+                node: "COMMENT",
+                lineRange: {
+                    fileName: "currency.bal",
+                    ...target,
+                },
+            },
+            returning: false,
+            properties: {
+                comment: {
+                    metadata: {
+                        label: "Comment",
+                        description: "Comment to describe the flow",
+                    },
+                    valueType: "STRING",
+                    value: `\n${comment}\n`,
+                    optional: false,
+                    editable: true,
+                },
+            },
+            branches: [],
+            flags: 0,
+        };
+
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getSourceCode({
+                filePath: model.fileName,
+                flowNode: updatedNode,
+            })
+            .then((response) => {
+                console.log(">>> Updated source code", response);
+                if (response.textEdits) {
+                    // clear memory
+                    setFields([]);
+                    selectedNodeRef.current = undefined;
+                    handleOnCloseSidePanel();
+                } else {
+                    console.error(">>> Error updating source code", response);
+                    // handle error
+                }
+            });
+    };
+
     const handleOnEditNode = (node: FlowNode) => {
         console.log(">>> on edit node", node);
         selectedNodeRef.current = node;
@@ -262,8 +345,35 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const handleOpenRecordEditor = (isOpen: boolean) => {
         setIsRecordEditorOpen(isOpen);
     };
+    // ai suggestions callbacks
+    const onAcceptSuggestions = () => {
+        if (!suggestedModel) {
+            return;
+        }
+        // save suggested text
+        const modifications = textToModifications(suggestedText.current, {
+            startLine: targetRef.current.startLine.line,
+            startColumn: targetRef.current.startLine.offset,
+            endLine: targetRef.current.endLine.line,
+            endColumn: targetRef.current.endLine.offset,
+        });
+        applyModifications(rpcClient, modifications);
+
+        // clear diagram
+        handleOnCloseSidePanel();
+        onDiscardSuggestions();
+    };
+
+    const onDiscardSuggestions = () => {
+        if (!suggestedModel) {
+            return;
+        }
+        setSuggestedModel(undefined);
+        suggestedText.current = undefined;
+    };
 
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+    const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const DiagramTitle = (
         <React.Fragment>
@@ -281,10 +391,15 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     <Container>
                         {model && (
                             <Diagram
-                                model={model}
+                                model={flowModel}
                                 onAddNode={handleOnAddNode}
+                                onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
+                                suggestions={{
+                                    onAccept: onAcceptSuggestions,
+                                    onDiscard: onDiscardSuggestions,
+                                }}
                             />
                         )}
                     </Container>

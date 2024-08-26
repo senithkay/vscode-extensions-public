@@ -60,6 +60,10 @@ export class VisualizerWebview {
                 retainContextWhenHidden: true,
             }
         );
+        panel.iconPath = {
+            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-preview.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-preview.svg'))
+        };
         return panel;
     }
 

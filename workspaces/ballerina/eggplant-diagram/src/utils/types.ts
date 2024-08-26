@@ -9,6 +9,7 @@
 
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { ButtonNodeModel } from "../components/nodes/ButtonNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
@@ -20,7 +21,11 @@ export type NodeModel =
     | DraftNodeModel
     | IfNodeModel
     | StartNodeModel
-    | ApiCallNodeModel;
+    | ApiCallNodeModel
+    | ButtonNodeModel;
+
+// node model without button node model
+export type LinkableNodeModel = Exclude<NodeModel, ButtonNodeModel>;
 
 export type {
     Flow,

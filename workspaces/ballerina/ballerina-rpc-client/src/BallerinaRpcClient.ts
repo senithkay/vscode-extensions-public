@@ -11,11 +11,23 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { MachineStateValue, VisualizerLocation, getVisualizerLocation, stateChanged, projectContentUpdated, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
+import {
+    AIMachineStateValue,
+    AI_EVENT_TYPE,
+    MachineStateValue,
+    VisualizerLocation,
+    aiStateChanged,
+    getVisualizerLocation,
+    sendAIStateEvent,
+    stateChanged,
+    vscode,
+    webviewReady,
+    projectContentUpdated
+} from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
+import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ServiceDesignerRpcClient, AiPanelRpcClient } from "./rpc-clients";
 import { EggplantDiagramRpcClient } from "./rpc-clients/eggplant-diagram/rpc-client";
 
 export class BallerinaRpcClient {
@@ -30,6 +42,7 @@ export class BallerinaRpcClient {
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
     private _RecordCreator: RecordCreatorRpcClient;
     private _eggplantDiagram: EggplantDiagramRpcClient;
+    private _aiPanel: AiPanelRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -43,6 +56,7 @@ export class BallerinaRpcClient {
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
         this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
         this._eggplantDiagram = new EggplantDiagramRpcClient(this.messenger);
+        this._aiPanel = new AiPanelRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -72,13 +86,17 @@ export class BallerinaRpcClient {
     getLibraryBrowserRPCClient(): LibraryBrowserRpcClient {
         return this._libraryBrowser;
     }
-    
+
     getCommonRpcClient(): CommonRpcClient {
         return this._common;
     }
 
     getRecordCreatorRpcClient(): RecordCreatorRpcClient {
         return this._RecordCreator;
+    }
+
+    getAiPanelRpcClient(): AiPanelRpcClient {
+        return this._aiPanel;
     }
 
     getVisualizerLocation(): Promise<VisualizerLocation> {
@@ -89,10 +107,18 @@ export class BallerinaRpcClient {
         this.messenger.onNotification(stateChanged, callback);
     }
 
+    onAIPanelStateChanged(callback: (state: AIMachineStateValue) => void) {
+        this.messenger.onNotification(aiStateChanged, callback);
+    }
+
+    sendAIStateEvent(event: AI_EVENT_TYPE) {
+        this.messenger.sendRequest(sendAIStateEvent, HOST_EXTENSION, event);
+    }
+
     onProjectContentUpdated(callback: (state: boolean) => void) {
         this.messenger.onNotification(projectContentUpdated, callback);
     }
-    
+
     webviewReady(): void {
         this.messenger.sendNotification(webviewReady, HOST_EXTENSION);
     }
