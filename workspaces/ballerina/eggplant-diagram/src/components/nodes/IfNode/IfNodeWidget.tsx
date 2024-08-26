@@ -113,7 +113,7 @@ export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
 
 export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -138,6 +138,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const deleteNode = () => {
+        onDeleteNode && onDeleteNode(model.node);
+        setAnchorEl(null);
+    }
+
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -153,7 +158,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
             onClick: () => onNodeClick(),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
-        { id: "delete", label: "Delete", onClick: () => console.log("Delete"), disabled: true },
+        { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
     const disabled = model.node.suggested;

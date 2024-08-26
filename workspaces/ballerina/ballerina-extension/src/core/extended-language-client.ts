@@ -150,6 +150,7 @@ enum EXTENDED_APIS {
     EGGPLANT_SUGGESTED_FLOW_MODEL = 'flowDesignService/getSuggestedFlowModel',
     EGGPLANT_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     EGGPLANT_SOURCE_CODE = 'flowDesignService/getSourceCode',
+    EGGPLANT_DELETE_NODE = 'flowDesignService/deleteFlowNode',
     EGGPLANT_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     EGGPLANT_CONNECTOR = 'flowDesignService/getConnectors',
@@ -563,6 +564,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getCopilotContext(params: EggplantCopilotContextRequest): Promise<EggplantCopilotContextResponse> {
         return this.sendRequest<EggplantCopilotContextResponse>(EXTENDED_APIS.EGGPLANT_COPILOT_CONTEXT, params);
+    }
+
+    async deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        return this.sendRequest<EggplantSourceCodeResponse>(EXTENDED_APIS.EGGPLANT_DELETE_NODE, params);
     }
 
     // <------------ EGGPLANT APIS END --------------->

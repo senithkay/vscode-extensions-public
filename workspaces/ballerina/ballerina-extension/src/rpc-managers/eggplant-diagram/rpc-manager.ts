@@ -337,4 +337,23 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 });
         });
     }
+
+    async deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        console.log(">>> requesting eggplant delete node from ls", params);
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .deleteFlowNode(params)
+                .then((model) => {
+                    console.log(">>> eggplant delete node from ls", model);
+                    this.updateSource(model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching delete node from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
 }

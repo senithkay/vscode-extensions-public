@@ -128,7 +128,7 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, openView } = useDiagramContext();
+    const { onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -165,6 +165,11 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const deleteNode = () => {
+        onDeleteNode && onDeleteNode(model.node);
+        setAnchorEl(null);
+    }
+
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -180,7 +185,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onClick: () => onNodeClick(),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
-        { id: "delete", label: "Delete", onClick: () => console.log("Delete"), disabled: true },
+        { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
     return (
