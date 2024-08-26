@@ -237,7 +237,7 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             var artifacts = artifactXMLData.artifacts.artifact;
             if (fileName) {
                 artifacts = artifacts.filter((artifact) => {
-                    return artifact.collection || (artifact.item && artifact.item.file !== fileName && artifact.item.path !== artifactPath);
+                    return artifact.collection || !(artifact.item && artifact.item.file === fileName && artifact.item.path === artifactPath);
                 });
             } else {
                 artifacts = artifactXMLData.artifacts.artifact.filter((artifact) => {
@@ -486,6 +486,24 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             resolve({ status: true, info: "Registry resource removed" });
         } else {
             resolve({ status: false, info: "Workspace not found" });
+        }
+    });
+}
+
+export function deleteDataMapperResources(filePath: string): Promise<{ status: boolean, info: string }> {
+    return new Promise(async (resolve) => {
+        const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
+        const fileName = path.basename(filePath);
+        if (projectDir && fileName.endsWith('.ts')) {
+            const dmName = fileName.replace('.ts', '');
+            const inputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
+            const outputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
+            const configFileRegpath = '/_system/governance/datamapper/' + dmName;
+            removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
+            removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
+            removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
+            fs.unlinkSync(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName + '/' + dmName + '.ts'));
+            resolve({ status: true, info: "Datamapper resources removed" });
         }
     });
 }
