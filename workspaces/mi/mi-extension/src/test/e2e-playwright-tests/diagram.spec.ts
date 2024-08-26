@@ -38,9 +38,13 @@ test.beforeAll(async () => {
 test('Create new project', async () => {
   page = new ExtendedPage(await vscode!.firstWindow());
 
+  // wait until extension is ready
+  // Note: This is not required for CI/CD pipeline
+  if (!process.env.CI) {
+    await page.waitUntilExtensionReady();
+  }
+  
   await page.selectSidebarItem('Micro Integrator');
-  await page.waitUntilExtensionReady();
-
   const welcomePage = new Welcome(page.page);
   await welcomePage.init();
   await welcomePage.createNewProject();
