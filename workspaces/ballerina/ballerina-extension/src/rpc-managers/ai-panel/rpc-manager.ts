@@ -21,6 +21,7 @@ import path from "path";
 import * as vscode from 'vscode';
 import { extension } from "../../BalExtensionContext";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
+import { updateView } from "../../stateMachine";
 
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -135,9 +136,12 @@ public function main() {
                 fs.writeFileSync(generatedBalPath, req.content.trim());
             }
         } else {
-            // main.bal does not exist, write the content to that file
-            fs.writeFileSync(mainBalPath, req.content.trim());
+            // Create a new file called generated.bal and add the content there
+            const generatedBalPath = path.join(workspaceFolderPath, 'generated.bal');
+            fs.writeFileSync(generatedBalPath, req.content.trim());
         }
+        await new Promise(resolve => setTimeout(resolve, 500));
+        updateView();
     }
 
     async getRefreshToken(): Promise<string> {

@@ -29,13 +29,16 @@ export function activateProjectExplorer(context: ExtensionContext, isEggplant: b
 
 		commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
 		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
-	} else {
-		projectTree.onDidChangeVisibility(res => {
-			if (res.visible) {
+	}
+	projectTree.onDidChangeVisibility(res => {
+		if (res.visible) {
+			if (isEggplant) {
+				commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+			} else {
 				commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);
 			}
-		});
-	}
+		}
+	});
 	context.subscriptions.push(workspace.onDidDeleteFiles(() => {
 		projectExplorerDataProvider.refresh();
 	}));

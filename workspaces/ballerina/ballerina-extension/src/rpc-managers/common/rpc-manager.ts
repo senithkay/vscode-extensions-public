@@ -49,7 +49,7 @@ export class CommonRpcManager implements CommonRPCAPI {
             };
 
             const completions: Completion[] = await StateMachine.langClient().getCompletion(completionParams);
-            const filteredCompletions: Completion[] = completions.filter(value => value.kind === 25 || value.kind === 23);
+            const filteredCompletions: Completion[] = completions.filter(value => value.kind === 25 || value.kind === 23 || value.kind === 22);
             resolve({ data: filteredCompletions });
         });
     }
