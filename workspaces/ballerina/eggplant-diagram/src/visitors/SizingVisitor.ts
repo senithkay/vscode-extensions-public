@@ -8,6 +8,7 @@
  */
 
 import {
+    COMMENT_NODE_WIDTH,
     DRAFT_NODE_HEIGHT,
     DRAFT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
@@ -130,6 +131,13 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         this.setNodeSize(node, EMPTY_NODE_WIDTH, EMPTY_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
+    }
+
+    endVisitComment(node: FlowNode, parent?: FlowNode): void {
+        const width = COMMENT_NODE_WIDTH;
+        const height = NODE_HEIGHT;
+        const containerWidth = width + NODE_WIDTH / 2;
+        this.setNodeSize(node, width, height, containerWidth);
     }
 
     skipChildren(): boolean {

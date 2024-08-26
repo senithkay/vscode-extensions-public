@@ -13,13 +13,15 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CommentNodeModel } from "./CommentNodeModel";
 import {
     Colors,
+    COMMENT_NODE_GAP,
+    COMMENT_NODE_WIDTH,
     DRAFT_NODE_BORDER_WIDTH,
     NODE_BORDER_WIDTH,
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -30,23 +32,41 @@ export namespace NodeStyles {
         disabled: boolean;
         hovered: boolean;
     };
-    export const Node = styled.div<NodeStyleProp>`
+    export const Node = styled.div`
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        width: ${NODE_WIDTH}px;
-        min-height: ${NODE_HEIGHT}px;
+        width: ${COMMENT_NODE_WIDTH}px;
+        height: ${NODE_HEIGHT}px;
+        cursor: pointer;
+    `;
+
+    export const Card = styled.div<NodeStyleProp>`
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: ${COMMENT_NODE_WIDTH - COMMENT_NODE_GAP}px;
+        height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        background-color: ${Colors.SURFACE_DIM};
+        background-color: ${Colors.SURFACE};
         color: ${Colors.ON_SURFACE};
-        opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
-        border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
-        border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
-        border-color: ${(props: NodeStyleProp) =>
-            props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        border: ${NODE_BORDER_WIDTH}px;
+        border-style: none;
         border-radius: 10px;
         cursor: pointer;
+    `;
+
+    export const Circle = styled.div`
+        width: ${NODE_PADDING}px;
+        height: ${NODE_PADDING}px;
+        border-radius: 50%;
+        border: ${DRAFT_NODE_BORDER_WIDTH}px solid ${Colors.PRIMARY};
+        background-color: ${Colors.PRIMARY_CONTAINER};
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
     `;
 
     export const Header = styled.div<{}>`
@@ -128,7 +148,7 @@ export interface NodeWidgetProps extends Omit<CommentNodeWidgetProps, "children"
 
 export function CommentNodeWidget(props: CommentNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, openView } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -153,6 +173,11 @@ export function CommentNodeWidget(props: CommentNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const deleteNode = () => {
+        onDeleteNode && onDeleteNode(model.node);
+        setAnchorEl(null);
+    };
+
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -168,47 +193,45 @@ export function CommentNodeWidget(props: CommentNodeWidgetProps) {
             onClick: () => onNodeClick(),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
-        { id: "delete", label: "Delete", onClick: () => console.log("Delete"), disabled: true },
+        { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
     return (
-        <NodeStyles.Node
-            hovered={isHovered}
-            disabled={model.node.suggested}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
-                <NodeStyles.Icon onClick={handleOnClick}>
-                    <NodeIcon type={model.node.codedata.node} />
-                </NodeStyles.Icon>
-                <NodeStyles.Header onClick={handleOnClick}>
-                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        {model.node.metadata.description || "Lorem ipsum dolor sit amet"}
-                    </NodeStyles.Description>
-                </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
-                <Popover
-                    open={isMenuOpen}
-                    anchorEl={anchorEl}
-                    handleClose={handleOnMenuClose}
-                    sx={{
-                        padding: 0,
-                        borderRadius: 0,
-                    }}
-                >
-                    <Menu>
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} item={item} />
-                        ))}
-                    </Menu>
-                </Popover>
-            </NodeStyles.Row>
-            <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+            <NodeStyles.Circle>
+                <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
+                <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+            </NodeStyles.Circle>
+            <NodeStyles.Card hovered={isHovered} disabled={model.node.suggested}>
+                <NodeStyles.Row>
+                    <NodeStyles.Icon onClick={handleOnClick}>
+                        <NodeIcon type={model.node.codedata.node} />
+                    </NodeStyles.Icon>
+                    <NodeStyles.Header onClick={handleOnClick}>
+                        <Tooltip content={model.node.metadata.description}>
+                            <NodeStyles.Description>{model.node.metadata.description || "..."}</NodeStyles.Description>
+                        </Tooltip>
+                    </NodeStyles.Header>
+                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                        <MoreVertIcon />
+                    </NodeStyles.StyledButton>
+                    <Popover
+                        open={isMenuOpen}
+                        anchorEl={anchorEl}
+                        handleClose={handleOnMenuClose}
+                        sx={{
+                            padding: 0,
+                            borderRadius: 0,
+                        }}
+                    >
+                        <Menu>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                        </Menu>
+                    </Popover>
+                </NodeStyles.Row>
+            </NodeStyles.Card>
         </NodeStyles.Node>
     );
 }

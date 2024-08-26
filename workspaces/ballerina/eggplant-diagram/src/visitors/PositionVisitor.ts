@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NODE_GAP_X, NODE_GAP_Y, VSCODE_MARGIN } from "../resources/constants";
+import { COMMENT_NODE_GAP, NODE_GAP_X, NODE_GAP_Y, NODE_PADDING, VSCODE_MARGIN } from "../resources/constants";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -49,7 +49,7 @@ export class PositionVisitor implements BaseVisitor {
         elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
 
         // HACK
-        if(thenBranch.children.length === 1 && thenBranch.children.at(0).codedata.node === "EMPTY"){
+        if (thenBranch.children.length === 1 && thenBranch.children.at(0).codedata.node === "EMPTY") {
             thenBranch.viewState.x -= VSCODE_MARGIN;
         }
     }
@@ -61,7 +61,7 @@ export class PositionVisitor implements BaseVisitor {
     beginVisitConditional(node: Branch, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y;
     }
-    
+
     beginVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y;
     }
@@ -73,7 +73,7 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         if (!node.viewState.x) {
-            const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
+            const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
             node.viewState.x = centerX - node.viewState.w / 2;
         }
     }
@@ -92,6 +92,18 @@ export class PositionVisitor implements BaseVisitor {
         this.beginVisitNode(node, parent);
     }
 
+    beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        if (!node.viewState.y) {
+            node.viewState.y = this.lastNodeY - COMMENT_NODE_GAP;
+        }
+        this.lastNodeY = node.viewState.y + node.viewState.h + COMMENT_NODE_GAP;
+
+        if (!node.viewState.x) {
+            const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+            node.viewState.x = centerX - (NODE_PADDING + VSCODE_MARGIN) / 2;
+        }
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
@@ -99,4 +111,13 @@ export class PositionVisitor implements BaseVisitor {
     getNodePosition(node: FlowNode, parent: FlowNode) {
         return { x: node.viewState.x, y: node.viewState.y };
     }
+}
+
+// get top node center. base node is centered. base node center is the width/2. comment node is left aligned. so, center is x.
+function getTopNodeCenter(node: FlowNode, parent: FlowNode, branchCenterX: number) {
+    if (parent.codedata.node === "COMMENT") {
+        return parent.viewState.x + (NODE_PADDING + VSCODE_MARGIN) / 2;
+    }
+    const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : branchCenterX;
+    return centerX;
 }
