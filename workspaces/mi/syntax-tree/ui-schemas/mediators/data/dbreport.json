@@ -422,6 +422,7 @@
         "elements": [
           {
             "type": "table",
+            "required": true,
             "value": {
               "name": "sqlStatements",
               "displayName": "SQL Statements",
