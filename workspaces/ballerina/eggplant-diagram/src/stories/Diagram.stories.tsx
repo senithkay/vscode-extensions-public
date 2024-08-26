@@ -11,6 +11,8 @@ import model6 from "./6-if-body.json";
 import model7 from "./7-if-then-body-draft.json";
 import model8 from "./8-comment.json";
 import model9 from "./9-suggested.json";
+import model10 from "./10-suggested-action.json";
+import model11 from "./11-suggested-if.json";
 
 export default {
     title: "Eggplant/Diagram",
@@ -72,4 +74,14 @@ Comment.args = {
 export const Suggested = Template.bind({});
 Suggested.args = {
     model: model9,
+};
+
+export const SuggestedAction = Template.bind({});
+SuggestedAction.args = {
+    model: model10,
+};
+
+export const SuggestedIf = Template.bind({});
+SuggestedIf.args = {
+    model: model11,
 };
