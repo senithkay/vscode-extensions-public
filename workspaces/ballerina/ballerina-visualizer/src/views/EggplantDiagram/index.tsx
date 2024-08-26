@@ -375,7 +375,16 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
-    const handleOpenRecordEditor = (isOpen: boolean) => {
+    const handleOpenRecordEditor = (isOpen: boolean, f: FormValues) => {
+        // Get f.value and assign that value to field value
+        const updatedFields = fields.map((field) => {
+            const updatedField = { ...field };
+            if (f[field.key]) {
+                updatedField.value = f[field.key];
+            }
+            return updatedField;
+        });
+        setFields(updatedFields);
         setIsRecordEditorOpen(isOpen);
     };
     // ai suggestions callbacks
