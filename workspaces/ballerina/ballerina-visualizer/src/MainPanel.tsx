@@ -21,7 +21,7 @@ import { SequenceDiagram } from './views/SequenceDiagram';
 import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
+import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
@@ -59,8 +59,8 @@ const MainPanel = () => {
         setPopupScreen,
         setSidePanel,
         popupMessage,
-        setPopupMessage
-        , activePanel } = useVisualizerContext();
+        setPopupMessage,
+        activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 

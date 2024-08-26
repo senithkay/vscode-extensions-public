@@ -27,11 +27,14 @@ import {
     Category,
     AvailableNode,
     LineRange,
+    EVENT_TYPE,
+    VisualizerLocation,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
     convertEggplantCategoriesToSidePanelCategories,
     convertNodePropertiesToFormFields,
+    enrichNodePropertiesWithValueConstraint,
     getContainerTitle,
     getFormProperties,
     removeDraftNodeFromDiagram,
@@ -321,16 +324,34 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         topNodeRef.current = undefined;
         targetRef.current = node.codedata.lineRange;
 
-        const formProperties = getFormProperties(node);
-        console.log(">>> Form properties", formProperties);
-        if (Object.keys(formProperties).length === 0) {
+        const formPropertiesFromNode = getFormProperties(node);
+        console.log(">>> Form properties", formPropertiesFromNode);
+        if (Object.keys(formPropertiesFromNode).length === 0) {
             // nothing to render
             return;
         }
-        // get node properties
-        setFields(convertNodePropertiesToFormFields(formProperties, model.connections));
-        setSidePanelView(SidePanelView.FORM);
-        setShowSidePanel(true);
+
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .getNodeTemplate({ 
+                position: {
+                    startLine: targetRef.current.startLine,
+                    endLine: targetRef.current.endLine,
+                },
+                filePath: model.fileName,
+                id: node.codedata })
+            .then((response) => {
+                selectedNodeRef.current = response.flowNode;
+                const formPropertiesFromNodeTemplate = getFormProperties(response.flowNode);
+                const enrichedNodeProperties = enrichNodePropertiesWithValueConstraint(
+                    formPropertiesFromNode, formPropertiesFromNodeTemplate
+                );
+
+                // get node properties
+                setFields(convertNodePropertiesToFormFields(enrichedNodeProperties, model.connections));
+                setSidePanelView(SidePanelView.FORM);
+                setShowSidePanel(true);
+            });
     };
 
     const handleOnFormBack = () => {
@@ -384,6 +405,16 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         suggestedText.current = undefined;
     };
 
+    const handleOpenView = async (filePath: string, position: NodePosition) => {
+        console.log(">>> open view: ", { filePath, position })
+        const context: VisualizerLocation = {
+            documentUri: model.fileName,
+            position: position
+        }
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
+
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -408,6 +439,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
+                                openView={handleOpenView}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,

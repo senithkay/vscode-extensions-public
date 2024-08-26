@@ -97,7 +97,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                     data-testid={"add-local-variable-btn"}
                 >
                     <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />
-                    <div>Add Local Variable</div>
+                    <div>Add Sub Mapping</div>
                 </Button>
             )}
         </>

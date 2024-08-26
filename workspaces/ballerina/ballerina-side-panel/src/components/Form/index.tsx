@@ -9,10 +9,10 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, SidePanelBody, Dropdown, Codicon, LinkButton, Drawer } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
-import { Colors } from "../../resources/constants";
+import { FormFieldEditor } from "../editors/FormFieldEditor";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -55,16 +55,6 @@ namespace S {
     `;
 }
 
-// Component to return a Codicon icon
-const addType = (name: string, onClick?: () => void) => (
-    <S.AddTypeContainer>
-        <LinkButton onClick={onClick} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
-            <Codicon name={name} iconSx={{ fontSize: 12 }} sx={{  height: 12 }}/>
-            Add Type
-        </LinkButton>
-    </S.AddTypeContainer>
-);
-
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
@@ -81,52 +71,16 @@ export function Form(props: FormProps) {
         onSubmit(getValues());
     };
 
-    const handleOpenRecordEditor = () => {
-        openRecordEditor(true);
-    };
-
     // TODO: support multiple type fields
     return (
         <S.Container>
             {formFields.map((field) => (
                 <S.Row key={field.key}>
-                    {field.items && (
-                        <Dropdown
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            label={field.label}
-                            items={field.items.map((item) => ({ id: item, content: item, value: item }))}
-                            value={field.value}
-                            required={!field.optional}
-                            sx={{ width: "100%" }}
-                            containerSx={{ width: "100%" }}
-                        />
-                    )}
-                    {!field.items && field.key !== "type" && (
-                        <TextField
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            value={field.value}
-                            label={field.label}
-                            required={!field.optional}
-                            // readOnly={!field.editable}
-                            description={field.documentation}
-                            sx={{ width: "100%" }}
-                        />
-                    )}
-                    {!field.items && field.key === "type" && (
-                        <TextField
-                            id={field.key}
-                            {...register(field.key, { required: !field.optional, value: field.value })}
-                            value={field.value}
-                            label={field.label}
-                            required={!field.optional}
-                            // readOnly={!field.editable}
-                            description={field.documentation}
-                            labelAdornment={addType("add", handleOpenRecordEditor)}
-                            sx={{ width: "100%" }}
-                        />
-                    )}
+                    <FormFieldEditor
+                        field={field}
+                        register={register}
+                        openRecordEditor={openRecordEditor}
+                    />
                 </S.Row>
             ))}
 

@@ -13,11 +13,11 @@ export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
 export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
 export const defaultModelOptions = { zoom: 90 };
-export const VISUALIZER_PADDING = 30;
+export const VISUALIZER_PADDING = 0;
 export const IO_NODE_DEFAULT_WIDTH = 350;
 export const IO_NODE_HEADER_HEIGHT = 40;
 export const IO_NODE_FIELD_HEIGHT = 35;
-export const GAP_BETWEEN_INPUT_NODES = 100;
+export const GAP_BETWEEN_INPUT_NODES = 10;
 export const GAP_BETWEEN_NODE_HEADER_AND_BODY = 10;
 export const GAP_BETWEEN_FIELDS = 1;
 
