@@ -27,6 +27,7 @@ export function DropdownEditor(props: DropdownEditorProps) {
             label={field.label}
             items={field.items.map((item) => ({ id: item, content: item, value: item }))}
             value={field.value}
+            defaultValue={field.items[0]}
             required={!field.optional}
             sx={{ width: "100%" }}
             containerSx={{ width: "100%" }}

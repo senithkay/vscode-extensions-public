@@ -7,12 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
+
 import { useForm } from "react-hook-form";
 import { Button, SidePanelBody, Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
-import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
+
+import { FormField, FormValues } from "./types";
 import { FormFieldEditor } from "../editors/FormFieldEditor";
+import { isDropdownField } from "../editors/utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -43,27 +46,10 @@ namespace S {
         margin-top: 12px;
     `;
 
-    export const AddTypeContainer = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        flex-grow: 1;
-        justify-content: flex-end;
-    `;
-
     export const DrawerContainer = styled.div<{}>`
         width: 400px;
     `;
 }
-
-// Component to return a Codicon icon
-const addType = (name: string, onClick?: () => void) => (
-    <S.AddTypeContainer>
-        <LinkButton onClick={onClick}>
-            <Codicon name={name} />
-            Add Type
-        </LinkButton>
-    </S.AddTypeContainer>
-);
 
 interface FormProps {
     formFields: FormField[];
@@ -73,12 +59,21 @@ interface FormProps {
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit, openRecordEditor } = props;
-    const { getValues, register } = useForm<FormValues>();
+    const { register, setValue, handleSubmit } = useForm<FormValues>();
 
-    console.log(">>> form fields", { formFields, values: getValues() });
+    useEffect(() => {
+        formFields.forEach((field) => {
+            if (isDropdownField(field)) {
+                setValue(field.key, field.items[0]);
+            } else {
+                setValue(field.key, field.value);
+            }
+        });
+    }, [formFields, setValue]);
 
-    const handleOnSave = () => {
-        onSubmit(getValues());
+    const handleOnSave = (data: FormValues) => {
+        console.log(">>> form values", data);
+        onSubmit(data);
     };
 
     // TODO: support multiple type fields
@@ -95,7 +90,7 @@ export function Form(props: FormProps) {
             ))}
 
             <S.Footer>
-                <Button appearance="primary" onClick={handleOnSave}>
+                <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
                     Save
                 </Button>
             </S.Footer>
