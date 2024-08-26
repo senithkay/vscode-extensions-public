@@ -52,7 +52,7 @@ export function TypeEditor(props: TypeEditorProps) {
             label={field.label}
             required={!field.optional}
             description={field.documentation}
-            labelAdornment={addType("add", handleOpenRecordEditor)}
+            labelAdornment={openRecordEditor && addType("add", handleOpenRecordEditor)}
             sx={{ width: "100%" }}
         />
     );
