@@ -9,7 +9,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, SidePanelBody, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, SidePanelBody, Dropdown, Codicon, LinkButton, Drawer } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
 
@@ -41,15 +41,37 @@ namespace S {
         font-size: 14px;
         margin-top: 12px;
     `;
+
+    export const AddTypeContainer = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+        justify-content: flex-end;
+    `;
+
+    export const DrawerContainer = styled.div<{}>`
+        width: 400px;
+    `;
 }
+
+// Component to return a Codicon icon
+const addType = (name: string, onClick?: () => void) => (
+    <S.AddTypeContainer>
+        <LinkButton onClick={onClick}>
+            <Codicon name={name} />
+            Add Type
+        </LinkButton>
+    </S.AddTypeContainer>
+);
 
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean) => void;
 }
 
 export function Form(props: FormProps) {
-    const { formFields, onSubmit } = props;
+    const { formFields, onSubmit, openRecordEditor } = props;
     const { getValues, register } = useForm<FormValues>();
 
     console.log(">>> form fields", { formFields, values: getValues() });
@@ -57,6 +79,11 @@ export function Form(props: FormProps) {
     const handleOnSave = () => {
         onSubmit(getValues());
     };
+
+    const handleOpenRecordEditor = () => {
+        openRecordEditor(true);
+    };
+
     // TODO: support multiple type fields
     return (
         <S.Container>
@@ -74,7 +101,7 @@ export function Form(props: FormProps) {
                             containerSx={{ width: "100%" }}
                         />
                     )}
-                    {!field.items && (
+                    {!field.items && (field.key !== "type") && (
                         <TextField
                             id={field.key}
                             {...register(field.key, { required: !field.optional, value: field.value })}
@@ -83,6 +110,19 @@ export function Form(props: FormProps) {
                             required={!field.optional}
                             // readOnly={!field.editable}
                             description={field.documentation}
+                            sx={{ width: "100%" }}
+                        />
+                    )}
+                    {!field.items && (field.key === "type") && (
+                        <TextField
+                            id={field.key}
+                            {...register(field.key, { required: !field.optional, value: field.value })}
+                            value={field.value}
+                            label={field.label}
+                            required={!field.optional}
+                            // readOnly={!field.editable}
+                            description={field.documentation}
+                            labelAdornment={addType("add", handleOpenRecordEditor)}
                             sx={{ width: "100%" }}
                         />
                     )}

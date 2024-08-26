@@ -45,9 +45,11 @@ export type SidePanel = "EMPTY" | "RECORD_EDITOR";
 
 interface VisualizerContext {
     popupScreen: PopupScreen;
+    popupMessage: boolean;
+    setPopupScreen: (screen: PopupScreen) => void;
+    setPopupMessage: (value: boolean) => void;
     sidePanel: SidePanel;
     screenMetadata: any;
-    setPopupScreen: (screen: PopupScreen) => void;
     setSidePanel: (panel: SidePanel) => void;
     setScreenMetadata: (metadata: any) => void;
     activePanel: PanelDetails;
@@ -76,6 +78,7 @@ export const VisualizerContext = createContext({
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
     const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
+    const [popupMessage, setPopupMessage] = useState(false);
     const [sidePanel, setSidePanel] = useState("EMPTY" as SidePanel);
     const [metadata, setMetadata] = useState({} as any);
     const [activePanel, setActivePanel] = useState({ isActive: false });
@@ -86,9 +89,11 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
 
     const contextValue: VisualizerContext = {
         popupScreen: popupScreen,
-        sidePanel: sidePanel,
+        popupMessage: popupMessage,
         screenMetadata: metadata,
         setPopupScreen: setPopupScreen,
+        setPopupMessage: setPopupMessage,
+        sidePanel: sidePanel,
         setSidePanel: setSidePanel,
         setScreenMetadata: setMetadata,
         activePanel: activePanel,

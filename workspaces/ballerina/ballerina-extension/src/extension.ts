@@ -23,12 +23,14 @@ import { ExtendedLangClient } from './core/extended-language-client';
 import { activate as activateNotebook } from './views/notebook';
 import { activate as activateLibraryBrowser } from './features/library-browser';
 import { activate as activateERDiagram } from './views/persist-layer-diagram';
+import { activateAiPanel } from './views/ai-panel';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
 import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
 import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
+import { RPCLayer } from './RPCLayer';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -74,6 +76,8 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
 export async function activate(context: ExtensionContext) {
     extension.context = context;
+    // Init RPC Layer methods
+    RPCLayer.init();
     // Wait for the ballerina extension to be ready
     await StateMachine.initialize();
     // Then return the ballerina extension context
@@ -119,6 +123,9 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
 
+        //activate ai panel
+        activateAiPanel(ballerinaExtInstance);
+
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
         langClient.onNotification('window/showTextDocument', (location: Location) => {
@@ -135,12 +142,12 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
-            // cmds.forEach((cmd) => {
-            //     const cmdID: string = cmd.command;
-            //     commands.registerCommand(cmdID, () => {
-            //         ballerinaExtInstance.showMessageInstallBallerina();
-            //     });
-            // });
+            cmds.forEach((cmd) => {
+                const cmdID: string = cmd.command;
+                commands.registerCommand(cmdID, () => {
+                    ballerinaExtInstance.showMessageInstallBallerina();
+                });
+            });
         }
         // When plugins fails to start, provide a warning upon each command execution
         else if (!ballerinaExtInstance.langClient) {

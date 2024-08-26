@@ -50,7 +50,7 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                     >
                         <Icon
                             sx={{ height: "18px", width: "18px", marginRight: "4px" }}
-                            iconSx={{ fontSize: "18px" }}
+                            iconSx={{ fontSize: "18px", color: "var(--vscode-button-foreground)" }}
                             name="file-upload"
                         />
                         <LineButtonTitle variant="h4">{importJsonButtonText}</LineButtonTitle>
@@ -65,7 +65,7 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                     >
                         <Icon
                             sx={{ height: "18px", width: "18px", marginRight: "4px" }}
-                            iconSx={{ fontSize: "18px" }}
+                            iconSx={{ fontSize: "18px", color: "var(--vscode-button-foreground)" }}
                             name="file-upload"
                         />
                         <LineButtonTitle variant="h4">{importXmlButtonText}</LineButtonTitle>
@@ -113,4 +113,5 @@ const LinePrimaryButton = styled(Button)`
 
 const LineButtonTitle = styled(Typography)`
     margin: 0;
+    color: var(--vscode-button-foreground);
 `;

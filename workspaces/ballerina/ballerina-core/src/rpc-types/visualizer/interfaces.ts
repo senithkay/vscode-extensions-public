@@ -18,3 +18,7 @@ export interface OpenViewRequest {
     type: EVENT_TYPE;
     location: VisualizerLocation;
 }
+
+export interface GetWorkspaceContextResponse {
+    context: string[];
+}

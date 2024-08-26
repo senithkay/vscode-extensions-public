@@ -42,6 +42,7 @@ import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../utils/utils";
 import { useVisualizerContext } from "../../Context";
+import { RecordEditor } from "../RecordEditor/RecordEditor";
 
 const Container = styled.div`
     width: 100%;
@@ -79,7 +80,8 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fields, setFields] = useState<FormField[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-
+    const [isRecordEditorOpen, setIsRecordEditorOpen] = useState(false);
+    
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
@@ -352,6 +354,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
+    const handleOpenRecordEditor = (isOpen: boolean) => {
+        setIsRecordEditorOpen(isOpen);
+    };
     // ai suggestions callbacks
     const onAcceptSuggestions = () => {
         if (!suggestedModel) {
@@ -431,7 +436,14 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                         onClose={handleOnCloseSidePanel}
                     />
                 )}
-                {sidePanelView === SidePanelView.FORM && <Form formFields={fields} onSubmit={handleOnFormSubmit} />}
+                {sidePanelView === SidePanelView.FORM && <Form formFields={fields} openRecordEditor={handleOpenRecordEditor} onSubmit={handleOnFormSubmit} />} 
+                <RecordEditor
+                    fields={fields}
+                    isRecordEditorOpen={isRecordEditorOpen}
+                    onClose={() => setIsRecordEditorOpen(false)}
+                    updateFields={(updatedFields) => setFields(updatedFields)}
+                    rpcClient={rpcClient}
+                />
             </PanelContainer>
         </>
     );
