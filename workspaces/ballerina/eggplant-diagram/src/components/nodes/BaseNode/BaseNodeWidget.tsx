@@ -119,7 +119,7 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource } = useDiagramContext();
+    const { onNodeSelect, goToSource, openView } = useDiagramContext();
 
     const [isHovered, setIsHovered] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | SVGSVGElement>(null);
@@ -127,7 +127,19 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
-            onGoToSource();
+            // Handle action when cmd key is pressed
+            if (model.node.codedata.node === "DATA_MAPPER") {
+                // TODO: Find the file path and the position of the actual data mapper function
+                // The below logic fetch the position of the function invocation, hence it will open the component overview
+                openView && openView(model.node.codedata.lineRange.fileName, {
+                    startLine: model.node.codedata.lineRange.startLine.line,
+                    startColumn: model.node.codedata.lineRange.startLine.offset,
+                    endLine: model.node.codedata.lineRange.endLine.line,
+                    endColumn: model.node.codedata.lineRange.endLine.offset
+                });
+            } else {
+                onGoToSource();
+            }
         } else {
             onNodeClick();
         }

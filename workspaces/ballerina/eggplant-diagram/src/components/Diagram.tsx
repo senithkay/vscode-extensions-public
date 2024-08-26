@@ -12,6 +12,7 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
+
 import {
     generateEngine,
     hasDiagramZoomAndPosition,
@@ -20,7 +21,7 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange, NodePosition } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -37,6 +38,7 @@ export interface DiagramProps {
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
+    openView?: (filePath: string, position: NodePosition) => void;
     // ai suggestions callbacks
     suggestions?: {
         onAccept(): void;
@@ -45,7 +47,7 @@ export interface DiagramProps {
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onAddComment, onNodeSelect, goToSource, suggestions } = props;
+    const { model, onAddNode, onAddComment, onNodeSelect, goToSource, openView, suggestions } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -156,6 +158,7 @@ export function Diagram(props: DiagramProps) {
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
+        openView: openView,
         suggestions: {
             onAccept: suggestions.onAccept,
             onDiscard: suggestions.onDiscard,

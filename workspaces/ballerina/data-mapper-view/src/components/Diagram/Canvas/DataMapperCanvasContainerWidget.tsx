@@ -17,8 +17,6 @@ export const Container = styled.div`
 	height: calc(100% - 50px);
 	background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);
   	background-size: 8px 8px;
-	padding-left: 20px;
-	padding-top: 20px;
 	background-color: var(--vscode-input-background);
 	display: ${(props: { hidden: any; }) => (props.hidden ? 'none' : 'flex')};
 	font-weight: 400;

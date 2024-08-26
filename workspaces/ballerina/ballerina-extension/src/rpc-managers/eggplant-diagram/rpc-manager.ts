@@ -101,65 +101,59 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async updateSource(params: EggplantSourceCodeResponse): Promise<void> {
-        let fileUri: Uri;
-        let edits: TextEdit[];
+        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
-        // HACK: get the first key and value from the object
-        // TODO: need to update below logic to support multiple files
         for (const [key, value] of Object.entries(params.textEdits)) {
-            fileUri = Uri.parse(key);
-            edits = value;
-            break;
-        }
-        console.log(">>> source code gathered data", {
-            filePath: fileUri.toString(),
-            fileUri,
-            edits,
-        });
+            const fileUri =  Uri.parse(key);
+            const fileUriString = fileUri.toString();
+            const edits = value;
 
-        if (edits && edits.length > 0) {
-            const modificationList: STModification[] = [];
+            if (edits && edits.length > 0) {
+                const modificationList: STModification[] = [];
+    
+                for (const edit of edits) {
+                    const stModification: STModification = {
+                        startLine: edit.range.start.line,
+                        startColumn: edit.range.start.character,
+                        endLine: edit.range.end.line,
+                        endColumn: edit.range.end.character,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            STATEMENT: edit.newText,
+                        },
+                    };
+                    modificationList.push(stModification);
+                }
 
-            for (const edit of edits) {
-                const stModification: STModification = {
-                    startLine: edit.range.start.line,
-                    startColumn: edit.range.start.character,
-                    endLine: edit.range.end.line,
-                    endColumn: edit.range.end.character,
-                    type: "INSERT",
-                    isImport: false,
-                    config: {
-                        STATEMENT: edit.newText,
-                    },
-                };
-                modificationList.push(stModification);
+                if (modificationRequests[fileUriString]) {
+                    modificationRequests[fileUriString].modifications.push(...modificationList);
+                } else {
+                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+                }
             }
+        }
 
-            console.log(">>> eggplant saving source", {
-                documentIdentifier: { uri: fileUri.toString() },
-                astModifications: modificationList,
-            });
-
+        // Iterate through modificationRequests and apply modifications
+        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
             const { parseSuccess, source } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUri.toString() },
-                astModifications: modificationList,
+                documentIdentifier: { uri: fileUriString },
+                astModifications: request.modifications,
             })) as SyntaxTree;
 
             if (parseSuccess) {
-                writeFileSync(fileUri.fsPath, source);
+                writeFileSync(request.filePath, source);
                 await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUri.toString(), version: 1 },
+                    textDocument: { uri: fileUriString, version: 1 },
                     contentChanges: [
                         {
                             text: source,
                         },
                     ],
                 });
-
-                //TODO: notify to diagram
-                updateView();
             }
         }
+        updateView();
     }
 
     async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {

@@ -91,7 +91,7 @@ export function convertNodePropertiesToFormFields(
                     editable: isFieldEditable(expression, connections, clientName),
                     documentation: expression.metadata.description,
                     value: getFormFieldValue(expression, clientName),
-                    // items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
+                    items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
                 };
                 formFields.push(formField);
             }
@@ -124,6 +124,8 @@ function getFormFieldValue(expression: Property, clientName?: string) {
 function getFormFieldItems(expression: Property, connections: FlowNode[]) {
     if (expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
         return connections.map((connection) => connection.properties?.variable?.value);
+    } else if (expression.valueType === "MULTIPLE_SELECT" || expression.valueType === "SINGLE_SELECT") {
+        return expression.valueTypeConstraint;
     }
     return undefined;
 }
@@ -148,7 +150,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
         if (values.hasOwnProperty(key) && updatedNodeProperties.hasOwnProperty(key)) {
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
-                expression.value = values[key];
+                expression.value = expression.valueType === "MULTIPLE_SELECT" ? [values[key]] : values[key];
             }
         }
     }
@@ -205,4 +207,22 @@ export function removeDraftNodeFromDiagram(flowModel: Flow) {
     traverseFlow(newFlowModel, removeNodeVisitor);
     const newFlow = removeNodeVisitor.getUpdatedFlow();
     return newFlow;
+}
+
+export function enrichNodePropertiesWithValueConstraint(
+    nodeProps: NodeProperties,
+    nodePropsWithValConstrant: NodeProperties
+) {
+    const enrichedNodeProperties: NodeProperties = { ...nodeProps };
+
+    for (const key in enrichedNodeProperties) {
+        if (enrichedNodeProperties.hasOwnProperty(key)) {
+            const expression = enrichedNodeProperties[key as NodePropertyKey];
+            if (expression) {
+                expression.valueTypeConstraint = nodePropsWithValConstrant[key as NodePropertyKey].valueTypeConstraint;
+            }
+        }
+    }
+
+    return enrichedNodeProperties;
 }
