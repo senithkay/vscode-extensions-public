@@ -21,9 +21,7 @@ interface EditPanelProps {
 
 export function EditPanel(props: EditPanelProps) {
     const { applyModifications } = props;
-    const { rpcClient } = useRpcContext();
-    const { activePanel, setActivePanel, statementPosition, parsedST, componentInfo } = useVisualizerContext();
-    const [filePath, setFilePath] = useState<string>();
+    const { activePanel, setActivePanel, statementPosition, componentInfo, activeFileInfo } = useVisualizerContext();
 
     const closeStatementEditor = () => {
         setActivePanel({ isActive: false });
@@ -33,17 +31,10 @@ export function EditPanel(props: EditPanelProps) {
         setActivePanel({ isActive: false });
     }
 
-    useEffect(() => {
-        rpcClient?.getVisualizerLocation().then(async (location) => {
-            setFilePath(location.documentUri);
-
-        });
-    }, []);
-
 
     return (
         <>
-            {filePath && componentInfo?.model &&
+            {activeFileInfo?.filePath && componentInfo?.model &&
                 <PanelContainer title="Edit Construct" show={activePanel?.isActive} onClose={() => { setActivePanel({ isActive: false }) }}>
                     (
                     <StatementEditorComponent
@@ -52,13 +43,13 @@ export function EditPanel(props: EditPanelProps) {
                         initialSource={componentInfo.model?.source}
                         applyModifications={applyModifications}
                         currentFile={{
-                            content: parsedST?.source || "",
-                            path: filePath,
+                            content: activeFileInfo?.fullST?.source || "",
+                            path: activeFileInfo?.filePath,
                             size: 1
                         }}
                         onCancel={cancelStatementEditor}
                         onClose={closeStatementEditor}
-                        syntaxTree={parsedST}
+                        syntaxTree={activeFileInfo?.fullST}
                         targetPosition={componentInfo?.position || statementPosition}
                         skipSemicolon={shouldSkipSemicolon(componentInfo?.componentType)}
                     />
