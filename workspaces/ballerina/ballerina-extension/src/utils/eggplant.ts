@@ -70,7 +70,7 @@ export function createEggplantProjectPure(name: string, projectPath: string) {
         fs.mkdirSync(projectRoot);
     }
 
-    const EMPTY = "// THIS IS AN AUTO GENERATED FILE\n";
+    const EMPTY = "\n";
 
     const ballerinaTomlContent = `
 [package]

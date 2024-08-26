@@ -37,7 +37,6 @@ import {
     enrichNodePropertiesWithValueConstraint,
     getContainerTitle,
     getFormProperties,
-    removeDraftNodeFromDiagram,
     updateNodeProperties,
 } from "./../../utils/eggplant";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";

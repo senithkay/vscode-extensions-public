@@ -6,7 +6,7 @@ import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByR
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { commands, Uri, workspace } from 'vscode';
-import { RPCLayer } from './RPCLayer';
+import { notifyCurrentWebview, RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -367,6 +367,7 @@ export function updateView() {
     if (StateMachine.context().isEggplant) {
         commands.executeCommand("Eggplant.project-explorer.refresh");
     }
+    notifyCurrentWebview();
 }
 
 async function checkForProjects() {

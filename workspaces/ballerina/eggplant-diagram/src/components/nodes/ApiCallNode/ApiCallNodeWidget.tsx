@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
@@ -21,7 +21,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -137,42 +137,83 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const [isHovered, setIsHovered] = React.useState(false);
     const { onNodeSelect, goToSource } = useDiagramContext();
+
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(anchorEl);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
-            // Handle action when cmd key is pressed
-            goToSource && goToSource(model.node);
+            onGoToSource();
         } else {
-            onClick && onClick(model.node);
-            onNodeSelect && onNodeSelect(model.node);
+            onNodeClick();
         }
     };
+
+    const onNodeClick = () => {
+        onClick && onClick(model.node);
+        onNodeSelect && onNodeSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onGoToSource = () => {
+        goToSource && goToSource(model.node);
+        setAnchorEl(null);
+    };
+
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        {
+            id: "edit",
+            label: "Edit",
+            onClick: () => onNodeClick(),
+        },
+        { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
+        { id: "delete", label: "Delete", onClick: () => console.log("Delete"), disabled: true },
+    ];
 
     const disabled = model.node.suggested;
 
     return (
-        <NodeStyles.Node
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
-        >
+        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <NodeStyles.Box disabled={disabled} hovered={isHovered}>
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
-                    <NodeStyles.Icon>
+                    <NodeStyles.Icon onClick={handleOnClick}>
                         <NodeIcon type={model.node.codedata.node} />
                     </NodeStyles.Icon>
-                    <NodeStyles.Header>
+                    <NodeStyles.Header onClick={handleOnClick}>
                         <NodeStyles.Title>
                             {model.node.codedata.module} : {model.node.metadata.label}
                         </NodeStyles.Title>
                         <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description>
                     </NodeStyles.Header>
-                    <NodeStyles.StyledButton appearance="icon">
+                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />
                     </NodeStyles.StyledButton>
+                    <Popover
+                        open={isMenuOpen}
+                        anchorEl={anchorEl}
+                        handleClose={handleOnMenuClose}
+                        sx={{
+                            padding: 0,
+                            borderRadius: 0,
+                        }}
+                    >
+                        <Menu>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                        </Menu>
+                    </Popover>
                 </NodeStyles.Row>
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
@@ -200,7 +241,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     fontSize="14px"
                     fontFamily="GilmerRegular"
                 >
-                    {model.node.properties.connection.value.length > 16
+                    {model.node.properties.connection.value?.length > 16
                         ? `${model.node.properties.connection.value.slice(0, 16)}...`
                         : model.node.properties.connection.value}
                 </text>

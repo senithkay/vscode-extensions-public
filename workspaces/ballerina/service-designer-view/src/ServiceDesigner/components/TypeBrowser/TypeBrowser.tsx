@@ -131,7 +131,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
     }, []);
 
     const handleCreateNewRecord = async (name: string) => {
-        const source = `type ${name} readonly & record {};`;
+        const source = `type ${name} record {};`;
         const position = serviceEndPosition!;
         position.startLine = serviceEndPosition?.endLine;
         position.startColumn = serviceEndPosition?.endColumn;
