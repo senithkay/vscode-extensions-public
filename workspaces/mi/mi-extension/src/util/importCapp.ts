@@ -284,34 +284,31 @@ function moveFile(sourcePath: string, destinationPath: string) {
 }
 
 function getTargetFolder(type: string, source: string) {
+    let artifactFolder = "";
     switch (type) {
-        case "synapse/api":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "apis");
-        case "synapse/sequence":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "sequences");
-        case "synapse/proxy-service":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "proxy-services");
-        case "synapse/endpoint":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "endpoints");
-        case "synapse/inbound-endpoint":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "inbound-endpoints");
         case "synapse/local-entry":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "local-entries");
+            artifactFolder = "local-entries";
+            break;
         case "synapse/message-processors":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "message-processors");
-        case "synapse/message-store":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "message-stores");
-        case "synapse/task":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "tasks");
-        case "synapse/template":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "templates");
+            artifactFolder = "message-processors";
+            break;
         case "service/dataservice":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "data-services");
+            artifactFolder = "data-services";
+            break;
         case "datasource/datasource":
-            return path.join(source, "src", "main", "wso2mi", "artifacts", "data-sources");
-        default:
-            return "";
+            artifactFolder = "data-sources";
+            break;
+        case "synapse/api":
+        case "synapse/sequence":
+        case "synapse/proxy-service":
+        case "synapse/endpoint":
+        case "synapse/inbound-endpoint":
+        case "synapse/message-store":
+        case "synapse/task":
+        case "synapse/template":
+            artifactFolder = type.split("/")[1] + "s";
     }
+    return path.join(source, "src", "main", "wso2mi", "artifacts", artifactFolder);
 }
 
 function extractRegistryPath(path: string): RegistryPath {
