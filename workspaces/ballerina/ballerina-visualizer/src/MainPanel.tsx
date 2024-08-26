@@ -211,7 +211,7 @@ const MainPanel = () => {
                         <Typography variant='h3'>This feature is coming soon!</Typography>
                     </PopupMessage>
                 }
-                 <RecordEditor
+                <RecordEditor
                     isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
                     onClose={() => setSidePanel("EMPTY")}
                     rpcClient={rpcClient}
