@@ -60,13 +60,13 @@ namespace S {
 
 interface FormProps {
     formFields: FormField[];
-    onSubmit: (data: FormValues) => void;
+    onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
 }
 
 export function Form(props: FormProps) {
     const { formFields, onSubmit, openRecordEditor } = props;
-    const { getValues,register, setValue, handleSubmit, reset } = useForm<FormValues>();
+    const { getValues, register, setValue, handleSubmit, reset } = useForm<FormValues>();
 
     useEffect(() => {
         // Reset form with new values when formFields change
@@ -87,7 +87,7 @@ export function Form(props: FormProps) {
 
     const handleOnSave = (data: FormValues) => {
         console.log(">>> form values", data);
-        onSubmit(data);
+        onSubmit && onSubmit(data);
     };
 
     const handleOpenRecordEditor = (open: boolean) => {
@@ -172,11 +172,13 @@ export function Form(props: FormProps) {
                     }
                 })}
 
-            <S.Footer>
-                <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
-                    Save
-                </Button>
-            </S.Footer>
+            {onSubmit && (
+                <S.Footer>
+                    <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
+                        Save
+                    </Button>
+                </S.Footer>
+            )}
         </S.Container>
     );
 }

@@ -11,6 +11,7 @@ import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { ButtonNodeModel } from "../components/nodes/ButtonNode";
+import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
@@ -182,7 +183,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.viewState.x,
                     branchEmptyNodeModel.viewState.y,
                     true,
-                    true
+                    branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
                     label: branch.label,
@@ -266,6 +267,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitDraft(node: FlowNode, parent?: FlowNode): void {
         const nodeModel = new DraftNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+    }
+
+    beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        const nodeModel = new CommentNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
     }
