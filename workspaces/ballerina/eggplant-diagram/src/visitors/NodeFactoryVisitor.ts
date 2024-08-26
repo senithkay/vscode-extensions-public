@@ -183,7 +183,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.viewState.x,
                     branchEmptyNodeModel.viewState.y,
                     true,
-                    true
+                    branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
                     label: branch.label,

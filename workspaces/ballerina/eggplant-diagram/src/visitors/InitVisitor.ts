@@ -74,6 +74,35 @@ export class InitVisitor implements BaseVisitor {
             }
             branch.viewState = this.getDefaultViewState();
         });
+
+        // add empty else branch if not exists
+        if (node.branches.find((branch) => branch.label === "Else") === undefined) {
+            const emptyElseBranch: FlowNode = {
+                id: `${node.id}-Else-branch`,
+                codedata: {
+                    node: "EMPTY",
+                },
+                returning: false,
+                metadata: {
+                    label: "",
+                    description: "",
+                    draft: true, // else branch is draft
+                },
+                branches: [],
+                viewState: this.getDefaultViewState(),
+            };
+            node.branches.push({
+                label: "Else",
+                kind: "block",
+                codedata: {
+                    node: "ELSE",
+                    lineRange: node.codedata.lineRange,
+                },
+                repeatable: "0..1",
+                properties: {},
+                children: [emptyElseBranch],
+            });
+        }
     }
 
     skipChildren(): boolean {

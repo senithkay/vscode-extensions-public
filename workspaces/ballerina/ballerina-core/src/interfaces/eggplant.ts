@@ -49,6 +49,7 @@ export type Metadata = {
     description: string;
     icon?: string;
     keywords?: string[];
+    draft?: boolean; // for diagram draft nodes
 };
 
 export type Property = {
