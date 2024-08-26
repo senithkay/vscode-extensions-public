@@ -129,4 +129,12 @@ test('Edit mediator in resource', async () => {
 test.afterAll(async () => {
   await vscode?.close();
 
+  const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
+  const video = page.page.video()
+  const videoDir = path.resolve(resourcesFolder, 'videos')
+  const videoPath = await video?.path()
+
+  if (video && videoPath) {
+    await fs.renameSync(videoPath, `${videoDir}/${videoTitle}.webm`)
+  }
 });
