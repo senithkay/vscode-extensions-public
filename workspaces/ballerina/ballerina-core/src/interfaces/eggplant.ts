@@ -10,6 +10,8 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 
+export type { NodePosition };
+
 export type Flow = {
     fileName: string;
     nodes: FlowNode[];
@@ -192,4 +194,5 @@ export type NodeKind =
     | "NEW_DATA"
     | "UPDATE_DATA"
     | "NEW_CONNECTION"
-    | "COMMENT";
+    | "COMMENT"
+    | "DATA_MAPPER";
