@@ -101,6 +101,7 @@ export function ParamEditor(props: ParamProps) {
                     value={param.name}
                     errorMsg={param.name && diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(param.name))?.message}
                     onTextChange={handleChange}
+                    onFocus={(e) => e.target.select()}
                 />
                 {!hideDefaultValue && (
                     <TextField

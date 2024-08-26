@@ -67,7 +67,7 @@ export function ProjectForm() {
             />
             <ButtonWrapper>
                 <Button
-                    disabled={name.length < 2 && path.length < 2}
+                    disabled={name.length < 2 || path.length < 2}
                     onClick={handleCreateProject}
                     appearance="primary"
                 >

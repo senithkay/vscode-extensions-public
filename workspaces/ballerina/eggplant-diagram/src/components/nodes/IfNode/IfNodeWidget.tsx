@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
 import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
+import { MoreVertIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -42,7 +43,8 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        right: 6px;
+        top: -6px;
+        left: 46px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -111,18 +113,48 @@ export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
 
 export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const [isHovered, setIsHovered] = React.useState(false);
     const { onNodeSelect, goToSource } = useDiagramContext();
+
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(anchorEl);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
-            // Handle action when cmd key is pressed
-            goToSource && goToSource(model.node);
+            onGoToSource();
         } else {
-            onClick && onClick(model.node);
-            onNodeSelect && onNodeSelect(model.node);
+            onNodeClick();
         }
     };
+
+    const onNodeClick = () => {
+        onClick && onClick(model.node);
+        onNodeSelect && onNodeSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onGoToSource = () => {
+        goToSource && goToSource(model.node);
+        setAnchorEl(null);
+    };
+
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        {
+            id: "edit",
+            label: "Edit",
+            onClick: () => onNodeClick(),
+        },
+        { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
+        { id: "delete", label: "Delete", onClick: () => console.log("Delete"), disabled: true },
+    ];
 
     const disabled = model.node.suggested;
 
@@ -132,10 +164,9 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
             hovered={isHovered}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
         >
             <NodeStyles.Row>
-                <NodeStyles.Column>
+                <NodeStyles.Column onClick={handleOnClick}>
                     <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                     <svg width={IF_NODE_WIDTH} height={IF_NODE_WIDTH} viewBox="0 0 70 70">
                         <rect
@@ -163,12 +194,30 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                     </svg>
                     <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
                 </NodeStyles.Column>
-                <NodeStyles.Header>
+                <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     <NodeStyles.Description>
                         {model.node.branches.at(0).properties.condition.value}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
+                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                    <MoreVertIcon />
+                </NodeStyles.StyledButton>
+                <Popover
+                    open={isMenuOpen}
+                    anchorEl={anchorEl}
+                    handleClose={handleOnMenuClose}
+                    sx={{
+                        padding: 0,
+                        borderRadius: 0,
+                    }}
+                >
+                    <Menu>
+                        {menuItems.map((item) => (
+                            <MenuItem key={item.id} item={item} />
+                        ))}
+                    </Menu>
+                </Popover>
             </NodeStyles.Row>
         </NodeStyles.Node>
     );

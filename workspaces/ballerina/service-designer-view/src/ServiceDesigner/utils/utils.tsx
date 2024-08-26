@@ -49,7 +49,7 @@ export function generateNewResourceFunction(data: ResourceDefinition): string {
 
 export function updateResourceFunction(data: ResourceDefinition): string {
     // Your Handlebars template
-    const templateString = `{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}|http:InternalServerError {{/if}}`;
+    const templateString = `{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}} {{/if}}`;
     // Compile the template
     const compiledTemplate = Handlebars.compile(templateString);
     // Apply data to the template
