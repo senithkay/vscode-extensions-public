@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, SidePanelBody, Dropdown, Codicon, LinkButton, Drawer } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
+import { Colors } from "../../resources/constants";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -57,8 +58,8 @@ namespace S {
 // Component to return a Codicon icon
 const addType = (name: string, onClick?: () => void) => (
     <S.AddTypeContainer>
-        <LinkButton onClick={onClick}>
-            <Codicon name={name} />
+        <LinkButton onClick={onClick} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <Codicon name={name} iconSx={{ fontSize: 12 }} sx={{  height: 12 }}/>
             Add Type
         </LinkButton>
     </S.AddTypeContainer>
@@ -101,7 +102,7 @@ export function Form(props: FormProps) {
                             containerSx={{ width: "100%" }}
                         />
                     )}
-                    {!field.items && (field.key !== "type") && (
+                    {!field.items && field.key !== "type" && (
                         <TextField
                             id={field.key}
                             {...register(field.key, { required: !field.optional, value: field.value })}
@@ -113,7 +114,7 @@ export function Form(props: FormProps) {
                             sx={{ width: "100%" }}
                         />
                     )}
-                    {!field.items && (field.key === "type") && (
+                    {!field.items && field.key === "type" && (
                         <TextField
                             id={field.key}
                             {...register(field.key, { required: !field.optional, value: field.value })}
