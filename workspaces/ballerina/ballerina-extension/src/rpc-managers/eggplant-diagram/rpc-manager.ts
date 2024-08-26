@@ -40,6 +40,7 @@ import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
 import { StateMachine, updateView } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
+import { ballerinaExtInstance } from "../../core";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getFlowModel(): Promise<EggplantFlowModelResponse> {
@@ -261,8 +262,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             const { filePath, position } = params;
 
             // check multi line AI completion setting
-            const multiLineCompletion = false; // TODO: fix this
-            // const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
+            const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
             console.log(">>> multi line AI completion setting", multiLineCompletion);
 
             // get copilot context form ls
