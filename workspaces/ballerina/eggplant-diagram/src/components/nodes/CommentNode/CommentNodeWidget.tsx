@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { BaseNodeModel } from "./BaseNodeModel";
+import { CommentNodeModel } from "./CommentNodeModel";
 import {
     Colors,
     DRAFT_NODE_BORDER_WIDTH,
@@ -118,17 +118,17 @@ export namespace NodeStyles {
     `;
 }
 
-interface BaseNodeWidgetProps {
-    model: BaseNodeModel;
+interface CommentNodeWidgetProps {
+    model: CommentNodeModel;
     engine: DiagramEngine;
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<CommentNodeWidgetProps, "children"> {}
 
-export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+export function CommentNodeWidget(props: CommentNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, openView } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -136,19 +136,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
-            // Handle action when cmd key is pressed
-            if (model.node.codedata.node === "DATA_MAPPER") {
-                // TODO: Find the file path and the position of the actual data mapper function
-                // The below logic fetch the position of the function invocation, hence it will open the component overview
-                openView && openView(model.node.codedata.lineRange.fileName, {
-                    startLine: model.node.codedata.lineRange.startLine.line,
-                    startColumn: model.node.codedata.lineRange.startLine.offset,
-                    endLine: model.node.codedata.lineRange.endLine.line,
-                    endColumn: model.node.codedata.lineRange.endLine.offset
-                });
-            } else {
-                onGoToSource();
-            }
+            onGoToSource();
         } else {
             onNodeClick();
         }
@@ -165,11 +153,6 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         setAnchorEl(null);
     };
 
-    const deleteNode = () => {
-        onDeleteNode && onDeleteNode(model.node);
-        setAnchorEl(null);
-    }
-
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -185,7 +168,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onClick: () => onNodeClick(),
         },
         { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
-        { id: "delete", label: "Delete", onClick: () => deleteNode() },
+        { id: "delete", label: "Delete", onClick: () => console.log("Delete"), disabled: true },
     ];
 
     return (

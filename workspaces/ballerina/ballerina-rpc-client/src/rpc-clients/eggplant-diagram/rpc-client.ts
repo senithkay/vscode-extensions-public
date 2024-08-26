@@ -29,6 +29,7 @@ import {
     WorkspacesResponse,
     createComponent,
     createProject,
+    deleteFlowNode,
     getAiSuggestions,
     getAvailableNodes,
     getEggplantConnectors,
@@ -55,6 +56,10 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
 
     getSourceCode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
         return this._messenger.sendRequest(getSourceCode, HOST_EXTENSION, params);
+    }
+
+    deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        return this._messenger.sendRequest(deleteFlowNode, HOST_EXTENSION, params);
     }
 
     getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {

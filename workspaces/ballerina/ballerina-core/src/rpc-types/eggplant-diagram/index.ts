@@ -30,6 +30,7 @@ import { CreateProjectRequest, WorkspacesResponse, ProjectComponentsResponse, Cr
 export interface EggplantDiagramAPI {
     getFlowModel: () => Promise<EggplantFlowModelResponse>;
     getSourceCode: (params: EggplantSourceCodeRequest) => Promise<EggplantSourceCodeResponse>;
+    deleteFlowNode: (params: EggplantSourceCodeRequest) => Promise<EggplantSourceCodeResponse>;
     getAvailableNodes: (params: EggplantAvailableNodesRequest) => Promise<EggplantAvailableNodesResponse>;
     getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
     getAiSuggestions: (params: EggplantAiSuggestionsRequest) => Promise<EggplantAiSuggestionsResponse>;

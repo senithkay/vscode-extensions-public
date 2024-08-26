@@ -10,6 +10,7 @@
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { ButtonNodeModel } from "../components/nodes/ButtonNode";
+import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
@@ -22,6 +23,7 @@ export type NodeModel =
     | IfNodeModel
     | StartNodeModel
     | ApiCallNodeModel
+    | CommentNodeModel
     | ButtonNodeModel;
 
 // node model without button node model

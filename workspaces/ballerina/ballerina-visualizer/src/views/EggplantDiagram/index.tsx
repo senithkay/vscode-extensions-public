@@ -83,7 +83,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const [fields, setFields] = useState<FormField[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [isRecordEditorOpen, setIsRecordEditorOpen] = useState(false);
-    
+
     const selectedNodeRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
     const targetRef = useRef<LineRange>();
@@ -173,7 +173,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
             .getAiSuggestions({ position: target, filePath: model.fileName })
             .then((model) => {
                 console.log(">>> ai suggested new flow", model);
-                if (model.flowModel) {
+                if (model?.flowModel?.nodes?.length > 0) {
                     setSuggestedModel(model.flowModel);
                     suggestedText.current = model.suggestion;
                 }
@@ -265,6 +265,29 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         }
     };
 
+    const handleOnDeleteNode = (node: FlowNode) => {
+        console.log(">>> on delete node", node);
+
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .deleteFlowNode({
+                filePath: model.fileName,
+                flowNode: node,
+            })
+            .then((response) => {
+                console.log(">>> Updated source code after delete", response);
+                if (response.textEdits) {
+                    // clear memory
+                    setFields([]);
+                    selectedNodeRef.current = undefined;
+                    handleOnCloseSidePanel();
+                } else {
+                    console.error(">>> Error updating source code", response);
+                    // handle error
+                }
+            });
+    };
+
     const handleOnAddComment = (comment: string, target: LineRange) => {
         console.log(">>> on add comment", { comment, target });
         const updatedNode: FlowNode = {
@@ -332,18 +355,20 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
 
         rpcClient
             .getEggplantDiagramRpcClient()
-            .getNodeTemplate({ 
+            .getNodeTemplate({
                 position: {
                     startLine: targetRef.current.startLine,
                     endLine: targetRef.current.endLine,
                 },
                 filePath: model.fileName,
-                id: node.codedata })
+                id: node.codedata,
+            })
             .then((response) => {
                 selectedNodeRef.current = response.flowNode;
                 const formPropertiesFromNodeTemplate = getFormProperties(response.flowNode);
                 const enrichedNodeProperties = enrichNodePropertiesWithValueConstraint(
-                    formPropertiesFromNode, formPropertiesFromNodeTemplate
+                    formPropertiesFromNode,
+                    formPropertiesFromNodeTemplate
                 );
 
                 // get node properties
@@ -414,14 +439,13 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     };
 
     const handleOpenView = async (filePath: string, position: NodePosition) => {
-        console.log(">>> open view: ", { filePath, position })
+        console.log(">>> open view: ", { filePath, position });
         const context: VisualizerLocation = {
             documentUri: model.fileName,
-            position: position
-        }
+            position: position,
+        };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
-
 
     const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
@@ -444,6 +468,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                             <Diagram
                                 model={flowModel}
                                 onAddNode={handleOnAddNode}
+                                onDeleteNode={handleOnDeleteNode}
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
@@ -476,7 +501,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                         onClose={handleOnCloseSidePanel}
                     />
                 )}
-                {sidePanelView === SidePanelView.FORM && <Form formFields={fields} openRecordEditor={handleOpenRecordEditor} onSubmit={handleOnFormSubmit} />} 
+                {sidePanelView === SidePanelView.FORM && (
+                    <Form formFields={fields} openRecordEditor={handleOpenRecordEditor} onSubmit={handleOnFormSubmit} />
+                )}
                 {isRecordEditorOpen && (
                     <RecordEditor
                         fields={fields}

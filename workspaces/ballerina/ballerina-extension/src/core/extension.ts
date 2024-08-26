@@ -28,7 +28,8 @@ import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
     ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
-    ENABLE_LIVE_RELOAD
+    ENABLE_LIVE_RELOAD,
+    ENABLE_MULTILINE_AI_COMPLETIONS
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -625,6 +626,10 @@ export class BallerinaExtension {
 
     public async updatePerformanceForecastSetting(status: boolean) {
         await workspace.getConfiguration().update(ENABLE_PERFORMANCE_FORECAST, status);
+    }
+
+    public multilineAiSuggestions(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_MULTILINE_AI_COMPLETIONS);
     }
 
     public getDocumentContext(): DocumentContext {

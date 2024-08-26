@@ -28,6 +28,7 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 const _preFix = "eggplant-diagram";
 export const getFlowModel: RequestType<void, EggplantFlowModelResponse> = { method: `${_preFix}/getFlowModel` };
 export const getSourceCode: RequestType<EggplantSourceCodeRequest, EggplantSourceCodeResponse> = { method: `${_preFix}/getSourceCode` };
+export const deleteFlowNode: RequestType<EggplantSourceCodeRequest, EggplantSourceCodeResponse> = { method: `${_preFix}/deleteFlowNode` };
 export const getAvailableNodes: RequestType<EggplantAvailableNodesRequest, EggplantAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
 export const getNodeTemplate: RequestType<EggplantNodeTemplateRequest, EggplantNodeTemplateResponse> = { method: `${_preFix}/getNodeTemplate` };
 export const getAiSuggestions: RequestType<EggplantAiSuggestionsRequest, EggplantAiSuggestionsResponse> = { method: `${_preFix}/getAiSuggestions` };

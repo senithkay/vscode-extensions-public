@@ -19,6 +19,7 @@ export interface DiagramContextState {
     };
     showErrorFlow: boolean;
     onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
+    onDeleteNode: (node: FlowNode) => void;
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
@@ -39,6 +40,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     },
     showErrorFlow: false,
     onAddNode: () => {},
+    onDeleteNode: () => {},
     onAddComment: () => {},
     onNodeSelect: () => {},
     goToSource: () => {},
