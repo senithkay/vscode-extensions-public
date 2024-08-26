@@ -25,6 +25,8 @@ const vscodeVersion = '1.92.0';
 let vscode: ElectronApplication | undefined;
 let page: ExtendedPage;
 
+test.describe.configure({ mode: 'serial' });
+
 test.beforeAll(async () => {
   const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
   // delete and recreate folder
@@ -33,17 +35,16 @@ test.beforeAll(async () => {
   }
   fs.mkdirSync(newProjectPath, { recursive: true });
   vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
+  page = new ExtendedPage(await vscode!.firstWindow());
 });
 
 test('Create new project', async () => {
-  page = new ExtendedPage(await vscode!.firstWindow());
-
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
   if (!process.env.CI) {
     await page.waitUntilExtensionReady();
   }
-  
+
   await page.selectSidebarItem('Micro Integrator');
   const welcomePage = new Welcome(page.page);
   await welcomePage.init();
