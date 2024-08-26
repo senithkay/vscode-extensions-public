@@ -289,7 +289,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             const requestBody = {
                 prefix: beforeContent,
                 suffix: afterContent,
-                stop: ["function"],
+                // stop: ["function"],
             };
             const requestOptions = {
                 method: "POST",
