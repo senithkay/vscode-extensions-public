@@ -164,6 +164,7 @@ const stateMachine = createMachine<MachineContext>(
         activateLanguageServer: (context, event) => {
             return new Promise(async (resolve, reject) => {
                 try {
+                    commands.executeCommand('setContext', 'Eggplant.status', 'loading');
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
                     StateMachineAI.initialize();

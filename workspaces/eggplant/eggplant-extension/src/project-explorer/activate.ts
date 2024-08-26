@@ -14,6 +14,7 @@ import { ExtensionContext, commands, window, workspace } from 'vscode';
 import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 
 export function activateProjectExplorer(context: ExtensionContext, isEggplant: boolean) {
+	commands.executeCommand('setContext', 'Eggplant.status', 'loading');
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isEggplant);
 	const projectTree = window.createTreeView(VIEWS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	if (isEggplant) {
@@ -35,6 +36,7 @@ export function activateProjectExplorer(context: ExtensionContext, isEggplant: b
 			if (isEggplant) {
 				commands.executeCommand(COMMANDS.REFRESH_COMMAND);
 			} else {
+				commands.executeCommand('setContext', 'Eggplant.status', 'unknownProject');
 				commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);
 			}
 		}
