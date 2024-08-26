@@ -66,7 +66,7 @@ test('Create new API', async () => {
   // wait until window reload
   await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
   page = new ExtendedPage(await vscode!.firstWindow());
-  page.waitUntilExtensionReady();
+  await page.waitUntilExtensionReady();
 
   const overviewPage = new AddArtifact(page.page);
   await overviewPage.init();
