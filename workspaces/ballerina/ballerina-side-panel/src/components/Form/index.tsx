@@ -58,7 +58,7 @@ namespace S {
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
-    openRecordEditor?: (isOpen: boolean) => void;
+    openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
 }
 
 export function Form(props: FormProps) {
@@ -80,6 +80,10 @@ export function Form(props: FormProps) {
         onSubmit(getValues());
     };
 
+    const handleOpenRecordEditor = (open: boolean) => {
+        openRecordEditor?.(open, getValues());
+    };
+
     // TODO: support multiple type fields
     return (
         <S.Container>
@@ -88,7 +92,7 @@ export function Form(props: FormProps) {
                     <FormFieldEditor
                         field={field}
                         register={register}
-                        openRecordEditor={openRecordEditor}
+                        openRecordEditor={handleOpenRecordEditor}
                     />
                 </S.Row>
             ))}
