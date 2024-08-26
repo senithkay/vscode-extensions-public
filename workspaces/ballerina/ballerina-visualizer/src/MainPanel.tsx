@@ -23,16 +23,16 @@ import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { WelcomeView, ProjectForm, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
-import { FunctionDefinition, ServiceDeclaration, STNode } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
 import { Typography } from '@wso2-enterprise/ui-toolkit';
 import { PanelType, useVisualizerContext } from './Context';
 import { SidePanel } from '@wso2-enterprise/ui-toolkit';
-import { RecordEditor } from '@wso2-enterprise/record-creator';
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
+import { RecordEditor } from './views/RecordEditor/RecordEditor';
 
 const globalStyles = css`
   *,
@@ -63,8 +63,6 @@ const MainPanel = () => {
         , activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
-    const [recordPath, setRecordPath] = useState<string>("");
-    const [recordFullST, setRecordFullST] = useState<STNode>();
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
@@ -106,13 +104,6 @@ const MainPanel = () => {
                 fileUri: filePath
             });
         }
-        if (isRecordModification) {
-            setRecordFullST(syntaxTree);
-        }
-    };
-
-    const applyRecordModifications = async (modifications: STModification[]) => {
-        applyModifications(modifications, true);
     };
 
     const fetchContext = () => {
@@ -183,10 +174,6 @@ const MainPanel = () => {
 
     useEffect(() => {
         fetchContext();
-        rpcClient.getVisualizerLocation().then((vl) => {
-            const projectRoot = vl.projectUri;
-            setRecordPath(vl.recordFilePath);
-        });
     }, []);
 
     useEffect(() => {
@@ -224,36 +211,11 @@ const MainPanel = () => {
                         <Typography variant='h3'>This feature is coming soon!</Typography>
                     </PopupMessage>
                 }
-                <SidePanel
-                    isOpen={sidePanel !== "EMPTY"}
+                <RecordEditor
+                    isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
                     onClose={() => setSidePanel("EMPTY")}
-                    width={600}
-                >
-                    {sidePanel === "RECORD_EDITOR" && recordPath && (
-                        <RecordEditor
-                            onClose={() => setSidePanel("EMPTY")}
-                            applyModifications={applyRecordModifications}
-                            importStatements={[]}
-                            langServerRpcClient={rpcClient.getLangClientRpcClient()}
-                            libraryBrowserRpcClient={null}
-                            onCancel={() => setSidePanel("EMPTY")}
-                            onCancelStatementEditor={() => setSidePanel("EMPTY")}
-                            recordCreatorRpcClient={rpcClient.getRecordCreatorRpcClient()}
-                            targetPosition={{ startLine: 0, startColumn: 0 }}
-                            currentFile={{
-                                content: "",
-                                path: recordPath,
-                                size: 0
-                            }}
-                            isDataMapper={false}
-                            showHeader={false}
-                            fullST={recordFullST}
-                        />
-                    )}
-                </SidePanel>
-                {sidePanel !== "EMPTY" && <SidePanel onClose={() => setSidePanel("EMPTY")}>
-                    {sidePanel === "RECORD_EDITOR" && <div>Record Editor</div>}
-                </SidePanel>}
+                    rpcClient={rpcClient}
+                />
                 {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
                     <ConstructPanel applyModifications={applyModifications} />
                 )
