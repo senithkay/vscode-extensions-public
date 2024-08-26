@@ -294,7 +294,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                     suffix: afterContent,
                 }),
             };
-            console.log(">>> get ai suggestions request", requestOptions);
+            console.log(">>> get ai suggestions request body", { prefix: beforeContent, suffix: afterContent });
             const response = await fetch(
                 "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/completion-api/v1.0/completion",
                 requestOptions

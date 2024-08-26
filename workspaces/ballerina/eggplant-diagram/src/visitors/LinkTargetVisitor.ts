@@ -80,6 +80,23 @@ export class LinkTargetVisitor implements BaseVisitor {
         });
     }
 
+    beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        const outLinks = this.getOutLinksFromNode(node);
+        if (!outLinks) {
+            return;
+        }
+        outLinks.forEach((outLink) => {
+            // set target position
+            if (outLink && node.codedata?.lineRange?.endLine) {
+                outLink.setTarget({
+                    line: node.codedata.lineRange.endLine.line - 1, // HACK: need to fix with LS extension
+                    offset: 0,
+                });
+                outLink.setTopNode(node);
+            }
+        });
+    }
+
     beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
         // out links
         const outLinks = this.getOutLinksFromNode(node);
