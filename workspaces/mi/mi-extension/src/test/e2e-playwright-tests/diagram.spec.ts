@@ -53,7 +53,7 @@ test('Create new project', async () => {
   await createNewProjectForm.switchToFormView();
   await createNewProjectForm.fill({
     values: {
-      'Project Name': {
+      'Project Name*': {
         type: 'input',
         value: 'testProject'
       },
