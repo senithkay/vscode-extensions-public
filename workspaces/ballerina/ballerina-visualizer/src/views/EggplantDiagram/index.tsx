@@ -343,8 +343,12 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const handleOnEditNode = (node: FlowNode) => {
         console.log(">>> on edit node", node);
         selectedNodeRef.current = node;
-        topNodeRef.current = undefined;
-        targetRef.current = node.codedata.lineRange;
+        if (suggestedText.current) {
+            // use targetRef from suggested model
+        } else {
+            topNodeRef.current = undefined;
+            targetRef.current = node.codedata.lineRange;
+        }
 
         const formPropertiesFromNode = getFormProperties(node);
         console.log(">>> Form properties", formPropertiesFromNode);
@@ -502,7 +506,11 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                     />
                 )}
                 {sidePanelView === SidePanelView.FORM && (
-                    <Form formFields={fields} openRecordEditor={handleOpenRecordEditor} onSubmit={handleOnFormSubmit} />
+                    <Form
+                        formFields={fields}
+                        openRecordEditor={handleOpenRecordEditor}
+                        onSubmit={suggestedText.current ? undefined : handleOnFormSubmit}
+                    />
                 )}
                 {isRecordEditorOpen && (
                     <RecordEditor

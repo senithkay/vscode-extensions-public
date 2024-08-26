@@ -65,7 +65,7 @@ namespace S {
 
 interface FormProps {
     formFields: FormField[];
-    onSubmit: (data: FormValues) => void;
+    onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
 }
 
@@ -87,7 +87,7 @@ export function Form(props: FormProps) {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = () => {
-        onSubmit(getValues());
+        onSubmit && onSubmit(getValues());
     };
 
     const handleOpenRecordEditor = (open: boolean) => {
@@ -172,11 +172,13 @@ export function Form(props: FormProps) {
                     }
                 })}
 
-            <S.Footer>
-                <Button appearance="primary" onClick={handleOnSave}>
-                    Save
-                </Button>
-            </S.Footer>
+            {onSubmit && (
+                <S.Footer>
+                    <Button appearance="primary" onClick={handleOnSave}>
+                        Save
+                    </Button>
+                </S.Footer>
+            )}
         </S.Container>
     );
 }
