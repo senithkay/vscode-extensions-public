@@ -20,6 +20,7 @@ export async function switchToIFrame(
         throw new Error(`IFrame of ${frameName} not found`);
     }
     await frame.waitForLoadState();
+    await frame.waitForTimeout(1500); // To fix intermittent issues in CI
     const targetFrame = await frame.waitForSelector(`iframe[title="${frameName}"]`, { timeout });
     if (!targetFrame) {
         throw new Error(`IFrame of ${frameName} not found`);
