@@ -54,10 +54,10 @@ export type Metadata = {
 export type Property = {
     metadata: Metadata;
     valueType: string;
-    valueTypeConstraint: string[];
     value: string;
     optional: boolean;
     editable: boolean;
+    valueTypeConstraint?: string[];
 };
 
 export type CodeData = {

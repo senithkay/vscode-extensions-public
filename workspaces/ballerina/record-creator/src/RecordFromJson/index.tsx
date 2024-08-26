@@ -47,7 +47,7 @@ interface RecordState {
 interface RecordFromJsonProps {
     undoRedoManager?: UndoRedoManager;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
-    onCancel: () => void;
+    onCancel: (createdRecordName?: string) => void;
     isHeaderHidden?: boolean;
     onUpdate?: (updated: boolean) => void;
 }
@@ -203,8 +203,6 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                                 modifiedPosition: newPosition,
                             },
                         });
-                        // TODO: Fix the flow after the Demo
-                        onCancel();
                     } else {
                         recordST = await getRecordST({ codeSnippet: updatedBlock.trim() }, langServerRpcClient);
                         newPosition = {
@@ -222,7 +220,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                         });
                     }
                     // TODO: Fix the flow after the Demo
-                    onCancel();
+                    onCancel(formState.recordName);
                     onSave(updatedBlock, newPosition);
                     onUpdate && onUpdate(true);
                 } else {

@@ -12,18 +12,28 @@ import { FormField } from "../Form/types";
 import { FieldValues, UseFormRegister } from "react-hook-form";
 import { DropdownEditor } from "./DropdownEditor";
 import { TextEditor } from "./TextEditor";
+import { TypeEditor } from "./TypeEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
     register: UseFormRegister<FieldValues>;
+    openRecordEditor?: (open: boolean) => void;
 }
 
 export function FormFieldEditor(props: FormFieldEditorProps) {
-    const { field } = props;
+    const { field, openRecordEditor } = props;
 
     if (field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT") {
         return <DropdownEditor {...props} />;
-    } else {
+    } else if (!field.items && (field.key !== "type")) {
+        return (
+            <TextEditor {...props} />
+        )
+    } else if (!field.items && (field.key === "type")) {
+        return (
+            <TypeEditor {...props} openRecordEditor={openRecordEditor} />
+        );
+    } else  {
         return <TextEditor {...props} />;
     }
 }

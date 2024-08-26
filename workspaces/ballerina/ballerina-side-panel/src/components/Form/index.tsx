@@ -9,7 +9,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, SidePanelBody, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanelBody, Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
 import { FormField, FormValues } from "./types";
 import styled from "@emotion/styled";
 import { FormFieldEditor } from "../editors/FormFieldEditor";
@@ -42,15 +42,37 @@ namespace S {
         font-size: 14px;
         margin-top: 12px;
     `;
+
+    export const AddTypeContainer = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+        justify-content: flex-end;
+    `;
+
+    export const DrawerContainer = styled.div<{}>`
+        width: 400px;
+    `;
 }
+
+// Component to return a Codicon icon
+const addType = (name: string, onClick?: () => void) => (
+    <S.AddTypeContainer>
+        <LinkButton onClick={onClick}>
+            <Codicon name={name} />
+            Add Type
+        </LinkButton>
+    </S.AddTypeContainer>
+);
 
 interface FormProps {
     formFields: FormField[];
     onSubmit: (data: FormValues) => void;
+    openRecordEditor?: (isOpen: boolean) => void;
 }
 
 export function Form(props: FormProps) {
-    const { formFields, onSubmit } = props;
+    const { formFields, onSubmit, openRecordEditor } = props;
     const { getValues, register } = useForm<FormValues>();
 
     console.log(">>> form fields", { formFields, values: getValues() });
@@ -58,12 +80,17 @@ export function Form(props: FormProps) {
     const handleOnSave = () => {
         onSubmit(getValues());
     };
+
     // TODO: support multiple type fields
     return (
         <S.Container>
             {formFields.map((field) => (
                 <S.Row key={field.key}>
-                    <FormFieldEditor field={field} register={register} />
+                    <FormFieldEditor
+                        field={field}
+                        register={register}
+                        openRecordEditor={openRecordEditor}
+                    />
                 </S.Row>
             ))}
 
