@@ -171,6 +171,11 @@
                     "type": "string",
                     "default": "vscode://wso2.ballerina/signin",
                     "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
+                },
+                "ballerina.multilineAiCompletions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable multiline AI completions."
                 }
             }
         },

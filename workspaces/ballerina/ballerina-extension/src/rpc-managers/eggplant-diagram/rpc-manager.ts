@@ -19,6 +19,7 @@ import {
     EggplantAvailableNodesResponse,
     EggplantConnectorsRequest,
     EggplantConnectorsResponse,
+    EggplantCopilotContextRequest,
     EggplantDiagramAPI,
     EggplantFlowModelRequest,
     EggplantFlowModelResponse,
@@ -31,16 +32,14 @@ import {
     ProjectStructureResponse,
     STModification,
     SyntaxTree,
-    TextEdit,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
-import { writeFileSync, readFileSync } from "fs";
+import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
 import { StateMachine, updateView } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
-import { logger } from "vscode-debugadapter";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getFlowModel(): Promise<EggplantFlowModelResponse> {
@@ -104,13 +103,13 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri =  Uri.parse(key);
+            const fileUri = Uri.parse(key);
             const fileUriString = fileUri.toString();
             const edits = value;
 
             if (edits && edits.length > 0) {
                 const modificationList: STModification[] = [];
-    
+
                 for (const edit of edits) {
                     const stModification: STModification = {
                         startLine: edit.range.start.line,
@@ -258,45 +257,40 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async getAiSuggestions(params: EggplantAiSuggestionsRequest): Promise<EggplantAiSuggestionsResponse> {
-        console.log(">>> requesting eggplant ai suggestions from ls", params);
         return new Promise(async (resolve) => {
             const { filePath, position } = params;
 
-            // Read file content using fs module
-            const content = readFileSync(filePath, "utf-8");
-            if (!content) {
-                console.log(">>> file content not found");
-                return new Promise((resolve) => {
-                    resolve(undefined);
-                });
-            }
+            // check multi line AI completion setting
+            const multiLineCompletion = false; // TODO: fix this
+            // const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
+            console.log(">>> multi line AI completion setting", multiLineCompletion);
 
-            const lines = content.split("\n");
-            const before = lines.slice(0, position.startLine.line + 1);
-            // before[position.startLine.line] = before[position.startLine.line].substring(0, position.startLine.offset); // FIXME
-            const after = lines.slice(position.endLine.line + 1);
-            // after[position.endLine.line] = after[position.endLine.line].substring(position.endLine.offset); // FIXME
-            const beforeContent = before.join("\n") + "\n";
-            const afterContent = after.join("\n");
+            // get copilot context form ls
+            const copilotContextRequest: EggplantCopilotContextRequest = {
+                filePath: filePath,
+                position: position.startLine,
+            };
+            console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
+            const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
+            console.log(">>> copilot context from ls", { response: copilotContext });
 
             // get suggestions from ai
             const requestBody = {
-                prefix: beforeContent,
-                suffix: afterContent,
-                // stop: ["function"],
+                ...copilotContext,
+                singleCompletion: !multiLineCompletion,
             };
             const requestOptions = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestBody),
             };
-            console.log(">>> get ai suggestions request body", { requestBody });
+            console.log(">>> request ai suggestion", { request: requestBody });
             const response = await fetch(
                 "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/completion-api/v1.0/completion",
                 requestOptions
             );
             const data = await response.json();
-            console.log(">>> ai suggested content data", data);
+            console.log(">>> ai suggestion", { response: data });
             const suggestedContent = (data as any).completions.at(0);
             if (!suggestedContent) {
                 console.log(">>> ai suggested content not found");

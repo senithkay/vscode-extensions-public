@@ -499,6 +499,16 @@ export interface EggplantAiSuggestionsResponse {
     suggestion: string;
 }
 
+export interface EggplantCopilotContextRequest {
+    position: LinePosition;
+    filePath: string;
+}
+
+export interface EggplantCopilotContextResponse {
+    prefix: string;
+    suffix: string;
+}
+
 // <------------ EGGPLANT INTERFACES --------->
 
 export interface BaseLangClientInterface {

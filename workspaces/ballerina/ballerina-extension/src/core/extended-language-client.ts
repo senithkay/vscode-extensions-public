@@ -88,7 +88,9 @@ import {
     EggplantSourceCodeResponse,
     EggplantConnectorsRequest,
     EggplantConnectorsResponse,
-    EggplantSuggestedFlowModelRequest
+    EggplantSuggestedFlowModelRequest,
+    EggplantCopilotContextRequest,
+    EggplantCopilotContextResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -146,6 +148,7 @@ enum EXTENDED_APIS {
     SEQUENCE_DIAGRAM_MODEL = 'sequenceModelGeneratorService/getSequenceDiagramModel',
     EGGPLANT_FLOW_MODEL = 'flowDesignService/getFlowModel',
     EGGPLANT_SUGGESTED_FLOW_MODEL = 'flowDesignService/getSuggestedFlowModel',
+    EGGPLANT_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     EGGPLANT_SOURCE_CODE = 'flowDesignService/getSourceCode',
     EGGPLANT_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
@@ -556,6 +559,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getSuggestedFlowModel(params: EggplantSuggestedFlowModelRequest): Promise<EggplantFlowModelResponse> {
         return this.sendRequest<EggplantFlowModelResponse>(EXTENDED_APIS.EGGPLANT_SUGGESTED_FLOW_MODEL, params);
+    }
+
+    async getCopilotContext(params: EggplantCopilotContextRequest): Promise<EggplantCopilotContextResponse> {
+        return this.sendRequest<EggplantCopilotContextResponse>(EXTENDED_APIS.EGGPLANT_COPILOT_CONTEXT, params);
     }
 
     // <------------ EGGPLANT APIS END --------------->
