@@ -22,11 +22,9 @@ interface ConstructPanelProps {
 
 export function ConstructPanel(props: ConstructPanelProps) {
     const { applyModifications } = props;
-    const { rpcClient } = useRpcContext();
 
-    const { activePanel, setActivePanel, statementPosition, parsedST, setPopupScreen } = useVisualizerContext();
+    const { activePanel, setActivePanel, statementPosition, activeFileInfo } = useVisualizerContext();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
-    const [filePath, setFilePath] = useState<string>();
     const [initialSource, setInitialSource] = useState<string>();
     const [selectedNode, setSelectedNode] = useState<string>();
 
@@ -39,11 +37,6 @@ export function ConstructPanel(props: ConstructPanelProps) {
         setShowStatementEditor(false);
     }
 
-    useEffect(() => {
-        rpcClient?.getVisualizerLocation().then(async (location) => {
-            setFilePath(location.documentUri);
-        });
-    }, []);
 
     const handleOnSelectNode = (nodeId: string) => {
         console.log(nodeId);
@@ -69,7 +62,7 @@ export function ConstructPanel(props: ConstructPanelProps) {
 
     return (
         <PanelContainer title="Add Constructs" show={activePanel?.isActive} onClose={() => { setActivePanel({ isActive: false }) }}>
-            {showStatementEditor && filePath ?
+            {showStatementEditor && activeFileInfo?.filePath ?
                 (
                     <StatementEditorComponent
                         label={selectedNode}
@@ -77,13 +70,13 @@ export function ConstructPanel(props: ConstructPanelProps) {
                         initialSource={initialSource}
                         applyModifications={applyModifications}
                         currentFile={{
-                            content: parsedST?.source || "",
-                            path: filePath,
+                            content: activeFileInfo?.fullST?.source || "",
+                            path: activeFileInfo?.filePath,
                             size: 1
                         }}
                         onCancel={cancelStatementEditor}
                         onClose={closeStatementEditor}
-                        syntaxTree={parsedST}
+                        syntaxTree={activeFileInfo?.fullST}
                         targetPosition={statementPosition}
                         skipSemicolon={shouldSkipSemicolon(selectedNode)}
 

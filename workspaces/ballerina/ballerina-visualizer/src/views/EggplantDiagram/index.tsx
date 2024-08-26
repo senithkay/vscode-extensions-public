@@ -504,13 +504,15 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                 {sidePanelView === SidePanelView.FORM && (
                     <Form formFields={fields} openRecordEditor={handleOpenRecordEditor} onSubmit={handleOnFormSubmit} />
                 )}
-                <RecordEditor
-                    fields={fields}
-                    isRecordEditorOpen={isRecordEditorOpen}
-                    onClose={() => setIsRecordEditorOpen(false)}
-                    updateFields={(updatedFields) => setFields(updatedFields)}
-                    rpcClient={rpcClient}
-                />
+                {isRecordEditorOpen && (
+                    <RecordEditor
+                        fields={fields}
+                        isRecordEditorOpen={isRecordEditorOpen}
+                        onClose={() => setIsRecordEditorOpen(false)}
+                        updateFields={(updatedFields) => setFields(updatedFields)}
+                        rpcClient={rpcClient}
+                    />
+                )}
             </PanelContainer>
         </>
     );

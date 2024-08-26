@@ -40,6 +40,12 @@ interface ComponentInfo {
     componentType: string;
 }
 
+interface ActiveFileInfo {
+    fullST: STNode;
+    filePath: string;
+    activeSequence: STNode;
+}
+
 export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
 export type SidePanel = "EMPTY" | "RECORD_EDITOR";
 
@@ -56,8 +62,8 @@ interface VisualizerContext {
     setActivePanel: (panelDetails: PanelDetails) => void;
     statementPosition: NodePosition;
     setStatementPosition: (position: NodePosition) => void;
-    parsedST: STNode;
-    setParsedST: (parsedST: STNode) => void;
+    activeFileInfo?: ActiveFileInfo;
+    setActiveFileInfo?: (activeFileInfo: ActiveFileInfo) => void;
     componentInfo?: ComponentInfo;
     setComponentInfo?: (componentInfo: ComponentInfo) => void;
 }
@@ -69,8 +75,8 @@ export const VisualizerContext = createContext({
     setActivePanel: (panelDetails: PanelDetails) => { },
     statementPosition: undefined,
     setStatementPosition: (position: NodePosition) => { },
-    parsedST: undefined,
-    setParsedST: (parsedST: STNode) => { },
+    activeFileInfo: undefined,
+    setActiveFileInfo: (activeFileInfo: ActiveFileInfo) => { },
     componentInfo: undefined,
     setComponentInfo: (componentInfo: ComponentInfo) => { },
 
@@ -83,8 +89,8 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
     const [metadata, setMetadata] = useState({} as any);
     const [activePanel, setActivePanel] = useState({ isActive: false });
     const [statementPosition, setStatementPosition] = useState<NodePosition>();
-    const [parsedST, setParsedST] = useState<STNode>();
     const [componentInfo, setComponentInfo] = useState<ComponentInfo>();
+    const [activeFileInfo, setActiveFileInfo] = useState<ActiveFileInfo>();
 
 
     const contextValue: VisualizerContext = {
@@ -100,8 +106,8 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
         setActivePanel: setActivePanel,
         statementPosition: statementPosition,
         setStatementPosition: setStatementPosition,
-        parsedST: parsedST,
-        setParsedST: setParsedST,
+        activeFileInfo: activeFileInfo,
+        setActiveFileInfo: setActiveFileInfo,
         componentInfo: componentInfo,
         setComponentInfo: setComponentInfo,
     };
