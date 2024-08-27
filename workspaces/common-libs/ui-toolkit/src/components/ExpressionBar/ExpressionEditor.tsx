@@ -19,6 +19,7 @@ import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
+import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
 // Types
 type StyleBase = {
@@ -265,15 +266,9 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                 </DropdownFooterSection>
                 <DropdownFooterSection>
                     <KeyContainer>
-                        <DropdownFooterKey>TAB</DropdownFooterKey>
-                    </KeyContainer>
-                    <DropdownFooterText>to select.</DropdownFooterText>
-                </DropdownFooterSection>
-                <DropdownFooterSection>
-                    <KeyContainer>
                         <DropdownFooterKey>ENTER</DropdownFooterKey>
                     </KeyContainer>
-                    <DropdownFooterText>to save.</DropdownFooterText>
+                    <DropdownFooterText>to select/save.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -317,7 +312,20 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { value, sx, completions, onChange, onSave, onCancel, onCompletionSelect, undoUncommitedChanges, ...rest } = props;
+    const {
+        value,
+        disabled,
+        sx,
+        completions,
+        onChange,
+        onSave,
+        onCancel,
+        onCompletionSelect,
+        useTransaction,
+        onFocus,
+        onBlur,
+        ...rest
+    } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -374,12 +382,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleChange = async (text: string, cursorPosition?: number, selectedItem?: CompletionItem) => {
-        if (text === value) {
-            return;
-        }
-
+        // Update the text field value
         await onChange(text);
-        // Check whether the cursor is inside a function
+
+        // Update selected argument if the cursor is inside a function
         const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
         if (isCursorInFunction) {
             updateSyntax(currentFnContent, selectedItem);
@@ -400,6 +406,22 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         setCursor(inputRef, newCursorPosition);
         await onCompletionSelect(newTextValue);
     };
+
+    const handleExpressionSave = async (value: string) => {
+        const valueWithClosingBracket = addClosingBracketIfNeeded(value);
+        await onSave(valueWithClosingBracket);
+        handleClose();
+    }
+
+    // Mutation functions
+    const {
+        isLoading: isSelectingCompletion,
+        mutate: handleCompletionSelectMutation
+    } = useTransaction(handleCompletionSelect);
+    const {
+        isLoading: isSavingExpression,
+        mutate: handleExpressionSaveMutation
+    } = useTransaction(handleExpressionSave);
 
     const navigateUp = throttle((hoveredEl: Element) => {
         if (hoveredEl) {
@@ -454,16 +476,16 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 case 'Escape':
                     e.preventDefault();
                     handleClose();
-                    break;
+                    return;
                 case 'ArrowDown': {
                     e.preventDefault();
                     navigateDown(hoveredEl);
-                    break;
+                    return;
                 }
                 case 'ArrowUp': {
                     e.preventDefault();
                     navigateUp(hoveredEl);
-                    break;
+                    return;
                 }
                 case 'Tab':
                     e.preventDefault();
@@ -472,35 +494,48 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                             (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
                         );
                         if (item) {
-                            await handleCompletionSelect(item);
+                            await handleCompletionSelectMutation(item);
                         }
                     }
-                    break;
+                    return;
+                case 'Enter':
+                    e.preventDefault();
+                    if (hoveredEl) {
+                        const item = completions.find(
+                            (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                        );
+                        if (item) {
+                            await handleCompletionSelectMutation(item);
+                        }
+                    }
+                    return;
             }
         }
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
-            await handleChange(valueWithClosingBracket, cursorPosition);
-            await onSave(valueWithClosingBracket);
-            handleClose();
+            await handleExpressionSaveMutation(value);
+            return;
         }
     };
 
     useImperativeHandle(ref, () => ({
-        focus: async (text?: string) => {
-            inputRef.current?.focus();
-            if (text !== undefined) {
-                await onChange(text);
-            }
-        },
-        blur: async () => {
-            inputRef.current?.blur();
-            handleClose();
-            await undoUncommitedChanges();
-        },
         shadowRoot: inputRef.current?.shadowRoot,
+        focus: async () => {
+            await onFocus?.();
+            inputRef.current?.focus();
+        },
+        blur: async (text?: string) => {
+            // Trigger save event on blur
+            if (text !== undefined) {
+                await handleExpressionSaveMutation(text);
+            }
+            await onBlur?.();
+            inputRef.current?.blur();
+        },
+        saveExpression: async (text?: string) => {
+            await handleExpressionSaveMutation(text);
+        }
     }));
 
     return (
@@ -511,8 +546,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
                 sx={{ width: '100%', ...sx }}
+                disabled={disabled || isSelectingCompletion || isSavingExpression}
                 {...rest}
             />
+            {(isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
@@ -532,7 +569,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 name="close"
                                 onClick={handleClose}
                             />
-                            <Dropdown ref={listBoxRef} items={completions} onCompletionSelect={handleCompletionSelect} />
+                            <Dropdown ref={listBoxRef} items={completions} onCompletionSelect={handleCompletionSelectMutation} />
                             <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
                         </Transition>
                     </DropdownContainer>,

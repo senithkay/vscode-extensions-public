@@ -18,11 +18,24 @@ export class ExtendedPage {
         return this._page;
     }
 
-    executePaletteCommand(command: string) {
-        return this._page.keyboard.press(os.platform() === 'darwin' ? 'Meta+Shift+p' : 'Ctrl+Shift+p')
-            .then(() => this._page.keyboard.type(command))
-            .then(() => this._page.keyboard.press('Enter'))
-            .then(() => this._page.waitForSelector('div[class="monaco-list-row"]'))
-            .then(() => this._page.keyboard.press('Enter'));
+    async waitUntilExtensionReady() {
+        if (process.env.CI) {
+            return;
+        }
+        await this._page.waitForSelector('a:has-text("Activating Extensions...")', { timeout: 60000 });
+        await this._page.waitForSelector('a:has-text("Activating Extensions...")', { state: 'detached' });
+    }
+
+    async executePaletteCommand(command: string) {
+        await this._page.keyboard.press(os.platform() === 'darwin' ? 'Meta+Shift+p' : 'Ctrl+Shift+p');
+        await this._page.keyboard.type(command);
+        await this._page.keyboard.press('Enter');
+        await this._page.waitForSelector('div[class="monaco-list-row"]');
+        return await this._page.keyboard.press('Enter');
+    }
+
+    async selectSidebarItem(item: string) {
+        await this._page.waitForSelector(`a[aria-label="${item}"]`);
+        return await this._page.click(`a[aria-label="${item}"]`);
     }
 }

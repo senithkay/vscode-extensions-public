@@ -40,12 +40,12 @@ export type ExpressionBarBaseProps = {
     sx?: React.CSSProperties;
     completions: CompletionItem[];
     onChange: (value: string) => Promise<void>;
-    onFocus?: () => void;
-    onBlur?: () => void;
+    onFocus?: () => Promise<void>;
+    onBlur?: () => Promise<void>;
     onCompletionSelect: (value: string) => Promise<void>;
     onSave: (value: string) => Promise<void>;
     onCancel: () => void;
-    undoUncommitedChanges: () => Promise<void>;
+    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -53,9 +53,10 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 };
 
 export type ExpressionBarRef = {
-    focus: (text?: string) => Promise<void>;
-    blur: () => Promise<void>;
     shadowRoot: ShadowRoot;
+    focus: (text?: string) => Promise<void>;
+    blur: (text?: string) => Promise<void>;
+    saveExpression: (text?: string) => Promise<void>;
 };
 
 // Styled Components
