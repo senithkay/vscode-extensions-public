@@ -202,8 +202,8 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     return (
-        <SidePanelContainer>
-            {isLoading ? <LoaderContainer>
+        <SidePanelContainer data-testid="sidepanel">
+            {isLoading ? <LoaderContainer data-testid="sidepanel-loader">
                 < ProgressRing />
 
             </LoaderContainer > :

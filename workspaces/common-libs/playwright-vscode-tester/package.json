@@ -31,8 +31,8 @@
     "hpagent": "~1.2.0",
     "targz": "~1.0.1",
     "unzipper": "~0.10.14",
-    "playwright-core": "~1.37.0",
+    "playwright-core": "~1.46.0",
     "got": "v11.8.3",
-    "@playwright/test": "~1.37.1"
+    "@playwright/test": "~1.46.0"
   }
 }
