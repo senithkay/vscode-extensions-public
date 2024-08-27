@@ -28,6 +28,7 @@ import { createSourceForUserInput } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -132,7 +133,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
             collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
         } else {
@@ -198,36 +199,38 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                 </span>
             )}
             {(hasValue || hasDefaultValue) && !connectedViaLink && !portIn.descendantHasValue && (
-                <span className={classes.outputNodeValueBase}>
-                    {diagnostic ? (
-                        <DiagnosticTooltip
-                            diagnostic={diagnostic}
-                            value={initializer.getText()}
-                            onClick={handleEditValue}
-                        >
-                            <Button
-                                appearance="icon"
+                <FieldActionWrapper>
+                    <span className={classes.outputNodeValueBase}>
+                        {diagnostic ? (
+                            <DiagnosticTooltip
+                                diagnostic={diagnostic}
+                                value={initializer.getText()}
+                                onClick={handleEditValue}
+                            >
+                                <Button
+                                    appearance="icon"
+                                    onClick={handleEditValue}
+                                    data-testid={`object-output-field-${portIn?.getName()}`}
+                                >
+                                    {initializer.getText()}
+                                    <Icon
+                                        name="error-icon"
+                                        sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
+                                        iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                    />
+                                </Button>
+                            </DiagnosticTooltip>
+                        ) : (
+                            <span
+                                className={classes.outputNodeValue}
                                 onClick={handleEditValue}
                                 data-testid={`object-output-field-${portIn?.getName()}`}
                             >
                                 {initializer.getText()}
-                                <Icon
-                                    name="error-icon"
-                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
-                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
-                                />
-                            </Button>
-                        </DiagnosticTooltip>
-                    ) : (
-                        <span
-                            className={classes.outputNodeValue}
-                            onClick={handleEditValue}
-                            data-testid={`object-output-field-${portIn?.getName()}`}
-                        >
-                            {initializer.getText()}
-                        </span>
-                    )}
-                </span>
+                            </span>
+                        )}
+                    </span>
+                </FieldActionWrapper>
             )}
         </span>
     );
@@ -273,15 +276,17 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     </span>
                     <span className={classes.label}>
                         {fields && (
-                            <Button
-                                appearance="icon"
-                                tooltip="Expand/Collapse"
-                                sx={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                                data-testid={`${portIn?.getName()}-expand-icon-element`}
-                            >
-                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                            </Button>
+                            <FieldActionWrapper>
+                                <Button
+                                    appearance="icon"
+                                    tooltip="Expand/Collapse"
+                                    sx={{ marginLeft: indentation }}
+                                    onClick={handleExpand}
+                                    data-testid={`${portIn?.getName()}-expand-icon-element`}
+                                >
+                                    {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                                </Button>
+                            </FieldActionWrapper>
                         )}
                         {label}
                     </span>
@@ -290,7 +295,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             {(isLoading) ? (
                                 <ProgressRing sx={{ height: '16px', width: '16px' }} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                                <FieldActionWrapper>
+                                    <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                                </FieldActionWrapper>
                             )}
                         </>
                     )}
