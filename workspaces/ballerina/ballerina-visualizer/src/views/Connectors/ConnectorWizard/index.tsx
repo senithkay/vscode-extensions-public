@@ -41,7 +41,7 @@ export function ConnectorList(props: ConnectorListProps) {
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
     const [initialSource, setInitialSource] = useState<string>();
-    const {  parsedST, statementPosition, setActivePanel } = useVisualizerContext();
+    const { activeFileInfo, statementPosition, setActivePanel } = useVisualizerContext();
     const [fullST, setFullST] = useState<any>();
 
 
@@ -172,13 +172,13 @@ export function ConnectorList(props: ConnectorListProps) {
                         initialSource={initialSource}
                         applyModifications={applyModifications}
                         currentFile={{
-                            content: parsedST?.source || "",
+                            content: activeFileInfo?.fullST?.source || "",
                             path: filePath,
                             size: 1
                         }}
                         onCancel={cancelStatementEditor}
                         onClose={closeStatementEditor}
-                        syntaxTree={parsedST}
+                        syntaxTree={activeFileInfo?.fullST}
                         targetPosition={statementPosition}
                         skipSemicolon={false}
 

@@ -23,7 +23,7 @@ interface ConstructPanelProps {
 export function ConstructPanel(props: ConstructPanelProps) {
     const { applyModifications } = props;
 
-    const { activePanel, setActivePanel, statementPosition, activeFileInfo } = useVisualizerContext();
+    const { activePanel, setActivePanel, statementPosition, activeFileInfo, setPopupScreen } = useVisualizerContext();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
     const [initialSource, setInitialSource] = useState<string>();
     const [selectedNode, setSelectedNode] = useState<string>();

@@ -71,7 +71,7 @@ export enum BallerinaModuleType {
 }
 
 export function Marketplace(props: MarketplaceProps) {
-    const { activePanel, setActivePanel, statementPosition, parsedST, setPopupScreen } = useVisualizerContext();
+    const { setActivePanel } = useVisualizerContext();
     const { rpcClient } = useRpcContext();
  
     
