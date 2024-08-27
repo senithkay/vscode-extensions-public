@@ -43,6 +43,7 @@ export function PanelContainer(props: PanelContainerProps) {
         <SidePanel
             isOpen={show}
             alignment="right"
+            overlay={false}
             sx={{
                 width: width ? width : "400px",
                 fontFamily: "GilmerRegular",

@@ -10,6 +10,8 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 
+export type { NodePosition };
+
 export type Flow = {
     fileName: string;
     nodes: FlowNode[];
@@ -38,13 +40,16 @@ export type FlowNode = {
     branches: Branch[];
     flags?: number;
     returning: boolean;
+    suggested?: boolean;
     viewState?: ViewState;
 };
 
 export type Metadata = {
     label: string;
     description: string;
+    icon?: string;
     keywords?: string[];
+    draft?: boolean; // for diagram draft nodes
 };
 
 export type Property = {
@@ -53,6 +58,7 @@ export type Property = {
     value: string;
     optional: boolean;
     editable: boolean;
+    valueTypeConstraint?: string[];
 };
 
 export type CodeData = {
@@ -62,6 +68,7 @@ export type CodeData = {
     object?: string;
     symbol?: string;
     lineRange?: ELineRange;
+    sourceCode?: string;
 };
 
 export type Branch = {
@@ -103,22 +110,22 @@ export type TargetMetadata = {
 };
 
 export enum DIRECTORY_MAP {
-    SERVICES = 'services',
-    TASKS = 'tasks',
-    TRIGGERS = 'triggers',
-    CONNECTIONS = 'connections',
-    SCHEMAS = 'schemas',
-    CONFIGURATIONS = 'configurations'
+    SERVICES = "services",
+    TASKS = "tasks",
+    TRIGGERS = "triggers",
+    CONNECTIONS = "connections",
+    SCHEMAS = "schemas",
+    CONFIGURATIONS = "configurations",
 }
 
 export interface ProjectStructureResponse {
     directoryMap: {
-        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[]
-        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[],
-        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[],
+        [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
     };
 }
 
@@ -129,7 +136,7 @@ export interface ProjectStructureArtifactResponse {
     icon?: string;
     context?: string;
     position?: NodePosition;
-    st?: STNode
+    st?: STNode;
 }
 export type Item = Category | AvailableNode;
 
@@ -146,7 +153,16 @@ export type AvailableNode = {
 
 export type DiagramLabel = "On Fail" | "Body";
 
-export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targetType" | "variable" | "expression";
+export type NodePropertyKey =
+    | "method"
+    | "path"
+    | "condition"
+    | "client"
+    | "targetType"
+    | "variable"
+    | "expression"
+    | "comment"
+    | "connection";
 
 export type BranchKind = "block" | "worker";
 
@@ -178,4 +194,6 @@ export type NodeKind =
     | "BODY"
     | "NEW_DATA"
     | "UPDATE_DATA"
-    | "NEW_CONNECTION";
+    | "NEW_CONNECTION"
+    | "COMMENT"
+    | "DATA_MAPPER";

@@ -7,12 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
-
-export function SendIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path d="M20 5.41L18.59 4L7 15.59V9H5v10h10v-2H8.41z" />
-        </svg>
-    );
-}
+export * from "./CommentNodeModel";
+export * from "./CommentNodeWidget";
+export * from "./CommentNodeFactory";

@@ -35,6 +35,9 @@
 		},
 		{
 			"path": "workspaces/ballerina/low-code-ui-components"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-rpc-client"
 		}
 	],
 	"settings": {

@@ -14,4 +14,5 @@ export * from "./common/rpc-client";
 export * from "./persist-diagram/rpc-client";
 export * from "./graphql-designer/rpc-client";
 export * from "./record-creator/rpc-client";
+export * from "./ai-panel/rpc-client";
 export * from "./connector-wizard/rpc-client";

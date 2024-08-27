@@ -30,10 +30,8 @@ import { checkDiagnostics, getUpdatedSource } from "../components/FormComponents
 import { RecordOverview } from "../RecordOverview";
 import { Context } from "../Context";
 import { FileSelect, FormContainer, FormWrapper, InputContainer, InputWrapper, LabelWrapper, useStyles } from "../style";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, CheckBox, Codicon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { FormTextInput } from "../components/FormComponents/FormFieldComponents/TextField/FormTextInput";
-import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
-import { CheckBoxGroup } from "../components/FormComponents/FormFieldComponents/CheckBox";
 
 interface RecordState {
     isLoading?: boolean;
@@ -49,7 +47,7 @@ interface RecordState {
 interface RecordFromJsonProps {
     undoRedoManager?: UndoRedoManager;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
-    onCancel: () => void;
+    onCancel: (createdRecordName?: string) => void;
     isHeaderHidden?: boolean;
     onUpdate?: (updated: boolean) => void;
 }
@@ -138,8 +136,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     };
     const debouncedNameChanged = debounce(onNameChange, debounceDelay);
 
-    const onSeparateDefinitionSelection = (mode: string[]) => {
-        dispatchFromState({ type: "checkSeparateDef", payload: mode.length > 0 });
+    const onSeparateDefinitionSelection = (mode: boolean) => {
+        dispatchFromState({ type: "checkSeparateDef", payload: mode });
     };
 
     const formatRecord = (block: string) => {
@@ -221,6 +219,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             },
                         });
                     }
+                    // TODO: Fix the flow after the Demo
+                    onCancel(formState.recordName);
                     onSave(updatedBlock, newPosition);
                     onUpdate && onUpdate(true);
                 } else {
@@ -242,7 +242,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 <RecordOverview
                     type="JSON"
                     undoRedoManager={undoRedoManager}
-                    prevST={fullST.syntaxTree}
+                    prevST={fullST}
                     definitions={formState.importedRecord}
                     onComplete={onCancel}
                     onCancel={onCancel}
@@ -250,12 +250,10 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             ) : (
                 <FormContainer data-testid="module-variable-config-form">
                     {!isHeaderHidden && (
-                        <FormHeaderSection
-                            onCancel={onCancel}
-                            formTitle="Import Sample JSON"
-                            formType={""}
-                            defaultMessage=""
-                        />
+                        <SidePanelTitleContainer sx={{paddingLeft: 20}}>
+                            <Typography variant="h3" sx={{margin: 0}}>Import Sample JSON</Typography>
+                            <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
+                        </SidePanelTitleContainer>
                     )}
                     <FormWrapper id="json-input-container" test-id="json-input-container">
                         <FormTextInput
@@ -289,11 +287,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             />
                         </InputContainer>
                         {formState.isLoading && <TextPreloaderVertical position="absolute" />}
-                        <CheckBoxGroup
-                            values={["Make Separate Record Definitions"]}
-                            defaultValues={formState.isSeparateDef ? ["Make Separate Record Definitions"] : []}
-                            onChange={onSeparateDefinitionSelection}
-                        />
+                        <CheckBox label="Make Separate Record Definitions" value="Make Separate Record Definitions" checked={formState.isSeparateDef} onChange={onSeparateDefinitionSelection} />
                         <FormActionButtons
                             cancelBtnText="Back"
                             saveBtnText="Save"

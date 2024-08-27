@@ -24,9 +24,7 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
+        node.viewState = this.getDefaultViewState();
     }
 
     endVisitNode(node: FlowNode, parent?: FlowNode): void {
@@ -47,11 +45,18 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
-        if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
-        }
+        node.viewState = this.getDefaultViewState();
         // add empty node if branch is empty
         node.branches?.forEach((branch) => {
+            // if branch is not empty remove empty node
+            if (branch.children && branch.children.length > 0) {
+                const emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
+                if (emptyNodeIndex >= 0) {
+                    branch.children.splice(emptyNodeIndex, 1);
+                }
+            }
+
+            // if branch is empty add empty node
             if (!branch.children || branch.children.length === 0) {
                 // empty branch
                 // add empty node as `add new node` button
@@ -69,6 +74,35 @@ export class InitVisitor implements BaseVisitor {
             }
             branch.viewState = this.getDefaultViewState();
         });
+
+        // add empty else branch if not exists
+        if (node.branches.find((branch) => branch.label === "Else") === undefined) {
+            const emptyElseBranch: FlowNode = {
+                id: `${node.id}-Else-branch`,
+                codedata: {
+                    node: "EMPTY",
+                },
+                returning: false,
+                metadata: {
+                    label: "",
+                    description: "",
+                    draft: true, // else branch is draft
+                },
+                branches: [],
+                viewState: this.getDefaultViewState(),
+            };
+            node.branches.push({
+                label: "Else",
+                kind: "block",
+                codedata: {
+                    node: "ELSE",
+                    lineRange: node.codedata.lineRange,
+                },
+                repeatable: "0..1",
+                properties: {},
+                children: [emptyElseBranch],
+            });
+        }
     }
 
     skipChildren(): boolean {

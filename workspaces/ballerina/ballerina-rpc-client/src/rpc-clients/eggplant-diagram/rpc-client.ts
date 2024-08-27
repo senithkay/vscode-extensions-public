@@ -12,6 +12,8 @@ import {
     CreateComponentRequest,
     CreateComponentResponse,
     CreateProjectRequest,
+    EggplantAiSuggestionsRequest,
+    EggplantAiSuggestionsResponse,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantConnectorsRequest,
@@ -27,6 +29,8 @@ import {
     WorkspacesResponse,
     createComponent,
     createProject,
+    deleteFlowNode,
+    getAiSuggestions,
     getAvailableNodes,
     getEggplantConnectors,
     getFlowModel,
@@ -54,12 +58,20 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
         return this._messenger.sendRequest(getSourceCode, HOST_EXTENSION, params);
     }
 
+    deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        return this._messenger.sendRequest(deleteFlowNode, HOST_EXTENSION, params);
+    }
+
     getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
         return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
     }
 
     getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
         return this._messenger.sendRequest(getNodeTemplate, HOST_EXTENSION, params);
+    }
+
+    getAiSuggestions(params: EggplantAiSuggestionsRequest): Promise<EggplantAiSuggestionsResponse> {
+        return this._messenger.sendRequest(getAiSuggestions, HOST_EXTENSION, params);
     }
 
     createProject(params: CreateProjectRequest): void {

@@ -12,11 +12,10 @@ import { css, keyframes } from "@emotion/react";
 import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import { Colors } from "../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, NODE_PADDING, POPUP_BOX_HEIGHT, POPUP_BOX_WIDTH } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
-import { BaseNodeModel } from "../nodes/BaseNode";
-import { LineRange, LinePosition, FlowNode } from "../../utils/types";
-import { EmptyNodeModel } from "../nodes/EmptyNode";
+import AddCommentPopup from "../AddCommentPopup";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 
 interface NodeLinkWidgetProps {
     link: NodeLinkModel;
@@ -26,7 +25,7 @@ interface NodeLinkWidgetProps {
 const fadeInZoomIn = keyframes`
     0% {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(0.1);
     }
     100% {
         opacity: 1;
@@ -35,76 +34,47 @@ const fadeInZoomIn = keyframes`
 `;
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
-    const [isHovered, setIsHovered] = useState(false);
-    const { flow, showErrorFlow, onAddNode } = useDiagramContext();
+    const { onAddNode } = useDiagramContext();
 
-    const linkColor = isHovered ? Colors.PRIMARY : Colors.ON_SURFACE;
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isCommentBoxOpen = Boolean(anchorEl);
+
+    const linkColor = isHovered ? Colors.SECONDARY : Colors.PRIMARY;
 
     const addButtonPosition = link.getAddButtonPosition();
 
     const handleAddNode = () => {
-        const sourceNode = link.sourceNode as BaseNodeModel;
-        let node = sourceNode.node;
-
-        const hackGap = 1; //HACK: hack to add node at the end of the line. need to fix with LS extension
-
-        // handle top node
-        if (node && node.codedata.node === "EVENT_HTTP_API") {
-            const doBlock = flow.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
-            if (doBlock) {
-                const branchLabel = showErrorFlow ? "On Fail" : "Body";
-                const activeDoBranch = doBlock.branches.find((branch) => branch.label === branchLabel);
-                if (activeDoBranch) {
-                    const targetPosition: LinePosition = {
-                        line: activeDoBranch.codedata.lineRange.startLine.line,
-                        offset: activeDoBranch.codedata.lineRange.startLine.offset + hackGap,
-                    };
-                    const target: LineRange = {
-                        startLine: targetPosition,
-                        endLine: targetPosition,
-                    };
-                    onAddNode(doBlock, target);
-                    return;
-                }
-            } else {
-                console.log(">>> ERROR: do block not found");
-                // fix this flow
-            }
-        }
-        // handle IF node
-        if (!sourceNode.node && sourceNode instanceof EmptyNodeModel) {
-            // handle if node end-if button
-            node = (sourceNode as unknown as EmptyNodeModel).getParentFlowNode();
-        }
-        if (node.codedata.node === "IF") {
-            const activeBranch = node.branches.find((branch) => branch.label === link.label);
-            if (activeBranch) {
-                const targetPosition: LinePosition = {
-                    line: activeBranch.codedata.lineRange.startLine.line,
-                    offset: activeBranch.codedata.lineRange.startLine.offset + hackGap,
-                };
-                if (link.label === "Else") {
-                    targetPosition.offset += 5; //HACK: need to fix with LS extension
-                }
-                const target: LineRange = {
-                    startLine: targetPosition,
-                    endLine: targetPosition,
-                };
-                onAddNode(node, target);
-                return;
-            } else {
-                console.log(">>> ERROR: active branch not found");
-                // fix this flow
-            }
+        let node = link.getTopNode();
+        if (!node) {
+            console.error(">>> NodeLinkWidget: handleAddNode: top node not found");
+            return;
         }
 
-        if (node) {
-            const target: LineRange = {
-                startLine: node.codedata.lineRange.endLine,
-                endLine: node.codedata.lineRange.endLine,
-            };
-            onAddNode(node, target);
+        const target = link.getTarget();
+        if (!target) {
+            console.error(">>> NodeLinkWidget: handleAddNode: target not found");
+            return;
         }
+        onAddNode(node, { startLine: target, endLine: target });
+    };
+
+    const handleAddPrompt = () => {
+        const target = link.getTarget();
+        if (!target) {
+            console.error(">>> NodeLinkWidget: handleAddPrompt: target not found");
+            return;
+        }
+        // onAddPrompt({ startLine: target, endLine: target });
+    };
+
+    const handleAddComment = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleCloseCommentBox = () => {
+        setAnchorEl(null);
+        setIsHovered(false);
     };
 
     return (
@@ -120,7 +90,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 id={link.getID()}
                 d={link.getSVGPath()}
                 fill={"none"}
-                stroke={link.showAddButton && linkColor}
+                stroke={linkColor}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
                 markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
@@ -129,10 +99,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 <foreignObject x={addButtonPosition.x - 50} y={addButtonPosition.y - 10} width="100" height="100">
                     <div
                         css={css`
-                            display: ${isHovered ? "none" : "flex"};
+                            display: ${isHovered && link.showAddButton ? "none" : "flex"};
                             justify-content: center;
                             align-items: center;
-                            animation: ${fadeInZoomIn} 0.2s ease-out forwards;
+                            animation: ${fadeInZoomIn} 0.5s ease-out forwards;
                         `}
                     >
                         <div
@@ -141,7 +111,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 justifyContent: "center",
                                 alignItems: "center",
                                 borderRadius: "20px",
-                                border: `1.5px solid ${link.showAddButton && linkColor}`,
+                                border: `1.5px solid ${linkColor}`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                 padding: "2px 10px",
                                 boxSizing: "border-box",
@@ -150,7 +120,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                         >
                             <span
                                 style={{
-                                    color: link.showAddButton && linkColor,
+                                    color: linkColor,
                                     fontSize: "14px",
                                     userSelect: "none",
                                 }}
@@ -162,33 +132,83 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 </foreignObject>
             )}
             {link.showAddButton && (
-                <foreignObject
-                    x={addButtonPosition.x - 10}
-                    y={addButtonPosition.y - 10}
-                    width="20"
-                    height="20"
-                    onClick={handleAddNode}
-                >
+                <foreignObject x={addButtonPosition.x - 35} y={addButtonPosition.y - 10} width="70" height="20">
                     <div
                         css={css`
                             display: ${isHovered ? "flex" : "none"};
                             justify-content: center;
                             align-items: center;
+                            gap: 5px;
                             cursor: pointer;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
                         `}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            onClick={handleAddComment}
+                        >
                             <path
                                 fill={Colors.SURFACE_BRIGHT}
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                                d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
+                            />
+                            <path
+                                fill={Colors.PRIMARY}
+                                d="m6 17l-2.15 2.15q-.25.25-.55.125T3 18.8V5q0-.825.588-1.412T5 3h12q.825 0 1.413.588T19 5v4.025q0 .425-.288.7T18 10t-.712-.288T17 9V5H5v10h6q.425 0 .713.288T12 16t-.288.713T11 17zm2-8h6q.425 0 .713-.288T15 8t-.288-.712T14 7H8q-.425 0-.712.288T7 8t.288.713T8 9m0 4h3q.425 0 .713-.288T12 12t-.288-.712T11 11H8q-.425 0-.712.288T7 12t.288.713T8 13m9 4h-2q-.425 0-.712-.288T14 16t.288-.712T15 15h2v-2q0-.425.288-.712T18 12t.713.288T19 13v2h2q.425 0 .713.288T22 16t-.288.713T21 17h-2v2q0 .425-.288.713T18 20t-.712-.288T17 19zM5 15V5z"
+                            />
+                        </svg>
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            onClick={handleAddNode}
+                        >
+                            <path
+                                fill={Colors.SURFACE_BRIGHT}
+                                d="M12 0C5 0 0 5 0 12s5 12 12 12 12-5 12-12S19 0 12 0z"
                             />
                             <path
                                 fill={Colors.PRIMARY}
                                 d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                             />
                         </svg>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            onClick={handleAddPrompt}
+                        >
+                            <path
+                                fill={Colors.SURFACE_BRIGHT}
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                            />
+                            <path
+                                fill={Colors.PRIMARY}
+                                d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2L8.6 4.5L10 7zm12 9.8L22 14l-1.4 2.5L22 19l-2.5-1.4L17 19l1.4-2.5L17 14zM22 2l-1.4 2.5L22 7l-2.5-1.4L17 7l1.4-2.5L17 2l2.5 1.4zm-8.66 10.78l2.44-2.44l-2.12-2.12l-2.44 2.44zm1.03-5.49l2.34 2.34c.39.37.39 1.02 0 1.41L5.04 22.71c-.39.39-1.04.39-1.41 0l-2.34-2.34c-.39-.37-.39-1.02 0-1.41L12.96 7.29c.39-.39 1.04-.39 1.41 0"
+                            />
+                        </svg>
                     </div>
+                </foreignObject>
+            )}
+            {isCommentBoxOpen && (
+                <foreignObject>
+                    <Popover
+                        open={isCommentBoxOpen}
+                        anchorEl={anchorEl}
+                        handleClose={handleCloseCommentBox}
+                        sx={{
+                            padding: 0,
+                            borderRadius: 0,
+                            backgroundColor: "unset",
+                        }}
+                    >
+                        <AddCommentPopup target={link.getTarget()} onClose={handleCloseCommentBox} />
+                    </Popover>
                 </foreignObject>
             )}
             <defs>

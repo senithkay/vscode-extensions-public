@@ -16,6 +16,7 @@ import styled from "@emotion/styled";
 import { SERVICE_VIEW } from "./constants";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
+import { useVisualizerContext } from "../../../Context";
 
 const Container = styled.div({
     display: "flex",
@@ -63,6 +64,8 @@ export interface HttpFormProps {
 export function ServiceType(props: HttpFormProps) {
     const { rpcClient } = useRpcContext();
 
+    const { setPopupMessage } = useVisualizerContext();
+
     const handleClick = async (view: SERVICE_VIEW) => {
         props.handleView(view);
     };
@@ -89,13 +92,13 @@ export function ServiceType(props: HttpFormProps) {
                                 icon={<Codicon name="graph-scatter" />}
                                 title="GraphQL Service"
                                 description="Set up a GraphQL service for flexible and efficient data queries."
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
+                                onClick={() => setPopupMessage(true)}
                             />
                             <ButtonCard
                                 icon={<Codicon name="symbol-interface" />}
                                 title="gRPC Service"
                                 description="Implement a gRPC service for high-performance, cross-platform communication."
-                                onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
+                                onClick={() => setPopupMessage(true)}
                             />
                         </CardGrid>
                     </AddPanel>

@@ -51,6 +51,7 @@ import { Position, Range, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine, updateView } from "../../stateMachine";
 import { ballerinaExtInstance } from "../../core";
+import { notifyCurrentWebview } from "../../RPCLayer";
 
 export class LangClientRpcManager implements LangClientAPI {
     
@@ -167,6 +168,7 @@ export class LangClientRpcManager implements LangClientAPI {
             const { fileUri, content, skipForceSave } = params;
             const normalizedFilePath = normalize(fileUri);
             const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
+            let status = false;
             if (doc) {
                 const edit = new WorkspaceEdit();
                 edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);

@@ -21,15 +21,18 @@ import { SequenceDiagram } from './views/SequenceDiagram';
 import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm } from './views/Eggplant';
+import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
 import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
+import { Typography } from '@wso2-enterprise/ui-toolkit';
 import { PanelType, useVisualizerContext } from './Context';
+import { SidePanel } from '@wso2-enterprise/ui-toolkit';
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
+import { RecordEditor } from './views/RecordEditor/RecordEditor';
 import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard"
 
 const globalStyles = css`
@@ -51,7 +54,14 @@ const ComponentViewWrapper = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const { popupScreen, setPopupScreen , activePanel } = useVisualizerContext();
+    const {
+        popupScreen,
+        sidePanel,
+        setPopupScreen,
+        setSidePanel,
+        popupMessage,
+        setPopupMessage,
+        activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
 
@@ -61,11 +71,29 @@ const MainPanel = () => {
         }
     });
 
-    const applyModifications = async (modifications: STModification[]) => {
+    // TODO: Need to refactor this function. use util apply modifications function
+    const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
-        const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
-            astModifications: modifications,
+        let filePath;
+        let m: STModification[];
+        if (isRecordModification) {
+            filePath = (await rpcClient.getVisualizerLocation()).recordFilePath;
+            if (modifications.length === 1) {
+                // Change the start position of the modification to the beginning of the file
+                m = [{
+                    ...modifications[0],
+                    startLine: 0,
+                    startColumn: 0,
+                    endLine: 0,
+                    endColumn: 0
+                }];
+            }
+        } else {
+            filePath = (await rpcClient.getVisualizerLocation()).documentUri;
+            m = modifications;
+        }
+        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
+            astModifications: m,
             documentIdentifier: {
                 uri: URI.file(filePath).toString()
             }
@@ -89,8 +117,7 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isEggplant) {
-                            // setViewComponent(<EggplantOverview stateUpdated />);
-                            setViewComponent(<ComponentDiagram stateUpdated />);
+                            setViewComponent(<EggplantOverview stateUpdated />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
@@ -124,7 +151,7 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
-                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications}  />)
+                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />)
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);
@@ -164,6 +191,10 @@ const MainPanel = () => {
 
     const handleOnClosePopup = () => {
         setPopupScreen("EMPTY");
+    };
+
+    const handleOnCloseMessage = () => {
+        setPopupMessage(false);
     }
 
     return (
@@ -181,6 +212,16 @@ const MainPanel = () => {
                     <ConnectorList applyModifications={applyModifications} />
                 }
 
+                {popupMessage &&
+                    <PopupMessage onClose={handleOnCloseMessage}>
+                        <Typography variant='h3'>This feature is coming soon!</Typography>
+                    </PopupMessage>
+                }
+                <RecordEditor
+                    isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
+                    onClose={() => setSidePanel("EMPTY")}
+                    rpcClient={rpcClient}
+                />
                 {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
                     <ConstructPanel applyModifications={applyModifications} />
                 )
@@ -188,7 +229,7 @@ const MainPanel = () => {
                 {activePanel?.isActive && activePanel.name === PanelType.STATEMENTEDITOR && (
                     <EditPanel applyModifications={applyModifications} />
                 )
-            }
+                }
             </VisualizerContainer>
         </>
     );

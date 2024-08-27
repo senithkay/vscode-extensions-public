@@ -18,8 +18,8 @@ import {
     DRAFT_NODE_WIDTH,
     NODE_PADDING,
 } from "../../../resources/constants";
-import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -54,17 +54,12 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: center;
         width: 100%;
+        gap: 10px;
     `;
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${DRAFT_NODE_WIDTH - 80}px;
-        overflow: hidden;
-        text-overflow: ellipsis;
         font-family: monospace;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
         color: ${Colors.ON_SURFACE};
         opacity: 0.7;
     `;
@@ -73,32 +68,30 @@ export namespace NodeStyles {
 interface DraftNodeWidgetProps {
     model: DraftNodeModel;
     engine: DiagramEngine;
-    onClick?: (node: FlowNode) => void;
 }
 
 export interface NodeWidgetProps extends Omit<DraftNodeWidgetProps, "children"> {}
 
 export function DraftNodeWidget(props: DraftNodeWidgetProps) {
-    const { model, engine, onClick } = props;
-    const [isHovered, setIsHovered] = React.useState(false);
-    const { onNodeSelect, goToSource } = useDiagramContext();
+    const { model, engine } = props;
+    const { suggestions } = useDiagramContext();
 
-    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (event.metaKey) {
-            // Handle action when cmd key is pressed
-            goToSource && goToSource(model.node);
-        } else {
-            onClick && onClick(model.node);
-            onNodeSelect && onNodeSelect(model.node);
-        }
-    };
+    const generatingSuggestion = suggestions?.fetching;
 
     return (
         <NodeStyles.Node>
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
-                <NodeStyles.Description>Node will be added here.</NodeStyles.Description>
-            </NodeStyles.Row>
+            {!generatingSuggestion && (
+                <NodeStyles.Row>
+                    <NodeStyles.Description>Select node from node panel.</NodeStyles.Description>
+                </NodeStyles.Row>
+            )}
+            {generatingSuggestion && (
+                <NodeStyles.Row>
+                    <ProgressRing sx={{ width: 14 }} />
+                    <NodeStyles.Description>Generating next suggestion...</NodeStyles.Description>
+                </NodeStyles.Row>
+            )}
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );

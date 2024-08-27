@@ -7,20 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
-import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
-import { CodeIcon, MoreVertIcon } from "../../../resources";
+import {
+    Colors,
+    DRAFT_NODE_BORDER_WIDTH,
+    NODE_BORDER_WIDTH,
+    NODE_HEIGHT,
+    NODE_PADDING,
+    NODE_WIDTH,
+} from "../../../resources/constants";
+import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
-        selected: boolean;
+        disabled: boolean;
         hovered: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
@@ -31,13 +38,15 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
+        opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
+        border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
+        border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
+        border-color: ${(props: NodeStyleProp) =>
+            props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        border-radius: 10px;
+        cursor: pointer;
     `;
 
     export const Header = styled.div<{}>`
@@ -119,41 +128,105 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const [isHovered, setIsHovered] = React.useState(false);
-    const { onNodeSelect, goToSource } = useDiagramContext();
+    const { onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
+
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(anchorEl);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             // Handle action when cmd key is pressed
-            goToSource && goToSource(model.node);
+            if (model.node.codedata.node === "DATA_MAPPER") {
+                // TODO: Find the file path and the position of the actual data mapper function
+                // The below logic fetch the position of the function invocation, hence it will open the component overview
+                openView &&
+                    openView(model.node.codedata.lineRange.fileName, {
+                        startLine: model.node.codedata.lineRange.startLine.line,
+                        startColumn: model.node.codedata.lineRange.startLine.offset,
+                        endLine: model.node.codedata.lineRange.endLine.line,
+                        endColumn: model.node.codedata.lineRange.endLine.offset,
+                    });
+            } else {
+                onGoToSource();
+            }
         } else {
-            onClick && onClick(model.node);
-            onNodeSelect && onNodeSelect(model.node);
+            onNodeClick();
         }
     };
 
+    const onNodeClick = () => {
+        onClick && onClick(model.node);
+        onNodeSelect && onNodeSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onGoToSource = () => {
+        goToSource && goToSource(model.node);
+        setAnchorEl(null);
+    };
+
+    const deleteNode = () => {
+        onDeleteNode && onDeleteNode(model.node);
+        setAnchorEl(null);
+    };
+
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        {
+            id: "edit",
+            label: "Edit",
+            onClick: () => onNodeClick(),
+        },
+        { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
+        { id: "delete", label: "Delete", onClick: () => deleteNode() },
+    ];
+
     return (
         <NodeStyles.Node
-            selected={model.isSelected()}
             hovered={isHovered}
+            disabled={model.node.suggested}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
-                <NodeStyles.Icon>
+                <NodeStyles.Icon onClick={handleOnClick}>
                     <NodeIcon type={model.node.codedata.node} />
                 </NodeStyles.Icon>
-                <NodeStyles.Header>
+                <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        {model.node.metadata.description || "Lorem ipsum dolor sit amet"}
+                        <Tooltip content={model.node.metadata.description}>
+                            {model.node.metadata.description || "..."}
+                        </Tooltip>
                     </NodeStyles.Description>
                 </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" >
+                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
                 </NodeStyles.StyledButton>
+                <Popover
+                    open={isMenuOpen}
+                    anchorEl={anchorEl}
+                    handleClose={handleOnMenuClose}
+                    sx={{
+                        padding: 0,
+                        borderRadius: 0,
+                    }}
+                >
+                    <Menu>
+                        {menuItems.map((item) => (
+                            <MenuItem key={item.id} item={item} />
+                        ))}
+                    </Menu>
+                </Popover>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>

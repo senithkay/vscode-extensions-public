@@ -13,10 +13,13 @@ import {
     CreateComponentResponse,
     CreateProjectRequest,
     DIRECTORY_MAP,
+    EggplantAiSuggestionsRequest,
+    EggplantAiSuggestionsResponse,
     EggplantAvailableNodesRequest,
     EggplantAvailableNodesResponse,
     EggplantConnectorsRequest,
     EggplantConnectorsResponse,
+    EggplantCopilotContextRequest,
     EggplantDiagramAPI,
     EggplantFlowModelRequest,
     EggplantFlowModelResponse,
@@ -24,11 +27,11 @@ import {
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
+    EggplantSuggestedFlowModelRequest,
     ProjectComponentsResponse,
     ProjectStructureResponse,
     STModification,
     SyntaxTree,
-    TextEdit,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
@@ -37,9 +40,11 @@ import { writeFileSync } from "fs";
 import { Uri, workspace } from "vscode";
 import { StateMachine, updateView } from "../../stateMachine";
 import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
+import { ballerinaExtInstance } from "../../core";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getFlowModel(): Promise<EggplantFlowModelResponse> {
+        console.log(">>> requesting eggplant flow model from ls");
         return new Promise((resolve) => {
             const context = StateMachine.context();
             if (!context.position) {
@@ -96,68 +101,63 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async updateSource(params: EggplantSourceCodeResponse): Promise<void> {
-        let fileUri: Uri;
-        let edits: TextEdit[];
+        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
-        // HACK: get the first key and value from the object
-        // TODO: need to update below logic to support multiple files
         for (const [key, value] of Object.entries(params.textEdits)) {
-            fileUri = Uri.parse(key);
-            edits = value;
-            break;
-        }
-        console.log(">>> source code gathered data", {
-            filePath: fileUri.toString(),
-            fileUri,
-            edits,
-        });
+            const fileUri = Uri.parse(key);
+            const fileUriString = fileUri.toString();
+            const edits = value;
 
-        if (edits && edits.length > 0) {
-            const modificationList: STModification[] = [];
+            if (edits && edits.length > 0) {
+                const modificationList: STModification[] = [];
 
-            for (const edit of edits) {
-                const stModification: STModification = {
-                    startLine: edit.range.start.line,
-                    startColumn: edit.range.start.character,
-                    endLine: edit.range.end.line,
-                    endColumn: edit.range.end.character,
-                    type: "INSERT",
-                    isImport: false,
-                    config: {
-                        STATEMENT: edit.newText,
-                    },
-                };
-                modificationList.push(stModification);
+                for (const edit of edits) {
+                    const stModification: STModification = {
+                        startLine: edit.range.start.line,
+                        startColumn: edit.range.start.character,
+                        endLine: edit.range.end.line,
+                        endColumn: edit.range.end.character,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            STATEMENT: edit.newText,
+                        },
+                    };
+                    modificationList.push(stModification);
+                }
+
+                if (modificationRequests[fileUriString]) {
+                    modificationRequests[fileUriString].modifications.push(...modificationList);
+                } else {
+                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+                }
             }
+        }
 
-            console.log(">>> eggplant saving source", {
-                documentIdentifier: { uri: fileUri.toString() },
-                astModifications: modificationList,
-            });
-
+        // Iterate through modificationRequests and apply modifications
+        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
             const { parseSuccess, source } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUri.toString() },
-                astModifications: modificationList,
+                documentIdentifier: { uri: fileUriString },
+                astModifications: request.modifications,
             })) as SyntaxTree;
 
             if (parseSuccess) {
-                writeFileSync(fileUri.fsPath, source);
+                writeFileSync(request.filePath, source);
                 await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUri.toString(), version: 1 },
+                    textDocument: { uri: fileUriString, version: 1 },
                     contentChanges: [
                         {
                             text: source,
                         },
                     ],
                 });
-
-                //TODO: notify to diagram
-                updateView();
             }
         }
+        updateView();
     }
 
     async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
+        console.log(">>> requesting eggplant available nodes from ls", params);
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getAvailableNodes(params)
@@ -175,6 +175,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
+        console.log(">>> requesting eggplant node template from ls", params);
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
@@ -249,6 +250,106 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 })
                 .catch((error) => {
                     console.log(">>> error fetching connectors from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+
+    async getAiSuggestions(params: EggplantAiSuggestionsRequest): Promise<EggplantAiSuggestionsResponse> {
+        return new Promise(async (resolve) => {
+            const { filePath, position } = params;
+
+            // check multi line AI completion setting
+            const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
+            console.log(">>> multi line AI completion setting", multiLineCompletion);
+
+            // get copilot context form ls
+            const copilotContextRequest: EggplantCopilotContextRequest = {
+                filePath: filePath,
+                position: position.startLine,
+            };
+            console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
+            const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
+            console.log(">>> copilot context from ls", { response: copilotContext });
+
+            // get suggestions from ai
+            const requestBody = {
+                ...copilotContext,
+                singleCompletion: !multiLineCompletion,
+            };
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody),
+            };
+            console.log(">>> request ai suggestion", { request: requestBody });
+            const response = await fetch(
+                "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/completion-api/v1.0/completion",
+                requestOptions
+            );
+            const data = await response.json();
+            console.log(">>> ai suggestion", { response: data });
+            const suggestedContent = (data as any).completions.at(0);
+            if (!suggestedContent) {
+                console.log(">>> ai suggested content not found");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            // get flow model from ls
+            const context = StateMachine.context();
+            if (!context.position) {
+                console.log(">>> position not found in the context");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            const request: EggplantSuggestedFlowModelRequest = {
+                filePath: Uri.parse(context.documentUri!).fsPath,
+                startLine: {
+                    line: context.position.startLine ?? 0,
+                    offset: context.position.startColumn ?? 0,
+                },
+                endLine: {
+                    line: context.position.endLine ?? 0,
+                    offset: context.position.endColumn ?? 0,
+                },
+                text: suggestedContent,
+                position: position.startLine,
+            };
+            console.log(">>> request eggplant suggested flow model", request);
+
+            StateMachine.langClient()
+                .getSuggestedFlowModel(request)
+                .then((model) => {
+                    console.log(">>> eggplant suggested flow model from ls", model);
+                    resolve({ flowModel: model.flowModel, suggestion: suggestedContent });
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching eggplant suggested flow model from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+
+    async deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        console.log(">>> requesting eggplant delete node from ls", params);
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .deleteFlowNode(params)
+                .then((model) => {
+                    console.log(">>> eggplant delete node from ls", model);
+                    this.updateSource(model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching delete node from ls", error);
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });

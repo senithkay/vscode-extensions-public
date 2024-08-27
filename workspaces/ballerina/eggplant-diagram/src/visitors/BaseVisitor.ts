@@ -18,6 +18,9 @@ export interface BaseVisitor {
     beginVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
     endVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
 
+    beginVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+    endVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
+
     beginVisitIf?(node: FlowNode, parent?: FlowNode): void;
     endVisitIf?(node: FlowNode, parent?: FlowNode): void;
 
@@ -41,4 +44,7 @@ export interface BaseVisitor {
 
     beginVisitDraft?(node: FlowNode, parent?: FlowNode): void;
     endVisitDraft?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitComment?(node: FlowNode, parent?: FlowNode): void;
+    endVisitComment?(node: FlowNode, parent?: FlowNode): void;
 }

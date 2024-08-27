@@ -8,11 +8,13 @@
  */
 
 import {
+    COMMENT_NODE_WIDTH,
     DRAFT_NODE_HEIGHT,
     DRAFT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     EMPTY_NODE_WIDTH,
     IF_NODE_WIDTH,
+    LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_GAP_Y,
@@ -57,7 +59,7 @@ export class SizingVisitor implements BaseVisitor {
 
     private createApiCallNode(node: FlowNode): void {
         const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
-        const containerWidth = width + NODE_GAP_X + NODE_HEIGHT;
+        const containerWidth = width + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
         const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height, containerWidth);
     }
@@ -131,8 +133,11 @@ export class SizingVisitor implements BaseVisitor {
         this.setNodeSize(node, EMPTY_NODE_WIDTH, EMPTY_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
     }
 
-    endVisitDraft(node: FlowNode, parent?: FlowNode): void {
-        this.setNodeSize(node, DRAFT_NODE_WIDTH + VSCODE_MARGIN, DRAFT_NODE_HEIGHT);
+    endVisitComment(node: FlowNode, parent?: FlowNode): void {
+        const width = COMMENT_NODE_WIDTH;
+        const height = NODE_HEIGHT;
+        const containerWidth = width + NODE_WIDTH / 2;
+        this.setNodeSize(node, width, height, containerWidth);
     }
 
     skipChildren(): boolean {

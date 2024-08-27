@@ -12,6 +12,7 @@ import { ExtensionContext } from "vscode";
 
 export class BalExtensionContext {
     public context!: ExtensionContext;
+    public initialPrompt?: string;
 }
 
 export const extension = new BalExtensionContext();

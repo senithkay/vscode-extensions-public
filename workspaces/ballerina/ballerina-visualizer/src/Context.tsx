@@ -40,19 +40,30 @@ interface ComponentInfo {
     componentType: string;
 }
 
+interface ActiveFileInfo {
+    fullST: STNode;
+    filePath: string;
+    activeSequence: STNode;
+}
+
 export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
+export type SidePanel = "EMPTY" | "RECORD_EDITOR";
 
 interface VisualizerContext {
     popupScreen: PopupScreen;
-    screenMetadata: any;
+    popupMessage: boolean;
     setPopupScreen: (screen: PopupScreen) => void;
+    setPopupMessage: (value: boolean) => void;
+    sidePanel: SidePanel;
+    screenMetadata: any;
+    setSidePanel: (panel: SidePanel) => void;
     setScreenMetadata: (metadata: any) => void;
     activePanel: PanelDetails;
     setActivePanel: (panelDetails: PanelDetails) => void;
     statementPosition: NodePosition;
     setStatementPosition: (position: NodePosition) => void;
-    parsedST: STNode;
-    setParsedST: (parsedST: STNode) => void;
+    activeFileInfo?: ActiveFileInfo;
+    setActiveFileInfo?: (activeFileInfo: ActiveFileInfo) => void;
     componentInfo?: ComponentInfo;
     setComponentInfo?: (componentInfo: ComponentInfo) => void;
 }
@@ -64,8 +75,8 @@ export const VisualizerContext = createContext({
     setActivePanel: (panelDetails: PanelDetails) => { },
     statementPosition: undefined,
     setStatementPosition: (position: NodePosition) => { },
-    parsedST: undefined,
-    setParsedST: (parsedST: STNode) => { },
+    activeFileInfo: undefined,
+    setActiveFileInfo: (activeFileInfo: ActiveFileInfo) => { },
     componentInfo: undefined,
     setComponentInfo: (componentInfo: ComponentInfo) => { },
 
@@ -73,24 +84,30 @@ export const VisualizerContext = createContext({
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
     const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
+    const [popupMessage, setPopupMessage] = useState(false);
+    const [sidePanel, setSidePanel] = useState("EMPTY" as SidePanel);
     const [metadata, setMetadata] = useState({} as any);
     const [activePanel, setActivePanel] = useState({ isActive: false });
     const [statementPosition, setStatementPosition] = useState<NodePosition>();
-    const [parsedST, setParsedST] = useState<STNode>();
     const [componentInfo, setComponentInfo] = useState<ComponentInfo>();
+    const [activeFileInfo, setActiveFileInfo] = useState<ActiveFileInfo>();
 
 
     const contextValue: VisualizerContext = {
         popupScreen: popupScreen,
+        popupMessage: popupMessage,
         screenMetadata: metadata,
         setPopupScreen: setPopupScreen,
+        setPopupMessage: setPopupMessage,
+        sidePanel: sidePanel,
+        setSidePanel: setSidePanel,
         setScreenMetadata: setMetadata,
         activePanel: activePanel,
         setActivePanel: setActivePanel,
         statementPosition: statementPosition,
         setStatementPosition: setStatementPosition,
-        parsedST: parsedST,
-        setParsedST: setParsedST,
+        activeFileInfo: activeFileInfo,
+        setActiveFileInfo: setActiveFileInfo,
         componentInfo: componentInfo,
         setComponentInfo: setComponentInfo,
     };

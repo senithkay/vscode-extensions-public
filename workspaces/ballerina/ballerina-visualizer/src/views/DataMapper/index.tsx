@@ -17,7 +17,7 @@ import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/re
 interface DataMapperProps {
     filePath: string;
     model: FunctionDefinition;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
+    applyModifications: (modifications: STModification[], isRecordModification?: boolean) => Promise<void>;
 }
 
 export function DataMapper(props: DataMapperProps) {
@@ -31,6 +31,10 @@ export function DataMapper(props: DataMapperProps) {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
     };
 
+    const applyRecordModifications = async (modifications: STModification[]) => {
+        await props.applyModifications(modifications, true);
+    };
+
     const renderRecordPanel = (props: {
         closeAddNewRecord: (createdNewRecord?: string) => void,
         onUpdate: (updated: boolean) => void
@@ -41,6 +45,7 @@ export function DataMapper(props: DataMapperProps) {
                 onCancel={props.closeAddNewRecord}
                 recordCreatorRpcClient={recordCreatorRpcClient}
                 {...props}
+                applyModifications={applyRecordModifications}
             />
         );
     };

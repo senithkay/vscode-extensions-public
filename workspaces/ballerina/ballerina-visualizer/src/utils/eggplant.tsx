@@ -13,7 +13,7 @@ import {
     FormField,
     FormValues,
 } from "@wso2-enterprise/ballerina-side-panel";
-import { NodeIcon } from "@wso2-enterprise/eggplant-diagram";
+import { AddNodeVisitor, RemoveNodeVisitor, NodeIcon, traverseFlow } from "@wso2-enterprise/eggplant-diagram";
 import {
     Category,
     AvailableNode,
@@ -49,9 +49,13 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
         }
     });
 
+    // HACK: use the icon of the first item in the category
+    const icon = category.items.at(0)?.metadata.icon;
+
     return {
         title: category.metadata.label,
         description: category.metadata.description,
+        icon: icon ? <img src={icon} alt={category.metadata.label} style={{ width: "20px" }} /> : undefined,
         items: items,
     };
 }
@@ -81,13 +85,13 @@ export function convertNodePropertiesToFormFields(
             if (expression) {
                 const formField: FormField = {
                     key,
-                    label: expression.metadata.label,
+                    label: expression.metadata?.label || "",
                     type: expression.valueType,
                     optional: expression.optional,
                     editable: isFieldEditable(expression, connections, clientName),
-                    documentation: expression.metadata.description,
+                    documentation: expression.metadata?.description || "",
                     value: getFormFieldValue(expression, clientName),
-                    // items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
+                    items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
                 };
                 formFields.push(formField);
             }
@@ -110,11 +114,7 @@ function isFieldEditable(expression: Property, connections?: FlowNode[], clientN
 }
 
 function getFormFieldValue(expression: Property, clientName?: string) {
-    if (
-        clientName &&
-        expression.valueType === "Identifier" &&
-        expression.metadata.label === "Connection"
-    ) {
+    if (clientName && expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
         console.log(">>> client name as set field value", clientName);
         return clientName;
     }
@@ -124,6 +124,8 @@ function getFormFieldValue(expression: Property, clientName?: string) {
 function getFormFieldItems(expression: Property, connections: FlowNode[]) {
     if (expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
         return connections.map((connection) => connection.properties?.variable?.value);
+    } else if (expression.valueType === "MULTIPLE_SELECT" || expression.valueType === "SINGLE_SELECT") {
+        return expression.valueTypeConstraint;
     }
     return undefined;
 }
@@ -148,7 +150,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
         if (values.hasOwnProperty(key) && updatedNodeProperties.hasOwnProperty(key)) {
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
-                expression.value = values[key];
+                expression.value = expression.valueType === "MULTIPLE_SELECT" ? [values[key]] : values[key];
             }
         }
     }
@@ -171,7 +173,7 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): st
 
 export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch, target: LineRange) {
     const newFlowModel = cloneDeep(flowModel);
-    console.log(">>> addDraftNodeToDiagram", newFlowModel, parent, target);
+    console.log(">>> addDraftNodeToDiagram", { newFlowModel, parent, target });
 
     const draftNode: FlowNode = {
         id: "draft",
@@ -182,7 +184,7 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
         codedata: {
             node: "DRAFT",
             lineRange: {
-                fileName: flowModel.fileName,
+                fileName: newFlowModel.fileName,
                 ...target,
             },
         },
@@ -190,10 +192,37 @@ export function addDraftNodeToDiagram(flowModel: Flow, parent: FlowNode | Branch
         returning: false,
     };
 
-    // Hack: Adding draft node to the first branch of the first node
-    // TODO: Handle multiple branches and multiple places
-    if (newFlowModel.nodes.at(1).branches.at(0).children) {
-        newFlowModel.nodes.at(1).branches.at(0).children.push(draftNode);
+    const addNodeVisitor = new AddNodeVisitor(newFlowModel, parent as FlowNode, draftNode);
+    traverseFlow(newFlowModel, addNodeVisitor);
+    const newFlow = addNodeVisitor.getUpdatedFlow();
+    console.log(">>> new model with draft node", { newFlow });
+    return newFlow;
+}
+
+export function removeDraftNodeFromDiagram(flowModel: Flow) {
+    const newFlowModel = cloneDeep(flowModel);
+    const draftNodeId = "draft";
+    console.log(">>> removeDraftNodeFromDiagram", newFlowModel, draftNodeId);
+    const removeNodeVisitor = new RemoveNodeVisitor(newFlowModel, draftNodeId);
+    traverseFlow(newFlowModel, removeNodeVisitor);
+    const newFlow = removeNodeVisitor.getUpdatedFlow();
+    return newFlow;
+}
+
+export function enrichNodePropertiesWithValueConstraint(
+    nodeProps: NodeProperties,
+    nodePropsWithValConstrant: NodeProperties
+) {
+    const enrichedNodeProperties: NodeProperties = { ...nodeProps };
+
+    for (const key in enrichedNodeProperties) {
+        if (enrichedNodeProperties.hasOwnProperty(key)) {
+            const expression = enrichedNodeProperties[key as NodePropertyKey];
+            if (expression) {
+                expression.valueTypeConstraint = nodePropsWithValConstrant[key as NodePropertyKey].valueTypeConstraint;
+            }
+        }
     }
-    return newFlowModel;
+
+    return enrichedNodeProperties;
 }

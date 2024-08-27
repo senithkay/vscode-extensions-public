@@ -53,13 +53,17 @@ export class VisualizerWebview {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
             VisualizerWebview.panelTitle,
-            { viewColumn: ViewColumn.Beside, preserveFocus: false },
+            { viewColumn: ViewColumn.Active, preserveFocus: true },
             {
                 enableScripts: true,
                 localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, "resources"))],
                 retainContextWhenHidden: true,
             }
         );
+        panel.iconPath = {
+            light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-preview.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-preview.svg'))
+        };
         return panel;
     }
 

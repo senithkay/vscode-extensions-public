@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavButtonGroup } from "./NavButtonGroup";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -32,8 +32,11 @@ export function NavigationBar(props: NavigationBarProps) {
 
     const { rpcClient } = useRpcContext();
     const [history, setHistory] = useState<HistoryEntry[]>();
-    rpcClient.getVisualizerRpcClient().getHistory().then(history => setHistory(history));
-    
+
+    useEffect(() => {
+        rpcClient.getVisualizerRpcClient().getHistory().then(history => setHistory(history));
+    }, []);
+
     const fromDataMapper = history && history.length > 0 && history[history.length - 1].location.view === MACHINE_VIEW.DataMapper;
 
     const [activeLink, links] = useMemo(() => {
@@ -71,7 +74,7 @@ export function NavigationBar(props: NavigationBarProps) {
         return [undefined, undefined];
     }, [history, fromDataMapper]);
 
-    return (     
+    return (
         <NavigationContainer id="nav-bar-main">
             <NavButtonGroup historyStack={history} />
             {fromDataMapper && (

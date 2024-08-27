@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
+
 import {
     generateEngine,
     hasDiagramZoomAndPosition,
@@ -20,7 +21,7 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange, NodePosition } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -29,21 +30,31 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
+import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 
 export interface DiagramProps {
     model: Flow;
     onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
-    onNodeSelect?: (node: FlowNode) => void;
-    goToSource?: (node: FlowNode) => void;
+    onDeleteNode: (node: FlowNode) => void;
+    onAddComment: (comment: string, target: LineRange) => void;
+    onNodeSelect: (node: FlowNode) => void;
+    goToSource: (node: FlowNode) => void;
+    openView?: (filePath: string, position: NodePosition) => void;
+    // ai suggestions callbacks
+    suggestions?: {
+        fetching: boolean;
+        onAccept(): void;
+        onDiscard(): void;
+    };
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onNodeSelect, goToSource } = props;
+    const { model, onAddNode, onDeleteNode, onAddComment, onNodeSelect, goToSource, openView, suggestions } = props;
     const [showErrorFlow, setShowErrorFlow] = useState(false);
-    const [hasErrorFlow, setHasErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [showComponentPanel, setShowComponentPanel] = useState(false);
+    const hasErrorFlow = useRef(false);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -57,10 +68,10 @@ export function Diagram(props: DiagramProps) {
         // TODO: move to a separate function
         // get only do block
         let flowModel = cloneDeep(model);
-        console.log(">>> flow model", { flowModel, model });
+        console.log(">>> rearranged models", { flowModel, model });
         const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
         if (globalErrorHandleBlock) {
-            setHasErrorFlow(true);
+            hasErrorFlow.current = true;
             const branchKind: NodeKind = showErrorFlow ? "ON_FAILURE" : "BODY";
             const subFlow = globalErrorHandleBlock.branches.find((branch) => branch.codedata.node === branchKind);
             if (subFlow) {
@@ -68,7 +79,7 @@ export function Diagram(props: DiagramProps) {
                 flowModel.nodes = [model.nodes.at(0), ...subFlow.children];
             }
         } else {
-            setHasErrorFlow(false);
+            hasErrorFlow.current = false;
         }
 
         const initVisitor = new InitVisitor(flowModel);
@@ -77,13 +88,19 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(flowModel, positionVisitor);
-        console.log(">>> flow model", flowModel);
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(flowModel, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
+
+        const addTargetVisitor = new LinkTargetVisitor(
+            model,
+            nodes,
+            hasErrorFlow.current ? (showErrorFlow ? "On Failure" : "Body") : undefined
+        );
+        traverseFlow(flowModel, addTargetVisitor);
 
         return { nodes, links };
     };
@@ -108,21 +125,7 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.getModel().removeLayer(overlayLayer);
         }
 
-        // const hasPreviousPosition = hasDiagramZoomAndPosition();
-        // if (hasPreviousPosition) {
-        //     // reset canvas position to previous position
-        //     loadDiagramZoomAndPosition(diagramEngine);
-        // } else if (diagramEngine.getCanvas()?.getBoundingClientRect()) {
-        //     // change canvas position to first node
-        //     const firstNode = newDiagramModel.getNodes().at(0);
-        //     // diagramEngine.zoomToFitNodes({ nodes: [firstNode], maxZoom: 1 });
-        //     diagramEngine.zoomToFit();
-        // } else {
-        //     console.error(">>> canvas not found");
-        // }
-
-        const hasPreviousPosition = hasDiagramZoomAndPosition(model.fileName);
-        if(!hasPreviousPosition) {
+        if (nodes.length < 3) {
             resetDiagramZoomAndPosition(model.fileName);
         }
         loadDiagramZoomAndPosition(diagramEngine);
@@ -153,13 +156,17 @@ export function Diagram(props: DiagramProps) {
         },
         showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
+        onDeleteNode: onDeleteNode,
+        onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
+        openView: openView,
+        suggestions: suggestions,
     };
 
     return (
         <>
-            {hasErrorFlow && (
+            {hasErrorFlow.current && (
                 <Switch
                     leftLabel="Flow"
                     rightLabel="On Error"

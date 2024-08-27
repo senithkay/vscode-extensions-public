@@ -89,7 +89,10 @@ import {
     EggplantConnectorsRequest,
     EggplantConnectorsResponse,
     ConnectorRequest,
-    ConnectorResponse
+    ConnectorResponse,
+    EggplantSuggestedFlowModelRequest,
+    EggplantCopilotContextRequest,
+    EggplantCopilotContextResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -146,7 +149,10 @@ enum EXTENDED_APIS {
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
     SEQUENCE_DIAGRAM_MODEL = 'sequenceModelGeneratorService/getSequenceDiagramModel',
     EGGPLANT_FLOW_MODEL = 'flowDesignService/getFlowModel',
+    EGGPLANT_SUGGESTED_FLOW_MODEL = 'flowDesignService/getSuggestedFlowModel',
+    EGGPLANT_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     EGGPLANT_SOURCE_CODE = 'flowDesignService/getSourceCode',
+    EGGPLANT_DELETE_NODE = 'flowDesignService/deleteFlowNode',
     EGGPLANT_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     EGGPLANT_CONNECTOR = 'flowDesignService/getConnectors',
@@ -552,6 +558,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     
     async getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
         return this.sendRequest<EggplantConnectorsResponse>(EXTENDED_APIS.EGGPLANT_CONNECTOR, params);
+    }
+
+    async getSuggestedFlowModel(params: EggplantSuggestedFlowModelRequest): Promise<EggplantFlowModelResponse> {
+        return this.sendRequest<EggplantFlowModelResponse>(EXTENDED_APIS.EGGPLANT_SUGGESTED_FLOW_MODEL, params);
+    }
+
+    async getCopilotContext(params: EggplantCopilotContextRequest): Promise<EggplantCopilotContextResponse> {
+        return this.sendRequest<EggplantCopilotContextResponse>(EXTENDED_APIS.EGGPLANT_COPILOT_CONTEXT, params);
+    }
+
+    async deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
+        return this.sendRequest<EggplantSourceCodeResponse>(EXTENDED_APIS.EGGPLANT_DELETE_NODE, params);
     }
 
     // <------------ EGGPLANT APIS END --------------->

@@ -7,19 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
     Colors,
+    DRAFT_NODE_BORDER_WIDTH,
+    LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -30,12 +32,12 @@ export namespace NodeStyles {
     export const Node = styled.div`
         display: flex;
         flex-direction: row;
-        /* justify-content: space-between; */
-        align-items: center;
+        align-items: flex-start;
+        cursor: pointer;
     `;
 
     export type NodeStyleProp = {
-        selected: boolean;
+        disabled: boolean;
         hovered: boolean;
     };
     export const Box = styled.div<NodeStyleProp>`
@@ -46,13 +48,14 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
+        border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
+        border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
+        border-color: ${(props: NodeStyleProp) =>
+            props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
     `;
 
     export const Header = styled.div<{}>`
@@ -68,7 +71,7 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        right: 116px;
+        right: 136px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -134,63 +137,129 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const [isHovered, setIsHovered] = React.useState(false);
-    const { onNodeSelect, goToSource } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+
+    const [isHovered, setIsHovered] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(anchorEl);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
-            // Handle action when cmd key is pressed
-            goToSource && goToSource(model.node);
+            onGoToSource();
         } else {
-            onClick && onClick(model.node);
-            onNodeSelect && onNodeSelect(model.node);
+            onNodeClick();
         }
     };
 
+    const onNodeClick = () => {
+        onClick && onClick(model.node);
+        onNodeSelect && onNodeSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onGoToSource = () => {
+        goToSource && goToSource(model.node);
+        setAnchorEl(null);
+    };
+
+    const deleteNode = () => {
+        onDeleteNode && onDeleteNode(model.node);
+        setAnchorEl(null);
+    }
+
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        {
+            id: "edit",
+            label: "Edit",
+            onClick: () => onNodeClick(),
+        },
+        { id: "goToSource", label: "Source", onClick: () => onGoToSource() },
+        { id: "delete", label: "Delete", onClick: () => deleteNode() },
+    ];
+
+    const disabled = model.node.suggested;
+
     return (
-        <NodeStyles.Node
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
-        >
-            <NodeStyles.Box selected={model.isSelected()} hovered={isHovered}>
+        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+            <NodeStyles.Box disabled={disabled} hovered={isHovered}>
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
-                    <NodeStyles.Icon>
+                    <NodeStyles.Icon onClick={handleOnClick}>
                         <NodeIcon type={model.node.codedata.node} />
                     </NodeStyles.Icon>
-                    <NodeStyles.Header>
+                    <NodeStyles.Header onClick={handleOnClick}>
                         <NodeStyles.Title>
                             {model.node.codedata.module} : {model.node.metadata.label}
                         </NodeStyles.Title>
                         <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description>
                     </NodeStyles.Header>
-                    <NodeStyles.StyledButton appearance="icon">
+                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />
                     </NodeStyles.StyledButton>
+                    <Popover
+                        open={isMenuOpen}
+                        anchorEl={anchorEl}
+                        handleClose={handleOnMenuClose}
+                        sx={{
+                            padding: 0,
+                            borderRadius: 0,
+                        }}
+                    >
+                        <Menu>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                        </Menu>
+                    </Popover>
                 </NodeStyles.Row>
                 <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
             </NodeStyles.Box>
 
-            <svg width={NODE_GAP_X + NODE_HEIGHT} height={NODE_HEIGHT} viewBox="0 0 103 40">
+            <svg
+                width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT}
+                height={NODE_HEIGHT + LABEL_HEIGHT}
+                viewBox="0 0 130 70"
+            >
                 <circle
                     cx="80"
-                    cy="20"
+                    cy="24"
                     r="22"
                     fill={Colors.SURFACE_DIM}
-                    stroke={model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                    stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
+                    strokeDasharray={disabled ? "4 2" : "none"}
+                    opacity={disabled ? 0.7 : 1}
                 />
-                <foreignObject x="68" y="8" width="44" height="44" fill={Colors.ON_SURFACE}>
+                <text
+                    x="80"
+                    y="66"
+                    textAnchor="middle"
+                    fill={Colors.ON_SURFACE}
+                    fontSize="14px"
+                    fontFamily="GilmerRegular"
+                >
+                    {model.node.properties.connection.value?.length > 16
+                        ? `${model.node.properties.connection.value.slice(0, 16)}...`
+                        : model.node.properties.connection.value}
+                </text>
+                <foreignObject x="68" y="12" width="44" height="44" fill={Colors.ON_SURFACE}>
                     <ConnectorIcon node={model.node} />
                 </foreignObject>
                 <line
                     x1="0"
-                    y1="20"
+                    y1="25"
                     x2="57"
-                    y2="20"
+                    y2="25"
                     style={{
-                        stroke: model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
+                        stroke: disabled ? Colors.ON_SURFACE : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                         strokeWidth: 1.5,
                         markerEnd: `url(#${model.node.id}-arrow-head)`,
                     }}
@@ -207,7 +276,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     >
                         <polygon
                             points="0,4 0,0 4,2"
-                            fill={model.isSelected() ? Colors.PRIMARY : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                            fill={disabled ? Colors.ON_SURFACE : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
                         ></polygon>
                     </marker>
                 </defs>

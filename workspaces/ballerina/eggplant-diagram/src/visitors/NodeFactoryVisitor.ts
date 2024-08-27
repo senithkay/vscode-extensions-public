@@ -10,11 +10,13 @@
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { ButtonNodeModel } from "../components/nodes/ButtonNode";
+import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { EMPTY_NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
+import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -24,6 +26,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     links: NodeLinkModel[] = [];
     private skipChildrenVisit = false;
     private lastNodeModel: NodeModel | undefined; // last visited flow node
+    private hasSuggestedNode = false;
 
     constructor() {
         console.log(">>> node factory visitor started");
@@ -61,11 +64,25 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return nodeModel;
     }
 
-    private createEmptyNode(id: string, x: number, y: number, visible = true): EmptyNodeModel {
-        const nodeModel = new EmptyNodeModel(id, visible);
+    private createEmptyNode(id: string, x: number, y: number, visible = true, showButton = false): EmptyNodeModel {
+        const nodeModel = new EmptyNodeModel(id, visible, showButton);
         nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
+    }
+
+    private addSuggestionsButton(node: FlowNode): void {
+        // if node is the first suggested node
+        // add button node top of this node
+        if (node.suggested && !this.hasSuggestedNode) {
+            this.hasSuggestedNode = true;
+            const buttonNodeModel = new ButtonNodeModel();
+            buttonNodeModel.setPosition(
+                node.viewState.x + NODE_WIDTH / 2 + 20,
+                node.viewState.y - BUTTON_NODE_HEIGHT + 10
+            );
+            this.nodes.push(buttonNodeModel);
+        }
     }
 
     getNodes(): NodeModel[] {
@@ -79,6 +96,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
+
+            this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id
 
@@ -93,6 +112,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         const nodeModel = new IfNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
+        this.addSuggestionsButton(node);
         this.lastNodeModel = undefined;
     }
 
@@ -111,7 +131,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
             if (!firstChildNodeModel) {
-                console.error("Branch node model not found", { branch, node, parent, nodes: this.nodes });
+                // check non empty children. empty branches will handel later in below logic
+                // console.log("Branch node model not found", {
+                //     branch,
+                //     node,
+                //     parent,
+                //     nodes: this.nodes,
+                // });
                 return;
             }
 
@@ -156,11 +182,17 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.id,
                     branchEmptyNodeModel.viewState.x,
                     branchEmptyNodeModel.viewState.y,
-                    false
+                    true,
+                    branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
-                const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
+                const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
+                    label: branch.label,
+                    brokenLine: true,
+                    showAddButton: false,
+                });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
                     brokenLine: true,
+                    showAddButton: false,
                     alignBottom: true,
                 });
                 if (linkIn && linkOut) {
@@ -211,7 +243,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     endVisitConditional(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
     }
-    
+
     endVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
     }
@@ -219,6 +251,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {
         if (node.id) {
             this.createApiCallNode(node);
+            this.addSuggestionsButton(node);
         }
     }
 
@@ -234,6 +267,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitDraft(node: FlowNode, parent?: FlowNode): void {
         const nodeModel = new DraftNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+    }
+
+    beginVisitComment(node: FlowNode, parent?: FlowNode): void {
+        const nodeModel = new CommentNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
     }

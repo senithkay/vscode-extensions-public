@@ -102,6 +102,7 @@ export function ResourcePath(props: ResourcePathProps) {
 					onTextChange={handlePathChange}
 					placeholder="path/foo"
 					value={path}
+					onFocus={(e) => e.target.select()}
 				/>
 			</PathContainer>
 			<AddButtonWrapper>

@@ -444,6 +444,11 @@ export interface EggplantFlowModelRequest {
     endLine: LinePosition;
 }
 
+export interface EggplantSuggestedFlowModelRequest extends EggplantFlowModelRequest {
+    text: string;
+    position: LinePosition;
+}
+
 export type EggplantFlowModelResponse = {
     flowModel: Flow;
 };
@@ -484,6 +489,25 @@ export type EggplantConnectorsRequest = {
 
 export type EggplantConnectorsResponse = {
     categories: Category[];
+}
+
+export interface EggplantAiSuggestionsRequest {
+    position: LineRange;
+    filePath: string;
+}
+export interface EggplantAiSuggestionsResponse {
+    flowModel: Flow;
+    suggestion: string;
+}
+
+export interface EggplantCopilotContextRequest {
+    position: LinePosition;
+    filePath: string;
+}
+
+export interface EggplantCopilotContextResponse {
+    prefix: string;
+    suffix: string;
 }
 
 // <------------ EGGPLANT INTERFACES --------->
