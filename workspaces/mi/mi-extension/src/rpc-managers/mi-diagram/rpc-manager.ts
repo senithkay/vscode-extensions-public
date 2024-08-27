@@ -247,6 +247,7 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { importCapp } from "../../util/importCapp";
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2727,7 +2728,7 @@ ${endpointAttributes}
 
     async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
         return new Promise(async (resolve) => {
-            resolve(importProject(params));
+            resolve(importCapp(params));
         });
     }
 
@@ -4656,11 +4657,12 @@ export async function askProjectPath() {
 
 export async function askImportProjectPath() {
     return await window.showOpenDialog({
-        canSelectFiles: false,
-        canSelectFolders: true,
+        canSelectFiles: true,
+        canSelectFolders: false,
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
-        title: "Select the root directory of the project to import"
+        filters: { 'CAPP': ['car', 'zip'] },
+        title: "Select the car file to import"
     });
 }
 
