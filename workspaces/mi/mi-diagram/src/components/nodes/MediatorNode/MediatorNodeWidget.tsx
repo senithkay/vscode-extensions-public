@@ -134,11 +134,11 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name>{node.mediatorName}</Name>
+                                    <Name data-testid="mediator-name">{node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >
-                                        <Description>{description}</Description>
+                                        <Description data-testid="mediator-description">{description}</Description>
                                     </Tooltip>
                                 </Body>
                             </Content>
