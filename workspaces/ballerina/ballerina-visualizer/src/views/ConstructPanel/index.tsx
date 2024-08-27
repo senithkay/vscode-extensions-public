@@ -56,14 +56,21 @@ export function ConstructPanel(props: ConstructPanelProps) {
             const elseTemplateValues = getTemplateValues("ElseStatement", allVariables);
             const elseInitialSource = getInitialSource(elseTemplateValues);
             setInitialSource(initialSource + elseInitialSource);
+            setSelectedNode(nodeId);
+            setShowStatementEditor(true);
+        } else if (nodeId === "Connector") {
+            setActivePanel({ isActive: false });
+            setPopupScreen("ADD_CONNECTION");
+
         } else {
             const templateValues = getTemplateValues(nodeId, allVariables);
             const initialSource = getInitialSource(templateValues);
             setInitialSource(initialSource);
+            setSelectedNode(nodeId);
+            setShowStatementEditor(true);
         }
 
-        setSelectedNode(nodeId);
-        setShowStatementEditor(true);
+        
     }
 
 

@@ -71,8 +71,26 @@ export function constructList() {
                 enabled: true,
             }
         ]
-    }]
-}
+    },
+    {
+        title: "Actors",
+        description: "",
+        items: [
+            {
+                id: "Connector",
+                label: "Connector",
+                description: constructMessage.connectorStatement.defaultMessage,
+                enabled: true,
+            },
+            {
+                id: "Action",
+                label: "Action",
+                description: constructMessage.actionStatement.defaultMessage,
+                enabled: true,
+            }
+        ]
+    }
+]}
 
 const constructMessage = {
     worker: {

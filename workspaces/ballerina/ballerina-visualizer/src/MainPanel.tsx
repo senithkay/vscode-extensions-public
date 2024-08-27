@@ -30,6 +30,7 @@ import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard
 import { PanelType, useVisualizerContext } from './Context';
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
+import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard"
 
 const globalStyles = css`
   *,
@@ -81,6 +82,7 @@ const MainPanel = () => {
     const fetchContext = () => {
         setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
+            console.log("fetchContext", value);
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
@@ -172,9 +174,13 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
-                {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
-                    {popupScreen === "ADD_CONNECTION" && <AddConnectionWizard onClose={handleOnClosePopup} />}
-                </PopupPanel>}
+                {/* {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
+                    {popupScreen === "ADD_CONNECTION" && <ConnectorList />}
+                </PopupPanel>} */}
+                {popupScreen !== "EMPTY" && popupScreen === "ADD_CONNECTION" &&
+                    <ConnectorList applyModifications={applyModifications} />
+                }
+
                 {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
                     <ConstructPanel applyModifications={applyModifications} />
                 )
