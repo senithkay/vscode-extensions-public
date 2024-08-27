@@ -59,7 +59,10 @@ const ValidateForm = (props: AddMediatorProps) => {
                         "label": "Validate Schema Key",
                         "defaultValue": "",
                         "isRequired": true,
-                        "filterType": "schema"
+                        "filterType": [
+                            "schema",
+                            "localEntry"
+                        ]
                     },
                 ]
             },

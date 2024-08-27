@@ -181,6 +181,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     width="20"
                     height="30"
                     onClick={handleAddNode}
+                    data-testid={`add-mediator-button`}
                 >
                     <div
                         css={css`
