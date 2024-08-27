@@ -48,6 +48,16 @@ export interface CommandsRequest {
     commands: any[];
 }
 
+export interface RunExternalCommandRequest {
+    command: string;
+}
+
+export interface RunExternalCommandResponse {
+    error: boolean,
+    message: string
+}
+
+
 export interface CommandsResponse {
     data: string;
 }

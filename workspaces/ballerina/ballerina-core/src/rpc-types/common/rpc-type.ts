@@ -15,6 +15,8 @@ import {
     CommandsResponse,
     GoToSourceRequest,
     ProjectDirResponse,
+    RunExternalCommandRequest,
+    RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
@@ -27,4 +29,5 @@ export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_pre
 export const getWorkspaceFiles: RequestType<WorkspaceFileRequest, WorkspacesFileResponse> = { method: `${_preFix}/getWorkspaceFiles` };
 export const getBallerinaDiagnostics: RequestType<BallerinaDiagnosticsRequest, BallerinaDiagnosticsResponse> = { method: `${_preFix}/getBallerinaDiagnostics` };
 export const executeCommand: RequestType<CommandsRequest, CommandsResponse> = { method: `${_preFix}/executeCommand` };
+export const runBackgroundTerminalCommand: RequestType<RunExternalCommandRequest, RunExternalCommandResponse> = { method: `${_preFix}/runBackgroundTerminalCommand` };
 export const askProjectDirPath: RequestType<void, ProjectDirResponse> = { method: `${_preFix}/askProjectDirPath` };
