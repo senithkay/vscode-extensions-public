@@ -41,7 +41,10 @@
               "name": "validateSchemaKey",
               "displayName": "Validate Schema Key",
               "inputType": "key",
-              "keyType": "schema",
+              "keyType": [
+                "schema",
+                "localEntry"
+              ],
               "required": true,
               "helpTip": ""
             }
