@@ -211,11 +211,13 @@ const MainPanel = () => {
                         <Typography variant='h3'>This feature is coming soon!</Typography>
                     </PopupMessage>
                 }
-                <RecordEditor
-                    isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
-                    onClose={() => setSidePanel("EMPTY")}
-                    rpcClient={rpcClient}
-                />
+                {sidePanel === "RECORD_EDITOR" && (
+                    <RecordEditor
+                        isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
+                        onClose={() => setSidePanel("EMPTY")}
+                        rpcClient={rpcClient}
+                    />
+                )}
                 {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
                     <ConstructPanel applyModifications={applyModifications} />
                 )
