@@ -35,7 +35,7 @@ import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
-import { updateDMC } from "../../util/tsBuilder";
+import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
@@ -45,7 +45,7 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import {DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME} from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME } from "../../constants";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -104,7 +104,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
-            const { documentUri, overwriteSchema, resourceName, content, ioType, schemaType, configName } = params;
+            const { documentUri, overwriteSchema, content, ioType, schemaType, configName, typeName } = params;
             if (overwriteSchema) {
                 const response = await window.showInformationMessage(
                     "Are you sure you want to override the existing schema?\n\nPlease note that this will remove all existing mappings.",
@@ -128,7 +128,14 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 }
 
                 try {
-                    await updateDMC(configName, documentUri, schema, ioType);
+                    if (ioType === "INPUT" || ioType === "OUTPUT")
+                        await updateTsFileIoTypes(configName, documentUri, schema, ioType);
+                    else if (ioType === "CUSTOM" && typeName)
+                        await updateTsFileCustomTypes(configName, documentUri, schema, ioType, typeName);
+                    else {
+                        throw new Error(`Invalid ioType: ${ioType}`);
+                    }
+
                     await this.formatDMC(documentUri);
                     navigate();
                     return resolve({ success: true });
@@ -227,7 +234,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             artifactName: dmName,
                             registryRoot: "gov",
                             registryPath: `/datamapper/${dmName}`,
-                            createOption : "entryOnly",
+                            createOption: "entryOnly",
                             content: ""
 
                         });
@@ -242,7 +249,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             artifactName: `${dmName}_inputSchema`,
                             registryRoot: "gov",
                             registryPath: `/datamapper/${dmName}`,
-                            createOption : "entryOnly",
+                            createOption: "entryOnly",
                             content: "{}"
 
                         });
@@ -257,7 +264,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             artifactName: `${dmName}_outputSchema`,
                             registryRoot: "gov",
                             registryPath: `/datamapper/${dmName}`,
-                            createOption : "entryOnly",
+                            createOption: "entryOnly",
                             content: "{}"
 
                         });

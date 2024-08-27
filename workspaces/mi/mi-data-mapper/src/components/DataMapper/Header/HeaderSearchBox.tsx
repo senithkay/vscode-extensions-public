@@ -56,7 +56,6 @@ export default function HeaderSearchBox() {
     };
 
     const handleSearch = (term: string) => {
-        console.log(term);
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
 
         const hasInputFilterLabelChanged = !inputSearchTerm

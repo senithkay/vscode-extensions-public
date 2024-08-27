@@ -112,7 +112,7 @@ export function DataMapperView(props: DataMapperViewProps) {
     };
 
     return (
-        <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
+        <ErrorBoundary errorMsg="An error occurred while rendering the MI Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
                 <MIDataMapper
