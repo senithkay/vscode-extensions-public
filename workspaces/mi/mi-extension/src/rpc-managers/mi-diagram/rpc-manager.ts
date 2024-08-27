@@ -3629,11 +3629,8 @@ ${endpointAttributes}
             const { connectionName, keyValuesXML, directory } = params;
             const localEntryPath = directory;
 
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8"?>
-    <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
-        ${keyValuesXML}
-    </localEntry>`;
+            const xmlData =`<?xml version="1.0" encoding="UTF-8"?>
+${keyValuesXML}`;
 
             const filePath = path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
