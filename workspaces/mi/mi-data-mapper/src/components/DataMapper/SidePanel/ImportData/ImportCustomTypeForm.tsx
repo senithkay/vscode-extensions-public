@@ -84,9 +84,7 @@ export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
             setSelectedImportType(undefined);
             setIsImportCustomTypeFormOpen(false);
             setSubMappingConfigFormData({ ...subMappingConfigFromData, mappingType: typeName })
-            if (response.success) {
-                console.log("Schema imported successfully");
-            } else {
+            if (!response.success) {
                 console.error("Error while importing schema");
             }
         }).catch(e => {

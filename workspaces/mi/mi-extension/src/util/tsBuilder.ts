@@ -101,8 +101,6 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
       workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
 
-
-
     const readAndConvertSchema = async (schema: JSONSchema3or4, title: string) => {
       schema.title = title;
 

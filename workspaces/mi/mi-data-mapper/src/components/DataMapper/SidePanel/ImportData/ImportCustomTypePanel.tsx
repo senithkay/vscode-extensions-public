@@ -14,7 +14,7 @@ import styled from "@emotion/styled";
 import { Controller, useForm } from 'react-hook-form';
 
 import { FileExtension, ImportType } from "./ImportDataForm";
-import { validateCSV, validateJSON, validateJSONSchema, validateXML } from "./ImportDataUtils";
+import { validateCSV, validateJSON, validateJSONSchema, validateXML, validateInterfaceName } from "./ImportDataUtils";
 import { FunctionDeclaration, ts } from "ts-morph";
 
 const ErrorMessage = styled.span`
@@ -99,27 +99,7 @@ export function ImportCustomTypePanel(props: ImportCustomTypePanelProps) {
         }
     };
 
-    const validateTypeName = (value: string) => {
-        try {
-
-            if (value[0] !== value[0].toUpperCase()) return "Type name must start with a capital"; //TODO: need to remove after clarifying autocapitalize
-
-            if(!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)) return "Invalid type name";
-
-            const sourceFile = functionST.getSourceFile();
-            if (sourceFile.getInterface(value) ||
-                sourceFile.getClass(value) ||
-                sourceFile.getTypeAlias(value) ||
-                sourceFile.getEnum(value)
-            ) return "Type name is not available";
-
-            sourceFile.addInterface({ name: value }).remove(); //To catch any other remaining issues
-
-        } catch (error) {
-            return "Invalid type name";
-        }
-        return true;
-    };
+    const validateTypeName = (value: string) => validateInterfaceName(value, functionST.getSourceFile());
 
     const growPayloadTextArea = (text: string) => {
         const { start, offset } = rowRange;

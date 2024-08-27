@@ -77,9 +77,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSidePanelOpen(false);
-            if (response.success) {
-                console.log("Schema imported successfully");
-            } else {
+            if (!response.success) {
                 console.error("Error while importing schema");
             }
         }).catch(e => {
