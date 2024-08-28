@@ -324,7 +324,13 @@ import {
     AddDriverRequest,
     ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
-    DSSFetchTablesResponse
+    DSSFetchTablesResponse,
+    DSSQueryGenRequest,
+    DriverPathResponse,
+    askDriverPath,
+    addDriverToLib,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -526,6 +532,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createDssDataSource(params: CreateDssDataSourceRequest): Promise<CreateDssDataSourceResponse> {
         return this._messenger.sendRequest(createDssDataSource, HOST_EXTENSION, params);
+    }
+
+    askDriverPath(): Promise<DriverPathResponse> {
+        return this._messenger.sendRequest(askDriverPath, HOST_EXTENSION);
+    }
+
+    addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        return this._messenger.sendRequest(addDriverToLib, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

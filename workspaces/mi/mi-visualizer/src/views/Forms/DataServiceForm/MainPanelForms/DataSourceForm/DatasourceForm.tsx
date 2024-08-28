@@ -8,7 +8,7 @@
  */
 import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Button, TextField, FormCheckBox, Dropdown, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
-import {DataServicePropertyTable} from "../PropertyTable";
+import { DataServicePropertyTable } from "../PropertyTable";
 import * as yup from "yup";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,6 +18,8 @@ import { DataSourceCSVForm } from "./DatasourceCSVForm";
 import { DataSourceCassandraForm } from "./DatasourceCassandraForm";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW, Datasource, Property } from "@wso2-enterprise/mi-core";
+import { TestConnectionForm } from "./TestConnectionForm";
+import { DatabaseDriverForm } from "./DatabaseDriverForm";
 
 export interface DataServiceDataSourceWizardProps {
     datasource?: any;
@@ -440,13 +442,13 @@ export function restructureDatasource(initialDatasource: any) {
         },
         dsConfigurations: initialDatasource.datasourceConfigurations
     };
-    const propertyKeys: string[]  = [];
-    initialDatasource.datasourceProperties.forEach((attr:any) => {
+    const propertyKeys: string[] = [];
+    initialDatasource.datasourceProperties.forEach((attr: any) => {
         propertyKeys.push(attr.key);
     });
     if (propertyKeys.includes("driverClassName")) {
         updatedDatasource.dataSourceType = "RDBMS";
-        initialDatasource.datasourceProperties.forEach((attr:any) => {
+        initialDatasource.datasourceProperties.forEach((attr: any) => {
             updatedDatasource.rdbms[attr.key] = attr.value;
         });
         if (updatedDatasource.rdbms.driverClassName.includes("mysql")) {
@@ -477,21 +479,21 @@ export function restructureDatasource(initialDatasource: any) {
         }
     } else if (propertyKeys.includes("csv_datasource")) {
         updatedDatasource.dataSourceType = "CSV";
-        initialDatasource.datasourceProperties.forEach((attr:any) => {
+        initialDatasource.datasourceProperties.forEach((attr: any) => {
             updatedDatasource.csv[attr.key] = attr.value;
         });
     } else if (propertyKeys.includes("cassandraServers")) {
         updatedDatasource.dataSourceType = "Cassandra";
-        initialDatasource.datasourceProperties.forEach((attr:any) => {
+        initialDatasource.datasourceProperties.forEach((attr: any) => {
             updatedDatasource.cassandra[attr.key] = attr.value;
         });
     } else if (propertyKeys.includes("mongoDB_servers")) {
         updatedDatasource.dataSourceType = "MongoDB";
-        initialDatasource.datasourceProperties.forEach((attr:any) => {
+        initialDatasource.datasourceProperties.forEach((attr: any) => {
             updatedDatasource.mongodb[attr.key] = attr.value;
         });
     } else {
-        initialDatasource.datasourceProperties.forEach((attr:any) => {
+        initialDatasource.datasourceProperties.forEach((attr: any) => {
             updatedDatasource.dataSourceType = "Carbon Datasource";
             updatedDatasource.carbonDatasource[attr.key] = attr.value;
         });
@@ -518,17 +520,18 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     } = formMethods;
 
     const { rpcClient } = useVisualizerContext();
-    const [ datasourceConfigurations, setDatasourceConfigurations ] = useState(props.datasource ? props.datasource.dsConfigurations : []);
-    const [ isEditDatasource, setIsEditDatasource ] = useState(false);
-    const [ isInitialLoading, setIsInitialLoading ] = useState(true);
-    const [ isCreate, setIsCreate ] = useState(true);
+    const [datasourceConfigurations, setDatasourceConfigurations] = useState(props.datasource ? props.datasource.dsConfigurations : []);
+    const [isEditDatasource, setIsEditDatasource] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [step, setStep] = useState(1);
+    const [isCreate, setIsCreate] = useState(true);
 
     const datasourceTypes: OptionProps[] = [
-        { value: "RDBMS"},
-        { value: "MongoDB"},
-        { value: "Cassandra"},
-        { value: "CSV"},
-        { value: "Carbon Datasource"}
+        { value: "RDBMS" },
+        { value: "MongoDB" },
+        { value: "Cassandra" },
+        { value: "CSV" },
+        { value: "Carbon Datasource" }
     ];
 
     useEffect(() => {
@@ -600,7 +603,8 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 configToProperties(values.carbonDatasource)
             };
             await rpcClient.getMiDiagramRpcClient().createDssDataSource({
-                directory: props.path, ...data, type: isCreate ? 'create' : 'edit'});
+                directory: props.path, ...data, type: isCreate ? 'create' : 'edit'
+            });
             handleCancel();
         } else {
             const currentDatasource = values;
@@ -617,6 +621,25 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             props.setValue('ds', props.datasources, { shouldDirty: true });
         }
     };
+
+    const handleNext = async (values: any) => {
+        if (step === 1) {
+            // FIX ME: Add backend calls
+            // const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDriverClass({
+            //     className: watch('rdbms.driverClassName')
+            // });
+
+            const driverClassAvailable = false;
+
+            if (driverClassAvailable) {
+                setStep(3);
+            } else {
+                setStep(2);
+            }
+        } else {
+            setStep(step + 1);
+        }
+    }
 
     const renderProps = (fieldName: keyof DataSourceFields) => {
         return {
@@ -640,7 +663,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
-                location: {view: MACHINE_VIEW.Overview},
+                location: { view: MACHINE_VIEW.Overview },
                 isPopup: props.isPopup
             });
         } else {
@@ -648,62 +671,126 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
         }
     };
 
+    const handleBack = () => {
+        if (step === 3) {
+            // const driverClassAvailable = rpcClient.getMiDiagramRpcClient().checkDriverClass({
+            //     className: watch('rdbms.driverClassName')
+            // });
+
+            const driverClassAvailable = false;
+
+            if (driverClassAvailable) {
+                setStep(1);
+            } else {
+                setStep(2);
+            }
+        } else {
+            setStep(step - 1);
+        }
+    }
+
+    const showNextButton = watch('dataSourceType') === 'RDBMS' && step === 1;
+
     return (
         <FormView title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup} >
             <FormProvider {...formMethods}>
-            <TextField
-                label="Datasource Identifier"
-                required
-                size={100}
-                {...renderProps('dataSourceName')}
-            />
-            <Dropdown label="Datasource Type" required items={datasourceTypes} {...renderProps('dataSourceType')} />
-            { watch('dataSourceType') === 'RDBMS' && (
-                <DataSourceRDBMSForm renderProps={renderPropsForObject} watch={watch} setValue={setValue} control={control}/>
-            )}
-            { watch('dataSourceType') === 'MongoDB' && (
-                <DataSourceMongoDBForm renderProps={renderPropsForObject} />
-            )}
-            { watch('dataSourceType') === 'Cassandra' && (
-                <DataSourceCassandraForm renderProps={renderPropsForObject} />
-            )}
-            { watch('dataSourceType') === 'CSV' && (
-                <DataSourceCSVForm renderProps={renderPropsForObject} />
-            )}
-            { watch('dataSourceType') === 'Carbon Datasource' && (
-                <TextField
-                    label="Datasource Name"
-                    required
-                    size={100}
-                    {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}
-                />
-            )}
-            <FormCheckBox
-                label="Enable OData"
-                control={control}
-                {...renderProps('enableOData')}
-            />
-            <TextField
-                label="Dynamic User Authentication Class"
-                size={100}
-                {...renderProps('dynamicUserAuthClass')}
-            />
-            <DataServicePropertyTable setProperties={setDatasourceConfigurations} properties={datasourceConfigurations} type={'datasource'} />
-            <FormActions>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleDatasourceSubmit)}
-                    disabled={!isDirty}
-                >
-                    {isEditDatasource ? "Update" : "Add"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={handleCancel}>
-                    Cancel
-                </Button>
-            </FormActions>
-                </FormProvider>
+                {step === 1 ? (
+                    <>
+                        <TextField
+                            label="Datasource Identifier"
+                            required
+                            size={100}
+                            {...renderProps('dataSourceName')}
+                        />
+                        <Dropdown label="Datasource Type" required items={datasourceTypes} {...renderProps('dataSourceType')} />
+                        {watch('dataSourceType') === 'RDBMS' && (
+                            <DataSourceRDBMSForm renderProps={renderPropsForObject} watch={watch} setValue={setValue} control={control} />
+                        )}
+                        {watch('dataSourceType') === 'MongoDB' && (
+                            <DataSourceMongoDBForm renderProps={renderPropsForObject} />
+                        )}
+                        {watch('dataSourceType') === 'Cassandra' && (
+                            <DataSourceCassandraForm renderProps={renderPropsForObject} />
+                        )}
+                        {watch('dataSourceType') === 'CSV' && (
+                            <DataSourceCSVForm renderProps={renderPropsForObject} />
+                        )}
+                        {watch('dataSourceType') === 'Carbon Datasource' && (
+                            <TextField
+                                label="Datasource Name"
+                                required
+                                size={100}
+                                {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}
+                            />
+                        )}
+                        <FormCheckBox
+                            label="Enable OData"
+                            control={control}
+                            {...renderProps('enableOData')}
+                        />
+                        <TextField
+                            label="Dynamic User Authentication Class"
+                            size={100}
+                            {...renderProps('dynamicUserAuthClass')}
+                        />
+                        <DataServicePropertyTable setProperties={setDatasourceConfigurations} properties={datasourceConfigurations} type={'datasource'} />
+                    </>
+                ) : step === 2 ? (
+                    <DatabaseDriverForm
+                        renderProps={renderPropsForObject}
+                        watch={watch}
+                        setValue={setValue}
+                        control={control}
+                        handleSubmit={handleSubmit}
+                        onNext={handleNext}
+                        onBack={handleBack}
+                        onSubmit={handleDatasourceSubmit}
+                        isEditDatasource={isEditDatasource} />
+                ) : step === 3 && (
+                    <TestConnectionForm
+                        renderProps={renderPropsForObject}
+                        watch={watch}
+                        setValue={setValue}
+                        control={control}
+                        handleSubmit={handleSubmit}
+                        onSubmit={handleDatasourceSubmit}
+                        onBack={handleBack}
+                        isEditDatasource={isEditDatasource} />
+                )}
+                {watch('dataSourceType') === 'RDBMS' ? (
+                    showNextButton && (
+                        <FormActions>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(handleNext)}
+                                disabled={!isDirty}
+                            >
+                                Next
+                            </Button>
+                            <Button
+                                appearance="secondary"
+                                onClick={handleCancel}>
+                                Cancel
+                            </Button>
+                        </FormActions>
+                    )
+                ) : (
+                    <FormActions>
+                        <Button
+                            appearance="primary"
+                            onClick={handleSubmit(handleDatasourceSubmit)}
+                            disabled={!isDirty}
+                        >
+                            {isEditDatasource ? "Update" : "Add"}
+                        </Button>
+                        <Button
+                            appearance="secondary"
+                            onClick={handleCancel}>
+                            Cancel
+                        </Button>
+                    </FormActions>
+                )}
+            </FormProvider>
         </FormView>
     );
 }
