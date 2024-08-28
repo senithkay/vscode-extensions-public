@@ -110,7 +110,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
 
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
-            <FieldActionWrapper className={classes.valueLabel} style={{ marginLeft: "24px" }}>
+            <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
                 {diagnostic ? (
                     <DiagnosticTooltip
                         diagnostic={diagnostic}
@@ -140,7 +140,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                     </span>
                 )
                 }
-            </FieldActionWrapper>
+            </span>
         </span>
     );
 

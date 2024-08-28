@@ -160,7 +160,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 </span>
             )}
             {!arrayLitExpr && !connectedViaLink && (hasValue || hasDefaultValue) && (
-                <FieldActionWrapper className={classes.outputNodeValueBase}>
+                <span className={classes.outputNodeValueBase}>
                     {diagnostic ? (
                         <DiagnosticTooltip
                             placement="right"
@@ -189,7 +189,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             {valExpr.getText()}
                         </span>
                     )}
-                </FieldActionWrapper>
+                </span>
             )}
         </span>
     );
