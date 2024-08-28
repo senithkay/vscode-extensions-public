@@ -207,7 +207,10 @@ import {
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
-    onDownloadProgress
+    onDownloadProgress,
+    AddDriverRequest,
+    DSSQueryGenRequest,
+    DSSFetchTablesRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3630,11 +3633,8 @@ ${endpointAttributes}
             const { connectionName, keyValuesXML, directory } = params;
             const localEntryPath = directory;
 
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8"?>
-    <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
-        ${keyValuesXML}
-    </localEntry>`;
+            const xmlData =`<?xml version="1.0" encoding="UTF-8"?>
+${keyValuesXML}`;
 
             const filePath = path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
@@ -4646,6 +4646,41 @@ ${endpointAttributes}
         const url = `vscode:extension/${extensionId}`;
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
     }
+
+    async checkDBDriver(className: string): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.checkDBDriver(className);
+            resolve(res);
+        });
+    }
+
+    async addDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.addDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.generateQueries(params);
+            resolve(res);
+        });
+    }
+
+    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string,boolean[]>> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.fetchTables({
+                ...params, tableData: "", datasourceName: ""
+            });
+            resolve(res);
+        });
+    }
+
 }
 
 export async function askProjectPath() {

@@ -257,8 +257,9 @@ export function AddConnection(props: AddConnectionProps) {
         });
 
         const template = create();
-        const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
-        root.ele('connectionType').txt(getValues("connectionType"));
+        const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
+        const connectorTag = localEntryTag.ele(`${formData.connectorName ?? props.connector.name}.init`);
+        connectorTag.ele('connectionType').txt(getValues("connectionType"));
 
         if (errors && Object.keys(errors).length > 0) {
             console.error("Errors in saving connection form", errors);
@@ -277,20 +278,20 @@ export function AddConnection(props: AddConnectionProps) {
                         if (isExpression) {
                             if (namespaces && namespaces.length > 0) {
                                 // Generate XML with namespaces
-                                const element = root.ele(key);
+                                const element = connectorTag.ele(key);
                                 namespaces.forEach((namespace: any) => {
                                     element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                 });
                                 element.txt(`{${value}}`);
                             } else {
-                                root.ele(key).txt(`{${value}}`);
+                                connectorTag.ele(key).txt(`{${value}}`);
                             }
                         } else {
-                            root.ele(key).txt(value);
+                            connectorTag.ele(key).txt(value);
                         }
                     }
                 } else {
-                    root.ele(key).txt(values[key]);
+                    connectorTag.ele(key).txt(values[key]);
                 }
             }
         });
