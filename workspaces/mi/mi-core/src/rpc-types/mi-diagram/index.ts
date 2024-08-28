@@ -190,7 +190,10 @@ import {
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    AddDriverRequest,
+    DSSFetchTablesRequest,
+    DSSQueryGenRequest
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -317,4 +320,8 @@ export interface MiDiagramAPI {
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
     renameFile: (params: FileRenameRequest) => Promise<void>;
     openUpdateExtensionPage: () => void;
+    checkDBDriver: (className: string) => Promise<boolean>;
+    addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    generateDSSQueries: (params: DSSQueryGenRequest) => Promise<string>;
+    fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<Map<string, boolean[]>>;
 }
