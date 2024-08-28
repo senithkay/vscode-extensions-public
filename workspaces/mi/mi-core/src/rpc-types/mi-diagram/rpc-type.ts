@@ -191,7 +191,10 @@ import {
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    AddDriverRequest,
+    DSSQueryGenRequest,
+    DSSFetchTablesRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -319,3 +322,7 @@ export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceReques
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
 export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_preFix}/renameFile` };
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
+export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
+export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
+export const generateDSSQueries: RequestType<DSSQueryGenRequest, string> = { method: `${_preFix}/generateDSSQueries` };
+export const fetchDSSTables: RequestType<DSSFetchTablesRequest, Map<string, boolean[]>> = { method: `${_preFix}/fetchDSSTables` };
