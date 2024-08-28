@@ -1657,17 +1657,38 @@ export interface GetAllDependenciesResponse {
 
 export interface TestDbConnectionRequest {
     dbType: string;
-    version: string;
     username: string;
     password: string;
     host: string;
     port: string;
     dbName: string;
-    dbDriverFolder: string;
+    url: string;
+    className: string;
 }
 
 export interface TestDbConnectionResponse {
     success: boolean;
+}
+
+export interface AddDriverRequest {
+    className: string;
+    driverPath: string;
+}
+
+export interface DSSQueryGenRequest {
+    className: string;
+    username: string;
+    password: string;
+    url: string;
+    tableData: string;
+    datasourceName: string;
+}
+
+export interface DSSFetchTablesRequest {
+    className: string;
+    username: string;
+    password: string;
+    url: string;
 }
 
 export interface MarkAsDefaultSequenceRequest {
