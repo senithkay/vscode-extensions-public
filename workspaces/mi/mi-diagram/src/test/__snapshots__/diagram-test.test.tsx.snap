@@ -19540,10 +19540,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,4\\"
+            data-linkid=\\"7,11\\"
           >
             <g
-              data-testid=\\"link-7,4\\"
+              data-testid=\\"link-7,11\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -19577,10 +19577,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"9,4\\"
+            data-linkid=\\"9,11\\"
           >
             <g
-              data-testid=\\"link-9,4\\"
+              data-testid=\\"link-9,11\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -20179,10 +20179,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"6,10\\"
+            data-linkid=\\"6,17\\"
           >
             <g
-              data-testid=\\"link-6,10\\"
+              data-testid=\\"link-6,17\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -20216,10 +20216,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,10\\"
+            data-linkid=\\"7,17\\"
           >
             <g
-              data-testid=\\"link-7,10\\"
+              data-testid=\\"link-7,17\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -34822,10 +34822,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"6,22\\"
+            data-linkid=\\"6,29\\"
           >
             <g
-              data-testid=\\"link-6,22\\"
+              data-testid=\\"link-6,29\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -34859,10 +34859,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,13\\"
+            data-linkid=\\"7,23\\"
           >
             <g
-              data-testid=\\"link-7,13\\"
+              data-testid=\\"link-7,23\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -35497,10 +35497,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"6,22\\"
+            data-linkid=\\"6,29\\"
           >
             <g
-              data-testid=\\"link-6,22\\"
+              data-testid=\\"link-6,29\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -35534,10 +35534,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,13\\"
+            data-linkid=\\"7,23\\"
           >
             <g
-              data-testid=\\"link-7,13\\"
+              data-testid=\\"link-7,23\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -36108,10 +36108,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"22,14\\"
+            data-linkid=\\"22,25\\"
           >
             <g
-              data-testid=\\"link-22,14\\"
+              data-testid=\\"link-22,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -36145,10 +36145,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"23,14\\"
+            data-linkid=\\"23,25\\"
           >
             <g
-              data-testid=\\"link-23,14\\"
+              data-testid=\\"link-23,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -36745,10 +36745,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"22,14\\"
+            data-linkid=\\"22,25\\"
           >
             <g
-              data-testid=\\"link-22,14\\"
+              data-testid=\\"link-22,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -36782,10 +36782,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"23,14\\"
+            data-linkid=\\"23,25\\"
           >
             <g
-              data-testid=\\"link-23,14\\"
+              data-testid=\\"link-23,25\\"
               pointer-events=\\"all\\"
             >
               <path
