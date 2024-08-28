@@ -199,8 +199,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                 </span>
             )}
             {(hasValue || hasDefaultValue) && !connectedViaLink && !portIn.descendantHasValue && (
-                <FieldActionWrapper>
-                    <span className={classes.outputNodeValueBase}>
+                <FieldActionWrapper className={classes.outputNodeValueBase}>
                         {diagnostic ? (
                             <DiagnosticTooltip
                                 diagnostic={diagnostic}
@@ -229,7 +228,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                                 {initializer.getText()}
                             </span>
                         )}
-                    </span>
                 </FieldActionWrapper>
             )}
         </span>
