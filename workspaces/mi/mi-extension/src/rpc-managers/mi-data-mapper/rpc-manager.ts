@@ -30,8 +30,6 @@ import {
     DMDiagnostic,
     DMDiagnosticCategory,
     DataMapWriteRequest,
-    EVENT_TYPE,
-    MACHINE_VIEW
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
 import { Project, QuoteKind } from "ts-morph";
@@ -48,12 +46,10 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, READONLY_MAPPING_FUNCTION_NAME } from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME } from "../../constants";
 import { getSources } from "../../util/dataMapper";
 import { refreshAuthCode } from '../../ai-panel/auth';
-import { DATAMAP_BACKEND_URL } from "../../constants";
-import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
-import { get } from "lodash";
+import { fetchBackendUrl, openSignInView, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -78,9 +74,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
             try {
-                const subMappingTypes = fetchSubMappingTypes(filePath, functionName);
-
-                return resolve({
+                const subMappingTypes = fetchSubMappingTypes(filePath, functionName); 
+                return resolve ({
                     variableTypes: subMappingTypes
                 });
             } catch (error: any) {
@@ -200,16 +195,35 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
-// Function to ask whether the user wants to replace all existing mappings with ai generated mappings
+    async authenticateUser(): Promise<boolean> {
+        let token;
+        try {
+            // Get the user token from the secrets
+            token = await extension.context.secrets.get('MIAIUser');
+            if (!token) {
+                showSignedOutNotification();
+                openSignInView();
+                return false; //If there is no token, return 'no'
+            }
+        } catch (error) {
+            console.error('Error while getting user token.');
+            showSignedOutNotification();
+            openSignInView();
+            return false; //If there is an error while getting the token, return 'no'
+        }
+        return true;
+    }
+
+    // Function to ask whether the user wants to replace all existing mappings with ai generated mappings
     async confirmMappingAction(): Promise<boolean> {
         // Define the message based on the action
         let message = "This will replace any existing mappings with AI. Are you sure?";
         // Show the confirmation dialog
         const response = await window.showInformationMessage(
-        message,
-        { modal: true },
-        "Yes",
-        "No"
+            message,
+            { modal: true },
+            "Yes",
+            "No"
         );
         // If user confirms the action by choosing Yes, return true. Otherwise, return false.
         if (!response || response === "No") {
@@ -241,7 +255,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const { dataMapping } = params;
         // sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
-        
+
         if (sourcePath) {
             try {
                 // Get the project from the sourcePath
@@ -266,28 +280,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         }
     }
 
-    async fetchBackendUrl() {
-        try {
-            let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
-            const { url } = await miDiagramRpcManager.getBackendRootUrl();
-            return url;
-            // Do something with backendRootUri
-        } catch (error) {
-            console.error('Failed to fetch backend URL:', error);
-        }
-    }
-
     // Main function to get the mapping from OpenAI and write it to the relevant files
-    async getMappingFromOpenAI(): Promise<void> {
+    async getMappingFromAI(): Promise<void> {
         try {
-            const dataMapWriteRequest: DataMapWriteRequest = {
-            dataMapping: ""
-            };
-            await this.writeDataMapping(dataMapWriteRequest);
+            await this.writeDataMapping({ dataMapping: "" });
 
             // Function to read the TypeScript file
             let tsContent = await this.readTSFile();
-
             // Function to remove the mapFunction line from the TypeScript file
             function removeMapFunctionEntry(content: string): string {
                 const project = new Project({
@@ -307,7 +306,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 if (mapFunction.getBodyText()) {
                     // Get the function body text and remove any leading or trailing whitespace
                     functionContent = mapFunction.getBodyText()?.trim();
-                } 
+                }
                 else {
                     throw new Error('No function body text found for mapFunction in TypeScript file.');
                 }
@@ -316,9 +315,23 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 return functionContent;
             }
 
-            const request = {
-                ts_file: tsContent
-            };
+            const backendRootUri = await fetchBackendUrl();
+            const url = backendRootUri + DATAMAP_BACKEND_URL;
+
+            let token;
+            try {
+                // Get the user token from the secrets
+                token = await extension.context.secrets.get('MIAIUser');
+                if (!token) {
+                    openSignInView();
+                }
+            }
+            catch (error) {
+                console.error('Error while getting user token.');
+                openSignInView();
+                return; // If there is no token, return early to exit the function
+            }
+
             // Function to make a request to the backend to get the data mapping
             const makeRequest = async (url: string, token: string) => {
                 const response = await fetch(url, {
@@ -327,77 +340,72 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(request)
+                    body: JSON.stringify({ ts_file: tsContent })
                 });
                 if (!response.ok) throw new Error(`Error while checking token: ${response.statusText}`);
                 return response.json();
-            }
-
-            const backendRootUri = await this.fetchBackendUrl();
-            const url = backendRootUri + DATAMAP_BACKEND_URL;
-
-            const openSignInView = () => {
-                let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
-                miVisualizerRpcClient.openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoggedOut } });
-            };
-
-            let token;
-            try {
-                // Get the user token from the secrets
-                token = await extension.context.secrets.get('MIAIUser');
-            }
-            catch (error) {
-                console.error('User not signed in', error);
-                openSignInView();
-                return; // If there is no token, return early to exit the function
             }
 
             let response;
             try {
                 // Make a request to the backend to get the data mapping
                 response = await makeRequest(url, token);
-            }
-            catch (error) {
-                // Handle 401 and 403 errors by refreshing the auth code
+                // If not succesful, try refreshing the token
                 if (response.status === 401 || response.status === 403) {
-                    const newToken = await refreshAuthCode();
-                    if (!newToken) {
-                        console.error('Could not refresh auth code');
-                        throw new Error('Could not refresh auth code');
+                    try {
+                        token = await refreshAuthCode();
+                        if (!token) {
+                            throw new Error('Token refresh failed. Please relogin.');
+                        }
+                        // Retry the request after refreshing the token
+                        response = await makeRequest(url, token);
                     }
-                    response = await makeRequest(url, newToken);
+                    catch (refreshError) {
+                        openSignInView();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error while making request to backend', error);
+                openSignInView();
+                return;
+            }
+
+            try {
+                interface DataMapResponse {
+                    mapping: string;
+                    event: string;
+                    usage: string;
+                }
+
+                // Parse the response from the request
+                const data = await response as DataMapResponse;
+                if (data.event === "data_mapping_success") {
+                    // Extract the mapping string and pass it to the writeDataMapping function
+                    const mappingString = data.mapping;
+                    // Remove the mapFunction line from the mapping string
+                    const mappingRet = removeMapFunctionEntry(mappingString);
+                    // Create an object of type DataMapWriteRequest
+                    const dataMapWriteRequest: DataMapWriteRequest = {
+                        dataMapping: mappingRet
+                    };
+                    await this.writeDataMapping(dataMapWriteRequest);
+                    // Show a notification to the user
+                    showMappingEndNotification();
                 }
                 else {
-                    throw error;
+                    // Log error or perform error handling
+                    console.error('Data mapping was not successful');
                 }
             }
-
-            interface DataMapResponse {
-                mapping: string;
-                event: string;
-                usage: string;
+            catch (error) {
+                console.error('Error while generating data mapping', error);
+                throw error;
             }
-
-            // Parse the response from the request
-            const data = await response as DataMapResponse;
-            if (data.event === "data_mapping_success") {
-                // Extract the mapping string and pass it to the writeDataMapping function
-                const mappingString = data.mapping;
-                // Remove the mapFunction line from the mapping string
-                const mappingRet = removeMapFunctionEntry(mappingString);
-                // Create an object of type DataMapWriteRequest
-                const dataMapWriteRequest: DataMapWriteRequest = {
-                    dataMapping: mappingRet
-                };
-                await this.writeDataMapping(dataMapWriteRequest);
-            }
-            else {
-                // Log error or perform error handling
-                console.error('Data mapping was not successful');
-            }
-        } catch (error) {
-            console.error('Error while generating data mapping', error);
-            throw error;
+        }
+        catch (requestError) {
+            console.error('Error while making request to backend', requestError);
+            return;
         }
     }
 

@@ -39,7 +39,8 @@ export interface MIDataMapperAPI {
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
     getCompletions: (params: GetCompletionsRequest) => Promise<GetCompletionsResponse>;
     getDMDiagnostics: (params: GetDMDiagnosticsRequest) => Promise<GetDMDiagnosticsResponse>;
-    getMappingFromOpenAI: () => void;
+    getMappingFromAI: () => void;
     writeDataMapping: (params: DataMapWriteRequest)=> void;
     confirmMappingAction: ()=> Promise<boolean>;
+    authenticateUser(): Promise<boolean>;
 }

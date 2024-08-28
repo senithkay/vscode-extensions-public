@@ -6,10 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 interface AIMapButtonProps {
   onClick: () => void;
@@ -38,11 +39,36 @@ const StyledButton = styled(Button) <{ isLoading: boolean }>`
 `;
 
 const AIMapButton: React.FC<AIMapButtonProps> = ({ onClick, isLoading }) => {
+  var [remaingTokenLessThanOne, setRemainingTokenLessThanOne] = useState(false);
+  var [remainingTokenPercentage, setRemainingTokenPercentage] = useState<string | number>("");
+
+  const { rpcClient } = useVisualizerContext();
+
+  useEffect(() => {
+    rpcClient.getAIVisualizerState().then((machineView: any) => {
+      const maxTokens = machineView.userTokens.max_usage;
+      if (maxTokens == -1) {
+        setRemainingTokenPercentage("Unlimited");
+      } else {
+        const remainingTokens = machineView.userTokens.remaining_tokens;
+        const percentage = (remainingTokens / maxTokens) * 100;
+        if (percentage < 1 && percentage > 0) {
+          setRemainingTokenLessThanOne(true);
+        } else {
+          setRemainingTokenLessThanOne(false);
+        }
+        setRemainingTokenPercentage(Math.round(percentage));
+      }
+    });
+  }, []);
+
+  var tokenUsageText = remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage : (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`);
+
   return (
     <ButtonContainer>
       <StyledButton
-        appearance= "secondary" 
-        tooltip="Generates Mappings using AI"
+        appearance="secondary"
+        tooltip={`Generate Mapping using AI.\nRemaining Free Usage: ${tokenUsageText}`}
         onClick={async () => {
           if (!isLoading) {
             await onClick();

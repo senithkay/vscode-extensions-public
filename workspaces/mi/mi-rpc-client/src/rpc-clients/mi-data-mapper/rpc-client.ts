@@ -41,10 +41,11 @@ import {
     GetDMDiagnosticsRequest,
     GetDMDiagnosticsResponse,
     getDMDiagnostics,
-    getMappingFromOpenAI,
+    getMappingFromAI,
     writeDataMapping,
     DataMapWriteRequest, 
-    confirmMappingAction
+    confirmMappingAction,
+    authenticateUser
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -112,8 +113,8 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendRequest(getDMDiagnostics, HOST_EXTENSION, params);
     }
 
-    getMappingFromOpenAI(): Promise<void> {
-        return this._messenger.sendRequest(getMappingFromOpenAI, HOST_EXTENSION);
+    getMappingFromAI(): Promise<void> {
+        return this._messenger.sendRequest(getMappingFromAI, HOST_EXTENSION);
     }
 
     writeDataMapping(params: DataMapWriteRequest): void {
@@ -122,5 +123,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     confirmMappingAction(): Promise<boolean> {
         return this._messenger.sendRequest(confirmMappingAction, HOST_EXTENSION);
+    }
+
+    authenticateUser(): Promise<boolean> {
+        return this._messenger.sendRequest(authenticateUser, HOST_EXTENSION);
     }
 }

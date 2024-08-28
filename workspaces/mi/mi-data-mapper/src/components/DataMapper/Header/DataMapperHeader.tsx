@@ -34,40 +34,19 @@ export interface DataMapperHeaderProps {
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
-
     const { rpcClient } = useVisualizerContext();
-
-    const showMappingEndNotification = async () => {
-        const message = "You may freely edit these mappings or try again. \n\n Please note that automatic mapping is powered by AI. Thus, mistakes and surprises are inevitable.";
-        rpcClient.getMiVisualizerRpcClient().retrieveContext({
-          key: "showDmLandingMessage",
-          contextType: "workspace"
-        }).then((response) => {
-          if (response.value ?? true) {
-            rpcClient.getMiVisualizerRpcClient().showNotification({
-              message: message,
-              options: ["Don't show this again"],
-              type: "info",
-            }).then((response) => {
-              if (response.selection) {
-                rpcClient.getMiVisualizerRpcClient().updateContext({
-                  key: "showDmLandingMessage",
-                  value: false,
-                  contextType: "workspace"
-                });
-              }
-           });
-         }
-       });
-      };
 
     const handleDataMapButtonClick = async () => {
         try {
+            let authstatus = await rpcClient.getMiDataMapperRpcClient().authenticateUser();
+            if (authstatus === false) {
+                return;
+            }
+
             let choice = await rpcClient.getMiDataMapperRpcClient().confirmMappingAction();
             if (choice) {
                 props.setIsLoading(true);
-                await rpcClient.getMiDataMapperRpcClient().getMappingFromOpenAI();
-                showMappingEndNotification();
+                await rpcClient.getMiDataMapperRpcClient().getMappingFromAI();
             }
             else {
                 return;
@@ -108,6 +87,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                                 onClick={handleDataMapButtonClick}
                                 isLoading={isLoading}
                             />
+
                             <DeleteButton
                                 appearance="secondary"
                                 onClick={handleDataMapClearButtonClick}
