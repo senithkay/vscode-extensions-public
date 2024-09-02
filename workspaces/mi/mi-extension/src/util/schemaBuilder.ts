@@ -10,13 +10,14 @@
 
 import { JSONSchema3or4 } from "to-json-schema";
 import { StateMachine } from "../stateMachine";
+import { IOType } from "@wso2-enterprise/mi-core";
 
 export function convertToJSONSchema(fileContent: JSONSchema3or4): JSONSchema3or4 {
     let schema = JSON.parse(fileContent);
     return schema;
 }
 
-export async function generateSchema(ioType: string, schemaType: string, filePath: string): Promise<JSONSchema3or4> {
+export async function generateSchema(ioType: IOType, schemaType: string, filePath: string): Promise<JSONSchema3or4> {
   const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchema({
     filePath: filePath,
@@ -25,13 +26,13 @@ export async function generateSchema(ioType: string, schemaType: string, filePat
     title: ""
   });
   let schema = JSON.parse(response.schema);
-  let schemaIOMetadataKey = ioType.toLowerCase() + 'Type';
+  let schemaIOMetadataKey = `${ioType}Type`;
   let schemaIOMetadataValue = schemaType === 'JSONSCHEMA' ? 'JSON' : schemaType;
   schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
 }
 
-export async function generateSchemaFromContent(ioType: string, content: string, fileType: string): Promise<JSONSchema3or4> {
+export async function generateSchemaFromContent(ioType: IOType, content: string, fileType: string): Promise<JSONSchema3or4> {
   const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchemaFromContent({
     fileContent: content,
@@ -40,7 +41,7 @@ export async function generateSchemaFromContent(ioType: string, content: string,
     title: ""
   });
   let schema = JSON.parse(response.schema);
-  let schemaIOMetadataKey = ioType.toLowerCase() + 'Type';
+  let schemaIOMetadataKey = `${ioType}Type`;
   let schemaIOMetadataValue = fileType.toUpperCase() === 'JSONSCHEMA' ? 'JSON' : fileType;
   schema[schemaIOMetadataKey] = schemaIOMetadataValue.toUpperCase();
   return schema;
