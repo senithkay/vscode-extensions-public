@@ -210,7 +210,8 @@ import {
     onDownloadProgress,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -4679,7 +4680,7 @@ ${keyValuesXML}`;
         });
     }
 
-    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string,boolean[]>> {
+    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.fetchTables({

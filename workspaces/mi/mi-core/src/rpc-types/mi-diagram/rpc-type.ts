@@ -194,7 +194,8 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -325,4 +326,4 @@ export const openUpdateExtensionPage: NotificationType<void> = { method: `${_pre
 export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
 export const generateDSSQueries: RequestType<DSSQueryGenRequest, string> = { method: `${_preFix}/generateDSSQueries` };
-export const fetchDSSTables: RequestType<DSSFetchTablesRequest, Map<string, boolean[]>> = { method: `${_preFix}/fetchDSSTables` };
+export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };

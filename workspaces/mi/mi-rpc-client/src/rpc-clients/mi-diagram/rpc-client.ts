@@ -323,7 +323,8 @@ import {
     fetchDSSTables,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -839,7 +840,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(generateDSSQueries, HOST_EXTENSION, params);
     }
 
-    fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string, boolean[]>> {
+    fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
     }
 }

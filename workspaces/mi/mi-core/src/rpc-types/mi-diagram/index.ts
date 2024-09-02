@@ -193,7 +193,8 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSFetchTablesRequest,
-    DSSQueryGenRequest
+    DSSQueryGenRequest,
+    DSSFetchTablesResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -323,5 +324,5 @@ export interface MiDiagramAPI {
     checkDBDriver: (className: string) => Promise<boolean>;
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
     generateDSSQueries: (params: DSSQueryGenRequest) => Promise<string>;
-    fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<Map<string, boolean[]>>;
+    fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
 }
