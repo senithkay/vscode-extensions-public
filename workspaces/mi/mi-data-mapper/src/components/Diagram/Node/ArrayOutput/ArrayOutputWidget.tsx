@@ -25,6 +25,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 import { IOType } from "@wso2-enterprise/mi-core";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ArrayOutputWidgetProps {
 	id: string;
@@ -54,7 +55,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const classes = useIONodesStyles();
 
-	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
 	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
@@ -63,7 +64,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		setIsSchemaOverridden: state.setIsSchemaOverridden
 	}));
 
-	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
 		subMappingConfig: state.subMappingConfig,
 		setSubMappingConfig: state.setSubMappingConfig
 	}));
@@ -101,11 +102,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
-        if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
-        } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
-        }
+		if (!expanded) {
+			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+		} else {
+			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+		}
 	};
 
 	const handlePortState = (state: PortState) => {
@@ -113,7 +114,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault(); 
+		event.preventDefault();
 		if (focuesOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
@@ -121,7 +122,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			setIsSchemaOverridden(true);
 			setIsIOConfigPanelOpen(true);
 		}
-    };
+	};
 
 	const onSubMappingEditBtnClick = () => {
 		setSubMappingConfig({
@@ -162,29 +163,33 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						)}
 					</span>
 					<span className={classes.label}>
-						<Button
-							appearance="icon"
-							tooltip="Expand/Collapse"
-							onClick={handleExpand}
-							data-testid={`${id}-expand-icon-mapping-target-node`}
-							sx={{ marginLeft: indentation }}
-						>
-							{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-						</Button>
+						<FieldActionWrapper>
+							<Button
+								appearance="icon"
+								tooltip="Expand/Collapse"
+								onClick={handleExpand}
+								data-testid={`${id}-expand-icon-mapping-target-node`}
+								sx={{ marginLeft: indentation }}
+							>
+								{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+							</Button>
+						</FieldActionWrapper>
 						{label}
 					</span>
 					{focuesOnSubMappingRoot && (
-						<Button
-							appearance="icon"
-							data-testid={"edit-sub-mapping-btn"}
-							tooltip="Edit name and type of the sub mapping "
-							onClick={onSubMappingEditBtnClick}
-						>
-							<Codicon
-								name="settings-gear"
-								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</Button>
+						<FieldActionWrapper>
+							<Button
+								appearance="icon"
+								data-testid={"edit-sub-mapping-btn"}
+								tooltip="Edit name and type of the sub mapping "
+								onClick={onSubMappingEditBtnClick}
+							>
+								<Codicon
+									name="settings-gear"
+									iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+								/>
+							</Button>
+						</FieldActionWrapper>
 					)}
 				</TreeHeader>
 				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
