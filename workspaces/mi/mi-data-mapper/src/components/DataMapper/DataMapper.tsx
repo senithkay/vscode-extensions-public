@@ -92,6 +92,8 @@ export interface MIDataMapperProps {
     applyModifications: (fileContent: string) => Promise<void>;
     isLoading: boolean;
     setIsLoading: (loading: boolean) => void;
+    isMapping: boolean;
+    setIsMapping: (mapping: boolean) => void;
 }
 
 enum ActionType {
@@ -124,7 +126,7 @@ function viewsReducer(state: ViewState, action: ViewAction) {
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading } = props;
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading, isMapping, setIsMapping } = props;
 
     const initialView = [{
         targetFieldFQN: "",
@@ -267,16 +269,20 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     applyModifications={applyModifications}
                     setIsLoading={setIsLoading}
                     isLoading={isLoading}
+                    setIsMapping={setIsMapping}
+                    isMapping={isMapping}
                 />
             )}
             {isLoading && (
                 <div className={classes.overlayWithLoader}>
                     <div className={classes.spinner} />
-                    <div className={classes.autoMapInProgressMsg}>
-                        {message}
-                    </div>
+                    {isMapping && (
+                        <div className={classes.autoMapInProgressMsg}>
+                            {message}
+                        </div>
+                    )}
                     <Button
-                        onClick={() => setIsLoading(false)}
+                        onClick={() => setIsMapping(false)}
                         className={classes.autoMapStopButton}
                     >
                         {'Stop'}

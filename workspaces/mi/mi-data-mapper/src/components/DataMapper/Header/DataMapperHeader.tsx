@@ -30,22 +30,24 @@ export interface DataMapperHeaderProps {
     onDataMapClearClick?: () => void;
     isLoading: boolean;
     setIsLoading: (loading: boolean) => void;
+    isMapping: boolean;
+    setIsMapping: (mapping: boolean) => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading, setIsMapping, isMapping } = props;
     const { rpcClient } = useVisualizerContext();
 
     const handleDataMapButtonClick = async () => {
         try {
-            let authstatus = await rpcClient.getMiDataMapperRpcClient().authenticateUser();
-            if (authstatus === false) {
-                return;
-            }
-
             let choice = await rpcClient.getMiDataMapperRpcClient().confirmMappingAction();
             if (choice) {
                 props.setIsLoading(true);
+                let authstatus = await rpcClient.getMiDataMapperRpcClient().authenticateUser();
+                if (authstatus === false) {
+                    return;
+                }
+                props.setIsMapping(true);
                 await rpcClient.getMiDataMapperRpcClient().getMappingFromAI();
             }
             else {
@@ -54,6 +56,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
         } catch (error) {
             console.error(error);
         } finally {
+            props.setIsMapping(false);
             props.setIsLoading(false);
         }
     };

@@ -61,6 +61,7 @@ export function DataMapperView(props: DataMapperViewProps) {
     } = props;
 
     const [isLoading, setIsLoading] = useState(false); 
+    const [isMapping, setIsMapping] = useState(false);
 
     const { rpcClient } = useVisualizerContext();
 
@@ -127,6 +128,8 @@ export function DataMapperView(props: DataMapperViewProps) {
                     configName={configName}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
+                    isMapping={isMapping}
+                    setIsMapping={setIsMapping}
                 />
             </QueryClientProvider>
         </ErrorBoundary>

@@ -201,7 +201,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             reject({ absPath: '', configName: '' });
         });
     }
-
+    
     async authenticateUser(): Promise<boolean> {
         let token;
         try {
@@ -209,14 +209,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
           token = await extension.context.secrets.get('MIAIUser');
           
           if (!token) {
-            showSignedOutNotification();
-            openSignInView();
             throw new Error('Token not available');
           }
           
-          const config = vscode.workspace.getConfiguration('MI');
-          const ROOT_URL = config.get('rootUrl') as string;
-          const url = ROOT_URL + USER_CHECK_BACKEND_URL;
+          const url = await fetchBackendUrl() + USER_CHECK_BACKEND_URL;
           
           let response = await fetch(url, {
             method: 'GET',
@@ -231,8 +227,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
               token = await refreshAuthCode();
               
               if (!token) {
-                showSignedOutNotification();
-                openSignInView();
                 throw new Error('Token refresh failed');
               }
               
@@ -246,8 +240,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
               });
     
               if (!response.ok) {
-                showSignedOutNotification();
-                openSignInView();
                 throw new Error('Token verification failed after refresh');
               }
             } else {
