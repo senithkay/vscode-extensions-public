@@ -32,11 +32,11 @@ import {
     DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
-import { Project, QuoteKind } from "ts-morph";
 import { StateMachine, navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateDMC } from "../../util/tsBuilder";
+import * as vscode from 'vscode';
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
@@ -46,10 +46,10 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME } from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL } from "../../constants";
 import { getSources } from "../../util/dataMapper";
 import { refreshAuthCode } from '../../ai-panel/auth';
-import { fetchBackendUrl, openSignInView, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
+import { fetchBackendUrl, openSignInView, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -198,26 +198,69 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async authenticateUser(): Promise<boolean> {
         let token;
         try {
-            // Get the user token from the secrets
-            token = await extension.context.secrets.get('MIAIUser');
-            if (!token) {
-                showSignedOutNotification();
-                openSignInView();
-                return false; //If there is no token, return 'no'
-            }
-        } catch (error) {
-            console.error('Error while getting user token.');
+          // Get the user token from the secrets
+          token = await extension.context.secrets.get('MIAIUser');
+          
+          if (!token) {
             showSignedOutNotification();
             openSignInView();
-            return false; //If there is an error while getting the token, return 'no'
+            throw new Error('Token not available');
+          }
+          
+          const config = vscode.workspace.getConfiguration('MI');
+          const ROOT_URL = config.get('rootUrl') as string;
+          const url = ROOT_URL + USER_CHECK_BACKEND_URL;
+          
+          let response = await fetch(url, {
+            method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+          });
+    
+          if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+              token = await refreshAuthCode();
+              
+              if (!token) {
+                showSignedOutNotification();
+                openSignInView();
+                throw new Error('Token refresh failed');
+              }
+              
+              // retry the request with the new token
+              response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+              });
+    
+              if (!response.ok) {
+                showSignedOutNotification();
+                openSignInView();
+                throw new Error('Token verification failed after refresh');
+              }
+            } else {
+              throw new Error(`Error while checking token: ${response.statusText}`);
+            }
+          }
+        } catch (error) {
+          console.error('Error while getting or refreshing user token: ', error);
+          showSignedOutNotification();
+          openSignInView();
+          return false;
         }
-        return true;
-    }
+        
+        return true;  // token is available and valid
+      }
 
     // Function to ask whether the user wants to replace all existing mappings with ai generated mappings
     async confirmMappingAction(): Promise<boolean> {
         // Define the message based on the action
-        let message = "This will replace any existing mappings with AI. Are you sure?";
+        let message = "This will replace any existing mapping, with AI. Are you sure?";
         // Show the confirmation dialog
         const response = await window.showInformationMessage(
             message,
@@ -287,33 +330,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
             // Function to read the TypeScript file
             let tsContent = await this.readTSFile();
-            // Function to remove the mapFunction line from the TypeScript file
-            function removeMapFunctionEntry(content: string): string {
-                const project = new Project({
-                    useInMemoryFileSystem: true,
-                    manipulationSettings: {
-                        quoteKind: QuoteKind.Single
-                    }
-                });
-                // Create a temporary TypeScript file with the content of the source file
-                const sourceFile = project.createSourceFile('temp.ts', content);
-                // Get the mapFunction from the source file
-                const mapFunction = sourceFile.getFunction('mapFunction');
-                if (!mapFunction) {
-                    throw new Error('mapFunction not found in TypeScript file.');
-                }
-                let functionContent;
-                if (mapFunction.getBodyText()) {
-                    // Get the function body text and remove any leading or trailing whitespace
-                    functionContent = mapFunction.getBodyText()?.trim();
-                }
-                else {
-                    throw new Error('No function body text found for mapFunction in TypeScript file.');
-                }
-                // Remove the mapFunction line from the source file
-                sourceFile.removeText(mapFunction.getPos(), mapFunction.getEnd());
-                return functionContent;
-            }
 
             const backendRootUri = await fetchBackendUrl();
             const url = backendRootUri + DATAMAP_BACKEND_URL;
@@ -322,53 +338,23 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             try {
                 // Get the user token from the secrets
                 token = await extension.context.secrets.get('MIAIUser');
-                if (!token) {
-                    openSignInView();
-                }
             }
             catch (error) {
                 console.error('Error while getting user token.');
+                showSignedOutNotification();
                 openSignInView();
                 return; // If there is no token, return early to exit the function
-            }
-
-            // Function to make a request to the backend to get the data mapping
-            const makeRequest = async (url: string, token: string) => {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ ts_file: tsContent })
-                });
-                if (!response.ok) throw new Error(`Error while checking token: ${response.statusText}`);
-                return response.json();
             }
 
             let response;
             try {
                 // Make a request to the backend to get the data mapping
-                response = await makeRequest(url, token);
-                // If not succesful, try refreshing the token
-                if (response.status === 401 || response.status === 403) {
-                    try {
-                        token = await refreshAuthCode();
-                        if (!token) {
-                            throw new Error('Token refresh failed. Please relogin.');
-                        }
-                        // Retry the request after refreshing the token
-                        response = await makeRequest(url, token);
-                    }
-                    catch (refreshError) {
-                        openSignInView();
-                        return;
-                    }
-                }
+                response = await makeRequest(url, token, tsContent);
             } catch (error) {
                 console.error('Error while making request to backend', error);
+                showMappingEndNotification();
                 openSignInView();
-                return;
+                return; // If there is an error in the request, return early to exit the function
             }
 
             try {
@@ -377,7 +363,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     event: string;
                     usage: string;
                 }
-
                 // Parse the response from the request
                 const data = await response as DataMapResponse;
                 if (data.event === "data_mapping_success") {
