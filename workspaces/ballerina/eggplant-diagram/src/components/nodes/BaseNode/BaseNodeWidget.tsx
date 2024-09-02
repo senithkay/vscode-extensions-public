@@ -20,6 +20,7 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -129,24 +130,27 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const { onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
+    const { rpcClient } = useRpcContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
-    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             // Handle action when cmd key is pressed
             if (model.node.codedata.node === "DATA_MAPPER") {
-                // TODO: Find the file path and the position of the actual data mapper function
-                // The below logic fetch the position of the function invocation, hence it will open the component overview
-                openView &&
-                    openView(model.node.codedata.lineRange.fileName, {
-                        startLine: model.node.codedata.lineRange.startLine.line,
-                        startColumn: model.node.codedata.lineRange.startLine.offset,
-                        endLine: model.node.codedata.lineRange.endLine.line,
-                        endColumn: model.node.codedata.lineRange.endLine.offset,
+                const nodeProperties = model.node.properties;
+                const projectPath = (await rpcClient.getVisualizerLocation()).projectUri;
+                if (nodeProperties.hasOwnProperty("view")) {
+                    const { fileName, startLine, endLine } = nodeProperties["view"].value;
+                    openView && openView(projectPath + "/" + fileName, {
+                        startLine: startLine.line,
+                        startColumn: startLine.offset,
+                        endLine: endLine.line,
+                        endColumn: endLine.offset,
                     });
+                }
             } else {
                 onGoToSource();
             }
