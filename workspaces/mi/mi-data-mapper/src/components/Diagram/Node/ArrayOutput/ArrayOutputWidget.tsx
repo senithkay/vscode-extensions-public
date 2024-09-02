@@ -24,6 +24,7 @@ import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore, useDMSubMappingConf
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
+import { IOType } from "@wso2-enterprise/mi-core";
 
 export interface ArrayOutputWidgetProps {
 	id: string;
@@ -116,7 +117,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		if (focuesOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
-			setIOConfigPanelType("Output");
+			setIOConfigPanelType(IOType.Output);
 			setIsSchemaOverridden(true);
 			setIsIOConfigPanelOpen(true);
 		}
