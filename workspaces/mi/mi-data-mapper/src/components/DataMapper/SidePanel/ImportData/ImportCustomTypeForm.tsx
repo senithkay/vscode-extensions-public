@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     Button,
     SidePanel,
@@ -17,9 +17,10 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-import { useDMIOConfigPanelStore } from "../../../../store/store";
+import { useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
-import { ImportDataPanel } from "./ImportDataPanel";
+import { ImportCustomTypePanel } from "./ImportCustomTypePanel";
+import { FunctionDeclaration } from "ts-morph";
 
 export interface ImportType {
     type: string;
@@ -32,22 +33,25 @@ export enum FileExtension {
     CSV = ".csv"
 }
 
-export type ImportDataWizardProps = {
+export type ImportCustomTypeFormProps = {
+    functionST: FunctionDeclaration;
     configName: string;
     documentUri: string;
+    setIsImportCustomTypeFormOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export function ImportDataForm(props: ImportDataWizardProps) {
-    const { configName, documentUri } = props;
+export function ImportCustomTypeForm(props: ImportCustomTypeFormProps) {
+    const { functionST, configName, documentUri, setIsImportCustomTypeFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
-    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
-        isOpen: state.isIOConfigPanelOpen,
-        ioType: state.ioConfigPanelType,
-        overwriteSchema: state.isSchemaOverridden,
-        setSidePanelOpen: state.setIsIOConfigPanelOpen
+    const { subMappingConfig, setSubMappingConfig, resetSubMappingConfig, subMappingConfigFromData, setSubMappingConfigFormData } = useDMSubMappingConfigPanelStore(state => ({
+        subMappingConfig: state.subMappingConfig,
+        setSubMappingConfig: state.setSubMappingConfig,
+        resetSubMappingConfig: state.resetSubMappingConfig,
+        subMappingConfigFromData: state.subMappingConfigFormData,
+        setSubMappingConfigFormData: state.setSubMappingConfigFormData
     }));
 
     const fileExtension = useMemo(() => {
@@ -66,17 +70,20 @@ export function ImportDataForm(props: ImportDataWizardProps) {
     }, [selectedImportType]);
 
 
-    const loadSchema = async (content: string) => {
+    const loadSchema = async (typeName: string, content: string) => {
         const request = {
             documentUri: documentUri,
-            overwriteSchema: overwriteSchema,
+            overwriteSchema: false,
             content: content,
-            ioType: ioType.toUpperCase(),
+            ioType: "CUSTOM", //TODO: use enum 
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
+            typeName: typeName
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
-            setSidePanelOpen(false);
+            setSelectedImportType(undefined);
+            setIsImportCustomTypeFormOpen(false);
+            setSubMappingConfigFormData({ ...subMappingConfigFromData, mappingType: typeName })
             if (!response.success) {
                 console.error("Error while importing schema");
             }
@@ -85,13 +92,21 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         });
     };
 
-    const handleFileUpload = (text: string) => {
-        loadSchema(text);
+    const handleFileUpload = (typeName: string, text: string) => {
+        loadSchema(typeName, text);
     };
 
     const onClose = () => {
         setSelectedImportType(undefined);
-        setSidePanelOpen(false);
+        setIsImportCustomTypeFormOpen(false);
+        resetSubMappingConfig();
+    };
+
+    const onBack = () => {
+        if (!selectedImportType) {
+            setIsImportCustomTypeFormOpen(false);
+        }
+        setSelectedImportType(undefined);
     };
 
     const handleImportTypeChange = (importType: ImportType) => {
@@ -99,20 +114,15 @@ export function ImportDataForm(props: ImportDataWizardProps) {
     };
 
     return (
-        <SidePanel
-            isOpen={isOpen}
-            alignment="right"
-            width={312}
-            overlay={false}
-        >
+        <>
             <SidePanelTitleContainer>
-                {selectedImportType && (
-                    <Codicon name="arrow-left"
-                        sx={{ width: "20px"}}
-                        onClick={() => setSelectedImportType(undefined)}
-                    />
-                )}
-                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} Schema`}</span>
+                <Button
+                    onClick={onBack}
+                    appearance="icon"
+                >
+                    <Codicon name="arrow-left" />
+                </Button>
+                <span style={{ padding: 10 }}>Import custom data type</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}
@@ -124,7 +134,8 @@ export function ImportDataForm(props: ImportDataWizardProps) {
             <SidePanelBody>
                 {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
                 {selectedImportType && (
-                    <ImportDataPanel
+                    <ImportCustomTypePanel
+                        functionST={functionST}
                         importType={selectedImportType}
                         extension={fileExtension}
                         rowRange={{ start: 15, offset: 10 }}
@@ -132,6 +143,6 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                     />
                 )}
             </SidePanelBody>
-        </SidePanel>
+        </>
     );
 }

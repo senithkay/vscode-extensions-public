@@ -316,7 +316,14 @@ import {
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
     getInboundEPUischema,
-    saveInboundEPUischema
+    saveInboundEPUischema,
+    checkDBDriver,
+    addDBDriver,
+    generateDSSQueries,
+    fetchDSSTables,
+    AddDriverRequest,
+    DSSQueryGenRequest,
+    DSSFetchTablesRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -818,5 +825,21 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     openUpdateExtensionPage(): void {
         return this._messenger.sendNotification(openUpdateExtensionPage, HOST_EXTENSION);
+    }
+
+    checkDBDriver(params: string): Promise<boolean> {
+        return this._messenger.sendRequest(checkDBDriver, HOST_EXTENSION, params);
+    }
+
+    addDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
+    }
+
+    generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+        return this._messenger.sendRequest(generateDSSQueries, HOST_EXTENSION, params);
+    }
+
+    fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string, boolean[]>> {
+        return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
     }
 }
