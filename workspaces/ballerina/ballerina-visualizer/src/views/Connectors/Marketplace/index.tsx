@@ -44,6 +44,7 @@ import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2-enterprise/ba
 export interface MarketplaceProps {
     currentFilePath: string;
     onSelect: (balModule: BallerinaConstruct, rpcClient: BallerinaRpcClient, selectedBalModule?: LocalVarDecl) => void;
+    onClose: () => void;
     fetchModulesList: (
         queryParams: SearchQueryParams,
         currentFilePath: string,
@@ -79,7 +80,7 @@ export function Marketplace(props: MarketplaceProps) {
     
     const classes = useStyles();
     // const formClasses = useFormStyles();
-    const { onSelect, title, currentFilePath } = props;
+    const { onSelect, title, currentFilePath, onClose } = props;
     // const {
     //     props: { currentFile, userInfo },
     //     api: {
@@ -394,7 +395,7 @@ export function Marketplace(props: MarketplaceProps) {
     // );
 
     return (
-        <PanelContainer title="Connectors" show={true} width={'500px'} onClose={() => { setActivePanel({ isActive: false }) }}>
+        <PanelContainer title="Connectors" show={true} width={'500px'} onClose={onClose}>
            
                 {/* <Grid columns={3}  className={classes.resultsContainer}> */}
                         {/* {isSearchResultsFetching && loadingScreen} */}

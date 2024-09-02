@@ -47,6 +47,9 @@ export function EditPanel(props: EditPanelProps) {
                             path: activeFileInfo?.filePath,
                             size: 1
                         }}
+                        formArgs={{
+                            ...componentInfo?.connectorInfo
+                        }}
                         onCancel={cancelStatementEditor}
                         onClose={closeStatementEditor}
                         syntaxTree={activeFileInfo?.fullST}

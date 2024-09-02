@@ -26,4 +26,4 @@ class ReturnTypeVisitor implements Visitor {
     }
 }
 
-export const visitor = new ReturnTypeVisitor();
+export const returnTypeVisitor = new ReturnTypeVisitor();

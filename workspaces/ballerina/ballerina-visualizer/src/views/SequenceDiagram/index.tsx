@@ -22,7 +22,7 @@ import {
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import styled from "@emotion/styled";
 import { PanelType, useVisualizerContext } from "../../Context";
-import { removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
+import { ComponentInfo, ConnectorInfo, removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
 import { URI } from "vscode-uri";
 
 enum MESSAGE_TYPE {
@@ -111,10 +111,10 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         setStatementPosition(position);
     }
 
-    const handleEditComponent = (model: STNode, targetPosition: NodePosition, componentType: string) => {
+    const handleEditComponent = (model: STNode, targetPosition: NodePosition, componentType: string, connectorInfo?: ConnectorInfo) => {
         setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR });
         setStatementPosition(targetPosition);
-        setComponentInfo({ model, position: targetPosition, componentType });
+        setComponentInfo({ model, position: targetPosition, componentType, connectorInfo });
     }
 
     const handleDeleteComponent = (model: STNode) => {

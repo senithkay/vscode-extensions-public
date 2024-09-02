@@ -36,26 +36,14 @@ export function ConnectorList(props: ConnectorListProps) {
     // const { onCancel } = props;
     // const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
     const { applyModifications } = props;
-    const [filePath, setFilePath] = useState<string>();
     const [pullingPackage, setPullingPackage] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
     const [initialSource, setInitialSource] = useState<string>();
-    const { activeFileInfo, statementPosition, setActivePanel } = useVisualizerContext();
-    const [fullST, setFullST] = useState<any>();
+    const { activeFileInfo, statementPosition, setActivePanel, setPopupScreen } = useVisualizerContext();
 
 
     const { rpcClient } = useRpcContext();
-
-    useEffect(() => {
-        rpcClient?.getVisualizerLocation().then(async (location) => {
-            const fullST = await rpcClient.getLangClientRpcClient().getST({ documentIdentifier: { uri: URI.file(location.documentUri).toString()} });
-            setFilePath(location.documentUri);
-            setFullST(fullST);
-        });
-
-
-    }, []);
 
     useEffect( () => {
         if (
@@ -64,7 +52,7 @@ export function ConnectorList(props: ConnectorListProps) {
             selectedConnector.package.name
         ) {
             setPullingPackage(true);
-            const imports = getConnectorImports(fullST.syntaxTree, selectedConnector.package.organization, selectedConnector.moduleName, true);
+            const imports = getConnectorImports(activeFileInfo?.fullST, selectedConnector.package.organization, selectedConnector.moduleName, true);
             if (imports && imports?.size > 0) {
                 let pullCommand = "";
                 imports.forEach((impt) => {
@@ -88,7 +76,7 @@ export function ConnectorList(props: ConnectorListProps) {
                         setPullingPackage(false);
                         // get the initial source
                         const stSymbolInfo = getSymbolInfo();
-                        const initialSource = await getInitialSourceForConnectors(selectedConnector, statementPosition, stSymbolInfo );
+                        const initialSource = await getInitialSourceForConnectors(selectedConnector, statementPosition, stSymbolInfo, activeFileInfo.activeSequence );
                         setInitialSource(initialSource);
                         setShowStatementEditor(true);
                     });
@@ -126,7 +114,7 @@ export function ConnectorList(props: ConnectorListProps) {
     const onSelect = async (balModule: BallerinaConstruct, langClient: BallerinaRpcClient) => {
         // get metadata
         // create a get connector implementation
-        const connectorMetadata = await fetchConnectorInfo(balModule, langClient, filePath);
+        const connectorMetadata = await fetchConnectorInfo(balModule, langClient, activeFileInfo?.filePath);
         console.log ("connectorMetadata", connectorMetadata);
         setSelectedConnector(connectorMetadata);
         // pull the module
@@ -137,11 +125,16 @@ export function ConnectorList(props: ConnectorListProps) {
 
     const closeStatementEditor = () => {
         setShowStatementEditor(false);
-        setActivePanel({ isActive: false });
+        setPopupScreen("EMPTY");
     }
 
     const cancelStatementEditor = () => {
         setShowStatementEditor(false);
+        setSelectedConnector(undefined);
+    }
+
+    const onMarketplaceClose = () => {
+        setPopupScreen("EMPTY");
     }
 
     return (
@@ -154,17 +147,18 @@ export function ConnectorList(props: ConnectorListProps) {
                     </div>
                 </PanelContainer>
             )}
-            {filePath && !selectedConnector &&
+            {activeFileInfo?.filePath && !selectedConnector &&
                 <Marketplace
-                    currentFilePath={filePath}
+                    currentFilePath={activeFileInfo?.filePath}
                     onSelect={onSelect}
+                    onClose={onMarketplaceClose}
                     fetchModulesList={fetchConnectorsList}
                     title={"Connectors"}
                     shortName="connectors"
                 />
             }
-            {selectedConnector && !pullingPackage && filePath && showStatementEditor &&
-                <PanelContainer title="Add Connector" show={true} onClose={() => setShowStatementEditor(false)}>
+            {selectedConnector && !pullingPackage && activeFileInfo?.filePath && showStatementEditor &&
+                <PanelContainer title="Add Connector" show={true} onClose={cancelStatementEditor}>
                     (
                     <StatementEditorComponent
                         label={"Connector"}
@@ -173,14 +167,19 @@ export function ConnectorList(props: ConnectorListProps) {
                         applyModifications={applyModifications}
                         currentFile={{
                             content: activeFileInfo?.fullST?.source || "",
-                            path: filePath,
+                            path: activeFileInfo?.filePath,
                             size: 1
+                        }}
+                        formArgs={{
+                            connector: selectedConnector?.package ? selectedConnector : undefined,
+                            functionNode: activeFileInfo?.activeSequence,
                         }}
                         onCancel={cancelStatementEditor}
                         onClose={closeStatementEditor}
                         syntaxTree={activeFileInfo?.fullST}
                         targetPosition={statementPosition}
                         skipSemicolon={false}
+                        extraModules={getConnectorImports(activeFileInfo?.fullST, selectedConnector?.package?.organization, selectedConnector?.moduleName)}
 
                     />
                 )
