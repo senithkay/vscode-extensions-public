@@ -58,7 +58,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	const focusOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
 
 	const classes = useIONodesStyles();
 
@@ -97,7 +97,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
 
 	useEffect(() => {
-		if (focuesOnSubMappingRoot) {
+		if (focusOnSubMappingRoot) {
 			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
 
 			dynamicOutputPort.registerListener({
@@ -148,7 +148,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		if (focuesOnSubMappingRoot) {
+		if (focusOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
 			setIOConfigPanelType(IOType.Output);
@@ -198,7 +198,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</FieldActionWrapper>
 						{label}
 					</span>
-					{focuesOnSubMappingRoot && (
+					{focusOnSubMappingRoot && (
 						<FieldActionWrapper>
 							<Button
 								appearance="icon"
@@ -234,7 +234,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						})}
 					</TreeBody>
 				)}
-				{focuesOnSubMappingRoot && (
+				{focusOnSubMappingRoot && (
 					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
 						<span className={classes.objectFieldAdderLabel}>
 							Dynamically add inputs to output
