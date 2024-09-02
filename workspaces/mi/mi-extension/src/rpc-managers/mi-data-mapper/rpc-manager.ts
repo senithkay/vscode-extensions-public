@@ -28,7 +28,8 @@ import {
     GetDMDiagnosticsRequest,
     GetDMDiagnosticsResponse,
     DMDiagnostic,
-    DMDiagnosticCategory
+    DMDiagnosticCategory,
+    IOType
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -128,12 +129,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 }
 
                 try {
-                    if (ioType === "INPUT" || ioType === "OUTPUT")
+                    if (ioType === IOType.Input || ioType === IOType.Output)
                         await updateTsFileIoTypes(configName, documentUri, schema, ioType);
-                    else if (ioType === "CUSTOM" && typeName)
-                        await updateTsFileCustomTypes(configName, documentUri, schema, ioType, typeName);
+                    else if (ioType === IOType.Other && typeName)
+                        await updateTsFileCustomTypes(configName, documentUri, schema, typeName);
                     else {
-                        throw new Error(`Invalid ioType: ${ioType}`);
+                        throw new Error(`ioType or typeName issue : ${ioType},${typeName}`);
                     }
 
                     await this.formatDMC(documentUri);
