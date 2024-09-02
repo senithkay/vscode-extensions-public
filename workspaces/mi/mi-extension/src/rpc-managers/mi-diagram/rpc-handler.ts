@@ -222,7 +222,14 @@ import {
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
     saveInboundEPUischema,
-    getInboundEPUischema
+    getInboundEPUischema,
+    checkDBDriver,
+    addDBDriver,
+    generateDSSQueries,
+    fetchDSSTables,
+    AddDriverRequest,
+    DSSQueryGenRequest,
+    DSSFetchTablesRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -352,4 +359,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSubFolderNames, (args: GetSubFoldersRequest) => rpcManger.getSubFolderNames(args));
     messenger.onRequest(renameFile, (args: FileRenameRequest) => rpcManger.renameFile(args));
     messenger.onNotification(openUpdateExtensionPage, () => rpcManger.openUpdateExtensionPage());
+    messenger.onRequest(checkDBDriver, (args: string) => rpcManger.checkDBDriver(args));
+    messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
+    messenger.onRequest(generateDSSQueries, (args: DSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
+    messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
 }
