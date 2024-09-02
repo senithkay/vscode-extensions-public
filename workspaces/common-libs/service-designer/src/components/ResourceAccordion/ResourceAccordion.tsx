@@ -220,7 +220,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     }
 
     return (
-        <AccordionContainer>
+        <AccordionContainer data-testid="service-design-view-resource">
             <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {

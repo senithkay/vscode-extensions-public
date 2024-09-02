@@ -642,6 +642,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -705,6 +706,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -768,6 +770,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1110,6 +1113,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1173,6 +1177,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1236,6 +1241,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1578,6 +1584,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1641,6 +1648,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1787,6 +1795,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Bean
                           </div>
@@ -1799,6 +1808,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -1904,6 +1914,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -1967,6 +1978,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -2113,6 +2125,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Bam
                           </div>
@@ -2125,6 +2138,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               BAM Description
                             </div>
@@ -2232,6 +2246,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -2295,6 +2310,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -2441,6 +2457,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Bam
                           </div>
@@ -2453,6 +2470,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -2558,6 +2576,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -2621,6 +2640,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -2767,6 +2787,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Bean
                           </div>
@@ -2779,6 +2800,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Bean Description
                             </div>
@@ -2886,6 +2908,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -2949,6 +2972,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -3095,6 +3119,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Builder
                           </div>
@@ -3107,6 +3132,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -3212,6 +3238,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -3275,6 +3302,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -3421,6 +3449,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Builder
                           </div>
@@ -3433,6 +3462,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Builder Description
                             </div>
@@ -3540,6 +3570,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -3603,6 +3634,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -3666,6 +3698,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4008,6 +4041,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4071,6 +4105,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4134,6 +4169,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4478,6 +4514,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4541,6 +4578,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4806,6 +4844,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -4869,6 +4908,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -5134,6 +5174,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -5197,6 +5238,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -5528,6 +5570,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -5591,6 +5634,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -5924,6 +5968,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -5987,6 +6032,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -6252,6 +6298,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -6315,6 +6362,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -6580,6 +6628,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -6643,6 +6692,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -6789,6 +6839,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Call Template
                           </div>
@@ -6801,6 +6852,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -6906,6 +6958,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -6969,6 +7022,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -7115,6 +7169,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Call Template
                           </div>
@@ -7127,6 +7182,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               CallTemplate Description
                             </div>
@@ -7234,6 +7290,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -7297,6 +7354,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -7443,6 +7501,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Callout
                           </div>
@@ -7455,6 +7514,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -7560,6 +7620,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -7623,6 +7684,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -7769,6 +7831,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Callout
                           </div>
@@ -7781,6 +7844,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Callout Description
                             </div>
@@ -7888,6 +7952,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -7951,6 +8016,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -8097,6 +8163,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Class
                           </div>
@@ -8109,6 +8176,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -8214,6 +8282,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -8277,6 +8346,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -8423,6 +8493,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Class
                           </div>
@@ -8435,6 +8506,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Class Description
                             </div>
@@ -8542,6 +8614,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -8605,6 +8678,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -8668,6 +8742,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9046,6 +9121,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9109,6 +9185,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9172,6 +9249,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9552,6 +9630,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9615,6 +9694,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9761,6 +9841,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Command
                           </div>
@@ -9773,6 +9854,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -9878,6 +9960,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -9941,6 +10024,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -10087,6 +10171,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Command
                           </div>
@@ -10099,6 +10184,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Command Description
                             </div>
@@ -10206,6 +10292,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -10269,6 +10356,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -10415,6 +10503,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Conditional Router
                           </div>
@@ -10427,6 +10516,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -10532,6 +10622,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -10595,6 +10686,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -10741,6 +10833,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Conditional Router
                           </div>
@@ -10753,6 +10846,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Conditional Router Description
                             </div>
@@ -10860,6 +10954,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -10923,6 +11018,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -11069,6 +11165,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             DB Lookup
                           </div>
@@ -11081,6 +11178,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -11186,6 +11284,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -11249,6 +11348,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -11395,6 +11495,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             DB Lookup
                           </div>
@@ -11407,6 +11508,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               DB Lookup Description
                             </div>
@@ -11514,6 +11616,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -11577,6 +11680,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -11723,6 +11827,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             DB Report
                           </div>
@@ -11735,6 +11840,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -11840,6 +11946,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -11903,6 +12010,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -12049,6 +12157,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             DB Report
                           </div>
@@ -12061,6 +12170,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               DB Report Description
                             </div>
@@ -12168,6 +12278,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -12231,6 +12342,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -12496,6 +12608,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -12559,6 +12672,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -12824,6 +12938,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -12887,6 +13002,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -13033,6 +13149,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Drop
                           </div>
@@ -13045,6 +13162,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -13150,6 +13268,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -13213,6 +13332,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -13359,6 +13479,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Drop
                           </div>
@@ -13371,6 +13492,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Drop Description
                             </div>
@@ -13478,6 +13600,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -13541,6 +13664,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -13687,6 +13811,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Ejb
                           </div>
@@ -13699,6 +13824,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -13804,6 +13930,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -13867,6 +13994,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14013,6 +14141,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Ejb
                           </div>
@@ -14025,6 +14154,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               EJB Description
                             </div>
@@ -14132,6 +14262,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14195,6 +14326,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14341,6 +14473,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Enqueue
                           </div>
@@ -14353,6 +14486,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -14458,6 +14592,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14521,6 +14656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14667,6 +14803,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Enqueue
                           </div>
@@ -14679,6 +14816,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Enqueue Description
                             </div>
@@ -14786,6 +14924,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14849,6 +14988,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -14995,6 +15135,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Enrich
                           </div>
@@ -15007,6 +15148,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -15112,6 +15254,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15175,6 +15318,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15321,6 +15465,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Enrich
                           </div>
@@ -15333,6 +15478,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Enrich Description
                             </div>
@@ -15440,6 +15586,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15503,6 +15650,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15566,6 +15714,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15629,6 +15778,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15692,6 +15842,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -15755,6 +15906,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -16307,6 +16459,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -16370,6 +16523,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -16433,6 +16587,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -16496,6 +16651,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -16559,6 +16715,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -16622,6 +16779,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -17176,6 +17334,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -17239,6 +17398,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -17385,6 +17545,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Event
                           </div>
@@ -17397,6 +17558,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -17502,6 +17664,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -17565,6 +17728,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -17711,6 +17875,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Event
                           </div>
@@ -17723,6 +17888,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Event Description
                             </div>
@@ -17830,6 +17996,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -17893,6 +18060,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -18039,6 +18207,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             FastXSLT
                           </div>
@@ -18051,6 +18220,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -18156,6 +18326,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -18219,6 +18390,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -18365,6 +18537,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             FastXSLT
                           </div>
@@ -18377,6 +18550,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Fast XSLT Description
                             </div>
@@ -18484,6 +18658,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -18547,6 +18722,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -18693,6 +18869,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Fault
                           </div>
@@ -18705,6 +18882,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -18810,6 +18988,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -18873,6 +19052,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19019,6 +19199,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Fault
                           </div>
@@ -19031,6 +19212,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Fault Description
                             </div>
@@ -19138,6 +19320,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19225,6 +19408,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19312,6 +19496,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19355,10 +19540,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,4\\"
+            data-linkid=\\"7,11\\"
           >
             <g
-              data-testid=\\"link-7,4\\"
+              data-testid=\\"link-7,11\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -19392,10 +19577,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"9,4\\"
+            data-linkid=\\"9,11\\"
           >
             <g
-              data-testid=\\"link-9,4\\"
+              data-testid=\\"link-9,11\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -19449,6 +19634,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19773,6 +19959,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19860,6 +20047,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19947,6 +20135,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -19990,10 +20179,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"6,10\\"
+            data-linkid=\\"6,17\\"
           >
             <g
-              data-testid=\\"link-6,10\\"
+              data-testid=\\"link-6,17\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -20027,10 +20216,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,10\\"
+            data-linkid=\\"7,17\\"
           >
             <g
-              data-testid=\\"link-7,10\\"
+              data-testid=\\"link-7,17\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -20084,6 +20273,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -20408,6 +20598,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -20471,6 +20662,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -20534,6 +20726,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -20876,6 +21069,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -20939,6 +21133,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -21002,6 +21197,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -21346,6 +21542,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -21409,6 +21606,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -21555,6 +21753,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Header
                           </div>
@@ -21567,6 +21766,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -21672,6 +21872,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -21735,6 +21936,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -21881,6 +22083,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Header
                           </div>
@@ -21893,6 +22096,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Header Description
                             </div>
@@ -22000,6 +22204,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -22063,6 +22268,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -22126,6 +22332,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -22468,6 +22675,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -22531,6 +22739,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -22594,6 +22803,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -22938,6 +23148,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23001,6 +23212,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23147,6 +23359,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             JSON Transform
                           </div>
@@ -23159,6 +23372,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -23264,6 +23478,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23327,6 +23542,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23473,6 +23689,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             JSON Transform
                           </div>
@@ -23485,6 +23702,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               JSON Transform Description
                             </div>
@@ -23592,6 +23810,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23655,6 +23874,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23801,6 +24021,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Log
                           </div>
@@ -23813,6 +24034,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Prop Name
                             </div>
@@ -23920,6 +24142,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -23983,6 +24206,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -24129,6 +24353,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Log
                           </div>
@@ -24141,6 +24366,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Log Description
                             </div>
@@ -24248,6 +24474,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -24311,6 +24538,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -24457,6 +24685,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Loopback
                           </div>
@@ -24469,6 +24698,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -24574,6 +24804,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -24637,6 +24868,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -24783,6 +25015,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Loopback
                           </div>
@@ -24795,6 +25028,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Loopback Description
                             </div>
@@ -24902,6 +25136,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -24965,6 +25200,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -25111,6 +25347,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             NTLM
                           </div>
@@ -25123,6 +25360,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -25228,6 +25466,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -25291,6 +25530,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -25437,6 +25677,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             NTLM
                           </div>
@@ -25449,6 +25690,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               NTLM Description
                             </div>
@@ -25556,6 +25798,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -25619,6 +25862,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -25765,6 +26009,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             OAuth
                           </div>
@@ -25777,6 +26022,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -25882,6 +26128,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -25945,6 +26192,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -26091,6 +26339,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             OAuth
                           </div>
@@ -26103,6 +26352,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               OAuth Description
                             </div>
@@ -26210,6 +26460,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -26273,6 +26524,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -26419,6 +26671,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Payload Factory
                           </div>
@@ -26431,6 +26684,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -26536,6 +26790,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -26599,6 +26854,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -26745,6 +27001,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Payload Factory
                           </div>
@@ -26757,6 +27014,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Payload Description
                             </div>
@@ -26864,6 +27122,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -26927,6 +27186,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -27073,6 +27333,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Property
                           </div>
@@ -27085,6 +27346,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Property Name
                             </div>
@@ -27192,6 +27454,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -27255,6 +27518,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -27401,6 +27665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Property Group
                           </div>
@@ -27413,6 +27678,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -27518,6 +27784,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -27581,6 +27848,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -27727,6 +27995,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Property Group
                           </div>
@@ -27739,6 +28008,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Property Group Description
                             </div>
@@ -27846,6 +28116,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -27909,6 +28180,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -28055,6 +28327,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Property
                           </div>
@@ -28067,6 +28340,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Property Description
                             </div>
@@ -28174,6 +28448,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -28237,6 +28512,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -28383,6 +28659,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Publish Event
                           </div>
@@ -28395,6 +28672,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -28500,6 +28778,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -28563,6 +28842,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -28709,6 +28989,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Publish Event
                           </div>
@@ -28721,6 +29002,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Publish Event Description
                             </div>
@@ -28828,6 +29110,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -28891,6 +29174,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -29037,6 +29321,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Respond
                           </div>
@@ -29049,6 +29334,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -29154,6 +29440,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -29217,6 +29504,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -29363,6 +29651,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Respond
                           </div>
@@ -29375,6 +29664,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Respond Description
                             </div>
@@ -29482,6 +29772,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -29545,6 +29836,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -29691,6 +29983,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Rewrite
                           </div>
@@ -29703,6 +29996,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -29808,6 +30102,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -29871,6 +30166,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30017,6 +30313,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Rewrite
                           </div>
@@ -30029,6 +30326,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Rewrite Description
                             </div>
@@ -30136,6 +30434,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30199,6 +30498,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30345,6 +30645,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Rule
                           </div>
@@ -30357,6 +30658,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -30462,6 +30764,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30525,6 +30828,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30671,6 +30975,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Rule
                           </div>
@@ -30683,6 +30988,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Rule Description
                             </div>
@@ -30790,6 +31096,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30853,6 +31160,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -30999,6 +31307,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Script
                           </div>
@@ -31011,6 +31320,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -31116,6 +31426,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -31179,6 +31490,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -31325,6 +31637,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Script
                           </div>
@@ -31337,6 +31650,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Script Description
                             </div>
@@ -31444,6 +31758,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -31507,6 +31822,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -31838,6 +32154,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -31901,6 +32218,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -32234,6 +32552,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -32297,6 +32616,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -32443,6 +32763,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Smooks
                           </div>
@@ -32455,6 +32776,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -32560,6 +32882,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -32623,6 +32946,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -32769,6 +33093,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Smooks
                           </div>
@@ -32781,6 +33106,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Smooks Description
                             </div>
@@ -32888,6 +33214,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -32951,6 +33278,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -33097,6 +33425,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Spring
                           </div>
@@ -33109,6 +33438,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -33214,6 +33544,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -33277,6 +33608,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -33423,6 +33755,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Spring
                           </div>
@@ -33435,6 +33768,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Spring Description
                             </div>
@@ -33542,6 +33876,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -33605,6 +33940,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -33751,6 +34087,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Store
                           </div>
@@ -33763,6 +34100,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -33868,6 +34206,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -33931,6 +34270,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -34077,6 +34417,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Store
                           </div>
@@ -34089,6 +34430,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Store Description
                             </div>
@@ -34196,6 +34538,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -34283,6 +34626,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -34370,6 +34714,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -34433,6 +34778,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -34476,10 +34822,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"6,22\\"
+            data-linkid=\\"6,29\\"
           >
             <g
-              data-testid=\\"link-6,22\\"
+              data-testid=\\"link-6,29\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -34513,10 +34859,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,13\\"
+            data-linkid=\\"7,23\\"
           >
             <g
-              data-testid=\\"link-7,13\\"
+              data-testid=\\"link-7,23\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -34867,6 +35213,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -34954,6 +35301,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -35041,6 +35389,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -35104,6 +35453,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -35147,10 +35497,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"6,22\\"
+            data-linkid=\\"6,29\\"
           >
             <g
-              data-testid=\\"link-6,22\\"
+              data-testid=\\"link-6,29\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -35184,10 +35534,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"7,13\\"
+            data-linkid=\\"7,23\\"
           >
             <g
-              data-testid=\\"link-7,13\\"
+              data-testid=\\"link-7,23\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -35538,6 +35888,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -35625,6 +35976,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -35712,6 +36064,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -35755,10 +36108,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"22,14\\"
+            data-linkid=\\"22,25\\"
           >
             <g
-              data-testid=\\"link-22,14\\"
+              data-testid=\\"link-22,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -35792,10 +36145,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"23,14\\"
+            data-linkid=\\"23,25\\"
           >
             <g
-              data-testid=\\"link-23,14\\"
+              data-testid=\\"link-23,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -35849,6 +36202,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -36171,6 +36525,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -36258,6 +36613,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -36345,6 +36701,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 </div>
               </foreignobject>
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -36388,10 +36745,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"22,14\\"
+            data-linkid=\\"22,25\\"
           >
             <g
-              data-testid=\\"link-22,14\\"
+              data-testid=\\"link-22,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -36425,10 +36782,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             </g>
           </g>
           <g
-            data-linkid=\\"23,14\\"
+            data-linkid=\\"23,25\\"
           >
             <g
-              data-testid=\\"link-23,14\\"
+              data-testid=\\"link-23,25\\"
               pointer-events=\\"all\\"
             >
               <path
@@ -36482,6 +36839,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -36806,6 +37164,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -36869,6 +37228,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37015,6 +37375,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Transaction
                           </div>
@@ -37027,6 +37388,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -37132,6 +37494,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37195,6 +37558,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37341,6 +37705,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             Transaction
                           </div>
@@ -37353,6 +37718,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               Transaction Description
                             </div>
@@ -37460,6 +37826,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37523,6 +37890,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37586,6 +37954,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37928,6 +38297,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -37991,6 +38361,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -38054,6 +38425,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -38398,6 +38770,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -38461,6 +38834,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -38607,6 +38981,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             XQuery
                           </div>
@@ -38619,6 +38994,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -38724,6 +39100,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -38787,6 +39164,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -38933,6 +39311,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             XQuery
                           </div>
@@ -38945,6 +39324,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               XQuery Description
                             </div>
@@ -39052,6 +39432,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -39115,6 +39496,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -39261,6 +39643,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             XSLT
                           </div>
@@ -39273,6 +39656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             />
                           </div>
                         </div>
@@ -39378,6 +39762,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -39441,6 +39826,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 stroke-width=\\"2\\"
               />
               <foreignobject
+                data-testid=\\"add-mediator-button\\"
                 height=\\"30\\"
                 width=\\"20\\"
                 x=\\"-10\\"
@@ -39587,6 +39973,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                         >
                           <div
                             class=\\"css-h55zw6\\"
+                            data-testid=\\"mediator-name\\"
                           >
                             XSLT
                           </div>
@@ -39599,6 +39986,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                           >
                             <div
                               class=\\"css-1vc2u59\\"
+                              data-testid=\\"mediator-description\\"
                             >
                               XSLT Description
                             </div>

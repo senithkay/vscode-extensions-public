@@ -297,6 +297,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 <SubMappingConfigForm
                     functionST={fnST}
                     inputNode={inputNode}
+                    configName={configName}
+                    documentUri={filePath}
                     addView={addView}
                     updateView={editView}
                     applyModifications={applyModifications}

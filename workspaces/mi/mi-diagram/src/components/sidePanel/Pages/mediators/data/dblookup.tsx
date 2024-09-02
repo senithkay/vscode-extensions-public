@@ -563,10 +563,19 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         <Controller
                             name="sqlStatements"
                             control={control}
+                            rules={{
+                                validate: (value) => {
+                                    if (!value.paramValues || value.paramValues.length === 0) {
+                                        return "This table is required";
+                                    }
+                                    return true;
+                                },
+                            }}
                             render={({ field: { onChange, value } }) => (
                                 <ParamManager
                                     paramConfigs={value}
                                     readonly={false}
+                                    errorMessage={errors?.sqlStatements?.message?.toString()}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const property: ParamValue[] = param.paramValues;
