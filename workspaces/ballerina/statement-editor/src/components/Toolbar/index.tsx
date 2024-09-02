@@ -167,13 +167,12 @@ export default function Toolbar() {
                 <Codicon sx={{color: "var(--vscode-editorGutter-deletedBackground)"}} name="trash" />
             </ Button>
             <Divider className={statementEditorClasses.toolbarDivider} />
-            {/* {TODO: Fix the statement qualitifier selection} */}
-            {/* {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && (
+            {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && (
                 <>
                     <StatementQualifiers />
                     <Divider className={statementEditorClasses.toolbarDivider} />
                 </>
-            )} */}
+            )}
             <ToolbarOperators />
             <Divider className={statementEditorClasses.toolbarDivider} />
             <Button
