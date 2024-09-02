@@ -45,6 +45,7 @@
     "react-syntax-highlighter": "~15.5.0",
     "vscode-uri": "^3.0.8",
     "lodash": "~4.17.21",
+    "react-lottie": "^1.2.3",
     "@types/lodash": "~4.17.7"
   },
   "devDependencies": {
@@ -68,6 +69,7 @@
     "ts-loader": "^9.4.1",
     "typescript": "^5.2.2",
     "webpack": "^5.56.0",
+    "@types/react-lottie": "^1.2.5",
     "webpack-dev-server": "^4.11.1"
   },
   "author": "wso2",

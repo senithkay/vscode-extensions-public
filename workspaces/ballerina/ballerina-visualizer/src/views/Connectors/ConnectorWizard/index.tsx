@@ -23,6 +23,7 @@ import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { StatementEditorComponent } from "../../StatementEditorComponent";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import { URI } from "vscode-uri";
+import { PackageLoader } from "../PackageLoader";
 
 
 export interface ConnectorListProps {
@@ -51,6 +52,7 @@ export function ConnectorList(props: ConnectorListProps) {
             selectedConnector?.package?.organization &&
             selectedConnector.package.name
         ) {
+            console.log("==pulling package");
             setPullingPackage(true);
             const imports = getConnectorImports(activeFileInfo?.fullST, selectedConnector.package.organization, selectedConnector.moduleName, true);
             if (imports && imports?.size > 0) {
@@ -73,7 +75,9 @@ export function ConnectorList(props: ConnectorListProps) {
                         console.error('Something wrong when pulling package: ', err);
                     })
                     .finally(async () => {
+                        console.log("==pulling package SET FALSE");
                         setPullingPackage(false);
+                        console.log("==pulling package DONE SET FALSE");
                         // get the initial source
                         const stSymbolInfo = getSymbolInfo();
                         const initialSource = await getInitialSourceForConnectors(selectedConnector, statementPosition, stSymbolInfo, activeFileInfo.activeSequence );
@@ -141,10 +145,8 @@ export function ConnectorList(props: ConnectorListProps) {
         <>
             {pullingPackage && 
             (
-                <PanelContainer title="PUlling pkgs" show={true} onClose={() => setActivePanel({ isActive: false })}>
-                    <div>
-                        <p>Fetching connector package</p>
-                    </div>
+                <PanelContainer title="Pulling packages" show={true} onClose={() => setActivePanel({ isActive: false })}>
+                    <PackageLoader />
                 </PanelContainer>
             )}
             {activeFileInfo?.filePath && !selectedConnector &&
