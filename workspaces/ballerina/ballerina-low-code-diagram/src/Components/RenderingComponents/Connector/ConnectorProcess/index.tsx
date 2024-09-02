@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 
-import { BallerinaConnectorInfo, ConnectorWizardType } from "@wso2-enterprise/ballerina-core";
+import { BallerinaConnectorInfo, ConnectorInfo, ConnectorWizardType } from "@wso2-enterprise/ballerina-core";
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -43,7 +43,9 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const { functionNode } = useFunctionContext();
 
     const { syntaxTree, stSymbolInfo, isReadOnly } = diagramContext.props;
-    const { model, blockViewState, specialConnectorName } = props;
+    const { model, blockViewState, specialConnectorName, selectedConnector } = props;
+    // tslint:disable-next-line
+    console.log("selectedConnector", selectedConnector);
 
     const viewState: ViewState =
         model === null
@@ -70,7 +72,15 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftVS?.connector);
 
     const toggleSelection = () => {
-        setIsConnectorEdit(!isEditConnector);
+        const connectorInfo : ConnectorInfo = {
+            connector: selectedConnector ? selectedConnector : connector,
+            functionNode
+        };
+        // TODO: FIX THIS
+        // tslint:disable-next-line
+        console.log("connectorInfo", connectorInfo);
+        diagramContext.props.onEditComponent(model, model.position, "Connector", connectorInfo);
+        // setIsConnectorEdit(!isEditConnector);
     };
 
     const isDraftStatement: boolean =
