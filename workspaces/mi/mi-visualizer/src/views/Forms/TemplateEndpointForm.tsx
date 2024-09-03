@@ -71,8 +71,8 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
-            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
-            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+            { id: 1, type: "TextField", label: "Name", placeholder: "parameter_key", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", placeholder: "parameter_value", defaultValue: "", isRequired: true },
         ]
     });
     const [artifactNames, setArtifactNames] = useState([]);

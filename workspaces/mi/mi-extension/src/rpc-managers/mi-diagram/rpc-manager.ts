@@ -1077,7 +1077,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
-                                response[MessageStoreModel[param.name]] = param.value;
+                                if (MessageStoreModel[param.name] === "jmsAPIVersion") {
+                                    response.jmsAPIVersion = Number(param.value).toFixed(1);
+                                } else {
+                                    response[MessageStoreModel[param.name]] = param.value;
+                                }
                             }
                         });
                         if (response.queueConnectionFactory) {

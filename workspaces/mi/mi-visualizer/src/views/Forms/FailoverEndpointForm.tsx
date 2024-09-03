@@ -152,8 +152,8 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
-            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
-            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+            { id: 1, type: "TextField", label: "Name", placeholder: "parameter_key", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", placeholder: "parameter_value", defaultValue: "", isRequired: true },
             { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
         ]
     });

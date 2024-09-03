@@ -203,6 +203,29 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                 }),
                             }));
                         }
+                        if (response.driverClassName.includes("mysql")) {
+                            setValue("dbEngine", "MySQL");
+                        } else if (response.driverClassName.includes("derby")) {
+                            setValue("dbEngine", "Apache Derby");
+                        } else if (response.driverClassName.includes("microsoft")) {
+                            setValue("dbEngine", "Microsoft SQL Server");
+                        } else if (response.driverClassName.includes("oracle")) {
+                            setValue("dbEngine", "Oracle");
+                        } else if (response.driverClassName.includes("ibm")) {
+                            setValue("dbEngine", "IBM DB2");
+                        } else if (response.driverClassName.includes("hsql")) {
+                            setValue("dbEngine", "HSQLDB");
+                        } else if (response.driverClassName.includes("informix")) {
+                            setValue("dbEngine", "Informix");
+                        } else if (response.driverClassName.includes("postgre")) {
+                            setValue("dbEngine", "PostgreSQL");
+                        } else if (response.driverClassName.includes("sybase")) {
+                            setValue("dbEngine", "Sybase ASE");
+                        } else if (response.driverClassName.includes("h2")) {
+                            setValue("dbEngine", "H2");
+                        } else {
+                            setValue("dbEngine", "Generic");
+                        }
                     }
                     if (response.externalDSClassName) {
                         setValue("dataSourceProvider", "External Datasource");
@@ -388,6 +411,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                         />
                         <TextField
                             label="Password"
+                            type="password"
                             required
                             {...renderProps("password")}
                         />
