@@ -793,7 +793,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                         paramConfigs={resources}
                                         readonly={false}
                                         onChange={(param)=>handleOnChange(param,"resources")}
-                                        addParamText="Add WSDL Policy" />
+                                        addParamText="Add WSDL Resource" />
                                 </>
                             )}
                         </React.Fragment>
