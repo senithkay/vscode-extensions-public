@@ -193,7 +193,7 @@ import {
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
     AddDriverRequest,
-    DSSQueryGenRequest,
+    ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
     DSSFetchTablesResponse
 } from "./types";
@@ -325,5 +325,5 @@ export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_pr
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
 export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
-export const generateDSSQueries: RequestType<DSSQueryGenRequest, string> = { method: `${_preFix}/generateDSSQueries` };
+export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };

@@ -209,7 +209,7 @@ import {
     GetInboundEPUischemaResponse,
     onDownloadProgress,
     AddDriverRequest,
-    DSSQueryGenRequest,
+    ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
     DSSFetchTablesResponse
 } from "@wso2-enterprise/mi-core";
@@ -4672,11 +4672,30 @@ ${keyValuesXML}`;
         });
     }
 
-    async generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+    async generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
+        const { documentUri, position, ...genQueryParams } = params;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.generateQueries(params);
-            resolve(res);
+            const xml = await langClient.generateQueries(genQueryParams);
+
+            if (!xml) {
+                log('Failed to generate DSS Queries.');
+                resolve(false);
+            }
+
+            const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
+            
+            const xmlLineCount = sanitizedXml.split('\n').length;
+            const insertRange = { start: position, end: position };
+            const formatRange = { 
+                start: position, 
+                end: { line: position.line + xmlLineCount - 1, character: 0 }
+            };
+            await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });
+            await this.rangeFormat({ uri: documentUri, range: formatRange });
+
+            log('Successfully generated DSS Queries.');
+            resolve(true);
         });
     }
 

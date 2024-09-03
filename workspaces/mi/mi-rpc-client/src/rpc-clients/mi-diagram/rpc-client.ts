@@ -322,7 +322,7 @@ import {
     generateDSSQueries,
     fetchDSSTables,
     AddDriverRequest,
-    DSSQueryGenRequest,
+    ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
     DSSFetchTablesResponse
 } from "@wso2-enterprise/mi-core";
@@ -836,7 +836,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
     }
 
-    generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+    generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
         return this._messenger.sendRequest(generateDSSQueries, HOST_EXTENSION, params);
     }
 

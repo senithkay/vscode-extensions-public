@@ -1684,6 +1684,11 @@ export interface DSSQueryGenRequest {
     datasourceName: string;
 }
 
+export interface ExtendedDSSQueryGenRequest extends DSSQueryGenRequest {
+    documentUri: string;
+    position: Position;
+}
+
 export interface DSSQueryGenResponse {
     [tableName: string]: boolean[];
 }
