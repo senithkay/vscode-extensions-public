@@ -98,6 +98,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         }
     }, []);
 
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
+
     const getDefinition = async () => {
         let range;
         if (node.mediatorName === MEDIATORS.SEQUENCE) {

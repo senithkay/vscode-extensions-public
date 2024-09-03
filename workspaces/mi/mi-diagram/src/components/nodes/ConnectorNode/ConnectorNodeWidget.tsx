@@ -128,6 +128,10 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const description = node.stNode.tag.split(".")[1];
 
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
+
     const TooltipEl = useMemo(() => {
         return () => (
             <S.TooltipContent style={{ textWrap: "wrap" }}>
