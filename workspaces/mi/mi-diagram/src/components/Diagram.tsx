@@ -27,7 +27,7 @@ import { SidePanel, NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-to
 import SidePanelList from './sidePanel';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
-import { Colors, NODE_GAP } from "../resources/constants";
+import { Colors } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
