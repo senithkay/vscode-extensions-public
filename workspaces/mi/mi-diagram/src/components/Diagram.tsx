@@ -27,7 +27,7 @@ import { SidePanel, NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-to
 import SidePanelList from './sidePanel';
 import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
-import { Colors } from "../resources/constants";
+import { Colors, NODE_GAP } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -115,6 +115,7 @@ export function Diagram(props: DiagramProps) {
         isOpen: false,
         isEditing: false,
         formValues: {},
+        node: undefined,
         nodeRange: undefined,
         trailingSpace: undefined,
         isFormOpen: false,
@@ -179,13 +180,13 @@ export function Diagram(props: DiagramProps) {
     // center diagram when side panel is opened
     useEffect(() => {
         const { flow, fault } = diagramData;
-        const { model: flowModel, engine: flowEngine, width: flowWidth } = flow;
-        const { model: faultModel, engine: faultEngine, width: faultWidth } = fault;
+        const { model: flowModel, engine: flowEngine, width: flowWidth, height: flowHeight } = flow;
+        const { model: faultModel, engine: faultEngine, width: faultWidth, height: faultHeight } = fault;
 
         if (!isFaultFlow) {
-            centerDiagram(true, flowModel, flowEngine, flowWidth);
+            centerDiagram(true, flowModel, flowEngine, flowWidth, flowHeight);
         } else {
-            centerDiagram(true, faultModel, faultEngine, faultWidth);
+            centerDiagram(true, faultModel, faultEngine, faultWidth, faultHeight);
         }
 
     }, [sidePanelState.isOpen, isFormOpen]);
@@ -198,8 +199,8 @@ export function Diagram(props: DiagramProps) {
 
     const updateDiagramData = async (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
-        let canvasWidth = 0;
-        let canvasHeight = 0;
+        let canvasWidth = (scrollRef.current as any).clientWidth;
+        let canvasHeight = (scrollRef.current as any).clientHeight;
         let currentBreakpoints: GetBreakpointsResponse = {
             breakpoints: [],
             activeBreakpoint: undefined
@@ -218,7 +219,7 @@ export function Diagram(props: DiagramProps) {
                 };
                 canvasWidth = Math.max(canvasWidth, width);
                 canvasHeight = Math.max(canvasHeight, height);
-                initDiagram(newModel, dataItem.engine, width);
+                initDiagram(newModel, dataItem.engine, width, height);
             });
         });
         setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
@@ -257,13 +258,13 @@ export function Diagram(props: DiagramProps) {
     };
 
 
-    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number) => {
+    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number, diagramHeight: number) => {
         setTimeout(() => {
             if (diagramModel) {
                 window.addEventListener("resize", () => {
-                    centerDiagram(false, diagramModel, diagramEngine, diagramWidth);
+                    centerDiagram(false, diagramModel, diagramEngine, diagramWidth, diagramHeight);
                 });
-                centerDiagram(false, diagramModel, diagramEngine, diagramWidth);
+                centerDiagram(false, diagramModel, diagramEngine, diagramWidth, diagramHeight);
                 setTimeout(() => {
                     removeOverlay(diagramEngine);
                 }, 150);
@@ -271,21 +272,48 @@ export function Diagram(props: DiagramProps) {
         }, 150);
     };
 
-    const centerDiagram = async (animate = false, diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number) => {
+    const centerDiagram = async (animate = false, diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number, diagramHeight: number) => {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
             const canvas = diagramEngine.getCanvas();
             const canvasBounds = canvas.getBoundingClientRect();
 
-            const currentOffsetX = diagramEngine.getModel().getOffsetX();
-            const offsetAdj = sidePanelState.isOpen || isFormOpen ? (SIDE_PANEL_WIDTH - 25) : 0;
-            const offsetX = + ((canvasBounds.width - diagramWidth - offsetAdj) / 2);
-
             if (animate) {
+                const currentOffsetX = diagramEngine.getModel().getOffsetX();
+                const currentOffsetY = diagramEngine.getModel().getOffsetY();
+                const isSidePanelOpen = sidePanelState.isOpen || isFormOpen;
+                const offsetAdjX = isSidePanelOpen ? (SIDE_PANEL_WIDTH - 20) : 0;
+                const offsetAdjY = -150;
+                const node = sidePanelState.node;
+
+                const isAddBtn = node instanceof NodeLinkModel;
+                let nodeX, nodeY, nodeWidth, nodeHeight;
+                if (isAddBtn) {
+                    const position = node.getAddButtonPosition();
+                    nodeX = position.x;
+                    nodeY = position.y;
+                    nodeWidth = node.nodeWidth;
+                    nodeHeight = node.nodeHeight;
+                } else if (node) {
+                    nodeX = node.position.x;
+                    nodeY = node.position.y;
+                    nodeWidth = node.nodeWidth;
+                    nodeHeight = node.nodeHeight;
+                }
+
+                const scroll = scrollRef?.current as any;
+                const scrollX = scroll ? scroll.scrollLeft : 0;
+                const scrollY = scroll ? scroll.scrollTop : 0;
+                const offsetWidth = scroll ? scroll.clientWidth : canvasBounds.width;
+                const offsetHeight = scroll ? scroll.clientHeight : canvasBounds.height;
+                const centerX = isSidePanelOpen ? - ((currentOffsetX + nodeX + (nodeWidth / 2) - scrollX) - ((offsetWidth - offsetAdjX) / 2)) : 0;
+                const centerY = isSidePanelOpen ? - ((currentOffsetY + nodeY + (nodeHeight / 2) - scrollY) - ((offsetHeight) / 2)) + offsetAdjY : 0;
+
                 canvas.style.transition = "transform 0.5s";
-                canvas.style.transform = `translateX(${offsetX - currentOffsetX}px)`;
+                canvas.style.transform = `translate(${centerX}px, ${centerY}px)`;
 
             } else {
-                diagramEngine.getModel().setOffsetX(offsetX);
+                const centerX = (canvasBounds.width - diagramWidth) / 2;
+                diagramEngine.getModel().setOffsetX(centerX);
                 diagramEngine.getModel().setGridSize(50);
                 diagramEngine.setModel(diagramModel);
                 diagramEngine.repaintCanvas();
@@ -314,10 +342,9 @@ export function Diagram(props: DiagramProps) {
                 }}>
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
-                        <DiagramCanvas height={canvasDimensions.height + 100} width={canvasDimensions.width} type="flow">
+                        <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="flow">
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.flow.engine as any}
-                                overflow="hidden"
                                 cursor="Default"
                             />
                         </DiagramCanvas>
@@ -325,10 +352,9 @@ export function Diagram(props: DiagramProps) {
 
                     {/* Fault sequence */}
                     {diagramData.fault.engine && diagramData.fault.model && isFaultFlow &&
-                        <DiagramCanvas height={canvasDimensions.height + 40} width={canvasDimensions.width} type="fault">
+                        <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="fault">
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramData.fault.engine as any}
-                                overflow="hidden"
                                 cursor="Default"
                             />
                         </DiagramCanvas>
@@ -340,7 +366,7 @@ export function Diagram(props: DiagramProps) {
                         alignment="right"
                         width={SIDE_PANEL_WIDTH}
                         overlay
-                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isEditing: false, formValues: {} })}
+                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isEditing: false, formValues: {}, node: undefined, nodeRange: undefined })}
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} />
                     </SidePanel>
