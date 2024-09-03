@@ -162,6 +162,14 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-connection", entry] });
+        } else if (key === "dataServices") {
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-data-service", entry] });
+        } else if (key === "dataSources") {
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({commands: ["MI.project-explorer.add-data-source", entry]});
         }
     };
 
@@ -386,6 +394,18 @@ export function AddArtifactView() {
                                         title="Proxy"
                                         description="Create a proxy service to process and route messages."
                                         onClick={() => handleClick("proxyServices")}
+                                    />
+                                    <Card
+                                        icon="data-service"
+                                        title="Data Service"
+                                        description="Create a data service and expose database resources via APIs."
+                                        onClick={() => handleClick("dataServices")}
+                                    />
+                                    <Card
+                                        icon="data-source"
+                                        title="Data Source"
+                                        description="Create a data source and connect with a database."
+                                        onClick={() => handleClick("dataSources")}
                                     />
                                 </HorizontalCardContainer>
                             </PanelViewMore>
