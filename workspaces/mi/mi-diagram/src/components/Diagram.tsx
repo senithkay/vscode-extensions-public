@@ -75,10 +75,10 @@ export function Diagram(props: DiagramProps) {
     const scrollRef = useRef();
 
     const handleScroll = (e: any) => {
-        if (!diagramViewStateKey || diagramViewStateKey === "" || !e?.target?.scrollTop) {
+        if (!diagramViewStateKey || diagramViewStateKey === "" || !e?.target?.scrollTop || !e?.target?.scrollLeft) {
             return
         }
-        localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop }));
+        localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop, scrollPositionX: e.target.scrollLeft }));
     };
 
     useEffect(() => {
@@ -86,10 +86,16 @@ export function Diagram(props: DiagramProps) {
             return
         }
         const storedScrollPosition = localStorage.getItem(diagramViewStateKey);
+        const scroll = scrollRef?.current as any;
         if (storedScrollPosition) {
-            const { scrollPosition: prevScrollPosition } = JSON.parse(storedScrollPosition);
+            const { scrollPosition: prevScrollPosition, scrollPositionX: prevScrollPositionX } = JSON.parse(storedScrollPosition);
             if (scrollRef.current && 'scrollTop' in scrollRef.current && prevScrollPosition !== undefined) {
-                (scrollRef.current as any).scrollTop = prevScrollPosition;
+                scroll.scrollTop = prevScrollPosition;
+            }
+            if (scrollRef.current && 'scrollLeft' in scrollRef.current && prevScrollPosition !== undefined) {
+                scroll.scrollLeft = prevScrollPositionX;
+            } else {
+                scroll.scrollLeft = scroll?.scrollWidth / 2 - scroll?.clientWidth / 2;
             }
         }
     }, [diagramViewStateKey, canvasDimensions]);
