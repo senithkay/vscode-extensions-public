@@ -403,12 +403,16 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const gotoSource = () => {
-        const value=focusedPort?.typeWithValue.value;
-        if (value && Node.isPropertyAssignment(value)) {
-            const initializer = value.getInitializer();
-            const range = getEditorLineAndColumn(initializer);
+        let value = focusedPort?.typeWithValue.value;
+
+        if (value) {
+            if (Node.isPropertyAssignment(value)) {
+                value = value.getInitializer();
+            }
+            const range = getEditorLineAndColumn(value);
             (focusedPort.getNode() as DataMapperNodeModel)?.context.goToSource(range);
         }
+
     };
 
     const inputProps: InputProps = {
