@@ -1,0 +1,354 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { useEffect, useState } from 'react';
+import { Button, Codicon, Drawer, Dropdown, OptionProps, Typography } from '@wso2-enterprise/ui-toolkit';
+import * as yup from 'yup';
+import styled from '@emotion/styled';
+import { SIDE_PANEL_WIDTH } from '../../../../constants';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Entry, Table } from '../../../../components/Table';
+
+const Container = styled.div`
+    * {
+        box-sizing: border-box;
+    }
+`;
+
+const ActionContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-bottom: 20px;
+`;
+
+const SidePanelTitleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    font: inherit;
+    font-weight: bold;
+    color: var(--vscode-editor-foreground);
+`;
+
+const SidePanelBody = styled.div`
+    width: 450px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: scroll;
+`;
+
+const ErrorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--vscode-inputValidation-errorBorder);
+`;
+
+const table = yup.object({
+    name: yup.string().required(),
+    methods: yup.object({
+        get: yup.boolean(),
+        post: yup.boolean(),
+        put: yup.boolean(),
+        delete: yup.boolean(),
+    }).test('methods', 'At least one method should be selected', (value) => {
+        return Object.values(value).some((method) => method);
+    }),
+});
+
+const schema = yup.object({
+    datasource: yup.string().required(),
+    tables: yup.array(table).test('tables', 'At least one table should available', (value) => value.length > 0),
+});
+
+type GenerateResourceFields = yup.InferType<typeof schema>;
+
+type DataSource = {
+    id: string;
+    className: string;
+    dbUrl: string;
+    name: string;
+    password: string;
+};
+
+const initialValues: GenerateResourceFields = {
+    datasource: '',
+    tables: [],
+};
+
+type GenerateResourceProps = {
+    isOpen: boolean;
+    documentUri: string;
+    syntaxTree: any;
+    onCancel: () => void;
+    onSave: (data: GenerateResourceFields) => void;
+};
+
+type TableDataType = {
+    [tableName: string]: string;
+};
+
+export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel, onSave }: GenerateResourceProps) => {
+    const { rpcClient } = useVisualizerContext();
+
+    const {
+        control,
+        watch,
+        handleSubmit,
+        formState: { isValid },
+        setValue,
+        reset,
+    } = useForm({
+        defaultValues: initialValues,
+        resolver: yupResolver(schema),
+        mode: 'onChange',
+    });
+
+    const [selectedPageIndex, setSelectedPageIndex] = useState<number>(0);
+    const [datasources, setDatasources] = useState<DataSource[]>([]);
+    const [items, setItems] = useState<OptionProps[]>([]);
+
+    const resetValues = () => {
+        reset();
+        setDatasources([]);
+        setItems([]);
+    };
+
+    const handleFetchTables = async (datasources?: DataSource[]) => {
+        const datasourceId = watch('datasource');
+        const datasource = datasources.find((ds: DataSource) => ds.id === datasourceId);
+
+        const classExists = await rpcClient.getMiDiagramRpcClient().checkDBDriver(datasource.className);
+        if (!classExists) {
+            return new Error('className does not exist');
+        }
+
+        const fetchedTables = await rpcClient.getMiDiagramRpcClient().fetchDSSTables({
+            className: datasource.className,
+            username: datasource.name,
+            password: datasource.password,
+            url: datasource.dbUrl,
+        });
+
+        const tableData = Object.keys(fetchedTables).map((tableName, index) => {
+            const readonly = fetchedTables[tableName]![0];
+            const primaryKey = fetchedTables[tableName]![1];
+
+            return {
+                id: `tables[${index}].methods`,
+                name: tableName,
+                get: false,
+                post: !readonly ? false : undefined,
+                put: !readonly && primaryKey ? false : undefined,
+                delete: !readonly && primaryKey ? false : undefined,
+            };
+        });
+
+        setValue('tables', tableData, { shouldValidate: true });
+        setSelectedPageIndex(1);
+    };
+
+    const handleCancel = () => {
+        if (datasources.length > 1 && selectedPageIndex === 1) {
+            setSelectedPageIndex(0);
+        } else {
+            onCancel();
+        }
+    };
+
+    const handleGenerate = async (values: GenerateResourceFields) => {
+        const tableData: TableDataType = {};
+        for (const table of values.tables) {
+            const methods = table.methods;
+            tableData[table.name] = `${methods.get ? 'GET' : ''},${methods.post ? 'POST' : ''},${methods.put ? 'PUT' : ''},${
+                methods.delete ? 'DELETE' : ''
+            }`;
+        }
+
+        const datasource = datasources.find((ds: DataSource) => ds.id === values.datasource);
+        const generateResourceParams = {
+            documentUri,
+            position: syntaxTree.data.spaces.endingTagSpace.leadingSpace.range.start,
+            className: datasource.className,
+            url: datasource.dbUrl,
+            username: datasource.name,
+            password: datasource.password,
+            datasourceName: datasource.name,
+            tableData: JSON.stringify(tableData),
+        };
+
+        await rpcClient.getMiDiagramRpcClient().generateDSSQueries(generateResourceParams);
+
+        onCancel();
+    };
+
+    useEffect(() => {
+        if (!isOpen) {
+            resetValues();
+            return;
+        }
+
+        const fetchData = async () => {
+            try {
+                const fetchedData = syntaxTree.data.configs;
+                if (fetchedData?.length > 0) {
+                    const datasourceInfo: DataSource[] = [];
+                    for (const item of fetchedData) {
+                        if (item.property.some((property: any) => property.name === 'driverClassName')) {
+                            const datasource = {
+                                id: item.id,
+                                className: '',
+                                dbUrl: '',
+                                name: '',
+                                password: '',
+                            };
+
+                            for (const property of item.property) {
+                                if (property.name === 'driverClassName') {
+                                    datasource.className = property.textNode;
+                                } else if (property.name === 'url') {
+                                    datasource.dbUrl = property.textNode;
+                                } else if (property.name === 'username') {
+                                    datasource.name = property.textNode;
+                                } else if (property.name === 'password') {
+                                    datasource.password = property.textNode;
+                                }
+                            }
+
+                            datasourceInfo.push(datasource);
+                        }
+                    }
+
+                    const datasourceItems = datasourceInfo.map((datasource) => ({
+                        id: datasource.id,
+                        value: datasource.id,
+                        label: datasource.id,
+                    }));
+
+                    setValue('datasource', datasourceItems[0].value, { shouldValidate: true });
+                    setDatasources(datasourceInfo);
+                    setItems(datasourceItems);
+
+                    if (datasourceItems.length === 1) {
+                        await handleFetchTables(datasourceInfo);
+                    }
+                } else {
+                    resetValues();
+                }
+            } catch (error: any) {
+                console.error(error);
+                resetValues();
+            }
+        };
+
+        fetchData();
+    }, [isOpen]);
+
+    return (
+        <Container>
+            <Drawer
+                isOpen={isOpen && datasources.length > 1}
+                isSelected={isOpen && datasources.length > 1}
+                width={SIDE_PANEL_WIDTH}
+                sx={{ transition: 'all 0.3s ease-in-out' }}
+            >
+                <SidePanelTitleContainer>
+                    <Button sx={{ marginLeft: 'auto' }} onClick={onCancel} appearance="icon">
+                        <Codicon name="close" />
+                    </Button>
+                </SidePanelTitleContainer>
+                <SidePanelBody>
+                    <Typography variant="h3">Generate Resources</Typography>
+                    <Controller
+                        name="datasource"
+                        control={control}
+                        render={({ field: { onChange } }) => (
+                            <Dropdown id="datasource" label="Datasource" items={items} onValueChange={onChange} />
+                        )}
+                    />
+                    <ActionContainer>
+                        <Button appearance="primary" onClick={handleFetchTables}>
+                            Fetch Tables
+                        </Button>
+                        <Button appearance="secondary" onClick={handleCancel}>
+                            Cancel
+                        </Button>
+                    </ActionContainer>
+                </SidePanelBody>
+            </Drawer>
+            <Drawer
+                isOpen={isOpen && selectedPageIndex === 1}
+                isSelected={isOpen && selectedPageIndex === 1}
+                width={SIDE_PANEL_WIDTH}
+                sx={{ transition: 'all 0.3s ease-in-out' }}
+            >
+                <SidePanelTitleContainer>
+                    <Button sx={{ marginLeft: 'auto' }} onClick={onCancel} appearance="icon">
+                        <Codicon name="close" />
+                    </Button>
+                </SidePanelTitleContainer>
+                <SidePanelBody>
+                    <Typography variant="h3">Generate Resources</Typography>
+                    <Typography variant="h4" sx={{ margin: 0 }}>
+                        Select Tables
+                    </Typography>
+                    <Table control={control} name="tables" />
+                    <ActionContainer>
+                        <Button appearance="primary" onClick={handleSubmit(handleGenerate)} disabled={!isValid}>
+                            Generate
+                        </Button>
+                        <Button appearance="secondary" onClick={handleCancel}>
+                            Cancel
+                        </Button>
+                    </ActionContainer>
+                </SidePanelBody>
+            </Drawer>
+            <Drawer
+                isOpen={isOpen && datasources.length === 0}
+                isSelected={isOpen && datasources.length === 0}
+                width={SIDE_PANEL_WIDTH}
+                sx={{ transition: 'all 0.3s ease-in-out' }}
+            >
+                <SidePanelTitleContainer>
+                    <Button sx={{ marginLeft: 'auto' }} onClick={onCancel} appearance="icon">
+                        <Codicon name="close" />
+                    </Button>
+                </SidePanelTitleContainer>
+                <SidePanelBody>
+                    <Typography variant="h3">Generate Resources</Typography>
+                    <ErrorContainer>
+                        <Typography variant="h4" sx={{ margin: 0 }}>
+                            Error!
+                        </Typography>
+                        <Typography variant="body3">
+                            An RDBMS datasource is required with the relevant driver added to it in order to use this
+                            feature.
+                        </Typography>
+                    </ErrorContainer>
+                    <ActionContainer>
+                        <Button appearance="primary" onClick={handleCancel}>
+                            Okay
+                        </Button>
+                    </ActionContainer>
+                </SidePanelBody>
+            </Drawer>
+        </Container>
+    );
+};
+
