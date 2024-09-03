@@ -59,7 +59,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
 
     return (
         <>
-            <FormGroup title="Select Database Driver" isCollapsed={false}>
+            <FormGroup title="Select Database Driver" isCollapsed={continueWithoutDriver}>
                 {isDriverValid === null ? (
                     <>
                         <LocationSelector

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../Button/Button';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
@@ -93,6 +93,10 @@ interface FormGroupProps {
 
 export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
+    
+    useEffect(() => {
+        setCollapsed(isCollapsed);
+    }, [isCollapsed]);
 
     const toggleCollapse = () => setCollapsed(!collapsed);
 
