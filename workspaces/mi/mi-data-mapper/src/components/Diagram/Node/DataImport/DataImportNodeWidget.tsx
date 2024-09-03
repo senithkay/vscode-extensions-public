@@ -12,10 +12,11 @@ import { TreeContainer } from "../commons/Tree/Tree";
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { Label } from "../../OverriddenLinkLayer/LabelWidget";
+import { IOType } from "@wso2-enterprise/mi-core";
 
 export interface DataImportNodeWidgetProps {
     configName: string;
-    ioType: string;
+    ioType: IOType;
 }
 
 export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
@@ -39,7 +40,7 @@ export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--vscode-activityBarTop.activeForeground' }}>
                 <div style={{padding: '100px', justifyContent: 'space-between'}}>
                     <Codicon sx={{ margin: 5, zoom: 5}}  name="new-file" onClick={handleOnClick} />
-                    <Label style={{fontSize:15}}>Import {ioType} Schema</Label>
+                    <Label style={{fontSize:15}}>Import {ioType} schema</Label>
                 </div>
                 </div>
             </TreeContainer>

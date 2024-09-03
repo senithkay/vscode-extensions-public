@@ -326,6 +326,16 @@ export const onProxyEdit = async (
             } 
         }
     }
+    let targetRange = proxyRange(model, "target");
+    if (targetRange) {
+        let proxyTagRange = proxyRange(model, "proxy");
+        let removeRange = { start: proxyTagRange.end, end: targetRange.start };
+        await rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: "\n",
+            documentUri: documentUri,
+            range: removeRange
+        });
+    }
     
 }
 

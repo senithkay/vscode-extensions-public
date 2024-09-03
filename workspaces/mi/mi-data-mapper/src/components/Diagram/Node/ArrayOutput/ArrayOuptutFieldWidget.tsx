@@ -31,6 +31,7 @@ import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -42,7 +43,7 @@ export interface ArrayOutputFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: Node) => Promise<void>;
-    asOutput ?: boolean;
+    asOutput?: boolean;
     hasHoveredParent?: boolean;
 }
 
@@ -129,7 +130,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const handleEditValue = () => {
         let value = field.value;
-    
+
         if (field.value && Node.isPropertyAssignment(field.value)) {
             value = field.value.getInitializer();
         }
@@ -282,7 +283,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     }, [isAddingElement]);
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
             collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
         } else {
@@ -373,30 +374,30 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     </span>
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
-                            <Button
-                                appearance="icon"
-                                sx={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                                data-testid={`${portIn?.getName()}-expand-icon-array-field`}
-                            >
-                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                            </Button>
+                            <FieldActionWrapper>
+                                <Button
+                                    appearance="icon"
+                                    sx={{ marginLeft: indentation }}
+                                    onClick={handleExpand}
+                                    data-testid={`${portIn?.getName()}-expand-icon-array-field`}
+                                >
+                                    {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                                </Button>
+                            </FieldActionWrapper>
                         )}
                         {label}
                     </span>
                     {(isLoading) ? (
                         <ProgressRing />
-                    ) : (
-                        <>
-                            {((hasValue && !connectedViaLink) || !isDisabled) && (
-                                <ValueConfigMenu
-                                    menuItems={valConfigMenuItems}
-                                    isDisabled={!typeName}
-                                    portName={portIn?.getName()}
-                                />
-                            )}
-                        </>
-                    )}
+                    ) : (((hasValue && !connectedViaLink) || !isDisabled) && (
+                        <FieldActionWrapper>
+                            <ValueConfigMenu
+                                menuItems={valConfigMenuItems}
+                                isDisabled={!typeName}
+                                portName={portIn?.getName()}
+                            />
+                        </FieldActionWrapper>
+                    ))}
                 </div>
             )}
             {((expanded && hasValue && arrayLitExpr) || isReturnStmtMissing) && (
