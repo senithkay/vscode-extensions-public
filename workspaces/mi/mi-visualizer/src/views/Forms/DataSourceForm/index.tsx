@@ -394,12 +394,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
 
     const handleNext = async (values: any) => {
         if (step === 1) {
-            // FIX ME: Add backend calls
-            // const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDriverClass({
-            //     className: watch('driverClassName')
-            // });
-
-            const driverClassAvailable = false;
+            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('driverClassName'));
 
             if (driverClassAvailable) {
                 setStep(3);
@@ -411,14 +406,9 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         }
     }
 
-    const handleBack = () => {
+    const handleBack = async () => {
         if (step === 3) {
-            // FIX ME: add backend calls
-            // const driverClassAvailable = rpcClient.getMiDiagramRpcClient().checkDriverClass({
-            //     className: watch('driverClassName')
-            // });
-
-            const driverClassAvailable = false;
+            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('driverClassName'));
 
             if (driverClassAvailable) {
                 setStep(1);

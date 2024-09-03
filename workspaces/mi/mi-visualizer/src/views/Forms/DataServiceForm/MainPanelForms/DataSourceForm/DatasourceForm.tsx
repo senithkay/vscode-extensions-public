@@ -154,6 +154,9 @@ export const newDataSource: DataSourceFields = {
         type: "",
         databaseEngine: "MySQL",
         driverClassName: "",
+        hostname: "",
+        port: "",
+        databaseName: "",
         url: "",
         username: "",
         useSecretAlias: false,
@@ -624,12 +627,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
 
     const handleNext = async (values: any) => {
         if (step === 1) {
-            // FIX ME: Add backend calls
-            // const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDriverClass({
-            //     className: watch('rdbms.driverClassName')
-            // });
-
-            const driverClassAvailable = false;
+            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('rdbms.driverClassName'));
 
             if (driverClassAvailable) {
                 setStep(3);
@@ -671,13 +669,9 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
         }
     };
 
-    const handleBack = () => {
+    const handleBack = async () => {
         if (step === 3) {
-            // const driverClassAvailable = rpcClient.getMiDiagramRpcClient().checkDriverClass({
-            //     className: watch('rdbms.driverClassName')
-            // });
-
-            const driverClassAvailable = false;
+            const driverClassAvailable = await rpcClient.getMiDiagramRpcClient().checkDBDriver(watch('rdbms.driverClassName'));
 
             if (driverClassAvailable) {
                 setStep(1);

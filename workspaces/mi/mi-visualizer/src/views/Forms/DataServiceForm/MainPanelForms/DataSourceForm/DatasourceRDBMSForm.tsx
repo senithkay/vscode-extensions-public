@@ -160,42 +160,34 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                 <TextField
                     label="Hostname"
                     size={100}
+                    required
                     {...props.renderProps('rdbms.hostname')}
                 />
                 <TextField
                     label="Port"
                     size={100}
+                    required
                     {...props.renderProps('rdbms.port')}
                 />
                 <TextField
                     label="Database Name"
                     size={100}
+                    required
                     {...props.renderProps('rdbms.databaseName')}
                 />
                 <TextField
                     label="Username"
                     size={100}
+                    required
                     {...props.renderProps('rdbms.username')}
                 />
-                <FormCheckBox
-                    label="Use Secret Alias"
-                    {...props.renderProps("rdbms.useSecretAlias")}
-                    control={props.control}
+                <TextField
+                    label="Port"
+                    size={100}
+                    required
+                    type="password"
+                    {...props.renderProps('rdbms.password')}
                 />
-                {props.watch('rdbms.useSecretAlias') ?
-                    <TextField
-                        label="Secret Alias"
-                        size={100}
-                        {...props.renderProps('rdbms.secretAlias')}
-                    />
-                    :
-                    <TextField
-                        label="Password"
-                        size={100}
-                        type="password"
-                        {...props.renderProps('rdbms.password')}
-                    />
-                }
                 <TextField
                     label="URL"
                     required

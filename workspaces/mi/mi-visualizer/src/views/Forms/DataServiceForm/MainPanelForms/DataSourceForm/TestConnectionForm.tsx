@@ -38,15 +38,18 @@ export function TestConnectionForm(props: TestConnectionFormProps) {
     }, [props.watch('rdbms.useSecretAlias')]);
 
     const testConnection = async (values: any) => {
-        // const response = await rpcClient.getMiDiagramRpcClient().testDBConnection({
-        //     className: props.watch('rdbms.driverClassName') ?? props.watch('driverClassName'),
-        //     driverPath: props.watch('rdbms.driverPath') ?? props.watch('driverPath'),
-        //     dbUrl: props.watch('rdbms.url') ?? props.watch('url'),
-        //     username: props.watch('rdbms.username') ?? props.watch('username'),
-        //     password: props.watch('rdbms.password') ?? props.watch('password'),
+        const testResponse = await rpcClient.getMiDiagramRpcClient().testDbConnection({
+            url: props.watch('url') ?? props.watch('rdbms.url'),
+            className: props.watch('driverClassName') ?? props.watch('rdbms.driverClassName'),
+            username: props.watch('username') ?? props.watch('rdbms.username'),
+            password: props.watch('password') ?? props.watch('rdbms.password'),
+            dbName: "",
+            dbType: "",
+            host: "",
+            port: ""
+        });
 
-        // });
-        setConnectionSuccess(true);
+        setConnectionSuccess(testResponse.success);
     }
 
     const handleModifyURL = () => {
@@ -75,24 +78,6 @@ export function TestConnectionForm(props: TestConnectionFormProps) {
                     size={100}
                     {...(props.fromDatasourceForm ? props.renderProps('username') : props.renderProps('rdbms.username'))}
                 />
-                {/* <FormCheckBox
-                    label="Use Secret Alias"
-                    {...props.renderProps("rdbms.useSecretAlias")}
-                    control={props.control}
-                />
-                {props.watch('rdbms.useSecretAlias') ?
-                    <TextField
-                        label="Secret Alias"
-                        size={100}
-                        {...props.renderProps('rdbms.secretAlias')}
-                    />
-                    :
-                    <TextField
-                        label="Password"
-                        size={100}
-                        {...(props.fromDatasourceForm ? props.renderProps('password') : props.renderProps('rdbms.password'))}
-                    />
-                } */}
                 <TextField
                     label="Password"
                     size={100}
@@ -109,7 +94,7 @@ export function TestConnectionForm(props: TestConnectionFormProps) {
                         connectionSuccess ? (
                             <span style={{ color: 'green' }}>Connection Success!</span>
                         ) : (
-                            <span style={{ color: 'red' }}>Connection Failed</span>
+                            <span style={{ color: 'red' }}>Connection Failed!</span>
                         )
                     )}
                 </div>

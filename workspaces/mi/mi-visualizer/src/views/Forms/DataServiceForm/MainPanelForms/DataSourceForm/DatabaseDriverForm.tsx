@@ -41,9 +41,11 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
 
     const handleAddDriver = async () => {
         const driverPath = await rpcClient.getMiDiagramRpcClient().addDriverToLib({ url: props.watch('driverPath') });
-        // Check Driver is valid
-        // Assume Driver is valid
-        setIsDriverValid(true);
+        const validDriverAdded = await rpcClient.getMiDiagramRpcClient().addDBDriver({
+            className: props.watch('rdbms.driverClassName') ?? props.watch('driverClassName'),
+            driverPath: driverPath.path
+        });
+        setIsDriverValid(validDriverAdded);
     }
 
     const handleDriverDirSelection = async () => {
