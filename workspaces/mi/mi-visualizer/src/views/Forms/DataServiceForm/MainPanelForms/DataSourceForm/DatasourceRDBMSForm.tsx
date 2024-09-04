@@ -190,7 +190,6 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                     <TextField
                         label="Secret Alias"
                         size={100}
-                        type="password"
                         required
                         {...props.renderProps('rdbms.secretAlias')}
                     />
