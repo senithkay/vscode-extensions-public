@@ -590,6 +590,14 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             }));
     };
 
+    const handleOnUseSecretAlias = (values: any): Property[] => {
+        if (watch("rdbms.useSecretAlias")) {
+            values.rdbms.password = "";
+        }
+        
+        return values;
+    }
+
     const handleDatasourceSubmit = async (values: any) => {
 
         values.dsConfigurations = datasourceConfigurations;
@@ -599,10 +607,9 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                 enableOData: values.enableOData,
                 dynamicUserAuthClass: values.dynamicUserAuthClass,
                 datasourceConfigurations: values.dsConfigurations,
-                datasourceProperties: values.dataSourceType === "RDBMS" ? configToProperties(values.rdbms) :
+                datasourceProperties: values.dataSourceType === "RDBMS" ? handleOnUseSecretAlias(configToProperties(values.rdbms)) :
                     values.dataSourceType === "MongoDB" ? configToProperties(values.mongodb) :
                         values.dataSourceType === "Cassandra" ? configToProperties(values.cassandra) :
-                            values.dataSourceType === "CSV" ? configToProperties(values.csv) :
                                 configToProperties(values.carbonDatasource)
             };
             await rpcClient.getMiDiagramRpcClient().createDssDataSource({
@@ -610,7 +617,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             });
             handleCancel();
         } else {
-            const currentDatasource = values;
+            const currentDatasource = values.dataSourceType === "RDBMS" ? handleOnUseSecretAlias(values) : values;
             const datasourceIndex = props.datasources.findIndex(
                 (datasource: any) => datasource.dataSourceName === currentDatasource.dataSourceName
             );
