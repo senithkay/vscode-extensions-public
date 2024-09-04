@@ -12,7 +12,10 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AI_EVENT_TYPE,
-    AddToProjectRequest
+    AddToProjectRequest,
+    GenerateMappingsRequest,
+    GenerateMappingsResponse,
+    NotifyAIMappingsRequest,
 } from "@wso2-enterprise/ballerina-core";
 import axios from "axios";
 import * as crypto from 'crypto';
@@ -20,8 +23,8 @@ import * as fs from 'fs';
 import path from "path";
 import * as vscode from 'vscode';
 import { extension } from "../../BalExtensionContext";
-import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { updateView } from "../../stateMachine";
+import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -181,5 +184,25 @@ public function main() {
                 }
             }
         });
+    }
+
+    async generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async stopAIMappings(): Promise<GenerateMappingsResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async promptLogin(): Promise<boolean> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

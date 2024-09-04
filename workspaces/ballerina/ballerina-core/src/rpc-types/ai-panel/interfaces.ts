@@ -8,11 +8,34 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { AIMachineStateValue } from "../../state-machine-types";
+
+export type ErrorCode = {
+    code: number;
+    message: string;
+};
 
 export interface AIVisualizerState {
     state: AIMachineStateValue;
 }
 export interface AddToProjectRequest {
     content: string;
+}
+
+export interface GenerateMappingsRequest {
+    position: NodePosition;
+    filePath: string;
+}
+
+export interface GenerateMappingsResponse {
+    newFnPosition?: NodePosition;
+    error?: ErrorCode;
+    userAborted?: boolean;
+}
+
+export interface NotifyAIMappingsRequest {
+    newFnPosition: NodePosition;
+    prevFnSource: string;
+    filePath: string;
 }
