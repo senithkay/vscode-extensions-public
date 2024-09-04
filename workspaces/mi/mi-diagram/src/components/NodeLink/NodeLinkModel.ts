@@ -9,7 +9,7 @@
 
 import _ from "lodash";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
+import { Colors, NODE_DIMENSIONS, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 import { Position, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -47,6 +47,8 @@ export class NodeLinkModel extends DefaultLinkModel {
     nextNode: string;
     onAddClick?: () => void;
     diagnostics?: Diagnostic[];
+    readonly nodeWidth = NODE_DIMENSIONS.PLUS.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.PLUS.HEIGHT;
 
     constructor(label?: string);
     constructor(options: NodeLinkModelOptions);

@@ -113,7 +113,8 @@ export class BaseNodeModel extends NodeModel {
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,
-                parentNode: node.mediatorName
+                parentNode: node.mediatorName,
+                node: node,
             });
         }
     }
