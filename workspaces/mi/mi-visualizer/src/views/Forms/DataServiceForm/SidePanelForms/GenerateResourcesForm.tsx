@@ -357,7 +357,7 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 <SidePanelBody>
                     <Typography variant="h3">Generate Resources</Typography>
                     <Alert title="Error!" variant="error">
-                        An RDBMS datasource is required with the relevant driver added to it in order to use this
+                        A RDBMS datasource is required with the relevant driver added to it in order to use this
                         feature.
                     </Alert>
                     <ActionContainer>
