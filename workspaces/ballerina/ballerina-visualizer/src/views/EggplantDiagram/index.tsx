@@ -445,7 +445,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const handleOpenView = async (filePath: string, position: NodePosition) => {
         console.log(">>> open view: ", { filePath, position });
         const context: VisualizerLocation = {
-            documentUri: model.fileName,
+            documentUri: filePath,
             position: position,
         };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });

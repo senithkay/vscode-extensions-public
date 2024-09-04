@@ -82,7 +82,7 @@ export function convertNodePropertiesToFormFields(
     for (const key in nodeProperties) {
         if (nodeProperties.hasOwnProperty(key)) {
             const expression = nodeProperties[key as NodePropertyKey];
-            if (expression) {
+            if (expression && expression.valueType !== "VIEW") {
                 const formField: FormField = {
                     key,
                     label: expression.metadata?.label || "",
@@ -91,7 +91,7 @@ export function convertNodePropertiesToFormFields(
                     editable: isFieldEditable(expression, connections, clientName),
                     documentation: expression.metadata?.description || "",
                     value: getFormFieldValue(expression, clientName),
-                    items: getFormFieldItems(expression, connections), // INFO: Not supporting drop down for now
+                    items: getFormFieldItems(expression, connections),
                 };
                 formFields.push(formField);
             }
@@ -219,7 +219,10 @@ export function enrichNodePropertiesWithValueConstraint(
         if (enrichedNodeProperties.hasOwnProperty(key)) {
             const expression = enrichedNodeProperties[key as NodePropertyKey];
             if (expression) {
-                expression.valueTypeConstraint = nodePropsWithValConstrant[key as NodePropertyKey].valueTypeConstraint;
+                const valConstraint = nodePropsWithValConstrant[key as NodePropertyKey]?.valueTypeConstraint;
+                if (valConstraint) {
+                    expression.valueTypeConstraint = valConstraint;
+                }
             }
         }
     }

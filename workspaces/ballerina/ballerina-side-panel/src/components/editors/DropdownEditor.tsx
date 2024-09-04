@@ -8,9 +8,12 @@
  */
 
 import React from "react";
-import { FormField } from "../Form/types";
+
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { FieldValues, UseFormRegister } from "react-hook-form";
+
+import { FormField } from "../Form/types";
+import { getValueForDropdown } from "./utils";
 
 interface DropdownEditorProps {
     field: FormField;
@@ -23,10 +26,9 @@ export function DropdownEditor(props: DropdownEditorProps) {
     return (
         <Dropdown
             id={field.key}
-            {...register(field.key, { required: !field.optional, value: field.value !== "" ? field.value : field.items[0] })}
+            {...register(field.key, { required: !field.optional, value: getValueForDropdown(field) })}
             label={field.label}
-            items={field.items.map((item) => ({ id: item, content: item, value: item }))}
-            defaultValue={field.items[0]}
+            items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
             required={!field.optional}
             sx={{ width: "100%" }}
             containerSx={{ width: "100%" }}
