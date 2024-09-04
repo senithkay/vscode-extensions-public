@@ -296,7 +296,9 @@ export function Diagram(props: DiagramProps) {
                     centerDiagram(false, diagramModel, diagramEngine, diagramWidth, diagramHeight);
                 });
                 centerDiagram(false, diagramModel, diagramEngine, diagramWidth, diagramHeight);
-                setIsLoading(false);
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 150);
             }
         }, 150);
     };
