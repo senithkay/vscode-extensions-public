@@ -46,13 +46,10 @@ interface ActiveFileInfo {
     activeSequence: STNode;
 }
 
-export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
 export type SidePanel = "EMPTY" | "RECORD_EDITOR";
 
 interface VisualizerContext {
-    popupScreen: PopupScreen;
     popupMessage: boolean;
-    setPopupScreen: (screen: PopupScreen) => void;
     setPopupMessage: (value: boolean) => void;
     sidePanel: SidePanel;
     screenMetadata: any;
@@ -69,8 +66,6 @@ interface VisualizerContext {
 }
 
 export const VisualizerContext = createContext({
-    popupScreen: "EMPTY",
-    setPopupScreen: (screen: PopupScreen) => {  },
     activePanel: { isActive: false },
     setActivePanel: (panelDetails: PanelDetails) => { },
     statementPosition: undefined,
@@ -83,7 +78,6 @@ export const VisualizerContext = createContext({
 } as VisualizerContext);
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
-    const [popupScreen, setPopupScreen] = useState("EMPTY" as PopupScreen);
     const [popupMessage, setPopupMessage] = useState(false);
     const [sidePanel, setSidePanel] = useState("EMPTY" as SidePanel);
     const [metadata, setMetadata] = useState({} as any);
@@ -94,10 +88,8 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
 
 
     const contextValue: VisualizerContext = {
-        popupScreen: popupScreen,
         popupMessage: popupMessage,
         screenMetadata: metadata,
-        setPopupScreen: setPopupScreen,
         setPopupMessage: setPopupMessage,
         sidePanel: sidePanel,
         setSidePanel: setSidePanel,

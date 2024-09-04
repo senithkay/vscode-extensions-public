@@ -36,7 +36,6 @@ interface ComponentDiagramProps {
 
 export function ComponentDiagram(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
 

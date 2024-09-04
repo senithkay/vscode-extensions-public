@@ -74,7 +74,6 @@ export interface EggplantDiagramProps {
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [suggestedModel, setSuggestedModel] = useState<Flow>();

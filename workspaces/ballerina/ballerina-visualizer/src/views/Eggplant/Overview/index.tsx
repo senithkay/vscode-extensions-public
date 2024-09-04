@@ -117,7 +117,7 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen, setPopupMessage, setSidePanel } = useVisualizerContext();
+    const { setPopupMessage, setSidePanel } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 

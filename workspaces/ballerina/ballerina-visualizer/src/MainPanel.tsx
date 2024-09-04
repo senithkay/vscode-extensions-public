@@ -65,9 +65,7 @@ const PopUpContainer = styled.div`
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
     const {
-        popupScreen,
         sidePanel,
-        setPopupScreen,
         setSidePanel,
         popupMessage,
         setPopupMessage,
@@ -203,10 +201,6 @@ const MainPanel = () => {
         }
     }, [viewComponent]);
 
-    const handleOnClosePopup = () => {
-        setPopupScreen("EMPTY");
-    };
-
     const handleOnCloseMessage = () => {
         setPopupMessage(false);
     }
@@ -223,9 +217,6 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
-                {/* {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
-                    {popupScreen === "ADD_CONNECTION" && <AddConnectionWizard onClose={handleOnClosePopup} />}
-                </PopupPanel>} */}
                 {popupMessage &&
                     <PopupMessage onClose={handleOnCloseMessage}>
                         <Typography variant='h3'>This feature is coming soon!</Typography>
