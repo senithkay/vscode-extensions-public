@@ -182,7 +182,7 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                     {...props.renderProps('rdbms.username')}
                 />
                 <TextField
-                    label="Port"
+                    label="Password"
                     size={100}
                     required
                     type="password"
