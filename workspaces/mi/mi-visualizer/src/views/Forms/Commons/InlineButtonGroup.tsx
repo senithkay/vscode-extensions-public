@@ -23,10 +23,10 @@ const ButtonContainer = styled.div({
     gap: 10
 });
 
-const InlineButtonGroup = ({ label, isHide, onShowHideToggle, addNewFunction }: any) => {
+const InlineButtonGroup = ({ label, isHide, onShowHideToggle, addNewFunction, required }: any) => {
     return (
         <Container>
-            <b>{label}</b>
+            <b>{label}{required && <span style={{ color: "red" }}>*</span>}</b>
             <ButtonContainer>
                 <Button
                     appearance="secondary"

@@ -149,8 +149,8 @@ export function RecipientWizard(props: RecipientWizardProps) {
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
-            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
-            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+            { id: 1, type: "TextField", label: "Name", placeholder: "parameter_key", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", placeholder: "parameter_value", defaultValue: "", isRequired: true },
             { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
         ]
     });
@@ -299,6 +299,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 <FieldGroup>
                     <InlineButtonGroup
                         label="Endpoints"
+                        required="true"
                         isHide={expandEndpointsView}
                         onShowHideToggle={() => {
                             setExpandEndpointsView(!expandEndpointsView);
@@ -356,7 +357,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!(isDirty || endpointsUpdated)}
+                    disabled={!((isDirty && endpoints.length > 0) || (!isNewEndpoint && endpoints.length > 0 && (isDirty || endpointsUpdated)))}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
                 </Button>
