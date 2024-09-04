@@ -82,7 +82,13 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     }
 
     const handleAddConnection = () => {
-        setPopupScreen("ADD_CONNECTION");
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.AddConnectionWizard,
+            },
+            isPopup: true
+        });
     };
 
     const handleGoToConnection = (connection: Connection) => {
