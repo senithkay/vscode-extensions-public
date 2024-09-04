@@ -322,8 +322,14 @@ import {
     generateDSSQueries,
     fetchDSSTables,
     AddDriverRequest,
-    DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DriverPathResponse,
+    askDriverPath,
+    addDriverToLib,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -525,6 +531,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createDssDataSource(params: CreateDssDataSourceRequest): Promise<CreateDssDataSourceResponse> {
         return this._messenger.sendRequest(createDssDataSource, HOST_EXTENSION, params);
+    }
+
+    askDriverPath(): Promise<DriverPathResponse> {
+        return this._messenger.sendRequest(askDriverPath, HOST_EXTENSION);
+    }
+
+    addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        return this._messenger.sendRequest(addDriverToLib, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
@@ -835,11 +849,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
     }
 
-    generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+    generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
         return this._messenger.sendRequest(generateDSSQueries, HOST_EXTENSION, params);
     }
 
-    fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string, boolean[]>> {
+    fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
     }
 }
