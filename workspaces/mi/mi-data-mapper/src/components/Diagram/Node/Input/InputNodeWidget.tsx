@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType, IOType } from "@wso2-enterprise/mi-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';
@@ -96,7 +96,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 
     const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
-        setIOConfigPanelType("Input");
+        setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
     };

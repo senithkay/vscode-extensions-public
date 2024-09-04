@@ -42,8 +42,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 					if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
-							if (recordFieldElement) {
+							const targetElement = event.target as Element;
+							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
+							const isNotFieldAction = targetElement.closest('[data-field-action]') == null;
+							if (recordFieldElement && isNotFieldAction) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
 								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;
 								if (portModel) {
@@ -121,7 +123,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 										const connectingArrays = isConnectingArrays(this.sourcePort, element);
 										if (connectingArrays) {
 											const label = this.link.getLabels()
-											.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
+												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
 											label.setIsPendingArrayToArray(true);
 											this.a2aTemporayLink = this.link;
 										}

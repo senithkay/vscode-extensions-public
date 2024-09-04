@@ -1077,7 +1077,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
-                                response[MessageStoreModel[param.name]] = param.value;
+                                if (MessageStoreModel[param.name] === "jmsAPIVersion") {
+                                    response.jmsAPIVersion = Number(param.value).toFixed(1);
+                                } else {
+                                    response[MessageStoreModel[param.name]] = param.value;
+                                }
                             }
                         });
                         if (response.queueConnectionFactory) {
@@ -3849,48 +3853,52 @@ ${keyValuesXML}`;
 
     async exportProject(params: ExportProjectRequest): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const carFile = await vscode.workspace.findFiles(
-                new vscode.RelativePattern(params.projectPath, 'target/*.car'),
-                null,
-                1
-            );
-            if (carFile.length === 0) {
-                const errorMessage =
-                    'Error: No .car file found in the target directory. Please build the project before exporting.';
-                window.showErrorMessage(errorMessage);
-                log(errorMessage);
-                return reject(errorMessage);
-            }
+            const exportTask = async () => {
+                const carFile = await vscode.workspace.findFiles(
+                    new vscode.RelativePattern(params.projectPath, 'target/*.car'),
+                    null,
+                    1
+                );
+                if (carFile.length === 0) {
+                    const errorMessage =
+                        'Error: No .car file found in the target directory. Please build the project before exporting.';
+                    window.showErrorMessage(errorMessage);
+                    log(errorMessage);
+                    return reject(errorMessage);
+                }
 
-            const selection = await vscode.window.showQuickPick(
-                [
+                const selection = await vscode.window.showQuickPick(
+                    [
+                        {
+                            label: "Select Destination",
+                            description: "Select a destination folder to export .car file",
+                        },
+                    ],
                     {
-                        label: "Select Destination",
-                        description: "Select a destination folder to export .car file",
-                    },
-                ],
-                {
-                    placeHolder: "Export Options",
-                }
-            );
+                        placeHolder: "Export Options",
+                    }
+                );
 
-            if (selection) {
-                // Get the destination folder
-                const { filePath: destination } = await this.browseFile({
-                    canSelectFiles: false,
-                    canSelectFolders: true,
-                    canSelectMany: false,
-                    defaultUri: params.projectPath,
-                    title: "Select a folder to export the project",
-                    openLabel: "Select Folder"
-                });
-                if (destination) {
-                    const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
-                    fs.copyFileSync(carFile[0].fsPath, destinationPath);
-                    log(`Project exported to: ${destination}`);
-                    resolve();
+                if (selection) {
+                    // Get the destination folder
+                    const { filePath: destination } = await this.browseFile({
+                        canSelectFiles: false,
+                        canSelectFolders: true,
+                        canSelectMany: false,
+                        defaultUri: params.projectPath,
+                        title: "Select a folder to export the project",
+                        openLabel: "Select Folder"
+                    });
+                    if (destination) {
+                        const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
+                        fs.copyFileSync(carFile[0].fsPath, destinationPath);
+                        window.showInformationMessage("Project exported successfully!");
+                        log(`Project exported to: ${destination}`);
+                        resolve();
+                    }
                 }
             }
+            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false, exportTask);
         });
     }
 
