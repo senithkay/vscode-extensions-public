@@ -126,7 +126,7 @@ export function getDataSourceXml(data: DataSourceTemplate) {
             }
         }
     }
-    if (data.jndiConfig) {
+    if (data.jndiConfig && data.jndiConfig.JNDIConfigName !== "") {
         templateArgs.jndi = {
             useDataSourceFactory: data.jndiConfig.useDataSourceFactory,
             jndiName: data.jndiConfig.JNDIConfigName,

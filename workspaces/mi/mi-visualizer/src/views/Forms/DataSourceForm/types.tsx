@@ -28,16 +28,16 @@ export const engineOptions: OptionProps[] = [
 ];
 
 export const driverMap = new Map([
-    ["MySQL", { driver: "com.mysql.jdbc.Driver", url: "jdbc:mysql://[machine-name/ip]:[port]/[database-name]" }],
-    ["Apache Derby", { driver: "org.apache.derby.jdbc.EmbeddedDriver", url: "jdbc:derby:[path-to-data-file]" }],
-    ["Microsoft SQL Server", { driver: "com.microsoft.sqlserver.jdbc.SQLServerDriver", url: "jdbc:sqlserver://[HOST]:[PORT1433];databaseName=[DB]" }],
-    ["Oracle", { driver: "oracle.jdbc.driver.OracleDriver", url: "jdbc:oracle:[drivertype]:[username/password]@[host]:[port]/[database]" }],
-    ["IBM DB2", { driver: "com.ibm.db2.jcc.DB2Driver", url: "jdbc:db2:[database]" }],
+    ["MySQL", { driver: "com.mysql.jdbc.Driver", url: "jdbc:mysql://[HOST]:[PORT]/[DATABASE]" }],
+    ["Apache Derby", { driver: "org.apache.derby.jdbc.EmbeddedDriver", url: "jdbc:derby://[HOST]:[PORT]/[DATABASE]" }],
+    ["Microsoft SQL Server", { driver: "com.microsoft.sqlserver.jdbc.SQLServerDriver", url: "jdbc:sqlserver://[HOST]:[PORT];databaseName=[DATABASE]" }],
+    ["Oracle", { driver: "oracle.jdbc.driver.OracleDriver", url: "jdbc:oracle:thin:@//[HOST]:[PORT]/[DATABASE]" }],
+    ["IBM DB2", { driver: "com.ibm.db2.jcc.DB2Driver", url: "jdbc:db2:[DATABASE]" }],
     ["HSQLDB", { driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:[path]" }],
-    ["Informix", { driver: "com.informix.jdbc.IfxDriver", url: "jdbc:informix-sqli://[HOST]:[PORT]/[database]:INFORMIXSERVER=[server-name]" }],
-    ["PostgreSQL", { driver: "org.postgresql.Driver", url: "jdbc:postgresql://[HOST]:[PORT5432]/[database]" }],
-    ["Sybase ASE", { driver: "com.sybase.jdbc3.jdbc.SybDriver", url: "jdbc:sybase:Tds:[HOST]:[PORT2048]/[database]" }],
-    ["H2", { driver: "org.h2.Driver", url: "jdbc:h2:tcp:[HOST]:[PORT]/[database]" }],
+    ["Informix", { driver: "com.informix.jdbc.IfxDriver", url: "jdbc:informix-sqli://[HOST]:[PORT]/[DATABASE]:INFORMIXSERVER=[HOST]" }],
+    ["PostgreSQL", { driver: "org.postgresql.Driver", url: "jdbc:postgresql://[HOST]:[PORT]/[DATABASE]" }],
+    ["Sybase ASE", { driver: "com.sybase.jdbc3.jdbc.SybDriver", url: "jdbc:sybase:Tds:[HOST]:[PORT]/[DATABASE]" }],
+    ["H2", { driver: "org.h2.Driver", url: "jdbc:h2:tcp:[HOST]:[PORT]/[DATABASE]" }],
     ["Generic", { driver: "Generic", url: "Generic" }]
 ]);
 

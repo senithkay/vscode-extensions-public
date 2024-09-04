@@ -228,8 +228,12 @@ import {
     generateDSSQueries,
     fetchDSSTables,
     AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
     DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    askDriverPath,
+    addDriverToLib,
+    AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -284,6 +288,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataService, (args: CreateDataServiceRequest) => rpcManger.createDataService(args));
     messenger.onRequest(createDssDataSource, (args: CreateDssDataSourceRequest) => rpcManger.createDssDataSource(args));
     messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
+    messenger.onRequest(askDriverPath,() => rpcManger.askDriverPath());
+    messenger.onRequest(addDriverToLib, (args: AddDriverToLibRequest) => rpcManger.addDriverToLib(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -361,6 +367,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openUpdateExtensionPage, () => rpcManger.openUpdateExtensionPage());
     messenger.onRequest(checkDBDriver, (args: string) => rpcManger.checkDBDriver(args));
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
-    messenger.onRequest(generateDSSQueries, (args: DSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
+    messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
 }

@@ -162,14 +162,16 @@ export const propertiesConfigs: ParamConfig = {
             id: 0,
             type: "TextField",
             label: "Name",
-            defaultValue: "parameter_key",
+            placeholder: "parameter_key",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Value",
-            defaultValue: "parameter_value",
+            placeholder: "parameter_value",
+            defaultValue: "",
             isRequired: true
         },
         {
@@ -190,14 +192,16 @@ export const oauthPropertiesConfigs: ParamConfig = {
             id: 0,
             type: "TextField",
             label: "Name",
-            defaultValue: "parameter_key",
+            placeholder: "parameter_key",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Value",
-            defaultValue: "parameter_value",
+            placeholder: "parameter_value",
+            defaultValue: "",
             isRequired: true
         }
     ]

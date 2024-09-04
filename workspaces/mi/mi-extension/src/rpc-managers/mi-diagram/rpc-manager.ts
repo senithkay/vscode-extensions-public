@@ -209,8 +209,12 @@ import {
     GetInboundEPUischemaResponse,
     onDownloadProgress,
     AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
     DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    AddDriverToLibResponse,
+    AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -1077,7 +1081,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
-                                response[MessageStoreModel[param.name]] = param.value;
+                                if (MessageStoreModel[param.name] === "jmsAPIVersion") {
+                                    response.jmsAPIVersion = Number(param.value).toFixed(1);
+                                } else {
+                                    response[MessageStoreModel[param.name]] = param.value;
+                                }
                             }
                         });
                         if (response.queueConnectionFactory) {
@@ -3617,6 +3625,51 @@ ${endpointAttributes}
         });
     }
 
+    async askDriverPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDriverPath = await askDriverPath();
+            if (!selectedDriverPath || selectedDriverPath.length === 0) {
+                window.showErrorMessage('A file must be selected as the driver');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDriverPath[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        const { url } = params;
+        // Copy the file from url to the lib directory
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+
+            // Ensure the lib directory exists
+            if (!fs.existsSync(libDirectory)) {
+                fs.mkdirSync(libDirectory, { recursive: true });
+            }
+
+            // Get the file name from the URL
+            const fileName = path.basename(url);
+            const destinationPath = path.join(libDirectory, fileName);
+
+            // Copy the file
+            await fs.promises.copyFile(url, destinationPath);
+
+            return { path: destinationPath };
+
+        } catch (error) {
+            console.error('Error adding driver', error);
+            throw new Error('Failed to add driver');
+        }
+    }
+
     async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {
@@ -4675,15 +4728,34 @@ ${keyValuesXML}`;
         });
     }
 
-    async generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+    async generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
+        const { documentUri, position, ...genQueryParams } = params;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.generateQueries(params);
-            resolve(res);
+            const xml = await langClient.generateQueries(genQueryParams);
+
+            if (!xml) {
+                log('Failed to generate DSS Queries.');
+                resolve(false);
+            }
+
+            const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
+            
+            const xmlLineCount = sanitizedXml.split('\n').length;
+            const insertRange = { start: position, end: position };
+            const formatRange = { 
+                start: position, 
+                end: { line: position.line + xmlLineCount - 1, character: 0 }
+            };
+            await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });
+            await this.rangeFormat({ uri: documentUri, range: formatRange });
+
+            log('Successfully generated DSS Queries.');
+            resolve(true);
         });
     }
 
-    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string, boolean[]>> {
+    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.fetchTables({
@@ -4702,6 +4774,16 @@ export async function askProjectPath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a folder to create the Project"
+    });
+}
+
+export async function askDriverPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a driver"
     });
 }
 
