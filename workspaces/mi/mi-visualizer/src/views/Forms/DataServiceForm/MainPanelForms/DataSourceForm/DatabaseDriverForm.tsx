@@ -109,7 +109,7 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
                 <>
                     <span>Note</span>
                     <span>
-                        You will not be able to use test database connection and resource
+                        You will not be able to use test database connection and perform resource
                         generation for data services and such inbuilt features as the relevant drivers
                         does not exist in the developer environment.
                     </span>
