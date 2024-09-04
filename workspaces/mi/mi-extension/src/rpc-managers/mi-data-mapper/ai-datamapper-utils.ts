@@ -72,7 +72,7 @@ export async function makeRequest(url: string, token: string, tsContent: string)
 }
 
 export function showMappingEndNotification() {
-    const message = "Please note that automated mapping is powered by AI. Thus, mistakes and surprises are inevitable. \n\n It is recommended to confirm generated mappings from the </> ts file.";
+    const message = "Please note that automated mapping is powered by AI and mistakes or surprises are inevitable. \n\n Thus, it is recommended to confirm generated mappings from the </> ts file.";
     let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
     miVisualizerRpcClient.retrieveContext({
         key: "showDmLandingMessage",
