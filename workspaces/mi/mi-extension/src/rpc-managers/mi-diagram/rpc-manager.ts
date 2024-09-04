@@ -209,8 +209,9 @@ import {
     GetInboundEPUischemaResponse,
     onDownloadProgress,
     AddDriverRequest,
-    DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -1077,7 +1078,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
-                                response[MessageStoreModel[param.name]] = param.value;
+                                if (MessageStoreModel[param.name] === "jmsAPIVersion") {
+                                    response.jmsAPIVersion = Number(param.value).toFixed(1);
+                                } else {
+                                    response[MessageStoreModel[param.name]] = param.value;
+                                }
                             }
                         });
                         if (response.queueConnectionFactory) {
@@ -4667,15 +4672,34 @@ ${keyValuesXML}`;
         });
     }
 
-    async generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+    async generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
+        const { documentUri, position, ...genQueryParams } = params;
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.generateQueries(params);
-            resolve(res);
+            const xml = await langClient.generateQueries(genQueryParams);
+
+            if (!xml) {
+                log('Failed to generate DSS Queries.');
+                resolve(false);
+            }
+
+            const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
+            
+            const xmlLineCount = sanitizedXml.split('\n').length;
+            const insertRange = { start: position, end: position };
+            const formatRange = { 
+                start: position, 
+                end: { line: position.line + xmlLineCount - 1, character: 0 }
+            };
+            await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });
+            await this.rangeFormat({ uri: documentUri, range: formatRange });
+
+            log('Successfully generated DSS Queries.');
+            resolve(true);
         });
     }
 
-    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string,boolean[]>> {
+    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.fetchTables({

@@ -228,7 +228,7 @@ import {
     generateDSSQueries,
     fetchDSSTables,
     AddDriverRequest,
-    DSSQueryGenRequest,
+    ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -361,6 +361,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openUpdateExtensionPage, () => rpcManger.openUpdateExtensionPage());
     messenger.onRequest(checkDBDriver, (args: string) => rpcManger.checkDBDriver(args));
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
-    messenger.onRequest(generateDSSQueries, (args: DSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
+    messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
 }
