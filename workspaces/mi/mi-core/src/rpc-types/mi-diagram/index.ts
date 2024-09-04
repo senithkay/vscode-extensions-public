@@ -194,8 +194,7 @@ import {
     AddDriverRequest,
     ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
-    DSSFetchTablesResponse
-    DSSQueryGenRequest,
+    DSSFetchTablesResponse,
     DriverPathResponse,
     AddDriverToLibRequest,
     AddDriverToLibResponse
