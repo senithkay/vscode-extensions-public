@@ -263,8 +263,8 @@ export interface MiDiagramAPI {
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
     initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
-    undo: (params: UndoRedoParams) => void;
-    redo: (params: UndoRedoParams) => void;
+    undo: (params: UndoRedoParams) => Promise<boolean>;
+    redo: (params: UndoRedoParams) => Promise<boolean>;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
     getTextAtRange: (params: GetTextAtRangeRequest) => Promise<GetTextAtRangeResponse>;
     getDiagnostics: (params: GetDiagnosticsReqeust) => Promise<GetDiagnosticsResponse>;

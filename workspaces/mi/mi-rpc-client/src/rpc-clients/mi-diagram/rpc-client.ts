@@ -599,12 +599,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
-    undo(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(undo, HOST_EXTENSION, params);
+    undo(params: UndoRedoParams): Promise<boolean> {
+        return this._messenger.sendRequest(undo, HOST_EXTENSION, params);
     }
 
-    redo(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(redo, HOST_EXTENSION, params);
+    redo(params: UndoRedoParams): Promise<boolean> {
+        return this._messenger.sendRequest(redo, HOST_EXTENSION, params);
     }
 
     getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {

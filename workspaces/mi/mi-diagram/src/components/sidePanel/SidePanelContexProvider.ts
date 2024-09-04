@@ -24,6 +24,7 @@ interface SidePanelContext {
     // Mediator related
     isOpen: boolean;
     isEditing: boolean;
+    isSubmitting: boolean;
     nodeRange?: Range;
     trailingSpace?: string;
     operationName?: string;
@@ -46,6 +47,7 @@ interface SidePanelContext {
 const SidePanelContext = React.createContext<SidePanelContext>({
     isOpen: false,
     isEditing: false,
+    isSubmitting: false,
     expressionEditor: {
         isOpen: false,
         value: undefined,

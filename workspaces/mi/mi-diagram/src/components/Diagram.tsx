@@ -33,6 +33,7 @@ import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager"
 import { Diagnostic } from "vscode-languageserver-types";
 import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -72,6 +73,7 @@ export function Diagram(props: DiagramProps) {
     const { rpcClient } = useVisualizerContext();
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
     const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
     const scrollRef = useRef();
 
     const handleScroll = (e: any) => {
@@ -120,6 +122,7 @@ export function Diagram(props: DiagramProps) {
         // Mediator related
         isOpen: false,
         isEditing: false,
+        isSubmitting: false,
         formValues: {},
         node: undefined,
         nodeRange: undefined,
@@ -170,11 +173,19 @@ export function Diagram(props: DiagramProps) {
 
         const mouseTrapClient = KeyboardNavigationManager.getClient();
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
-            rpcClient.getMiDiagramRpcClient().undo({ path: props.documentUri });
+            setIsLoading(true);
+            const undo = await rpcClient.getMiDiagramRpcClient().undo({ path: props.documentUri });
+            if (!undo) {
+                setIsLoading(false);
+            }
         });
 
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y', 'ctrl+shift+z'], async () => {
-            rpcClient.getMiDiagramRpcClient().redo({ path: props.documentUri });
+            setIsLoading(true);
+            const redo = await rpcClient.getMiDiagramRpcClient().redo({ path: props.documentUri });
+            if (!redo) {
+                setIsLoading(false);
+            }
         });
 
         return () => {
@@ -202,6 +213,13 @@ export function Diagram(props: DiagramProps) {
             setSidePanelState({ ...sidePanelState, isFormOpen: false });
         }
     }, [isFormOpen]);
+
+    // show loader while updating diagram
+    useEffect(() => {
+        if (sidePanelState.isSubmitting) {
+            setIsLoading(true);
+        }
+    }, [sidePanelState.isSubmitting]);
 
     const updateDiagramData = async (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
@@ -256,7 +274,6 @@ export function Diagram(props: DiagramProps) {
 
     const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[], diagramEngine: DiagramEngine, setModel: any) => {
         const newDiagramModel = new DiagramModel();
-        newDiagramModel.addLayer(new OverlayLayerModel());
         newDiagramModel.addAll(...nodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
@@ -265,15 +282,21 @@ export function Diagram(props: DiagramProps) {
 
 
     const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number, diagramHeight: number) => {
+        const scroll = scrollRef?.current as any;
+        const offsetWidth = scroll ? scroll.clientWidth : diagramWidth;
+        const centerX = (offsetWidth - diagramWidth) / 2;
+        diagramEngine.getModel().setOffsetX(Math.max(centerX, 0));
+        diagramEngine.getModel().setGridSize(50);
+        diagramEngine.setModel(diagramModel);
+        diagramEngine.repaintCanvas();
+
         setTimeout(() => {
             if (diagramModel) {
                 window.addEventListener("resize", () => {
                     centerDiagram(false, diagramModel, diagramEngine, diagramWidth, diagramHeight);
                 });
                 centerDiagram(false, diagramModel, diagramEngine, diagramWidth, diagramHeight);
-                setTimeout(() => {
-                    removeOverlay(diagramEngine);
-                }, 150);
+                setIsLoading(false);
             }
         }, 150);
     };
@@ -320,23 +343,9 @@ export function Diagram(props: DiagramProps) {
             } else {
                 const centerX = (canvasBounds.width - diagramWidth) / 2;
                 diagramEngine.getModel().setOffsetX(centerX);
-                diagramEngine.getModel().setGridSize(50);
-                diagramEngine.setModel(diagramModel);
                 diagramEngine.repaintCanvas();
             }
         }
-    };
-
-    const removeOverlay = (diagramEngine: DiagramEngine) => {
-        // remove preloader overlay layer
-        const overlayLayer = diagramEngine
-            .getModel()
-            .getLayers()
-            .find((layer) => layer instanceof OverlayLayerModel);
-        if (overlayLayer) {
-            diagramEngine.getModel().removeLayer(overlayLayer);
-        }
-        diagramEngine.repaintCanvas();
     };
 
     return (
@@ -346,6 +355,7 @@ export function Diagram(props: DiagramProps) {
                     ...sidePanelState,
                     setSidePanelState,
                 }}>
+                    {isLoading && <OverlayLayerWidget />}
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="flow">
