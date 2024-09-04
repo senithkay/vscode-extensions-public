@@ -360,7 +360,6 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                 documentUri={documentUri}
                 syntaxTree={syntaxTree}
                 onCancel={handleCancel}
-                onSave={() => console.log("Generate Resource")}
             />
             <OperationForm
                 isOpen={isOperationFormOpen}

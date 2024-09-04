@@ -8,14 +8,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Button, Codicon, Drawer, Dropdown, OptionProps, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Alert, Button, Codicon, Drawer, Dropdown, OptionProps, Typography } from '@wso2-enterprise/ui-toolkit';
 import * as yup from 'yup';
 import styled from '@emotion/styled';
 import { SIDE_PANEL_WIDTH } from '../../../../constants';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Entry, Table } from '../../../../components/Table';
+import { Table } from '../../../../components/Table';
 
 const Container = styled.div`
     * {
@@ -57,19 +57,21 @@ const ErrorContainer = styled.div`
     flex-direction: column;
     gap: 8px;
     padding: 12px;
-    border: 1px solid var(--vscode-inputValidation-errorBorder);
+    border: 1px solid var(--vscode-editor-foreground);
 `;
 
 const table = yup.object({
     name: yup.string().required(),
-    methods: yup.object({
-        get: yup.boolean(),
-        post: yup.boolean(),
-        put: yup.boolean(),
-        delete: yup.boolean(),
-    }).test('methods', 'At least one method should be selected', (value) => {
-        return Object.values(value).some((method) => method);
-    }),
+    methods: yup
+        .object({
+            get: yup.boolean(),
+            post: yup.boolean(),
+            put: yup.boolean(),
+            delete: yup.boolean(),
+        })
+        .test('methods', 'At least one method should be selected', (value) => {
+            return Object.values(value).some((method) => method);
+        }),
 });
 
 const schema = yup.object({
@@ -97,14 +99,13 @@ type GenerateResourceProps = {
     documentUri: string;
     syntaxTree: any;
     onCancel: () => void;
-    onSave: (data: GenerateResourceFields) => void;
 };
 
 type TableDataType = {
     [tableName: string]: string;
 };
 
-export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel, onSave }: GenerateResourceProps) => {
+export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel }: GenerateResourceProps) => {
     const { rpcClient } = useVisualizerContext();
 
     const {
@@ -123,20 +124,34 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
     const [selectedPageIndex, setSelectedPageIndex] = useState<number>(0);
     const [datasources, setDatasources] = useState<DataSource[]>([]);
     const [items, setItems] = useState<OptionProps[]>([]);
+    const [isError, setIsError] = useState<boolean>(false);
 
     const resetValues = () => {
         reset();
         setDatasources([]);
         setItems([]);
+        setIsError(false);
+        setSelectedPageIndex(0);
     };
 
-    const handleFetchTables = async (datasources?: DataSource[]) => {
+    const handleFetchTables = async (datasources: DataSource[]) => {
         const datasourceId = watch('datasource');
         const datasource = datasources.find((ds: DataSource) => ds.id === datasourceId);
 
-        const classExists = await rpcClient.getMiDiagramRpcClient().checkDBDriver(datasource.className);
-        if (!classExists) {
-            return new Error('className does not exist');
+        const { success } = await rpcClient.getMiDiagramRpcClient().testDbConnection({
+            url: datasource.dbUrl,
+            className: datasource.className,
+            username: datasource.name,
+            password: datasource.password,
+            dbName: '',
+            dbType: '',
+            host: '',
+            port: '',
+        });
+
+        if (!success) {
+            setIsError(true);
+            throw new Error('Failed to establish database connection.');
         }
 
         const fetchedTables = await rpcClient.getMiDiagramRpcClient().fetchDSSTables({
@@ -167,7 +182,10 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
     const handleCancel = () => {
         if (datasources.length > 1 && selectedPageIndex === 1) {
             setSelectedPageIndex(0);
+        } else if (datasources.length > 1 && isError) {
+            setIsError(false);
         } else {
+            resetValues();
             onCancel();
         }
     };
@@ -176,9 +194,9 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
         const tableData: TableDataType = {};
         for (const table of values.tables) {
             const methods = table.methods;
-            tableData[table.name] = `${methods.get ? 'GET' : ''},${methods.post ? 'POST' : ''},${methods.put ? 'PUT' : ''},${
-                methods.delete ? 'DELETE' : ''
-            }`;
+            tableData[table.name] = `${methods.get ? 'GET' : ''},${methods.post ? 'POST' : ''},${
+                methods.put ? 'PUT' : ''
+            },${methods.delete ? 'DELETE' : ''}`;
         }
 
         const datasource = datasources.find((ds: DataSource) => ds.id === values.datasource);
@@ -189,7 +207,7 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
             url: datasource.dbUrl,
             username: datasource.name,
             password: datasource.password,
-            datasourceName: datasource.name,
+            datasourceName: datasource.id,
             tableData: JSON.stringify(tableData),
         };
 
@@ -242,18 +260,18 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                     }));
 
                     setValue('datasource', datasourceItems[0].value, { shouldValidate: true });
-                    setDatasources(datasourceInfo);
-                    setItems(datasourceItems);
 
                     if (datasourceItems.length === 1) {
                         await handleFetchTables(datasourceInfo);
                     }
+
+                    setDatasources(datasourceInfo);
+                    setItems(datasourceItems);
                 } else {
                     resetValues();
                 }
             } catch (error: any) {
                 console.error(error);
-                resetValues();
             }
         };
 
@@ -269,7 +287,7 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 sx={{ transition: 'all 0.3s ease-in-out' }}
             >
                 <SidePanelTitleContainer>
-                    <Button sx={{ marginLeft: 'auto' }} onClick={onCancel} appearance="icon">
+                    <Button sx={{ marginLeft: 'auto' }} onClick={handleCancel} appearance="icon">
                         <Codicon name="close" />
                     </Button>
                 </SidePanelTitleContainer>
@@ -278,12 +296,18 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                     <Controller
                         name="datasource"
                         control={control}
-                        render={({ field: { onChange } }) => (
-                            <Dropdown id="datasource" label="Datasource" items={items} onValueChange={onChange} />
+                        render={({ field: { value, onChange } }) => (
+                            <Dropdown
+                                id="datasource"
+                                label="Datasource"
+                                items={items}
+                                value={value}
+                                onValueChange={onChange}
+                            />
                         )}
                     />
                     <ActionContainer>
-                        <Button appearance="primary" onClick={handleFetchTables}>
+                        <Button appearance="primary" onClick={() => handleFetchTables(datasources)}>
                             Fetch Tables
                         </Button>
                         <Button appearance="secondary" onClick={handleCancel}>
@@ -299,7 +323,7 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 sx={{ transition: 'all 0.3s ease-in-out' }}
             >
                 <SidePanelTitleContainer>
-                    <Button sx={{ marginLeft: 'auto' }} onClick={onCancel} appearance="icon">
+                    <Button sx={{ marginLeft: 'auto' }} onClick={handleCancel} appearance="icon">
                         <Codicon name="close" />
                     </Button>
                 </SidePanelTitleContainer>
@@ -320,8 +344,8 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 </SidePanelBody>
             </Drawer>
             <Drawer
-                isOpen={isOpen && datasources.length === 0}
-                isSelected={isOpen && datasources.length === 0}
+                isOpen={isOpen && isError}
+                isSelected={isOpen && isError}
                 width={SIDE_PANEL_WIDTH}
                 sx={{ transition: 'all 0.3s ease-in-out' }}
             >
@@ -332,15 +356,10 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 </SidePanelTitleContainer>
                 <SidePanelBody>
                     <Typography variant="h3">Generate Resources</Typography>
-                    <ErrorContainer>
-                        <Typography variant="h4" sx={{ margin: 0 }}>
-                            Error!
-                        </Typography>
-                        <Typography variant="body3">
-                            An RDBMS datasource is required with the relevant driver added to it in order to use this
-                            feature.
-                        </Typography>
-                    </ErrorContainer>
+                    <Alert title="Error!" variant="error">
+                        An RDBMS datasource is required with the relevant driver added to it in order to use this
+                        feature.
+                    </Alert>
                     <ActionContainer>
                         <Button appearance="primary" onClick={handleCancel}>
                             Okay
@@ -351,4 +370,3 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
         </Container>
     );
 };
-
