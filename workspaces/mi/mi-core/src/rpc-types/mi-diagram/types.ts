@@ -1684,11 +1684,24 @@ export interface DSSQueryGenRequest {
     datasourceName: string;
 }
 
+export interface ExtendedDSSQueryGenRequest extends DSSQueryGenRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface DSSQueryGenResponse {
+    [tableName: string]: boolean[];
+}
+
 export interface DSSFetchTablesRequest {
     className: string;
     username: string;
     password: string;
     url: string;
+}
+
+export interface DSSFetchTablesResponse {
+    [tableName: string]: boolean[];
 }
 
 export interface MarkAsDefaultSequenceRequest {

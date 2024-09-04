@@ -192,8 +192,9 @@ import {
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
     AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
-    DSSQueryGenRequest
+    DSSFetchTablesResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -322,6 +323,6 @@ export interface MiDiagramAPI {
     openUpdateExtensionPage: () => void;
     checkDBDriver: (className: string) => Promise<boolean>;
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
-    generateDSSQueries: (params: DSSQueryGenRequest) => Promise<string>;
-    fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<Map<string, boolean[]>>;
+    generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
+    fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
 }
