@@ -93,6 +93,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                 ...sidePanelContext,
                 isOpen: false,
                 isEditing: false,
+                isSubmitting: true,
                 formValues: undefined,
                 nodeRange: undefined,
                 operationName: undefined
@@ -182,7 +183,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
             });
         });
     }
-    
+
     const createMapping = () => {
         submitFormValues();
         openDataMapperView();
@@ -314,11 +315,11 @@ const DataMapperForm = (props: AddMediatorProps) => {
                         />
                         {errors["description"] && <Error>{errors["description"]}</Error>}
                     </Field>
-                    
+
                 </ComponentCard>
 
                 <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                    {createOption === "new" &&  <Button
+                    {createOption === "new" && <Button
                         appearance="primary"
                         onClick={createMapping}
                     >

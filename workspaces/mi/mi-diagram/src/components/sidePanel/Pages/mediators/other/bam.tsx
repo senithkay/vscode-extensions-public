@@ -79,6 +79,7 @@ const BamForm = (props: AddMediatorProps) => {
             ...sidePanelContext,
             isOpen: false,
             isEditing: false,
+            isSubmitting: true,
             formValues: undefined,
             nodeRange: undefined,
             operationName: undefined
