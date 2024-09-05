@@ -168,15 +168,13 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
             );
 
             const match = url.match(regex);
-            if (!match || !match.groups) {
-                throw new Error(`URL does not match the expected pattern for dbEngine: ${dbEngine}`);
+            if (match && match.groups) {
+                const { host, port, database } = match.groups;
+
+                !props.watch('rdbms.hostname') && props.setValue('rdbms.hostname', host);
+                !props.watch('rdbms.port') &&props.setValue('rdbms.port', port);
+                !props.watch('rdbms.databaseName') && props.setValue('rdbms.databaseName', database);
             }
-
-            const { host, port, database } = match.groups;
-
-            !props.watch('rdbms.hostname') && props.setValue('rdbms.hostname', host);
-            !props.watch('rdbms.port') &&props.setValue('rdbms.port', port);
-            !props.watch('rdbms.databaseName') && props.setValue('rdbms.databaseName', database);
         }
     };
 
