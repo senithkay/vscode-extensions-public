@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const PayloadForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -109,6 +109,7 @@ const PayloadForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["args"] = getParamManagerValues(values.args);
         const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
@@ -128,7 +129,6 @@ const PayloadForm = (props: AddMediatorProps) => {
             ...sidePanelContext,
             isOpen: false,
             isEditing: false,
-            isSubmitting: true,
             formValues: undefined,
             nodeRange: undefined,
             operationName: undefined

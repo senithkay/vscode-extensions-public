@@ -239,7 +239,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, sidePanelContext) }} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

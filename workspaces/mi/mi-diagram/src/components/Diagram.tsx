@@ -70,10 +70,9 @@ export const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
     const { model, diagnostics, isFaultFlow, isFormOpen } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, isLoading, setIsLoading } = useVisualizerContext();
     const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
     const [diagramViewStateKey, setDiagramViewStateKey] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
     const scrollRef = useRef();
 
     const handleScroll = (e: any) => {
@@ -122,7 +121,6 @@ export function Diagram(props: DiagramProps) {
         // Mediator related
         isOpen: false,
         isEditing: false,
-        isSubmitting: false,
         formValues: {},
         node: undefined,
         nodeRange: undefined,
@@ -213,13 +211,6 @@ export function Diagram(props: DiagramProps) {
             setSidePanelState({ ...sidePanelState, isFormOpen: false });
         }
     }, [isFormOpen]);
-
-    // show loader while updating diagram
-    useEffect(() => {
-        if (sidePanelState.isSubmitting) {
-            setIsLoading(true);
-        }
-    }, [sidePanelState.isSubmitting]);
 
     const updateDiagramData = async (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
