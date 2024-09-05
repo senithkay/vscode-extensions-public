@@ -35,6 +35,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
         <div onScroll={handleScroll} style={{
             overflowY: 'auto',
             overflowX: 'hidden',
+            height: '-webkit-fill-available',
             maxHeight: !hideClose ? 'calc(100vh - 22px)' : 'fit-content',
         }} className="form-view">
             <div style={{ maxWidth: '52em', margin: '0 auto' }}>
