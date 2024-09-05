@@ -1028,6 +1028,18 @@ export interface Datasource {
     datasourceConfigurations: Configuration[];
 }
 
+export interface DriverPathResponse {
+    path: string;
+}
+
+export interface AddDriverToLibRequest {
+    url: string;
+}
+
+export interface AddDriverToLibResponse {
+    path: string;
+}
+
 export interface Property {
     key: string;
     value: any;

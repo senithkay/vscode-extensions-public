@@ -75,8 +75,8 @@ import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../r
 
 export class PositionVisitor implements Visitor {
     private position = {
-        x: 0,
-        y: 40
+        x: NODE_GAP.START_X,
+        y: NODE_GAP.START_Y
     };
     private skipChildrenVisit = false;
 

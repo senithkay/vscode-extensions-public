@@ -8,10 +8,13 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class DataServiceNodeModel extends BaseNodeModel {
+    readonly nodeWidth = NODE_DIMENSIONS.DATA_SERVICE.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.DATA_SERVICE.HEIGHT;
+
     constructor(stNode: STNode, name:string, documentUri:string) {
         super(NodeTypes.DATA_SERVICE_NODE, name, documentUri, stNode);
     }

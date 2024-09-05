@@ -8,12 +8,14 @@
  */
 
 import { Endpoint, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 
 export class CallNodeModel extends BaseNodeModel {
     readonly endpoint: Endpoint;
+    readonly nodeWidth = NODE_DIMENSIONS.CALL.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.CALL.HEIGHT;
 
     constructor(stNode: STNode, mediatorName:string, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
         super(NodeTypes.CALL_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
