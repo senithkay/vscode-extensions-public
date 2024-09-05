@@ -208,26 +208,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                 const response = await rpcClient.getMiDiagramRpcClient().getDataSource({ path: props.path });
                 reset(response);
                 if (response.type === "RDBMS") {
-                    if (response.jndiConfig) {
-                        setValue("jndiName", response.jndiConfig.JNDIConfigName);
-                        setValue("useDatasourceFactory", response.jndiConfig.useDataSourceFactory.toString() === 'true');
-                        if (response.jndiConfig.properties) {
-                            let i = 0;
-                            setJndiProperties((prevState: any) => ({
-                                ...prevState,
-                                paramValues: Object.entries(response.jndiConfig.properties).map(([key, value]) => {
-                                    return {
-                                        id: i++,
-                                        key: "Property " + i,
-                                        value: key + " : " + value,
-                                        paramValues: [
-                                            { value: key.toString() },
-                                            { value: value.toString() }
-                                        ]
-                                    };
-                                }),
-                            }));
-                        }
+                    if (response.driverClassName) {
                         if (response.driverClassName.includes("mysql")) {
                             setValue("dbEngine", "MySQL");
                         } else if (response.driverClassName.includes("derby")) {
@@ -252,6 +233,29 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                             setValue("dbEngine", "Generic");
                         }
                     }
+
+                    if (response.jndiConfig) {
+                        setValue("jndiName", response.jndiConfig.JNDIConfigName);
+                        setValue("useDatasourceFactory", response.jndiConfig.useDataSourceFactory.toString() === 'true');
+                        if (response.jndiConfig.properties) {
+                            let i = 0;
+                            setJndiProperties((prevState: any) => ({
+                                ...prevState,
+                                paramValues: Object.entries(response.jndiConfig.properties).map(([key, value]) => {
+                                    return {
+                                        id: i++,
+                                        key: "Property " + i,
+                                        value: key + " : " + value,
+                                        paramValues: [
+                                            { value: key.toString() },
+                                            { value: value.toString() }
+                                        ]
+                                    };
+                                }),
+                            }));
+                        }
+                        
+                    }
                     if (response.externalDSClassName) {
                         setValue("dataSourceProvider", "External Datasource");
                         if (response.dataSourceProperties) {
@@ -272,6 +276,8 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                             }));
                         }
                     }
+
+                    extractValuesFromUrl(response.url, watch("dbEngine"));
                 }
             })();
         } else {
@@ -295,7 +301,39 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     }, [watch("url")]);
 
     const replacePlaceholders = (urlWithPlaceholder: string) => {
-        return urlWithPlaceholder.replace('[HOST]', watch('hostname')).replace('[PORT]', watch('port')).replace('[DATABASE]', watch('databaseName'));
+        const replacements: any = {
+            '[HOST]': watch('hostname'),
+            '[PORT]': watch('port'),
+            '[DATABASE]': watch('databaseName')
+        };
+
+        return urlWithPlaceholder.replace(/\[HOST\]|\[PORT\]|\[DATABASE\]/g, (match) => {
+            const value = replacements[match];
+            return value !== '' ? value : match;
+        });
+    };
+
+    const extractValuesFromUrl = (url: string, dbEngine: string) => {
+        const driverUrlTemplate = driverMap.get(dbEngine);
+        if (driverUrlTemplate) {
+            const urlPattern = driverUrlTemplate.url;
+            const regex = new RegExp(urlPattern
+                .replace('[HOST]', '(?<host>[^:/]+)')
+                .replace('[PORT]', '(?<port>[^/;]+)')
+                .replace('[DATABASE]', '(?<database>[^;]+)')
+            );
+
+            const match = url.match(regex);
+            if (!match || !match.groups) {
+                throw new Error(`URL does not match the expected pattern for dbEngine: ${dbEngine}`);
+            }
+
+            const { host, port, database } = match.groups;
+
+            setValue("hostname", host);
+            setValue("port", port);
+            setValue("databaseName", database);
+        }
     };
 
     const handleCancel = () => {
