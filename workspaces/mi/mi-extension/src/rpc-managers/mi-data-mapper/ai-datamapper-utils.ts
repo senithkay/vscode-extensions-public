@@ -12,6 +12,8 @@ import path = require("path");
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
 import { Project, QuoteKind } from "ts-morph";
+import { StateMachine } from "../../stateMachine";
+import { getSources } from "../../util/dataMapper";
 
 export async function fetchBackendUrl() {
     try {
@@ -27,6 +29,24 @@ export async function fetchBackendUrl() {
 export function openSignInView() {
     let miDiagramRpcClient: MiDiagramRpcManager = new MiDiagramRpcManager();
     miDiagramRpcClient.executeCommand({ commands: ["MI.openAiPanel"] });
+}
+
+// Function to read the TypeScript file which contains the schema interfaces to be mapped
+export function readTSFile(): string {
+    //sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
+    const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+    // Check if sourcePath is defined
+    if (sourcePath) {
+        const [tsFullText, _] = getSources(sourcePath);
+        try {
+            return tsFullText;
+        } catch (error) {
+            console.error('Failed to read TypeScript file: ', error);
+            throw error;
+        }
+    } else {
+        throw new Error("sourcePath is undefined");
+    }
 }
 
 // Function to remove the mapFunction line from the TypeScript file

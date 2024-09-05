@@ -47,10 +47,9 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import {  DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME , DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL } from "../../constants";
-import { getSources } from "../../util/dataMapper";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL } from "../../constants";
 import { refreshAuthCode } from '../../ai-panel/auth';
-import { fetchBackendUrl, openSignInView, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
+import { fetchBackendUrl, openSignInView, readTSFile, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -75,8 +74,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
             try {
-                const subMappingTypes = fetchSubMappingTypes(filePath, functionName); 
-                return resolve ({
+                const subMappingTypes = fetchSubMappingTypes(filePath, functionName);
+                return resolve({
                     variableTypes: subMappingTypes
                 });
             } catch (error: any) {
@@ -202,60 +201,60 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             reject({ absPath: '', configName: '' });
         });
     }
-    
+
     async authenticateUser(): Promise<boolean> {
         let token;
         try {
-          // Get the user token from the secrets
-          token = await extension.context.secrets.get('MIAIUser');
-          
-          if (!token) {
-            throw new Error('Token not available');
-          }
-          
-          const url = await fetchBackendUrl() + USER_CHECK_BACKEND_URL;
-          
-          let response = await fetch(url, {
-            method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-          });
-    
-          if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-              token = await refreshAuthCode();
-              
-              if (!token) {
-                throw new Error('Token refresh failed');
-              }
-              
-              // retry the request with the new token
-              response = await fetch(url, {
+            // Get the user token from the secrets
+            token = await extension.context.secrets.get('MIAIUser');
+
+            if (!token) {
+                throw new Error('Token not available');
+            }
+
+            const url = await fetchBackendUrl() + USER_CHECK_BACKEND_URL;
+
+            let response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
-              });
-    
-              if (!response.ok) {
-                throw new Error('Token verification failed after refresh');
-              }
-            } else {
-              throw new Error(`Error while checking token: ${response.statusText}`);
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    token = await refreshAuthCode();
+
+                    if (!token) {
+                        throw new Error('Token refresh failed');
+                    }
+
+                    // retry the request with the new token
+                    response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Token verification failed after refresh');
+                    }
+                } else {
+                    throw new Error(`Error while checking token: ${response.statusText}`);
+                }
             }
-          }
         } catch (error) {
-          console.error('Error while getting or refreshing user token: ', error);
-          showSignedOutNotification();
-          openSignInView();
-          return false;
+            console.error('Error while getting or refreshing user token: ', error);
+            showSignedOutNotification();
+            openSignInView();
+            return false;
         }
-        
+
         return true;  // token is available and valid
-      }
+    }
 
     // Function to ask whether the user wants to replace all existing mappings with ai generated mappings
     async confirmMappingAction(): Promise<boolean> {
@@ -273,24 +272,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             return false;
         }
         return true;
-    }
-
-    // Function to read the TypeScript file which contains the schema interfaces to be mapped
-    async readTSFile(): Promise<string> {
-        //sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
-        const sourcePath = StateMachine.context().dataMapperProps?.filePath;
-        // Check if sourcePath is defined
-        if (sourcePath) {
-            const [tsFullText, _] = getSources(sourcePath);
-            try {
-                return tsFullText;
-            } catch (error) {
-                console.error('Failed to read TypeScript file: ', error);
-                throw error;
-            }
-        } else {
-            throw new Error("sourcePath is undefined");
-        }
     }
 
     //Function to update the body of a function in a TypeScript file
@@ -329,7 +310,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             await this.writeDataMapping({ dataMapping: "" });
 
             // Function to read the TypeScript file
-            let tsContent = await this.readTSFile();
+            let tsContent = await readTSFile();
 
             const backendRootUri = await fetchBackendUrl();
             const url = backendRootUri + DATAMAP_BACKEND_URL;
@@ -415,7 +396,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
                     const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", `${DM_OPERATORS_FILE_NAME}.ts.lib`);
                     const operatorsDstFilePath = path.join(dataMapperConfigFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
-                    if(!fs.existsSync(operatorsDstFilePath)){
+                    if (!fs.existsSync(operatorsDstFilePath)) {
                         fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
                     }
 
