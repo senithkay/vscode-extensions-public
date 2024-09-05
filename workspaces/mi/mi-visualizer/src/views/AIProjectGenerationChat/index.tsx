@@ -19,6 +19,7 @@ import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VSCodeButton, VSCodeTextArea, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import styled from "@emotion/styled";
+import { handleFileAttach } from "../../utils/fileAttach";
 
 import {
     materialDark,
@@ -771,35 +772,6 @@ export function AIProjectGenerationChat() {
         }
     };
 
-    const handleFileAttach = (e: any) => {
-        const files = e.target.files;
-        const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
-        const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
-
-        for (const file of files) {
-            if (validFileTypes.includes(file.type)) {
-                const reader = new FileReader();
-                reader.onload = (event: any) => {
-                    const fileContents = event.target.result;
-                    setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
-                    setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-                };
-                reader.readAsText(file);
-            } else if (validImageTypes.includes(file.type)) {
-                const reader = new FileReader();
-                reader.onload = (event: any) => {
-                    const imageBase64 = event.target.result;
-                    setImages(prevImages => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
-                    setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-                };
-                reader.readAsDataURL(file);
-            } else {
-                setFileUploadStatus({ type: 'error', text: 'File format not supported' });
-            }
-        }
-        e.target.value = '';
-    };
-
     const handleRemoveFile = (index: number) => {
         setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
     };
@@ -970,7 +942,7 @@ export function AIProjectGenerationChat() {
                         type="file"
                         style={{ display: "none" }}
                         multiple
-                        onChange={(e: any) => handleFileAttach(e)}
+                        onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
                     />
                     <VSCodeTextArea
                         value={userInput}
