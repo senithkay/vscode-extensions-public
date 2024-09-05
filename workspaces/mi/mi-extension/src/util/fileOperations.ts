@@ -134,7 +134,16 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
         }).on("close", () => {
             console.log("Extraction complete!");
             let uri = Uri.file(path.join(selectedPath, sampleName));
-            commands.executeCommand("vscode.openFolder", uri, true);
+            window.showInformationMessage('Where would you like to open the project?',
+                { modal: true },
+                'This Window',
+                'New Window'
+            ).then((selection) => {
+                if (selection === undefined) {
+                    return;
+                }
+                commands.executeCommand("vscode.openFolder", uri, selection === 'New Window');
+            });
         });
         window.showInformationMessage(
             successMsg,

@@ -3102,7 +3102,7 @@ ${endpointAttributes}
                             RPCLayer._messenger.sendNotification(
                                 onDownloadProgress,
                                 { type: 'webview', webviewType: VisualizerWebview.viewType },
-                                { 
+                                {
                                     percentage: progress,
                                     downloadedAmount: formatSize(progressEvent.loaded),
                                     downloadSize: formatSize(totalLength)
@@ -3208,18 +3208,26 @@ ${endpointAttributes}
         return { formJSON: formJSON };
     }
 
-    undo(params: UndoRedoParams): void {
-        const lastsource = undoRedo.undo();
-        if (lastsource) {
-            fs.writeFileSync(params.path, lastsource);
-        }
+    undo(params: UndoRedoParams): Promise<boolean> {
+        return new Promise((resolve) => {
+            const lastsource = undoRedo.undo();
+            if (lastsource) {
+                fs.writeFileSync(params.path, lastsource);
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
 
-    redo(params: UndoRedoParams): void {
-        const lastsource = undoRedo.redo();
-        if (lastsource) {
-            fs.writeFileSync(params.path, lastsource);
-        }
+    redo(params: UndoRedoParams): Promise<boolean> {
+        return new Promise((resolve) => {
+            const lastsource = undoRedo.redo();
+            if (lastsource) {
+                fs.writeFileSync(params.path, lastsource);
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
 
     async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
@@ -3686,7 +3694,7 @@ ${endpointAttributes}
             const { connectionName, keyValuesXML, directory } = params;
             const localEntryPath = directory;
 
-            const xmlData =`<?xml version="1.0" encoding="UTF-8"?>
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 ${keyValuesXML}`;
 
             const filePath = path.join(localEntryPath, `${connectionName}.xml`);
