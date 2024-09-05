@@ -207,13 +207,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         try {
             // Get the user token from the secrets
             token = await extension.context.secrets.get('MIAIUser');
-
             if (!token) {
                 throw new Error('Token not available');
             }
-
             const url = await fetchBackendUrl() + USER_CHECK_BACKEND_URL;
-
             let response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -221,15 +218,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
                     token = await refreshAuthCode();
-
                     if (!token) {
                         throw new Error('Token refresh failed');
                     }
-
                     // retry the request with the new token
                     response = await fetch(url, {
                         method: 'GET',
@@ -238,7 +232,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             'Authorization': `Bearer ${token}`,
                         },
                     });
-
                     if (!response.ok) {
                         throw new Error('Token verification failed after refresh');
                     }
@@ -279,7 +272,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const { dataMapping } = params;
         // sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
-
         if (sourcePath) {
             try {
                 // Get the project from the sourcePath
@@ -308,13 +300,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getMappingFromAI(): Promise<void> {
         try {
             await this.writeDataMapping({ dataMapping: "" });
-
             // Function to read the TypeScript file
             let tsContent = await readTSFile();
-
             const backendRootUri = await fetchBackendUrl();
             const url = backendRootUri + DATAMAP_BACKEND_URL;
-
             let token;
             try {
                 // Get the user token from the secrets
@@ -326,7 +315,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 openSignInView();
                 return; // If there is no token, return early to exit the function
             }
-
             let response;
             try {
                 // Make a request to the backend to get the data mapping
@@ -337,7 +325,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 openSignInView();
                 return; // If there is an error in the request, return early to exit the function
             }
-
             try {
                 interface DataMapResponse {
                     mapping: string;
