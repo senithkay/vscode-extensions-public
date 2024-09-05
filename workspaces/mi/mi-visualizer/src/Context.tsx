@@ -42,7 +42,7 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
     rpcClient: new RpcClient(), // Create the root RPC layer client object
     isLoggedIn: false,
     setIsLoggedIn: setLogin,
-    isLoading: false,
+    isLoading: true,
     setIsLoading: setIsLoading,
   });
 
