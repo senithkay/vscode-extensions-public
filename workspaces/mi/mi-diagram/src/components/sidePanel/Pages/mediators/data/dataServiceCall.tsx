@@ -41,7 +41,7 @@ const Field = styled.div`
 `;
 
 const DataServiceCallForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -135,6 +135,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["operations"] = getParamManagerValues(values.operations);
         const xml = getXML(MEDIATORS.DATASERVICECALL, values, dirtyFields, sidePanelContext.formValues);

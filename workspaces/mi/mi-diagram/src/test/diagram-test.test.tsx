@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { LanguageClient } from './lang-service/client';
 import path from 'path';
 import fs from 'fs';
@@ -16,6 +16,8 @@ import { log } from "console";
 import { prettyDOM, waitFor, waitForElementToBeRemoved } from "@testing-library/dom";
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { VisualizerContext, Context } from '@wso2-enterprise/mi-rpc-client';
 
 // Error Boundary Component
 interface ErrorBoundaryProps {
@@ -40,6 +42,29 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
 
         return this.props.children;
     }
+}
+
+function DiagramTest({ model, uri }: { model: any, uri: string }) {
+    const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
+        viewLocation: { view: MACHINE_VIEW.Overview },
+        isLoggedIn: false,
+        isLoading: true,
+        setIsLoading: (isLoading: boolean) => {
+            setVisualizerState((prevState: VisualizerContext) => ({
+                ...prevState,
+                isLoading
+            }));
+        }
+    });
+
+    return (
+        <Context.Provider value={visualizerState}>
+            <ErrorBoundary>
+                <Diagram model={model} documentUri={uri} />
+            </ErrorBoundary>
+        </Context.Provider>
+    );
+
 }
 
 describe('Diagram component', () => {
@@ -103,9 +128,8 @@ describe('Diagram component', () => {
 
 async function renderAndCheckSnapshot(model: any, uri: string) {
     const dom = render(
-        <ErrorBoundary>
-            <Diagram model={model} documentUri={uri} />
-        </ErrorBoundary>);
+        <DiagramTest model={model} uri={uri} />
+    );
 
     await waitFor(async () => {
         expect(await screen.findByTestId(/^diagram-canvas-/)).toBeInTheDocument();
