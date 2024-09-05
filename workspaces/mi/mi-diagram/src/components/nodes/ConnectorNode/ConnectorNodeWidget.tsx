@@ -197,7 +197,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     connectionName: (node.stNode as Connector).configKey
                 },
                 iconPath: iconPath,
-                parentNode: node.mediatorName
+                parentNode: node.mediatorName,
+                node: node,
             });
         }
     }
