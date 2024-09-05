@@ -29,6 +29,7 @@ import {
     LineRange,
     EVENT_TYPE,
     VisualizerLocation,
+    MACHINE_VIEW,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
@@ -55,7 +56,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -73,7 +74,6 @@ export interface EggplantDiagramProps {
 
 export function EggplantDiagram(param: EggplantDiagramProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen } = useVisualizerContext();
 
     const [model, setModel] = useState<Flow>();
     const [suggestedModel, setSuggestedModel] = useState<Flow>();
@@ -94,6 +94,10 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         console.log(">>> Updating sequence model...", param.syntaxTree);
         getSequenceModel();
     }, [param.syntaxTree]);
+
+    rpcClient.onParentPopupSubmitted(() => {
+        // TODO: Fetch the newly added data from the popup view
+    })
 
     const getSequenceModel = () => {
         rpcClient
@@ -390,7 +394,13 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     };
 
     const handleOnAddConnection = () => {
-        setPopupScreen("ADD_CONNECTION");
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.AddConnectionWizard,
+            },
+            isPopup: true
+        });
     };
 
     const handleOnGoToSource = (node: FlowNode) => {

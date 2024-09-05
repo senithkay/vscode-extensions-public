@@ -17,6 +17,7 @@ export interface UpdateUndoRedoMangerRequest {
 export interface OpenViewRequest {
     type: EVENT_TYPE;
     location: VisualizerLocation;
+    isPopup?: boolean;
 }
 
 export interface GetWorkspaceContextResponse {

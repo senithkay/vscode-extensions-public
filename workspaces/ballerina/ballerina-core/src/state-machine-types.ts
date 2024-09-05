@@ -18,12 +18,21 @@ export type MachineStateValue =
     | 'disabled'
     | { viewActive: 'viewInit' } | { viewActive: 'webViewLoaded' } | { viewActive: 'viewReady' } | { viewActive: 'viewEditing' };
 
+export type PopupMachineStateValue = 'initialize' | 'ready' | {
+    open: 'active';
+} | {
+    ready: 'reopen';
+} | {
+    ready: 'notify';
+} | 'disabled';
+
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
     GET_STARTED = "GET_STARTED",
     CANCEL_CREATION = "CANCEL_CREATION",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
+    CLOSE_VIEW = "CLOSE_VIEW"
 }
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
@@ -39,7 +48,8 @@ export enum MACHINE_VIEW {
     EggplantWelcome = "Eggplant Welcome",
     EggplantProjectForm = "Eggplant Project Form",
     EggplantComponentView = "Eggplant Component View",
-    EggplantServiceForm = "Eggplant Service Form"
+    EggplantServiceForm = "Eggplant Service Form",
+    AddConnectionWizard = "Add Connection Wizard",
 }
 
 export interface MachineEvent {
@@ -64,14 +74,25 @@ export interface VisualizerLocation {
     recordFilePath?: string;
 }
 
+export interface PopupVisualizerLocation extends VisualizerLocation {
+    recentIdentifier?: string;
+}
+
+export interface ParentPopupData {
+    recentIdentifier: string;
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const projectContentUpdated: NotificationType<boolean> = { method: 'projectContentUpdated' };
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 
+// Popup machine methods
+export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
+export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
+export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
 
-
-// AI Related state types
+// ------------------> AI Related state types <----------------------- 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
 
 export enum AI_EVENT_TYPE {
