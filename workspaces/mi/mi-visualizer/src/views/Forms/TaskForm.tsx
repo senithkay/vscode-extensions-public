@@ -226,7 +226,7 @@ export function TaskForm(props: TaskFormProps) {
                 };
                 taskRequest.sequence = sequenceRequest;
             }
-            taskProperties.push({ key: "sequenceName", value: generateSequenceName(values.name), isLiteral: true });
+            taskProperties.push({ key: "sequenceName", value: values.sequenceName ?? generateSequenceName(values.name), isLiteral: true });
         }
         const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
     };

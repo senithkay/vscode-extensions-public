@@ -131,3 +131,7 @@ export interface GetDMDiagnosticsRequest {
 export interface GetDMDiagnosticsResponse {
     diagnostics: DMDiagnostic[];
 }
+
+export interface DataMapWriteRequest {
+    dataMapping: string;
+}

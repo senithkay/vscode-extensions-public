@@ -167,9 +167,7 @@ export function AIProjectGenerationChat() {
         }
     }
     useEffect(() => {
-
         fetchBackendUrl();
-
     }, []);
 
     useEffect(() => {
@@ -473,7 +471,6 @@ export function AIProjectGenerationChat() {
             default:
                 backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
                 view = "Artifact";
-
         }
         if (view == "Overview") {
             await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
