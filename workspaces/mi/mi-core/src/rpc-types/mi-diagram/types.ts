@@ -1028,6 +1028,18 @@ export interface Datasource {
     datasourceConfigurations: Configuration[];
 }
 
+export interface DriverPathResponse {
+    path: string;
+}
+
+export interface AddDriverToLibRequest {
+    url: string;
+}
+
+export interface AddDriverToLibResponse {
+    path: string;
+}
+
 export interface Property {
     key: string;
     value: any;
@@ -1684,11 +1696,24 @@ export interface DSSQueryGenRequest {
     datasourceName: string;
 }
 
+export interface ExtendedDSSQueryGenRequest extends DSSQueryGenRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface DSSQueryGenResponse {
+    [tableName: string]: boolean[];
+}
+
 export interface DSSFetchTablesRequest {
     className: string;
     username: string;
     password: string;
     url: string;
+}
+
+export interface DSSFetchTablesResponse {
+    [tableName: string]: boolean[];
 }
 
 export interface MarkAsDefaultSequenceRequest {

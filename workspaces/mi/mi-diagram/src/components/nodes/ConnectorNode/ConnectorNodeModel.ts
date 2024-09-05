@@ -8,10 +8,12 @@
  */
 
 import { Endpoint, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class ConnectorNodeModel extends BaseNodeModel {
+    readonly nodeWidth = NODE_DIMENSIONS.CONNECTOR.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.CONNECTOR.HEIGHT;
 
     constructor(stNode: STNode, connectorName:string, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super(NodeTypes.CONNECTOR_NODE, connectorName, documentUri, stNode, parentNode, prevNodes);
