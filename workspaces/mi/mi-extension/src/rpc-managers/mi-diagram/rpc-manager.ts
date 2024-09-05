@@ -211,7 +211,10 @@ import {
     AddDriverRequest,
     ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
-    DSSFetchTablesResponse
+    DSSFetchTablesResponse,
+    DSSQueryGenRequest,
+    AddDriverToLibResponse,
+    AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3614,6 +3617,51 @@ ${endpointAttributes}
         });
     }
 
+    async askDriverPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDriverPath = await askDriverPath();
+            if (!selectedDriverPath || selectedDriverPath.length === 0) {
+                window.showErrorMessage('A file must be selected as the driver');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDriverPath[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        const { url } = params;
+        // Copy the file from url to the lib directory
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+
+            // Ensure the lib directory exists
+            if (!fs.existsSync(libDirectory)) {
+                fs.mkdirSync(libDirectory, { recursive: true });
+            }
+
+            // Get the file name from the URL
+            const fileName = path.basename(url);
+            const destinationPath = path.join(libDirectory, fileName);
+
+            // Copy the file
+            await fs.promises.copyFile(url, destinationPath);
+
+            return { path: destinationPath };
+
+        } catch (error) {
+            console.error('Error adding driver', error);
+            throw new Error('Failed to add driver');
+        }
+    }
+
     async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {
@@ -3795,7 +3843,7 @@ ${keyValuesXML}`;
                     }
                 });
             } else {
-                if (artifactXMLData.artifacts.artifact.item.file === fileName ) {
+                if (artifactXMLData.artifacts.artifact.item.file === fileName) {
                     artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
                 }
             }
@@ -4718,6 +4766,16 @@ export async function askProjectPath() {
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
         title: "Select a folder to create the Project"
+    });
+}
+
+export async function askDriverPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a driver"
     });
 }
 

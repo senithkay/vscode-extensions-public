@@ -7,16 +7,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-z1gfq8\\"
+      class=\\"css-zr4821\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"690\\"
+      height=\\"590\\"
       width=\\"100\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -32,7 +31,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-1,1\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -69,7 +68,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-1,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -106,7 +105,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-1,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -143,7 +142,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-1,4\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -180,7 +179,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-1,5\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -601,16 +600,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -626,7 +624,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -690,7 +688,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,101\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -754,7 +752,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-12,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1072,16 +1070,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -1097,7 +1094,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1161,7 +1158,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,137\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1225,7 +1222,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-12,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1543,16 +1540,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -1568,7 +1564,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1632,7 +1628,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1873,16 +1869,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -1898,7 +1893,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -1962,7 +1957,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -2205,16 +2200,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -2230,7 +2224,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -2294,7 +2288,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -2535,16 +2529,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -2560,7 +2553,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -2624,7 +2617,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -2867,16 +2860,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -2892,7 +2884,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -2956,7 +2948,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -3197,16 +3189,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -3222,7 +3213,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -3286,7 +3277,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -3529,16 +3520,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -3554,7 +3544,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -3618,7 +3608,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,4\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -3682,7 +3672,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4000,16 +3990,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -4025,7 +4014,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4089,7 +4078,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,4\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4153,7 +4142,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4473,16 +4462,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -4498,7 +4486,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4562,7 +4550,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-14,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4803,16 +4791,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -4828,7 +4815,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -4892,7 +4879,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-14,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -5133,16 +5120,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -5158,7 +5144,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -5222,7 +5208,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -5529,16 +5515,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -5554,7 +5539,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -5618,7 +5603,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -5927,16 +5912,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -5952,7 +5936,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -6016,7 +6000,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -6257,16 +6241,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -6282,7 +6265,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -6346,7 +6329,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -6587,16 +6570,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -6612,7 +6594,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -6676,7 +6658,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -6917,16 +6899,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -6942,7 +6923,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -7006,7 +6987,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -7249,16 +7230,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -7274,7 +7254,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -7338,7 +7318,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -7579,16 +7559,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -7604,7 +7583,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -7668,7 +7647,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -7911,16 +7890,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -7936,7 +7914,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -8000,7 +7978,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -8241,16 +8219,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -8266,7 +8243,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -8330,7 +8307,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -8573,16 +8550,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-1r7eer\\"
+      class=\\"css-tuorv0\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"272\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -8598,7 +8574,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -8662,7 +8638,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,15\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -8726,7 +8702,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -9080,16 +9056,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-1r7eer\\"
+      class=\\"css-tuorv0\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"272\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -9105,7 +9080,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -9169,7 +9144,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,15\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -9233,7 +9208,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -9589,16 +9564,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -9614,7 +9588,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -9678,7 +9652,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -9919,16 +9893,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -9944,7 +9917,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -10008,7 +9981,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -10251,16 +10224,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -10276,7 +10248,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -10340,7 +10312,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-13,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -10581,16 +10553,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -10606,7 +10577,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -10670,7 +10641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-13,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -10913,16 +10884,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -10938,7 +10908,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11002,7 +10972,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-19,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11243,16 +11213,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -11268,7 +11237,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11332,7 +11301,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-18,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11575,16 +11544,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -11600,7 +11568,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11664,7 +11632,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-18,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11905,16 +11873,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -11930,7 +11897,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -11994,7 +11961,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-18,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -12237,16 +12204,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -12262,7 +12228,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -12326,7 +12292,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -12567,16 +12533,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -12592,7 +12557,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -12656,7 +12621,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -12897,16 +12862,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -12922,7 +12886,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -12986,7 +12950,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -13227,16 +13191,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -13252,7 +13215,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -13316,7 +13279,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -13559,16 +13522,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -13584,7 +13546,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -13648,7 +13610,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -13889,16 +13851,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -13914,7 +13875,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -13978,7 +13939,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -14221,16 +14182,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -14246,7 +14206,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -14310,7 +14270,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -14551,16 +14511,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -14576,7 +14535,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -14640,7 +14599,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -14883,16 +14842,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -14908,7 +14866,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -14972,7 +14930,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15213,16 +15171,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -15238,7 +15195,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15302,7 +15259,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15545,16 +15502,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-1ifny9q\\"
+      class=\\"css-a5xp3h\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"822\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -15570,7 +15526,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15634,7 +15590,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,14\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15698,7 +15654,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,14\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15762,7 +15718,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,17\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15826,7 +15782,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,12\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -15890,7 +15846,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -16418,16 +16374,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-1ifny9q\\"
+      class=\\"css-a5xp3h\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"822\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -16443,7 +16398,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -16507,7 +16462,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,14\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -16571,7 +16526,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,14\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -16635,7 +16590,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,17\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -16699,7 +16654,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,12\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -16763,7 +16718,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -17293,16 +17248,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -17318,7 +17272,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -17382,7 +17336,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -17623,16 +17577,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -17648,7 +17601,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -17712,7 +17665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -17955,16 +17908,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -17980,7 +17932,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -18044,7 +17996,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -18285,16 +18237,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -18310,7 +18261,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -18374,7 +18325,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -18617,16 +18568,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -18642,7 +18592,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -18706,7 +18656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -18947,16 +18897,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -18972,7 +18921,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19036,7 +18985,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19279,16 +19228,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w4t1tg\\"
+      class=\\"css-90k2a8\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"645\\"
+      height=\\"545\\"
       width=\\"350\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -19304,7 +19252,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19368,7 +19316,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,4,Then\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19456,7 +19404,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,4,Else\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19544,7 +19492,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,11\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19581,7 +19529,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,11\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19618,7 +19566,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-12,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -19918,16 +19866,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w4t1tg\\"
+      class=\\"css-90k2a8\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"645\\"
+      height=\\"545\\"
       width=\\"350\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -19943,7 +19890,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20007,7 +19954,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,10,Then\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20095,7 +20042,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,10,Else\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20183,7 +20130,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,17\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20220,7 +20167,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,17\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20257,7 +20204,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20557,16 +20504,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -20582,7 +20528,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20646,7 +20592,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,14\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -20710,7 +20656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21028,16 +20974,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -21053,7 +20998,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21117,7 +21062,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,14\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21181,7 +21126,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21501,16 +21446,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -21526,7 +21470,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21590,7 +21534,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21831,16 +21775,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -21856,7 +21799,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -21920,7 +21863,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -22163,16 +22106,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -22188,7 +22130,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -22252,7 +22194,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,15\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -22316,7 +22258,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -22634,16 +22576,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -22659,7 +22600,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -22723,7 +22664,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,15\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -22787,7 +22728,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -23107,16 +23048,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -23132,7 +23072,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -23196,7 +23136,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -23437,16 +23377,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -23462,7 +23401,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -23526,7 +23465,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -23769,16 +23708,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -23794,7 +23732,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -23858,7 +23796,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -24101,16 +24039,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -24126,7 +24063,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -24190,7 +24127,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -24433,16 +24370,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -24458,7 +24394,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -24522,7 +24458,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -24763,16 +24699,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -24788,7 +24723,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -24852,7 +24787,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -25095,16 +25030,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -25120,7 +25054,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -25184,7 +25118,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -25425,16 +25359,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -25450,7 +25383,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -25514,7 +25447,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -25757,16 +25690,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -25782,7 +25714,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -25846,7 +25778,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -26087,16 +26019,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -26112,7 +26043,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -26176,7 +26107,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -26419,16 +26350,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -26444,7 +26374,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -26508,7 +26438,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -26749,16 +26679,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -26774,7 +26703,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -26838,7 +26767,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -27081,16 +27010,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -27106,7 +27034,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -27170,7 +27098,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -27413,16 +27341,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -27438,7 +27365,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -27502,7 +27429,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -27743,16 +27670,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -27768,7 +27694,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -27832,7 +27758,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -28075,16 +28001,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -28100,7 +28025,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -28164,7 +28089,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -28407,16 +28332,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -28432,7 +28356,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -28496,7 +28420,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-24,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -28737,16 +28661,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -28762,7 +28685,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -28826,7 +28749,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-24,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -29069,16 +28992,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -29094,7 +29016,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -29158,7 +29080,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -29399,16 +29321,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -29424,7 +29345,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -29488,7 +29409,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -29731,16 +29652,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -29756,7 +29676,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,6\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -29820,7 +29740,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-12,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -30061,16 +29981,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -30086,7 +30005,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,6\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -30150,7 +30069,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-12,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -30393,16 +30312,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -30418,7 +30336,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -30482,7 +30400,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-19,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -30723,16 +30641,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -30748,7 +30665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -30812,7 +30729,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-19,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -31055,16 +30972,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -31080,7 +30996,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -31144,7 +31060,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -31385,16 +31301,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -31410,7 +31325,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -31474,7 +31389,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -31717,16 +31632,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -31742,7 +31656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -31806,7 +31720,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -32113,16 +32027,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -32138,7 +32051,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -32202,7 +32115,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -32511,16 +32424,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -32536,7 +32448,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -32600,7 +32512,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -32841,16 +32753,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -32866,7 +32777,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -32930,7 +32841,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -33173,16 +33084,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -33198,7 +33108,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -33262,7 +33172,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -33503,16 +33413,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -33528,7 +33437,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -33592,7 +33501,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -33835,16 +33744,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -33860,7 +33768,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -33924,7 +33832,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34165,16 +34073,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -34190,7 +34097,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34254,7 +34161,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34497,16 +34404,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w4t1tg\\"
+      class=\\"css-90k2a8\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"645\\"
+      height=\\"545\\"
       width=\\"350\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -34522,7 +34428,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34586,7 +34492,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,22,.*+\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34674,7 +34580,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,13,default\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34762,7 +34668,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34826,7 +34732,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,29\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -34863,7 +34769,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,23\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35172,16 +35078,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w4t1tg\\"
+      class=\\"css-90k2a8\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"645\\"
+      height=\\"545\\"
       width=\\"350\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -35197,7 +35102,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35261,7 +35166,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,22,.*+\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35349,7 +35254,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,13,default\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35437,7 +35342,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35501,7 +35406,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,29\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35538,7 +35443,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-7,23\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35847,16 +35752,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w4t1tg\\"
+      class=\\"css-90k2a8\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"645\\"
+      height=\\"545\\"
       width=\\"350\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -35872,7 +35776,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -35936,7 +35840,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-22,14,OnAccept\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36024,7 +35928,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-23,14,OnReject\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36112,7 +36016,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-22,25\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36149,7 +36053,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-23,25\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36186,7 +36090,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-25,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36484,16 +36388,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w4t1tg\\"
+      class=\\"css-90k2a8\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"645\\"
+      height=\\"545\\"
       width=\\"350\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -36509,7 +36412,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36573,7 +36476,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-22,14,OnAccept\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36661,7 +36564,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-23,14,OnReject\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36749,7 +36652,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-22,25\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36786,7 +36689,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-23,25\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -36823,7 +36726,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-25,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37123,16 +37026,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -37148,7 +37050,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37212,7 +37114,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37453,16 +37355,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -37478,7 +37379,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37542,7 +37443,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-6,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37785,16 +37686,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -37810,7 +37710,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37874,7 +37774,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,13\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -37938,7 +37838,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -38256,16 +38156,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-8csfgq\\"
+      class=\\"css-1q8rodx\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"680\\"
+      height=\\"580\\"
       width=\\"222\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -38281,7 +38180,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -38345,7 +38244,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-9,13\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -38409,7 +38308,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-11,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -38729,16 +38628,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -38754,7 +38652,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -38818,7 +38716,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -39059,16 +38957,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -39084,7 +38981,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -39148,7 +39045,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-8,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -39391,16 +39288,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -39416,7 +39312,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -39480,7 +39376,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -39721,16 +39617,15 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
     data-testid=\\"diagram-container\\"
   >
     <div
-      class=\\"css-w72lj\\"
+      class=\\"css-iqu0i4\\"
       color=\\"var(--vscode-foreground)\\"
       data-testid=\\"diagram-canvas-flow\\"
-      height=\\"480\\"
+      height=\\"380\\"
       width=\\"150\\"
     >
       <div
-        class=\\"css-1oicui2\\"
+        class=\\"css-byrass\\"
         cursor=\\"Default\\"
-        overflow=\\"hidden\\"
       >
         <svg
           class=\\"css-poo601\\"
@@ -39746,7 +39641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-5,3\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
@@ -39810,7 +39705,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <g
               data-testid=\\"link-10,2\\"
-              pointer-events=\\"all\\"
+              pointer-events=\\"auto\\"
             >
               <path
                 d=\\"M 0 0 L 0 0\\"
