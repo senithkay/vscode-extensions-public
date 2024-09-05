@@ -772,29 +772,30 @@ export function AIProjectGenerationChat() {
     };
 
     const handleFileAttach = (e: any) => {
-        const file = e.target.files[0];
+        const files = e.target.files;
         const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
         const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
 
-        if (file && validFileTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const fileContents = event.target.result;
-                setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsText(file);
-        } else if (file && validImageTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const imageBase64 = event.target.result;
-                setImages(prevImages => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsDataURL(file);
-
-        } else {
-            setFileUploadStatus({ type: 'error', text: 'File format not supported' });
+        for (const file of files) {
+            if (validFileTypes.includes(file.type)) {
+                const reader = new FileReader();
+                reader.onload = (event: any) => {
+                    const fileContents = event.target.result;
+                    setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
+                    setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
+                };
+                reader.readAsText(file);
+            } else if (validImageTypes.includes(file.type)) {
+                const reader = new FileReader();
+                reader.onload = (event: any) => {
+                    const imageBase64 = event.target.result;
+                    setImages(prevImages => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
+                    setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                setFileUploadStatus({ type: 'error', text: 'File format not supported' });
+            }
         }
         e.target.value = '';
     };
@@ -968,6 +969,7 @@ export function AIProjectGenerationChat() {
                         id="fileInput"
                         type="file"
                         style={{ display: "none" }}
+                        multiple
                         onChange={(e: any) => handleFileAttach(e)}
                     />
                     <VSCodeTextArea
