@@ -341,7 +341,7 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.edit-reg-metadata",
+        "command": "MI.registry-explorer.edit-reg-metadata",
         "title": "Edit Registry Metadata",
         "icon": "$(notebook-edit)",
         "group": "navigation",
@@ -497,7 +497,7 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.edit-reg-metadata",
+          "command": "MI.registry-explorer.edit-reg-metadata",
           "when": "false"
         },
         {
@@ -717,8 +717,8 @@
           "group": "inline"
         },
         {
-          "command": "MI.project-explorer.edit-reg-metadata",
-          "when": "view == MI.project-explorer && (viewItem == registry-with-metadata)",
+          "command": "MI.registry-explorer.edit-reg-metadata",
+          "when": "view == MI.registry-explorer && (viewItem == registry-with-metadata)",
           "group": "inline"
         },
         {
