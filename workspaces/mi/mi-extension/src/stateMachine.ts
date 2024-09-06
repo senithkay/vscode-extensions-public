@@ -366,14 +366,20 @@ const stateMachine = createMachine<MachineContext>({
         },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Active);
+                    const webview = VisualizerWebview.currentPanel!.getWebview();
+                    webview?.reveal(ViewColumn.Active);
+
+                    // wait until webview is ready
+                    while (!webview?.visible) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
                     resolve(true);
                 }
             });
