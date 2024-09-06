@@ -186,6 +186,7 @@ export interface BallerinaModule {
 export interface ConnectorInfo {
     connector: any;
     functionNode?: STNode;
+    action?: FunctionDefinitionInfo;
 }
 
 // tslint:disable-next-line: no-empty-interface

@@ -8,26 +8,31 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext } from "react";
-import { useIntl } from "react-intl";
+// import { useIntl } from "react-intl";
 
-import { Box, FormControl } from "@material-ui/core";
-import { FunctionDefinitionInfo, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// import { Box, FormControl } from "@material-ui/core";
+// import { FunctionDefinitionInfo, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
-import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
-import {
-    createActionStatement,
-    createCheckActionStatement,
-    createCheckedRemoteServiceCall,
-    createCheckedResourceServiceCall,
-    createRemoteServiceCall,
-    getInitialSource,
-} from "../../../../../utils";
-import { FormGeneratorProps } from "../../../FormGenerator";
-import { wizardStyles as useFormStyles } from "../../style";
-import { getDefaultParams, getFormFieldReturnType, getPathParams, getReturnTypeImports, isParentNodeWithErrorReturn } from "../util";
+// import { Context } from "../../../../../../Contexts/Diagram";
+// import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
+// import {
+//     createActionStatement,
+//     createCheckActionStatement,
+//     createCheckedRemoteServiceCall,
+//     createCheckedResourceServiceCall,
+//     createRemoteServiceCall,
+//     getInitialSource,
+// } from "../../../../../utils";
+// import { FormGeneratorProps } from "../../../FormGenerator";
+// import { wizardStyles as useFormStyles } from "../../style";
+// import { getDefaultParams, getFormFieldReturnType, getPathParams, getReturnTypeImports, isParentNodeWithErrorReturn } from "../util";
+import { useVisualizerContext } from "../../../Context";
+import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
+import { StatementEditorComponent } from "../../StatementEditorComponent";
+import { getConnectorImports, getDefaultParams, getFormFieldReturnType, getPathParams, getReturnTypeImports, isParentNodeWithErrorReturn } from "../ConnectorWizard/utils";
+import { BallerinaConnectorInfo, createActionStatement, createCheckActionStatement, createCheckedRemoteServiceCall, createCheckedResourceServiceCall, createRemoteServiceCall, FunctionDefinitionInfo, genVariableName, getAllVariables, getInitialSource, STModification } from "@wso2-enterprise/ballerina-core";
 
 interface ActionFormProps {
     action: FunctionDefinitionInfo;
@@ -35,38 +40,52 @@ interface ActionFormProps {
     isClassField: boolean;
     functionNode: STNode;
     isHttp: boolean;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+    selectedConnector: BallerinaConnectorInfo;
+
 }
 
-export function ActionForm(props: FormGeneratorProps) {
-    const formClasses = useFormStyles();
+export function ActionForm(props: ActionFormProps) {
+    // const formClasses = useFormStyles();
 
-    const intl = useIntl();
-    const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
-    const { isLoading, formArgs } = configOverlayFormStatus;
-    const { action, endpointName, isClassField, functionNode, isHttp } = formArgs as ActionFormProps;
+    // const intl = useIntl();
+    // const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
+    // const { isLoading, formArgs } = configOverlayFormStatus;
+    const { action, endpointName, isClassField, functionNode, isHttp, applyModifications, selectedConnector } = props;
+    const { activeFileInfo, statementPosition, setActivePanel, setPopupScreen } = useVisualizerContext();
+    const targetPosition = statementPosition;
+    const stSymbolInfo = getSymbolInfo();
+    const formArgs =  {
+        action: action,
+        endpointName: endpointName,
+        isClassField,
+        functionNode,
+        isHttp,
+    }
 
-    const {
-        props: { currentFile, stSymbolInfo, fullST, experimentalEnabled, ballerinaVersion },
-        api: {
-            ls: { getExpressionEditorLangClient },
-            code: { modifyDiagram, updateFileContent },
-            library,
-            openExternalUrl
-        },
-    } = useContext(Context);
 
-    const formTitle = intl.formatMessage({
-        id: "lowcode.develop.configForms.actionForm.title",
-        defaultMessage: "Action",
-    });
+    // const {
+    //     props: { currentFile, stSymbolInfo, fullST, experimentalEnabled, ballerinaVersion },
+    //     api: {
+    //         ls: { getExpressionEditorLangClient },
+    //         code: { modifyDiagram, updateFileContent },
+    //         library,
+    //         openExternalUrl
+    //     },
+    // } = useContext(Context);
+
+    // const formTitle = intl.formatMessage({
+    //     id: "lowcode.develop.configForms.actionForm.title",
+    //     defaultMessage: "Action",
+    // });
 
     let initialSource = "EXPRESSION";
     let imports = new Set<string>();
 
-    if (model && model.source) {
-        // Update existing endpoint
-        initialSource = model.source;
-    } else {
+    // if (model && model.source) {
+    //     // Update existing endpoint
+    //     initialSource = model.source;
+    // } else {
         // Adding new endpoint
         const queryParameters = getDefaultParams(action.parameters);
         const pathParameters = getPathParams(action.pathParams);
@@ -131,41 +150,71 @@ export function ActionForm(props: FormGeneratorProps) {
                     : createActionStatement(endpointName, action.name, queryParameters, targetPosition, isClassField)
             );
         }
-    }
+    // }
 
     // HACK
-    formArgs.targetPosition = targetPosition;
+    // formArgs.targetPosition = targetPosition;
+
+    const closeStatementEditor = () => {
+        setPopupScreen("EMPTY");
+    }
+
 
     return (
         <>
-            {isLoading && (
+            {/* {isLoading && (
                 <FormControl className={formClasses.wizardFormControl}>
                     <Box display="flex" justifyContent="center" width="100%">
                         <TextPreLoader position="absolute" text="Loading action..." />
                     </Box>
                 </FormControl>
-            )}
-            {!isLoading &&
+            )} */}
+            {
                 action &&
-                StatementEditorWrapper({
-                    label: formTitle,
-                    initialSource,
-                    formArgs: { formArgs },
-                    config: { type: isHttp ? "HttpAction" : "Action"},
-                    onWizardClose: onSave,
-                    onCancel,
-                    currentFile,
-                    getLangClient: getExpressionEditorLangClient,
-                    applyModifications: modifyDiagram,
-                    updateFileContent,
-                    library,
-                    syntaxTree: fullST,
-                    stSymbolInfo,
-                    extraModules: imports,
-                    experimentalEnabled,
-                    ballerinaVersion,
-                    openExternalUrl
-                })}
+                <StatementEditorComponent
+                    label={"Action"}
+                    initialSource={initialSource}
+                    formArgs={formArgs}
+                    config={{ type: isHttp ? "HttpAction" : "Action" }}
+                    applyModifications={applyModifications}
+                    currentFile={{
+                        content: activeFileInfo?.fullST?.source || "",
+                        path: activeFileInfo?.filePath,
+                        size: 1
+                    }}
+                        onCancel={closeStatementEditor}
+                        onClose={closeStatementEditor}
+                        syntaxTree={activeFileInfo?.fullST}
+                        targetPosition={statementPosition}
+                        skipSemicolon={false}
+                        extraModules={getConnectorImports(activeFileInfo?.fullST, selectedConnector?.package?.organization, selectedConnector?.moduleName)}
+
+                        />
+                // StatementEditorWrapper({
+                //     label: formTitle,
+                //     initialSource,
+                //     formArgs: { formArgs },
+                //     config: { type: isHttp ? "HttpAction" : "Action"},
+                //     onWizardClose: onSave,
+                //     onCancel,
+                //     applyModifications={applyModifications},
+                //     currentFile={{
+                //         content: activeFileInfo?.fullST?.source || "",
+                //         path: activeFileInfo?.filePath,
+                //         size: 1
+                //     }}
+                //     getLangClient: getExpressionEditorLangClient,
+                //     applyModifications: modifyDiagram,
+                //     updateFileContent,
+                //     library,
+                //     syntaxTree: fullST,
+                //     stSymbolInfo,
+                //     extraModules: imports,
+                //     experimentalEnabled,
+                //     ballerinaVersion,
+                //     openExternalUrl
+                // })
+                }
         </>
     );
 }

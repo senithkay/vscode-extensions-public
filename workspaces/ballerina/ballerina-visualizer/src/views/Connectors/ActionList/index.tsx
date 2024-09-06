@@ -8,33 +8,91 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
-import { FormattedMessage } from "react-intl";
+// import { FormattedMessage } from "react-intl";
 
-import { Box, FormControl, Input, InputAdornment, List, ListItem, Typography } from "@material-ui/core";
-import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// import { Box, FormControl, Input, InputAdornment, List, ListItem, Typography } from "@material-ui/core";
+// import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
-import SearchIcon from "../../../../../../assets/icons/SearchIcon";
-import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
-import { FormGeneratorProps } from "../../../FormGenerator";
-import { wizardStyles as useFormStyles } from "../../style";
-import useStyles from "../style";
+// import SearchIcon from "../../../../../../assets/icons/SearchIcon";
+// import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
+// import { FormGeneratorProps } from "../../../FormGenerator";
+// import { wizardStyles as useFormStyles } from "../../style";
+// import useStyles from "../style";
 
 import { ActionCard } from "./ActionCard";
+import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import styled from "@emotion/styled";
+import { Colors } from "../../../resources/constants";
+import { SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "../../../Context";
+import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-core";
+
+export namespace S {
+    export const Container = styled.div<{}>`
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `;
+    export const Component = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+        padding: 5px;
+        border: 1px solid ${Colors.OUTLINE_VARIANT};
+        border-radius: 5px;
+        height: 36px;
+        cursor: "pointer";
+        font-size: 14px;
+        &:hover {    
+                background-color: ${Colors.PRIMARY_CONTAINER};
+                border: 1px solid ${Colors.PRIMARY};
+        };
+        margin: 5px;
+    `;
+
+    export const ComponentTitle = styled.div`
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 124px;
+        word-break: break-all;
+    `;
+
+    export const IconContainer = styled.div`
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        & svg {
+            height: 16px;
+            width: 16px;
+            fill: ${Colors.ON_SURFACE};
+            stroke: ${Colors.ON_SURFACE};
+        }
+    `;
+
+
+}
 
 interface ActionListProps {
     actions: FunctionDefinitionInfo[];
     onSelect: (action: FunctionDefinitionInfo) => void;
     isHttp: boolean;
+    onCancel?: () => void;
 }
 
-export function ActionList(props: FormGeneratorProps) {
-    const classes = useStyles();
-    const formClasses = useFormStyles();
+export function ActionList(props: ActionListProps) {
+    // const classes = useStyles();
+    // const formClasses = useFormStyles();
+    const { setActivePanel, statementPosition, activeFileInfo, setPopupScreen } = useVisualizerContext();
 
-    const { onCancel, onBack, configOverlayFormStatus } = props;
-    const { isLoading, formArgs } = configOverlayFormStatus;
-    const { actions, isHttp, onSelect } = formArgs as ActionListProps;
+
+    // const { onCancel, onBack, configOverlayFormStatus } = props;
+    // const { isLoading, formArgs } = configOverlayFormStatus;
+    const { actions, isHttp, onSelect, onCancel } = props;
 
     const [keyword, setKeyword] = useState("");
     const [filteredActions, setFilteredActions] = useState<FunctionDefinitionInfo[]>([]);
@@ -73,16 +131,42 @@ export function ActionList(props: FormGeneratorProps) {
         return <ActionCard key={action.name} action={action} onSelect={onSelect} />;
     });
 
-    const handleActionSearch = (e: any) => {
-        setKeyword(e.target.value);
+    const handleActionSearch = (input: string) => {
+        setKeyword(input);
     };
 
-    const handleOnBack = () => {
-        onBack();
-    };
+    // const handleOnBack = () => {
+    //     onBack();
+    // };
 
     return (
-        <FormControl data-testid="action-list-form" className={formClasses.wizardFormControl}>
+        <>
+        <PanelContainer title="Action" show={true} onClose={onCancel}>
+        <SearchBox placeholder="Search actions" onChange={(text: string) => handleActionSearch(text)} value={keyword} iconPosition="end" />
+        {supportedActions?.length > 0 && (
+            <>
+                <Typography sx={{padding: "10px"}}>
+                    Select an action
+                </Typography>
+
+                    <S.Container>{actionElementList}</S.Container>
+            </>
+        )}
+        {supportedActions?.length === 0 && (
+                <Typography>
+                    Sorry. We currently support `remote` and `resource` actions only.
+                </Typography>
+        )}
+        {(filteredActions?.length === 0 || !actions) && (
+            <div>
+                <Typography>
+                    No actions found
+                </Typography>
+            </div>
+        )}
+        </PanelContainer>
+       
+        {/* <FormControl data-testid="action-list-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
                 onCancel={onCancel}
                 onBack={handleOnBack}
@@ -143,6 +227,7 @@ export function ActionList(props: FormGeneratorProps) {
                     </div>
                 </div>
             </div>
-        </FormControl>
+        </FormControl> */}
+        </>
     );
 }

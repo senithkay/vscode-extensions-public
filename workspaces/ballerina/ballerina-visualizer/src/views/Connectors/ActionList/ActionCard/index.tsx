@@ -9,11 +9,14 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useState } from "react";
 
-import { Box, ListItem, Typography } from "@material-ui/core";
-import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// import { Box, ListItem, Typography } from "@material-ui/core";
+// import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import debounce from "lodash.debounce";
 
-import useStyles from "../../style";
+// import useStyles from "../../style";
+import { S } from "..";
+import { FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-core";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 interface ActionCardProps {
     action: FunctionDefinitionInfo;
@@ -21,7 +24,7 @@ interface ActionCardProps {
 }
 
 export function ActionCard(props: ActionCardProps) {
-    const classes = useStyles();
+    // const classes = useStyles();
     const { action, onSelect } = props;
 
     const name = action.displayAnnotation?.label || action.name;
@@ -40,21 +43,27 @@ export function ActionCard(props: ActionCardProps) {
     };
 
     return (
-        <ListItem
-            key={`action-${action.name.toLowerCase()}`}
-            data-testid={`${action.name.toLowerCase().replaceAll(" ", "-")}`}
-            className={classes.actionItem}
-            button={true}
-            onClick={handleOnSelect}
-            onMouseEnter={debouncedHandleMouseEnter}
-            onMouseLeave={handleOnMouseLeave}
-        >
-            <Box flex={true} flexDirection="column">
-                <Typography className={classes.actionTitle}>{name}</Typography>
+        <S.Component key={`action-${action.name.toLowerCase()}`} onClick={handleOnSelect} onMouseEnter={debouncedHandleMouseEnter} onMouseLeave={handleOnMouseLeave}>
+                <S.ComponentTitle>{name}</S.ComponentTitle>
                 {showDocumentation && action.documentation && (
-                    <Typography className={classes.actionSubtitle}>{action.documentation}</Typography>
+                    <Typography>{action.documentation}</Typography>
                 )}
-            </Box>
-        </ListItem>
+        </S.Component>
+        // <ListItem
+        //     key={`action-${action.name.toLowerCase()}`}
+        //     data-testid={`${action.name.toLowerCase().replaceAll(" ", "-")}`}
+        //     className={classes.actionItem}
+        //     button={true}
+        //     onClick={handleOnSelect}
+        //     onMouseEnter={debouncedHandleMouseEnter}
+        //     onMouseLeave={handleOnMouseLeave}
+        // >
+        //     <Box flex={true} flexDirection="column">
+        //         <Typography className={classes.actionTitle}>{name}</Typography>
+        //         {showDocumentation && action.documentation && (
+        //             <Typography className={classes.actionSubtitle}>{action.documentation}</Typography>
+        //         )}
+        //     </Box>
+        // </ListItem>
     );
 }

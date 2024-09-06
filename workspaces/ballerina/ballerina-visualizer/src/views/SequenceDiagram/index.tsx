@@ -24,6 +24,7 @@ import styled from "@emotion/styled";
 import { PanelType, useVisualizerContext } from "../../Context";
 import { ComponentInfo, ConnectorInfo, removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
 import { URI } from "vscode-uri";
+import { fetchConnectorInfo, retrieveUsedAction } from "../Connectors/ConnectorWizard/utils";
 
 enum MESSAGE_TYPE {
     ERROR,
@@ -107,14 +108,22 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     }
 
     const handleAddComponent = (position: NodePosition) => {
-        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL });
         setStatementPosition(position);
+        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL });
     }
 
-    const handleEditComponent = (model: STNode, targetPosition: NodePosition, componentType: string, connectorInfo?: ConnectorInfo) => {
-        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR });
+    const handleEditComponent = async (model: STNode, targetPosition: NodePosition, componentType: string, connectorInfo?: ConnectorInfo) => {
         setStatementPosition(targetPosition);
+        if((componentType === "Connector" || componentType === "Action" || componentType === "HttpAction") && connectorInfo?.connector) {
+            const connectorMetadata = await fetchConnectorInfo(connectorInfo.connector, rpcClient, activeFileInfo?.filePath);
+            connectorInfo.connector = connectorMetadata;
+            if(componentType === "Action" || componentType === "HttpAction") {
+                const action = retrieveUsedAction(model, connectorMetadata);
+                connectorInfo.action = action;
+            }
+        }
         setComponentInfo({ model, position: targetPosition, componentType, connectorInfo });
+        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR });
     }
 
     const handleDeleteComponent = (model: STNode) => {

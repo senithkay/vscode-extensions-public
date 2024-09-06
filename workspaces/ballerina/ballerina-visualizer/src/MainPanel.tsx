@@ -34,6 +34,8 @@ import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
 import { RecordEditor } from './views/RecordEditor/RecordEditor';
 import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard"
+import { EndpointList } from './views/Connectors/EndpointList';
+import { getSymbolInfo } from '@wso2-enterprise/ballerina-low-code-diagram';
 
 const globalStyles = css`
   *,
@@ -229,6 +231,9 @@ const MainPanel = () => {
                 {activePanel?.isActive && activePanel.name === PanelType.STATEMENTEDITOR && (
                     <EditPanel applyModifications={applyModifications} />
                 )
+                }
+                {popupScreen !== "EMPTY" && popupScreen === "ADD_ACTION" &&
+                    <EndpointList stSymbolInfo={getSymbolInfo()} applyModifications={applyModifications} />
                 }
             </VisualizerContainer>
         </>

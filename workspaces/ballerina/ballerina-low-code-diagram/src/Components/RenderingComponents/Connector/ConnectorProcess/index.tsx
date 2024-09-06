@@ -72,15 +72,17 @@ export function ConnectorProcess(props: ConnectorProcessProps) {
     const [connector, setConnector] = useState<BallerinaConnectorInfo>(draftVS?.connector);
 
     const toggleSelection = () => {
-        const connectorInfo : ConnectorInfo = {
-            connector: selectedConnector ? selectedConnector : connector,
-            functionNode
-        };
-        // TODO: FIX THIS
-        // tslint:disable-next-line
-        console.log("connectorInfo", connectorInfo);
-        diagramContext.props.onEditComponent(model, model.position, "Connector", connectorInfo);
         // setIsConnectorEdit(!isEditConnector);
+        const connectorInit: LocalVarDecl = model as LocalVarDecl;
+        const matchedConnector = getMatchingConnector(connectorInit);
+        if (matchedConnector) {
+            setConnector(matchedConnector);
+            const connectorInfo : ConnectorInfo = {
+                connector: matchedConnector,
+                functionNode
+            };
+            diagramContext.props.onEditComponent(model, model.position, "Connector", connectorInfo);
+        }
     };
 
     const isDraftStatement: boolean =

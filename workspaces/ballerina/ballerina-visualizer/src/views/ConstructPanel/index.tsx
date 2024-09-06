@@ -55,6 +55,9 @@ export function ConstructPanel(props: ConstructPanelProps) {
             setActivePanel({ isActive: false });
             setPopupScreen("ADD_CONNECTION");
 
+        } else if (nodeId === "Action") {
+            setActivePanel({ isActive: false });
+            setPopupScreen("ADD_ACTION");
         } else {
             const templateValues = getTemplateValues(nodeId, allVariables);
             const initialSource = getInitialSource(templateValues);

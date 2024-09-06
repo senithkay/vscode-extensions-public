@@ -314,7 +314,7 @@ export function Marketplace(props: MarketplaceProps) {
     );
 
     const modulesList = (
-        <>
+        <div style={{padding: "10px"}}>
       
             {localModules.current.size > 0 && renderModulesList("Local " + shortName, localModuleComponents)}
             {centralModules.current.size > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
@@ -326,7 +326,7 @@ export function Marketplace(props: MarketplaceProps) {
                         </Typography>
                     </div>
             )}
-        </>
+        </div>
     );
 
     // const searchBar = <SearchBar searchQuery={searchQuery} onSearch={onSearchButtonClick} type={shortName} />;

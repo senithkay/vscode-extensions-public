@@ -1,6 +1,6 @@
-import { BallerinaConnectorInfo, BallerinaModuleResponse, BallerinaConnectorsRequest, BallerinaConstruct, ConnectorParams, ConnectorRequest, getFormattedModuleName, getInitialSource, createObjectDeclaration, genVariableName, getAllVariables, createCheckObjectDeclaration, STSymbolInfo, FormField, FormFieldChecks, PrimitiveBalType, getFieldName, FormFieldReturnType } from "@wso2-enterprise/ballerina-core";
+import { BallerinaConnectorInfo, BallerinaModuleResponse, BallerinaConnectorsRequest, BallerinaConstruct, ConnectorParams, ConnectorRequest, getFormattedModuleName, getInitialSource, createObjectDeclaration, genVariableName, getAllVariables, createCheckObjectDeclaration, STSymbolInfo, FormField, FormFieldChecks, PrimitiveBalType, getFieldName, FormFieldReturnType, PathParam } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { BlockStatement, DoStatement, ForeachStatement, IfElseStatement, ModulePart, NodePosition, QualifiedNameReference, STKindChecker, STNode, traversNode, VisibleEndpoint, WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { returnTypeVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
 
 export async function fetchConnectorInfo(
@@ -30,6 +30,121 @@ export async function fetchConnectorInfo(
         }
     }
     return connectorInfo;
+}
+
+export function getTargetBlock(targetPosition: NodePosition, blockNode: STNode): BlockStatement {
+    // Go through block statements to identify which block represent the target position
+    if (
+        STKindChecker.isBlockStatement(blockNode) ||
+        (STKindChecker.isFunctionBodyBlock(blockNode) &&
+            blockNode.position?.startLine < targetPosition.startLine &&
+            blockNode.position?.endLine >= targetPosition.startLine)
+    ) {
+        // Go through each statements to find exact block
+        const blockStatements = blockNode.statements as STNode[];
+        if (!blockStatements || blockStatements.length === 0) {
+            // Empty block
+            return blockNode as BlockStatement;
+        }
+
+        const targetBlock = blockStatements?.find(
+            (block) =>
+                block.position?.startLine < targetPosition.startLine &&
+                block.position?.endLine >= targetPosition.startLine
+        );
+        if (!targetBlock) {
+            return blockNode as BlockStatement;
+        }
+
+        switch (targetBlock.kind) {
+            case "IfElseStatement":
+                const ifBlock = getTargetIfBlock(targetPosition, targetBlock as IfElseStatement);
+                return getTargetBlock(targetPosition, ifBlock);
+            case "ForeachStatement":
+                return getTargetBlock(targetPosition, (targetBlock as ForeachStatement).blockStatement);
+            case "WhileStatement":
+                return getTargetBlock(targetPosition, (targetBlock as WhileStatement).whileBody);
+            case "DoStatement":
+                return getTargetBlock(targetPosition, (targetBlock as DoStatement).blockStatement);
+            default:
+                return targetBlock as BlockStatement;
+        }
+    }
+    return null;
+}
+
+export function getTargetIfBlock(targetPosition: NodePosition, blockNode: IfElseStatement): BlockStatement {
+    if (
+        STKindChecker.isIfElseStatement(blockNode) &&
+        blockNode.ifBody.position?.startLine < targetPosition.startLine &&
+        blockNode.ifBody.position?.endLine >= targetPosition.startLine
+    ) {
+        return blockNode.ifBody;
+    }
+    if (
+        STKindChecker.isIfElseStatement(blockNode) &&
+        STKindChecker.isElseBlock(blockNode.elseBody) &&
+        STKindChecker.isIfElseStatement(blockNode.elseBody.elseBody) &&
+        blockNode.elseBody.elseBody.position?.startLine < targetPosition.startLine &&
+        blockNode.elseBody.elseBody.position?.endLine >= targetPosition.startLine
+    ) {
+        return getTargetIfBlock(targetPosition, blockNode.elseBody.elseBody);
+    }
+    if (
+        STKindChecker.isElseBlock(blockNode.elseBody) &&
+        STKindChecker.isBlockStatement(blockNode.elseBody.elseBody) &&
+        blockNode.elseBody.position?.startLine < targetPosition.startLine &&
+        blockNode.elseBody.position?.endLine >= targetPosition.startLine
+    ) {
+        return blockNode.elseBody.elseBody;
+    }
+    return null;
+}
+
+export function getConnectorFromVisibleEp(endpoint: VisibleEndpoint) {
+    const connector: BallerinaConnectorInfo = {
+        name: endpoint.typeName,
+        moduleName: endpoint.moduleName,
+        package: {
+            organization: endpoint.orgName,
+            name: endpoint.packageName,
+            version: endpoint.version,
+        },
+        functions: [],
+    };
+    return connector;
+}
+
+export function getMatchingConnector(node: STNode): BallerinaConnectorInfo {
+    let connector: BallerinaConnectorInfo;
+    if (
+        node &&
+        isEndpointNode(node) &&
+        (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) &&
+        STKindChecker.isQualifiedNameReference(node.typedBindingPattern.typeDescriptor)
+    ) {
+        const nameReference = node.typedBindingPattern.typeDescriptor as QualifiedNameReference;
+        const typeSymbol = nameReference.typeData?.typeSymbol;
+        const module = typeSymbol?.moduleID;
+        if (typeSymbol && module) {
+            connector = {
+                name: typeSymbol.name,
+                moduleName: module.moduleName,
+                package: {
+                    organization: module.orgName,
+                    name: module.packageName || module.moduleName,
+                    version: module.version,
+                },
+                functions: [],
+            };
+        }
+    }
+
+    return connector;
+}
+
+export function isEndpointNode(node: STNode): boolean {
+    return node && (STKindChecker.isLocalVarDecl(node) || STKindChecker.isModuleVarDecl(node)) && node.typeData?.isEndpoint;
 }
 
 export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string, withExistingImports = false) {
@@ -517,5 +632,86 @@ export function getSelectedUnionMember(unionFields: FormField): FormField {
         selectedMember = unionFields.members[0];
     }
     return selectedMember;
+}
+
+export function getReturnTypeImports(returnType: FormFieldReturnType) {
+    const imports = new Set<string>();
+    if (returnType.importTypeInfo) {
+        returnType.importTypeInfo?.forEach((typeInfo) => {
+            imports.add(`${typeInfo.orgName}/${typeInfo.moduleName}`);
+        });
+    }
+    return imports;
+}
+
+export function getPathParams(params: PathParam[]): string[]{
+    if (!params) { return []; }
+    const pathParams: string[] = [];
+    params.forEach((param) => {
+        switch (param.typeName) {
+            case "token":
+                pathParams.push(param.name);
+                break;
+                case PrimitiveBalType.String:
+                    pathParams.push(`["${param.name}"]`);
+                    break;
+                case PrimitiveBalType.Int:
+                    case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                    pathParams.push(`[0]`);
+                    pathParams.push(`[0]`);
+                    break;
+                default:
+                    // Skip other tokens
+        }
+    });
+    return pathParams;
+}
+
+export function retrieveUsedAction(actionModel: STNode, connector?: BallerinaConnectorInfo) {
+    let methodName = "";
+    let methods = connector.functions;
+
+    
+
+    if (
+        STKindChecker.isLocalVarDecl(actionModel) &&
+        STKindChecker.isCheckAction(actionModel.initializer) &&
+        // TODO: replace with STKindchecker checks once the syntax tree is updated
+        (STKindChecker.isRemoteMethodCallAction(actionModel.initializer.expression)
+            || actionModel.initializer.expression.kind === 'ClientResourceAccessAction')
+    ) {
+        if ((actionModel.initializer.expression as any).methodName) {
+            methodName = (actionModel.initializer.expression as any)?.methodName.name.value;
+        } else if (connector && connector.moduleName === 'http') {
+            methodName = 'get';
+        }
+    } else if (
+        STKindChecker.isLocalVarDecl(actionModel) &&
+        (STKindChecker.isRemoteMethodCallAction(actionModel.initializer)
+            || actionModel.initializer.kind === 'ClientResourceAccessAction')
+    ) {
+        if ((actionModel.initializer as any).methodName) {
+            methodName = (actionModel.initializer as any)?.methodName.name.value;
+        } else {
+            if (connector && connector.moduleName === 'http') {
+                methodName = 'get';
+            }
+        }
+
+    } else if (
+        STKindChecker.isActionStatement(actionModel) &&
+        STKindChecker.isCheckAction(actionModel.expression) &&
+        STKindChecker.isRemoteMethodCallAction(actionModel.expression.expression)
+    ) {
+        methodName = actionModel.expression.expression.methodName.name.value;
+    }
+    if (methodName && methodName !== "" && methods?.length > 0) {
+        const usedMethod = methods.find((func) => func.name === methodName);
+        if (usedMethod) {
+            return usedMethod;
+        }
+    }
+
 }
 

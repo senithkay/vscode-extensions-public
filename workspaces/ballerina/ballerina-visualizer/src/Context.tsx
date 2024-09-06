@@ -48,7 +48,7 @@ interface ActiveFileInfo {
     activeSequence: STNode;
 }
 
-export type PopupScreen = "EMPTY" | "ADD_CONNECTION";
+export type PopupScreen = "EMPTY" | "ADD_CONNECTION" | "ADD_ACTION";
 export type SidePanel = "EMPTY" | "RECORD_EDITOR";
 
 interface VisualizerContext {
