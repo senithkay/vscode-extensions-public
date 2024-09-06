@@ -93,7 +93,7 @@ export function ParameterSuggestions() {
     useEffect(() => {
         if ((config.type === ACTION || config.type === HTTP_ACTION) && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
             const statementMethod = retrieveUsedAction(statementModel, connectorInfo);
-            if (activeMethod?.name !== statementMethod?.name){
+            if (statementMethod && activeMethod?.name !== statementMethod?.name){
                 setActiveMethod(statementMethod);
             }
         }
