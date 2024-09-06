@@ -8,12 +8,14 @@
  */
 import React, { useEffect } from "react";
 import { TextField, Dropdown, FormCheckBox, FormGroup, Button } from "@wso2-enterprise/ui-toolkit";
+import { driverMap } from "../../../DataSourceForm/types";
 
 export interface DataSourceRDBMSFormProps {
     renderProps: any;
     watch: any;
     setValue: any;
     control: any;
+    isEditDatasource: boolean;
 }
 
 interface OptionProps {
@@ -95,6 +97,9 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
             }
             return;
         }
+
+        props.isEditDatasource && extractValuesFromUrl(props.watch('rdbms.url'), props.watch('rdbms.databaseEngine'));
+        
         if (props.watch('rdbms.databaseEngine') === 'MySQL') {
             props.setValue('rdbms.driverClassName', drivers.mysql.driverClass);
             props.setValue('rdbms.url', replacePlaceholders(drivers.mysql.jdbcUrl));
@@ -129,7 +134,7 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
             props.setValue('rdbms.driverClassName', drivers.generic.driverClass);
             props.setValue('rdbms.url', replacePlaceholders(drivers.generic.jdbcUrl));
         }
-    }, [props.watch('rdbms.databaseEngine'), props.watch('rdbms.hostname'), props.watch('rdbms.port'), props.watch('rdbms.databaseName')]);
+    }, [props.watch('rdbms.databaseEngine'), props.watch('rdbms.hostname'), props.watch('rdbms.port'), props.watch('rdbms.databaseName'), props.isEditDatasource]);
 
     useEffect(() => {
         if (props.watch('rdbms.useSecretAlias')) {
@@ -140,7 +145,37 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
     }, [props.watch('rdbms.useSecretAlias')]);
 
     const replacePlaceholders = (urlWithPlaceholder: string) => {
-        return urlWithPlaceholder.replace('[HOST]', props.watch('rdbms.hostname')).replace('[PORT]', props.watch('rdbms.port')).replace('[DATABASE]', props.watch('rdbms.databaseName'));
+        const replacements: any = {
+            '[HOST]': props.watch('rdbms.hostname'),
+            '[PORT]': props.watch('rdbms.port'),
+            '[DATABASE]': props.watch('rdbms.databaseName')
+        };
+    
+        return urlWithPlaceholder.replace(/\[HOST\]|\[PORT\]|\[DATABASE\]/g, (match) => {
+            const value = replacements[match];
+            return value !== '' ? value : match;
+        });
+    };
+
+    const extractValuesFromUrl = (url: string, dbEngine: string) => {
+        const driverUrlTemplate = driverMap.get(dbEngine);
+        if (driverUrlTemplate) {
+            const urlPattern = driverUrlTemplate.url;
+            const regex = new RegExp(urlPattern
+                .replace('[HOST]', '(?<host>[^:/]+)')
+                .replace('[PORT]', '(?<port>[^/;]+)')
+                .replace('[DATABASE]', '(?<database>[^;]+)')
+            );
+
+            const match = url.match(regex);
+            if (match && match.groups) {
+                const { host, port, database } = match.groups;
+
+                !props.watch('rdbms.hostname') && props.setValue('rdbms.hostname', host);
+                !props.watch('rdbms.port') &&props.setValue('rdbms.port', port);
+                !props.watch('rdbms.databaseName') && props.setValue('rdbms.databaseName', database);
+            }
+        }
     };
 
     const handleModifyURL = () => {
