@@ -8,7 +8,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { Button, Icon, LinkButton, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, LinkButton, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { Controller, useForm } from 'react-hook-form';
@@ -36,19 +36,23 @@ interface ImportDataPanelProps {
     importType: ImportType;
     extension: FileExtension;
     rowRange?: RowRange;
-    onSave: (text: string) => void;
+    onSave: (text: string, csvDelimitter?: string) => void;
 }
 
 export function ImportDataPanel(props: ImportDataPanelProps) {
     const { importType, extension, rowRange, onSave } = props;
     const classes = useStyles();
-    const { clearErrors, control, formState: { errors }, setError, watch } = useForm();
+    const { clearErrors, control, formState: { errors }, getValues, setError, watch, reset } = useForm();
 
     const [rows, setRows] = useState(rowRange.start || 1);
     const [fileContent, setFileContent] = useState("");
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const hiddenFileInput = useRef(null);
+
+    useEffect(() => {
+        reset({ "delimiter": "" });
+    }, [importType]);
 
     useEffect(() => {
         if (textAreaRef.current) {
@@ -125,7 +129,7 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
     };
 
     const handleSave = () => {
-        onSave(fileContent);
+        onSave(fileContent, getValues("delimiter"));
     };
 
     const generatePlaceholder = useMemo(() => {
@@ -174,6 +178,19 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
                     />
                 )}
             />
+            {importType.type === "CSV" && <Controller
+                name="delimiter"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        {...field}
+                        placeholder=','
+                        label="Delimiter"
+                        sx={{ border: "#00ff00" }}
+                        errorMsg={errors && errors.delimiter?.message.toString()}
+                    />
+                )}
+            />}
             <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"

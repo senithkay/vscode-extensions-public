@@ -32,11 +32,11 @@ export async function generateSchema(ioType: IOType, schemaType: string, filePat
   return schema;
 }
 
-export async function generateSchemaFromContent(ioType: IOType, content: string, fileType: string): Promise<JSONSchema3or4> {
+export async function generateSchemaFromContent(ioType: IOType, content: string, fileType: string, csvDelimiter?: string): Promise<JSONSchema3or4> {
   const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchemaFromContent({
     fileContent: content,
-    delimiter: "",
+    delimiter: csvDelimiter ?? "",
     type: fileType.toUpperCase(),
     title: ""
   });

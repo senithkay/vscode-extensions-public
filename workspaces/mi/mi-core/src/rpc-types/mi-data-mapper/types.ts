@@ -67,6 +67,7 @@ export interface BrowseSchemaRequest {
     schemaType: string;
     configName: string;
     typeName?: string;
+    csvDelimiter?: string;
 }
 
 export interface BrowseSchemaResponse {
