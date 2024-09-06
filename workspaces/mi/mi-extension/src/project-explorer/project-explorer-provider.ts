@@ -640,8 +640,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'data-service';
 			explorerEntry.command = {
 				"title": "Show Data Service",
-				"command": COMMANDS.SHOW_DATA_SERVICE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"command": COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
+				"arguments": [vscode.Uri.file(entry.path)]
 			};
 		}
 		else {
