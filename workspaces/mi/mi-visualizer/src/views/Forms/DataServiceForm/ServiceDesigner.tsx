@@ -303,7 +303,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
                                     <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                                 </VSCodeButton>
-                                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleGenerateResourceAdd}>
+                                <VSCodeButton appearance="primary" title="Generate from datasource" onClick={handleGenerateResourceAdd}>
                                     Generate from datasource
                                 </VSCodeButton>
                             </React.Fragment>
