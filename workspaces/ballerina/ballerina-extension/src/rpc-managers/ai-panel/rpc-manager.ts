@@ -13,24 +13,34 @@ import {
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
+    ErrorCode,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
     NotifyAIMappingsRequest,
+    STModification,
+    SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
+import { ModulePart, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import axios from "axios";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import path from "path";
-import * as vscode from 'vscode';
-import { extension } from "../../BalExtensionContext";
-import { updateView } from "../../stateMachine";
-import { StateMachineAI } from '../../views/ai-panel/aiMachine';
+import { Uri, workspace } from 'vscode';
 
+import { extension } from "../../BalExtensionContext";
+import { StateMachine, updateView } from "../../stateMachine";
+import { StateMachineAI } from '../../views/ai-panel/aiMachine';
+import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, isErrorCode, isLoggedin, notifyNoGeneratedMappings } from "./utils";
+import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { NOT_SUPPORTED } from "../../core";
+import { updateFileContent } from "../../utils/modification";
+
+export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
-            const config = vscode.workspace.getConfiguration('ballerina');
+            const config = workspace.getConfiguration('ballerina');
             const BACKEND_URL = config.get('rootUrl') as string;
             resolve(BACKEND_URL);
         });
@@ -85,14 +95,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return new Promise(async (resolve) => {
             console.log("Implementing getProjectUuid");
             // Check if there is at least one workspace folder
-            if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+            if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
                 console.error("No workspace folder is open.");
                 resolve("");
                 return;
             }
 
             // Use the path of the first workspace folder
-            const workspaceFolderPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
 
             // Create a hash of the workspace folder path
             const hash = crypto.createHash('sha256');
@@ -108,7 +118,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // ADD YOUR IMPLEMENTATION HERE
         console.log("Implementing addToProject");
 
-        const workspaceFolders = vscode.workspace.workspaceFolders;
+        const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
             throw new Error("No workspaces found.");
         }
@@ -154,7 +164,7 @@ public function main() {
                 'Accept': 'application/json'
             };
 
-            const config = vscode.workspace.getConfiguration('ballerina');
+            const config = workspace.getConfiguration('ballerina');
             const AUTH_ORG = config.get('authOrg') as string;
             const AUTH_CLIENT_ID = config.get('authClientID') as string;
 
@@ -187,8 +197,110 @@ public function main() {
     }
 
     async generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        const logged = await isLoggedin();
+
+        if (!logged) {
+            return { error: UNAUTHORIZED };
+        }
+
+        const { filePath, position } = params;
+
+        const fileUri = Uri.file(filePath).toString();
+        hasStopped = false;
+
+        const fnSTByRange = await StateMachine.langClient().getSTByRange(
+            {
+                lineRange: {
+                    start: {
+                        line: position.startLine,
+                        character: position.startColumn
+                    },
+                    end: {
+                        line: position.endLine,
+                        character: position.endColumn
+                    }
+                },
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            }
+        );
+    
+        if (fnSTByRange === NOT_SUPPORTED) {
+            return { error: UNKNOWN_ERROR };
+        }
+    
+        const {
+            parseSuccess: fnSTByRangeParseSuccess,
+            syntaxTree: fnSTByRangeSyntaxTree,
+            source: oldSource
+        } = fnSTByRange as SyntaxTree;
+        const fnSt = fnSTByRangeSyntaxTree as STNode;
+    
+        if (!fnSTByRangeParseSuccess || !STKindChecker.isFunctionDefinition(fnSt)) {
+            return { error: PARSING_ERROR };
+        }
+    
+        const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+    
+        if (isErrorCode(parameterDefinitions)) {
+            return { error: (parameterDefinitions as ErrorCode) };
+        }
+    
+        const codeObject: object | ErrorCode = await getDatamapperCode(parameterDefinitions, fnSt);
+        if (isErrorCode(codeObject)) {
+            if ((codeObject as ErrorCode).code === 6) {
+                return { userAborted: true };
+            }
+            return { error: codeObject as ErrorCode };
+        }
+    
+        let codeString: string = constructRecord(codeObject);
+        if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
+            const parameter = fnSt.functionSignature.parameters[0];
+            const param = parameter as RequiredParam;
+            const paramName = param.paramName.value;
+            codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
+            codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+        } else {
+            codeString = `=> ${codeString};`;
+        }
+        const modifications: STModification[] = [];
+        modifications.push({
+            type: "INSERT",
+            config: { STATEMENT: codeString },
+            endColumn: fnSt.functionBody.position.endColumn,
+            endLine: fnSt.functionBody.position.endLine,
+            startColumn: fnSt.functionBody.position.startColumn,
+            startLine: fnSt.functionBody.position.startLine,
+        });
+    
+        const stModifyResponse = await StateMachine.langClient().stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: fileUri
+            }
+        });
+    
+        const { parseSuccess, source, syntaxTree } = stModifyResponse as SyntaxTree;
+    
+        if (!parseSuccess) {
+            return { error: MODIFIYING_ERROR };
+        }
+    
+        const fn = getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
+    
+        if (fn && fn.source !== oldSource) {
+            updateFileContent({ fileUri, content: source });
+            updateView();
+    
+            return { newFnPosition: fn.position };
+        } else if (fn.source === oldSource) {
+            notifyNoGeneratedMappings();
+            return {};
+        }
+    
+        return { error: UNKNOWN_ERROR };
     }
 
     async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
