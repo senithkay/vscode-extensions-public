@@ -286,6 +286,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     functionDeclaration.setBodyText(`${dataMapping}`);
                     // write the updates to the file
                     await sourceFile.save();
+                    navigate();
                 } else {
                     console.error("Error in writing data mapping, mapFunction not found in target ts file.");
                 }

@@ -780,7 +780,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                             </Button>
                             <Button
                                 appearance="secondary"
-                                onClick={handleCancel}>
+                                onClick={props.handlePopupClose ?? handleCancel}>
                                 Cancel
                             </Button>
                         </FormActions>
@@ -796,7 +796,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                         </Button>
                         <Button
                             appearance="secondary"
-                            onClick={handleCancel}>
+                            onClick={props.handlePopupClose ?? handleCancel}>
                             Cancel
                         </Button>
                     </FormActions>

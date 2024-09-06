@@ -300,10 +300,10 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                     <ViewHeader title="Data Service Designer" icon="APIResource" onEdit={handleDataServiceEdit}>
                         {showResources ? (
                             <React.Fragment>
-                                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
+                                <VSCodeButton appearance="primary" title="Add Resource" onClick={handleResourceAdd}>
                                     <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                                 </VSCodeButton>
-                                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleGenerateResourceAdd}>
+                                <VSCodeButton appearance="primary" title="Generate from datasource" onClick={handleGenerateResourceAdd}>
                                     Generate from datasource
                                 </VSCodeButton>
                             </React.Fragment>
