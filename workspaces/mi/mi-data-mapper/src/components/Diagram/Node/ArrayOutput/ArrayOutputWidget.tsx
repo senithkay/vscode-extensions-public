@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Node } from "ts-morph";
+import { Block, Node } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -20,13 +20,15 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ArrayOutputFieldWidget } from "./ArrayOuptutFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
-import { isConnectedViaLink } from "../../utils/common-utils";
+import { getDefaultValue, isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 import { IOType } from "@wso2-enterprise/mi-core";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
-
+import { createSourceForUserInput } from "../../utils/modification-utils";
+import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
+import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
@@ -56,7 +58,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+	const [isLoading, setLoading] = useState(false);
+	const [isAddingElement, setIsAddingElement] = useState(false);
+
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
+	const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
 	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
 		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
@@ -100,6 +106,13 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		isDisabled = true;
 	}
 
+	const propertyAssignment = dmTypeWithValue.hasValue()
+		&& !dmTypeWithValue.value.wasForgotten()
+		&& Node.isPropertyAssignment(dmTypeWithValue.value)
+		&& dmTypeWithValue.value;
+	const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
+	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
+
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
@@ -111,6 +124,38 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const handlePortState = (state: PortState) => {
 		setPortState(state)
+	};
+
+	const handleArrayInitialization = async () => {
+		console.log(dmTypeWithValue);
+		console.log(context);
+		setLoading(true);
+		try {
+			if (context.views.length==1) {
+				const fnBody = context.functionST.getBody() as Block;
+				
+				fnBody.addStatements('return []');
+				await context.applyModifications(fnBody.getSourceFile().getFullText());
+				// await createSourceForUserInput(dmTypeWithValue, undefined, '[]', fnBody, context.applyModifications);
+			}else{
+				console.log(dmTypeWithValue);
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleArrayDeletion = async () => {
+		setLoading(true);
+		try {
+			await deleteField(dmTypeWithValue.value);
+		} finally {
+			setLoading(false);
+		}
+	};
+	const handleEditValue = () => {
+		if (portIn)
+			setExprBarFocusedPort(portIn);
 	};
 
 	const onRightClick = (event: React.MouseEvent) => {
@@ -144,6 +189,21 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			</span>
 		</span>
 	);
+
+	// const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
+	// ? [
+	// 	{ title: ValueConfigOption.EditValue, onClick: handleEditValue },
+	// 	{ title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
+	// ]
+	// : [
+	// 	{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+	// ];
+
+	const valConfigMenuItems: ValueConfigMenuItem[] = [
+		{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
+		{ title: ValueConfigOption.EditValue, onClick: handleEditValue },
+		{ title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
+	];
 
 	return (
 		<>
@@ -191,6 +251,17 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							</Button>
 						</FieldActionWrapper>
 					)}
+					{(isLoading) ? (
+						<ProgressRing />
+					) : (((hasValue && !hasElementConnectedViaLink) || !isDisabled) && (
+						<FieldActionWrapper>
+							<ValueConfigMenu
+								menuItems={valConfigMenuItems}
+								isDisabled={!typeName}
+								portName={portIn?.getName()}
+							/>
+						</FieldActionWrapper>
+					))}
 				</TreeHeader>
 				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
 					<TreeBody>
