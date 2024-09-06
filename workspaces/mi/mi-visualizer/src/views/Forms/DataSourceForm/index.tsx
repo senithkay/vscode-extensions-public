@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, TextField, Typography, FormCheckBox, TextArea, FormView, FormActions, FormGroup } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -488,15 +488,17 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                 label="Description"
                                 {...renderProps("description")}
                             />
-                            <Typography variant="caption">Datasource Type</Typography>
-                            <Dropdown items={[{ id: "rdbms", value: "RDBMS" }, { id: "custom", value: "Custom" }]} {...renderProps("type")} />
+                            <Dropdown label="Datasource Type"
+                                      items={[{ id: "rdbms", value: "RDBMS" }, { id: "custom", value: "Custom" }]}
+                                      {...renderProps("type")} />
                             {watch("type") === "RDBMS" &&
                                 <>
-                                    <Typography variant="caption">Data source provider</Typography>
-                                    <Dropdown items={[{ id: "default", value: "default" }, { id: "external", value: "External Datasource" }]} {...renderProps("dataSourceProvider")} />
+                                    <Dropdown label="Datasource Provider"
+                                              items={[{ id: "default", value: "default" }, { id: "external", value: "External Datasource" }]}
+                                              {...renderProps("dataSourceProvider")} />
                                     {watch("dataSourceProvider") === "default" && <>
-                                        <Typography variant="caption">Database Engine</Typography>
-                                        <Dropdown items={engineOptions} {...renderProps("dbEngine")} />
+                                        <Dropdown label="Database Engine" items={engineOptions}
+                                                  {...renderProps("dbEngine")} />
                                         <TextField
                                             label="Driver"
                                             required
