@@ -377,7 +377,8 @@ const stateMachine = createMachine<MachineContext>({
                     webview?.reveal(ViewColumn.Active);
 
                     // wait until webview is ready
-                    while (!webview?.visible) {
+                    const start = Date.now();
+                    while (!webview?.visible && Date.now() - start < 5000) {
                         await new Promise(resolve => setTimeout(resolve, 10));
                     }
                     resolve(true);
