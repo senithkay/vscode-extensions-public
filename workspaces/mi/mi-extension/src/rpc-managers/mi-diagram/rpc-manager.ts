@@ -3670,6 +3670,26 @@ ${endpointAttributes}
         }
     }
 
+    async deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('Currently no workspace is opened');
+        }
+        const rootPath = workspaceFolders[0].uri.fsPath;
+        const libDirectory = path.join(rootPath, 'deployment', 'libs');
+        const fileName = path.basename(params.url);
+        const filePath = path.join(libDirectory, fileName);
+        if (fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+            } catch (error) {
+                console.error(`Error deleting the file at ${filePath}:`, error);
+            }
+        } else {
+            console.error(`File not found at ${filePath}`);
+        }
+    }
+
     async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {

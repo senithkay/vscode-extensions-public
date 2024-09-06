@@ -233,6 +233,7 @@ import {
     DSSQueryGenRequest,
     askDriverPath,
     addDriverToLib,
+    deleteDriverFromLib,
     AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -290,6 +291,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
     messenger.onRequest(askDriverPath,() => rpcManger.askDriverPath());
     messenger.onRequest(addDriverToLib, (args: AddDriverToLibRequest) => rpcManger.addDriverToLib(args));
+    messenger.onRequest(deleteDriverFromLib, (args: AddDriverToLibRequest) => rpcManger.deleteDriverFromLib(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
