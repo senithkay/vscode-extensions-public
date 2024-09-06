@@ -72,7 +72,7 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    addToProject(content: AddToProjectRequest): void {
+    addToProject(params: AddToProjectRequest): void {
         return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
     }
 

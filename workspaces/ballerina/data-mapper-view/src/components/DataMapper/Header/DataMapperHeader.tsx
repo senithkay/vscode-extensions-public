@@ -18,17 +18,32 @@ import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import AutoMapButton from "./AutomapButton";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
     hasEditDisabled: boolean;
+    experimentalEnabled: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
     onClose?: () => void;
+    autoMapWithAI: () => Promise<void>;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, hasEditDisabled, changeSelection, onConfigOpen, onClose } = props;
+    const {
+        selection,
+        hasEditDisabled,
+        experimentalEnabled,
+        changeSelection,
+        onConfigOpen,
+        onClose,
+        autoMapWithAI
+    } = props;
+
+    const handleAutoMap = async () => {
+        await autoMapWithAI();
+    };
 
     return (
         <HeaderContainer>
@@ -46,7 +61,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
-                    <ConfigureButton onClick={onConfigOpen}/>
+                    <AutoMapButton onClick={handleAutoMap} />
+                    {/* {experimentalEnabled && <AutoMapButton onClick={handleAutoMap} />} */}
+                    {/* <ConfigureButton onClick={onConfigOpen}/> */}
                 </>
             )}
             {onClose && (
