@@ -233,6 +233,7 @@ import {
     DSSQueryGenRequest,
     askDriverPath,
     addDriverToLib,
+    deleteDriverFromLib,
     AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -290,6 +291,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
     messenger.onRequest(askDriverPath,() => rpcManger.askDriverPath());
     messenger.onRequest(addDriverToLib, (args: AddDriverToLibRequest) => rpcManger.addDriverToLib(args));
+    messenger.onRequest(deleteDriverFromLib, (args: AddDriverToLibRequest) => rpcManger.deleteDriverFromLib(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -308,8 +310,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onRequest(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
-    messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
-    messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
+    messenger.onRequest(undo, (args: UndoRedoParams) => rpcManger.undo(args));
+    messenger.onRequest(redo, (args: UndoRedoParams) => rpcManger.redo(args));
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
     messenger.onRequest(getTextAtRange, (args: GetTextAtRangeRequest) => rpcManger.getTextAtRange(args));
     messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));

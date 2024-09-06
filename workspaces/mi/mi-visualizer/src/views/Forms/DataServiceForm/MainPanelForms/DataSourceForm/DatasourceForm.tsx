@@ -20,6 +20,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW, Datasource, Property } from "@wso2-enterprise/mi-core";
 import { TestConnectionForm } from "./TestConnectionForm";
 import { DatabaseDriverForm } from "./DatabaseDriverForm";
+import { driverMap } from "../../../DataSourceForm/types";
 
 export interface DataServiceDataSourceWizardProps {
     datasource?: any;
@@ -590,10 +591,14 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             }));
     };
 
-    const handleOnUseSecretAlias = (values: any): Property[] => {
+    const filterRDBMSvalues = (values: any): Property[] => {
         if (watch("rdbms.useSecretAlias")) {
             values.rdbms.password = "";
         }
+
+        delete values.rdbms.hostname;
+        delete values.rdbms.port;
+        delete values.rdbms.databaseName;
         
         return values;
     }
@@ -607,7 +612,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                 enableOData: values.enableOData,
                 dynamicUserAuthClass: values.dynamicUserAuthClass,
                 datasourceConfigurations: values.dsConfigurations,
-                datasourceProperties: values.dataSourceType === "RDBMS" ? handleOnUseSecretAlias(configToProperties(values.rdbms)) :
+                datasourceProperties: values.dataSourceType === "RDBMS" ? filterRDBMSvalues(configToProperties(values.rdbms)) :
                     values.dataSourceType === "MongoDB" ? configToProperties(values.mongodb) :
                         values.dataSourceType === "Cassandra" ? configToProperties(values.cassandra) :
                                 configToProperties(values.carbonDatasource)
@@ -617,7 +622,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
             });
             handleCancel();
         } else {
-            const currentDatasource = values.dataSourceType === "RDBMS" ? handleOnUseSecretAlias(values) : values;
+            const currentDatasource = values.dataSourceType === "RDBMS" ? filterRDBMSvalues(values) : values;
             const datasourceIndex = props.datasources.findIndex(
                 (datasource: any) => datasource.dataSourceName === currentDatasource.dataSourceName
             );
@@ -705,7 +710,12 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                         />
                         <Dropdown label="Datasource Type" required items={datasourceTypes} {...renderProps('dataSourceType')} />
                         {watch('dataSourceType') === 'RDBMS' && (
-                            <DataSourceRDBMSForm renderProps={renderPropsForObject} watch={watch} setValue={setValue} control={control} />
+                            <DataSourceRDBMSForm 
+                                renderProps={renderPropsForObject}
+                                watch={watch}
+                                setValue={setValue}
+                                control={control}
+                                isEditDatasource={isEditDatasource} />
                         )}
                         {watch('dataSourceType') === 'MongoDB' && (
                             <DataSourceMongoDBForm renderProps={renderPropsForObject} />

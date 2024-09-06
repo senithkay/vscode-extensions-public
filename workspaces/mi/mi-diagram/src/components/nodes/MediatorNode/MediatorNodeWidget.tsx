@@ -84,7 +84,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
@@ -163,7 +163,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => {node.delete(rpcClient)} }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => {node.delete(rpcClient, setDiagramLoading)} }} />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
