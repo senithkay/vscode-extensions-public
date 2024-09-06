@@ -16,6 +16,7 @@ import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
+import { WhileNodeModel } from "../components/nodes/WhileNode";
 import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
@@ -246,6 +247,113 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     endVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
+    }
+
+    beginVisitWhile(node: FlowNode): void {
+        const nodeModel = new WhileNodeModel(node);
+        // const nodeModel = new BaseNodeModel(node);
+
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        const whileNodeModel = this.nodes.find((n) => n.getID() === node.id);
+        if (!whileNodeModel) {
+            console.error("While node model not found", node);
+            return;
+        }
+
+        // create the branch IN links
+        if (node.branches && node.branches.length > 0) {
+            const branch = node.branches.at(0);
+            if (branch.children && branch.children.length > 0) {
+                const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+                const link = createNodesLink(whileNodeModel, firstChildNodeModel, { label: branch.label });
+                if (link) {
+                    this.links.push(link);
+                }
+            }
+        }
+
+        // create branch's OUT links
+        const endWhileEmptyNode = this.createEmptyNode(
+            `${node.id}-endwhile`,
+            node.viewState.x,
+            node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
+        ); // TODO: move position logic to position visitor
+        endWhileEmptyNode.setParentFlowNode(node);
+
+        let endWhileLinkCount = 0;
+        let allBranchesReturn = true;
+        if (node.branches && node.branches.length > 0) {
+            const branch = node.branches.at(0);
+            if (branch.children && branch.children.length > 0) {
+                // get last child node model
+                const lastNode = branch.children.at(-1);
+                // check last node is a returning node
+                if (!lastNode.returning) {
+                    allBranchesReturn = false;
+                }
+
+                // handle empty nodes in empty branches
+                if (
+                    branch.children &&
+                    branch.children.length === 1 &&
+                    branch.children.find((n) => n.codedata.node === "EMPTY")
+                ) {
+                    // empty branch
+                    const branchEmptyNodeModel = branch.children.at(0);
+                    let branchEmptyNode = this.createEmptyNode(
+                        branchEmptyNodeModel.id,
+                        branchEmptyNodeModel.viewState.x,
+                        branchEmptyNodeModel.viewState.y,
+                        true,
+                        true
+                    );
+                    const linkIn = createNodesLink(whileNodeModel, branchEmptyNode, {
+                        label: branch.label,
+                        brokenLine: true,
+                        showAddButton: false,
+                    });
+                    const linkOut = createNodesLink(branchEmptyNode, endWhileEmptyNode, {
+                        brokenLine: true,
+                        showAddButton: false,
+                        alignBottom: true,
+                    });
+                    if (linkIn && linkOut) {
+                        this.links.push(linkIn, linkOut);
+                        endWhileLinkCount++;
+                    }
+                } else {
+                    let lastChildNodeModel;
+                    if (branch.children.at(-1).codedata.node === "WHILE") {
+                        // if last child is WHILE, find endWhile node
+                        lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endwhile`);
+                    } else {
+                        // if last child is not WHILE, find last child node
+                        lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
+                    }
+
+                    if (!lastChildNodeModel) {
+                        console.error("Branch node model not found", branch);
+                        //
+                    }
+
+                    const link = createNodesLink(lastChildNodeModel, endWhileEmptyNode, {
+                        alignBottom: true,
+                        brokenLine: lastNode.returning,
+                        showAddButton: !lastNode.returning,
+                    });
+                    if (link) {
+                        this.links.push(link);
+                        endWhileLinkCount++;
+                    }
+                }
+            }
+        }
+        this.lastNodeModel = endWhileEmptyNode;
     }
 
     beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {

@@ -108,6 +108,23 @@ export class PositionVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
+        node.viewState.x = centerX;
+
+        const bodyBranch = node.branches.find((branch) => branch.label === "Body");
+        bodyBranch.viewState.y = this.lastNodeY;
+
+        bodyBranch.viewState.x = centerX -  bodyBranch.viewState.cw / 2
+    }
+
+    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }

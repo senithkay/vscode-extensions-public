@@ -22,6 +22,7 @@ import { DraftNodeFactory } from "../components/nodes/DraftNode/DraftNodeFactory
 import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
 import { NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
+import { WhileNodeFactory } from "../components/nodes/WhileNode";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -36,6 +37,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new BaseNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
+    engine.getNodeFactories().registerFactory(new WhileNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
     engine.getNodeFactories().registerFactory(new DraftNodeFactory());

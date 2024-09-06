@@ -78,6 +78,7 @@ export enum NodeTypes {
     EMPTY_NODE = "empty-node",
     DRAFT_NODE = "draft-node",
     IF_NODE = "if-node",
+    WHILE_NODE = "while-node",
     START_NODE = "start-node",
     API_CALL_NODE = "api-call-node",
     COMMENT_NODE = "comment-node",
@@ -104,6 +105,7 @@ export const NODE_GAP_X = 60;
 
 // custom nodes
 export const IF_NODE_WIDTH = 65;
+export const WHILE_NODE_WIDTH = 65;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
 

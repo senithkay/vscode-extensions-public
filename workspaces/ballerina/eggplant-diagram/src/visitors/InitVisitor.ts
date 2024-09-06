@@ -105,6 +105,15 @@ export class InitVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        node.viewState = this.getDefaultViewState();
+        // make sure we render only the first branch
+        if (node.branches && node.branches.length >= 1) {
+            node.branches.splice(0, node.branches.length - 1);
+            node.branches.at(0).viewState = this.getDefaultViewState();
+        }
+    }
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
