@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const DBReportForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -207,6 +207,7 @@ const DBReportForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["sqlStatements"] = getParamManagerValues(values.sqlStatements);
         const xml = getXML(MEDIATORS.DBREPORT, values, dirtyFields, sidePanelContext.formValues);
@@ -563,10 +564,19 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="sqlStatements"
                             control={control}
+                            rules={{
+                                validate: (value) => {
+                                    if (!value.paramValues || value.paramValues.length === 0) {
+                                        return "This table is required";
+                                    }
+                                    return true;
+                                },
+                            }}
                             render={({ field: { onChange, value } }) => (
                                 <ParamManager
                                     paramConfigs={value}
                                     readonly={false}
+                                    errorMessage={errors?.sqlStatements?.message?.toString()}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const property: ParamValue[] = param.paramValues;

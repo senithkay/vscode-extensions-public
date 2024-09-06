@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -19,7 +19,6 @@ import { MIDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { hasFields } from "./components/Diagram/utils/node-utils";
-import { useDMRegenerateNodesStore } from "./store/store";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -61,11 +60,10 @@ export function DataMapperView(props: DataMapperViewProps) {
         configName
     } = props;
 
-    const { rpcClient } = useVisualizerContext();
+    const [isLoading, setIsLoading] = useState(false); 
+    const [isMapping, setIsMapping] = useState(false);
 
-    const { regenerateNodesState } = useDMRegenerateNodesStore(state => ({
-        regenerateNodesState: state.regenerateNodesState
-    }));
+    const { rpcClient } = useVisualizerContext();
 
     const functionST = useMemo(() => {
 
@@ -110,14 +108,14 @@ export function DataMapperView(props: DataMapperViewProps) {
 
         return fnST;
 
-    }, [rpcClient, filePath, fileContent, functionName, regenerateNodesState]);
+    }, [rpcClient, filePath, fileContent, functionName]);
 
     const applyModifications = async (fileContent: string) => {
         await updateFileContent(fileContent);
     };
 
     return (
-        <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
+        <ErrorBoundary errorMsg="An error occurred while rendering the MI Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
                 <MIDataMapper
@@ -128,6 +126,10 @@ export function DataMapperView(props: DataMapperViewProps) {
                     applyModifications={applyModifications}
                     filePath={filePath}
                     configName={configName}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                    isMapping={isMapping}
+                    setIsMapping={setIsMapping}
                 />
             </QueryClientProvider>
         </ErrorBoundary>

@@ -1,4 +1,6 @@
 * @hevayo @kaviththiranga @gigara
-*.tsx @hevayo @kaviththiranga @gigara @tharindulak
-*.css @hevayo @kaviththiranga @gigara @tharindulak
-*.scss @hevayo @kaviththiranga @gigara @tharindulak
+*.tsx @hevayo @gigara @tharindulak
+*.css @hevayo @gigara @tharindulak
+*.scss @hevayo @gigara @tharindulak
+/workspaces/common-libs/ @hevayo @gigara @tharindulak
+/workspaces/mi/ @hevayo @gigara @kaumini

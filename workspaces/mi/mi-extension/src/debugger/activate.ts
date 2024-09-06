@@ -38,13 +38,13 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 
 export function activateDebugger(context: vscode.ExtensionContext) {
 
-    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean) => {
+    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean, postBuildTask?: Function) => {
         getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            await executeBuildTask(serverPath, shouldCopyTarget);
+            await executeBuildTask(serverPath, shouldCopyTarget, postBuildTask);
         });
     });
 

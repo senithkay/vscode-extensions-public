@@ -70,17 +70,14 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         const request = {
             documentUri: documentUri,
             overwriteSchema: overwriteSchema,
-            resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
             content: content,
-            ioType: ioType.toUpperCase(),
+            ioType: ioType,
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSidePanelOpen(false);
-            if (response.success) {
-                console.log("Schema imported successfully");
-            } else {
+            if (!response.success) {
                 console.error("Error while importing schema");
             }
         }).catch(e => {
@@ -115,7 +112,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         onClick={() => setSelectedImportType(undefined)}
                     />
                 )}
-                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} Schema`}</span>
+                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} schema`}</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}

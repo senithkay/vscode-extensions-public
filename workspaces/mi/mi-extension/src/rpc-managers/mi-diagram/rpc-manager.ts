@@ -207,7 +207,14 @@ import {
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
-    onDownloadProgress
+    onDownloadProgress,
+    AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DSSQueryGenRequest,
+    AddDriverToLibResponse,
+    AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -247,6 +254,7 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { importCapp } from "../../util/importCapp";
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -1073,7 +1081,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
-                                response[MessageStoreModel[param.name]] = param.value;
+                                if (MessageStoreModel[param.name] === "jmsAPIVersion") {
+                                    response.jmsAPIVersion = Number(param.value).toFixed(1);
+                                } else {
+                                    response[MessageStoreModel[param.name]] = param.value;
+                                }
                             }
                         });
                         if (response.queueConnectionFactory) {
@@ -2727,7 +2739,7 @@ ${endpointAttributes}
 
     async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
         return new Promise(async (resolve) => {
-            resolve(importProject(params));
+            resolve(importCapp(params));
         });
     }
 
@@ -3090,7 +3102,7 @@ ${endpointAttributes}
                             RPCLayer._messenger.sendNotification(
                                 onDownloadProgress,
                                 { type: 'webview', webviewType: VisualizerWebview.viewType },
-                                { 
+                                {
                                     percentage: progress,
                                     downloadedAmount: formatSize(progressEvent.loaded),
                                     downloadSize: formatSize(totalLength)
@@ -3196,18 +3208,26 @@ ${endpointAttributes}
         return { formJSON: formJSON };
     }
 
-    undo(params: UndoRedoParams): void {
-        const lastsource = undoRedo.undo();
-        if (lastsource) {
-            fs.writeFileSync(params.path, lastsource);
-        }
+    undo(params: UndoRedoParams): Promise<boolean> {
+        return new Promise((resolve) => {
+            const lastsource = undoRedo.undo();
+            if (lastsource) {
+                fs.writeFileSync(params.path, lastsource);
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
 
-    redo(params: UndoRedoParams): void {
-        const lastsource = undoRedo.redo();
-        if (lastsource) {
-            fs.writeFileSync(params.path, lastsource);
-        }
+    redo(params: UndoRedoParams): Promise<boolean> {
+        return new Promise((resolve) => {
+            const lastsource = undoRedo.redo();
+            if (lastsource) {
+                fs.writeFileSync(params.path, lastsource);
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
 
     async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
@@ -3605,6 +3625,71 @@ ${endpointAttributes}
         });
     }
 
+    async askDriverPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDriverPath = await askDriverPath();
+            if (!selectedDriverPath || selectedDriverPath.length === 0) {
+                window.showErrorMessage('A file must be selected as the driver');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDriverPath[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        const { url } = params;
+        // Copy the file from url to the lib directory
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+
+            // Ensure the lib directory exists
+            if (!fs.existsSync(libDirectory)) {
+                fs.mkdirSync(libDirectory, { recursive: true });
+            }
+
+            // Get the file name from the URL
+            const fileName = path.basename(url);
+            const destinationPath = path.join(libDirectory, fileName);
+
+            // Copy the file
+            await fs.promises.copyFile(url, destinationPath);
+
+            return { path: destinationPath };
+
+        } catch (error) {
+            console.error('Error adding driver', error);
+            throw new Error('Failed to add driver');
+        }
+    }
+
+    async deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('Currently no workspace is opened');
+        }
+        const rootPath = workspaceFolders[0].uri.fsPath;
+        const libDirectory = path.join(rootPath, 'deployment', 'libs');
+        const fileName = path.basename(params.url);
+        const filePath = path.join(libDirectory, fileName);
+        if (fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+            } catch (error) {
+                console.error(`Error deleting the file at ${filePath}:`, error);
+            }
+        } else {
+            console.error(`File not found at ${filePath}`);
+        }
+    }
+
     async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {
@@ -3629,11 +3714,8 @@ ${endpointAttributes}
             const { connectionName, keyValuesXML, directory } = params;
             const localEntryPath = directory;
 
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8"?>
-    <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
-        ${keyValuesXML}
-    </localEntry>`;
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+${keyValuesXML}`;
 
             const filePath = path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
@@ -3789,7 +3871,7 @@ ${endpointAttributes}
                     }
                 });
             } else {
-                if (artifactXMLData.artifacts.artifact.item.file === fileName ) {
+                if (artifactXMLData.artifacts.artifact.item.file === fileName) {
                     artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
                 }
             }
@@ -3848,48 +3930,52 @@ ${endpointAttributes}
 
     async exportProject(params: ExportProjectRequest): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const carFile = await vscode.workspace.findFiles(
-                new vscode.RelativePattern(params.projectPath, 'target/*.car'),
-                null,
-                1
-            );
-            if (carFile.length === 0) {
-                const errorMessage =
-                    'Error: No .car file found in the target directory. Please build the project before exporting.';
-                window.showErrorMessage(errorMessage);
-                log(errorMessage);
-                return reject(errorMessage);
-            }
+            const exportTask = async () => {
+                const carFile = await vscode.workspace.findFiles(
+                    new vscode.RelativePattern(params.projectPath, 'target/*.car'),
+                    null,
+                    1
+                );
+                if (carFile.length === 0) {
+                    const errorMessage =
+                        'Error: No .car file found in the target directory. Please build the project before exporting.';
+                    window.showErrorMessage(errorMessage);
+                    log(errorMessage);
+                    return reject(errorMessage);
+                }
 
-            const selection = await vscode.window.showQuickPick(
-                [
+                const selection = await vscode.window.showQuickPick(
+                    [
+                        {
+                            label: "Select Destination",
+                            description: "Select a destination folder to export .car file",
+                        },
+                    ],
                     {
-                        label: "Select Destination",
-                        description: "Select a destination folder to export .car file",
-                    },
-                ],
-                {
-                    placeHolder: "Export Options",
-                }
-            );
+                        placeHolder: "Export Options",
+                    }
+                );
 
-            if (selection) {
-                // Get the destination folder
-                const { filePath: destination } = await this.browseFile({
-                    canSelectFiles: false,
-                    canSelectFolders: true,
-                    canSelectMany: false,
-                    defaultUri: params.projectPath,
-                    title: "Select a folder to export the project",
-                    openLabel: "Select Folder"
-                });
-                if (destination) {
-                    const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
-                    fs.copyFileSync(carFile[0].fsPath, destinationPath);
-                    log(`Project exported to: ${destination}`);
-                    resolve();
+                if (selection) {
+                    // Get the destination folder
+                    const { filePath: destination } = await this.browseFile({
+                        canSelectFiles: false,
+                        canSelectFolders: true,
+                        canSelectMany: false,
+                        defaultUri: params.projectPath,
+                        title: "Select a folder to export the project",
+                        openLabel: "Select Folder"
+                    });
+                    if (destination) {
+                        const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
+                        fs.copyFileSync(carFile[0].fsPath, destinationPath);
+                        window.showInformationMessage("Project exported successfully!");
+                        log(`Project exported to: ${destination}`);
+                        resolve();
+                    }
                 }
             }
+            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false, exportTask);
         });
     }
 
@@ -4645,6 +4731,60 @@ ${endpointAttributes}
         const url = `vscode:extension/${extensionId}`;
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
     }
+
+    async checkDBDriver(className: string): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.checkDBDriver(className);
+            resolve(res);
+        });
+    }
+
+    async addDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.addDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
+        const { documentUri, position, ...genQueryParams } = params;
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const xml = await langClient.generateQueries(genQueryParams);
+
+            if (!xml) {
+                log('Failed to generate DSS Queries.');
+                resolve(false);
+            }
+
+            const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
+            
+            const xmlLineCount = sanitizedXml.split('\n').length;
+            const insertRange = { start: position, end: position };
+            const formatRange = { 
+                start: position, 
+                end: { line: position.line + xmlLineCount - 1, character: 0 }
+            };
+            await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });
+            await this.rangeFormat({ uri: documentUri, range: formatRange });
+
+            log('Successfully generated DSS Queries.');
+            resolve(true);
+        });
+    }
+
+    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.fetchTables({
+                ...params, tableData: "", datasourceName: ""
+            });
+            resolve(res);
+        });
+    }
+
 }
 
 export async function askProjectPath() {
@@ -4657,13 +4797,24 @@ export async function askProjectPath() {
     });
 }
 
-export async function askImportProjectPath() {
+export async function askDriverPath() {
     return await window.showOpenDialog({
-        canSelectFiles: false,
-        canSelectFolders: true,
+        canSelectFiles: true,
+        canSelectFolders: false,
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
-        title: "Select the root directory of the project to import"
+        title: "Select a driver"
+    });
+}
+
+export async function askImportProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        filters: { 'CAPP': ['car', 'zip'] },
+        title: "Select the car file to import"
     });
 }
 

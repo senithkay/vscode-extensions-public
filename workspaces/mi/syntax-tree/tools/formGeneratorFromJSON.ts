@@ -544,14 +544,25 @@ const generateForm = (jsonData: any): string => {
                 valueChanges += fixIndentation(`
                     values["${inputName}"] = getParamManagerValues(values.${inputName});`, 8);
 
+                let rules = element.required ? `{
+                        validate: (value) => {
+                            if (!value.paramValues || value.paramValues.length === 0) {
+                                return "This table is required";
+                            }
+                            return true;
+                        },
+                    }` : '';
+
                 fields += fixIndentation(`
                     <Controller
                         name="${inputName}"
-                        control={control}
+                        control={control}${rules ? `
+                        rules={${rules}}` : ''}
                         render={({ field: { onChange, value } }) => (
                             <ParamManager
                                 paramConfigs={value}
-                                readonly={false}
+                                readonly={false}${rules ? `
+                                errorMessage={errors?.${inputName}?.message?.toString()}` : ''}
                                 onChange= {(values) => {
                                     ${getParamManagerOnChange("values", elements, value.tableKey, value.tableValue)}
                                     onChange(values);
@@ -616,7 +627,7 @@ const Field = styled.div\`
 \`;
 
 const ${operationNameCapitalized} = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -636,6 +647,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         ${valueChanges}
         const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;

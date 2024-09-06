@@ -37,7 +37,10 @@ import {
     SchemaGenFromContentRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    AddDriverRequest,
+    DSSQueryGenRequest,
+    DSSQueryGenResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -254,6 +257,22 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
         return this.sendRequest("synapse/testDBConnection", req);
+    }
+
+    async checkDBDriver(req: string): Promise<boolean> {
+        return this.sendRequest("synapse/checkDBDriver", { className: req });
+    }
+
+    async addDBDriver(req: AddDriverRequest): Promise<boolean> {
+        return this.sendRequest("synapse/addDBDriver", req);
+    }
+
+    async generateQueries(req: DSSQueryGenRequest): Promise<string> {
+        return this.sendRequest("synapse/generateQueries", req);
+    }
+
+    async fetchTables(req: DSSQueryGenRequest): Promise<DSSQueryGenResponse> {
+        return this.sendRequest("synapse/fetchTables", req);
     }
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {

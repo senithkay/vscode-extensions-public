@@ -16,7 +16,7 @@ import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
-import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
 
 export interface ParamValue {
@@ -78,6 +78,7 @@ export interface ParamManagerProps {
     readonly?: boolean;
     addParamText?: string;
     allowAddItem?: boolean;
+    errorMessage?: string;
 }
 
 const AddButtonWrapper = styled.div`
@@ -329,7 +330,9 @@ const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) 
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, openInDrawer, addParamText = "Add Parameter", onChange, allowAddItem = true } = props;
+    const { paramConfigs, readonly, openInDrawer,
+        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage
+    } = props;
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
@@ -487,10 +490,20 @@ export function ParamManager(props: ParamManagerProps) {
             {paramComponents}
             {(editingSegmentId === -1 && allowAddItem) && (
                 <AddButtonWrapper>
-                    <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
+                    <LinkButton
+                        sx={readonly && { color: errorMessage ? "var(--vscode-errorForeground)" : "var(--vscode-badge-background)" }}
+                        onClick={!readonly && onAddClick}
+                    >
                         <Codicon name="add" />
-                        <>{addParamText}</>
+                        <div ref={(el) => {
+                            if (el && errorMessage) {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }}>
+                            {addParamText}
+                        </div>
                     </LinkButton>
+                    {errorMessage && <Typography variant='body1' sx={{ color: "var(--vscode-errorForeground)" }}>{errorMessage}</Typography>}
                 </AddButtonWrapper>
             )}
         </div>

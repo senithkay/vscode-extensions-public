@@ -13,7 +13,7 @@ import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/m
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import path = require("path");
-import { deleteRegistryResource } from '../util/fileOperations';
+import { deleteRegistryResource, deleteDataMapperResources } from '../util/fileOperations';
 import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
@@ -308,9 +308,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
 	});
-	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
+	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry | Uri) => {
 		revealWebviewPanel(false);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: entry.info?.path });
+		const documentUri = entry instanceof ProjectExplorerEntry ? entry.info?.path : entry.fsPath;
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri });
 	});
 
 	// delete
@@ -327,7 +328,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'localEntry':
 			case 'template':
 			case 'dataSource':
-			case 'dataService':
+			case 'data-service':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
 					if (!fileUri) {
@@ -367,7 +368,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							// delete the file and the residing folder
 							const folderPath = path.dirname(fileUri);
-							await workspace.fs.delete(Uri.parse(folderPath), { recursive: true, useTrash: true });
+							await deleteDataMapperResources(fileUri);
 							window.showInformationMessage(`${item.label} has been deleted.`);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
@@ -460,4 +461,3 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 function revealWebviewPanel(beside: boolean = true) {
 	extension.webviewReveal = beside;
 }
-

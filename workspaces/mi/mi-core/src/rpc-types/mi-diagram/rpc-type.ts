@@ -191,7 +191,14 @@ import {
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DriverPathResponse,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -289,6 +296,9 @@ export const saveInboundEPUischema: RequestType<SaveInboundEPUischemaRequest, bo
 export const getInboundEPUischema: RequestType<GetInboundEPUischemaRequest, GetInboundEPUischemaResponse> = { method: `${_preFix}/getInboundEPUischema` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
+export const askDriverPath: RequestType<void, DriverPathResponse> = { method: `${_preFix}/askDriverPath` };
+export const addDriverToLib: RequestType<AddDriverToLibRequest, AddDriverToLibResponse> = { method: `${_preFix}/addDriverToLib` };
+export const deleteDriverFromLib: RequestType<AddDriverToLibRequest, void> = { method: `${_preFix}/deleteDriverFromLib` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
 export const getUserAccessToken: RequestType<void, GetUserAccessTokenResponse> = { method: `${_preFix}/getUserAccessToken` };
 export const createConnection: RequestType<CreateConnectionRequest, CreateConnectionResponse> = { method: `${_preFix}/createConnection` };
@@ -319,3 +329,7 @@ export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceReques
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
 export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_preFix}/renameFile` };
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
+export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
+export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
+export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
+export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };

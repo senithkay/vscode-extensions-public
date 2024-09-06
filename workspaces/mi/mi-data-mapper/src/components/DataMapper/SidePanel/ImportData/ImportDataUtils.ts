@@ -8,6 +8,7 @@
  */
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
+import { SourceFile } from "ts-morph";
 
 export function validateJSON(fileContent: string) {
     JSON.parse(fileContent);
@@ -45,4 +46,25 @@ export function validateJSONSchema(fileContent: string) {
     } catch (error) {
         throw new Error();
     }
+};
+
+export function validateInterfaceName(value: string, sourceFile: SourceFile) {
+    try {
+
+        if (value[0] !== value[0].toUpperCase()) return "Type name must start with a capital";
+
+        if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(value)) return "Invalid type name";
+
+        if (sourceFile.getInterface(value) ||
+            sourceFile.getClass(value) ||
+            sourceFile.getTypeAlias(value) ||
+            sourceFile.getEnum(value)
+        ) return "Type name is not available";
+
+        sourceFile.addInterface({ name: value }).remove(); //To catch any other remaining issues
+
+    } catch (error) {
+        return "Invalid type name";
+    }
+    return true;
 };

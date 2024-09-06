@@ -16,16 +16,36 @@ import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import { getViewCommand } from '../project-explorer/project-explorer-provider';
 import { log } from '../util/logger';
+import { importCapp } from '../util/importCapp';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
-            window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
+            window.showOpenDialog({ canSelectFolders: true, canSelectFiles: true, filters: { 'CAPP': ['car', 'zip'] }, openLabel: 'Open MI Project' })
                 .then(uri => {
                     if (uri && uri[0]) {
-                        commands.executeCommand('vscode.openFolder', uri[0]);
+                        if (uri[0].fsPath.endsWith('.car') || uri[0].fsPath.endsWith('.zip')) {
+                            window.showInformationMessage('A car file (CAPP) is selected.\n Do you want to extract it?', { modal: true }, 'Extract')
+                                .then(option => {
+                                    if (option === 'Extract') {
+                                        window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, title: 'Select the location to extract the CAPP', openLabel: 'Select Folder' })
+                                            .then(extractUri => {
+                                                if (extractUri && extractUri[0]) {
+                                                    importCapp({ source: uri[0].fsPath, directory: extractUri[0].fsPath, open: false });
+                                                }
+                                            });
+                                    }
+                                });
+                        } else {
+                            commands.executeCommand('vscode.openFolder', uri[0]);
+                        }
                     }
                 });
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(COMMANDS.IMPORT_CAPP, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ImportProjectForm });
         })
     );
     context.subscriptions.push(
@@ -90,7 +110,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                             await vscode.commands.executeCommand(COMMANDS.SHOW_DATA_SOURCE, file, undefined, false);
                             return;
                         case 'DATA_SERVICE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_DATA_SOURCE, file, undefined, false);
+                            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: file.fsPath });
                             return;
                     }
                 }

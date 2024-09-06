@@ -404,12 +404,8 @@ export function getDefaultValue(typeKind: TypeKind): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
-		case TypeKind.Interface:
-		case TypeKind.Object:
-			draftParameter = `{}`;
-			break;
 		default:
-			draftParameter = `""`;
+			draftParameter = `{}`;
 			break;
 	}
 	return draftParameter;

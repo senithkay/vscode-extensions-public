@@ -12,9 +12,11 @@ import * as path from 'path';
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
 export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
 export const USER_CHECK_BACKEND_URL = '/user/usage';
+export const DATAMAP_BACKEND_URL = '/data-mapper/map';
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
+    IMPORT_CAPP: "MI.importCAPP",
     MIGRATE_PROJECT: "MI.migrateProject",
     SHOW_OVERVIEW: "MI.showOverview",
     DISABLE_OVERVIEW: "MI.disableOverview",
@@ -72,7 +74,7 @@ export const COMMANDS = {
     OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
-    EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.project-explorer.edit-reg-metadata',
+    EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.registry-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
@@ -96,6 +98,8 @@ export const COMMANDS = {
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
+
+export const READONLY_MAPPING_FUNCTION_NAME = "mapFunction";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
 

@@ -445,6 +445,9 @@ function updateRegistryArtifactPath(registryResource: any) {
 }
 
 function copy(source: string, target: string) {
+    if (!fs.existsSync(source)) {
+        return;
+    }
     const files = fs.readdirSync(source);
     files.forEach(file => {
         const sourceItemPath = path.join(source, file);
