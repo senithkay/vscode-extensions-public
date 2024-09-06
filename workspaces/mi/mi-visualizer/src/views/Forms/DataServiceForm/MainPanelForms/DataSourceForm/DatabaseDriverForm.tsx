@@ -54,6 +54,8 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
     }
 
     const removeDriver = async () => {
+        await rpcClient.getMiDiagramRpcClient().deleteDriverFromLib({ url: props.watch('driverPath') });
+        props.setValue("driverPath", null);
         setIsDriverValid(null);
     }
 
