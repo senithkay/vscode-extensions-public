@@ -251,6 +251,7 @@ export interface MiDiagramAPI {
     getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
     askDriverPath: () => Promise<DriverPathResponse>;
     addDriverToLib: (params: AddDriverToLibRequest) => Promise<AddDriverToLibResponse>;
+    deleteDriverFromLib: (params: AddDriverToLibRequest) => Promise<void>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;

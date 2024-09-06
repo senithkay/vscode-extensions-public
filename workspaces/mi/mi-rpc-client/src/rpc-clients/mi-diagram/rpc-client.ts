@@ -328,6 +328,7 @@ import {
     DriverPathResponse,
     askDriverPath,
     addDriverToLib,
+    deleteDriverFromLib,
     AddDriverToLibRequest,
     AddDriverToLibResponse
 } from "@wso2-enterprise/mi-core";
@@ -539,6 +540,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
         return this._messenger.sendRequest(addDriverToLib, HOST_EXTENSION, params);
+    }
+
+    deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
+        return this._messenger.sendRequest(deleteDriverFromLib, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
