@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Block, Node } from "ts-morph";
+import { Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -83,6 +83,12 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const hasDiagnostics = !wasBodyForgotten
 		&& filterDiagnosticsForNode(context.diagnostics, dmTypeWithValue?.value).length > 0;
 
+	const isRootArray = context.views.length == 1;
+	const fnBody = context.functionST.getBody() as Block;
+	const returnStatement = fnBody.getStatements().find(statement => statement.getKind() === SyntaxKind.ReturnStatement) as ReturnStatement;
+	const isReturnsArray = returnStatement?.getExpression()?.getKind() === SyntaxKind.ArrayLiteralExpression;
+
+
 	const portIn = getPort(`${id}.IN`);
 
 	let expanded = true;
@@ -127,19 +133,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const handleArrayInitialization = async () => {
-		console.log(dmTypeWithValue);
-		console.log(context);
 		setLoading(true);
 		try {
-			if (context.views.length==1) {
-				const fnBody = context.functionST.getBody() as Block;
-				
-				fnBody.addStatements('return []');
-				await context.applyModifications(fnBody.getSourceFile().getFullText());
-				// await createSourceForUserInput(dmTypeWithValue, undefined, '[]', fnBody, context.applyModifications);
-			}else{
-				console.log(dmTypeWithValue);
-			}
+			returnStatement?.remove();
+			fnBody.addStatements('return []');
+			await context.applyModifications(fnBody.getSourceFile().getFullText());
 		} finally {
 			setLoading(false);
 		}
@@ -190,20 +188,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		</span>
 	);
 
-	// const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
-	// ? [
-	// 	{ title: ValueConfigOption.EditValue, onClick: handleEditValue },
-	// 	{ title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
-	// ]
-	// : [
-	// 	{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
-	// ];
+	const valConfigMenuItems: ValueConfigMenuItem[] = isRootArray && !isReturnsArray
+		? [
+			{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+		]
+		: [
+			{ title: ValueConfigOption.EditValue, onClick: handleEditValue }
+		];
 
-	const valConfigMenuItems: ValueConfigMenuItem[] = [
-		{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
-		{ title: ValueConfigOption.EditValue, onClick: handleEditValue },
-		{ title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
-	];
+	// const valConfigMenuItems: ValueConfigMenuItem[] = [
+	// 	{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
+	// 	{ title: ValueConfigOption.EditValue, onClick: handleEditValue },
+	// 	{ title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
+	// ];
 
 	return (
 		<>
