@@ -322,8 +322,15 @@ import {
     generateDSSQueries,
     fetchDSSTables,
     AddDriverRequest,
-    DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DriverPathResponse,
+    askDriverPath,
+    addDriverToLib,
+    deleteDriverFromLib,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -527,6 +534,18 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createDssDataSource, HOST_EXTENSION, params);
     }
 
+    askDriverPath(): Promise<DriverPathResponse> {
+        return this._messenger.sendRequest(askDriverPath, HOST_EXTENSION);
+    }
+
+    addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        return this._messenger.sendRequest(addDriverToLib, HOST_EXTENSION, params);
+    }
+
+    deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
+        return this._messenger.sendRequest(deleteDriverFromLib, HOST_EXTENSION, params);
+    }
+
     closeWebView(): void {
         return this._messenger.sendNotification(closeWebView, HOST_EXTENSION);
     }
@@ -599,12 +618,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
-    undo(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(undo, HOST_EXTENSION, params);
+    undo(params: UndoRedoParams): Promise<boolean> {
+        return this._messenger.sendRequest(undo, HOST_EXTENSION, params);
     }
 
-    redo(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(redo, HOST_EXTENSION, params);
+    redo(params: UndoRedoParams): Promise<boolean> {
+        return this._messenger.sendRequest(redo, HOST_EXTENSION, params);
     }
 
     getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
@@ -835,11 +854,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(addDBDriver, HOST_EXTENSION, params);
     }
 
-    generateDSSQueries(params: DSSQueryGenRequest): Promise<string> {
+    generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
         return this._messenger.sendRequest(generateDSSQueries, HOST_EXTENSION, params);
     }
 
-    fetchDSSTables(params: DSSFetchTablesRequest): Promise<Map<string, boolean[]>> {
+    fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
     }
 }

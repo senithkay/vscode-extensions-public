@@ -39,7 +39,8 @@ import {
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
     AddDriverRequest,
-    DSSQueryGenRequest
+    DSSQueryGenRequest,
+    DSSQueryGenResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -270,7 +271,7 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/generateQueries", req);
     }
 
-    async fetchTables(req: DSSQueryGenRequest): Promise<Map<string, boolean[]>> {
+    async fetchTables(req: DSSQueryGenRequest): Promise<DSSQueryGenResponse> {
         return this.sendRequest("synapse/fetchTables", req);
     }
 

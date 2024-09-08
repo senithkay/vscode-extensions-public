@@ -228,8 +228,13 @@ import {
     generateDSSQueries,
     fetchDSSTables,
     AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
     DSSQueryGenRequest,
-    DSSFetchTablesRequest
+    askDriverPath,
+    addDriverToLib,
+    deleteDriverFromLib,
+    AddDriverToLibRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -284,6 +289,9 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataService, (args: CreateDataServiceRequest) => rpcManger.createDataService(args));
     messenger.onRequest(createDssDataSource, (args: CreateDssDataSourceRequest) => rpcManger.createDssDataSource(args));
     messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
+    messenger.onRequest(askDriverPath,() => rpcManger.askDriverPath());
+    messenger.onRequest(addDriverToLib, (args: AddDriverToLibRequest) => rpcManger.addDriverToLib(args));
+    messenger.onRequest(deleteDriverFromLib, (args: AddDriverToLibRequest) => rpcManger.deleteDriverFromLib(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -302,8 +310,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onRequest(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
-    messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
-    messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
+    messenger.onRequest(undo, (args: UndoRedoParams) => rpcManger.undo(args));
+    messenger.onRequest(redo, (args: UndoRedoParams) => rpcManger.redo(args));
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
     messenger.onRequest(getTextAtRange, (args: GetTextAtRangeRequest) => rpcManger.getTextAtRange(args));
     messenger.onRequest(getDiagnostics, (args: GetDiagnosticsReqeust) => rpcManger.getDiagnostics(args));
@@ -361,6 +369,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openUpdateExtensionPage, () => rpcManger.openUpdateExtensionPage());
     messenger.onRequest(checkDBDriver, (args: string) => rpcManger.checkDBDriver(args));
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
-    messenger.onRequest(generateDSSQueries, (args: DSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
+    messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
 }

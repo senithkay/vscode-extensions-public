@@ -16,6 +16,7 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
+import { handleFileAttach } from "../../utils/fileAttach";
 
 const Container = styled.div({
     display: "flex",
@@ -169,7 +170,7 @@ export function AddArtifactView() {
         } else if (key === "dataSources") {
             await rpcClient
                 .getMiDiagramRpcClient()
-                .executeCommand({commands: ["MI.project-explorer.add-data-source", entry]});
+                .executeCommand({ commands: ["MI.project-explorer.add-data-source", entry] });
         }
     };
 
@@ -195,35 +196,6 @@ export function AddArtifactView() {
 
     const handleAiPromptChange = (value: string) => {
         setInputAiPrompt(value);
-    };
-
-
-    const handleFileAttach = (e: any) => {
-        const file = e.target.files[0];
-        const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
-        const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
-
-        if (file && validFileTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const fileContents = event.target.result;
-                setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsText(file);
-        } else if (file && validImageTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const imageBase64 = event.target.result;
-                setImages(setImages => [...setImages, { imageName: file.name, imageBase64: imageBase64 }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsDataURL(file);
-
-        } else {
-            setFileUploadStatus({ type: 'error', text: 'File format not supported' });
-        }
-        e.target.value = '';
     };
 
     const handleRemoveFile = (index: number) => {
@@ -292,7 +264,8 @@ export function AddArtifactView() {
                                     id="fileInput"
                                     type="file"
                                     style={{ display: "none" }}
-                                    onChange={(e: any) => handleFileAttach(e)}
+                                    multiple
+                                    onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
                                 />
                                 <Button 
                                     appearance="primary" 

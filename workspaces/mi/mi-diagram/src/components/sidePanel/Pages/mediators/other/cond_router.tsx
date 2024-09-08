@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const ConditionalRouterForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -85,6 +85,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["conditionalRouteBranches"] = getParamManagerValues(values.conditionalRouteBranches);
         const xml = getXML(MEDIATORS.CONDITIONALROUTER, values, dirtyFields, sidePanelContext.formValues);

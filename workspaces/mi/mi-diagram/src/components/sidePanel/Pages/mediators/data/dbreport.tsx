@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const DBReportForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -207,6 +207,7 @@ const DBReportForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["sqlStatements"] = getParamManagerValues(values.sqlStatements);
         const xml = getXML(MEDIATORS.DBREPORT, values, dirtyFields, sidePanelContext.formValues);
