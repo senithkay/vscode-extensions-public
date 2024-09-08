@@ -119,6 +119,7 @@ export function EndpointList(props: EndpointListProps) {
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>();
     const [wizardStep, setWizardStep] = useState<string>(WizardStep.ENDPOINT_LIST);
+    const [isLoadingActions, setIsLoadingActions] = useState<boolean>(false);
 
     const isHttp = selectedConnector?.moduleName === "http";
 
@@ -146,12 +147,14 @@ export function EndpointList(props: EndpointListProps) {
 
 
     const handleEndpointSelection = async (connector: BallerinaConnectorInfo, endpointName: string, classField?: boolean) => {
+        setIsLoadingActions(true);
         setSelectedEndpoint(endpointName);
         setIsClassField(classField ?? false);
         const connectorMetadata = await fetchConnectorInfo(connector, rpcClient, activeFileInfo?.filePath);
         console.log ("connectorMetadata", connectorMetadata);
         setSelectedConnector(connectorMetadata);
         setWizardStep(WizardStep.ACTION_LIST);
+        setIsLoadingActions(false);
         // if (!hasFunctions(connectorInfo)) {
         //     setFetchingMetadata(true);
         //     await fetchMetadata(connector);
@@ -279,7 +282,12 @@ export function EndpointList(props: EndpointListProps) {
                             </Box>
                         )} */}
             {/* {endpointElementList} */}
-            {isEndpointExists && wizardStep === WizardStep.ENDPOINT_LIST && (
+            {isLoadingActions && (
+                    <div style={{display:"flex", justifyContent:"center", width:"100%"}}>
+                        <Typography>Loading action...</Typography>
+                    </div>
+            )}
+            {!isLoadingActions && isEndpointExists && wizardStep === WizardStep.ENDPOINT_LIST && (
                 <>
                     <Typography sx={{padding: "10px"}}>
                         Select an existing connector endpoint
@@ -287,12 +295,12 @@ export function EndpointList(props: EndpointListProps) {
                     <S.Container>{endpointElementList}</S.Container>
                 </>
             )}
-            {isEndpointExists && wizardStep === WizardStep.ACTION_LIST && (
+            {!isLoadingActions && isEndpointExists && wizardStep === WizardStep.ACTION_LIST && (
                 <>
                 <ActionList actions={selectedConnector?.functions} onSelect={onSelectAction} isHttp={isHttp} onCancel={onCancelActionList} />
                 </>
                 )}
-            {!isEndpointExists && (
+            {!isEndpointExists && !isLoadingActions && (
                 <>
                     <Typography sx={{padding: "10px"}}>
                         No existing connectors found

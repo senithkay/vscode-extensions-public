@@ -187,7 +187,7 @@ export function ActionForm(props: ActionFormProps) {
                         syntaxTree={activeFileInfo?.fullST}
                         targetPosition={statementPosition}
                         skipSemicolon={false}
-                        extraModules={getConnectorImports(activeFileInfo?.fullST, selectedConnector?.package?.organization, selectedConnector?.moduleName)}
+                        extraModules={imports}
 
                         />
                 // StatementEditorWrapper({

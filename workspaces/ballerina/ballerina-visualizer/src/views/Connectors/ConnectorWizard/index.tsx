@@ -48,12 +48,12 @@ export function ConnectorList(props: ConnectorListProps) {
 
     useEffect( () => {
         if (
-            !pullingPackage &&
+            pullingPackage &&
             selectedConnector?.package?.organization &&
             selectedConnector.package.name
         ) {
             console.log("==pulling package");
-            setPullingPackage(true);
+            // setPullingPackage(true);
             const imports = getConnectorImports(activeFileInfo?.fullST, selectedConnector.package.organization, selectedConnector.moduleName, true);
             if (imports && imports?.size > 0) {
                 let pullCommand = "";
@@ -117,6 +117,7 @@ export function ConnectorList(props: ConnectorListProps) {
 
     const onSelect = async (balModule: BallerinaConstruct, langClient: BallerinaRpcClient) => {
         // get metadata
+        setPullingPackage(true);
         // create a get connector implementation
         const connectorMetadata = await fetchConnectorInfo(balModule, langClient, activeFileInfo?.filePath);
         console.log ("connectorMetadata", connectorMetadata);
@@ -149,7 +150,7 @@ export function ConnectorList(props: ConnectorListProps) {
                     <PackageLoader />
                 </PanelContainer>
             )}
-            {activeFileInfo?.filePath && !selectedConnector &&
+            {activeFileInfo?.filePath && !selectedConnector && !pullingPackage &&
                 <Marketplace
                     currentFilePath={activeFileInfo?.filePath}
                     onSelect={onSelect}

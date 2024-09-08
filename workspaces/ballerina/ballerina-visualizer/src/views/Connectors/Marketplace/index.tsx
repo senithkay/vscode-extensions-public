@@ -116,7 +116,7 @@ export function Marketplace(props: MarketplaceProps) {
     let localModuleComponents: ReactNode[] = [];
 
     const onSelectModule = (balModule: BallerinaConstruct) => {
-        trackItemSelect(balModule);
+        // trackItemSelect(balModule);
         console.log("balModule", balModule);
         onSelect(balModule, rpcClient, undefined);
         // openConnectorHelp(balModule);
