@@ -40,6 +40,7 @@ import ModuleCard from "./ModuleCard";
 import useStyles from "./style";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2-enterprise/ballerina-core";
+import SearchBar from "./SearchBar";
 
 export interface MarketplaceProps {
     currentFilePath: string;
@@ -93,9 +94,9 @@ export function Marketplace(props: MarketplaceProps) {
     const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [filterState, setFilterState] = useState<FilterStateMap>({});
-    const [showFilters, setShowFilters] = useState(false);
+    // const [selectedCategory, setSelectedCategory] = useState("");
+    // const [filterState, setFilterState] = useState<FilterStateMap>({});
+    // const [showFilters, setShowFilters] = useState(false);
 
     const currentPage = useRef(1);
     const fetchCount = useRef(0);
@@ -109,8 +110,8 @@ export function Marketplace(props: MarketplaceProps) {
 
     React.useEffect(() => {
         fetchModulesList();
-        trackFilterChange();
-    }, [searchQuery, selectedCategory]);
+        // trackFilterChange();
+    }, [searchQuery]);
 
     let centralModuleComponents: ReactNode[] = [];
     let localModuleComponents: ReactNode[] = [];
@@ -145,8 +146,8 @@ export function Marketplace(props: MarketplaceProps) {
 
         const queryParams: SearchQueryParams = {
             query: searchQuery,
-            category: selectedCategory,
-            filterState,
+            category: "",
+            filterState: {},
             limit: pageLimit,
             page,
         };
@@ -196,13 +197,13 @@ export function Marketplace(props: MarketplaceProps) {
 
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
-        if (query && query.length >= 3) {
-            // const event: LowcodeEvent = {
-            //     type: SEARCH_CONNECTOR,
-            //     connectorName: query
-            // };
-            // onEvent(event);
-        }
+        // if (query && query.length >= 3) {
+        //     // const event: LowcodeEvent = {
+        //     //     type: SEARCH_CONNECTOR,
+        //     //     connectorName: query
+        //     // };
+        //     // onEvent(event);
+        // }
     };
 
     // const updateCategory = (category: string) => {
@@ -225,52 +226,52 @@ export function Marketplace(props: MarketplaceProps) {
         }
     };
 
-    const trackItemSelect = (balModule: BallerinaConstruct) => {
-        const customDimensions: any = {
-            organization: balModule?.package?.organization,
-            connectorName: balModule?.package?.name,
-            version: balModule?.package?.version,
-            // queryFilterBy needs to added once properly implemented
-        }
-        if (selectedCategory) {
-            customDimensions.queryCategory = selectedCategory;
-            const [mainCategory, subCategory] = selectedCategory.split('/');
-            customDimensions.mainCategory = mainCategory;
-            if (subCategory) {
-                customDimensions.subCategory = subCategory;
-            }
-        }
-        if (searchQuery) {
-            customDimensions.querySearch = searchQuery;
-        }
-        // const event: LowcodeEvent = {
-        //     type: SELECT_CONNECTOR,
-        //     property: customDimensions
-        // };
-        // onEvent(event);
-    }
+    // const trackItemSelect = (balModule: BallerinaConstruct) => {
+    //     const customDimensions: any = {
+    //         organization: balModule?.package?.organization,
+    //         connectorName: balModule?.package?.name,
+    //         version: balModule?.package?.version,
+    //         // queryFilterBy needs to added once properly implemented
+    //     }
+    //     if (selectedCategory) {
+    //         customDimensions.queryCategory = selectedCategory;
+    //         const [mainCategory, subCategory] = selectedCategory.split('/');
+    //         customDimensions.mainCategory = mainCategory;
+    //         if (subCategory) {
+    //             customDimensions.subCategory = subCategory;
+    //         }
+    //     }
+    //     if (searchQuery) {
+    //         customDimensions.querySearch = searchQuery;
+    //     }
+    //     // const event: LowcodeEvent = {
+    //     //     type: SELECT_CONNECTOR,
+    //     //     property: customDimensions
+    //     // };
+    //     // onEvent(event);
+    // }
 
-    const trackFilterChange = () => {
-        if (selectedCategory || searchQuery) {
-            const customDimensions: any = {}
-            if (selectedCategory) {
-                customDimensions.queryCategory = selectedCategory;
-                const [mainCategory, subCategory] = selectedCategory.split('/');
-                customDimensions.mainCategory = mainCategory;
-                if (subCategory) {
-                    customDimensions.subCategory = subCategory;
-                }
-            }
-            if (searchQuery) {
-                customDimensions.querySearch = searchQuery;
-            }
-            // const event: LowcodeEvent = {
-            //     type: LOAD_CONNECTOR_LIST,
-            //     property: customDimensions
-            // };
-            // onEvent(event);
-        }
-    }
+    // const trackFilterChange = () => {
+    //     if (selectedCategory || searchQuery) {
+    //         const customDimensions: any = {}
+    //         if (selectedCategory) {
+    //             customDimensions.queryCategory = selectedCategory;
+    //             const [mainCategory, subCategory] = selectedCategory.split('/');
+    //             customDimensions.mainCategory = mainCategory;
+    //             if (subCategory) {
+    //                 customDimensions.subCategory = subCategory;
+    //             }
+    //         }
+    //         if (searchQuery) {
+    //             customDimensions.querySearch = searchQuery;
+    //         }
+    //         // const event: LowcodeEvent = {
+    //         //     type: LOAD_CONNECTOR_LIST,
+    //         //     property: customDimensions
+    //         // };
+    //         // onEvent(event);
+    //     }
+    // }
 
     if (!isSearchResultsFetching) {
         centralModuleComponents = getModuleComponents(centralModules.current);
@@ -314,7 +315,9 @@ export function Marketplace(props: MarketplaceProps) {
     );
 
     const modulesList = (
-        <div style={{padding: "10px"}}>
+        <div style={{padding: "10px", height: '80vh',
+            overflowY: 'scroll',
+            scrollbarWidth: 'none'}} onScroll={handleModulesListScroll}>
       
             {localModules.current.size > 0 && renderModulesList("Local " + shortName, localModuleComponents)}
             {centralModules.current.size > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
@@ -329,7 +332,7 @@ export function Marketplace(props: MarketplaceProps) {
         </div>
     );
 
-    // const searchBar = <SearchBar searchQuery={searchQuery} onSearch={onSearchButtonClick} type={shortName} />;
+    const searchBar = <SearchBar searchQuery={searchQuery} onSearch={onSearchButtonClick} type={shortName} />;
 
     // const selectedCategoriesChips = (
     //     <Grid columns={12} className={classes.filterTagWrap}>
@@ -396,19 +399,21 @@ export function Marketplace(props: MarketplaceProps) {
 
     return (
         <PanelContainer title="Connectors" show={true} width={'500px'} onClose={onClose}>
-           
+                                   {searchBar}
                 {/* <Grid columns={3}  className={classes.resultsContainer}> */}
-                        {/* {isSearchResultsFetching && loadingScreen} */}
+                <div onWheel={preventDiagramScrolling}>
+                        {isSearchResultsFetching && loadingScreen}
 
                         {/* {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips} */}
                         {!isSearchResultsFetching &&
                             (centralModules.current.size > 0 || localModules.current.size > 0) &&
                             modulesList}
 
-                        {/* {!isSearchResultsFetching &&
+                        {!isSearchResultsFetching &&
                             centralModules.current.size === 0 &&
                             localModules.current.size === 0 &&
-                            notFoundComponent} */}
+                            notFoundComponent}
+                            </div>
                 {/* </Grid> */}
             {/* </div> */}
         </PanelContainer>
