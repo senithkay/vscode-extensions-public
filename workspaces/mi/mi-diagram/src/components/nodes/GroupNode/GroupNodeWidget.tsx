@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { GroupNodeModel } from "./GroupNodeModel";
@@ -131,7 +131,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
@@ -153,6 +153,10 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
     };
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -217,7 +221,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     <Menu>
                         <MenuItem
                             key={"delete-btn"}
-                            item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient) }}
+                            item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }}
                         />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>

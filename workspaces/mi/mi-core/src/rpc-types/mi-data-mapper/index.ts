@@ -21,7 +21,8 @@ import {
     GetCompletionsRequest,
     GetCompletionsResponse,
     GetDMDiagnosticsRequest,
-    GetDMDiagnosticsResponse
+    GetDMDiagnosticsResponse,
+    DataMapWriteRequest
 } from "./types";
 
 export interface MIDataMapperAPI {
@@ -38,4 +39,8 @@ export interface MIDataMapperAPI {
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
     getCompletions: (params: GetCompletionsRequest) => Promise<GetCompletionsResponse>;
     getDMDiagnostics: (params: GetDMDiagnosticsRequest) => Promise<GetDMDiagnosticsResponse>;
+    getMappingFromAI: () => void;
+    writeDataMapping: (params: DataMapWriteRequest)=> void;
+    confirmMappingAction: ()=> Promise<boolean>;
+    authenticateUser(): Promise<boolean>;
 }

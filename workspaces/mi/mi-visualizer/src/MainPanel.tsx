@@ -91,7 +91,7 @@ const PopUpContainer = styled.div`
 const ViewContainer = styled.div({});
 
 const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
@@ -150,6 +150,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     }
 
     const fetchContext = () => {
+        setIsLoading(true);
         rpcClient.getVisualizerState().then(async (machineView) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {

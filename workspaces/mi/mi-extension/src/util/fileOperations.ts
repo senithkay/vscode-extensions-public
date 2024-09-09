@@ -134,7 +134,16 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
         }).on("close", () => {
             console.log("Extraction complete!");
             let uri = Uri.file(path.join(selectedPath, sampleName));
-            commands.executeCommand("vscode.openFolder", uri, true);
+            window.showInformationMessage('Where would you like to open the project?',
+                { modal: true },
+                'This Window',
+                'New Window'
+            ).then((selection) => {
+                if (selection === undefined) {
+                    return;
+                }
+                commands.executeCommand("vscode.openFolder", uri, selection === 'New Window');
+            });
         });
         window.showInformationMessage(
             successMsg,
@@ -502,7 +511,7 @@ export function deleteDataMapperResources(filePath: string): Promise<{ status: b
             removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
             removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
             removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
-            fs.unlinkSync(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName + '/' + dmName + '.ts'));
+            workspace.fs.delete(Uri.parse(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName)), { recursive: true, useTrash: true });
             resolve({ status: true, info: "Datamapper resources removed" });
         }
     });

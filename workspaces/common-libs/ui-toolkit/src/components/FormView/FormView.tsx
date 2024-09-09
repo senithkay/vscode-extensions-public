@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../Button/Button';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
@@ -35,6 +35,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
         <div onScroll={handleScroll} style={{
             overflowY: 'auto',
             overflowX: 'hidden',
+            height: '-webkit-fill-available',
             maxHeight: !hideClose ? 'calc(100vh - 22px)' : 'fit-content',
         }} className="form-view">
             <div style={{ maxWidth: '52em', margin: '0 auto' }}>
@@ -93,6 +94,10 @@ interface FormGroupProps {
 
 export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
+    
+    useEffect(() => {
+        setCollapsed(isCollapsed);
+    }, [isCollapsed]);
 
     const toggleCollapse = () => setCollapsed(!collapsed);
 

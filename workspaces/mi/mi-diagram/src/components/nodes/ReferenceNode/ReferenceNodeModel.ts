@@ -8,7 +8,7 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 import { getDataFromST } from "../../../utils/template-engine/mustach-templates/templateUtils";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
@@ -17,6 +17,9 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 export class ReferenceNodeModel extends BaseNodeModel {
     readonly referenceName: string;
     readonly openViewName?: string;
+    readonly nodeWidth = NODE_DIMENSIONS.REFERENCE.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.REFERENCE.HEIGHT;
+
     constructor(stNode: STNode, mediatorName: string, referenceName: string, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = [], openViewName?: string) {
         super(NodeTypes.REFERENCE_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);
         this.referenceName = referenceName;
