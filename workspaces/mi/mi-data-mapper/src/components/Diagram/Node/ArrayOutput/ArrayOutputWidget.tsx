@@ -188,19 +188,13 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		</span>
 	);
 
-	const valConfigMenuItems: ValueConfigMenuItem[] = isRootArray && !isReturnsArray
+	const valConfigMenuItems: ValueConfigMenuItem[] = isRootArray && !isReturnsArray && Object.keys(portIn.links).length === 0
 		? [
 			{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
 		]
 		: [
 			{ title: ValueConfigOption.EditValue, onClick: handleEditValue }
 		];
-
-	// const valConfigMenuItems: ValueConfigMenuItem[] = [
-	// 	{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
-	// 	{ title: ValueConfigOption.EditValue, onClick: handleEditValue },
-	// 	{ title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
-	// ];
 
 	return (
 		<>
