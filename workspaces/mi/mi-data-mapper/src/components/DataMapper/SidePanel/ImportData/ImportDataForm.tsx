@@ -66,7 +66,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
     }, [selectedImportType]);
 
 
-    const loadSchema = async (content: string) => {
+    const loadSchema = async (content: string, csvDelimiter?: string) => {
         const request = {
             documentUri: documentUri,
             overwriteSchema: overwriteSchema,
@@ -74,6 +74,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
             ioType: ioType,
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
+            csvDelimiter
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             setSidePanelOpen(false);
@@ -85,8 +86,8 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         });
     };
 
-    const handleFileUpload = (text: string) => {
-        loadSchema(text);
+    const handleFileUpload = (text: string, csvDelimiter?: string) => {
+        loadSchema(text, csvDelimiter);
     };
 
     const onClose = () => {

@@ -162,7 +162,7 @@ export function RuntimeServicePanel() {
                 setAvailableServices(services);
             });
         }
-    }, [rpcClient]);
+    }, [rpcClient, serverRunStatus]);
 
     rpcClient.onSwaggerSpecReceived((data: SwaggerData) => {
         setSwaggerEnabled({
