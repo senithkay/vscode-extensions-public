@@ -502,7 +502,7 @@ export function AddConnection(props: AddConnectionProps) {
 
     const handleOnClose = () => {
         if (props.fromSidePanel) {
-            rpcClient.getMiVisualizerRpcClient().goBack();
+            handlePopupClose();
         } else if (props.changeConnector) {
             props.changeConnector();
         } else {
