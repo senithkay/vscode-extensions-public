@@ -22,6 +22,7 @@
     "@wso2-enterprise/api-designer-core": "workspace:*",
     "@wso2-enterprise/api-designer-rpc-client": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2-enterprise/service-designer": "workspace:*",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
     "react-syntax-highlighter": "~15.5.0",
