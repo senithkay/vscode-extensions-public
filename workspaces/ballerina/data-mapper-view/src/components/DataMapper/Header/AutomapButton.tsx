@@ -19,14 +19,9 @@ const useStyles = () => ({
         "& > vscode-button": {
             textTransform: 'none',
             boxSizing: 'border-box',
-            border: '1px solid #E0E2E9',
-            boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
-            borderRadius: '3px',
-            color: '#40404B',
-            fontSize: 'smaller',
-            height: '34px',
-            marginRight: '20px',
-            fontWeight: 300
+            color: 'var(--vscode-sideBarSectionHeader-foreground)',
+            fontWeight: 300,
+            height: '26px'
         }
     })
 });
@@ -44,7 +39,7 @@ export default function AutoMapButton(props: AutoMapButtonProps) {
         <Tooltip content={"Create mapping using AI"} position="bottom-start">
             <Button
                 onClick={onClick}
-                appearance="icon"
+                appearance="secondary"
                 className={classes.autoMapButton}
             >
                 <Codicon name="wand" sx={{ marginRight: 5 }} />

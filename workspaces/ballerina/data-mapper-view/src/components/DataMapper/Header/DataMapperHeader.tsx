@@ -18,7 +18,7 @@ import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import AutoMapButton from "./AutomapButton";
+import AutoMapButton from "./AutoMapButton";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
@@ -106,5 +106,4 @@ const FilterBar = styled.div`
   align-items: center;
   justify-content: flex-end;
   margin-right: 20px;
-  margin-bottom: 3px;
 `;

@@ -37,7 +37,7 @@ import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
-import { isArraysSupported, isDMSupported } from "./utils";
+import { isArraysSupported } from "./utils";
 import { useFileContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
@@ -112,12 +112,16 @@ const classes = {
         backgroundColor: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
     }),
     autoMapInProgressMsg: css({
-        marginTop: '5px'
+        marginTop: '10px'
     }),
     autoMapStopButton: css({
-        textTransform: 'none',
-        background: '#F7F8FB',
-        marginTop: '15px'
+        "& > vscode-button": {
+            textTransform: 'none',
+            marginTop: '15px',
+            border: '1px solid var(--vscode-welcomePage-tileBorder)',
+            width: '100px',
+            justifyContent: 'center'
+        }
     })
 }
 
@@ -621,11 +625,11 @@ export function DataMapperC(props: DataMapperViewProps) {
                             <div className={classes.overlayWithLoader}>
                                 <VSCodeProgressRing />
                                 <div className={classes.autoMapInProgressMsg}>
-                                    {AUTO_MAP_IN_PROGRESS_MSG}
+                                    { AUTO_MAP_IN_PROGRESS_MSG }
                                 </div>
                                 <Button
                                     onClick={stopAutoMap}
-                                    appearance="icon"
+                                    appearance="secondary"
                                     className={classes.autoMapStopButton}
                                 >
                                     <Codicon sx={{ marginRight: 5 }} name="stop-circle" />

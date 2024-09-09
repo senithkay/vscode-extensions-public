@@ -24,12 +24,12 @@ import { ModulePart, RequiredParam, STKindChecker, STNode } from "@wso2-enterpri
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import path from "path";
-import { Uri, workspace } from 'vscode';
+import { Uri, window, workspace } from 'vscode';
 
 import { extension } from "../../BalExtensionContext";
 import { StateMachine, updateView } from "../../stateMachine";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
+import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { NOT_SUPPORTED } from "../../core";
 import { updateFileContent } from "../../utils/modification";
@@ -271,13 +271,36 @@ public function main() {
     }
 
     async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        const { newFnPosition, prevFnSource, filePath } = params;
+        const fileUri = Uri.file(filePath).toString();
+        const undoAction = 'Undo';
+        const msg = 'You have automatically generated mappings. Do you want to undo the changes?';
+        const result = await window.showInformationMessage(msg, undoAction, 'Close');
+    
+        if (result === undoAction) {
+            const res = await StateMachine.langClient().stModify({
+                astModifications: [{
+                    type: "INSERT",
+                    config: { STATEMENT: prevFnSource },
+                    ...newFnPosition
+                }],
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            });
+    
+            const { source } = res as SyntaxTree;
+            updateFileContent({ fileUri, content: source });
+            updateView();
+        }
+    
+        return true;
     }
 
     async stopAIMappings(): Promise<GenerateMappingsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        hasStopped = true;
+        handleStop();
+        return { userAborted: true };
     }
 
     async promptLogin(): Promise<boolean> {

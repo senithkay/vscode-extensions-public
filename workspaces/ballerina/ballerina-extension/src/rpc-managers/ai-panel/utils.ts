@@ -74,6 +74,10 @@ export async function handleLogin() : Promise<void> {
     }
 }
 
+export function handleStop() {
+    abortController.abort();
+}
+
 export async function getParamDefinitions(
     fnSt: FunctionDefinition,
     fileUri: string
