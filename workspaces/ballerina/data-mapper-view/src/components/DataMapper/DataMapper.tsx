@@ -7,11 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
-    ComponentViewInfo,
     FileListEntry,
     GenerateMappingsResponse
 } from "@wso2-enterprise/ballerina-core";
@@ -33,7 +32,7 @@ import { StatementEditorComponent } from "../StatementEditorComponent/StatementE
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./ConfigPanel/InputParamsPanel/types";
 import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
-import { DataMapperError, ErrorNodeKind } from "./Error/DataMapperError";
+import { ErrorNodeKind } from "./Error/RenderingError";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
@@ -47,7 +46,10 @@ import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
 import { AutoMapError } from "./Error/AutoMapError";
-import { AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/constants";
+import { AUTO_MAP_IN_PROGRESS_MSG, AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/constants";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { AutoMapErrorComponent, IOErrorComponent } from "./Error/DataMapperError";
 
 const classes = {
     root: css({
@@ -96,6 +98,26 @@ const classes = {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+    }),
+    overlayWithLoader: css({
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        zIndex: 1,
+        position: 'fixed',
+        backdropFilter: "blur(3px)",
+        backgroundColor: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
+    }),
+    autoMapInProgressMsg: css({
+        marginTop: '5px'
+    }),
+    autoMapStopButton: css({
+        textTransform: 'none',
+        background: '#F7F8FB',
+        marginTop: '15px'
     })
 }
 
@@ -231,6 +253,8 @@ export function DataMapperC(props: DataMapperViewProps) {
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
     const { rpcClient } = useRpcContext();
+
+    const isOverlay = (!isFetchingDMMetaData && !isErrorDMMetaData) && (showDMOverlay || showLocalVarConfigPanel || autoMapInProgress);
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
@@ -387,6 +411,13 @@ export function DataMapperC(props: DataMapperViewProps) {
             }
         }
     };
+
+    const stopAutoMap = async (): Promise<boolean> => {
+        const ai = rpcClient.getAiPanelRpcClient();
+        setAutoMapInProgress(false);
+        await ai.stopAIMappings();
+        return true;
+    }
 
     const closeAutoMapError = () => {
         setAutoMapError(undefined);
@@ -581,9 +612,27 @@ export function DataMapperC(props: DataMapperViewProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {(!isFetchingDMMetaData && !isErrorDMMetaData) && (!!showDMOverlay || showLocalVarConfigPanel) &&
-                            <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                        {isOverlay &&
+                            <>
+                                <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                            </>
                         }
+                        {autoMapInProgress && (
+                            <div className={classes.overlayWithLoader}>
+                                <VSCodeProgressRing />
+                                <div className={classes.autoMapInProgressMsg}>
+                                    {AUTO_MAP_IN_PROGRESS_MSG}
+                                </div>
+                                <Button
+                                    onClick={stopAutoMap}
+                                    appearance="icon"
+                                    className={classes.autoMapStopButton}
+                                >
+                                    <Codicon sx={{ marginRight: 5 }} name="stop-circle" />
+                                    {"Stop"}
+                                </Button>
+                        </div>
+                        )}
                         {fnST && (
                             <DataMapperHeader
                                 selection={selection}
@@ -603,17 +652,8 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 </div>
                             </>
                         )}
-                        {errorKind && (
-                            <>
-                                <div className={classes.overlay} />
-                                <div className={classes.errorMessage}>
-                                    <WarningBanner
-                                        message={<DataMapperError errorNodeKind={errorKind} />}
-                                        className={classes.errorBanner}
-                                    />
-                                </div>
-                            </>
-                        )}
+                        {errorKind && <IOErrorComponent errorKind={errorKind} classes={classes} />}
+                        {autoMapError && <AutoMapErrorComponent autoMapError={autoMapError} classes={classes} />}
                         {dmNodes.length > 0 && (
                             <DataMapperDiagram
                                 nodes={dmNodes}

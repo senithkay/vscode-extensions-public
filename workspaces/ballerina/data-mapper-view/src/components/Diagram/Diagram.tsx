@@ -29,7 +29,7 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
-import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
+import { ErrorNodeKind } from "../DataMapper/Error/RenderingError";
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
