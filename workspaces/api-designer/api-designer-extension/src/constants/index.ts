@@ -10,5 +10,5 @@
 export const COMMANDS = {
     PROJECT_EXPLORER: "APIDesigner.project-explorer",
     PROJECT_EXPLORER_REFRESH: "APIDesigner.project-explorer.refresh",
-    OPEN_WELCOME: "APIDesigner.openWelcome"
+    OPEN_WELCOME: "APIDesigner.openAPIDesigner"
 };
