@@ -46,41 +46,11 @@ export function HierachicalPath(props: HierachicalPathProps) {
         const normalizedDocumentUri = path.normalize(machineView.documentUri);
 
         const projectSrc = path.join(normalizedProjectUri, "src");
-        const filePath = normalizedDocumentUri.split(projectSrc)[1];   
+        const filePath = normalizedDocumentUri.split(projectSrc)[1];
         const pathItems = filePath?.substring(1).split(path.sep);
 
         const segments: Segment[] = [];
         const updateSegments = async () => {
-
-            for (const pathItem of pathItems) {
-                if (pathItem.endsWith(".xml")) {
-                    try {
-                        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
-                        if (!syntaxTree || !syntaxTree?.syntaxTree || !syntaxTree.syntaxTree?.api) {
-                            continue;
-                        }
-                        const api = syntaxTree.syntaxTree.api;
-                        segments.push({
-                            label: `${api.context}`,
-                            onClick: () => {
-                                rpcClient.getMiVisualizerRpcClient().openView({
-                                    type: EVENT_TYPE.OPEN_VIEW,
-                                    location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: machineView.documentUri }
-                                });
-                            },
-                            isClickable: true
-                        });
-                    } catch (error) {
-                        console.error(error);
-                    }
-                } else {
-                    segments.push({
-                        label: pathItem,
-                        onClick: () => { },
-                        isClickable: false
-                    });
-                }
-            }
             setSegments(segments);
         };
         updateSegments();

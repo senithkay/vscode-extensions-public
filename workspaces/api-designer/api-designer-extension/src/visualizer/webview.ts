@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -17,10 +17,8 @@ import { RPCLayer } from '../RPCLayer';
 import { extension } from '../APIDesignerExtensionContext';
 import { debounce } from 'lodash';
 import { navigate, StateMachine } from '../stateMachine';
-import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/api-designer-core';
-import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
-import { AiPanelWebview } from '../ai-panel/webview';
-import { DMProject } from '../datamapper/DMProject';
+import { MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
+import { COMMANDS } from '../constants';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -28,8 +26,8 @@ export class VisualizerWebview {
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
-    constructor(view: MACHINE_VIEW, beside: boolean = false) {
-        this._panel = VisualizerWebview.createWebview(view, beside);
+    constructor(beside: boolean = false) {
+        this._panel = VisualizerWebview.createWebview(beside);
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
@@ -37,18 +35,12 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(async () => {
             if (this.getWebview()) {
-                if (!StateMachine.context().isOldProject) {
-                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
-                }
                 navigate();
             }
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
-            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.document.languageId)) {
-                return;
-            }
-            if (VisualizerWebview.currentPanel?.getWebview()?.active || AiPanelWebview.currentPanel?.getWebview()?.active) {
+            if (VisualizerWebview.currentPanel?.getWebview()?.active) {
                 await document.document.save();
                 refreshDiagram();
             }
@@ -56,52 +48,19 @@ export class VisualizerWebview {
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
             const projectUri = StateMachine.context().projectUri!;
-            if (SWAGGER_LANG_ID === document.languageId) {
-                // Check if the saved document is a swagger file
-                const relativePath = vscode.workspace.asRelativePath(document.uri);
-                if (path.dirname(relativePath) === SWAGGER_REL_DIR) {
-                    VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
-                }
-            } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
-                return;
-            } 
-            RPCLayer._messenger.sendNotification(
-                onDocumentSave,
-                { type: 'webview', webviewType: VisualizerWebview.viewType },
-                { uri: document.uri.toString() }
-            );
             refreshDiagram();
         }, extension.context);
 
         this._panel.onDidChangeViewState(() => {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
             vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
-
-            if(this._panel?.active && StateMachine.context().view === MACHINE_VIEW.DataMapperView) {
-                refreshDiagram();
-            } 
         });
     }
 
-    private static createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {
-        let title: string;
-        switch (view) {
-            case MACHINE_VIEW.Overview:
-                title = MACHINE_VIEW.Overview;
-                break;
-            case MACHINE_VIEW.ADD_ARTIFACT:
-                title = MACHINE_VIEW.ADD_ARTIFACT;
-                break;
-            case MACHINE_VIEW.UnsupportedProject:
-                title = MACHINE_VIEW.UnsupportedProject;
-                break;
-            default:
-                title = 'Design View';
-                break;
-        }
+    private static createWebview(beside: boolean): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            title,
+            "API Designer",
             beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,

@@ -8,9 +8,8 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/api-designer-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/api-designer-core";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import ProjectStructureView from "./ProjectStructureView";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
@@ -20,87 +19,34 @@ interface OverviewProps {
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
-    const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
-    const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
-    const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
     useEffect(() => {
-        rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
-                setWorkspaces(response.workspaces);
-                setActiveWorkspaces(response.workspaces[0]);
-                changeWorkspace(response.workspaces[0].fsPath);
-                console.log(response.workspaces[0]);
-            });
+
     }, []);
-
-    useEffect(() => {
-        if (workspaces && selected) {
-            rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
-                    console.log(response);
-                    setProjectStructure(response);
-                });
-        }
-    }, [selected, props]);
 
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
     }
 
-    const handleBuild = async () => {
-        await rpcClient.getMiDiagramRpcClient().buildProject();
-    }
-
-    const handleExport = async () => {
-        await rpcClient.getMiDiagramRpcClient().exportProject({
-            projectPath: activeWorkspaces.fsPath,
-        });
-    }
-
-
-    const handleAddArtifact = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.ADD_ARTIFACT
-            },
-        })
-    }
-
     return (
         <View>
             <ViewHeader
-                title={"Project: " + activeWorkspaces?.name}
+                title={"Project: Foo"}
                 icon="project"
-                iconSx={{ fontSize: "15px"}}
+                iconSx={{ fontSize: "15px" }}
             >
                 <Button
                     appearance="primary"
-                    onClick={handleAddArtifact}
-                    tooltip="Add Artifact"
+                    onClick={() => { }}
+                    tooltip="Try Out"
                 >
                     <Codicon name="add" sx={{ marginRight: "4px" }} />
-                    Add Artifact
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={handleBuild}
-                    tooltip="Build"
-                >
-                    <Codicon name="combine" sx={{ marginRight: "4px" }} />
-                    Build
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={handleExport}
-                    tooltip="Export"
-                >
-                    <Codicon name="export" sx={{ marginRight: "4px" }} />
-                    Export
+                    Try
                 </Button>
             </ViewHeader>
             <ViewContent padding>
-                {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
+                Hello overview
             </ViewContent>
         </View>
     );

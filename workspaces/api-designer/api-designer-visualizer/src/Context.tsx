@@ -21,20 +21,11 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
       viewLocation: view,
     }));
   };
-
-  const setLogin = (isLoggedIn: boolean) => {
-    setVisualizerState((prevState: VisualizerContext) => ({
-      ...prevState,
-      isLoggedIn: isLoggedIn,
-    }));
-  }
   
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
     viewLocation: { view: MACHINE_VIEW.Overview },
     setViewLocation: setView,
     rpcClient: new RpcClient(), // Create the root RPC layer client object
-    isLoggedIn: false,
-    setIsLoggedIn: setLogin
   });
 
   return (

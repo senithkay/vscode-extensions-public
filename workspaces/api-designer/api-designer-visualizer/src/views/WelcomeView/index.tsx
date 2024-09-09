@@ -8,14 +8,11 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { SampleDownloadRequest, VisualizerLocation, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/api-designer-core";
+import { VisualizerLocation, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/api-designer-core";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { SamplesView } from "../SamplesView";
 import styled from "@emotion/styled";
 import { Button, Codicon, ComponentCard } from "@wso2-enterprise/ui-toolkit";
-import { ProjectWizard } from "../Forms/ProjectForm";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { ImportProjectWizard } from "../Forms/ImportProjectForm";
 
 const TextWrapper = styled.div`
     display: flex;
@@ -125,40 +122,18 @@ export function WelcomeView() {
     }, [rpcClient]);
 
     const goToCreateProject = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.ProjectCreationForm
-            }
-        });
     }
 
     const handleMoreSamples = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.Samples
-            }
-        });
     }
 
     const openTroubleshootGuide = () => {
-        rpcClient.getMiVisualizerRpcClient().openExternal({
-            uri: "https://mi.docs.wso2.com/en/4.3.0/develop/mi-for-vscode/troubleshooting-mi-for-vscode/"
-        })
     }
 
     const openGettingStartedGuide = () => {
-        rpcClient.getMiVisualizerRpcClient().openExternal({
-            uri: "https://mi.docs.wso2.com/en/4.3.0/get-started/development-kickstart/"
-        })
     }
 
     function downloadSample(sampleName: string) {
-        let request: SampleDownloadRequest = {
-            zipFileName: sampleName
-        }
-        rpcClient.getMiVisualizerRpcClient().downloadSelectedSampleFromGithub(request);
     }
 
     return (

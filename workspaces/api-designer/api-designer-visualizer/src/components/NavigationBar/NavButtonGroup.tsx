@@ -36,17 +36,17 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     }, []);
 
     const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        rpcClient.getApiDesignerVisualizerRpcClient().goBack();
     }
 
     const handleHomeButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goHome();
+        rpcClient.getApiDesignerVisualizerRpcClient().goHome();
     }
 
     return (
         <>
             <>
-                {machineView?.view !== MACHINE_VIEW.Overview && machineView?.view !== MACHINE_VIEW.UnsupportedProject && (
+                {machineView?.view !== MACHINE_VIEW.Overview && (
                     <>
                         <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                             <Codicon name="arrow-left" />

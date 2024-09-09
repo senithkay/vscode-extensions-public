@@ -10,7 +10,7 @@
 
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { POPUP_EVENT_TYPE, PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted } from '@wso2-enterprise/api-designer-core';
+import { PopupVisualizerLocation, webviewReady, PopupMachineStateValue, onParentPopupSubmitted, EVENT_TYPE } from '@wso2-enterprise/api-designer-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { StateMachine } from './stateMachine';
@@ -53,8 +53,7 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                     actions: assign({
                         view: (context, event) => event.viewLocation.view,
                         recentIdentifier: (context, event) => "",
-                        documentUri: (context, event) => event.viewLocation.documentUri,
-                        customProps: (context, event) => event.viewLocation.customProps,
+                        documentUri: (context, event) => event.viewLocation.documentUri
                     })
                 },
             }
@@ -69,8 +68,7 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                                 recentIdentifier: (context, event) => "",
-                                documentUri: (context, event) => event.viewLocation.documentUri,
-                                customProps: (context, event) => event.viewLocation.customProps,
+                                documentUri: (context, event) => event.viewLocation.documentUri
                             })
                         },
                         CLOSE_VIEW: {
@@ -149,14 +147,14 @@ export const StateMachinePopup = {
     service: () => { return popupStateService; },
     context: () => { return popupStateService.getSnapshot().context; },
     state: () => { return popupStateService.getSnapshot().value as PopupMachineStateValue; },
-    sendEvent: (eventType: POPUP_EVENT_TYPE) => { popupStateService.send({ type: eventType }); },
+    sendEvent: (eventType: EVENT_TYPE) => { popupStateService.send({ type: eventType }); },
     resetState: () => { popupStateService.send({ type: "RESET_STATE" }); },
-    isActive: () => { 
+    isActive: () => {
         const state = StateMachinePopup.state();
-        return typeof state === 'object' && 'open' in state && state.open === 'active'; 
+        return typeof state === 'object' && 'open' in state && state.open === 'active';
     }
 };
 
-export function openPopupView(type: POPUP_EVENT_TYPE, viewLocation?: PopupVisualizerLocation) {
+export function openPopupView(type: EVENT_TYPE, viewLocation?: PopupVisualizerLocation) {
     popupStateService.send({ type: type, viewLocation: viewLocation });
 }

@@ -9,17 +9,12 @@
 
 import React, { createRef, useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { MachineStateValue, AIMachineStateValue, SwaggerData } from "@wso2-enterprise/api-designer-core";
+import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import AIPanel from "./AIPanel";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
-import { WelcomePanel } from "./WelcomePanel";
-import { DisabledView } from "./views/Disabled";
-import { RuntimeServicePanel } from "./RuntimeServicesPanel";
-import { SwaggerPanel } from "./SwaggerPanel";
-import { gitIssueUrl } from "./constants";
+import { WelcomeView } from "./views/WelcomeView";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -43,10 +38,10 @@ const MODES = {
     SWAGGER: "swagger"
 };
 
-export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: SwaggerData }) {
+export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
     const errorBoundaryRef = createRef<any>();
-    const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
+    const [state, setState] = React.useState<MachineStateValue>('initialize');
 
     const handleResetError = () => {
         if (errorBoundaryRef.current) {
@@ -54,35 +49,24 @@ export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: 
         }
     };
 
-    rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
         setState(newState);
     });
 
     useEffect(() => {
         rpcClient.webviewReady();
-        if (mode === "ai") {
-            rpcClient.getAIVisualizerState().then(context => {
-                setState(context.state);
-            });
-        }
     }, []);
 
     const goHome = () => {
-        rpcClient.getMiVisualizerRpcClient().goHome();
+        rpcClient.getApiDesignerVisualizerRpcClient().goHome();
     };
 
     return (
-        <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl={gitIssueUrl} ref={errorBoundaryRef}>
+        <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl={""} ref={errorBoundaryRef}>
             {(() => {
                 switch (mode) {
                     case MODES.VISUALIZER:
                         return <VisualizerComponent state={state as MachineStateValue} handleResetError={handleResetError} />
-                    case MODES.AI:
-                        return <AiVisualizerComponent state={state as AIMachineStateValue} />
-                    case MODES.RUNTIME_SERVICES:
-                        return <RuntimeServicesComponent />
-                    case MODES.SWAGGER:
-                        return <SwaggerComponent data={swaggerData} />
                 }
             })()}
         </ErrorBoundary>
@@ -94,9 +78,9 @@ const VisualizerComponent = React.memo(({ state, handleResetError }: { state: Ma
         case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
             return <MainPanel handleResetError={handleResetError} />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
-            return <WelcomePanel />;
+            return <WelcomeView />;
         case state === 'disabled':
-            return <DisabledView />
+            return <>Disabled View</>
         default:
             return (
                 <LoaderWrapper>
@@ -104,32 +88,4 @@ const VisualizerComponent = React.memo(({ state, handleResetError }: { state: Ma
                 </LoaderWrapper>
             );
     }
-});
-
-const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValue }) => {
-    switch (true) {
-        case state !== 'Initialize':
-            return <AIPanel />;
-        default:
-            return (
-                <LoaderWrapper>
-                    <ProgressRing />
-                </LoaderWrapper>
-            );
-    }
-});
-
-const RuntimeServicesComponent = () => {
-    return <RuntimeServicePanel />;
-}
-
-const SwaggerComponent = React.memo(({ data }: { data: SwaggerData }) => {
-    if (!data) {
-        return (
-            <LoaderWrapper>
-                <ProgressRing />
-            </LoaderWrapper>
-        );
-    }
-    return <SwaggerPanel swaggerData={data} />;
 });

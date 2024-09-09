@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,9 +13,6 @@ import { ExtensionContext } from "vscode";
 export class MIExtensionContext {
     public context!: ExtensionContext;
     public webviewReveal!: boolean;
-    public initialPrompt?: string;
-    public preserveActivity!: boolean;
-    public isServerStarted!: boolean;
 }
 
 export const extension = new MIExtensionContext();

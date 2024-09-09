@@ -8,23 +8,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from '@wso2-enterprise/api-designer-core';
+import { PopupMachineStateValue, PopupVisualizerLocation } from '@wso2-enterprise/api-designer-core';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { EndpointWizard } from './views/Forms/EndpointForm';
 import styled from '@emotion/styled';
-import { HttpEndpointWizard } from "./views/Forms/HTTPEndpointForm/index";
-import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
-import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm/index";
-import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
-import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
-import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
-import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
-import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
-import path from 'path';
-import { ConnectorStore } from './views/Forms/ConnectionForm';
-import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
-import { AddDriver } from './views/Popup/AddDriver';
 
 const ViewContainer = styled.div`
     
@@ -46,55 +32,8 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
     }, []);
 
     const fetchContext = () => {
-        const endpointPath = new URL(path.join('src', 'main', 'wso2mi', 'artifacts', 'endpoints').toString(), window.location.origin).pathname;
         rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
             switch (machineSate?.view) {
-                case MACHINE_VIEW.EndPointForm:
-                    setViewComponent(<EndpointWizard isPopup={true} path={machineSate.documentUri} />);
-                    break;
-                case MACHINE_VIEW.HttpEndpointForm:
-                    setViewComponent(<HttpEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.AddressEndpointForm:
-                    setViewComponent(<AddressEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.WsdlEndpointForm:
-                    setViewComponent(<WsdlEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.DefaultEndpointForm:
-                    setViewComponent(<DefaultEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
-                    break;
-                case MACHINE_VIEW.LoadBalanceEndPointForm:
-                    setViewComponent(<LoadBalanceWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
-                    break;
-                case MACHINE_VIEW.FailoverEndPointForm:
-                    setViewComponent(<FailoverWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
-                    break;
-                case MACHINE_VIEW.RecipientEndPointForm:
-                    setViewComponent(<RecipientWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
-                    break;
-                case MACHINE_VIEW.TemplateEndPointForm:
-                    setViewComponent(<TemplateEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
-                    break;
-                case MACHINE_VIEW.ConnectorStore:
-                    setViewComponent(<ConnectorStore isPopup={true} path={machineSate.documentUri} />);
-                    break;
-                case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} />);
-                    break;
-                case MACHINE_VIEW.ConnectionForm:
-                    setViewComponent(
-                        <AddConnection 
-                            connectionName={machineSate.customProps.connectionName}
-                            allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
-                            connector={machineSate.customProps.connector}
-                            fromSidePanel={machineSate.customProps.fromSidePanel}
-                            path={machineSate.documentUri}
-                            isPopup={true} />);
-                    break;
-                case MACHINE_VIEW.AddDriverPopup:
-                    setViewComponent(<AddDriver isPopup={true} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
-                    break;
                 default:
                     setViewComponent(null);
             }
