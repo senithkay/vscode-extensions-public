@@ -140,7 +140,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             <executions>
               <execution>
                 <id>install-car</id>
-                <phase>install</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>install-file</goal>
                 </goals>
@@ -156,39 +156,54 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
               </execution>
             </executions>
           </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>test</id>
-      <build>
-        <plugins>
           <plugin>
-            <groupId>org.wso2.maven</groupId>
-            <artifactId>synapse-unit-test-maven-plugin</artifactId>
-            <version>5.2.65</version>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.1.0</version>
             <executions>
               <execution>
-                <id>synapse-unit-test</id>
-                <phase>test</phase>
+                <id>setup-env</id>
+                <phase>generate-test-resources</phase>
                 <goals>
-                  <goal>synapse-unit-test</goal>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <mkdir dir="\${local.mi.pack.store.path}" />
+                    <get src="\${mi.pack.download.link}"
+                       dest="\${local.mi.pack.store.path}"/>
+                    <unzip src="\${local.mi.pack.store.path}/\${mi.pack}.zip" dest="\${local.mi.pack.store.path}" />
+                    <exec executable="chmod">
+                      <arg value="+x"/>
+                      <arg value="\${local.mi.pack.store.path}/\${mi.pack}/bin/micro-integrator.sh"/>
+                    </exec>
+                  </target>
+                  <skip>\${maven.test.skip}</skip>
+                </configuration>
+              </execution>
+              <execution>
+                <id>delete-folder</id>
+                <phase>post-integration-test</phase>
+                <configuration>
+                  <target>
+                    <delete dir="\${local.mi.pack.store.path}" />
+                  </target>
+                  <skip>\${maven.test.skip}</skip>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
                 </goals>
               </execution>
             </executions>
-            <configuration>
-              <server>
-                <testServerType>\${testServerType}</testServerType>
-                <testServerHost>\${testServerHost}</testServerHost>
-                <testServerPort>\${testServerPort}</testServerPort>
-                <testServerPath>\${testServerPath}</testServerPath>
-              </server>
-              <testCasesFilePath>\${project.basedir}/src/test/wso2mi/\${testFile}</testCasesFilePath>
-              <mavenTestSkip>\${maven.test.skip}</mavenTestSkip>
-            </configuration>
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <server.type>local</server.type>
+        <server.host>localhost</server.host>
+        <server.port>9008</server.port>
+        <server.path>\${local.mi.pack.store.path}/\${mi.pack}/bin/micro-integrator.sh</server.path>
+      </properties>
     </profile>
     <profile>
       <id>docker</id>
@@ -327,7 +342,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             <executions>
               <execution>
                 <id>docker-build</id>
-                <phase>package</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>build</goal>
                 </goals>
@@ -351,13 +366,108 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <verbose>true</verbose>
                 </configuration>
               </execution>
+              <execution>
+                <id>docker-start</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <autoPull>always</autoPull>
+                  <images>
+                    <image>
+                      <name>\${dockerfile.base.image}</name>
+                      <alias>\${docker.container.name}</alias>
+                      <run>
+                        <platform>linux/amd64</platform>
+                        <ports>
+                          <port>9008:9008</port>
+                        </ports>
+                        <wait>
+                          <log>.*Synapse unit testing agent has been established on port 9008.*</log>
+                          <time>100000</time>
+                          <shutdown>100000</shutdown>
+                        </wait>
+                        <cmd>-DsynapseTest -DsynapseTestPort=9008</cmd>
+                      </run>
+                    </image>
+                  </images>
+                  <authConfig>
+                    <username>\${dockerfile.pull.username}</username>
+                    <password>\${dockerfile.pull.password}</password>
+                  </authConfig>
+                  <skip>\${maven.test.skip}</skip>
+                </configuration>
+              </execution>
+              <execution>
+                <id>docker-stop</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+                <configuration>
+                  <images>
+                    <image>
+                      <name>\${docker.container.name}</name>
+                    </image>
+                  </images>
+                  <authConfig>
+                    <username>\${dockerfile.pull.username}</username>
+                    <password>\${dockerfile.pull.password}</password>
+                  </authConfig>
+                  <skip>\${maven.test.skip}</skip>
+                </configuration>
+              </execution>
             </executions>
             <configuration/>
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <server.type>remote</server.type>
+        <server.host>localhost</server.host>
+        <server.port>9008</server.port>
+      </properties>
     </profile>
-  </profiles>    
+    <profile>
+      <id>test</id>
+      <build/>
+      <properties>
+        <server.type>\${testServerType}</server.type>
+        <server.host>\${testServerHost}</server.host>
+        <server.port>\${testServerPort}</server.port>
+        <server.port>\${testServerPath}</server.port>
+      </properties>
+    </profile>
+  </profiles>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.wso2.maven</groupId>
+        <artifactId>synapse-unit-test-maven-plugin</artifactId>
+        <version>5.2.65</version>
+        <executions>
+          <execution>
+            <id>synapse-unit-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>synapse-unit-test</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <server>
+            <testServerType>\${server.type}</testServerType>
+            <testServerHost>\${server.host}</testServerHost>
+            <testServerPort>\${server.port}</testServerPort>
+            <testServerPath>\${server.path}</testServerPath>
+          </server>
+          <testCasesFilePath>\${project.basedir}/src/test/wso2mi/\${testFile}</testCasesFilePath>
+          <mavenTestSkip>\${maven.test.skip}</mavenTestSkip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <properties>
     <projectType>integration-project</projectType>
     <uuid>${projectUuid}</uuid>
@@ -372,6 +482,10 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>4.3.0</project.runtime.version>
+    <docker.container.name>wso2-mi-container</docker.container.name>
+    <local.mi.pack.store.path>\${basedir}/src/test/resources/product</local.mi.pack.store.path>
+    <mi.pack.download.link>https://github.com/wso2/micro-integrator/releases/download/v4.3.0/wso2mi-4.3.0.zip</mi.pack.download.link>
+    <mi.pack>wso2mi-4.3.0</mi.pack>
   </properties>
 </project>`;
 
