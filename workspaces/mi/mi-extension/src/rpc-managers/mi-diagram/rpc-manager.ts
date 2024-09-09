@@ -201,6 +201,7 @@ import {
     WriteContentToFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
+    GetSTFromUriRequest,
     getSTResponse,
     onSwaggerSpecReceived,
     FileRenameRequest,
@@ -275,11 +276,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
+        const isGetSTFromUriRequest = (params: any): params is GetSTFromUriRequest => {
+            return (params as GetSTFromUriRequest).documentUri !== undefined;
+        };
+
+        let documentUri = '';
+        if (isGetSTFromUriRequest(params)) {
+            documentUri = params.documentUri;
+        } else {
+            const projectUri = StateMachine.context().projectUri!;
+            documentUri = path.join(
+                projectUri,
+                'src',
+                'main',
+                'wso2mi',
+                'artifacts',
+                params.artifactType,
+                params.artifactName
+            );
+        }
+
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getSyntaxTree({
                 documentIdentifier: {
-                    uri: params.documentUri
+                    uri: documentUri
                 },
             });
 
