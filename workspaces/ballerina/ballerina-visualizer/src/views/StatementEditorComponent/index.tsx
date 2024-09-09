@@ -53,6 +53,10 @@ function StatementEditorC(props: StatementEditorComponentProps) {
 
     console.log("FormArgs", formArgs);
 
+    const openExternalUrl = (url: string) => {
+        rpcClient.getCommonRpcClient().openExternalUrl({ url: url});
+    }
+
     const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: {
@@ -78,6 +82,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             onCancel,
             skipSemicolon: skipSemicolon ? skipSemicolon : false,
             extraModules: extraModules,
+            openExternalUrl: openExternalUrl
         }
     );
 

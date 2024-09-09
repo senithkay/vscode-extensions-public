@@ -15,6 +15,7 @@ import {
     CommandsResponse,
     CommonRPCAPI,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
     ProjectDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
@@ -27,6 +28,7 @@ import {
     getTypes,
     getWorkspaceFiles,
     goToSource,
+    openExternalUrl,
     runBackgroundTerminalCommand
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -61,6 +63,10 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     runBackgroundTerminalCommand(params: RunExternalCommandRequest): Promise<RunExternalCommandResponse> {
         return this._messenger.sendRequest(runBackgroundTerminalCommand, HOST_EXTENSION, params);
+    }
+
+    openExternalUrl(params: OpenExternalUrlRequest): void {
+        return this._messenger.sendNotification(openExternalUrl, HOST_EXTENSION, params);
     }
 
     askProjectDirPath(): Promise<ProjectDirResponse> {

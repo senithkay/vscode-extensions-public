@@ -19,6 +19,7 @@ import {
     CompletionParams,
     DiagnosticData,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
     ProjectDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
@@ -29,7 +30,7 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import child_process from 'child_process';
 import * as os from 'os';
-import { Uri, commands, window, workspace } from "vscode";
+import { Uri, commands, env, window, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
@@ -173,6 +174,10 @@ export class CommonRpcManager implements CommonRPCAPI {
                 }
             });
         });
+    }
+
+    async openExternalUrl(params: OpenExternalUrlRequest): Promise<void> {
+        env.openExternal(Uri.parse(params.url));
     }
 }
 

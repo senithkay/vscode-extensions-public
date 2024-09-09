@@ -52,6 +52,10 @@ export interface RunExternalCommandRequest {
     command: string;
 }
 
+export interface OpenExternalUrlRequest {
+    url: string;
+}
+
 export interface RunExternalCommandResponse {
     error: boolean,
     message: string

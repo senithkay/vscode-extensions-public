@@ -17,6 +17,7 @@ import {
     CommandsRequest,
     CommandsResponse,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
     ProjectDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
@@ -32,5 +33,6 @@ export interface CommonRPCAPI {
     getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
     runBackgroundTerminalCommand: (params: RunExternalCommandRequest) => Promise<RunExternalCommandResponse>;
+    openExternalUrl: (params: OpenExternalUrlRequest) => void;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
 }
