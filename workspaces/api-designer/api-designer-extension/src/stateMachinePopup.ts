@@ -21,7 +21,7 @@ interface PopupMachineContext extends PopupVisualizerLocation {
 
 const stateMachinePopup = createMachine<PopupMachineContext>({
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaADge0wV0wGIAlAUQGVSAVAfXKoEErSBtABgF1FQdZUAXVNgB23EAA9EAFgBMAGhABPRADYAzCoB0ARgCcugBzaA7GpkqpxgL5WFaLLgKbUwgagCGAG1QAvMIQgRMGdhADdsAGtg+xx8TBC3L18wBBdwgGN3QRF2DlyxXjcRMUkEXW0ZTTUDGuMpKTZtNgBWNgMFZQQ6yt0VY10ZbWbe7QqpGzsMWKcXRO8-QjAAJyXsJc1MTyyAMzXkTRjHeNnBJL9UsOxM7OFc-KQQQpuSxGHK5uNzDRkatkspDqqCqaYzaBpsT4yKRqXRqNQTECHOKaJZgdwQRSEADyAAVSAA5GgANQAkqQAOr3HjYPjPB6lGqVEzaAy6Op9QYwwEIMwGTQqFTNKQqNpsvRDBFIpy4MDCTTudKCUL+XEE4lkymcAo0oqienSZqVWSwhoC4x9YzGbk-LSg5raMy8gxqD6SqZHTQyuUKpX+ADCABksZR1RSqY8dXTQKV6nzmgZmvG7cY2GYVNypM0tAYLGw2oM-np4bZEe7kV6UWAvQEgiFwlEDmXpZhZZWvRcMlkhLdOOGnt2XghhdpNLo2q1LY1LcLuQ7dJoZHC4bpM-aZIni5MHOWW3LhNhBNtMYFhME0pFok34hX94fFB2rl2cr2tQ9+8V9QgDND+SzBuuZEMDR0yUVRhhBdRWRkNhzEGS0bBLfcIDgMQpUwbVaQHT90BAzp0A0HRtAFYZJz0b9rBLNCElOeYwAw3VBx+NRND+c0ZFBMxp25Oo+UzXQsykB0pH4nM3W3JxUXRTpqUwj9o0QJp7X5FQDGMAw-kE8V2lAhBWkqOoXRXFdoJdFQxOma9d3oqMJEQH5jE0TNoTUOoU2FWRuSUxNnWqWQHUtFQZHMj0Kx9VBlWsrD5J5F1HKFOFXL+Cx5B0tQ81HQCUzUCoYNMddgp3VtUS9SK5NshBBS0H56lhQVUykHNrQFTR7VGBNDX6FQHWaArm1bW9UCPUq9WiwUpBYwL1EXLMjBSzpVwm8Ei1U1Txkoq9NAgVBYHcAAjTxIGGwcPJ05o0pa4T1KGVTWlUhCrCAA */
-    id: 'mi-popup',
+    id: 'popup',
     initial: 'initialize',
     predictableActionArguments: true,
     context: {
@@ -95,7 +95,7 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                     invoke: {
                         src: 'notifyChange',
                         onDone: {
-                            target: '#mi-popup.ready'
+                            target: '#popup.ready'
                         }
                     }
                 },

@@ -140,88 +140,9 @@ export function WelcomeView() {
         <>
             <Wrapper>
                 <TitlePanel>
-                    <Headline>Micro Integrator (MI) for VS Code</Headline>
+                    <Headline>API Designer for VS Code</Headline>
                     <span>A comprehensive integration solution that simplifies your digital transformation journey. Streamlines connectivity among applications, services, data, and cloud using a user-friendly low-code graphical designing experience. </span>
                 </TitlePanel>
-                <Grid>
-                    <Pane>
-                        <Tab>
-                            <SubTitle>Getting started</SubTitle>
-                            <span>Learn about the Micro Integrator Extension in our <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.</span>
-                        </Tab>
-                        <Tab>
-                            <SubTitle>Create New Project</SubTitle>
-                            <span>Create an empty project.</span>
-                            <Button appearance="primary" onClick={() => goToCreateProject()}>
-                                <div style={CreateBtnStyles}>
-                                    <IconWrapper>
-                                        <Codicon name="folder-library" iconSx={{ fontSize: 20 }} />
-                                    </IconWrapper>
-                                    <TextWrapper>Create New Project</TextWrapper>
-                                </div>
-                            </Button>
-                        </Tab>
-                        {/* <Tab>  this has to be given in the activity for an old project
-                                <SubTitle>Import</SubTitle>
-                                <span>Import an existing project.</span>
-                                <Button appearance="secondary" onClick={() => handleModeChange("ImportProject")}>
-                                    <div style={CreateBtnStyles}>
-                                        <IconWrapper>
-                                            <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
-                                        </IconWrapper>
-                                        <TextWrapper>Import A Project</TextWrapper>
-                                    </div>
-                                </Button>
-                            </Tab> */}
-                        <Tab>
-                            <SubTitle>Troubleshooting</SubTitle>
-                            <span>Experiencing problems? Start with our <VSCodeLink onClick={openTroubleshootGuide}>Troubleshooting Guide</VSCodeLink>.</span>
-                        </Tab>
-                    </Pane>
-                    <Pane>
-                        <Tab>
-                            <SubTitle>Explore Samples</SubTitle>
-                            <span>Have a look at some examples.</span>
-                        </Tab>
-                        <ComponentCard
-                            onClick={() => downloadSample("HelloWorldService")}
-                            sx={ComponentCardStyles}>
-                            <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Hello_World.png" className="card-image" />
-                            <SampleText>
-                                <span style={SampleTitle}>Hello World Service</span>
-                                <span style={{ fontSize: '12px' }} >A simple HTTP service.</span>
-                            </SampleText>
-                        </ComponentCard>
-                        <ComponentCard
-                            onClick={() => downloadSample("APITesting")}
-                            sx={ComponentCardStyles}>
-                            <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Testing_Templates.png" className="card-image" />
-                            <SampleText>
-                                <span style={SampleTitle}>API Testing</span>
-                                <span style={{ fontSize: '12px' }} >Unit testing of a REST API artifact.</span>
-                            </SampleText>
-                        </ComponentCard>
-                        <ComponentCard
-                            onClick={() => downloadSample("ContentBasedRouting")}
-                            sx={ComponentCardStyles}>
-                            <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Routing_Templates.png" className="card-image" />
-                            <SampleText>
-                                <span style={SampleTitle}>Content Based Routing</span>
-                                <span style={{ fontSize: '12px' }} >Content-based message routing.</span>
-                            </SampleText>
-                        </ComponentCard>
-                        <ComponentCard
-                            onClick={() => downloadSample("DatabasePolling")}
-                            sx={ComponentCardStyles}>
-                            <img src="https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/Task_Templates.png" className="card-image" />
-                            <SampleText>
-                                <span style={SampleTitle}>Database Polling</span>
-                                <span style={{ fontSize: '12px' }} >A Task that polls a Database.</span>
-                            </SampleText>
-                        </ComponentCard>
-                        <span><VSCodeLink onClick={handleMoreSamples}>More...</VSCodeLink></span>
-                    </Pane>
-                </Grid>
             </Wrapper >
         </>
     );

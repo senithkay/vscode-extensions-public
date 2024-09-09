@@ -33,17 +33,23 @@
     },
     "viewsWelcome": [
       {
-        "view": "MI.project-explorer",
+        "view": "APIDesigner.project-explorer",
         "contents": "Loading...",
-        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+        "when": "APIDesigner.status != 'unknownProject' && APIDesigner.status != 'projectLoaded' && APIDesigner.status != 'disabled'"
       },
       {
-        "view": "MI.project-explorer",
+        "view": "APIDesigner.project-explorer",
         "contents": "Welcome to API Designer",
-        "when": "MI.status == 'unknownProject'"
+        "when": "true"
       }
     ],
-    "commands": [],
+    "commands": [
+      {
+        "command": "APIDesigner.openWelcome",
+        "title": "Open APIDesigner Welcome",
+        "category": "APIDesigner"
+      }
+    ],
     "menus": { },
     "icons": {
       "distro-design-view": {
