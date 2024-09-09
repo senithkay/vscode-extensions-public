@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -754,6 +754,11 @@
         {
           "command": "MI.project-explorer.add-template",
           "when": "view == MI.project-explorer && viewItem == templates",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-data-service",
+          "when": "view == MI.project-explorer && viewItem == dataServices",
           "group": "inline"
         },
         {
