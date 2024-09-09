@@ -1,0 +1,144 @@
+{
+  "name": "api-designer",
+  "displayName": "API Designer",
+  "description": "An extension which gives a development environment for designing, developing, debugging, and testing API solutions.",
+  "icon": "resources/images/wso2-api-designer-image.png",
+  "version": "1.0.1",
+  "publisher": "wso2",
+  "engines": {
+    "vscode": "^1.81.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "api-designer",
+          "title": "API Designer",
+          "icon": "assets/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "api-designer": [
+        {
+          "id": "APIDesigner.project-explorer",
+          "name": "Project Explorer"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "MI.project-explorer",
+        "contents": "Loading...",
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Welcome to API Designer",
+        "when": "MI.status == 'unknownProject'"
+      }
+    ],
+    "commands": [],
+    "menus": { },
+    "icons": {
+      "distro-design-view": {
+        "description": "design-view",
+        "default": {
+          "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+          "fontCharacter": "\\f133"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . -w",
+    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
+    "build": "pnpm clean && pnpm run copyFonts && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "compile-tests": "pnpm run compile",
+    "watch-tests": "pnpm run watch",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "pnpm run pretest && node ./out/test/runTest.js",
+    "e2e-test-setup": "npx extest get-vscode -c 1.81.1 && npx extest get-chromedriver -c 1.81.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
+    "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
+    "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
+    "copyVSIX": "copyfiles *.vsix ./vsix",
+    "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
+    "postbuild": "pnpm run copyVSIX"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.81.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "eslint": "^8.47.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.6",
+    "ts-loader": "^9.4.4",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "@vscode/test-electron": "^2.3.4",
+    "rimraf": "~5.0.5",
+    "ts-morph": "^22.0.0",
+    "await-notify": "^1.0.1",
+    "yaml": "~2.4.3"
+  },
+  "dependencies": {
+    "copyfiles": "^2.4.1",
+    "@vscode/vsce": "~2.21.0",
+    "vscode-messenger": "^0.4.5",
+    "vscode-messenger-common": "^0.4.5",
+    "@wso2-enterprise/api-designer-core": "workspace:*",
+    "@wso2-enterprise/api-designer-rpc-client": "workspace:*",
+    "@wso2-enterprise/api-designer-visualizer": "workspace:*",
+    "@playwright/test": "~1.37.1",
+    "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
+    "vscode-extension-tester": "~5.9.1",
+    "vscode-languageclient": "^8.0.2",
+    "@types/xml2js": "~0.4.12",
+    "jsonix": "~3.0.0",
+    "lodash": "~4.17.21",
+    "axios": "~1.5.1",
+    "@types/lodash": "~4.14.199",
+    "vscode-languageserver-protocol": "^3.17.2",
+    "fast-xml-parser": "~4.3.2",
+    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+    "xstate": "^4.38.3",
+    "node-fetch": "~2.6.2",
+    "mustache": "~4.2.0",
+    "@types/mustache": "~4.2.5",
+    "uuid": "~9.0.1",
+    "unzipper": "~0.10.14",
+    "vscode-debugadapter": "^1.51.0",
+    "vscode-debugprotocol": "^1.51.0",
+    "tree-kill": "~1.2.2",
+    "node-loader": "~2.0.0",
+    "to-json-schema": "0.2.4",
+    "xml2js": "0.6.2",
+    "tmp": "~0.2.3",
+    "fs-extra": "~11.2.0",
+    "@iarna/toml": "^2.2.5",
+    "@types/tmp": "~0.2.6",
+    "@types/fs-extra": "~11.0.4",
+    "json-schema-to-ts": "3.0.1",
+    "@babel/plugin-transform-typescript": "^7.16.1",
+    "recast": "^0.20.5",
+    "@babel/core": "^7.24.4",
+    "@types/json-schema": "7.0.15",
+    "json-schema": "0.4.0",
+    "portfinder": "^1.0.32",
+    "cors-anywhere": "^0.4.4",
+    "@apidevtools/json-schema-ref-parser": "11.6.1",
+    "adm-zip": "~0.5.14"
+  }
+}
