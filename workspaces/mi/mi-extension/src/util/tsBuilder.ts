@@ -220,8 +220,8 @@ function getFunctionDeclaration(tsSources: ts.SourceFile[], ioType: IOType, isSc
   let inputInterfaceName = "Root";
   let outputInterfaceName = "OutputRoot";
 
-  const isInputArray = isSchemaArray && ioType === IOType.Input || functionSource?.parameters[0].type?.kind === ts.SyntaxKind.ArrayType;
-  const isOutputArray = isSchemaArray && ioType === IOType.Output || functionSource?.type?.kind === ts.SyntaxKind.ArrayType;
+  const isInputArray = ioType === IOType.Input ? isSchemaArray : functionSource?.parameters[0].type?.kind === ts.SyntaxKind.ArrayType;
+  const isOutputArray = ioType === IOType.Output ? isSchemaArray : functionSource?.type?.kind === ts.SyntaxKind.ArrayType;
 
   tsSources.forEach(source => {
     const commentRange = ts.getTrailingCommentRanges(source.getFullText(), 0);
