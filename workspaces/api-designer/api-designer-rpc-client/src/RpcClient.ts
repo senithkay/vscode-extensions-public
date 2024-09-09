@@ -8,23 +8,24 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData  } from "@wso2-enterprise/api-designer-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, APIDesignerVisualizerAPI  } from "@wso2-enterprise/api-designer-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
+import { ApiDesignerVisualizerRpcClient } from "./rpc-clients/api-designer-visualizer/rpc-client";
 
 export class RpcClient {
 
     private messenger: Messenger;
-    // private _visualizer: MiVisualizerRpcClient;
+    private _visualizer: APIDesignerVisualizerAPI;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
-        // this._visualizer = new MiVisualizerRpcClient(this.messenger);
+        this._visualizer = new ApiDesignerVisualizerRpcClient(this.messenger);
     }
 
-    // getMiVisualizerRpcClient(): MiVisualizerRpcClient {
-    //     return this._visualizer;
-    // }
+    getApiDesignerVisualizerRpcClient(): APIDesignerVisualizerAPI {
+        return this._visualizer;
+    }
 
     onStateChanged(callback: (state: MachineStateValue) => void) {
         this.messenger.onNotification(stateChanged, callback);

@@ -7,5 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from './context/mi-webview-context'
+export * from './context/api-designer-webview-context';
 export { RpcClient } from './RpcClient';

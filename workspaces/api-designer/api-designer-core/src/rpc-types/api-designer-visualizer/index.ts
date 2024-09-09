@@ -14,7 +14,7 @@ import {
     GoToSourceRequest,
 } from "./types";
 
-export interface MIVisualizerAPI {
+export interface APIDesignerVisualizerAPI {
     openView: (params: OpenViewRequest) => void;
     goBack: () => void;
     getHistory: () => Promise<HistoryEntryResponse>;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,109 +14,11 @@ import { StateMachine, openView } from '../stateMachine';
 import { COMMANDS } from '../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
 import { extension } from '../APIDesignerExtensionContext';
-import { getViewCommand } from '../project-explorer/project-explorer-provider';
-import { log } from '../util/logger';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_PROJECT, () => {
-            window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open MI Project' })
-                .then(uri => {
-                    if (uri && uri[0]) {
-                        commands.executeCommand('vscode.openFolder', uri[0]);
-                    }
-                });
-        })
-    );
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, () => {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
         })
     );
-    // Activate editor/title items
-    context.subscriptions.push(
-        commands.registerCommand(COMMANDS.SHOW_GRAPHICAL_VIEW, async (file: vscode.Uri) => {
-            extension.webviewReveal = true;
-
-            const langClient = StateMachine.context().langClient;
-            const projectUri = StateMachine.context().projectUri;
-
-            if (!langClient || !projectUri) {
-                const errorMsg = 'The extension is still initializing. Please wait a moment and try again.';
-                vscode.window.showErrorMessage(errorMsg);
-                log(errorMsg);
-                return;
-            }
-
-            const { directoryMap } = await langClient.getProjectStructure(projectUri);
-            const artifacts = directoryMap.src.main.wso2mi.artifacts;
-            for (const artifactType in artifacts) {
-                const selectedArtifact = artifacts[artifactType].find(
-                    (artifact: any) => path.relative(artifact.path, file.fsPath).length === 0
-                );
-                if (selectedArtifact) {
-                    switch (selectedArtifact.type) {
-                        case 'API':
-                            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
-                            return;
-                        case 'ENDPOINT':
-                            await vscode.commands.executeCommand(getViewCommand(selectedArtifact.subType), file, 'endpoint', undefined, false);
-                            return;
-                        case 'SEQUENCE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_SEQUENCE_VIEW, file, undefined, false);
-                            return;
-                        case 'MESSAGE_PROCESSOR':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_MESSAGE_PROCESSOR, file, undefined, false);
-                            return;
-                        case 'PROXY_SERVICE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_PROXY_VIEW, file, undefined, false);
-                            return;
-                        case 'TEMPLATE':
-                            await vscode.commands.executeCommand(getViewCommand(selectedArtifact.subType), file, 'template', undefined, false);
-                            return;
-                        case 'TASK':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_TASK, file, undefined, false);
-                            return;
-                        case 'INBOUND_ENDPOINT':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_INBOUND_ENDPOINT, file, undefined, false);
-                            return;
-                        case 'MESSAGE_STORE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_MESSAGE_STORE, file, undefined, false);
-                            return;
-                        case 'LOCAL_ENTRY':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_LOCAL_ENTRY, file, undefined, false);
-                            return;
-                        case 'DATA_SOURCE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_DATA_SOURCE, file, undefined, false);
-                            return;
-                        case 'DATA_SERVICE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_DATA_SOURCE, file, undefined, false);
-                            return;
-                    }
-                }
-            }
-        })
-    );
-
-    context.subscriptions.push(
-        commands.registerCommand(COMMANDS.SHOW_OVERVIEW, async () => {
-            const projectType: string | undefined = extension.context.workspaceState.get('projectType');
-            switch (projectType) {
-                case 'miProject':
-                    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-                    break;
-                case 'oldProject':
-                    const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
-                    const displayOverview = displayState === undefined ? true : displayState;
-                    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });
-                    break;
-            }
-        })
-    );
-
-    StateMachine.service().onTransition((state) => {
-        if (state.event.viewLocation?.view) {
-            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
-        }
-    });
 }
