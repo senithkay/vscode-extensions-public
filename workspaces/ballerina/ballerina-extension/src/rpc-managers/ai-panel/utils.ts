@@ -8,19 +8,27 @@
  */
 
 import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { ErrorCode, FormField } from "@wso2-enterprise/ballerina-core";
-import { window } from 'vscode';
+import { AI_EVENT_TYPE, ErrorCode, FormField } from "@wso2-enterprise/ballerina-core";
+import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
-import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
-import { ENDPOINT_REMOVED, INVALID_PARAMETER_TYPE, INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY, PARSING_ERROR, TIMEOUT, UNAUTHORIZED, UNKNOWN_ERROR, USER_ABORTED } from "../../views/ai-panel/errorCodes";
+import {
+    ENDPOINT_REMOVED,
+    INVALID_PARAMETER_TYPE,
+    INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
+    PARSING_ERROR,
+    TIMEOUT,
+    UNAUTHORIZED,
+    UNKNOWN_ERROR,
+    USER_ABORTED
+} from "../../views/ai-panel/errorCodes";
 import { hasStopped } from "./rpc-manager";
+import { StateMachineAI } from "../../views/ai-panel/aiMachine";
+import { extension } from "../../BalExtensionContext";
+import axios from "axios";
 
-const CLIENT_ID = "9rKng8hSZd0VkeA45Lt4LOfCp9Aa";
-const ASGARDEO_ORG = "ballerinacopilot";
 export const BACKEND_API_URL = "https://dev-tools.wso2.com/ballerina-copilot/v1.0";
 export const BACKEND_API_URL_V2 = "https://dev-tools.wso2.com/ballerina-copilot/v2.0";
-const ASGARDEO_URL = `https://api.asgardeo.io/t/${ASGARDEO_ORG}`;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
@@ -38,13 +46,8 @@ export interface RecordDefinitonObject {
     recordFieldsMetadata: object;
 }
 
-interface RefreshTokenResponse {
-    access_token: string;
-    refresh_token: string;
-}
-
 export async function getAccessToken(): Promise<string> {
-    let token:string = await ballerinaExtInstance.context.secrets.get("BAL_AI_ACCESS_TOKEN");
+    let token:string = await extension.context.secrets.get("BallerinaAIUser");
     if (token) {
         return token;
     }
@@ -55,8 +58,19 @@ export async function isLoggedin(): Promise<boolean> {
     try {
         await getAccessToken();
         return true;
-    }catch (error) {
+    } catch (error) {
         return false;
+    }
+}
+
+export async function handleLogin() : Promise<void> {
+    const quickPicks: QuickPickItem[] = [];
+    quickPicks.push({ label: "Ballerina: Copilot Login", description: "Register/Login to Ballerina Copilot"});
+
+    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access Ballerina Copilot features. Please login and retry." };
+    const selected = await window.showQuickPick(quickPicks, options);
+    if (selected) {
+        StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
     }
 }
 
@@ -269,38 +283,41 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
     return path;
 }
 
-export async function refreshAccessToken(): Promise<string|ErrorCode> {
-    console.log("Refreshing access token");
-    const refreshToken = await getRefreshToken();
+export async function refreshAccessToken(): Promise<string> {
+    const CommonReqHeaders = {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+        'Accept': 'application/json'
+    };
 
-    const response = await fetch(ASGARDEO_URL + "/oauth2/token", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `grant_type=refresh_token&refresh_token=${refreshToken}&client_id=${CLIENT_ID}`
-    });
+    const config = workspace.getConfiguration('ballerina');
+    const AUTH_ORG = config.get('authOrg') as string;
+    const AUTH_CLIENT_ID = config.get('authClientID') as string;
 
-    if (!response.ok) {
-        if (response.status === 400) {
-            return UNAUTHORIZED;
-        } else {
-            console.log("Error while refreshing access token: ", response.text());
-            return UNKNOWN_ERROR;
+    const refresh_token = await extension.context.secrets.get('BallerinaAIRefreshToken');
+    if (!refresh_token) {
+        throw new Error("Refresh token is not available.");
+    } else {
+        try {
+            console.log("Refreshing token...");
+            const params = new URLSearchParams({
+                client_id: AUTH_CLIENT_ID,
+                refresh_token: refresh_token,
+                grant_type: 'refresh_token',
+                scope: 'openid'
+            });
+            const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
+            const newAccessToken = response.data.access_token;
+            const newRefreshToken = response.data.refresh_token;
+            await extension.context.secrets.store('BallerinaAIUser', newAccessToken);
+            await extension.context.secrets.store('BallerinaAIRefreshToken', newRefreshToken);
+            console.log("Token refreshed successfully!");
+            const token = await extension.context.secrets.get('BallerinaAIUser');
+            return token;
+        } catch (error: any) {
+            const errMsg = "Error while refreshing token! " + error?.message;
+            console.error(errMsg);
         }
     }
-
-    const data = await response.json() as RefreshTokenResponse;
-    setTokens(data.access_token, data.refresh_token);
-    return data.access_token;
-}
-
-export async function getRefreshToken(): Promise<string> {
-    let token:string = await ballerinaExtInstance.context.secrets.get("BAL_AI_REFRESH_TOKEN");
-    if (token) {
-        return token;
-    }
-    return Promise.reject(new Error("Refresh token not found"));
 }
 
 function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefinitonObject | ErrorCode {
@@ -391,7 +408,7 @@ function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefini
     return response;
 };
 
-export async function getDatamapperCode(parameterDefinitions, fnSt): Promise<object | ErrorCode> {
+export async function getDatamapperCode(parameterDefinitions): Promise<object | ErrorCode> {
     try {
         const accessToken = await getAccessToken().catch((error) => {
             console.error(error);
@@ -406,10 +423,7 @@ export async function getDatamapperCode(parameterDefinitions, fnSt): Promise<obj
 
         // Refresh
         if (response.status === 401) {
-            const newAccessToken: string | ErrorCode = await refreshAccessToken();
-            if (isErrorCode(newAccessToken)) {
-                return (newAccessToken as ErrorCode);
-            }
+            const newAccessToken = await refreshAccessToken();
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
             if (isErrorCode(retryResponse)) {
                 return (retryResponse as ErrorCode);
@@ -457,11 +471,6 @@ export function getFunction(modulePart: ModulePart, functionName: string) {
     ) as FunctionDefinition[];
 
     return fns.find(mem => mem.functionName.value === functionName);
-}
-
-export async function setTokens(accessToken: string, refreshToken): Promise<void> {
-    await ballerinaExtInstance.context.secrets.store('BAL_AI_ACCESS_TOKEN', accessToken);
-    await ballerinaExtInstance.context.secrets.store('BAL_AI_REFRESH_TOKEN', refreshToken);
 }
 
 export function notifyNoGeneratedMappings() {

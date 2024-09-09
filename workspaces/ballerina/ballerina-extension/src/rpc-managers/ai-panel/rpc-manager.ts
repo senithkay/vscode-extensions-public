@@ -21,7 +21,6 @@ import {
     SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import axios from "axios";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import path from "path";
@@ -30,7 +29,7 @@ import { Uri, workspace } from 'vscode';
 import { extension } from "../../BalExtensionContext";
 import { StateMachine, updateView } from "../../stateMachine";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, isErrorCode, isLoggedin, notifyNoGeneratedMappings } from "./utils";
+import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { NOT_SUPPORTED } from "../../core";
 import { updateFileContent } from "../../utils/modification";
@@ -159,40 +158,8 @@ public function main() {
 
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {
-            const CommonReqHeaders = {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
-                'Accept': 'application/json'
-            };
-
-            const config = workspace.getConfiguration('ballerina');
-            const AUTH_ORG = config.get('authOrg') as string;
-            const AUTH_CLIENT_ID = config.get('authClientID') as string;
-
-            const refresh_token = await extension.context.secrets.get('BallerinaAIRefreshToken');
-            if (!refresh_token) {
-                throw new Error("Refresh token is not available.");
-            } else {
-                try {
-                    console.log("Refreshing token...");
-                    const params = new URLSearchParams({
-                        client_id: AUTH_CLIENT_ID,
-                        refresh_token: refresh_token,
-                        grant_type: 'refresh_token',
-                        scope: 'openid'
-                    });
-                    const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
-                    const newAccessToken = response.data.access_token;
-                    const newRefreshToken = response.data.refresh_token;
-                    await extension.context.secrets.store('BallerinaAIUser', newAccessToken);
-                    await extension.context.secrets.store('BallerinaAIRefreshToken', newRefreshToken);
-                    console.log("Token refreshed successfully!");
-                    const token = await extension.context.secrets.get('BallerinaAIUser');
-                    resolve(token);
-                } catch (error: any) {
-                    const errMsg = "Error while refreshing token! " + error?.message;
-                    console.error(errMsg);
-                }
-            }
+            const token = await refreshAccessToken();
+            resolve(token);
         });
     }
 
@@ -247,7 +214,7 @@ public function main() {
             return { error: (parameterDefinitions as ErrorCode) };
         }
     
-        const codeObject: object | ErrorCode = await getDatamapperCode(parameterDefinitions, fnSt);
+        const codeObject: object | ErrorCode = await getDatamapperCode(parameterDefinitions);
         if (isErrorCode(codeObject)) {
             if ((codeObject as ErrorCode).code === 6) {
                 return { userAborted: true };
@@ -314,7 +281,7 @@ public function main() {
     }
 
     async promptLogin(): Promise<boolean> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        await handleLogin();
+        return true;
     }
 }
