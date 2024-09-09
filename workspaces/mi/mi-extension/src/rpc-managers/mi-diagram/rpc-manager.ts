@@ -234,7 +234,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -3943,7 +3943,7 @@ ${keyValuesXML}`;
                     log(errorMessage);
                     return reject(errorMessage);
                 }
-                const lastExportedPath: string | undefined = extension.context.globalState.get(LAST_EXPORTED_PATH);
+                const lastExportedPath: string | undefined = extension.context.globalState.get(LAST_EXPORTED_CAR_PATH);
                 const quickPicks: vscode.QuickPickItem[] = [
                     {
                         label: "Select Destination",
@@ -3976,7 +3976,7 @@ ${keyValuesXML}`;
                             openLabel: "Select Folder"
                         });
                         destination = selectedLocation.filePath;
-                        await extension.context.globalState.update(LAST_EXPORTED_PATH, destination);
+                        await extension.context.globalState.update(LAST_EXPORTED_CAR_PATH, destination);
                     } else {
                         destination = lastExportedPath;
                     }
