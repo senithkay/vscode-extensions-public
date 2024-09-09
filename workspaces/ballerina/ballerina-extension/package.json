@@ -478,6 +478,51 @@
                 "title": "Open AI Panel",
                 "category": "Ballerina",
                 "icon": "$(wand)"
+            },
+            {
+                "command": "ballerina.open.eggplant.welcome",
+                "title": "Open Welcome",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.refresh",
+                "title": "Refresh Eggplant",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-connection",
+                "title": "Add Connection",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-entry-point",
+                "title": "Add Entry Point",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-schema",
+                "title": "Add Schema",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-function",
+                "title": "Add Function",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
+            },
+            {
+                "command": "Eggplant.project-explorer.add-configuration",
+                "title": "Add Configuration",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "Eggplant"
             }
         ],
         "views": {
