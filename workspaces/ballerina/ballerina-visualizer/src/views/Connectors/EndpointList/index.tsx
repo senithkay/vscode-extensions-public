@@ -105,7 +105,7 @@ const DEFAULT_ICON_SCALE = 0.35;
 const ICON_WIDTH_SMALL = 16;
 
 export function EndpointList(props: EndpointListProps) {
-    const { setActivePanel, statementPosition, activeFileInfo, setPopupScreen } = useVisualizerContext();
+    const { setActivePanel, statementPosition, activeFileInfo, setSidePanel } = useVisualizerContext();
     const functionNode = activeFileInfo.activeSequence; // TODO: check if its function node
     const targetPosition = statementPosition;
     const { moduleEndpoints, localEndpoints } = props.stSymbolInfo;
@@ -236,13 +236,13 @@ export function EndpointList(props: EndpointListProps) {
     }
 
     const onCancelActionList = () => {
-        setPopupScreen("EMPTY");
+        setSidePanel("EMPTY");
         setSelectedConnector(undefined);
     }
 
 
     return (
-        <PanelContainer title="Action" show={true} onClose={() => setPopupScreen("EMPTY")}>
+        <PanelContainer title="Action" show={true} onClose={() => setSidePanel("EMPTY")}>
             <div style={{ width: '100%', flexDirection: "row", padding: '15px 20px' }}>
                 {isLoadingActions && (
                     <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
@@ -268,7 +268,7 @@ export function EndpointList(props: EndpointListProps) {
                             No existing connectors found
                         </Typography>
                         <S.AddConnectorContainer>
-                            <Button onClick={() => setPopupScreen("ADD_CONNECTION")} appearance="primary">
+                            <Button onClick={() => setSidePanel("ADD_CONNECTION")} appearance="primary">
                                 Add Connector
                             </Button>
                         </S.AddConnectorContainer>

@@ -221,10 +221,7 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
-                {/* {popupScreen !== "EMPTY" && <PopupPanel onClose={handleOnClosePopup}>
-                    {popupScreen === "ADD_CONNECTION" && <ConnectorList />}
-                </PopupPanel>} */}
-                {popupScreen !== "EMPTY" && popupScreen === "ADD_CONNECTION" &&
+                {sidePanel !== "EMPTY" && sidePanel === "ADD_CONNECTION" &&
                     <ConnectorList applyModifications={applyModifications} />
                 }
 
@@ -255,7 +252,7 @@ const MainPanel = () => {
                         </FormView>
                     </PopUpContainer>
                 )}
-                {popupScreen !== "EMPTY" && popupScreen === "ADD_ACTION" &&
+                {sidePanel !== "EMPTY" && sidePanel === "ADD_ACTION" &&
                     <EndpointList stSymbolInfo={getSymbolInfo()} applyModifications={applyModifications} />
                 }
             </VisualizerContainer>

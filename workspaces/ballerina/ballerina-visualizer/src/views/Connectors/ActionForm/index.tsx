@@ -52,7 +52,7 @@ export function ActionForm(props: ActionFormProps) {
     // const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     // const { isLoading, formArgs } = configOverlayFormStatus;
     const { action, endpointName, isClassField, functionNode, isHttp, applyModifications, selectedConnector } = props;
-    const { activeFileInfo, statementPosition, setActivePanel, setPopupScreen } = useVisualizerContext();
+    const { activeFileInfo, statementPosition, setActivePanel, setSidePanel } = useVisualizerContext();
     const targetPosition = statementPosition;
     const stSymbolInfo = getSymbolInfo();
     const formArgs =  {
@@ -156,7 +156,7 @@ export function ActionForm(props: ActionFormProps) {
     // formArgs.targetPosition = targetPosition;
 
     const closeStatementEditor = () => {
-        setPopupScreen("EMPTY");
+        setSidePanel("EMPTY");
     }
 
 

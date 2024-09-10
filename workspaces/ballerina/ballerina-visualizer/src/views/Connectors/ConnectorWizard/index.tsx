@@ -41,7 +41,7 @@ export function ConnectorList(props: ConnectorListProps) {
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
     const [initialSource, setInitialSource] = useState<string>();
-    const { activeFileInfo, statementPosition, setActivePanel, setPopupScreen } = useVisualizerContext();
+    const { activeFileInfo, statementPosition, setActivePanel, setSidePanel } = useVisualizerContext();
 
 
     const { rpcClient } = useRpcContext();
@@ -130,7 +130,7 @@ export function ConnectorList(props: ConnectorListProps) {
 
     const closeStatementEditor = () => {
         setShowStatementEditor(false);
-        setPopupScreen("EMPTY");
+        setSidePanel("EMPTY");
     }
 
     const cancelStatementEditor = () => {
@@ -139,7 +139,7 @@ export function ConnectorList(props: ConnectorListProps) {
     }
 
     const onMarketplaceClose = () => {
-        setPopupScreen("EMPTY");
+        setSidePanel("EMPTY");
     }
 
     return (
