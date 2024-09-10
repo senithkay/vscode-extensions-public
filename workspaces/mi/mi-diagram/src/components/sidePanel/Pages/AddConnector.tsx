@@ -587,6 +587,16 @@ const AddConnector = (props: AddConnectorProps) => {
                         watchStatements = true;
                     }
                 });
+            } else if (firstElement === "NOT") {
+                // Handle NOT conditions
+                watchStatements = false;
+                const condition = element.value.enableCondition.slice(1)[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) !== conditionValue;
+                }
             } else {
                 // Handle Single condition
                 const condition = element.value.enableCondition[0];
