@@ -699,7 +699,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
                     {getValues("type") === "RabbitMQ Message Store" && (
                         <>
-                            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+                            <FormGroup title="Advanced Properties" isCollapsed={false}>
                                 <TextField
                                     placeholder="RabbitMQ Server Host Name"
                                     label="RabbitMQ Server Host Name"
@@ -786,8 +786,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     {...renderProps("routineKey")}
                                 />
                                 <TextField
-                                    placeholder="User Name"
-                                    label="User Name"
+                                    placeholder="Username"
+                                    label="Username"
                                     size={100}
                                     {...renderProps("userName")}
                                 />

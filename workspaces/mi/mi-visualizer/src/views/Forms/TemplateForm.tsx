@@ -145,7 +145,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 id: 0,
                 type: "TextField",
                 label: "Parameter",
-                defaultValue: "parameter_value",
+                placeholder: "parameter_value",
+                defaultValue: "",
                 isRequired: true
             },
             {
