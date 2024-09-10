@@ -403,6 +403,7 @@ const stateMachine = createMachine<MachineContext>({
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
+                            functionIOTypes: functionIOTypes,
                             fileContent: fnSource,
                             interfacesSource: interfacesSrc,
                             configName: deriveConfigName(filePath)

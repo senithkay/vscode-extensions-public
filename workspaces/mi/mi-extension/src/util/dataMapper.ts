@@ -69,7 +69,7 @@ export function getFunctionIOTypes(filePath: string, functionName: string) {
         const returnType = dmFunc.getReturnType().getText();
         return `${parameterType}/${returnType}`;
     } catch (error: any) {
-        throw new Error("[MI Data Mapper] Failed to fetch function input and output types. " + error.message);
+        throw new Error("[MI Data Mapper] Failed to fetch function input/output types. " + error.message);
     }
 }
 
