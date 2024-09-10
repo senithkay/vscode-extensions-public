@@ -9,16 +9,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 import { SelectionState, ViewOption } from "../DataMapper";
-
+import AutoMapButton from "./AutoMapButton";
 import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import AutoMapButton from "./AutoMapButton";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
