@@ -79,7 +79,11 @@ test('Create new API', async () => {
       'Name*': {
         type: 'input',
         value: 'api1',
-      }
+      },
+      'Context*': {
+        type: 'input',
+        value: '/api1',
+      },
     }
   });
   await apiForm.submit();
