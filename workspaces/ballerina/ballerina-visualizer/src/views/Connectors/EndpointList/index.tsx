@@ -16,18 +16,8 @@
 
 import React, { ReactNode, useContext, useState } from "react";
 
-
-// import { Box, FormControl, List, ListItem, Typography } from "@material-ui/core";
 import { ModuleIcon } from "@wso2-enterprise/ballerina-low-code-diagram";
-// import { BallerinaConnectorInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { FormHeaderSection, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode, VisibleEndpoint } from "@wso2-enterprise/syntax-tree";
-
-// import { Context } from "../../../../../../Contexts/Diagram";
-// import { TextPreLoader } from "../../../../../../PreLoader/TextPreLoader";
-// import { FormGeneratorProps } from "../../../FormGenerator";
-// import { wizardStyles as useFormStyles } from "../../style";
-// import useStyles from "../style";
 
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { BallerinaConnectorInfo, FunctionDefinitionInfo, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-core";
@@ -47,6 +37,12 @@ namespace S {
         width: 100%;
         display: flex;
         flex-direction: column;
+        align-items: flex-start;
+    `;
+    export const AddConnectorContainer = styled.div<{}>`
+        width: 100%;
+        display: flex;
+        flex-direction: column;
         align-items: center;
     `;
     export const Component = styled.div<{}>`
@@ -63,6 +59,7 @@ namespace S {
                 background-color: ${Colors.PRIMARY_CONTAINER};
                 border: 1px solid ${Colors.PRIMARY};
         };
+        cursor: 'pointer';
         margin: 5px;
     `;
 
@@ -123,21 +120,6 @@ export function EndpointList(props: EndpointListProps) {
 
     const isHttp = selectedConnector?.moduleName === "http";
 
-
-
-
-
-    // const classes = useStyles();
-    // const formClasses = useFormStyles();
-    // const {
-    //     props: {
-    //         stSymbolInfo: { moduleEndpoints, localEndpoints },
-    //     },
-    // } = useContext(Context);
-    // const { targetPosition, onCancel, configOverlayFormStatus } = props;
-    // const { isLoading, formArgs } = configOverlayFormStatus;
-    // const { functionNode, onSelect, addNewEndpoint } = formArgs as EndpointListProps;
-
     const endpointElementList: ReactNode[] = [];
     const visitedEndpoints: string[] = [];
     let isEndpointExists = false;
@@ -151,15 +133,10 @@ export function EndpointList(props: EndpointListProps) {
         setSelectedEndpoint(endpointName);
         setIsClassField(classField ?? false);
         const connectorMetadata = await fetchConnectorInfo(connector, rpcClient, activeFileInfo?.filePath);
-        console.log ("connectorMetadata", connectorMetadata);
+        console.log("connectorMetadata", connectorMetadata);
         setSelectedConnector(connectorMetadata);
         setWizardStep(WizardStep.ACTION_LIST);
         setIsLoadingActions(false);
-        // if (!hasFunctions(connectorInfo)) {
-        //     setFetchingMetadata(true);
-        //     await fetchMetadata(connector);
-        // }
-        // setFetchingMetadata(false);
     }
 
     const getListComponent = (connector: BallerinaConnectorInfo, name: string, isClassField?: boolean) => {
@@ -171,16 +148,6 @@ export function EndpointList(props: EndpointListProps) {
                 <S.IconContainer>{<ModuleIcon module={connector} scale={DEFAULT_ICON_SCALE} width={ICON_WIDTH_SMALL} />}</S.IconContainer>
                 <S.ComponentTitle>{name}</S.ComponentTitle>
             </S.Component>
-
-            // <Button
-            //     key={`endpoint-${name.toLowerCase()}`}
-            //     data-testid={`${name.toLowerCase().replaceAll(" ", "-")}`}
-            //     onClick={handleOnSelect}
-            // >
-
-            //     <ModuleIcon module={connector} scale={DEFAULT_ICON_SCALE} width={ICON_WIDTH_SMALL} />
-            //     <Typography>{name}</Typography>
-            // </Button>
         );
     };
 
@@ -273,105 +240,54 @@ export function EndpointList(props: EndpointListProps) {
         setSelectedConnector(undefined);
     }
 
-    
+
     return (
         <PanelContainer title="Action" show={true} onClose={() => setPopupScreen("EMPTY")}>
-            {/* {isLoading && (
-                            <Box display="flex" justifyContent="center">
-                                <TextPreLoader position="absolute" text="Fetching endpoints..." />
-                            </Box>
-                        )} */}
-            {/* {endpointElementList} */}
-            {isLoadingActions && (
-                    <div style={{display:"flex", justifyContent:"center", width:"100%"}}>
+            <div style={{ width: '100%', flexDirection: "row", padding: '15px 20px' }}>
+                {isLoadingActions && (
+                    <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
                         <Typography>Loading action...</Typography>
                     </div>
-            )}
-            {!isLoadingActions && isEndpointExists && wizardStep === WizardStep.ENDPOINT_LIST && (
-                <>
-                    <Typography sx={{padding: "10px"}}>
-                        Select an existing connector endpoint
-                    </Typography>
-                    <S.Container>{endpointElementList}</S.Container>
-                </>
-            )}
-            {!isLoadingActions && isEndpointExists && wizardStep === WizardStep.ACTION_LIST && (
-                <>
-                <ActionList actions={selectedConnector?.functions} onSelect={onSelectAction} isHttp={isHttp} onCancel={onCancelActionList} />
-                </>
                 )}
-            {!isEndpointExists && !isLoadingActions && (
-                <>
-                    <Typography sx={{padding: "10px"}}>
-                        No existing connectors found
-                    </Typography>
-                    <S.Container>
-                        <Button onClick={() => setPopupScreen("ADD_CONNECTION")} appearance="primary">
-                            Add Connector
-                        </Button>
-                    </S.Container>
-                    
-                </>
-            )}
-            {wizardStep === WizardStep.ACTION_FROM && (
-                <ActionForm
-                action={selectedAction}
-                endpointName={selectedEndpoint}
-                isClassField={isClassField}
-                isHttp={isHttp}
-                functionNode={functionNode}
-                applyModifications={applyModifications}
-                selectedConnector={selectedConnector}
-                />
-            )}
+                {!isLoadingActions && isEndpointExists && wizardStep === WizardStep.ENDPOINT_LIST && (
+                    <>
+                        <Typography sx={{ padding: "10px" }}>
+                            Select an existing connector endpoint
+                        </Typography>
+                        <S.Container>{endpointElementList}</S.Container>
+                    </>
+                )}
+                {!isLoadingActions && isEndpointExists && wizardStep === WizardStep.ACTION_LIST && (
+                    <>
+                        <ActionList actions={selectedConnector?.functions} onSelect={onSelectAction} isHttp={isHttp} onCancel={onCancelActionList} />
+                    </>
+                )}
+                {!isEndpointExists && !isLoadingActions && (
+                    <>
+                        <Typography sx={{ padding: "10px" }}>
+                            No existing connectors found
+                        </Typography>
+                        <S.AddConnectorContainer>
+                            <Button onClick={() => setPopupScreen("ADD_CONNECTION")} appearance="primary">
+                                Add Connector
+                            </Button>
+                        </S.AddConnectorContainer>
+
+                    </>
+                )}
+                {wizardStep === WizardStep.ACTION_FROM && (
+                    <ActionForm
+                        action={selectedAction}
+                        endpointName={selectedEndpoint}
+                        isClassField={isClassField}
+                        isHttp={isHttp}
+                        functionNode={functionNode}
+                        applyModifications={applyModifications}
+                        selectedConnector={selectedConnector}
+                    />
+                )}
+            </div>
+
         </PanelContainer>
-        // <FormControl data-testid="endpoint-list-form" className={formClasses.wizardFormControl}>
-        //     <FormHeaderSection
-        //         onCancel={onCancel}
-        //         formTitle={"lowcode.develop.configForms.endpointList.title"}
-        //         defaultMessage={"Action"}
-        //     />
-        //     <div className={formClasses.formWrapper}>
-        //         <div className={formClasses.formFeilds}>
-        //             <div className={classes.container}>
-        //                 {isLoading && (
-        //                     <Box display="flex" justifyContent="center">
-        //                         <TextPreLoader position="absolute" text="Fetching endpoints..." />
-        //                     </Box>
-        //                 )}
-        //                 {!isLoading && !isEndpointExists && (
-        //                     <Box
-        //                         display="flex"
-        //                         flexDirection="column"
-        //                         alignItems="center"
-        //                         justifyContent="center"
-        //                         height="80vh"
-        //                     >
-        //                         <Typography className={classes.subTitle}>
-        //                             <FormattedMessage
-        //                                 id="lowcode.develop.configForms.endpoint.empty"
-        //                                 defaultMessage="No existing connectors found"
-        //                             />
-        //                         </Typography>
-        //                         <Box marginY={2}>
-        //                             <PrimaryButton text="Add Connector" fullWidth={false} onClick={addNewEndpoint} />
-        //                         </Box>
-        //                     </Box>
-        //                 )}
-        //                 {!isLoading && isEndpointExists && (
-        //                     <>
-        //                         <Typography>
-        //                             <FormattedMessage
-        //                                 id="lowcode.develop.configForms.endpointList.subtitle"
-        //                                 defaultMessage="Select an existing connector endpoint"
-        //                             />
-        //                         </Typography>
-        //                         <List>{endpointElementList}</List>
-        //                     </>
-        //                 )}
-        //             </div>
-        //         </div>
-        //     </div>
-        // </FormControl>
     );
 }

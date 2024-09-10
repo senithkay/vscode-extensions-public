@@ -9,12 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-// import { Box, Grid, InputBase } from "@material-ui/core";
 import debounce from "lodash.debounce";
 
-// import SearchIcon from "../../../../../../assets/icons/SearchIcon";
-
-// import useStyles from "./style";
 import { SearchBox } from "@wso2-enterprise/ui-toolkit";
 
 export interface SearchBarProps {
@@ -26,7 +22,6 @@ export interface SearchBarProps {
 const DEBOUNCE_DELAY = 1000;
 
 function SearchBar(props: SearchBarProps) {
-    // const classes = useStyles();
     const { onSearch, searchQuery } = props;
 
     const [query, setQuery] = useState(searchQuery);
@@ -37,10 +32,6 @@ function SearchBar(props: SearchBarProps) {
         debouncedQueryChanged(query);
         return () => debouncedQueryChanged.cancel();
     }, [query]);
-
-    // const onQueryChanged = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    //     setQuery(event.target.value);
-    // };
 
     const onQueryChanged = (val: string) => {
         setQuery(val);
@@ -58,27 +49,23 @@ function SearchBar(props: SearchBarProps) {
     };
 
     return (
-        // <Grid container={true} classes={{ root: classes.searchBarRoot }}>
-        //     <Grid item={true} container={true} xs={true}>
-        //         <InputBase
-        //             classes={{ root: classes.searchText }}
-        //             placeholder={"Search for " + props.type}
-        //             value={query}
-        //             onChange={onQueryChanged}
-        //             onKeyDown={onKeyDown}
-        //             aria-label="search-for-connectors"
-        //             data-testid="search-input"
-        //         />
-        //     </Grid>
-        // </Grid>
-        
-        <SearchBox
-            placeholder={"Search for " + props.type}
-            onChange={(val: string ) => onQueryChanged(val)}
-            value={query}
-            iconPosition="end"                    
-            data-testid="search-input"
-        />
+        <div style={{
+            height: '40px',
+            padding: '16px',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+        }}>
+            <SearchBox
+                placeholder={"Search for " + props.type}
+                onChange={(val: string) => onQueryChanged(val)}
+                value={query}
+                iconPosition="end"
+                aria-label="search-for-connectors"
+                data-testid="search-input"
+                sx={{ width: '100%' }}
+            />
+        </div>
 
     );
 }

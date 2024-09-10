@@ -11,36 +11,33 @@ import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "
 
 
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
-import { useVisualizerContext } from '../../../Context';
-import { Card, Grid, GridItem, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
-// import { CloseRounded } from "@material-ui/icons";
-// import {
-//     BallerinaConstruct,
-//     BallerinaModuleResponse,
-//     DiagramEditorLangClientInterface,
-//     LOAD_CONNECTOR_LIST,
-//     LowcodeEvent,
-//     SEARCH_CONNECTOR,
-//     SELECT_CONNECTOR
-// } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import {
-//     ButtonWithIcon,
-//     IconBtnWithText
-// } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { Grid, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 import { LocalVarDecl } from "@wso2-enterprise/syntax-tree";
 
-// import { FilterIcon } from "../../../../../assets/icons";
-// import { Context } from "../../../../../Contexts/Diagram";
-// import { UserState } from "../../../../../types";
-// import { wizardStyles as useFormStyles } from "../style";
-
-// import FilterByMenu from "./FilterByMenu";
 import ModuleCard from "./ModuleCard";
-// import SearchBar from "./SearchBar";
 import useStyles from "./style";
 import { BallerinaRpcClient, useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2-enterprise/ballerina-core";
 import SearchBar from "./SearchBar";
+import styled from "@emotion/styled";
+
+
+const GridContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+`;
+
+const LoadingContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    height: 15vh;
+    justify-content: center;
+    padding-top: 16px;
+    width: 100%;
+`;
 
 export interface MarketplaceProps {
     currentFilePath: string;
@@ -73,30 +70,14 @@ export enum BallerinaModuleType {
 }
 
 export function Marketplace(props: MarketplaceProps) {
-    const { setActivePanel } = useVisualizerContext();
     const { rpcClient } = useRpcContext();
- 
-    
-    
-    
     const classes = useStyles();
-    // const formClasses = useFormStyles();
     const { onSelect, title, currentFilePath, onClose } = props;
-    // const {
-    //     props: { currentFile, userInfo },
-    //     api: {
-    //         // helpPanel: { openConnectorHelp },
-    //         ls: { getDiagramEditorLangClient },
-    //         insights: { onEvent },
-    //     },
-    // } = useContext(Context);
+
 
     const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    // const [selectedCategory, setSelectedCategory] = useState("");
-    // const [filterState, setFilterState] = useState<FilterStateMap>({});
-    // const [showFilters, setShowFilters] = useState(false);
 
     const currentPage = useRef(1);
     const fetchCount = useRef(0);
@@ -117,10 +98,7 @@ export function Marketplace(props: MarketplaceProps) {
     let localModuleComponents: ReactNode[] = [];
 
     const onSelectModule = (balModule: BallerinaConstruct) => {
-        // trackItemSelect(balModule);
-        console.log("balModule", balModule);
         onSelect(balModule, rpcClient, undefined);
-        // openConnectorHelp(balModule);
     };
 
     const getModuleComponents = (balModules: Map<string, BallerinaConstruct>): ReactNode[] => {
@@ -151,8 +129,6 @@ export function Marketplace(props: MarketplaceProps) {
             limit: pageLimit,
             page,
         };
-        // const langClient = await getDiagramEditorLangClient();
-        // const connectorWizardClient = rpcClient.getConnectorWizardRpcClient();
         const response: BallerinaModuleResponse = await props.fetchModulesList(queryParams, currentFilePath,
             rpcClient);
         localModules.current.clear();
@@ -197,26 +173,7 @@ export function Marketplace(props: MarketplaceProps) {
 
     const onSearchButtonClick = (query: string) => {
         setSearchQuery(query);
-        // if (query && query.length >= 3) {
-        //     // const event: LowcodeEvent = {
-        //     //     type: SEARCH_CONNECTOR,
-        //     //     connectorName: query
-        //     // };
-        //     // onEvent(event);
-        // }
     };
-
-    // const updateCategory = (category: string) => {
-    //     setSelectedCategory(category);
-    // };
-
-    // const clearCategory = () => {
-    //     setSelectedCategory("");
-    // };
-
-    // const toggleFilters = () => {
-    //     setShowFilters(!showFilters);
-    // };
 
     const handleModulesListScroll = (e: React.UIEvent<HTMLElement>) => {
         const bottom = Math.floor(e.currentTarget.scrollHeight - e.currentTarget.scrollTop) <= e.currentTarget.clientHeight;
@@ -226,52 +183,6 @@ export function Marketplace(props: MarketplaceProps) {
         }
     };
 
-    // const trackItemSelect = (balModule: BallerinaConstruct) => {
-    //     const customDimensions: any = {
-    //         organization: balModule?.package?.organization,
-    //         connectorName: balModule?.package?.name,
-    //         version: balModule?.package?.version,
-    //         // queryFilterBy needs to added once properly implemented
-    //     }
-    //     if (selectedCategory) {
-    //         customDimensions.queryCategory = selectedCategory;
-    //         const [mainCategory, subCategory] = selectedCategory.split('/');
-    //         customDimensions.mainCategory = mainCategory;
-    //         if (subCategory) {
-    //             customDimensions.subCategory = subCategory;
-    //         }
-    //     }
-    //     if (searchQuery) {
-    //         customDimensions.querySearch = searchQuery;
-    //     }
-    //     // const event: LowcodeEvent = {
-    //     //     type: SELECT_CONNECTOR,
-    //     //     property: customDimensions
-    //     // };
-    //     // onEvent(event);
-    // }
-
-    // const trackFilterChange = () => {
-    //     if (selectedCategory || searchQuery) {
-    //         const customDimensions: any = {}
-    //         if (selectedCategory) {
-    //             customDimensions.queryCategory = selectedCategory;
-    //             const [mainCategory, subCategory] = selectedCategory.split('/');
-    //             customDimensions.mainCategory = mainCategory;
-    //             if (subCategory) {
-    //                 customDimensions.subCategory = subCategory;
-    //             }
-    //         }
-    //         if (searchQuery) {
-    //             customDimensions.querySearch = searchQuery;
-    //         }
-    //         // const event: LowcodeEvent = {
-    //         //     type: LOAD_CONNECTOR_LIST,
-    //         //     property: customDimensions
-    //         // };
-    //         // onEvent(event);
-    //     }
-    // }
 
     if (!isSearchResultsFetching) {
         centralModuleComponents = getModuleComponents(centralModules.current);
@@ -282,140 +193,74 @@ export function Marketplace(props: MarketplaceProps) {
         return (
             <>
                 {shortName !== "Triggers" ? (
-                            <Typography variant="h4">{modulesListTitle}</Typography>
+                    <Typography variant="h4">{modulesListTitle}</Typography>
                 ) : null}
-                 <div id="module-list-container"  style={{overflowY: 'scroll',padding: '15px 20px', height: '80vh', display: 'flex', width: '100%'}}>
-                <Grid columns={3} >
-                    {modules}
-                </Grid>
+                <div id="module-list-container" style={{ overflowY: 'scroll', display: 'flex', width: '100%' }}>
+                    <GridContainer>
+                        {modules}
+                    </GridContainer>
                 </div>
             </>
         );
     };
 
     const loadingScreen = (
-            <>
-                <div>
-                    <ProgressRing data-testid="marketplace-search-loader" />
-                </div>
-                <div>
-                    <Typography variant="body1">Loading {shortName}...</Typography>
-                </div>
-                </>
-
+        <>
+            <div>
+                <ProgressRing data-testid="marketplace-search-loader" />
+            </div>
+            <div>
+                <Typography variant="body1">Loading {shortName}...</Typography>
+            </div>
+        </>
     );
 
     const notFoundComponent = (
-
-                <div>
-                    <Typography variant="body1">No {shortName.toLocaleLowerCase()} found.</Typography>
-                </div>
-        
-
+        <div>
+            <Typography variant="body1">No {shortName.toLocaleLowerCase()} found.</Typography>
+        </div>
     );
 
     const modulesList = (
-        <div style={{padding: "10px", height: '80vh',
+        <div style={{
+            height: '80vh',
             overflowY: 'scroll',
-            scrollbarWidth: 'none'}} onScroll={handleModulesListScroll}>
-      
+            scrollbarWidth: 'none'
+        }} onScroll={handleModulesListScroll}>
+
             {localModules.current.size > 0 && renderModulesList("Local " + shortName, localModuleComponents)}
             {centralModules.current.size > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
             {isNextPageFetching && (
-                    <div>
-                        <ProgressRing data-testid="marketplace-next-page-loader" />
-                        <Typography variant="body1" className={classes.pageLoadingText}>¬
-                            Loading more {shortName}...
-                        </Typography>
-                    </div>
+                <LoadingContainer>
+                    <ProgressRing data-testid="marketplace-next-page-loader" sx={{ height: '16px', width: '16px', marginRight: '20px' }} />
+                    <Typography variant="body1" className={classes.pageLoadingText}>
+                        Loading more {shortName}...
+                    </Typography>
+                </LoadingContainer>
             )}
         </div>
     );
 
     const searchBar = <SearchBar searchQuery={searchQuery} onSearch={onSearchButtonClick} type={shortName} />;
 
-    // const selectedCategoriesChips = (
-    //     <Grid columns={12} className={classes.filterTagWrap}>
-    //         <div className={classes.filterTag}>
-    //             <Typography variant="body1">{selectedCategory}</Typography>
-    //             <ButtonWithIcon
-    //                 className={classes.filterRemoveBtn}
-    //                 onClick={clearCategory}
-    //                 icon={<CloseRounded fontSize="small" />}
-    //             />
-    //         </div>
-    //     </Grid>
-    // );
-
-    // const leftSidePanel = (
-    //     <Grid columns={4}>
-    //         <FilterByMenu
-    //             filterState={filterState}
-    //             setFilterState={setFilterState}
-    //             filterValues={[]}
-    //             selectedCategory={selectedCategory}
-    //             setCategory={updateCategory}
-    //         />
-    //     </Grid>
-    // );
-
-    // return (
-    //     <PanelContainer title="Connectors" show={true} onClose={() => { setActivePanel({ isActive: false }) }}>
-    //         <div id="module-list-container"  style={{width: '100%',
-    //         flexDirection: "row",
-    //         padding: '15px 20px',}} onWheel={preventDiagramScrolling}>
-    //             <Grid columns={12}>
-    //                 {/* <Grid columns={4}>
-    //                     <IconBtnWithText
-    //                         onClick={toggleFilters}
-    //                         className={classes.filterBtn}
-    //                         text={showFilters ? "Hide Filters" : "Filters"}
-    //                         icon={<FilterIcon filled={showFilters} />}
-    //                     />
-    //                 </Grid> */}
-    //                 {/* <Grid columns={8}>
-    //                     {searchBar}
-    //                 </Grid> */}
-    //             </Grid>
-    //             <Grid columns={12}>
-    //                 {/* {showFilters && leftSidePanel} */}
-    //                 <Grid columns={showFilters ? 8 : 12} className={classes.resultsContainer}>
-    //                     {isSearchResultsFetching && loadingScreen}
-
-    //                     {/* {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips} */}
-    //                     {!isSearchResultsFetching &&
-    //                         (centralModules.current.size > 0 || localModules.current.size > 0) &&
-    //                         modulesList}
-
-    //                     {!isSearchResultsFetching &&
-    //                         centralModules.current.size === 0 &&
-    //                         localModules.current.size === 0 &&
-    //                         notFoundComponent}
-    //                 </Grid>
-    //             </Grid>
-    //         </div>
-    //     </PanelContainer>
-    // );
-
     return (
-        <PanelContainer title="Connectors" show={true} width={'500px'} onClose={onClose}>
-                                   {searchBar}
-                {/* <Grid columns={3}  className={classes.resultsContainer}> */}
-                <div onWheel={preventDiagramScrolling}>
-                        {isSearchResultsFetching && loadingScreen}
+        <PanelContainer title="Connectors" show={true} width={'600px'} onClose={onClose}>
+            {searchBar}
+            <div
+                id="module-list-container"
+                style={{ width: '100%', flexDirection: "row", padding: '15px 20px' }}
+                onWheel={preventDiagramScrolling}
+            >
+                {isSearchResultsFetching && loadingScreen}
+                {!isSearchResultsFetching &&
+                    (centralModules.current.size > 0 || localModules.current.size > 0) &&
+                    modulesList}
 
-                        {/* {!isSearchResultsFetching && selectedCategory !== "" && selectedCategoriesChips} */}
-                        {!isSearchResultsFetching &&
-                            (centralModules.current.size > 0 || localModules.current.size > 0) &&
-                            modulesList}
-
-                        {!isSearchResultsFetching &&
-                            centralModules.current.size === 0 &&
-                            localModules.current.size === 0 &&
-                            notFoundComponent}
-                            </div>
-                {/* </Grid> */}
-            {/* </div> */}
+                {!isSearchResultsFetching &&
+                    centralModules.current.size === 0 &&
+                    localModules.current.size === 0 &&
+                    notFoundComponent}
+            </div>
         </PanelContainer>
     );
 }
