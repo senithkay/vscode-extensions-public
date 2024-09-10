@@ -85,7 +85,7 @@ export function ResourceResponse(props: ResourceParamProps) {
         if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method)) && !paramConfig.type.includes("error")) {
             modifiedParamConfig = {
                 ...paramConfig,
-                source: getResponseRecordCode(paramConfig.code, paramConfig.type)
+                source: getResponseRecordCode(paramConfig.code as number, paramConfig.type)
             };
         } else if (paramConfig.type && (paramConfig.code === getDefaultResponse(method))) {
             modifiedParamConfig = {
@@ -100,7 +100,7 @@ export function ResourceResponse(props: ResourceParamProps) {
         } else {
             modifiedParamConfig = {
                 ...paramConfig,
-                source: getSourceFromResponseCode(paramConfig.code)
+                source: getSourceFromResponseCode(paramConfig.code as number)
             };
         }
         if (paramConfig.type === "error" || paramConfig.type === "error?") {
@@ -117,7 +117,7 @@ export function ResourceResponse(props: ResourceParamProps) {
                 source: defineRecordName
             };
             if (defineRecordName !== paramConfig.namedRecord) {
-                const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
+                const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code as number, paramConfig.type);
                 addNameRecord(recordCode);
             }
         }

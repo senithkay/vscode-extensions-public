@@ -45,8 +45,8 @@
     ],
     "commands": [
       {
-        "command": "APIDesigner.openWelcome",
-        "title": "Open APIDesigner Welcome",
+        "command": "APIDesigner.openAPIDesigner",
+        "title": "Open API Designer",
         "category": "APIDesigner"
       }
     ],

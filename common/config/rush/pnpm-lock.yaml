@@ -369,6 +369,7 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/api-designer-core': workspace:*
       '@wso2-enterprise/api-designer-rpc-client': workspace:*
+      '@wso2-enterprise/service-designer': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -417,6 +418,7 @@ importers:
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/api-designer-core': link:../api-designer-core
       '@wso2-enterprise/api-designer-rpc-client': link:../api-designer-rpc-client
+      '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       fast-xml-parser: 4.3.6
       mustache: 4.2.0
@@ -7031,17 +7033,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -23420,7 +23411,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

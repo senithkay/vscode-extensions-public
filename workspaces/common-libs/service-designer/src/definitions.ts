@@ -12,12 +12,13 @@ import { Item } from "@wso2-enterprise/ui-toolkit";
 
 export interface ResponseConfig {
     id: number;
-    code?: number;
+    code?: number | string;
     type?: string;
     source?: string;
     isNew?: boolean;
     defaultCode?: number;
     namedRecord?: string;
+    description?: string;
 }
 
 export enum PARAM_TYPES {

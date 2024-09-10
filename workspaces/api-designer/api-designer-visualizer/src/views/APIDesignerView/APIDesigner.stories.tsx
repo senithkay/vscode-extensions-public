@@ -7,8 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const COMMANDS = {
-    PROJECT_EXPLORER: "APIDesigner.project-explorer",
-    PROJECT_EXPLORER_REFRESH: "APIDesigner.project-explorer.refresh",
-    OPEN_WELCOME: "APIDesigner.openAPIDesigner"
+// import React from "react";
+import { APIDesigner } from "./APIDesigner";
+import petstoreJSON from "./Data/petstore.json";
+
+export default {
+    component: APIDesigner,
+    title: 'API Designer',
+};
+
+const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
+
+export const APIDesignerStory = () => {
+    return (
+        <APIDesigner openAPIDefinition={apiDefinition}/>
+    );
 };
