@@ -93,6 +93,7 @@ export default function UnionType(props: TypeProps) {
                             value={selectedMemberType}
                             items={memberTypes}
                             data-testid="arg-dropdown-component"
+                            sx={{ marginLeft: '5px' }}
                         />
                     </div>
                 </div>
