@@ -29,7 +29,7 @@ export function DataMapper(props: DataMapperProps) {
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
-    const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
+    const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource, fileContent);
 
     const updateFileContent = async (newContent: string) => {
         try {
