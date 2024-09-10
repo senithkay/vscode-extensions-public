@@ -403,7 +403,7 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                     handlePopupClose={props.handlePopupClose}
                 />
             ) : (
-                <FormView title={`Add New Connection`} onClose={props.handlePopupClose ?? handleOnClose} hideClose={props.isPopup}>
+                <FormView title={`Add New Connection`} onClose={props.handlePopupClose ?? handleOnClose}>
                     <span>Please select a connector to create a connection.</span>
                     {isGeneratingForm ? (
                         <LoaderWrapper>
