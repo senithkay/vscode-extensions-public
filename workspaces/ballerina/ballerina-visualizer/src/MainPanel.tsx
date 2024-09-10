@@ -115,7 +115,7 @@ const MainPanel = () => {
             rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
             await langServerRPCClient.updateFileContent({
                 content: newSource,
-                fileUri: filePath
+                filePath
             });
         }
     };

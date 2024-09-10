@@ -32,7 +32,7 @@ import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { NOT_SUPPORTED } from "../../core";
-import { updateFileContent } from "../../utils/modification";
+import { modifyFileContent } from "../../utils/modification";
 
 export let hasStopped: boolean = false;
 
@@ -258,7 +258,7 @@ public function main() {
         const fn = getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
     
         if (fn && fn.source !== oldSource) {
-            updateFileContent({ fileUri, content: source });
+            modifyFileContent({ filePath, content: source });
             updateView();
     
             return { newFnPosition: fn.position };
@@ -290,7 +290,7 @@ public function main() {
             });
     
             const { source } = res as SyntaxTree;
-            updateFileContent({ fileUri, content: source });
+            modifyFileContent({ filePath, content: source });
             updateView();
         }
     
