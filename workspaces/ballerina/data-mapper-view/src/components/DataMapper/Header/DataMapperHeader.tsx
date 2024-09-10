@@ -61,8 +61,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
-                    <AutoMapButton onClick={handleAutoMap} />
-                    {/* {experimentalEnabled && <AutoMapButton onClick={handleAutoMap} />} */}
+                    {/* <AutoMapButton onClick={handleAutoMap} /> */}
+                    {experimentalEnabled && <AutoMapButton onClick={handleAutoMap} />}
                     {/* <ConfigureButton onClick={onConfigOpen}/> */}
                 </>
             )}

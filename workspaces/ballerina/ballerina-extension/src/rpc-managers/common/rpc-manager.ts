@@ -30,6 +30,7 @@ import * as os from 'os';
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { getUpdatedSource } from "./utils";
+import { ballerinaExtInstance } from "../../core";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {
@@ -151,6 +152,10 @@ export class CommonRpcManager implements CommonRPCAPI {
                 resolve({ path: parentDir });
             }
         });
+    }
+
+    async experimentalEnabled(): Promise<boolean> {
+        return ballerinaExtInstance.enabledExperimentalFeatures();
     }
 }
 

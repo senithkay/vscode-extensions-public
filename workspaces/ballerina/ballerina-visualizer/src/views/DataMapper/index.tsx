@@ -7,12 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React from "react";
+
+import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { STModification, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
+import { useExperimentalEnabled } from "../../Hooks";
+import { LoadingRing } from "../../components/Loader";
 
 interface DataMapperProps {
     filePath: string;
@@ -26,6 +29,8 @@ export function DataMapper(props: DataMapperProps) {
     const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();
+
+    const { experimentalEnabled, isFetchingExperimentalEnabled } = useExperimentalEnabled();
 
     const goToFunction = async (entry: HistoryEntry) => {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
@@ -50,6 +55,10 @@ export function DataMapper(props: DataMapperProps) {
         );
     };
 
+    if (isFetchingExperimentalEnabled) {
+        return <LoadingRing />;
+    }
+
     return (
         <DataMapperView
             fnST={model}
@@ -59,6 +68,7 @@ export function DataMapper(props: DataMapperProps) {
             applyModifications={applyModifications}
             goToFunction={goToFunction}
             renderRecordPanel={renderRecordPanel}
+            experimentalEnabled={experimentalEnabled}
         />
     );
 };
