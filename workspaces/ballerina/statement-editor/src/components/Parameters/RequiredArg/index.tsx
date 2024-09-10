@@ -43,7 +43,7 @@ export function RequiredArg(props: RequiredArgProps) {
         >
             <VSCodeCheckbox
                 checked={param.modelPosition !== undefined}
-                {...(isMandatory && { disabled: true })}        
+                {...(isMandatory && { disabled: true })}
                 onClick={isMandatory ? undefined : handleCheckboxClick(param)}
                 className={statementEditorHelperClasses.parameterCheckbox}
                 data-testid="arg-check"

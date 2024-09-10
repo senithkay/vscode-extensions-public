@@ -37,7 +37,7 @@ export default function CustomType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <VSCodeCheckbox
                         checked={paramSelected}
-                        {...(requiredParam && { disabled: true })}        
+                        {...(requiredParam && { disabled: true })}
                         onClick={toggleParamCheck}
                         data-testid="arg-check"
                         className={stmtEditorHelperClasses.parameterCheckbox}
