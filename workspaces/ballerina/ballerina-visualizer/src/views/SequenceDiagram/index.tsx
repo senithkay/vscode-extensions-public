@@ -144,43 +144,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             <Container>{!!activeFileInfo?.activeSequence &&
                 <LowCodeDiagram syntaxTree={activeFileInfo?.activeSequence} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} onDeleteComponent={handleDeleteComponent} />
             }</Container>
-            {/* <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
-                {showStatementEditor ? 
-                    (
-                        <StatementEditorComponent
-                                label= {"Variable"}
-                                config={{type: "Variable", model: null}}
-                                initialSource = {initialSource}
-                                applyModifications={applyModifications}
-                                currentFile={{
-                                    content: "",
-                                    path: filePath,
-                                    size: 1
-                                }}
-                                onCancel={cancelStatementEditor}
-                                onClose={closeStatementEditor}
-                                syntaxTree={parsedST}
-                                targetPosition={statementPosition}
-                            />
-                    )
-                    :
-                (<NodeList categories={[{
-                    title: "Flow Nodes",
-                    description: "Flow nodes description",
-                    items: [
-                        {
-                            id: "1",
-                            label: "variable",
-                            description: "variable description",
-                            enabled: true,
-                        }
-                    ]
-                }]} onSelect={(id: string) => {
-                    console.log(id);
-                    setShowStatementEditor(true);
-                }} />)
-            }
-            </PanelContainer> */}
         </>
     );
 }

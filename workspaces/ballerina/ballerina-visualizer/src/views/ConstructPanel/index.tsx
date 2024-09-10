@@ -39,7 +39,6 @@ export function ConstructPanel(props: ConstructPanelProps) {
 
 
     const handleOnSelectNode = (nodeId: string) => {
-        console.log(nodeId);
         // create the intial source for the statement editor
         const stSymbolInfo = getSymbolInfo();
         const allVariables = stSymbolInfo ? getAllVariables(stSymbolInfo) : [];
@@ -54,7 +53,6 @@ export function ConstructPanel(props: ConstructPanelProps) {
         } else if (nodeId === "Connector") {
             setActivePanel({ isActive: false });
             setSidePanel("ADD_CONNECTION");
-
         } else if (nodeId === "Action") {
             setActivePanel({ isActive: false });
             setSidePanel("ADD_ACTION");
@@ -65,8 +63,6 @@ export function ConstructPanel(props: ConstructPanelProps) {
             setSelectedNode(nodeId);
             setShowStatementEditor(true);
         }
-
-        
     }
 
 

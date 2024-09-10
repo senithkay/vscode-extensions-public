@@ -51,7 +51,6 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         formArgs
     } = props;
 
-    console.log("FormArgs", formArgs);
 
     const openExternalUrl = (url: string) => {
         rpcClient.getCommonRpcClient().openExternalUrl({ url: url});

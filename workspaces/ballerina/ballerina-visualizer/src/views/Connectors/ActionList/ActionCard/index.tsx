@@ -21,7 +21,6 @@ interface ActionCardProps {
 }
 
 export function ActionCard(props: ActionCardProps) {
-    // const classes = useStyles();
     const { action, onSelect } = props;
 
     const name = action.displayAnnotation?.label || action.name;

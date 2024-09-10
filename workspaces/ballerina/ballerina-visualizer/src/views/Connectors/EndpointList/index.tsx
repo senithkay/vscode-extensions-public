@@ -133,7 +133,6 @@ export function EndpointList(props: EndpointListProps) {
         setSelectedEndpoint(endpointName);
         setIsClassField(classField ?? false);
         const connectorMetadata = await fetchConnectorInfo(connector, rpcClient, activeFileInfo?.filePath);
-        console.log("connectorMetadata", connectorMetadata);
         setSelectedConnector(connectorMetadata);
         setWizardStep(WizardStep.ACTION_LIST);
         setIsLoadingActions(false);
@@ -230,7 +229,6 @@ export function EndpointList(props: EndpointListProps) {
     }
 
     const onSelectAction = (action: any) => {
-        console.log("Selected action", action);
         setSelectedAction(action);
         setWizardStep(WizardStep.ACTION_FROM);
     }

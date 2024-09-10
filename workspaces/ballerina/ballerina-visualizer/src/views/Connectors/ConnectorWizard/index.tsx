@@ -27,15 +27,10 @@ import { PackageLoader } from "../PackageLoader";
 
 
 export interface ConnectorListProps {
-    // onSelect: (connector: BallerinaConnectorInfo, selectedConnector: LocalVarDecl) => void;
-    // onChange?: (type: string, subType: string, connector?: BallerinaConnectorInfo) => void;
-    // onCancel?: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ConnectorList(props: ConnectorListProps) {
-    // const { onCancel } = props;
-    // const { onSelect } = props.configOverlayFormStatus.formArgs as ConnectorListProps;
     const { applyModifications } = props;
     const [pullingPackage, setPullingPackage] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<BallerinaConnectorInfo>();
@@ -46,13 +41,12 @@ export function ConnectorList(props: ConnectorListProps) {
 
     const { rpcClient } = useRpcContext();
 
-    useEffect( () => {
+    useEffect(() => {
         if (
             pullingPackage &&
             selectedConnector?.package?.organization &&
             selectedConnector.package.name
         ) {
-            console.log("==pulling package");
             // setPullingPackage(true);
             const imports = getConnectorImports(activeFileInfo?.fullST, selectedConnector.package.organization, selectedConnector.moduleName, true);
             if (imports && imports?.size > 0) {
@@ -75,19 +69,13 @@ export function ConnectorList(props: ConnectorListProps) {
                         console.error('Something wrong when pulling package: ', err);
                     })
                     .finally(async () => {
-                        console.log("==pulling package SET FALSE");
                         setPullingPackage(false);
-                        console.log("==pulling package DONE SET FALSE");
                         // get the initial source
                         const stSymbolInfo = getSymbolInfo();
-                        const initialSource = await getInitialSourceForConnectors(selectedConnector, statementPosition, stSymbolInfo, activeFileInfo.activeSequence );
+                        const initialSource = await getInitialSourceForConnectors(selectedConnector, statementPosition, stSymbolInfo, activeFileInfo.activeSequence);
                         setInitialSource(initialSource);
                         setShowStatementEditor(true);
                     });
-            } else {
-                // get the initial source
-                console.log("==no imports");
-
             }
         }
     }, [selectedConnector]);
@@ -106,9 +94,6 @@ export function ConnectorList(props: ConnectorListProps) {
         if (category) {
             request.keyword = category;
         }
-        // if (userInfo && filterState && filterState.hasOwnProperty("My Organization")) {
-        //     request.organization = userInfo.selectedOrgHandle;
-        // }
         if (page) {
             request.offset = (page - 1) * (limit || 5);
         }
@@ -116,16 +101,9 @@ export function ConnectorList(props: ConnectorListProps) {
     };
 
     const onSelect = async (balModule: BallerinaConstruct, langClient: BallerinaRpcClient) => {
-        // get metadata
         setPullingPackage(true);
-        // create a get connector implementation
         const connectorMetadata = await fetchConnectorInfo(balModule, langClient, activeFileInfo?.filePath);
-        console.log ("connectorMetadata", connectorMetadata);
         setSelectedConnector(connectorMetadata);
-        // pull the module
-        // generate initialSource
-        // do ST modification
-    
     }
 
     const closeStatementEditor = () => {
@@ -144,12 +122,12 @@ export function ConnectorList(props: ConnectorListProps) {
 
     return (
         <>
-            {pullingPackage && 
-            (
-                <PanelContainer title="Pulling packages" show={true} onClose={() => setActivePanel({ isActive: false })}>
-                    <PackageLoader />
-                </PanelContainer>
-            )}
+            {pullingPackage &&
+                (
+                    <PanelContainer title="Pulling packages" show={true} onClose={() => setActivePanel({ isActive: false })}>
+                        <PackageLoader />
+                    </PanelContainer>
+                )}
             {activeFileInfo?.filePath && !selectedConnector && !pullingPackage &&
                 <Marketplace
                     currentFilePath={activeFileInfo?.filePath}
@@ -185,7 +163,7 @@ export function ConnectorList(props: ConnectorListProps) {
                         extraModules={getConnectorImports(activeFileInfo?.fullST, selectedConnector?.package?.organization, selectedConnector?.moduleName)}
 
                     />
-                )
+                    )
                 </PanelContainer>
 
             }

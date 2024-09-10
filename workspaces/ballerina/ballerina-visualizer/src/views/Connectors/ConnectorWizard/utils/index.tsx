@@ -1,4 +1,13 @@
-import { BallerinaConnectorInfo, BallerinaModuleResponse, BallerinaConnectorsRequest, BallerinaConstruct, ConnectorParams, ConnectorRequest, getFormattedModuleName, getInitialSource, createObjectDeclaration, genVariableName, getAllVariables, createCheckObjectDeclaration, STSymbolInfo, FormField, FormFieldChecks, PrimitiveBalType, getFieldName, FormFieldReturnType, PathParam } from "@wso2-enterprise/ballerina-core";
+/**
+ * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { BallerinaConnectorInfo, BallerinaConstruct, ConnectorRequest, getFormattedModuleName, getInitialSource, createObjectDeclaration, genVariableName, getAllVariables, createCheckObjectDeclaration, STSymbolInfo, FormField, FormFieldChecks, PrimitiveBalType, getFieldName, FormFieldReturnType, PathParam } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { BlockStatement, DoStatement, ForeachStatement, IfElseStatement, ModulePart, NodePosition, QualifiedNameReference, STKindChecker, STNode, traversNode, VisibleEndpoint, WhileStatement } from "@wso2-enterprise/syntax-tree";
 import { returnTypeVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
@@ -228,7 +237,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     const returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
-                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponse.importTypeInfo ];
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
 
                     // collector
                     if (returnType && returnType !== "var") {
@@ -243,7 +252,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                             return `${fullType}${subType !== "?" ? "|" : ""}${subType}`;
                         });
                     } else {
-                        response.returnType = returnTypes[ 0 ];
+                        response.returnType = returnTypes[0];
                         if (response.returnType === "?") {
                             response.hasReturn = false;
                         }
@@ -264,7 +273,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     response.returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
-                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponse.importTypeInfo ];
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                 }
 
                 if (response.returnType && formField.typeName === PrimitiveBalType.Array) {
@@ -280,11 +289,11 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 let returnTypeResponseRight = null;
                 if (formField?.leftTypeParam) {
                     returnTypeResponseLeft = getFormFieldReturnType(formField.leftTypeParam, depth + 1);
-                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo ];
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseLeft.importTypeInfo];
                 }
                 if (formField?.rightTypeParam) {
                     returnTypeResponseRight = getFormFieldReturnType(formField.rightTypeParam, depth + 1);
-                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo ];
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponseRight.importTypeInfo];
                 }
                 if (
                     returnTypeResponseLeft.returnType &&
@@ -310,7 +319,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     const returnType = returnTypeResponse.returnType;
                     response.hasError = returnTypeResponse.hasError || response.hasError;
                     response.hasReturn = returnTypeResponse.hasReturn || response.hasReturn;
-                    response.importTypeInfo = [ ...response.importTypeInfo, ...returnTypeResponse.importTypeInfo ];
+                    response.importTypeInfo = [...response.importTypeInfo, ...returnTypeResponse.importTypeInfo];
                     // collector
                     if (returnType && returnType !== "var") {
                         returnTypes.push(returnType);
@@ -318,7 +327,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                 });
 
                 if (returnTypes.length > 0) {
-                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(",")}]` : returnTypes[ 0 ];
+                    response.returnType = returnTypes.length > 1 ? `[${returnTypes.join(",")}]` : returnTypes[0];
                 }
                 break;
 
@@ -421,24 +430,23 @@ export async function getInitialSourceForConnectors(connector: BallerinaConnecto
             // Adding new endpoint
             const initFunction = (connector as BallerinaConnectorInfo).functions?.find((func) => func.name === "init");
             if (initFunction) {
-                console.log("initFunction", initFunction);
                 const defaultParameters = getDefaultParams(initFunction.parameters);
                 const returnType = getFormFieldReturnType(initFunction.returnType);
 
                 initialSource = getInitialSource(
                     (returnType?.hasError && (parentWithError)) // INFO: New code actions will update parent function and `check` keyword
                         ? createCheckObjectDeclaration(
-                              `${moduleName}:${connector.name}`,
-                              genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
-                              defaultParameters,
-                              targetPosition
-                          )
+                            `${moduleName}:${connector.name}`,
+                            genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
+                            defaultParameters,
+                            targetPosition
+                        )
                         : createObjectDeclaration(
-                              `${moduleName}:${connector.name}`,
-                              genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
-                              defaultParameters,
-                              targetPosition
-                          )
+                            `${moduleName}:${connector.name}`,
+                            genVariableName(`${moduleName}Ep`, getAllVariables(stSymbolInfo)),
+                            defaultParameters,
+                            targetPosition
+                        )
                 );
             } else {
                 initialSource = getInitialSource(
@@ -644,7 +652,7 @@ export function getReturnTypeImports(returnType: FormFieldReturnType) {
     return imports;
 }
 
-export function getPathParams(params: PathParam[]): string[]{
+export function getPathParams(params: PathParam[]): string[] {
     if (!params) { return []; }
     const pathParams: string[] = [];
     params.forEach((param) => {
@@ -652,17 +660,17 @@ export function getPathParams(params: PathParam[]): string[]{
             case "token":
                 pathParams.push(param.name);
                 break;
-                case PrimitiveBalType.String:
-                    pathParams.push(`["${param.name}"]`);
-                    break;
-                case PrimitiveBalType.Int:
-                    case PrimitiveBalType.Float:
-                        case PrimitiveBalType.Decimal:
-                    pathParams.push(`[0]`);
-                    pathParams.push(`[0]`);
-                    break;
-                default:
-                    // Skip other tokens
+            case PrimitiveBalType.String:
+                pathParams.push(`["${param.name}"]`);
+                break;
+            case PrimitiveBalType.Int:
+            case PrimitiveBalType.Float:
+            case PrimitiveBalType.Decimal:
+                pathParams.push(`[0]`);
+                pathParams.push(`[0]`);
+                break;
+            default:
+            // Skip other tokens
         }
     });
     return pathParams;
@@ -672,7 +680,7 @@ export function retrieveUsedAction(actionModel: STNode, connector?: BallerinaCon
     let methodName = "";
     let methods = connector.functions;
 
-    
+
 
     if (
         STKindChecker.isLocalVarDecl(actionModel) &&
