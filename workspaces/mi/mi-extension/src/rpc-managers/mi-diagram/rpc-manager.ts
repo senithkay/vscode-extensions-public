@@ -214,7 +214,8 @@ import {
     DSSFetchTablesResponse,
     DSSQueryGenRequest,
     AddDriverToLibResponse,
-    AddDriverToLibRequest
+    AddDriverToLibRequest,
+    APIContextsResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -1254,6 +1255,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ data: [] });
+        });
+    }
+
+    async getAllAPIcontexts(): Promise<APIContextsResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+
+                const contexts: string[] = [];
+
+                for (const api of artifacts.apis) {
+                    contexts.push(api.context);
+                }
+
+                resolve({ contexts: contexts });
+            }
+
+            resolve({ contexts: [] });
         });
     }
 
