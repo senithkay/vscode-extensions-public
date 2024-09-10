@@ -9,11 +9,13 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    GetOpenAPIContentRequest,
     GoToSourceRequest,
     HistoryEntry,
     OpenViewRequest,
     addToHistory,
     getHistory,
+    getOpenApiContent,
     goBack,
     goHome,
     goToSource,
@@ -30,4 +32,5 @@ export function registerApiDesignerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
+    messenger.onRequest(getOpenApiContent, (args: GetOpenAPIContentRequest) => rpcManger.getOpenApiContent(args));
 }

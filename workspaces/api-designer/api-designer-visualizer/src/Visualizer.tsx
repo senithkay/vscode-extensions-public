@@ -14,8 +14,6 @@ import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
-import { WelcomeView } from "./views/WelcomeView";
-import { APIDesigner } from "./views/APIDesignerView/APIDesigner";
 import petstoreJSON from "./views/APIDesignerView/Data/petstore.json";
 
 const LoaderWrapper = styled.div`
@@ -81,8 +79,8 @@ const VisualizerComponent = React.memo(({ state, handleResetError }: { state: Ma
     switch (true) {
         case typeof state === 'object' && 'ready' in state && state.ready === "viewReady":
             return <MainPanel handleResetError={handleResetError} />;
-        case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
-            return <APIDesigner openAPIDefinition={apiDefinition}/>;
+        // case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
+        //     return <APIDesigner openAPIDefinition={apiDefinition} fileUri={fileUri}/>;
         case state === 'disabled':
             return <>Disabled View</>
         default:

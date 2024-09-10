@@ -8,17 +8,14 @@
  */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-import { commands, window } from 'vscode';
-import { StateMachine, openView } from '../stateMachine';
+import { openView } from '../stateMachine';
 import { COMMANDS } from '../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
-import { extension } from '../APIDesignerExtensionContext';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
+        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, async (file: string = "/Users/tharinduj/Documents/wso2/git/ballerina-plugin-vscode/workspaces/api-designer/api-designer-visualizer/src/views/APIDesignerView/Data/petstore.json") => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome, documentUri: file });
         })
     );
 }

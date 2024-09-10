@@ -12,6 +12,8 @@ import {
     OpenViewRequest,
     HistoryEntryResponse,
     GoToSourceRequest,
+    GetOpenAPIContentRequest,
+    GetOpenAPIContentResponse,
 } from "./types";
 
 export interface APIDesignerVisualizerAPI {
@@ -21,4 +23,5 @@ export interface APIDesignerVisualizerAPI {
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;
     goToSource: (params: GoToSourceRequest) => void;
+    getOpenApiContent: (params: GetOpenAPIContentRequest) => Promise<GetOpenAPIContentResponse>;
 }

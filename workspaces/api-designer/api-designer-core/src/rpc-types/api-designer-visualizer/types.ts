@@ -34,3 +34,12 @@ export interface Range {
         column: number;
     };
 }
+
+export interface GetOpenAPIContentResponse {
+    content: string;
+    type: "yaml" | "json" | undefined;
+}
+
+export interface GetOpenAPIContentRequest {
+    filePath: string;
+}

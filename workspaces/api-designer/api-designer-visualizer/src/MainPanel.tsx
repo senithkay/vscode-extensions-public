@@ -7,6 +7,8 @@ import styled from '@emotion/styled';
 import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { NavigationBar } from './components/NavigationBar';
+import { APIDesigner } from './views/APIDesignerView/APIDesigner';
+import petstoreJSON from "./views/APIDesignerView/Data/petstore.json";
 
 const MainContainer = styled.div`
     display: flex;
@@ -98,12 +100,17 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
         return `${JSON.stringify(model?.range)}-${documentUri}`;
     }
 
+    const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
+
     const fetchContext = () => {
         rpcClient.getVisualizerState().then(async (machineView) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
+                    break;
+                case MACHINE_VIEW.Welcome:
+                    setViewComponent(<APIDesigner openAPIDefinition={apiDefinition} fileUri={machineView.documentUri}/>);
                     break;
                 default:
                     setViewComponent(null);

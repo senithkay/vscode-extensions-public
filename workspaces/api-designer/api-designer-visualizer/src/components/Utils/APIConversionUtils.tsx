@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import yaml from 'js-yaml';
+
 import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
 
 export function resolveResponseType(response: Response): string {
@@ -72,9 +74,6 @@ export function convertOpenAPItoService(openAPIDefinition: OpenAPI): Service {
     };
     service.port = 0;
     for (const [path, pathItem] of Object.entries(openAPIDefinition.paths)) {
-        // Regex to replace Test/{id} with ""
-        // const modidiedpath = path.replace(/\/\{.*?\}/g, "");
-        // console.log("Path: ", path);// If we have a path like /Test/{id}, we need to remove the {id} part
         const pathSegemnent = path.match(/\/\{.*?\}/g);
         for (const [method, operation] of Object.entries(pathItem)) {
             let resource: Resource = {
@@ -91,6 +90,21 @@ export function convertOpenAPItoService(openAPIDefinition: OpenAPI): Service {
         }
         
     }
-    console.log("Service: ", service);
     return service;
+}
+
+export function convertJSONtoOpenAPI(json: string): OpenAPI {
+    return JSON.parse(json);
+}
+
+export function convertYAMLtoOpenAPI(yamlString: string): OpenAPI {
+    return yaml.load(yamlString) as OpenAPI;
+}
+
+export function convertOpenAPIStringToObject(openAPIString: string, type: "yaml" | "json"): Service {
+    if (type === "yaml") {
+        return convertOpenAPItoService(convertYAMLtoOpenAPI(openAPIString));
+    } else {
+        return convertOpenAPItoService(convertJSONtoOpenAPI(openAPIString));
+    }
 }

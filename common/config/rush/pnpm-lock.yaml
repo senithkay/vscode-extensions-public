@@ -354,6 +354,7 @@ importers:
       '@storybook/react-webpack5': ~7.4.0
       '@tanstack/query-core': ^4.0.0-beta.1
       '@tanstack/react-query': 4.0.10
+      '@types/js-yaml': ~4.0.9
       '@types/lodash': ~4.14.198
       '@types/mustache': ~4.2.5
       '@types/node': ^20.10.6
@@ -374,6 +375,7 @@ importers:
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
       fast-xml-parser: ~4.3.6
+      js-yaml: ~4.1.0
       mustache: ~4.2.0
       path: ~0.12.7
       process: ~0.11.10
@@ -421,6 +423,7 @@ importers:
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       fast-xml-parser: 4.3.6
+      js-yaml: 4.1.0
       mustache: 4.2.0
       path: 0.12.7
       process: 0.11.10
@@ -443,6 +446,7 @@ importers:
       '@storybook/addon-essentials': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
       '@storybook/addon-links': 7.4.6_biqbaboplfbrettd7655fr4n2y
       '@storybook/react-webpack5': 7.4.6_ctp73pvjvd7jwhbnyft5x65shq
+      '@types/js-yaml': 4.0.9
       '@types/lodash': 4.14.202
       '@types/mustache': 4.2.5
       '@types/node': 20.11.27
