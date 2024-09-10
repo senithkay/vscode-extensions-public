@@ -24,6 +24,7 @@ export interface DataMapperHeaderProps {
     selection: SelectionState;
     hasEditDisabled: boolean;
     experimentalEnabled: boolean;
+    isEggplant?: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
     onClose?: () => void;
@@ -35,6 +36,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
         selection,
         hasEditDisabled,
         experimentalEnabled,
+        isEggplant,
         changeSelection,
         onConfigOpen,
         onClose,
@@ -61,9 +63,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
-                    {/* <AutoMapButton onClick={handleAutoMap} /> */}
                     {experimentalEnabled && <AutoMapButton onClick={handleAutoMap} />}
-                    {/* <ConfigureButton onClick={onConfigOpen}/> */}
+                    {!isEggplant && <ConfigureButton onClick={onConfigOpen} />}
                 </>
             )}
             {onClose && (

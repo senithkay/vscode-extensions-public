@@ -154,6 +154,7 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
+                                isEggplant={value.isEggplant}
                                 applyModifications={applyModifications}
                             />
                         ));

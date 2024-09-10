@@ -20,11 +20,12 @@ import { LoadingRing } from "../../components/Loader";
 interface DataMapperProps {
     filePath: string;
     model: FunctionDefinition;
+    isEggplant: boolean;
     applyModifications: (modifications: STModification[], isRecordModification?: boolean) => Promise<void>;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath, model, applyModifications } = props;
+    const { filePath, model, isEggplant, applyModifications } = props;
     const { rpcClient } = useRpcContext();
     const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
@@ -68,6 +69,7 @@ export function DataMapper(props: DataMapperProps) {
             applyModifications={applyModifications}
             goToFunction={goToFunction}
             renderRecordPanel={renderRecordPanel}
+            isEggplant={isEggplant}
             experimentalEnabled={experimentalEnabled}
         />
     );

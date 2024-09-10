@@ -170,7 +170,7 @@ export async function getParamDefinitions(
     };
 
     return response;
-};
+}
 
 export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata, nestedKey: string = ""): Promise<object> {
     let recordFields: { [key: string]: any } = {};
@@ -205,7 +205,7 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
 
         return { ...recordFields };
     }
-};
+}
 
 function getMappingString(mapping: object, parameterDefinitions: ParameterMetadata): string {
     let operation: string = mapping["operation"];
@@ -410,7 +410,7 @@ function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefini
     }
     const response = { "recordFields": recordFields, "recordFieldsMetadata": recordFieldsMetadata };
     return response;
-};
+}
 
 export async function getDatamapperCode(parameterDefinitions): Promise<object | ErrorCode> {
     try {
@@ -467,7 +467,7 @@ export function constructRecord(codeObject: object): string {
         }
     }
     return `{${recordString}}`;
-};
+}
 
 export function getFunction(modulePart: ModulePart, functionName: string) {
     const fns = modulePart.members.filter((mem) =>
@@ -514,7 +514,7 @@ async function fetchWithTimeout(url, options, timeout = 100000): Promise<Respons
             return UNKNOWN_ERROR;
         }
     }
-};
+}
 
 export function isErrorCode(error: any): boolean {
     return error.hasOwnProperty("code") && error.hasOwnProperty("message");
@@ -647,7 +647,7 @@ async function handleRecordArrays(key: string, nestedKey:string, responseRecord:
     }
 
     return { ...recordFields };
-};
+}
 
 async function filterResponse(resp: Response): Promise<string | ErrorCode> {
     if (resp.status == 200 || resp.status == 201) {
@@ -691,7 +691,7 @@ function extractKeys(key: string): { parentKey: string[], itemKey:string, combin
     let parentKey = keys.slice(0, keys.length);
     let combinedKey = parentKey.join(".");
     return { parentKey, itemKey, combinedKey };
-};
+}
 
 function checkDeeplyNestedRecordArray(parentKey: string[], parameterDefinitions: ParameterMetadata, metadataType: string): boolean {
     let currentMetadata = parameterDefinitions[metadataType];
@@ -713,4 +713,4 @@ function checkDeeplyNestedRecordArray(parentKey: string[], parameterDefinitions:
         }
     }
     return false;
-};
+}

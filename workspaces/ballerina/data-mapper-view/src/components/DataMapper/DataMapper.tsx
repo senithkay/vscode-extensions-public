@@ -200,6 +200,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         onClose,
         goToFunction: updateSelectedComponent,
         renderRecordPanel,
+        isEggplant,
         experimentalEnabled
     } = props;
     const openedViaPlus = false;
@@ -642,6 +643,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 selection={selection}
                                 hasEditDisabled={!dMSupported || !!errorKind}
                                 experimentalEnabled={experimentalEnabled}
+                                isEggplant={isEggplant}
                                 changeSelection={handleSelectedST}
                                 onConfigOpen={onConfigOpen}
                                 onClose={onClose}
