@@ -22,7 +22,13 @@ import {
     stateChanged,
     vscode,
     webviewReady,
-    projectContentUpdated
+    projectContentUpdated,
+    ParentPopupData,
+    onParentPopupSubmitted,
+    PopupMachineStateValue,
+    popupStateChanged,
+    PopupVisualizerLocation,
+    getPopupVisualizerState
 } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
@@ -128,6 +134,18 @@ export class BallerinaRpcClient {
 
     webviewReady(): void {
         this.messenger.sendNotification(webviewReady, HOST_EXTENSION);
+    }
+
+    onParentPopupSubmitted(callback: (parent: ParentPopupData) => void) {
+        this.messenger.onNotification(onParentPopupSubmitted, callback);
+    }
+
+    onPopupStateChanged(callback: (state: PopupMachineStateValue) => void) {
+        this.messenger.onNotification(popupStateChanged, callback);
+    }
+
+    getPopupVisualizerState(): Promise<PopupVisualizerLocation> {
+        return this.messenger.sendRequest(getPopupVisualizerState, HOST_EXTENSION);
     }
 
 }

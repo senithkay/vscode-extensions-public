@@ -12,3 +12,10 @@ import { FormField } from "../Form/types";
 export function isDropdownField(field: FormField) {
     return field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT";
 }
+
+export function getValueForDropdown(field: FormField) {
+    if (field.type === "MULTIPLE_SELECT") {
+        return field.value?.length > 0 ? field.value[0] : field.items[0];
+    }
+    return field.value !== "" ? field.value : field.items[0];
+}

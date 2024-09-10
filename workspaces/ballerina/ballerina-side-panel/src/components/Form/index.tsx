@@ -15,7 +15,7 @@ import styled from "@emotion/styled";
 import { FormField, FormValues } from "./types";
 import { FormFieldEditor } from "../editors/FormFieldEditor";
 import { Colors } from "../../resources/constants";
-import { isDropdownField } from "../editors/utils";
+import { getValueForDropdown, isDropdownField } from "../editors/utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -73,7 +73,7 @@ export function Form(props: FormProps) {
         const defaultValues: FormValues = {};
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
-                defaultValues[field.key] = field.value !== "" ? field.value : field.items[0];
+                defaultValues[field.key] = getValueForDropdown(field);
             } else {
                 defaultValues[field.key] = field.value;
             }

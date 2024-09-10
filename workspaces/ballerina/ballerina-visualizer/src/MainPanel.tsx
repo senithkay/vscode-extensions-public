@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW, PopupMachineStateValue, EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
@@ -25,14 +25,15 @@ import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceFo
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
-import PopupPanel from './views/Eggplant/PopupPanel';
+// import PopupPanel from './views/Eggplant/PopupPanel';
 import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { FormView, Typography } from '@wso2-enterprise/ui-toolkit';
 import { PanelType, useVisualizerContext } from './Context';
 import { SidePanel } from '@wso2-enterprise/ui-toolkit';
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
 import { RecordEditor } from './views/RecordEditor/RecordEditor';
+import PopupPanel from './PopupPanel';
 import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard"
 import { EndpointList } from './views/Connectors/EndpointList';
 import { getSymbolInfo } from '@wso2-enterprise/ballerina-low-code-diagram';
@@ -54,23 +55,36 @@ const ComponentViewWrapper = styled.div`
     height: calc(100vh - 24px);
 `;
 
+const PopUpContainer = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2100;
+    background: var(--background);
+`;
+
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
     const {
-        popupScreen,
         sidePanel,
-        setPopupScreen,
         setSidePanel,
         popupMessage,
         setPopupMessage,
         activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
+    const [popupState, setPopupState] = useState<PopupMachineStateValue>('initialize');
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
             fetchContext();
         }
+    });
+
+    rpcClient?.onPopupStateChanged((newState: PopupMachineStateValue) => {
+        setPopupState(newState);
     });
 
     // TODO: Need to refactor this function. use util apply modifications function
@@ -191,12 +205,12 @@ const MainPanel = () => {
         }
     }, [viewComponent]);
 
-    const handleOnClosePopup = () => {
-        setPopupScreen("EMPTY");
-    };
-
     const handleOnCloseMessage = () => {
         setPopupMessage(false);
+    }
+
+    const handleOnClose = () => {
+        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.CLOSE_VIEW, location: { view: null }, isPopup: true })
     }
 
     return (
@@ -219,11 +233,13 @@ const MainPanel = () => {
                         <Typography variant='h3'>This feature is coming soon!</Typography>
                     </PopupMessage>
                 }
-                <RecordEditor
-                    isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
-                    onClose={() => setSidePanel("EMPTY")}
-                    rpcClient={rpcClient}
-                />
+                {sidePanel === "RECORD_EDITOR" && (
+                    <RecordEditor
+                        isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
+                        onClose={() => setSidePanel("EMPTY")}
+                        rpcClient={rpcClient}
+                    />
+                )}
                 {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
                     <ConstructPanel applyModifications={applyModifications} />
                 )
@@ -232,6 +248,13 @@ const MainPanel = () => {
                     <EditPanel applyModifications={applyModifications} />
                 )
                 }
+                {typeof popupState === 'object' && 'open' in popupState && (
+                    <PopUpContainer>
+                        <FormView title='' onClose={handleOnClose}>
+                            <PopupPanel formState={popupState} />
+                        </FormView>
+                    </PopUpContainer>
+                )}
                 {popupScreen !== "EMPTY" && popupScreen === "ADD_ACTION" &&
                     <EndpointList stSymbolInfo={getSymbolInfo()} applyModifications={applyModifications} />
                 }

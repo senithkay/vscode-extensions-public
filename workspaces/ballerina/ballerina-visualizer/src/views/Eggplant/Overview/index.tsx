@@ -117,7 +117,7 @@ const CardGrid = styled.div`
 
 export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupScreen, setPopupMessage, setSidePanel } = useVisualizerContext();
+    const { setPopupMessage, setSidePanel } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
@@ -162,8 +162,13 @@ export function Overview(props: OverviewProps) {
     };
 
     const handleAddConnection = () => {
-        console.log(">>> Add Connection");
-        setPopupScreen("ADD_CONNECTION");
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.AddConnectionWizard,
+            },
+            isPopup: true
+        });
     };
 
     const handleAddShema = () => {

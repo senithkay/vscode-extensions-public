@@ -9,9 +9,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda no-empty
 import React, { useContext, useEffect } from "react";
 
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, Menu, MenuItem, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, MultiSelect } from "@wso2-enterprise/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
@@ -32,12 +31,9 @@ export default function StatementQualifiers() {
 
     const statementEditorClasses = useStatementEditorToolbarStyles();
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [supportedQualifiers, setSupportedQualifiers] = React.useState([]);
     const [checked, setChecked] = React.useState([]);
 
-
-    const open = Boolean(anchorEl);
 
     useEffect(() => {
         const newChecked: string[] = [];
@@ -60,13 +56,6 @@ export default function StatementQualifiers() {
         setChecked(newChecked);
     }, [statementModel]);
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     const handleCheckboxClick = (qualifier: string) => () => {
         const currentIndex = checked.indexOf(qualifier);
         if (currentIndex === -1) {
@@ -77,41 +66,29 @@ export default function StatementQualifiers() {
 
     }
 
+    const onChangeValues = (currentChecked: string[]) => {
+        currentChecked.map((qualifier) => {
+            handleCheckboxClick(qualifier)();
+        });
+
+        if (currentChecked.length === 0) {
+            // get the checked qualifier and remove them
+            checked.map((qualifier) => {
+                handleCheckboxClick(qualifier)();
+            });
+        }
+    };
+
+    const displayValue = (
+        <div className={statementEditorClasses.toolbarStatementQualifier}>
+            <Codicon name="globe" />
+            <Codicon name="chevron-down" />
+        </div>
+    );
+
     return (
-        <>
-            <Button
-                onClick={handleClick}
-                data-testid="toolbar-qualifier-options"
-                className={statementEditorClasses.toolbarIcons}
-                tooltip="Visibility"
-            >
-                <Codicon sx={{ color: "var(--vscode-editorGutter-deletedBackground)" }} name="globe" />
-                <Codicon sx={{ color: "var(--vscode-editorGutter-deletedBackground)" }} name="chevron-down" />
-            </ Button>
-            <Menu>
-                {supportedQualifiers.map((qualifier, key) => (
-                    <MenuItem
-                        key={key}
-                        data-testid="qualifier-list-item"
-                        item={{
-                            id: key,
-                            label: (
-                                <>
-                                    <Typography variant="body2">
-                                        {qualifier}
-                                    </Typography>
-                                    <VSCodeCheckbox
-                                        data-testid="qualifier-check"
-                                        checked={checked.includes(qualifier)}
-                                        onChange={handleCheckboxClick(qualifier)}
-                                    />
-                                </>
-                            ),
-                            onClick: () => {},
-                        }}
-                    />
-                ))}
-            </Menu>
-        </>
+        <div style={{ display: "flex", alignItems: "center" }}>
+            <MultiSelect options={supportedQualifiers} values={checked} displayValue={displayValue} onChange={onChangeValues} />
+        </div>
     );
 }

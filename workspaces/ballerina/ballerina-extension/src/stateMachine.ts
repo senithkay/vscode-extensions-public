@@ -13,6 +13,7 @@ import * as path from 'path';
 import { extension } from './BalExtensionContext';
 import { EggplantDiagramRpcManager } from './rpc-managers/eggplant-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
+import { StateMachinePopup } from './stateMachinePopup';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
@@ -168,6 +169,7 @@ const stateMachine = createMachine<MachineContext>(
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
                     StateMachineAI.initialize();
+                    StateMachinePopup.initialize();
                     resolve(ls.langClient);
                 } catch (error) {
                     throw new Error("LS Activation failed", error);
@@ -231,6 +233,7 @@ const stateMachine = createMachine<MachineContext>(
         },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
+                StateMachinePopup.resetState();
                 const historyStack = history.get();
                 const selectedEntry = historyStack[historyStack.length - 1];
 

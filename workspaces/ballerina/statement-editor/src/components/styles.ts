@@ -86,6 +86,12 @@ export const useStatementEditorToolbarStyles = () => ({
         borderRadius: '5px',
         margin: '5px 0'
     }),
+    toolbarStatementQualifier: css({
+        padding: '8px',
+        borderRadius: '5px',
+        margin: '5px 0',
+        display: 'flex',
+    }),
     toolbarOperatorsIcons: css({
         color: 'var(--foreground)',
         padding: '0px 8px',

@@ -10,7 +10,7 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE, popupStateChanged, getPopupVisualizerState, PopupVisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
@@ -25,6 +25,7 @@ import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler'
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import path from 'path';
+import { StateMachinePopup } from './stateMachinePopup';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
 
 export class RPCLayer {
@@ -35,6 +36,10 @@ export class RPCLayer {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
+            });
+            // Popup machine transition
+            StateMachinePopup.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(popupStateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
@@ -65,6 +70,9 @@ export class RPCLayer {
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
         RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
+
+         // ----- Popup Views RPC Methods
+         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 
 }
@@ -81,6 +89,17 @@ async function getContext(): Promise<VisualizerLocation> {
             isEggplant: context.isEggplant,
             projectUri: context.projectUri,
             recordFilePath: path.join(context.projectUri, 'types.bal'),
+        });
+    });
+}
+
+async function getPopupContext(): Promise<PopupVisualizerLocation> {
+    const context = StateMachinePopup.context();
+    return new Promise((resolve) => {
+        resolve({
+            documentUri: context.documentUri,
+            view: context.view,
+            recentIdentifier: context.recentIdentifier
         });
     });
 }
