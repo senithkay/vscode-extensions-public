@@ -64,7 +64,7 @@ export interface APIData {
 
 const initialAPI: APIData = {
     apiName: "",
-    apiContext: "/",
+    apiContext: "",
     hostName: "",
     port: "",
     trace: false,
@@ -109,11 +109,6 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 }),
         apiContext: yup.string().required("API Context is required")
             .test('validateApiContext', 'An artifact with same context already exists', function (value) {
-                if (APIContexts.includes(value)) {
-                    setError("apiContext", {
-                        message: "An artifact with the same context already exists",
-                    });
-                }
                 return !APIContexts.includes(value);
             }),
         hostName: yup.string(),
@@ -454,7 +449,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             <TextField
                 required
                 label="Context"
-                placeholder="Context"
+                placeholder="/"
                 {...renderProps("apiContext")}
             />
             {apiData && (
