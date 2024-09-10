@@ -7,18 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "./Loader";
 
 import { css } from "@emotion/css";
 
 export const useStyles = () => ({
     balModuleListWrap: css({
-        marginTop: '16px', // theme.spacing(2)
+        marginTop: '16px',
         height: '80vh',
         overflowY: 'scroll',
         scrollbarWidth: 'none',
     }),
-    loaderWrapper: css ({
+    loaderWrapper: css({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -26,13 +27,10 @@ export const useStyles = () => ({
         height: '100%',
     }),
     loaderTitle: css({
-        marginTop: '16px',
-        fontSize: '1.5rem',
-        fontWeight: 500,
+        marginTop: '16px'
     }),
     loaderSubtitle: css({
-        marginTop:'8px',
-        fontSize: '1rem',
+        marginTop: '8px'
     }),
 
 });
@@ -42,11 +40,10 @@ export function PackageLoader() {
     const classes = useStyles();
 
     return (
-
-            <div className={classes.loaderWrapper}>
-                <PullingModuleLoader />
-                <p className={classes.loaderTitle}>Pulling packages</p>
-                <p className={classes.loaderSubtitle}>This might take some time</p>
-            </div>
+        <div className={classes.loaderWrapper}>
+            <PullingModuleLoader />
+            <Typography variant="h3" className={classes.loaderTitle}>Pulling packages</Typography>
+            <Typography variant="h4" className={classes.loaderSubtitle}>This might take some time</Typography>
+        </div>
     );
 }
