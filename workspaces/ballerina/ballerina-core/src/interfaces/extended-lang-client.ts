@@ -474,7 +474,7 @@ export type EggplantAvailableNodesResponse = {
 };
 
 export interface EggplantNodeTemplateRequest {
-    position: LineRange;
+    position: LinePosition;
     filePath: string;
     id: CodeData;
 }
