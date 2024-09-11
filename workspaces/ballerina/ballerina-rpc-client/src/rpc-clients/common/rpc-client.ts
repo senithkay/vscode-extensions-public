@@ -24,6 +24,7 @@ import {
     WorkspacesFileResponse,
     askProjectDirPath,
     executeCommand,
+    experimentalEnabled,
     getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
@@ -71,5 +72,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     askProjectDirPath(): Promise<ProjectDirResponse> {
         return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
+    }
+
+    experimentalEnabled(): Promise<boolean> {
+        return this._messenger.sendRequest(experimentalEnabled, HOST_EXTENSION);
     }
 }

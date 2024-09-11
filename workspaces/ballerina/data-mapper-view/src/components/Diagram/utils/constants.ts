@@ -21,6 +21,9 @@ export const GAP_BETWEEN_INPUT_NODES = 10;
 export const GAP_BETWEEN_NODE_HEADER_AND_BODY = 10;
 export const GAP_BETWEEN_FIELDS = 1;
 
+export const AUTO_MAP_TIMEOUT_MS = 40000;
+export const AUTO_MAP_IN_PROGRESS_MSG = "Generating mappings for your transformation";
+
 export const OFFSETS = {
     SOURCE_NODE: {
         X: 0,

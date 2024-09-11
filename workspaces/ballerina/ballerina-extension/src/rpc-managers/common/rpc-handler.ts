@@ -17,6 +17,7 @@ import {
     WorkspaceFileRequest,
     askProjectDirPath,
     executeCommand,
+    experimentalEnabled,
     getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
@@ -37,4 +38,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onRequest(runBackgroundTerminalCommand, (args: RunExternalCommandRequest) => rpcManger.runBackgroundTerminalCommand(args));
     messenger.onNotification(openExternalUrl, (args: OpenExternalUrlRequest) => rpcManger.openExternalUrl(args));
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
+    messenger.onRequest(experimentalEnabled, () => rpcManger.experimentalEnabled());
 }

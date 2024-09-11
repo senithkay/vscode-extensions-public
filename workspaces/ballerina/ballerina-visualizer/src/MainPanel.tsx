@@ -118,7 +118,7 @@ const MainPanel = () => {
             rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
             await langServerRPCClient.updateFileContent({
                 content: newSource,
-                fileUri: filePath
+                filePath
             });
         }
     };
@@ -157,6 +157,7 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
+                                isEggplant={value.isEggplant}
                                 applyModifications={applyModifications}
                             />
                         ));

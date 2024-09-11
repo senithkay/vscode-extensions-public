@@ -45,13 +45,11 @@ import {
     UpdateFileContentRequest,
     UpdateFileContentResponse
 } from "@wso2-enterprise/ballerina-core";
-import { writeFileSync } from 'fs';
-import { normalize } from "path";
-import { Position, Range, WorkspaceEdit, workspace } from "vscode";
+import { workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { StateMachine, updateView } from "../../stateMachine";
 import { ballerinaExtInstance } from "../../core";
-import { notifyCurrentWebview } from "../../RPCLayer";
+import { modifyFileContent } from "../../utils/modification";
 
 export class LangClientRpcManager implements LangClientAPI {
     
@@ -165,38 +163,8 @@ export class LangClientRpcManager implements LangClientAPI {
 
     async updateFileContent(params: UpdateFileContentRequest): Promise<UpdateFileContentResponse> {
         return new Promise(async (resolve) => {
-            const { fileUri, content, skipForceSave } = params;
-            const normalizedFilePath = normalize(fileUri);
-            const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
-            let status = false;
-            if (doc) {
-                const edit = new WorkspaceEdit();
-                edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);
-                await workspace.applyEdit(edit);
-                StateMachine.langClient().updateStatusBar();
-                if (skipForceSave) {
-                    // Skip saving document and keep in dirty mode
-                    resolve({ status: true });
-                }
-                const status = await doc.save();
-                resolve({ status });
-            } else {
-                StateMachine.langClient().didChange({
-                    contentChanges: [
-                        {
-                            text: content
-                        }
-                    ],
-                    textDocument: {
-                        uri: URI.file(normalizedFilePath).toString(),
-                        version: 1
-                    }
-                });
-                writeFileSync(normalizedFilePath, content);
-                StateMachine.langClient().updateStatusBar();
-                updateView();
-            }
-            resolve({ status: false });
+            const status = await modifyFileContent(params);
+            resolve({ status });
         });
     }
 

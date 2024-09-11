@@ -35,4 +35,5 @@ export interface CommonRPCAPI {
     runBackgroundTerminalCommand: (params: RunExternalCommandRequest) => Promise<RunExternalCommandResponse>;
     openExternalUrl: (params: OpenExternalUrlRequest) => void;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
+    experimentalEnabled: () => Promise<boolean>;
 }
