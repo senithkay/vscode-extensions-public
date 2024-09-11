@@ -371,6 +371,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                             endpoint={newEndpoint}
                             handleEndpointChange={handleNewEndpointChange}
                             handleSave={handleAddNewEndpoint}
+                            path={props.path}
                         />
                     )}
                 </FieldGroup>

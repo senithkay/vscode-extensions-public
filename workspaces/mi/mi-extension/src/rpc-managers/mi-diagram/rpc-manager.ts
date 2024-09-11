@@ -1085,7 +1085,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 if (MessageStoreModel[param.name] === "jmsAPIVersion") {
                                     response.jmsAPIVersion = Number(param.value).toFixed(1);
                                 } else {
-                                    response[MessageStoreModel[param.name]] = param.value;
+                                    if (param.value != null) {
+                                        response[MessageStoreModel[param.name]] = param.value;
+                                    }
                                 }
                             }
                         });
