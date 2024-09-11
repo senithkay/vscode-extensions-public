@@ -417,7 +417,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const inputProps: InputProps = {
         endAdornment: (
-            < Button appearance="icon" tooltip="Goto source" onClick={gotoSource}>
+            <Button appearance="icon" tooltip="Goto source" onClick={gotoSource}>
                 <Codicon name="code" />
             </Button>
         )
