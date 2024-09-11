@@ -150,14 +150,12 @@ export class SizingVisitor implements BaseVisitor {
                 width = Math.max(width, Math.max(mainBranch.viewState.cw, NODE_GAP_X));
                 height = mainBranch.viewState.ch;
             }
-
         }
         // add while node width and height
         height += WHILE_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
 
         const whileNodeWidth = WHILE_NODE_WIDTH + VSCODE_MARGIN;
         this.setNodeSize(node, whileNodeWidth, whileNodeWidth, width, height);
-        this.createBlockNode(node.branches.at(0));
     }
 
     skipChildren(): boolean {

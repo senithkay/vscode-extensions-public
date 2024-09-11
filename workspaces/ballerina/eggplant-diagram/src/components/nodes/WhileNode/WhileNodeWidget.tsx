@@ -1,11 +1,4 @@
-/**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
- */
+
 
 import React from "react";
 import styled from "@emotion/styled";
@@ -28,14 +21,6 @@ export namespace NodeStyles {
         justify-content: space-between;
         align-items: center;
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
-
-        width: ${NODE_HEIGHT}px;
-        height: ${NODE_HEIGHT}px;
-        border: ${NODE_BORDER_WIDTH}px ${(props: NodeStyleProp) => props.selected ? "dashed" : "solid"};
-            ${(props: NodeStyleProp) =>
-                props.selected ? Colors.OUTLINE_VARIANT : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
     `;
@@ -99,11 +84,17 @@ export namespace NodeStyles {
         width: 100%;
     `;
 
-    export const Column = styled.div`
+    export const Circle = styled.div`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
+        border: ${NODE_BORDER_WIDTH}px ${(props: NodeStyleProp) => (props.selected ? "dashed" : "solid")};
+        ${(props: NodeStyleProp) =>
+            props.selected ? Colors.OUTLINE_VARIANT : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+        border-radius: 50px;
+        width: ${NODE_HEIGHT * 2}px;
+        height: ${NODE_HEIGHT}px;
     `;
 
     export const Hr = styled.hr`
@@ -117,7 +108,7 @@ interface WhileNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> {}
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -144,35 +135,25 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
             onClick={handleOnClick}
         >
             <NodeStyles.Row>
-                <NodeStyles.Column>
+                <NodeStyles.Circle>
                     <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                    {/* <svg width={WHILE_NODE_WIDTH} height={WHILE_NODE_WIDTH} viewBox="0 0 70 70">
-                        <circle x="12.5"
-                            y="4"
-                            width={NODE_HEIGHT}
-                            height={NODE_HEIGHT}
-                            rx="5"
-                            ry="5"
-                            fill={Colors.SURFACE_DIM}
-                            stroke={
-                                highlighted ? Colors.SECONDARY : isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT
-                            }
-                            strokeWidth={NODE_BORDER_WIDTH}
-                            transform="rotate(45 28 28)" cx="16" cy="16" r="11" />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5">
-                                <path d="M12 3a9 9 0 1 1-5.657 2" />
-                                <path d="M3 4.5h4v4" />
-                            </g>
-                        </svg>
-                    </svg> */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g
+                            fill="none"
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2.5"
+                        >
+                            <path d="M12 3a9 9 0 1 1-5.657 2" />
+                            <path d="M3 4.5h4v4" />
+                        </g>
+                    </svg>
                     <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-                </NodeStyles.Column>
+                </NodeStyles.Circle>
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        {model.node.properties.condition?.value}
-                    </NodeStyles.Description>
+                    <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
                 </NodeStyles.Header>
             </NodeStyles.Row>
         </NodeStyles.Node>

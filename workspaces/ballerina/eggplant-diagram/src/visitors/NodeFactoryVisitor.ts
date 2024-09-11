@@ -270,7 +270,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             const branch = node.branches.at(0);
             if (branch.children && branch.children.length > 0) {
                 const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
-                const link = createNodesLink(whileNodeModel, firstChildNodeModel, { label: branch.label });
+                const link = createNodesLink(whileNodeModel, firstChildNodeModel);
                 if (link) {
                     this.links.push(link);
                 }
