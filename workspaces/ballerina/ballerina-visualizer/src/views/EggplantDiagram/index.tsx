@@ -196,7 +196,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
-                position: targetRef.current,
+                position: targetRef.current.startLine,
                 filePath: model.fileName,
                 id: node.codedata,
             })
@@ -364,10 +364,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
-                position: {
-                    startLine: targetRef.current.startLine,
-                    endLine: targetRef.current.endLine,
-                },
+                position: targetRef.current.startLine,
                 filePath: model.fileName,
                 id: node.codedata,
             })
