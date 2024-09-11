@@ -1377,7 +1377,7 @@ export interface RegistryArtifact {
 }
 export interface RangeFormatRequest {
     uri: string;
-    range: Range
+    range?: Range
 }
 
 export interface DownloadConnectorRequest {

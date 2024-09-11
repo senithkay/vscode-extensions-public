@@ -2397,9 +2397,14 @@ ${endpointAttributes}
                 resolve({ status: true });
                 return;
             }
+            let formattingOptions = { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false };
             const uri = Uri.file(req.uri);
-            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
-                { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
+            let edits: TextEdit[];
+            if (req.range) {
+                edits = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range, formattingOptions);
+            } else {
+                edits = await commands.executeCommand("vscode.executeFormatDocumentProvider", uri, formattingOptions);
+            }
             const workspaceEdit = new WorkspaceEdit();
             workspaceEdit.set(uri, edits);
             await workspace.applyEdit(workspaceEdit);
