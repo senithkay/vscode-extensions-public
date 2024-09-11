@@ -64,7 +64,7 @@ export interface APIData {
 
 const initialAPI: APIData = {
     apiName: "",
-    apiContext: "/",
+    apiContext: "",
     hostName: "",
     port: "",
     trace: false,
@@ -93,6 +93,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [APIContexts, setAPIContexts] = useState([]);
 
     const schema = yup.object({
         apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name")
@@ -106,7 +107,10 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     const artifactName = version ? `${value}:v${version}` : value;
                     return (value === apiData?.apiName) || !(artifactNames.includes(artifactName))
                 }),
-        apiContext: yup.string().required("API Context is required"),
+        apiContext: yup.string().required("API Context is required")
+            .test('validateApiContext', 'An artifact with same context already exists', function (value) {
+                return !APIContexts.includes(value);
+            }),
         hostName: yup.string(),
         port: yup.string(),
         trace: yup.boolean(),
@@ -171,7 +175,8 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         handleSubmit,
         watch,
         setValue,
-        control
+        control,
+        setError
     } = useForm({
         defaultValues: initialAPI,
         resolver: yupResolver(schema),
@@ -218,6 +223,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 path: path,
             });
             setArtifactNames(regArtifactRes.artifacts);
+
+            const contextResp = await rpcClient.getMiDiagramRpcClient().getAllAPIcontexts();
+            setAPIContexts(contextResp.contexts);
         })();
     }, []);
 
@@ -250,7 +258,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         if (!apiData) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
-            const artifactDir =  pathLib.join(projectDir,'src','main','wso2mi','artifacts');
+            const artifactDir = pathLib.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts');
 
             let createAPIParams: CreateAPIRequest = {
                 artifactDir,
@@ -441,7 +449,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             <TextField
                 required
                 label="Context"
-                placeholder="Context"
+                placeholder="/"
                 {...renderProps("apiContext")}
             />
             {apiData && (
