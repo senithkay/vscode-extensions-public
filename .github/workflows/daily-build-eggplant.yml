@@ -13,14 +13,13 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
-          ref: rewrite
+          ref: ui-refresh
 
       - name: Build
         uses: ./.github/actions/build
         with:
           eggplant: true
           ballerina: true
-          ref: ui-refresh
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
       - name: Notification - Ballerina
