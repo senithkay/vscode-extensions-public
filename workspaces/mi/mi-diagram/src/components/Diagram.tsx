@@ -23,9 +23,8 @@ import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
-import { SidePanel, NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit'
+import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
-import { OverlayLayerModel } from "./OverlayLoader/OverlayLayerModel";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
@@ -63,6 +62,17 @@ namespace S {
         background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
         background-size: 16px 16px;
         background-color: ${Colors.SURFACE_BRIGHT};
+    `;
+
+    export const ControlsContainer = styled.div`
+        padding: 10px 9px 12px 5px;
+        position: fixed;
+        margin-top: 20px;
+        right: 20px;
+        background-color: var(--vscode-editor-background);
+        border: 1px solid var(--vscode-tree-indentGuidesStroke);
+        border-radius: 4px;
+        z-index: 1000;
     `;
 }
 
@@ -336,10 +346,48 @@ export function Diagram(props: DiagramProps) {
             } else {
                 const centerX = (canvasBounds.width - diagramWidth) / 2;
                 diagramEngine.getModel().setOffsetX(centerX);
+                diagramEngine.getModel().setOffsetY(0);
                 diagramEngine.repaintCanvas();
             }
         }
     };
+
+    const zoom = (type: "in" | "out" | "reset") => {
+        const diagramEngine = isFaultFlow ? diagramData.fault.engine : diagramData.flow.engine;
+        const model = diagramEngine.getModel();
+        const scroll = scrollRef?.current as any;
+
+        if (type === 'reset') {
+            model.setZoomLevel(100);
+            centerDiagram(false, model, diagramEngine, canvasDimensions.width, canvasDimensions.height);
+            diagramEngine.repaintCanvas();
+            scroll.scrollLeft = scroll?.scrollWidth / 2 - scroll?.clientWidth / 2;
+            return;
+        }
+
+        const zoomLevel = type === 'in' ? 1.2 : 0.8
+
+        const oldZoomLevel = model.getZoomLevel();
+        const currentZoomLevel = oldZoomLevel * zoomLevel;
+        const zoomFactor = currentZoomLevel / 100
+        const oldZoomFactor = oldZoomLevel / 100
+        model.setZoomLevel(currentZoomLevel)
+
+        const clientWidth = scroll.clientWidth ?? 0
+        const clientHeight = scroll?.clientHeight ?? 0
+
+        const widthDiff = clientWidth * zoomFactor - clientWidth * oldZoomFactor
+        const heightDiff = clientHeight * zoomFactor - clientHeight * oldZoomFactor
+
+        const xFactor = (clientWidth / 2 - model.getOffsetX()) / oldZoomFactor / clientWidth
+        const yFactor = (clientHeight / 2 - model.getOffsetY()) / oldZoomFactor / clientHeight
+
+        model.setOffset(model.getOffsetX() - widthDiff * xFactor, model.getOffsetY() - heightDiff * yFactor)
+
+        setCanvasDimensions({ width: clientWidth * zoomFactor, height: clientHeight * zoomFactor })
+
+        diagramEngine.repaintCanvas();
+    }
 
     return (
         <>
@@ -349,6 +397,19 @@ export function Diagram(props: DiagramProps) {
                     setSidePanelState,
                 }}>
                     {isLoading && <OverlayLayerWidget />}
+
+                    {/* controls */}
+                    <S.ControlsContainer>
+                        <Button appearance="icon" onClick={() => zoom('in')} tooltip="Zoom In" sx={{ marginBottom: '3px' }}>
+                            <Codicon name='plus' iconSx={{ fontSize: '18px' }} />
+                        </Button>
+                        <Button appearance="icon" onClick={() => zoom('out')} tooltip="Zoom Out" sx={{ marginBottom: '3px' }}>
+                            <Codicon name='dash' iconSx={{ fontSize: '18px' }} />
+                        </Button>
+                        <Button appearance="icon" onClick={() => zoom('reset')} tooltip="Reset Zoom">
+                            <Codicon name='layout-centered' iconSx={{ fontSize: '18px' }} />
+                        </Button>
+                    </S.ControlsContainer>
                     {/* Flow */}
                     {diagramData.flow.engine && diagramData.flow.model && !isFaultFlow &&
                         <DiagramCanvas height={canvasDimensions.height} width={canvasDimensions.width} type="flow">
