@@ -12,7 +12,11 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
+    GenerateMappingsRequest,
+    GenerateMappingsResponse,
+    NotifyAIMappingsRequest,
     addToProject,
+    generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
@@ -20,7 +24,10 @@ import {
     getRefreshToken,
     login,
     logout,
+    notifyAIMappings,
+    promptLogin,
     refreshAccessToken,
+    stopAIMappings,
     updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -65,11 +72,27 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    addToProject(content: AddToProjectRequest): void {
-        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, content);
+    addToProject(params: AddToProjectRequest): void {
+        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
     }
 
     getRefreshToken(): Promise<string> {
         return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
+    }
+
+    generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
+        return this._messenger.sendRequest(generateMappings, HOST_EXTENSION, params);
+    }
+
+    notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
+        return this._messenger.sendRequest(notifyAIMappings, HOST_EXTENSION, params);
+    }
+
+    stopAIMappings(): Promise<GenerateMappingsResponse> {
+        return this._messenger.sendRequest(stopAIMappings, HOST_EXTENSION);
+    }
+
+    promptLogin(): Promise<boolean> {
+        return this._messenger.sendRequest(promptLogin, HOST_EXTENSION);
     }
 }

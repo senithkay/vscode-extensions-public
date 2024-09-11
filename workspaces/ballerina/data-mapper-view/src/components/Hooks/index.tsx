@@ -18,7 +18,7 @@ import {
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getErrorKind, getIONodeHeight } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
-import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
+import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
 import { GAP_BETWEEN_FIELDS, GAP_BETWEEN_INPUT_NODES, GAP_BETWEEN_NODE_HEADER_AND_BODY, IO_NODE_DEFAULT_WIDTH, IO_NODE_FIELD_HEIGHT, IO_NODE_HEADER_HEIGHT, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';

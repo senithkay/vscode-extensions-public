@@ -29,7 +29,7 @@ export async function handleUndo(rpcClient: BallerinaRpcClient) {
     const docUri = (await rpcClient.getVisualizerLocation()).documentUri;
     if (lastsource) {
         rpcClient.getLangClientRpcClient().updateFileContent({
-            fileUri: docUri,
+            filePath: docUri,
             content: lastsource,
         });
     }
@@ -40,7 +40,7 @@ export async function handleRedo(rpcClient: BallerinaRpcClient) {
     const docUri = (await rpcClient.getVisualizerLocation()).documentUri;
     if (lastsource) {
         rpcClient.getLangClientRpcClient().updateFileContent({
-            fileUri: docUri,
+            filePath: docUri,
             content: lastsource,
         });
     }
@@ -104,7 +104,7 @@ export const applyModifications = async (rpcClient: BallerinaRpcClient, modifica
         rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
         await langServerRPCClient.updateFileContent({
             content: newSource,
-            fileUri: filePath,
+            filePath
         });
     }
 };

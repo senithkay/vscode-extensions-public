@@ -47,7 +47,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
-import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
+import { ErrorNodeKind } from "../../DataMapper/Error/RenderingError";
 import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel, ArrayMappingType, AggregationFunctions } from "../Label";

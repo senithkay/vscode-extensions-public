@@ -30,4 +30,5 @@ export interface CommonRPCAPI {
     getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
+    experimentalEnabled: () => Promise<boolean>;
 }
