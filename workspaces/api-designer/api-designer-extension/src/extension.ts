@@ -16,8 +16,24 @@ import { RPCLayer } from './RPCLayer';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
+	checkDocumentForOpenAPI(vscode.window.activeTextEditor?.document);
 	RPCLayer.init();
 	activateHistory();
 	activateVisualizer(context);
 	StateMachine.initialize();
+}
+
+function checkDocumentForOpenAPI(document?: vscode.TextDocument) {
+	if (document) {
+		// check if document is yaml or json
+		const fileName = document.fileName;
+		if (fileName.endsWith('.yaml') || fileName.endsWith('.yml') || fileName.endsWith('.json')) {
+			// check if document contains openapi
+			const fileContent = document.getText();
+			const isOpenAPI = fileContent.includes('openapi');
+			vscode.commands.executeCommand('setContext', 'isFileOpenAPI', isOpenAPI);
+		} else {
+			vscode.commands.executeCommand('setContext', 'isFileOpenAPI', false);
+		}
+	}
 }

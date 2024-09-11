@@ -222,10 +222,6 @@ export const StateMachine = {
 };
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
-    if (viewLocation?.documentUri) {
-        viewLocation.documentUri = viewLocation.documentUri.startsWith("file") ? fileURLToPath(viewLocation.documentUri) : Uri.file(viewLocation.documentUri).fsPath;
-    }
-    // Set the projectUri If undefined.
     if (!viewLocation?.projectUri && vscode.workspace.workspaceFolders) {
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
