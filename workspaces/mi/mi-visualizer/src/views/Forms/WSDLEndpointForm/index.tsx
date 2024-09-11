@@ -257,7 +257,6 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         <FormView
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
             onClose={props.handlePopupClose ?? openOverview}
-            hideClose={props.isPopup}
         >
             <TypeChip
                 type={isTemplate ? "WSDL Endpoint Template" : "WSDL Endpoint"}

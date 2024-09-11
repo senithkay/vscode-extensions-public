@@ -451,7 +451,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup}>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={props.handlePopupClose ?? handleCancel}>
             <TypeChip
                 type={isTemplate ? "Address Endpoint Template" : "Address Endpoint"}
                 onClick={changeType}
