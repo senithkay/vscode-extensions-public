@@ -116,7 +116,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
 
         if (StateMachine.context().isEggplant) {
             //Enable Eggplant Feature
-            activateEggplantFeatures(ballerinaExtInstance)
+            activateEggplantFeatures(ballerinaExtInstance);
         }
 
         // Enable Ballerina Notebook
