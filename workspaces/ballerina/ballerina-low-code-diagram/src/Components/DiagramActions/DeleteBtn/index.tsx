@@ -86,9 +86,9 @@ export function DeleteBtn(props: DeleteBtnProps) {
     };
 
     const onDeleteConfirm = () => {
-        if (isConnector) {
-            onConnectorDeleteEvent();
-        }
+        // if (isConnector) {
+        //     onConnectorDeleteEvent();
+        // }
         // delete logic
         if (model) {
             diagramContext.props.onDeleteComponent(model);

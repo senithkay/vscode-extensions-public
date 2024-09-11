@@ -22,8 +22,9 @@ import {
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import styled from "@emotion/styled";
 import { PanelType, useVisualizerContext } from "../../Context";
-import { removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
+import { ComponentInfo, ConnectorInfo, removeStatement, STModification } from "@wso2-enterprise/ballerina-core";
 import { URI } from "vscode-uri";
+import { fetchConnectorInfo, retrieveUsedAction } from "../Connectors/ConnectorWizard/utils";
 
 enum MESSAGE_TYPE {
     ERROR,
@@ -107,14 +108,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     }
 
     const handleAddComponent = (position: NodePosition) => {
-        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL });
         setStatementPosition(position);
+        setActivePanel({ isActive: true, name: PanelType.CONSTRUCTPANEL });
     }
 
-    const handleEditComponent = (model: STNode, targetPosition: NodePosition, componentType: string) => {
-        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR });
+    const handleEditComponent = async (model: STNode, targetPosition: NodePosition, componentType: string, connectorInfo?: ConnectorInfo) => {
         setStatementPosition(targetPosition);
-        setComponentInfo({ model, position: targetPosition, componentType });
+        setComponentInfo({ model, position: targetPosition, componentType, connectorInfo });
+        setActivePanel({ isActive: true, name: PanelType.STATEMENTEDITOR });
     }
 
     const handleDeleteComponent = (model: STNode) => {
@@ -143,43 +144,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             <Container>{!!activeFileInfo?.activeSequence &&
                 <LowCodeDiagram syntaxTree={activeFileInfo?.activeSequence} stSymbolInfo={getSymbolInfo()} isReadOnly={false} onAddComponent={handleAddComponent} onEditComponent={handleEditComponent} onDeleteComponent={handleDeleteComponent} />
             }</Container>
-            {/* <PanelContainer title="Components" show={showPanel} onClose={() => { setShowPanel(false) }}>
-                {showStatementEditor ? 
-                    (
-                        <StatementEditorComponent
-                                label= {"Variable"}
-                                config={{type: "Variable", model: null}}
-                                initialSource = {initialSource}
-                                applyModifications={applyModifications}
-                                currentFile={{
-                                    content: "",
-                                    path: filePath,
-                                    size: 1
-                                }}
-                                onCancel={cancelStatementEditor}
-                                onClose={closeStatementEditor}
-                                syntaxTree={parsedST}
-                                targetPosition={statementPosition}
-                            />
-                    )
-                    :
-                (<NodeList categories={[{
-                    title: "Flow Nodes",
-                    description: "Flow nodes description",
-                    items: [
-                        {
-                            id: "1",
-                            label: "variable",
-                            description: "variable description",
-                            enabled: true,
-                        }
-                    ]
-                }]} onSelect={(id: string) => {
-                    console.log(id);
-                    setShowStatementEditor(true);
-                }} />)
-            }
-            </PanelContainer> */}
         </>
     );
 }

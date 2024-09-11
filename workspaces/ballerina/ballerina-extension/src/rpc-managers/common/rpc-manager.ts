@@ -11,6 +11,7 @@
 import {
     BallerinaDiagnosticsRequest,
     BallerinaDiagnosticsResponse,
+    CommandResponse,
     CommandsRequest,
     CommandsResponse,
     CommonRPCAPI,
@@ -18,15 +19,19 @@ import {
     CompletionParams,
     DiagnosticData,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
     ProjectDirResponse,
+    RunExternalCommandRequest,
+    RunExternalCommandResponse,
     SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
-    WorkspacesFileResponse,
+    WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
-import { Uri, commands, window, workspace } from "vscode";
-import { URI } from "vscode-uri";
+import child_process from 'child_process';
 import * as os from 'os';
+import { Uri, commands, env, window, workspace } from "vscode";
+import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { getUpdatedSource } from "./utils";
@@ -156,6 +161,28 @@ export class CommonRpcManager implements CommonRPCAPI {
 
     async experimentalEnabled(): Promise<boolean> {
         return ballerinaExtInstance.enabledExperimentalFeatures();
+    }
+
+    async runBackgroundTerminalCommand(params: RunExternalCommandRequest): Promise<RunExternalCommandResponse> {
+        return new Promise<CommandResponse>(function (resolve) {
+            child_process.exec(`${params.command}`, async (err, stdout, stderr) => {
+                if (err) {
+                    resolve({
+                        error: true,
+                        message: stderr
+                    });
+                } else {
+                    resolve({
+                        error: false,
+                        message: stdout
+                    });
+                }
+            });
+        });
+    }
+
+    async openExternalUrl(params: OpenExternalUrlRequest): Promise<void> {
+        env.openExternal(Uri.parse(params.url));
     }
 }
 

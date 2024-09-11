@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js align  jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { ConnectorWizardType } from "@wso2-enterprise/ballerina-core";
+import { ConnectorInfo, ConnectorWizardType } from "@wso2-enterprise/ballerina-core";
 import { LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
@@ -147,21 +147,30 @@ export function ActionProcessor(props: ProcessorProps) {
         const connectorInit: LocalVarDecl = model as LocalVarDecl;
         const matchedConnector = getMatchingConnector(connectorInit);
         if (matchedConnector) {
-            setConfigWizardOpen(true);
-            renderConnectorWizard({
-                connectorInfo: matchedConnector,
-                diagramPosition: {
-                    x: viewState.bBox.cx + 80,
-                    y: viewState.bBox.cy,
-                },
-                targetPosition: draftViewState.targetPosition || model?.position,
-                // selectedConnector: draftViewState.selectedConnector,
-                model,
-                onClose: onWizardClose,
-                onSave: onWizardClose,
-                wizardType: ConnectorWizardType.ACTION,
+            const connectorInfo: ConnectorInfo = {
+                connector: matchedConnector,
                 functionNode
-            });
+            };
+            const isHttp = matchedConnector?.moduleName === "http";
+            const configType = isHttp ? "HttpAction" : "Action";
+
+            diagramContext.props.onEditComponent(model, model.position, configType, connectorInfo);
+
+            // setConfigWizardOpen(true);
+            // renderConnectorWizard({
+            //     connectorInfo: matchedConnector,
+            //     diagramPosition: {
+            //         x: viewState.bBox.cx + 80,
+            //         y: viewState.bBox.cy,
+            //     },
+            //     targetPosition: draftViewState.targetPosition || model?.position,
+            //     // selectedConnector: draftViewState.selectedConnector,
+            //     model,
+            //     onClose: onWizardClose,
+            //     onSave: onWizardClose,
+            //     wizardType: ConnectorWizardType.ACTION,
+            //     functionNode
+            // });
         }
     };
 

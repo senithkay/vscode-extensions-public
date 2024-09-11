@@ -88,6 +88,8 @@ import {
     EggplantSourceCodeResponse,
     EggplantConnectorsRequest,
     EggplantConnectorsResponse,
+    ConnectorRequest,
+    ConnectorResponse,
     EggplantSuggestedFlowModelRequest,
     EggplantCopilotContextRequest,
     EggplantCopilotContextResponse
@@ -311,7 +313,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<Triggers>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
     }
 
-    async getConnector(params: ConnectorParams): Promise<Connector | NOT_SUPPORTED_TYPE> {
+    async getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
