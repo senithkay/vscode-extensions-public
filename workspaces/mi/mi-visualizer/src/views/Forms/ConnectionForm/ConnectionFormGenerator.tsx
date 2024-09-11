@@ -291,7 +291,14 @@ export function AddConnection(props: AddConnectionProps) {
                         }
                     }
                 } else {
-                    connectorTag.ele(key).txt(values[key]);
+                    const value = values[key];
+                    if (typeof value === 'string' && value.includes('<![CDATA[')) {
+                        // Handle CDATA
+                        const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
+                        connectorTag.ele(key).dat(cdataContent);
+                    } else {
+                        connectorTag.ele(key).txt(value);
+                    }
                 }
             }
         });
