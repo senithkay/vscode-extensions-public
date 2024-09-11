@@ -10,7 +10,7 @@
 import { render } from "mustache";
 
 interface Parameter {
-    [key: string]: string | number | boolean;
+    [key: string]: string | null;
 }
 interface Record {
     name: string;
@@ -146,9 +146,8 @@ export function getMessageStoreMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
     <messageStore name="{{name}}" class="{{className}}" xmlns="http://ws.apache.org/ns/synapse">  
     {{#params}}
-        {{#value}}
-        <parameter name="{{key}}">{{value}}</parameter>
-        {{/value}}   
+        {{#value}}<parameter name="{{key}}">{{value}}</parameter>{{/value}}  
+        {{^value}}<parameter name="{{key}}"/>{{/value}}  
     {{/params}}
         {{#isResequence}}
         <parameter expression="{{xPath}}" name="store.resequence.id.path" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>
@@ -161,23 +160,37 @@ export function getMessageStoreXml(data: GetMessageStoreTemplatesArgs) {
     if (data.type !== 'Custom Message Store' && data.type !== 'In Memory Message Store'
         && data.type !== 'JDBC Message Store' && data.type !== 'Resequence Message Store') {
         Object.entries(paramPool[data.type]).map(([key, value]) => {
-            params.push({ key, value: data[value as string] });
+            if (data[value as string] != null && data[value as string] !== "") {
+                params.push({ key, value: String(data[value as string]) });
+            }
         });
     }
     if (data.type === 'Custom Message Store') {
         Object.entries(data.customParameters).map(([key, value]) => {
-            params.push({ key: value.name, value: value.value });
+            params.push({ key: value.name, value: String(value.value) });
         });
     }
     if (data.type === 'JDBC Message Store' || data.type === 'Resequence Message Store') {
         if (data.dataSourceName) {
             Object.entries(paramPool[data.type + " DS"]).map(([key, value]) => {
-                params.push({ key, value: data[value as string] });
+                if (data[value as string] != null && data[value as string] !== "") {
+                    params.push({ key, value: String(data[value as string]) });
+                }
             });
         } else {
             Object.entries(paramPool[data.type]).map(([key, value]) => {
-                params.push({ key, value: data[value as string] });
+                if (data[value as string] != null && data[value as string] !== "") {
+                    params.push({ key, value: String(data[value as string]) });
+                }
             });
+        }
+    }
+    if (data.type === 'RabbitMQ Message Store') {
+        if (!params.some(param => param.key === "store.rabbitmq.username")) {
+            params.push({ key: "store.rabbitmq.username", value: null });
+        }
+        if (!params.some(param => param.key === "store.rabbitmq.password")) {
+            params.push({ key: "store.rabbitmq.password", value: null });
         }
     }
     var className = classPool[data.type] ? classPool[data.type] : data.providerClass;
