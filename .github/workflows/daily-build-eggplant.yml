@@ -21,6 +21,7 @@ jobs:
           eggplant: true
           ballerina: true
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
+          token: ${{ secrets.PUBLISH_PAT }}
 
       - name: Notification - Ballerina
         uses: ./.github/actions/dailyBuildNotification
