@@ -383,7 +383,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                       <name>\${dockerfile.base.image}</name>
                       <alias>\${docker.container.name}</alias>
                       <run>
-                        <platform>linux/amd64</platform>
+                        <!--<platform>linux/amd64</platform>-->
                         <ports>
                           <port>9008:9008</port>
                         </ports>
@@ -395,7 +395,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                         <cmd>-DsynapseTest -DsynapseTestPort=9008</cmd>
                         <volumes>
                           <bind>
-                            <volume>\${basedir}/deployment/libs:/home/wso2carbon/wso2mi-4.3.0/lib</volume>
+                            <volume>\${basedir}/deployment/libs:/home/wso2carbon/\${mi.pack}/lib</volume>
                           </bind>
                         </volumes>
                       </run>
