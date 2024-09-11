@@ -2,6 +2,7 @@ name: Daily Build - Eggplant & Ballerina
 on:
   schedule:
     - cron:  '30 13 * * *'
+  workflow_dispatch:
 
 jobs:
   Release:
