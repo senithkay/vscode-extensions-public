@@ -215,7 +215,8 @@ import {
     DSSFetchTablesResponse,
     DSSQueryGenRequest,
     AddDriverToLibResponse,
-    AddDriverToLibRequest
+    AddDriverToLibRequest,
+    APIContextsResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -235,7 +236,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -1105,7 +1106,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 if (MessageStoreModel[param.name] === "jmsAPIVersion") {
                                     response.jmsAPIVersion = Number(param.value).toFixed(1);
                                 } else {
-                                    response[MessageStoreModel[param.name]] = param.value;
+                                    if (param.value != null) {
+                                        response[MessageStoreModel[param.name]] = param.value;
+                                    }
                                 }
                             }
                         });
@@ -1275,6 +1278,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ data: [] });
+        });
+    }
+
+    async getAllAPIcontexts(): Promise<APIContextsResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+
+                const contexts: string[] = [];
+
+                for (const api of artifacts.apis) {
+                    contexts.push(api.context);
+                }
+
+                resolve({ contexts: contexts });
+            }
+
+            resolve({ contexts: [] });
         });
     }
 
@@ -3302,7 +3329,7 @@ ${endpointAttributes}
                 canSelectFiles: params.canSelectFiles,
                 canSelectFolders: params.canSelectFolders,
                 canSelectMany: params.canSelectMany,
-                defaultUri: Uri.file(os.homedir()),
+                defaultUri: params.defaultUri ? Uri.file(params.defaultUri) : Uri.file(os.homedir()),
                 title: params.title,
                 ...params.openLabel && { openLabel: params.openLabel },
             });
@@ -3964,29 +3991,43 @@ ${keyValuesXML}`;
                     log(errorMessage);
                     return reject(errorMessage);
                 }
-
+                const lastExportedPath: string | undefined = extension.context.globalState.get(LAST_EXPORTED_CAR_PATH);
+                const quickPicks: vscode.QuickPickItem[] = [
+                    {
+                        label: "Select Destination",
+                        description: "Select a destination folder to export .car file",
+                    },
+                ];
+                if (lastExportedPath) {
+                    quickPicks.push({
+                        label: "Last Exported Path: " + lastExportedPath,
+                        description: "Use the last exported path to export .car file",
+                    });
+                }
                 const selection = await vscode.window.showQuickPick(
-                    [
-                        {
-                            label: "Select Destination",
-                            description: "Select a destination folder to export .car file",
-                        },
-                    ],
+                    quickPicks,
                     {
                         placeHolder: "Export Options",
                     }
                 );
 
                 if (selection) {
-                    // Get the destination folder
-                    const { filePath: destination } = await this.browseFile({
-                        canSelectFiles: false,
-                        canSelectFolders: true,
-                        canSelectMany: false,
-                        defaultUri: params.projectPath,
-                        title: "Select a folder to export the project",
-                        openLabel: "Select Folder"
-                    });
+                    let destination: string | undefined;
+                    if (selection.label == "Select Destination") {
+                        // Get the destination folder
+                        const selectedLocation = await this.browseFile({
+                            canSelectFiles: false,
+                            canSelectFolders: true,
+                            canSelectMany: false,
+                            defaultUri: lastExportedPath ?? params.projectPath,
+                            title: "Select a folder to export the project",
+                            openLabel: "Select Folder"
+                        });
+                        destination = selectedLocation.filePath;
+                        await extension.context.globalState.update(LAST_EXPORTED_CAR_PATH, destination);
+                    } else {
+                        destination = lastExportedPath;
+                    }
                     if (destination) {
                         const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
                         fs.copyFileSync(carFile[0].fsPath, destinationPath);

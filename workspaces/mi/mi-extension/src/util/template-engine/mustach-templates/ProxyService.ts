@@ -35,8 +35,6 @@ export function getProxyServiceMustacheTemplate() {
         {{#customProxy}}
         <inSequence>
         </inSequence>
-        <outSequence>
-        </outSequence>
         <faultSequence/>
         {{/customProxy}}
         {{^customProxy}}

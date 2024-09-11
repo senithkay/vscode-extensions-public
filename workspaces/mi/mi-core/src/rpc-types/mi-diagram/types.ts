@@ -1556,6 +1556,10 @@ export interface DeleteArtifactRequest {
     enableUndo?: boolean;
 }
 
+export interface APIContextsResponse {
+    contexts: string[]
+}
+
 export interface ExportProjectRequest {
     projectPath: string;
 }
