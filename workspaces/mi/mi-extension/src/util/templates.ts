@@ -126,6 +126,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             <extensions>true</extensions>
             <executions>
               <execution>
+                <phase>compile</phase>
                 <goals>
                   <goal>car</goal>
                 </goals>
@@ -173,6 +174,9 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                     <get src="\${mi.pack.download.link}"
                        dest="\${local.mi.pack.store.path}"/>
                     <unzip src="\${local.mi.pack.store.path}/\${mi.pack}.zip" dest="\${local.mi.pack.store.path}" />
+                    <copy todir="\${local.mi.pack.store.path}/\${mi.pack}/lib">
+                      <fileset dir="\${basedir}/deployment/libs"/>
+                    </copy>
                     <exec executable="chmod">
                       <arg value="+x"/>
                       <arg value="\${local.mi.pack.store.path}/\${mi.pack}/bin/micro-integrator.sh"/>
@@ -389,6 +393,11 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                           <shutdown>100000</shutdown>
                         </wait>
                         <cmd>-DsynapseTest -DsynapseTestPort=9008</cmd>
+                        <volumes>
+                          <bind>
+                            <volume>\${basedir}/deployment/libs:/home/wso2carbon/wso2mi-4.3.0/lib</volume>
+                          </bind>
+                        </volumes>
                       </run>
                     </image>
                   </images>
