@@ -7,3 +7,4 @@ export * from "./block-statement-finder";
 export * from "./InvocationMatricsVisitor";
 export * from "./InvocationPerformanceVisitor";
 export * from "./symbol-finder-visitor";
+export * from "./return-type-visitor";

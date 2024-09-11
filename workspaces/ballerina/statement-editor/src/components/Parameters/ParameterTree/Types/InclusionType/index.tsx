@@ -45,7 +45,7 @@ export default function InclusionType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <VSCodeCheckbox
                         checked={paramSelected}
-                        disabled={requiredParam && !isAllIncludedParamDefaultable}
+                        {...(requiredParam && !isAllIncludedParamDefaultable && { disabled: true })}
                         onClick={toggleParamCheck}
                         className={stmtEditorHelperClasses.parameterCheckbox}
                         data-testid="arg-check"

@@ -28,6 +28,8 @@ export interface StatementEditorComponentProps {
     targetPosition: NodePosition;
     config: any;
     skipSemicolon?: boolean;
+    extraModules?: Set<string>;
+    formArgs?: any;
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
     const { rpcClient } = useRpcContext();
@@ -44,14 +46,22 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         onClose,
         targetPosition,
         config,
-        skipSemicolon
+        skipSemicolon,
+        extraModules,
+        formArgs
     } = props;
+
+
+    const openExternalUrl = (url: string) => {
+        rpcClient.getCommonRpcClient().openExternalUrl({ url: url});
+    }
 
     const stmtEditorComponent = StatementEditorWrapper(
         {
             formArgs: {
                 formArgs: {
                     targetPosition: targetPosition,
+                    ...formArgs 
                 }
             },
             config: config,
@@ -69,7 +79,9 @@ function StatementEditorC(props: StatementEditorComponentProps) {
                 originalContent: currentFile.content
             },
             onCancel,
-            skipSemicolon: skipSemicolon ? skipSemicolon : false
+            skipSemicolon: skipSemicolon ? skipSemicolon : false,
+            extraModules: extraModules,
+            openExternalUrl: openExternalUrl
         }
     );
 

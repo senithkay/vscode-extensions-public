@@ -1,4 +1,4 @@
-import { ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LineRange, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-core";
+import { ConfigOverlayFormStatus, ConnectorInfo, ConnectorWizardProps, DiagramOverlayPosition, FunctionDef, LineRange, LowcodeEvent, PlusWidgetProps, STModification, STSymbolInfo } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { PlusViewState } from "../ViewState";
@@ -13,7 +13,7 @@ export interface LowCodeDiagramProps extends LowCodeDiagramProperties {
     api?: LowCodeDiagramAPI;
     experimentalEnabled?: boolean;
     onAddComponent?: (targetPosition: NodePosition) => void;
-    onEditComponent?: (model: STNode, targetPosition: NodePosition, componentType?: string) => void;
+    onEditComponent?: (model: STNode, targetPosition: NodePosition, componentType?: string, connectorInfo?: ConnectorInfo) => void;
     onDeleteComponent?: (model: STNode) => void;
 }
 
@@ -42,7 +42,7 @@ export interface LowCodeDiagramProperties {
     onDiagramDoubleClick?: () => void,
     getListenerSignature?: (functionNode: STNode) => Promise<string>;
     onAddComponent?: (targetPosition: NodePosition) => void;
-    onEditComponent?: (model: STNode, targetPosition: NodePosition, componentType?: string) => void;
+    onEditComponent?: (model: STNode, targetPosition: NodePosition, componentType?: string, connectorInfo?: ConnectorInfo) => void;
     onDeleteComponent?: (model: STNode) => void;
 }
 

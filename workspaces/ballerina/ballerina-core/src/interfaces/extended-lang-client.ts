@@ -15,6 +15,7 @@ import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleRespon
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData } from "./eggplant";
+import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -473,7 +474,7 @@ export type EggplantAvailableNodesResponse = {
 };
 
 export interface EggplantNodeTemplateRequest {
-    position: LineRange;
+    position: LinePosition;
     filePath: string;
     id: CodeData;
 }
@@ -542,7 +543,7 @@ export interface ExtendedLangClientInterface extends EggplantInterface {
     getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE>;
     getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
     getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE>;
-    getConnector(params: ConnectorParams): Promise<Connector | NOT_SUPPORTED_TYPE>;
+    getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;
     getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE>;
     getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;
     getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE>;

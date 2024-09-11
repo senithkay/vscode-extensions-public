@@ -17,7 +17,10 @@ import {
     CommandsRequest,
     CommandsResponse,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
     ProjectDirResponse,
+    RunExternalCommandRequest,
+    RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
@@ -29,5 +32,8 @@ export interface CommonRPCAPI {
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
     getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
+    runBackgroundTerminalCommand: (params: RunExternalCommandRequest) => Promise<RunExternalCommandResponse>;
+    openExternalUrl: (params: OpenExternalUrlRequest) => void;
     askProjectDirPath: () => Promise<ProjectDirResponse>;
+    experimentalEnabled: () => Promise<boolean>;
 }

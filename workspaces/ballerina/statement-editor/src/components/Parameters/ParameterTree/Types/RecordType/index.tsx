@@ -38,7 +38,7 @@ export default function RecordType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <VSCodeCheckbox
                         checked={paramSelected}
-                        disabled={requiredParam}
+                        {...(requiredParam && { disabled: true })}
                         onClick={toggleParamCheck}
                         className={stmtEditorHelperClasses.parameterCheckbox}
                         data-testid="arg-check"

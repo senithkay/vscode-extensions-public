@@ -34,6 +34,9 @@ import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
 import { RecordEditor } from './views/RecordEditor/RecordEditor';
 import PopupPanel from './PopupPanel';
+import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard"
+import { EndpointList } from './views/Connectors/EndpointList';
+import { getSymbolInfo } from '@wso2-enterprise/ballerina-low-code-diagram';
 
 const globalStyles = css`
   *,
@@ -115,7 +118,7 @@ const MainPanel = () => {
             rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
             await langServerRPCClient.updateFileContent({
                 content: newSource,
-                fileUri: filePath
+                filePath
             });
         }
     };
@@ -154,6 +157,7 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
+                                isEggplant={value.isEggplant}
                                 applyModifications={applyModifications}
                             />
                         ));
@@ -217,6 +221,10 @@ const MainPanel = () => {
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
+                {sidePanel !== "EMPTY" && sidePanel === "ADD_CONNECTION" &&
+                    <ConnectorList applyModifications={applyModifications} />
+                }
+
                 {popupMessage &&
                     <PopupMessage onClose={handleOnCloseMessage}>
                         <Typography variant='h3'>This feature is coming soon!</Typography>
@@ -244,6 +252,9 @@ const MainPanel = () => {
                         </FormView>
                     </PopUpContainer>
                 )}
+                {sidePanel !== "EMPTY" && sidePanel === "ADD_ACTION" &&
+                    <EndpointList stSymbolInfo={getSymbolInfo()} applyModifications={applyModifications} />
+                }
             </VisualizerContainer>
         </>
     );
