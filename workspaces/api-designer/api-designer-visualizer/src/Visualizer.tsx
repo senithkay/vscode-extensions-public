@@ -14,7 +14,6 @@ import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
-import petstoreJSON from "./views/APIDesignerView/Data/petstore.json";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -72,8 +71,6 @@ export function Visualizer({ mode }: { mode: string }) {
         </ErrorBoundary>
     );
 };
-
-const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 
 const VisualizerComponent = React.memo(({ state, handleResetError }: { state: MachineStateValue, handleResetError: () => void }) => {
     switch (true) {

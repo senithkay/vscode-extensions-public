@@ -46,7 +46,10 @@
     "commands": [
       {
         "command": "APIDesigner.openAPIDesigner",
-        "icon": "assets/icon.svg",
+        "icon": {
+          "light": "assets/light-APIResource.svg",
+          "dark": "assets/dark-APIResource.svg"
+        },
         "title": "Open API Designer",
         "category": "APIDesigner",
         "when": "isFileOpenAPI"

@@ -8,7 +8,6 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { NavigationBar } from './components/NavigationBar';
 import { APIDesigner } from './views/APIDesignerView/APIDesigner';
-import petstoreJSON from "./views/APIDesignerView/Data/petstore.json";
 
 const MainContainer = styled.div`
     display: flex;
@@ -100,8 +99,6 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
         return `${JSON.stringify(model?.range)}-${documentUri}`;
     }
 
-    const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
-
     const fetchContext = () => {
         rpcClient.getVisualizerState().then(async (machineView) => {
             let shouldShowNavigator = true;
@@ -110,7 +107,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     setViewComponent(<Overview stateUpdated />);
                     break;
                 case MACHINE_VIEW.Welcome:
-                    setViewComponent(<APIDesigner openAPIDefinition={apiDefinition} fileUri={machineView.documentUri}/>);
+                    setViewComponent(<APIDesigner fileUri={machineView.documentUri}/>);
                     break;
                 default:
                     setViewComponent(null);
