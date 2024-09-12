@@ -13,6 +13,8 @@ import path from "path";
 import { CreateComponentRequest, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
 
+export const README_FILE = "readme.md";
+
 export function openEggplantProject() {
     window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open Eggplant Project' })
         .then(uri => {
@@ -103,7 +105,13 @@ eggplant = true
 
 
 export async function createEggplantService(params: CreateComponentRequest) {
+    const serviceFile = await handleServiceCreation(params);
+    history.clear();
+    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
+    commands.executeCommand("Eggplant.project-explorer.refresh");
+}
 
+export async function handleServiceCreation(params: CreateComponentRequest) {
     if (!params.path.startsWith('/')) {
         params.path = `/${params.path}`;
     }
@@ -124,14 +132,15 @@ service ${params.path} on new http:Listener(${params.port}) {
 `;
     const servicesDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
-    const fooBalPath = path.join(servicesDir, `${params.name}.bal`);
-    fs.writeFileSync(fooBalPath, fooBalContent.trim());
+    const serviceFile = path.join(servicesDir, `${params.name}.bal`);
+    fs.writeFileSync(serviceFile, fooBalContent.trim());
     console.log('Service Created.', `${params.name}.bal`);
-
     await new Promise(resolve => setTimeout(resolve, 1000));
-    history.clear();
-    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: fooBalPath, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
-    commands.executeCommand("Eggplant.project-explorer.refresh");
+    return serviceFile;
+}
+
+export function sanitizeName(name: string): string {
+    return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); // Replace invalid characters with underscores
 }
 
 // ------------------- HACKS TO MANIPULATE PROJECT FILES ---------------->

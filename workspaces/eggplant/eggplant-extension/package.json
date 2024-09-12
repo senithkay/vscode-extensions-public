@@ -64,35 +64,25 @@
                     "command": "Eggplant.project-explorer.add-entry-point",
                     "when": "view == Eggplant.project-explorer && viewItem == entryPoint",
                     "group": "inline"
+                },
+                {
+                    "command": "Eggplant.project-explorer.add-schema",
+                    "when": "view == Eggplant.project-explorer && viewItem == schemas",
+                    "group": "inline"
+                },
+                {
+                    "command": "Eggplant.project-explorer.add-function",
+                    "when": "view == Eggplant.project-explorer && viewItem == functions",
+                    "group": "inline"
+                },
+                {
+                    "command": "Eggplant.project-explorer.add-configuration",
+                    "when": "view == Eggplant.project-explorer && viewItem == configurations",
+                    "group": "inline"
                 }
             ]
         },
-        "commands": [
-            {
-                "command": "ballerina.open.eggplant.welcome",
-                "title": "Open Welcome",
-                "category": "Eggplant"
-            },
-            {
-                "command": "Eggplant.project-explorer.refresh",
-                "title": "Refresh Eggplant",
-                "category": "Eggplant"
-            },
-            {
-                "command": "Eggplant.project-explorer.add-connection",
-                "title": "Add Connection",
-                "icon": "$(add)",
-                "group": "navigation",
-                "category": "Eggplant"
-            },
-            {
-                "command": "Eggplant.project-explorer.add-entry-point",
-                "title": "Add Entry Point",
-                "icon": "$(add)",
-                "group": "navigation",
-                "category": "Eggplant"
-            }
-        ]
+        "commands": []
     },
     "scripts": {
         "vscode:prepublish": "pnpm run compile",

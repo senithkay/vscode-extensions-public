@@ -20,7 +20,6 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
@@ -129,8 +128,7 @@ export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
-    const { rpcClient } = useRpcContext();
+    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -141,7 +139,6 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             // Handle action when cmd key is pressed
             if (model.node.codedata.node === "DATA_MAPPER") {
                 const nodeProperties = model.node.properties;
-                const projectPath = (await rpcClient.getVisualizerLocation()).projectUri;
                 if (nodeProperties.hasOwnProperty("view")) {
                     const { fileName, startLine, endLine } = nodeProperties["view"].value;
                     openView && openView(projectPath + "/" + fileName, {

@@ -69,9 +69,11 @@ export enum SidePanelView {
 
 export interface EggplantFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
+    projectPath: string;
 }
 
-export function EggplantFlowDiagram(param: EggplantFlowDiagramProps) {
+export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
+    const { syntaxTree, projectPath } = props;
     const { rpcClient } = useRpcContext();
 
     const [model, setModel] = useState<Flow>();
@@ -90,9 +92,9 @@ export function EggplantFlowDiagram(param: EggplantFlowDiagramProps) {
     const suggestedText = useRef<string>();
 
     useEffect(() => {
-        console.log(">>> Updating sequence model...", param.syntaxTree);
+        console.log(">>> Updating sequence model...", syntaxTree);
         getSequenceModel();
-    }, [param.syntaxTree]);
+    }, [syntaxTree]);
 
     rpcClient.onParentPopupSubmitted(() => {
         // TODO: Fetch the newly added data from the popup view
@@ -457,14 +459,14 @@ export function EggplantFlowDiagram(param: EggplantFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+    const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const DiagramTitle = (
         <React.Fragment>
             <span>Resource:</span>
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <span>{getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}</span>
+            <span>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</span>
         </React.Fragment>
     );
 
@@ -488,6 +490,7 @@ export function EggplantFlowDiagram(param: EggplantFlowDiagramProps) {
                                     onAccept: onAcceptSuggestions,
                                     onDiscard: onDiscardSuggestions,
                                 }}
+                                projectPath={projectPath}
                             />
                         )}
                     </Container>
