@@ -147,7 +147,12 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.EggplantDiagram:
-                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree} />);
+                        setViewComponent(
+                            <EggplantDiagram
+                                syntaxTree={value?.syntaxTree}
+                                projectPath={value.projectUri}
+                            />
+                        );
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);

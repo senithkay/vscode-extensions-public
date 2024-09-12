@@ -46,10 +46,22 @@ export interface DiagramProps {
         onAccept(): void;
         onDiscard(): void;
     };
+    projectPath?: string;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { model, onAddNode, onDeleteNode, onAddComment, onNodeSelect, goToSource, openView, suggestions } = props;
+    const {
+        model,
+        onAddNode,
+        onDeleteNode,
+        onAddComment,
+        onNodeSelect,
+        goToSource,
+        openView,
+        suggestions,
+        projectPath
+    } = props;
+
     const [showErrorFlow, setShowErrorFlow] = useState(false);
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -162,6 +174,7 @@ export function Diagram(props: DiagramProps) {
         goToSource: goToSource,
         openView: openView,
         suggestions: suggestions,
+        projectPath: projectPath,
     };
 
     return (
