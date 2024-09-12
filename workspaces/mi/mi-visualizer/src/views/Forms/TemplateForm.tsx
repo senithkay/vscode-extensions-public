@@ -294,7 +294,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     return (
-        <FormView title="Template Artifact" onClose={handleCancel}>
+        <FormView title="Template" onClose={handleCancel}>
             {templateType === '' && isNewTemplate ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
                 <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={isNewTemplate}/>
                 <TextField
