@@ -15,6 +15,7 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
+import { createProject } from './Utils';
 const fs = require('fs');
 
 const resourcesFolder = path.join(__dirname, '..', 'test-resources');
@@ -43,22 +44,7 @@ test('Create new project', async () => {
   // Note: This is not required for CI/CD pipeline
   await page.waitUntilExtensionReady();
 
-  await page.selectSidebarItem('Micro Integrator');
-  const welcomePage = new Welcome(page.page);
-  await welcomePage.init();
-  await welcomePage.createNewProject();
-
-  const createNewProjectForm = new Form(page.page, 'Project Creation Form');
-  await createNewProjectForm.switchToFormView();
-  await createNewProjectForm.fill({
-    values: {
-      'Project Name*': {
-        type: 'input',
-        value: 'testProject'
-      },
-    }
-  });
-  await createNewProjectForm.submit();
+  await createProject(page);
 });
 
 test('Create new API', async () => {
