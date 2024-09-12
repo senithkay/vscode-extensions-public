@@ -29,6 +29,7 @@ export interface FormGeneratorProps {
     watch: any;
     getValues: any;
     skipGeneralHeading?: boolean;
+    ignoreFields?: string[];
 }
 
 interface Element {
@@ -49,7 +50,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -222,6 +223,10 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element.type === 'attribute') {
                 if (element.value.hidden) {
                     setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
+                    return;
+                }
+
+                if (ignoreFields?.includes(element.value.name)) {
                     return;
                 }
 

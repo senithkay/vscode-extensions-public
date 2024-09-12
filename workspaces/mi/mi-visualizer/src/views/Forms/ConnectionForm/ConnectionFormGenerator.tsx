@@ -417,7 +417,8 @@ export function AddConnection(props: AddConnectionProps) {
                             setValue={setValue}
                             watch={watch}
                             getValues={getValues}
-                            skipGeneralHeading={true} />
+                            skipGeneralHeading={true}
+                            ignoreFields={["connectionName"]} />
                         <FormActions>
                             <Button
                                 appearance="primary"
