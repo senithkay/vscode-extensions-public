@@ -125,11 +125,17 @@ export const submitCreateComponentHandler = async ({ createParams, endpoint, org
 			!existsSync(join(createParams.componentDir, ".choreo", "endpoints.yaml")) &&
 			!existsSync(join(createParams.componentDir, ".choreo", "component-config.yaml"))
 		) {
-			const componentConfPath = await ext.clients.rpcClient.createComponentConfig({
-				componentDir: createParams.componentDir,
-				type: createParams.type,
-				inbound: endpoint,
-			});
+			const componentConfPath = await window.withProgress(
+				{
+					title: `Generating component-config for new component ${createParams.displayName}...`,
+					location: ProgressLocation.Notification,
+				},
+				() => ext.clients.rpcClient.createComponentConfig({
+					componentDir: createParams.componentDir,
+					type: createParams.type,
+					inbound: endpoint,
+				}),
+			);
 
 			window
 				.showInformationMessage(

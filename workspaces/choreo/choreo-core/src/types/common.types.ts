@@ -239,10 +239,17 @@ export interface ComponentEP {
 	projectUrl: string;
 	organizationUrl: string;
 	publicUrl: string;
-	state: string;
+	state: EndpointDeploymentStatus;
 	stateReason: StateReason;
 	isDeleted: boolean;
 	deletedAt: Date;
+}
+
+export enum EndpointDeploymentStatus {
+	Pending = 'Pending',
+	InProgress = 'Progressing',
+	Active = 'Active',
+	Error = 'Error',
 }
 
 export interface ComponentDeployment {
@@ -298,4 +305,109 @@ export interface StateReason {
 
 export interface WorkspaceConfig {
 	folders: { name: string; path: string }[];
+}
+
+export interface Pagination {
+	/** @format int64 */
+	limit: number;
+	/** @format int64 */
+	total: number;
+	/** @format int64 */
+	offset: number;
+}
+
+export interface MarketplaceItemSchemaEntry {
+	name: string;
+	type: string;
+	description?: string;
+	isSensitive: boolean;
+	isOptional: boolean;
+}
+
+export interface MarketplaceItemSchema {
+	name: string;
+	id?: string;
+	description: string;
+	isDefault: boolean;
+	entries: MarketplaceItemSchemaEntry[];
+}
+
+export interface MarketplaceItem {
+	serviceId: string;
+	status: "DEPRECATED" | "PUBLISHED" | "PROTOTYPE";
+	serviceType: "ASYNC_API" | "GRPC" | "GRAPHQL" | "SOAP" | "REST";
+	connectionSchemas: MarketplaceItemSchema[];
+	resourceId: string;
+	thumbnailUrl: string;
+	/** @format float */
+	averageRating: number;
+	/** @format int64 */
+	totalRatingCount: number;
+	createdTime: string;
+	name: string;
+	version: string;
+	resourceType: "SERVICE";
+	organizationId: string;
+	projectId?: string;
+	/** Choreo component info of a marketplace resource. */
+	component?: {
+		componentId: string;
+		endpointId: string;
+		apimId: string;
+	};
+	summary?: string;
+	description?: string;
+	tags?: string[];
+	categories?: string[];
+	visibility: ("PUBLIC" | "ORGANIZATION" | "PROJECT")[];
+}
+
+export interface ConnectionStatus {
+	stage: string;
+	result: string;
+	success: boolean;
+}
+
+interface ConnectionBase {
+	name: string;
+	description: string;
+	groupUuid: string;
+	serviceName: string;
+	serviceId: string;
+	schemaName: string;
+	schemaReference: string;
+	isPartiallyCreated: boolean;
+	status: {
+		[key:string]:ConnectionStatus[]
+	}
+}
+
+export interface ConnectionListItem extends ConnectionBase{
+	componentId: string;
+	dependentComponentId: string;
+	version: string;
+	resourceType: string;
+}
+
+export interface ConnectionDetailed {
+	configurations: {
+		[id: string]:{
+			environmentUuid: string;
+			entries:{
+				[entryName: string]:{
+					key: string;
+					keyUuid: string;
+					value: string;
+					isSensitive: boolean;
+					isFile: boolean;
+				}
+			}
+		}
+	}
+	envMapping: object;
+	visibilities: {
+		organizationUuid: string;
+		projectUuid: string;
+		componentUuid: string;
+	}[]
 }

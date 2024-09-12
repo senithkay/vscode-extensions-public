@@ -16,11 +16,15 @@ import type {
 	ComponentDeployment,
 	ComponentEP,
 	ComponentKind,
+	ConnectionDetailed,
+	ConnectionListItem,
 	DeploymentTrack,
 	Environment,
+	MarketplaceItem,
+	Pagination,
 	Project,
 } from "./common.types";
-import type { InboundConfig } from "./config-file.types";
+import type { InboundConfig, ServiceReferenceEnv } from "./config-file.types";
 
 export interface BuildPackReq {
 	orgId: string;
@@ -165,6 +169,102 @@ export interface GetTestKeyResp {
 	validityTime: number;
 }
 
+export interface MarketplaceListResp {
+	/** @format int64 */
+	count: number;
+	pagination: Pagination;
+	data: MarketplaceItem[];
+}
+
+export interface MarketplaceIdlResp {
+	environmentId: string;
+	content: string;
+	idlType: string;
+}
+
+export interface GetMarketplaceItemsParams {
+	/** @format int64 @default 20 */
+	limit?: number;
+	/**  Offset of the results. @default 0  */
+	offset?: number;
+	/** Sort by `name`, `createdTime`. By default sorted by `name` */
+	sortBy?: string;
+	/** Whether to sort in ascending order. By default `true`.  @default true */
+	sortAscending?: boolean;
+	/** Search within the content (description, summary and IDL) of the service. @default false */
+	searchContent?: boolean;
+	/** Filter services based on network visibility. Possible values are "project", "org", "public". @default "org" */
+	networkVisibilityFilter?: string;
+	/** Optionally filter services based on service name, description, summary and IDL. */
+	query?: string | null;
+	/** Optionally filter services based on tags. Multiple tags can be provided as a comma separated list. */
+	tags?: string | null;
+	/** Optionally filter services based on categories. Multiple categories can be provided as a comma separated list. */
+	categories?: string | null;
+	/** Optionally filter services based on whether they are third party or not. By default null, meaning this filter is not effective. */
+	isThirdParty?: boolean | null;
+	/** When networkVisibilityFilter is "project", this parameter can be used to filter services */
+	networkVisibilityprojectId?: string | null;
+}
+
+export interface GetMarketplaceListReq {
+	orgId: string;
+	request: GetMarketplaceItemsParams;
+}
+
+export interface GetMarketplaceIdlReq {
+	orgId: string;
+	serviceId: string;
+}
+
+export interface GetConnectionsReq{
+	orgId: string;
+	projectId: string;
+	componentId: string;
+}
+
+export interface GetConnectionItemReq{
+	orgId: string;
+	connectionGroupId: string;
+}
+
+export interface CreateComponentConnectionReq{
+	orgId: string;
+	orgUuid: string;
+	projectId: string;
+	componentId: string;
+	componentPath: string;
+	componentType: string;
+	serviceId: string;
+	serviceVisibility: string;
+	serviceSchemaId: string;
+	name: string;
+	envs: ServiceReferenceEnv[]
+}
+
+export interface DeleteConnectionReq{
+	orgId: string;
+	connectionId: string;
+	connectionName: string;
+	componentPath: string;
+}
+
+export interface GetConnectionGuideReq{
+	orgId: string;
+	orgUuid: string;
+	serviceId: string;
+	configGroupId: string;
+	connectionSchemaId: string;
+	audience: string;
+	isSpa: boolean;
+	isProjectLvlConnection: boolean;
+	buildpackType: string
+}
+
+export interface GetConnectionGuideResp{
+	guide: string;
+}
+
 export interface IChoreoRPCClient {
 	getProjects(orgID: string): Promise<Project[]>;
 	getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
@@ -185,6 +285,13 @@ export interface IChoreoRPCClient {
 	createDeployment(params: CreateDeploymentReq): Promise<void>;
 	getTestKey(params: GetTestKeyReq): Promise<GetTestKeyResp>;
 	getSwaggerSpec(params: GetSwaggerSpecReq): Promise<object>;
+	getMarketplaceItems(params: GetMarketplaceListReq): Promise<MarketplaceListResp>;
+	getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp>;
+	getConnections(params: GetConnectionsReq): Promise<ConnectionListItem[]>;
+	getConnectionItem(params: GetConnectionItemReq): Promise<ConnectionListItem>;
+	createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed>;
+	deleteConnection(params: DeleteConnectionReq): Promise<void>;
+	getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -247,6 +354,27 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	getSwaggerSpec(params: GetSwaggerSpecReq): Promise<object> {
 		return this._messenger.sendRequest(ChoreoRpcGetSwaggerRequest, HOST_EXTENSION, params);
 	}
+	getMarketplaceItems(params: GetMarketplaceListReq): Promise<MarketplaceListResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetMarketplaceItems, HOST_EXTENSION, params);
+	}
+	getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetMarketplaceItemIdl, HOST_EXTENSION, params);
+	}
+	getConnections(params: GetConnectionsReq): Promise< ConnectionListItem[]> {
+		return this._messenger.sendRequest(ChoreoRpcGetConnections, HOST_EXTENSION, params);
+	}
+	getConnectionItem(params: GetConnectionItemReq): Promise< ConnectionListItem> {
+		return this._messenger.sendRequest(ChoreoRpcGetConnectionItem, HOST_EXTENSION, params);
+	}
+	createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed> {
+		return this._messenger.sendRequest(ChoreoRpcCreateComponentConnection, HOST_EXTENSION, params);
+	}
+	deleteConnection(params: DeleteConnectionReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcDeleteConnection, HOST_EXTENSION, params);
+	}
+	getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetConnectionGuide, HOST_EXTENSION, params);
+	}
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: "rpc/project/getProjects" };
@@ -272,3 +400,22 @@ export const ChoreoRpcGetDeploymentStatusRequest: RequestType<GetDeploymentStatu
 export const ChoreoRpcCreateDeploymentRequest: RequestType<CreateDeploymentReq, void> = { method: "rpc/deployment/create" };
 export const ChoreoRpcGetTestKeyRequest: RequestType<GetTestKeyReq, GetTestKeyResp> = { method: "rpc/apim/getTestKey" };
 export const ChoreoRpcGetSwaggerRequest: RequestType<GetSwaggerSpecReq, object> = { method: "rpc/apim/getSwaggerSpec" };
+export const ChoreoRpcGetMarketplaceItems: RequestType<GetMarketplaceListReq, MarketplaceListResp> = {
+	method: "rpc/connections/getMarketplaceItems",
+};
+export const ChoreoRpcGetMarketplaceItemIdl: RequestType<GetMarketplaceIdlReq, MarketplaceIdlResp> = {
+	method: "rpc/connections/getMarketplaceItemIdl",
+};
+export const ChoreoRpcGetConnections: RequestType<GetConnectionsReq, ConnectionListItem[]> = {
+	method: "rpc/connections/getConnections",
+};
+export const ChoreoRpcGetConnectionItem: RequestType<GetConnectionItemReq, ConnectionListItem> = {
+	method: "rpc/connections/getConnectionItem",
+};
+export const ChoreoRpcCreateComponentConnection: RequestType<CreateComponentConnectionReq, ConnectionDetailed> = {
+	method: "rpc/connections/createComponentConnection",
+};
+export const ChoreoRpcDeleteConnection: RequestType<DeleteConnectionReq, void> = { method: "rpc/connections/deleteConnection" };
+export const ChoreoRpcGetConnectionGuide: RequestType<GetConnectionGuideReq, GetConnectionGuideResp> = { method: "rpc/connections/getGuide" };
+
+

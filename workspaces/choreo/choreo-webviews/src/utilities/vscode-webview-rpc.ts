@@ -12,6 +12,7 @@ import {
 	AuthStoreChangedNotification,
 	ChoreoRpcWebview,
 	ClearWebviewCache,
+	CloseComponentViewDrawer,
 	CloseWebViewNotification,
 	type CommitHistory,
 	type ComponentKind,
@@ -27,8 +28,13 @@ import {
 	GetSubPath,
 	GetWebviewStoreState,
 	GoToSource,
+	HasDirtyLocalGitRepo,
+	HasRepoConfigFileDrift,
+	type HasRepoConfigFileDriftReq,
 	type IChoreoRPCClient,
 	JoinFilePaths,
+	OpenComponentViewDrawer,
+	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
 	OpenSubDialogRequest,
@@ -237,5 +243,21 @@ export class ChoreoWebViewAPI {
 
 	public async openExternal(url: string): Promise<void> {
 		this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+	}
+
+	public async openComponentViewDrawer(params: OpenComponentViewDrawerReq): Promise<void> {
+		return this._messenger.sendRequest(OpenComponentViewDrawer, HOST_EXTENSION, params);
+	}
+
+	public async closeComponentViewDrawer(componentKey: string): Promise<void> {
+		return this._messenger.sendRequest(CloseComponentViewDrawer, HOST_EXTENSION, componentKey);
+	}
+
+	public async hasDirtyLocalGitRepo(componentPath: string): Promise<boolean> {
+		return this._messenger.sendRequest(HasDirtyLocalGitRepo, HOST_EXTENSION, componentPath);
+	}
+
+	public async hasRepoConfigFileDrift(componentPath: HasRepoConfigFileDriftReq): Promise<boolean> {
+		return this._messenger.sendRequest(HasRepoConfigFileDrift, HOST_EXTENSION, componentPath);
 	}
 }

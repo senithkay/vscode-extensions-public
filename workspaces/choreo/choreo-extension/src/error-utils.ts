@@ -33,23 +33,31 @@ export function handlerError(err: any) {
 				getLogger().error("InternalError", err);
 				break;
 			case ErrorCode.UnauthorizedError:
-				authStore.getState().logout();
-				w.showErrorMessage("Unauthorized. Please sign in again.");
+				if (authStore.getState().state?.userInfo) {
+					authStore.getState().logout();
+					w.showErrorMessage("Unauthorized. Please sign in again.");
+				}
 				break;
 			case ErrorCode.TokenNotFoundError:
-				authStore.getState().logout();
-				w.showErrorMessage("Token not found. Please sign in again.");
+				if (authStore.getState().state?.userInfo) {
+					authStore.getState().logout();
+					w.showErrorMessage("Token not found. Please sign in again.");
+				}
 				break;
 			case ErrorCode.InvalidTokenError:
-				authStore.getState().logout();
-				w.showErrorMessage("Invalid token. Please sign in again.");
+				if (authStore.getState().state?.userInfo) {
+					authStore.getState().logout();
+					w.showErrorMessage("Invalid token. Please sign in again.");
+				}
 				break;
 			case ErrorCode.ForbiddenError:
 				getLogger().error("ForbiddenError", err);
 				break;
 			case ErrorCode.RefreshTokenError:
-				authStore.getState().logout();
-				w.showErrorMessage("Failed to refresh user session. Please sign in again.");
+				if (authStore.getState().state?.userInfo) {
+					authStore.getState().logout();
+					w.showErrorMessage("Failed to refresh user session. Please sign in again.");
+				}
 				break;
 			case ErrorCode.ComponentNotFound:
 				w.showErrorMessage("Component not found");

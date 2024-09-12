@@ -35,6 +35,12 @@ export interface AuthState {
 
 export interface WebviewState {
 	openedComponentKey: string;
+	componentViews:{
+		[componentKey: string]:{
+			openedDrawer?: string
+			drawerParams?: any
+		}
+	}
 }
 
 export interface ContextItem {

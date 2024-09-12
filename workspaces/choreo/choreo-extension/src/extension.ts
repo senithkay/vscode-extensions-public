@@ -14,6 +14,7 @@ import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { ChoreoRPCClient } from "./choreo-rpc";
 import { initRPCServer } from "./choreo-rpc/activate";
 import { activateCmds } from "./cmds";
+import { activateCodeLenses } from "./code-lens";
 import { ext } from "./extensionVariables";
 import { getLogger, initLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
@@ -68,6 +69,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			activateCmds(context);
 			activateActivityWebViews(context); // activity web views
 			activateURIHandlers();
+			activateCodeLenses(context);
 
 			getLogger().debug("Choreo Extension activated");
 		})

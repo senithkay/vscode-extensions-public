@@ -17,6 +17,7 @@ import type {
 import React from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuthContextProvider } from "./providers/auth-ctx-provider";
+import { ExtWebviewContextProvider } from "./providers/ext-vewview-ctx-provider";
 import { ChoreoWebviewQueryClientProvider } from "./providers/react-query-provider";
 import { ComponentDetailsView } from "./views/ComponentDetailsView";
 import { ComponentFormView } from "./views/ComponentFormView";
@@ -27,24 +28,26 @@ function ChoreoWebview(props: WebviewProps) {
 	return (
 		<ChoreoWebviewQueryClientProvider type={props.type}>
 			<ErrorBoundary>
-				<AuthContextProvider viewType={props.type}>
-					<main>
-						{(() => {
-							switch (props.type) {
-								case "NewComponentForm":
-									return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
-								case "TestView":
-									return <ComponentTestView {...(props as TestWebviewProps)} />;
-								case "ComponentDetailsView":
-									return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
-								case "ComponentsListActivityView":
-									return <ComponentListView {...(props as ComponentsListActivityViewProps)} />;
-								default:
-									return null;
-							}
-						})()}
-					</main>
-				</AuthContextProvider>
+				<ExtWebviewContextProvider>
+					<AuthContextProvider viewType={props.type}>
+						<main>
+							{(() => {
+								switch (props.type) {
+									case "NewComponentForm":
+										return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
+									case "TestView":
+										return <ComponentTestView {...(props as TestWebviewProps)} />;
+									case "ComponentDetailsView":
+										return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
+									case "ComponentsListActivityView":
+										return <ComponentListView {...(props as ComponentsListActivityViewProps)} />;
+									default:
+										return null;
+								}
+							})()}
+						</main>
+					</AuthContextProvider>
+				</ExtWebviewContextProvider>
 			</ErrorBoundary>
 		</ChoreoWebviewQueryClientProvider>
 	);

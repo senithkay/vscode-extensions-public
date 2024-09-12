@@ -100,3 +100,9 @@ export enum ChoreoComponentType {
 	TestRunner = "testRunner",
 	ApiProxy = "proxy",
 }
+
+export enum ComponentViewDrawers {
+	Test = "Test",
+	CreateConnection =  "CreateConnection",
+	ConnectionGuide = "ConnectionGuide"
+}

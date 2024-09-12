@@ -9,58 +9,6 @@
 
 import { ChoreoComponentType, ChoreoImplementationType, ComponentDisplayType, type ComponentKind } from "@wso2-enterprise/choreo-core";
 
-export const getTypeForDisplayType = (displayType: string): string => {
-	switch (displayType) {
-		case ComponentDisplayType.RestApi:
-		case ComponentDisplayType.Service:
-		case ComponentDisplayType.ByocService:
-		case ComponentDisplayType.GraphQL:
-		case ComponentDisplayType.MiApiService:
-		case ComponentDisplayType.MiRestApi:
-		case ComponentDisplayType.BuildpackService:
-		case ComponentDisplayType.BuildRestApi:
-		case ComponentDisplayType.Websocket:
-		case ComponentDisplayType.ByoiService:
-			return ChoreoComponentType.Service;
-		case ComponentDisplayType.ManualTrigger:
-		case ComponentDisplayType.ByocJob:
-		case ComponentDisplayType.ByoiJob:
-		case ComponentDisplayType.BuildpackJob:
-		case ComponentDisplayType.MiJob:
-			return ChoreoComponentType.ManualTrigger;
-		case ComponentDisplayType.ScheduledTask:
-		case ComponentDisplayType.ByocCronjob:
-		case ComponentDisplayType.ByoiCronjob:
-		case ComponentDisplayType.MiCronjob:
-		case ComponentDisplayType.BuildpackCronJob:
-			return ChoreoComponentType.ScheduledTask;
-		case ComponentDisplayType.Webhook:
-		case ComponentDisplayType.MiWebhook:
-		case ComponentDisplayType.ByocWebhook:
-		case ComponentDisplayType.BuildpackWebhook:
-		case ComponentDisplayType.BallerinaWebhook:
-			return ChoreoComponentType.Webhook;
-		case ComponentDisplayType.Proxy:
-			return ChoreoComponentType.ApiProxy;
-		case ComponentDisplayType.ByocWebApp:
-		case ComponentDisplayType.ByocWebAppDockerLess:
-		case ComponentDisplayType.ByoiWebApp:
-		case ComponentDisplayType.BuildpackWebApp:
-			return ChoreoComponentType.WebApplication;
-		case ComponentDisplayType.MiEventHandler:
-		case ComponentDisplayType.BallerinaEventHandler:
-		case ComponentDisplayType.BuildpackEventHandler:
-		case ComponentDisplayType.ByocEventHandler:
-			return ChoreoComponentType.EventHandler;
-		case ComponentDisplayType.ByocTestRunner:
-		case ComponentDisplayType.BuildpackTestRunner:
-		case ComponentDisplayType.PostmanTestRunner:
-			return ChoreoComponentType.TestRunner;
-		default:
-			return displayType;
-	}
-};
-
 export const getComponentTypeText = (componentType: string): string => {
 	switch (componentType) {
 		case ChoreoComponentType.Service:

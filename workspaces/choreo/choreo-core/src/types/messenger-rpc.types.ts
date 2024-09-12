@@ -21,6 +21,7 @@ import type {
 } from "./common.types";
 import type { Endpoint } from "./config-file.types";
 import type { AuthState, ContextStoreState, WebviewState } from "./store.types";
+import { ComponentViewDrawers } from "../enums";
 
 // Request types
 export const GetAuthState: RequestType<void, AuthState> = { method: "getAuthState" };
@@ -54,6 +55,10 @@ export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: "
 export const OpenExternal: RequestType<string, void> = { method: "openExternal" };
 export const ShowOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "showOpenDialog" };
 export const SelectCommitToBuild: RequestType<SelectCommitToBuildReq, CommitHistory | undefined> = { method: "selectCommitToBuild" };
+export const OpenComponentViewDrawer: RequestType<OpenComponentViewDrawerReq, void> = { method: "openComponentViewDrawer" };
+export const CloseComponentViewDrawer: RequestType<string, void> = { method: "closeComponentViewDrawer" };
+export const HasDirtyLocalGitRepo: RequestType<string, boolean> = { method: "hasDirtyLocalGitRepo" };
+export const HasRepoConfigFileDrift: RequestType<HasRepoConfigFileDriftReq, boolean> = { method: "hasRepoConfigFileDrift" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -152,6 +157,18 @@ export interface SelectCommitToBuildReq {
 	component: ComponentKind;
 	project: Project;
 	deploymentTrack: DeploymentTrack;
+}
+
+export interface HasRepoConfigFileDriftReq {
+	repoDir: string;
+	repoUrl: string;
+	branch: string;
+}
+
+export interface OpenComponentViewDrawerReq {
+	componentKey: string
+	drawer: ComponentViewDrawers;
+	params?: any
 }
 
 export interface SetWebviewCacheRequestParam {

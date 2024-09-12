@@ -11,7 +11,6 @@ import type { AuthState, Organization, UserInfo } from "@wso2-enterprise/choreo-
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { ext } from "../extensionVariables";
-import { withRetries } from "../utils";
 import { contextStore } from "./context-store";
 import { dataCacheStore } from "./data-cache-store";
 import { getGlobalStateStore } from "./store-utils";
@@ -37,16 +36,14 @@ export const authStore = createStore(
 				contextStore.getState().refreshState();
 			},
 			logout: async () => {
-				try {
-					await ext.clients.rpcClient.signOut();
-				} catch {
-					// ignore error
-				}
 				get().resetState();
+				ext.clients.rpcClient.signOut().catch(() => {
+					// ignore error
+				});
 			},
 			initAuth: async () => {
 				try {
-					const userInfo = await withRetries(() => ext.clients.rpcClient.getUserInfo(), "getUserInfo", 2, 1000);
+					const userInfo = await ext.clients.rpcClient.getUserInfo();
 					userInfo ? get().loginSuccess(userInfo) : get().logout();
 				} catch (err) {
 					get().logout();

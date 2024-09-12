@@ -9,7 +9,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import type { TestWebviewProps } from "@wso2-enterprise/choreo-core";
 import clipboardy from "clipboardy";
 import React, { type FC, useMemo } from "react";
@@ -22,6 +21,7 @@ import { FormElementWrap } from "../../components/FormElements/FormElementWrap";
 import { HeaderSection } from "../../components/HeaderSection";
 import { SkeletonText } from "../../components/SkeletonText";
 import { SwaggerUI } from "../../components/SwaggerUI";
+import { SwaggerUISkeleton } from "../../components/SwaggerUI/SwaggerUI";
 import { useGetSwaggerSpec, useGetTestKey } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
@@ -46,6 +46,24 @@ const serviceTestSchema = z.object({
 });
 
 type serviceTestType = z.infer<typeof serviceTestSchema>;
+
+const disableAuthorizeAndInfoPluginDefaultSecuritySchema = {
+	statePlugins: {
+		spec: {
+			wrapSelectors: {
+				servers: () => (): any[] => [],
+				securityDefinitions: () => (): any => null,
+				schemes: () => (): any[] => [],
+			},
+		},
+	},
+	wrapComponents: { info: () => (): any => null, authorizeBtn: () => (): any => null },
+};
+
+const disableAuthorizeAndInfoPluginCustomSecuritySchema = {
+	statePlugins: { spec: { wrapSelectors: { servers: () => (): any[] => [], schemes: () => (): any[] => [] } } },
+	wrapComponents: { info: () => (): any => null },
+};
 
 export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, project, deploymentTrack, endpoints }) => {
 	const form = useForm<serviceTestType>({
@@ -72,11 +90,11 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 		enabled: !!selectedEndpoint,
 		refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
 		cacheTime: 0,
+		refetchOnWindowFocus: true,
 	});
 
 	const { data: swaggerSpec, isLoading: isLoadingSwagger } = useGetSwaggerSpec(selectedEndpoint, org, {
 		enabled: !!selectedEndpoint,
-		refetchOnWindowFocus: false,
 	});
 
 	const securitySchemas = useMemo(() => {
@@ -89,24 +107,6 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 		}
 		return null;
 	}, [swaggerSpec]);
-
-	const disableAuthorizeAndInfoPluginDefaultSecuritySchema = {
-		statePlugins: {
-			spec: {
-				wrapSelectors: {
-					servers: () => (): any[] => [],
-					securityDefinitions: () => (): any => null,
-					schemes: () => (): any[] => [],
-				},
-			},
-		},
-		wrapComponents: { info: () => (): any => null, authorizeBtn: () => (): any => null },
-	};
-
-	const disableAuthorizeAndInfoPluginCustomSecuritySchema = {
-		statePlugins: { spec: { wrapSelectors: { servers: () => (): any[] => [], schemes: () => (): any[] => [] } } },
-		wrapComponents: { info: () => (): any => null },
-	};
 
 	const getDisableAuthorizeAndInfoPlugin = () => {
 		if (securitySchemas && securitySchemas.length > 1) {
@@ -201,7 +201,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 							</Button>
 						</div>
 					</FormElementWrap>
-					{(isLoadingSwagger || isLoadingTestKey) && <VSCodeProgressRing className="my-10 self-center" />}
+					{(isLoadingSwagger || isLoadingTestKey) && <SwaggerUISkeleton />}
 					{swaggerObj && !isLoadingTestKey && testKeyResp?.apiKey && (
 						<SwaggerUI
 							spec={swaggerObj}

@@ -4,7 +4,7 @@
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
   "version": "2.0.0",
-  "cliVersion": "v1.2.42408051200",
+  "cliVersion": "v1.2.62409111700",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -110,6 +110,20 @@
         "category": "Choreo",
         "icon": "$(new-file)",
         "enablement": "isLoggedIn && isValidWorkspace && hasSelectedProject && notUsingWorkspaceFile"
+      },
+      {
+        "command": "wso2.choreo.component.create.dependency",
+        "title": "Create component dependency",
+        "shortTitle": "Create dependency",
+        "category": "Choreo",
+        "icon": "$(link)"
+      },
+      {
+        "command": "wso2.choreo.component.view.dependency",
+        "title": "View dependency documentation",
+        "shortTitle": "View dependency",
+        "category": "Choreo",
+        "icon": "$(preview)"
       }
     ],
     "viewsContainers": {

@@ -57,6 +57,12 @@ import {
 	type WebviewQuickPickItem,
 	WebviewStateChangedNotification,
 	getShortenedHash,
+	OpenComponentViewDrawer,
+	OpenComponentViewDrawerReq,
+	CloseComponentViewDrawer,
+	HasDirtyLocalGitRepo,
+	HasRepoConfigFileDrift,
+	HasRepoConfigFileDriftReq,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
 import * as vscode from "vscode";
@@ -68,7 +74,7 @@ import { quickPickWithLoader } from "../cmds/cmd-utils";
 import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, removeCredentialsFromGitURL } from "../git/util";
+import { getGitRemotes, hadChangesInConfigs, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
@@ -273,7 +279,19 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			view.dispose();
 		}
 	});
-
+	messenger.onRequest(OpenComponentViewDrawer, (params: OpenComponentViewDrawerReq)=>{
+		webviewStateStore.getState().onOpenComponentDrawer(params.componentKey, params.drawer, params.params)
+	});
+	messenger.onRequest(CloseComponentViewDrawer, (componentKey: string)=>{
+		webviewStateStore.getState().onCloseComponentDrawer(componentKey)
+	});
+	messenger.onRequest(HasDirtyLocalGitRepo, async (componentPath: string)=>{
+		return hasDirtyRepo(componentPath, ext.context)
+	});
+	messenger.onRequest(HasRepoConfigFileDrift, async (params: HasRepoConfigFileDriftReq)=>{
+		return hadChangesInConfigs(params.repoUrl, params.branch, params.repoDir, ext.context)
+	});
+	
 	// Register Choreo CLL RPC handler
 	registerChoreoRpcResolver(messenger, ext.clients.rpcClient);
 }

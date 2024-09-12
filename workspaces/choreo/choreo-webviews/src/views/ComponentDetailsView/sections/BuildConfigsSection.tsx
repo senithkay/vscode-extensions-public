@@ -7,16 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ChoreoBuildPackNames, ComponentDisplayType, type ComponentKind } from "@wso2-enterprise/choreo-core";
+import { ChoreoBuildPackNames, ComponentDisplayType, type ComponentKind, getTypeForDisplayType } from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
-import { getBuildpackForComponent, getTypeForDisplayType } from "../utils";
+import { getBuildpackForComponent } from "../utils";
 import { type IRightPanelSectionItem, RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
-export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ component }) => {
+export const BuildConfigsSection: FC<{ component: ComponentKind; showDivider?: boolean }> = ({ component, showDivider }) => {
 	const buildConfigList = getBuildConfigViewList(component);
 
 	return (
-		<RightPanelSection title="Build Configurations" showDivider={false}>
+		<RightPanelSection title="Build Configurations" showDivider={showDivider}>
 			{buildConfigList.map((item) => (
 				<RightPanelSectionItem key={item.label} {...item} />
 			))}

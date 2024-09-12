@@ -9,20 +9,27 @@
 
 import {
 	ChoreoRpcCreateBuildRequest,
+	ChoreoRpcCreateComponentConnection,
 	ChoreoRpcCreateComponentRequest,
 	ChoreoRpcCreateDeploymentRequest,
 	ChoreoRpcCreateProjectRequest,
 	ChoreoRpcDeleteComponentRequest,
+	ChoreoRpcDeleteConnection,
 	ChoreoRpcGetBranchesRequest,
 	ChoreoRpcGetBuildPacksRequest,
 	ChoreoRpcGetBuildsRequest,
 	ChoreoRpcGetCommitsRequest,
 	ChoreoRpcGetComponentItemRequest,
 	ChoreoRpcGetComponentsRequest,
+	ChoreoRpcGetConnectionGuide,
+	ChoreoRpcGetConnectionItem,
+	ChoreoRpcGetConnections,
 	ChoreoRpcGetDeploymentStatusRequest,
 	ChoreoRpcGetDeploymentTracksRequest,
 	ChoreoRpcGetEndpointsRequest,
 	ChoreoRpcGetEnvsRequest,
+	ChoreoRpcGetMarketplaceItemIdl,
+	ChoreoRpcGetMarketplaceItems,
 	ChoreoRpcGetProjectsRequest,
 	ChoreoRpcGetSwaggerRequest,
 	ChoreoRpcGetTestKeyRequest,
@@ -73,4 +80,19 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	});
 	messenger.onRequest(ChoreoRpcGetTestKeyRequest, (params) => rpcClient.getTestKey(params));
 	messenger.onRequest(ChoreoRpcGetSwaggerRequest, (params) => rpcClient.getSwaggerSpec(params));
+	messenger.onRequest(ChoreoRpcGetMarketplaceItems, (params) => rpcClient.getMarketplaceItems(params));
+	messenger.onRequest(ChoreoRpcGetMarketplaceItemIdl, (params) => rpcClient.getMarketplaceIdl(params));
+	messenger.onRequest(ChoreoRpcGetConnections, (params) => rpcClient.getConnections(params));
+	messenger.onRequest(ChoreoRpcGetConnectionItem, (params) => rpcClient.getConnectionItem(params));
+	messenger.onRequest(ChoreoRpcCreateComponentConnection, async (params) => {
+		return window.withProgress({ title: `Creating connection ${params.name}...`, location: ProgressLocation.Notification }, () =>
+			rpcClient.createComponentConnection(params),
+		);
+	});
+	messenger.onRequest(ChoreoRpcDeleteConnection, async (params) => {
+		return window.withProgress({ title: `Deleting connection ${params.connectionName}...`, location: ProgressLocation.Notification }, () =>
+			rpcClient.deleteConnection(params),
+		);
+	});
+	messenger.onRequest(ChoreoRpcGetConnectionGuide, (params) => rpcClient.getConnectionGuide(params));
 }

@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useQuery } from "@tanstack/react-query";
-import { ChoreoComponentType, type ComponentKind } from "@wso2-enterprise/choreo-core";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { ChoreoComponentType, type ComponentKind, getTypeForDisplayType } from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { getTypeForDisplayType } from "../utils";
 import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
 interface Props {
@@ -28,6 +28,17 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 		queryKey: ["get-service-endpoints", { directoryPath }],
 		queryFn: () => ChoreoWebViewAPI.getInstance().readServiceEndpoints(directoryPath),
 		enabled: !!directoryPath && componentType === ChoreoComponentType.Service,
+		refetchOnWindowFocus: true,
+	});
+
+	const { mutate: openSchemaFile } = useMutation({
+		mutationFn: async (schemaFilePath: string) => {
+			const filePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, schemaFilePath]);
+			return ChoreoWebViewAPI.getInstance().goToSource(filePath);
+		},
+		onError: () => {
+			ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to open schema path");
+		},
 	});
 
 	return (
@@ -48,7 +59,16 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 					{item.type && <RightPanelSectionItem label="Type" value={item.type} />}
 					{item.networkVisibility && <RightPanelSectionItem label="Network Visibility" value={item.networkVisibility} />}
 					{item.context && <RightPanelSectionItem label="Context" value={item.context} />}
-					{item.schemaFilePath && <RightPanelSectionItem label="Schema File Path" value={item.schemaFilePath} />}
+					{item.schemaFilePath && (
+						<RightPanelSectionItem
+							label="Schema File Path"
+							value={
+								<VSCodeLink onClick={() => openSchemaFile(item.schemaFilePath)} className="text-vsc-foreground">
+									{item.schemaFilePath}
+								</VSCodeLink>
+							}
+						/>
+					)}
 				</RightPanelSection>
 			))}
 		</>

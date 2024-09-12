@@ -25,9 +25,9 @@ import type { z } from "zod";
 import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
 import { Codicon } from "../../components/Codicon";
-import { Divider } from "../../components/Divider";
 import { Dropdown } from "../../components/FormElements/Dropdown";
 import { PathSelect } from "../../components/FormElements/PathSelect";
+import { SectionHeader } from "../../components/FormElements/SectionHeader";
 import { TextField } from "../../components/FormElements/TextField";
 import { HeaderSection } from "../../components/HeaderSection";
 import { useGetBuildPacks, useGetGitBranches, useGetGitRemotes } from "../../hooks/use-queries";
@@ -83,10 +83,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 		},
 		select: (resp) => resp?.endpoints?.length > 0,
 		enabled: selectedType === ChoreoComponentType.Service && !!selectedLang,
+		refetchOnWindowFocus: true,
 	});
 
 	const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useGetBuildPacks(selectedType, organization, {
-		refetchOnWindowFocus: false,
 		enabled: !!selectedType,
 	});
 
@@ -106,6 +106,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
 	const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useGetGitRemotes(directoryFsPath, subPath, {
 		keepPreviousData: true,
+		refetchOnWindowFocus: true,
 	});
 
 	useEffect(() => {
@@ -116,6 +117,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
 	const { isLoading: isLoadingBranches, data: branches = [] } = useGetGitBranches(repoUrl, organization, {
 		enabled: !!repoUrl,
+		refetchOnWindowFocus: true,
 	});
 
 	useEffect(() => {
@@ -144,6 +146,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 			}),
 		enabled: !!repoUrl,
 		keepPreviousData: true,
+		refetchOnWindowFocus: true,
 	});
 
 	const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
@@ -359,7 +362,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 							)}
 						</div>
 						<div>
-							<FormSectionHeader title="Component Source" />
+							<SectionHeader title="Component Source" />
 							<div className="grid gap-4 md:grid-cols-2">
 								<PathSelect
 									name="subPath"
@@ -376,11 +379,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 									{gitRemotes?.length > 0 && (
 										<Dropdown label="Repository" required name="repoUrl" control={form.control} items={gitRemotes} loading={isLoadingRemotes} />
 									)}
-									{invalidRepoMsg && (
-										<Banner type="warning" className="col-span-full md:order-last">
-											{invalidRepoMsg}
-										</Banner>
-									)}
+									{invalidRepoMsg && <Banner type="warning" className="col-span-full md:order-last" title={invalidRepoMsg} />}
 									{!invalidRepoMsg && gitRemotes?.length > 0 && (
 										<Dropdown
 											label="Branch"
@@ -397,7 +396,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 						</div>
 						{buildConfigs.length > 0 && (
 							<div>
-								<FormSectionHeader title="Build Configurations" />
+								<SectionHeader title="Build Configurations" />
 								<div className="grid gap-4 md:grid-cols-2" ref={buildConfigSections}>
 									{buildConfigs}
 								</div>
@@ -405,7 +404,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 						)}
 						{endpointConfigs.length > 0 && (
 							<div>
-								<FormSectionHeader title="Endpoint Configurations" />
+								<SectionHeader title="Endpoint Configurations" />
 								<div className="grid gap-4 md:grid-cols-2">{endpointConfigs}</div>
 							</div>
 						)}
@@ -424,15 +423,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 					</div>
 				</form>
 			</div>
-		</div>
-	);
-};
-
-const FormSectionHeader = ({ title }: { title: string }) => {
-	return (
-		<div className="mb-2 flex items-center gap-2 sm:gap-4">
-			<Divider className="flex-1" />
-			<h1 className="font-light text-base opacity-50">{title}</h1>
 		</div>
 	);
 };

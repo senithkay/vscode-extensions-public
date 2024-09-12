@@ -23,6 +23,7 @@ import {
 	type WebviewQuickPickItem,
 	WebviewQuickPickItemKind,
 	getTimeAgo,
+	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type ReactNode, useState } from "react";
@@ -30,10 +31,10 @@ import { listTimeZones } from "timezone-support";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
+import { Empty } from "../../../components/Empty";
 import { SkeletonText } from "../../../components/SkeletonText";
 import { queryKeys, useGetBuildList } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { getTypeForDisplayType } from "../utils";
 
 interface Props {
 	component: ComponentKind;
@@ -141,12 +142,7 @@ export const BuildsSection: FC<Props> = (props) => {
 				) : (
 					<>
 						{builds.length === 0 ? (
-							<>
-								<div className="flex flex-col items-center justify-center gap-3 p-8 lg:min-h-44">
-									<p className="text-center font-light text-sm opacity-40">There aren't any builds available</p>
-									<Codicon name="inbox" className="!text-4xl opacity-20" />
-								</div>
-							</>
+							<Empty text="There aren't any builds available" />
 						) : (
 							<>
 								{builds?.slice(0, visibleBuildCount)?.map((item, index) => (
@@ -324,7 +320,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 				/>
 			</GridColumnItem>
 			<GridColumnItem label="Started" index={2}>
-				{getTimeAgo(item.status?.startedAt)}
+				{getTimeAgo(new Date(item.status?.startedAt))}
 			</GridColumnItem>
 			<GridColumnItem label="Status" index={3}>
 				<div className="flex flex-row-reverse items-center justify-start gap-2 md:flex-row md:justify-between">

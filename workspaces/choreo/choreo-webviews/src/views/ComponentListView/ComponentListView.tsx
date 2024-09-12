@@ -9,9 +9,10 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ComponentsListActivityViewProps } from "@wso2-enterprise/choreo-core";
+import { type ComponentsListActivityViewProps, getComponentKey } from "@wso2-enterprise/choreo-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import React, { type FC, useEffect } from "react";
+import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { ComponentListItem } from "./ComponentListItem";
 import { ComponentsEmptyView } from "./ComponentsEmptyView";
@@ -20,25 +21,18 @@ import { NoContextView } from "./NoContextView";
 
 export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
 	const queryClient = useQueryClient();
+	const webviewState = useExtWebviewContext();
 
 	const { data: linkedDirState, isLoading } = useQuery({
 		queryKey: ["context_state"],
 		queryFn: () => ChoreoWebViewAPI.getInstance().getContextState(),
-	});
-
-	const { data: openedComponentKey } = useQuery({
-		queryKey: ["active_component"],
-		queryFn: () => ChoreoWebViewAPI.getInstance().getWebviewStoreState(),
-		select: (data) => data.openedComponentKey,
+		refetchOnWindowFocus: true,
 	});
 
 	useEffect(() => {
 		ChoreoWebViewAPI.getInstance().refreshContextState();
 		ChoreoWebViewAPI.getInstance().onContextStateChanged((contextState) => {
 			queryClient.setQueryData(["context_state"], contextState);
-		});
-		ChoreoWebViewAPI.getInstance().onWebviewStateChanged((webviewState) => {
-			queryClient.setQueryData(["active_component"], webviewState);
 		});
 	}, []);
 
@@ -70,8 +64,7 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
 							project={linkedDirState.selected?.project}
 							isListLoading={isLoading}
 							opened={
-								openedComponentKey ===
-								`${linkedDirState.selected?.org?.handle}-${linkedDirState.selected?.project?.handler}-${item?.component.metadata.name}`
+								webviewState?.openedComponentKey === getComponentKey(linkedDirState.selected?.org, linkedDirState.selected?.project, item?.component)
 							}
 						/>
 						{index !== linkedDirState.components?.length - 1 && <div className="h-[0.5px] bg-vsc-dropdown-border opacity-70" />}

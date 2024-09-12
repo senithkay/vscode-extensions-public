@@ -15,6 +15,7 @@ import type {
 	ComponentDeployment,
 	ComponentEP,
 	ComponentKind,
+	ConnectionListItem,
 	DeploymentTrack,
 	Environment,
 	GetTestKeyResp,
@@ -24,6 +25,11 @@ import type {
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 
 export const queryKeys = {
+	getHasLocalChanges: (directoryPath: string) => ["has-local-changes", { directoryPath }],
+	getComponentConfigDraft: (directoryPath: string, component: ComponentKind) => [
+		"has-config-drift",
+		{ directoryPath, component: component?.metadata?.id },
+	],
 	getDeploymentTracks: (component: ComponentKind, project: Project, org: Organization) => [
 		"get-deployment-tracks",
 		{ component: component.metadata.id, organization: org.handle, project: project.handler },
@@ -55,13 +61,13 @@ export const queryKeys = {
 	],
 	getBuilds: (deploymentTrack: DeploymentTrack, component: ComponentKind, project: Project, org: Organization) => [
 		"get-builds",
-		{
-			component: component.metadata.id,
-			organization: org.handle,
-			project: project.handler,
-			branch: deploymentTrack?.branch,
-		},
+		{ component: component.metadata.id, organization: org.handle, project: project.handler, branch: deploymentTrack?.branch },
 	],
+	getComponentConnections: (component: ComponentKind, project: Project, org: Organization) => [
+		"get-component-connections",
+		{ component: component.metadata.id, organization: org.handle, project: project.handler },
+	],
+	getProjectConnections: (project: Project, org: Organization) => ["get-project-connections", { organization: org.handle, project: project.handler }],
 };
 
 export const useGetDeploymentTracks = (component: ComponentKind, project: Project, org: Organization, options?: UseQueryOptions<DeploymentTrack[]>) =>
@@ -201,6 +207,35 @@ export const useGetBuildList = (
 				deploymentTrackId: deploymentTrack?.id,
 				projectHandle: project.handler,
 				orgId: org.id?.toString(),
+			}),
+		options,
+	);
+
+export const useComponentConnectionList = (
+	component: ComponentKind,
+	project: Project,
+	org: Organization,
+	options?: UseQueryOptions<ConnectionListItem[]>,
+) =>
+	useQuery<ConnectionListItem[]>(
+		queryKeys.getComponentConnections(component, project, org),
+		() =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getConnections({
+				componentId: component.metadata?.id,
+				orgId: org.id.toString(),
+				projectId: project.id,
+			}),
+		options,
+	);
+
+export const useProjectConnectionList = (project: Project, org: Organization, options?: UseQueryOptions<ConnectionListItem[]>) =>
+	useQuery<ConnectionListItem[]>(
+		queryKeys.getProjectConnections(project, org),
+		() =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getConnections({
+				componentId: "",
+				orgId: org.id.toString(),
+				projectId: project.id,
 			}),
 		options,
 	);

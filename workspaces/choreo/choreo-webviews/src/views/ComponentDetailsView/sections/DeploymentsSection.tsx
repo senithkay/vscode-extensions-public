@@ -15,10 +15,13 @@ import {
 	type ComponentEP,
 	type ComponentKind,
 	type DeploymentTrack,
+	EndpointDeploymentStatus,
 	type Environment,
 	type Organization,
 	type Project,
+	type StateReason,
 	getTimeAgo,
+	getTypeForDisplayType,
 	toTitleCase,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
@@ -31,7 +34,6 @@ import { Divider } from "../../../components/Divider";
 import { SkeletonText } from "../../../components/SkeletonText";
 import { useGetDeployedEndpoints, useGetDeploymentStatus } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { getTypeForDisplayType } from "../utils";
 
 interface Props {
 	component: ComponentKind;
@@ -51,7 +53,7 @@ export const DeploymentsSection: FC<Props> = (props) => {
 	const { data: endpoints = [], refetch: refetchEndpoints } = useGetDeployedEndpoints(deploymentTrack, component, organization, {
 		enabled: !!deploymentTrack?.id && getTypeForDisplayType(component.spec.type) === ChoreoComponentType.Service,
 		onSuccess: (data = []) => setHasInactiveEndpoints(data.some((item) => item.state !== "Active")),
-		refetchInterval: hasInactiveEndpoints ? 10000 : false,
+		refetchInterval: hasInactiveEndpoints ? 5000 : false,
 	});
 
 	if (loadingEnvs) {
@@ -97,6 +99,7 @@ const EnvItem: FC<{
 }> = ({ organization, project, deploymentTrack, component, env, endpoints, refetchEndpoint, triggeredDeployment, loadedDeploymentStatus }) => {
 	const componentType = getTypeForDisplayType(component.spec.type);
 	const [envDetailsRef] = useAutoAnimate();
+	const [isDeploymentInProgress, setDeploymentInProgress] = useState(false);
 
 	const {
 		data: deploymentStatus,
@@ -105,17 +108,19 @@ const EnvItem: FC<{
 		refetch: refetchDeploymentStatus,
 	} = useGetDeploymentStatus(deploymentTrack, component, organization, env, {
 		enabled: !!deploymentTrack?.id,
-		onSuccess: () => {
+		onSuccess: (data) => {
 			refetchEndpoint();
 			if (triggeredDeployment) {
 				loadedDeploymentStatus();
 			}
+			setDeploymentInProgress(data?.deploymentStatusV2 === "IN_PROGRESS");
 		},
+		refetchInterval: isDeploymentInProgress ? 5000 : false,
 	});
 
 	let timeAgo = "";
 	if (deploymentStatus?.build?.deployedAt) {
-		timeAgo = getTimeAgo(deploymentStatus?.build?.deployedAt);
+		timeAgo = getTimeAgo(new Date(deploymentStatus?.build?.deployedAt));
 	}
 
 	let statusStr = deploymentStatus?.deploymentStatusV2;
@@ -233,7 +238,13 @@ const EnvItem: FC<{
 								{["ACTIVE", "IN_PROGRESS"].includes(deploymentStatus?.deploymentStatusV2) && (
 									<>
 										{deploymentStatus?.invokeUrl && (
-											<EndpointItem type="Invoke" name="invoke-url" state="Active" url={deploymentStatus?.invokeUrl} showOpen={true} />
+											<EndpointItem
+												type="Invoke"
+												name="invoke-url"
+												state={EndpointDeploymentStatus.Active}
+												url={deploymentStatus?.invokeUrl}
+												showOpen={true}
+											/>
 										)}
 										{componentType === ChoreoComponentType.Service && (
 											<>
@@ -246,6 +257,7 @@ const EnvItem: FC<{
 															url={item.projectUrl}
 															hasMultiple={endpoints.length > 1}
 															state={item.state}
+															stateReason={item.stateReason}
 														/>,
 													);
 													if (item.visibility === "Organization") {
@@ -256,6 +268,7 @@ const EnvItem: FC<{
 																url={item.organizationUrl}
 																hasMultiple={endpoints.length > 1}
 																state={item.state}
+																stateReason={item.stateReason}
 															/>,
 														);
 													} else if (item.visibility === "Public") {
@@ -267,6 +280,7 @@ const EnvItem: FC<{
 																showOpen={true}
 																hasMultiple={endpoints.length > 1}
 																state={item.state}
+																stateReason={item.stateReason}
 															/>,
 														);
 													}
@@ -357,17 +371,16 @@ const EndpointItem: FC<{
 	name: string;
 	url: string;
 	hasMultiple?: boolean;
-	state?: string;
+	state?: EndpointDeploymentStatus;
+	stateReason?: StateReason;
 	showOpen?: boolean;
-}> = ({ name, type, url, hasMultiple, state = "", showOpen }) => {
+}> = ({ name, type, url, hasMultiple, state, showOpen, stateReason }) => {
 	const { mutate: copyUrl } = useMutation({
 		mutationFn: (url: string) => clipboardy.write(url),
 		onSuccess: () => ChoreoWebViewAPI.getInstance().showInfoMsg("The URL has been copied to the clipboard."),
 	});
 
 	const openExternal = (url: string) => ChoreoWebViewAPI.getInstance().openExternal(url);
-
-	// TODO: add endpoint state reason if there are errors
 
 	return (
 		<GridColumnItem label={`${type} URL ${hasMultiple ? `(${name})` : ""}`} key={`${name}-${type}`}>
@@ -377,23 +390,34 @@ const EndpointItem: FC<{
 						title="Copy URL"
 						className={classNames({
 							"flex-1 text-vsc-foreground": true,
-							"animate-pulse": ["Pending", "Progressing"].includes(state),
-							"text-vsc-errorForeground": state === "Error",
+							"animate-pulse": [EndpointDeploymentStatus.Pending, EndpointDeploymentStatus.InProgress].includes(state),
+							"text-vsc-errorForeground": state === EndpointDeploymentStatus.Error,
 						})}
 						onClick={() => copyUrl(url)}
 					>
 						<p className="line-clamp-1 break-all">
-							{url || (["Pending", "Progressing"].includes(state) && <SkeletonText className="max-w-44" />) || (state === "Error" && "Error") || "-"}
+							{url ||
+								([EndpointDeploymentStatus.Pending, EndpointDeploymentStatus.InProgress].includes(state) && <SkeletonText className="max-w-44" />) ||
+								state === EndpointDeploymentStatus.Error ||
+								"-"}
 						</p>
 					</VSCodeLink>
-					{showOpen && state === "Active" && (
+					{showOpen && state === EndpointDeploymentStatus.Active && (
 						<Button appearance="icon" title="Open URL" onClick={() => openExternal(url)} disabled={!url}>
 							<Codicon name="link-external" />
 						</Button>
 					)}
 				</div>
 			) : (
-				<SkeletonText className="w-24" />
+				<>
+					{state === EndpointDeploymentStatus.Error ? (
+						<div className="line-clamp-1 text-vsc-errorForeground" title={stateReason?.details}>
+							{stateReason?.details ?? "Failed to load endpoint"}
+						</div>
+					) : (
+						<SkeletonText className="w-24" />
+					)}
+				</>
 			)}
 		</GridColumnItem>
 	);

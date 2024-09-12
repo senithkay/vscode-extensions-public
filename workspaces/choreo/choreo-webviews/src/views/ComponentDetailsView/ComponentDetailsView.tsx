@@ -7,22 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useMutation } from "@tanstack/react-query";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ComponentsDetailsWebviewProps, type DeploymentTrack, type Environment, WebviewQuickPickItemKind } from "@wso2-enterprise/choreo-core";
 import React, { type FC, useEffect, useState } from "react";
+import { Banner } from "../../components/Banner";
 import { Divider } from "../../components/Divider";
-import { useGetDeploymentTracks, useGetProjectEnvs } from "../../hooks/use-queries";
+import { queryKeys, useGetDeploymentTracks, useGetProjectEnvs } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { BuildConfigsSection } from "./sections/BuildConfigsSection";
 import { BuildsSection } from "./sections/BuildsSection";
+import { ConnectionsSection } from "./sections/ConnectionsSection";
 import { DeploymentsSection } from "./sections/DeploymentsSection";
 import { EndpointsSection } from "./sections/EndpointsSection";
 import { HeaderSection } from "./sections/HeaderSection";
+import { RightPanelSection } from "./sections/RightPanelSection";
 
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
 	const { component, project, organization, directoryPath } = props;
+	const [rightPanelRef] = useAutoAnimate();
 
-	const { data: deploymentTracks = [] } = useGetDeploymentTracks(component, project, organization, { refetchOnWindowFocus: false });
+	const { data: deploymentTracks = [] } = useGetDeploymentTracks(component, project, organization);
 
 	const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
 
@@ -51,12 +56,31 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		},
 	});
 
-	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization, { refetchOnWindowFocus: false });
+	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization);
 
 	const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>();
 	const onTriggerDeployment = (env: Environment, deploying: boolean) => {
 		setTriggeredDeployment({ ...triggeredDeployment, [`${deploymentTrack?.branch}-${env.name}`]: deploying });
 	};
+
+	const { data: hasLocalChanges } = useQuery({
+		queryKey: queryKeys.getHasLocalChanges(directoryPath),
+		queryFn: () => ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryPath),
+		enabled: !!directoryPath,
+		refetchOnWindowFocus: true,
+	});
+
+	const { data: hasConfigDrift } = useQuery({
+		queryKey: queryKeys.getComponentConfigDraft(directoryPath, component),
+		queryFn: () =>
+			ChoreoWebViewAPI.getInstance().hasRepoConfigFileDrift({
+				repoDir: directoryPath,
+				branch: component?.spec?.source?.github?.branch || component?.spec?.source?.bitbucket?.branch,
+				repoUrl: component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository,
+			}),
+		enabled: !!directoryPath,
+		refetchOnWindowFocus: true,
+	});
 
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
@@ -81,9 +105,29 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 								onLoadDeploymentStatus={(env) => onTriggerDeployment(env, false)}
 							/>
 						</div>
-						<div className="order-first flex flex-col gap-6 pt-6 lg:order-last lg:p-4">
-							<BuildConfigsSection component={component} />
+						<div className="order-first flex flex-col gap-6 pt-6 lg:order-last lg:p-4" ref={rightPanelRef}>
+							{hasConfigDrift && (
+								<RightPanelSection showDivider={false}>
+									<Banner
+										type="warning"
+										className="my-1"
+										title="Configuration Drift Detected"
+										subTitle="Please sync your configuration files in the .choreo directory with the remote repository."
+									/>
+								</RightPanelSection>
+							)}
+							{!hasConfigDrift && hasLocalChanges && (
+								<RightPanelSection showDivider={false}>
+									<Banner
+										className="my-1"
+										title="Local Changes Detected"
+										subTitle="Please commit and push your local changes to the remote repository."
+									/>
+								</RightPanelSection>
+							)}
+							<BuildConfigsSection component={component} showDivider={hasLocalChanges || hasConfigDrift} />
 							<EndpointsSection component={component} directoryPath={directoryPath} />
+							<ConnectionsSection org={organization} project={project} component={component} directoryPath={directoryPath} />
 						</div>
 					</div>
 				</div>

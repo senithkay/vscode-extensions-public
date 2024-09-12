@@ -7,21 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import React, { type FC, type PropsWithChildren, type ReactNode } from "react";
 import { Divider } from "../../../components/Divider";
 
 interface Props extends PropsWithChildren {
-	title: ReactNode;
+	title?: ReactNode;
 	showDivider?: boolean;
 }
 
 export const RightPanelSection: FC<Props> = ({ title, children, showDivider = true }) => {
+	const [rightPanelRef] = useAutoAnimate();
+
 	return (
 		<>
 			{showDivider && <Divider />}
 			<div className="flex flex-col gap-3">
-				<div className="text-base">{title}</div>
-				<div className="flex flex-col gap-1">{children}</div>
+				{title && <div className="text-base">{title}</div>}
+				<div className="flex flex-col gap-1" ref={rightPanelRef}>
+					{children}
+				</div>
 			</div>
 		</>
 	);
@@ -29,7 +34,7 @@ export const RightPanelSection: FC<Props> = ({ title, children, showDivider = tr
 
 export interface IRightPanelSectionItem {
 	label: string;
-	value: string | number;
+	value: ReactNode;
 }
 
 export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value }) => {

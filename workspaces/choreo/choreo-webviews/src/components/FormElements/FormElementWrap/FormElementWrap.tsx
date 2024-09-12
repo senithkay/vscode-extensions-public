@@ -23,7 +23,7 @@ interface Props extends PropsWithChildren {
 }
 
 export const FormElementWrap: FC<Props> = (props) => {
-	const [labelWrapRef] = useAutoAnimate({ duration: 150 });
+	const [labelWrapRef] = useAutoAnimate();
 
 	const { label, required, errorMsg, loading, wrapClassName, labelWrapClassName, children } = props;
 	return (

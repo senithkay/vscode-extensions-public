@@ -8,7 +8,7 @@
  */
 
 import { promises as fs, createReadStream } from "fs";
-import { dirname, relative, sep } from "path";
+import { dirname, join, relative, sep } from "path";
 import type { Readable } from "stream";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import * as byline from "byline";
@@ -634,4 +634,70 @@ export const isSameRepo = (gitUrl1?: string, gitUrl2?: string): boolean => {
 	const [gitOrg2, gitRepo2] = parsedUrl12;
 
 	return gitOrg1 === gitOrg2 && gitRepo1 === gitRepo2;
+};
+
+export const hasDirtyRepo = async (directoryPath: string, context: ExtensionContext): Promise<boolean> => {
+	try{
+		const git = await initGit(context);
+		const repoRoot = await git?.getRepositoryRoot(directoryPath)
+		if(repoRoot){
+			const subPath = relative(repoRoot, directoryPath)
+			if (git) {
+				const gitRepo = git.open(repoRoot, { path: repoRoot });
+				const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: subPath });
+				const hasLocalChanges =  status.status.filter(item=>!item.path.endsWith('context.yaml')).length > 0;
+				if(hasLocalChanges){
+					return hasLocalChanges
+				}
+
+				const localCommits = await git.getUnPushedCommits(repoRoot, subPath || ".");
+				return localCommits.length > 0;
+			}
+		}
+		return false
+	}catch{
+		return false
+	}
+};
+
+export const hadChangesInConfigs = async (gitUrl: string, branch: string, directoryPath: string, context: ExtensionContext): Promise<boolean> => {
+	try{
+		const git = await initGit(context);
+		const repoRoot = await git?.getRepositoryRoot(directoryPath)
+		if(repoRoot){
+			const subPath = relative(repoRoot, directoryPath)
+
+			if(git){
+				const gitRepo = git.open(repoRoot, { path: repoRoot });
+				const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: subPath });
+				const hasLocalChanges =  status.status.filter(item=>item.path.endsWith('component-config.yaml') || item.path.endsWith('endpoints.yaml')).length > 0;
+				if(hasLocalChanges){
+					return true
+				}
+
+				const remotes = await getGitRemotes(context, repoRoot)
+				const matchingRemoteName = remotes.find(item=>{
+					const parsed1 = parseGitURL(item.fetchUrl)
+					const parsed2 = parseGitURL(gitUrl)
+					if(parsed1 && parsed2){
+						const [org, repoName] = parsed1;
+						const [componentRepoOrg, componentRepoName] = parsed2
+						return org === componentRepoOrg && repoName === componentRepoName
+					}
+				})?.name
+
+				if (matchingRemoteName) {
+					const changes = await gitRepo.diffWith(`${matchingRemoteName}/${branch}`)
+					const componentConfigYamlPath = join(directoryPath, '.choreo', 'component-config.yaml')
+					const endpointsYamlPath = join(directoryPath, '.choreo', 'endpoints.yaml')
+					if(changes?.some(item=>[componentConfigYamlPath, endpointsYamlPath].includes(item.uri.path))){
+						return true
+					}
+				}
+			}
+		}
+		return false
+	}catch{
+		return false
+	}
 };

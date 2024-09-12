@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ChoreoComponentType, ComponentDisplayType } from "./enums";
+import { ComponentKind, Organization, Project } from "./types/common.types";
+
 export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
 
 export const getShortenedHash = (hash: string) => hash?.substring(0, 8);
 
-export const getTimeAgo = (timestamp: string): string => {
+export const getTimeAgo = (previousTime: Date): string => {
 	const currentTime = new Date();
-	const previousTime = new Date(timestamp);
 	const timeDifference = currentTime.getTime() - previousTime.getTime();
 
 	const seconds = Math.floor(timeDifference / 1000);
@@ -41,9 +43,75 @@ export const getTimeAgo = (timestamp: string): string => {
 	return "Just now";
 };
 
+
+export const getTypeForDisplayType = (displayType: string): string => {
+	switch (displayType) {
+		case ComponentDisplayType.RestApi:
+		case ComponentDisplayType.Service:
+		case ComponentDisplayType.ByocService:
+		case ComponentDisplayType.GraphQL:
+		case ComponentDisplayType.MiApiService:
+		case ComponentDisplayType.MiRestApi:
+		case ComponentDisplayType.BuildpackService:
+		case ComponentDisplayType.BuildRestApi:
+		case ComponentDisplayType.Websocket:
+		case ComponentDisplayType.ByoiService:
+			return ChoreoComponentType.Service;
+		case ComponentDisplayType.ManualTrigger:
+		case ComponentDisplayType.ByocJob:
+		case ComponentDisplayType.ByoiJob:
+		case ComponentDisplayType.BuildpackJob:
+		case ComponentDisplayType.MiJob:
+			return ChoreoComponentType.ManualTrigger;
+		case ComponentDisplayType.ScheduledTask:
+		case ComponentDisplayType.ByocCronjob:
+		case ComponentDisplayType.ByoiCronjob:
+		case ComponentDisplayType.MiCronjob:
+		case ComponentDisplayType.BuildpackCronJob:
+			return ChoreoComponentType.ScheduledTask;
+		case ComponentDisplayType.Webhook:
+		case ComponentDisplayType.MiWebhook:
+		case ComponentDisplayType.ByocWebhook:
+		case ComponentDisplayType.BuildpackWebhook:
+		case ComponentDisplayType.BallerinaWebhook:
+			return ChoreoComponentType.Webhook;
+		case ComponentDisplayType.Proxy:
+			return ChoreoComponentType.ApiProxy;
+		case ComponentDisplayType.ByocWebApp:
+		case ComponentDisplayType.ByocWebAppDockerLess:
+		case ComponentDisplayType.ByoiWebApp:
+		case ComponentDisplayType.BuildpackWebApp:
+			return ChoreoComponentType.WebApplication;
+		case ComponentDisplayType.MiEventHandler:
+		case ComponentDisplayType.BallerinaEventHandler:
+		case ComponentDisplayType.BuildpackEventHandler:
+		case ComponentDisplayType.ByocEventHandler:
+			return ChoreoComponentType.EventHandler;
+		case ComponentDisplayType.ByocTestRunner:
+		case ComponentDisplayType.BuildpackTestRunner:
+		case ComponentDisplayType.PostmanTestRunner:
+			return ChoreoComponentType.TestRunner;
+		default:
+			return displayType;
+	}
+};
+
 export const toTitleCase = (str: string): string => {
 	return str
 		?.replaceAll("_", " ")
 		?.toLowerCase()
 		?.replace(/\b\w/g, (char) => char.toUpperCase());
 };
+
+export const  toUpperSnakeCase = (str: string): string => {
+    return str.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase().replace(/\s+/g, '_');
+}
+
+export const toSentenceCase = (str: string): string => {
+    const spacedString = str.replace(/([a-z])([A-Z])/g, '$1 $2');
+    return spacedString.charAt(0).toUpperCase() + spacedString.slice(1);
+}
+
+export const getComponentKey = (org: Organization, project: Project, component: ComponentKind): string => {
+    return `${org.handle}-${project.handler}-${component.metadata.name}`
+}

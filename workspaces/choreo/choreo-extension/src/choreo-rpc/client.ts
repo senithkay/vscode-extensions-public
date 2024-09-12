@@ -15,12 +15,16 @@ import type {
 	ComponentDeployment,
 	ComponentEP,
 	ComponentKind,
+	ConnectionDetailed,
+	ConnectionListItem,
 	CreateBuildReq,
+	CreateComponentConnectionReq,
 	CreateComponentReq,
 	CreateConfigYamlReq,
 	CreateDeploymentReq,
 	CreateProjectReq,
 	DeleteCompReq,
+	DeleteConnectionReq,
 	DeploymentTrack,
 	Environment,
 	GetBranchesReq,
@@ -29,8 +33,14 @@ import type {
 	GetComponentEndpointsReq,
 	GetComponentItemReq,
 	GetComponentsReq,
+	GetConnectionGuideReq,
+	GetConnectionGuideResp,
+	GetConnectionItemReq,
+	GetConnectionsReq,
 	GetDeploymentStatusReq,
 	GetDeploymentTracksReq,
+	GetMarketplaceIdlReq,
+	GetMarketplaceListReq,
 	GetProjectEnvsReq,
 	GetSwaggerSpecReq,
 	GetTestKeyReq,
@@ -38,6 +48,8 @@ import type {
 	IChoreoRPCClient,
 	IsRepoAuthorizedReq,
 	IsRepoAuthorizedResp,
+	MarketplaceIdlResp,
+	MarketplaceListResp,
 	Project,
 	UserInfo,
 	ViewBuildLogsReq,
@@ -324,6 +336,61 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		}
 		const response: { swagger: object } = await this.client.sendRequest("apim/getSwaggerSpec", params);
 		return response.swagger;
+	}
+
+	async getMarketplaceItems(params: GetMarketplaceListReq): Promise<MarketplaceListResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: MarketplaceListResp = await this.client.sendRequest("connections/getMarketplaceItems", params);
+		return response;
+	}
+
+	async getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: MarketplaceIdlResp = await this.client.sendRequest("connections/getMarketplaceItemIdl", params);
+		return response;
+	}
+
+	async getConnections(params: GetConnectionsReq): Promise<ConnectionListItem[]> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ConnectionListItem[] = await this.client.sendRequest("connections/getConnections", params);
+		return response;
+	}
+
+	async getConnectionItem(params: GetConnectionItemReq): Promise<ConnectionListItem> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ConnectionListItem = await this.client.sendRequest("connections/getConnectionItem", params);
+		return response;
+	}
+
+	async createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ConnectionDetailed = await this.client.sendRequest("connections/createComponentConnection", params);
+		return response;
+	}
+
+	async deleteConnection(params: DeleteConnectionReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("connections/deleteConnection", params);
+	}
+
+	async getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: GetConnectionGuideResp = await this.client.sendRequest("connections/getGuide", params);
+		return response;
 	}
 }
 

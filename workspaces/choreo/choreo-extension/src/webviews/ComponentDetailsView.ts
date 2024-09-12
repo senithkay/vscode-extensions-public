@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { ComponentKind, Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
+import { getComponentKey, type ComponentKind, type Organization, type Project, type WebviewProps } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { webviewStateStore } from "../stores/webview-state-store";
@@ -121,15 +121,22 @@ export const closeComponentDetailsView = (orgHandle: string, projectHandle: stri
 	}
 };
 
-export const showComponentDetailsView = (org: Organization, project: Project, component: ComponentKind, componentPath: string) => {
+export const showComponentDetailsView = (
+	org: Organization,
+	project: Project,
+	component: ComponentKind,
+	componentPath: string,
+	viewColumn?: vscode.ViewColumn,
+) => {
 	const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
-	const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
+	const componentKey = getComponentKey(org, project, component)
 
 	if (webView) {
-		webView?.reveal();
+		webView?.reveal(viewColumn);
 	} else {
+		webviewStateStore.getState().onCloseComponentDrawer(getComponentKey(org, project, component));
 		const componentDetailsView = new ComponentDetailsView(ext.context.extensionUri, org, project, component, componentPath);
-		componentDetailsView.getWebview()?.reveal();
+		componentDetailsView.getWebview()?.reveal(viewColumn);
 		componentViewMap.set(componentKey, componentDetailsView);
 
 		webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
