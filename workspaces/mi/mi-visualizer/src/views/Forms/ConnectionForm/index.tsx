@@ -14,7 +14,7 @@ import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { ConnectorStatus, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import AddConnection from "./ConnectionFormGenerator";
-import { APIS, connectorFailoverIcon } from "../../../constants";
+import { APIS, connectorFailoverIconUrl } from "../../../constants";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -354,7 +354,7 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                                         alt="Icon"
                                                         onError={(e) => {
                                                             const target = e.target as HTMLImageElement;
-                                                            target.src = connectorFailoverIcon
+                                                            target.src = connectorFailoverIconUrl
                                                         }}
                                                     />
                                                 </IconContainer>
