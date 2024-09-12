@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Switch, View } from "@wso2-enterprise/ui-toolkit";
 import { EggplantFlowDiagram } from "../FlowDiagram";
@@ -15,10 +15,11 @@ import { EggplantSequenceDiagram } from "../SequenceDiagram";
 
 export interface DiagramWrapperProps {
     syntaxTree: STNode;
+    projectPath: string;
 }
 
 export function DiagramWrapper(param: DiagramWrapperProps) {
-    const { syntaxTree } = param;
+    const { syntaxTree, projectPath } = param;
     const [showSequenceDiagram, setShowSequenceDiagram] = useState(false);
 
     const handleToggleDiagram = () => {
@@ -44,7 +45,11 @@ export function DiagramWrapper(param: DiagramWrapperProps) {
                 }}
                 disabled={false}
             />
-            {showSequenceDiagram ? <EggplantSequenceDiagram /> : <EggplantFlowDiagram syntaxTree={syntaxTree} />}
+            {showSequenceDiagram ? (
+                <EggplantSequenceDiagram />
+            ) : (
+                <EggplantFlowDiagram syntaxTree={syntaxTree} projectPath={projectPath} />
+            )}
         </View>
     );
 }
