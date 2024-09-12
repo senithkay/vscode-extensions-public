@@ -7,25 +7,47 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from '@emotion/styled';
-import React, { useEffect, useState } from 'react';
-import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
+import styled from "@emotion/styled";
+import React, { useEffect, useState } from "react";
+import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
+import { Colors } from "./resources/constants";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 const ViewContainer = styled.div`
-    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3000;
+    background-color: ${Colors.SURFACE_BRIGHT};
+    padding: 20px;
 `;
 
-const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
+const TopBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 16px;
+`;
+
+interface PopupPanelProps {
+    formState: PopupMachineStateValue;
+    onClose: () => void;
+}
+
+const PopupPanel = (props: PopupPanelProps) => {
+    const { formState, onClose } = props;
     const { rpcClient } = useRpcContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
     useEffect(() => {
-        if (typeof props.formState === 'object' && 'open' in props.formState) {
+        if (typeof formState === "object" && "open" in formState) {
             fetchContext();
         }
-    }, [props.formState]);
+    }, [formState]);
 
     useEffect(() => {
         fetchContext();
@@ -41,13 +63,19 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                     setViewComponent(null);
             }
         });
-    }
+    };
 
     return (
         <ViewContainer>
+            <TopBar>
+                <div></div>
+                <Button appearance="icon" onClick={onClose}>
+                    <Codicon name="close" />
+                </Button>
+            </TopBar>
             {viewComponent}
-        </ViewContainer >
+        </ViewContainer>
     );
 };
 
-export default PopupPanel;   
+export default PopupPanel;

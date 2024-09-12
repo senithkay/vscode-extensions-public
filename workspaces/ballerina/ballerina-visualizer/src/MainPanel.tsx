@@ -262,9 +262,7 @@ const MainPanel = () => {
                 )}
                 {typeof popupState === "object" && "open" in popupState && (
                     <PopUpContainer>
-                        <FormView title="" onClose={handleOnClose}>
-                            <PopupPanel formState={popupState} />
-                        </FormView>
+                        <PopupPanel onClose={handleOnClose} formState={popupState} />
                     </PopUpContainer>
                 )}
                 {sidePanel !== "EMPTY" && sidePanel === "ADD_ACTION" && (
