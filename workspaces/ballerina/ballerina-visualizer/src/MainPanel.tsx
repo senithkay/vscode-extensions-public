@@ -18,18 +18,14 @@ import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';
 import { GraphQLDiagram } from './views/GraphQLDiagram';
 import { SequenceDiagram } from './views/SequenceDiagram';
-import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
+import { WelcomeView, ProjectForm, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
-// import PopupPanel from './views/Eggplant/PopupPanel';
-import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
 import { FormView, Typography } from '@wso2-enterprise/ui-toolkit';
 import { PanelType, useVisualizerContext } from './Context';
-import { SidePanel } from '@wso2-enterprise/ui-toolkit';
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
 import { RecordEditor } from './views/RecordEditor/RecordEditor';
@@ -37,6 +33,7 @@ import PopupPanel from './PopupPanel';
 import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard"
 import { EndpointList } from './views/Connectors/EndpointList';
 import { getSymbolInfo } from '@wso2-enterprise/ballerina-low-code-diagram';
+import DiagramWrapper from './views/Eggplant/DiagramWrapper';
 
 const globalStyles = css`
   *,
@@ -147,7 +144,7 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.EggplantDiagram:
-                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree} />);
+                        setViewComponent(<DiagramWrapper syntaxTree={value?.syntaxTree}/>);
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
