@@ -14,3 +14,15 @@ export enum SHARED_COMMANDS {
     OPEN_AI_PANEL = 'ballerina.open.ai.panel',
     CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
 }
+
+
+export const EGGPLANT_COMMANDS = {
+    REFRESH_COMMAND: 'Eggplant.project-explorer.refresh',
+    FOCUS_PROJECT_EXPLORER: 'Eggplant.project-explorer.focus',
+    PROJECT_EXPLORER: 'Eggplant.project-explorer',
+    ADD_CONNECTIONS: 'Eggplant.project-explorer.add-connection',
+    ADD_ENTRY_POINT: 'Eggplant.project-explorer.add-entry-point',
+    ADD_SCHEMA: 'Eggplant.project-explorer.add-schema',
+    ADD_FUNCTION: 'Eggplant.project-explorer.add-function',
+    ADD_CONFIGURATION: 'Eggplant.project-explorer.add-configuration'
+};

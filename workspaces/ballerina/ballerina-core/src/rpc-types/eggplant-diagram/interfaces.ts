@@ -40,3 +40,11 @@ export interface CreateComponentResponse {
 export interface ProjectComponentsResponse {
     components: BallerinaProjectComponents
 }
+
+export interface SetOverviewRequest {
+    content: string;
+}
+
+export interface SetOverviewResponse {
+    content: string;
+}

@@ -26,6 +26,8 @@ import {
     EggplantSourceCodeResponse,
     ProjectComponentsResponse,
     ProjectStructureResponse,
+    SetOverviewRequest,
+    SetOverviewResponse,
     WorkspacesResponse,
     createComponent,
     createProject,
@@ -38,7 +40,8 @@ import {
     getProjectComponents,
     getProjectStructure,
     getSourceCode,
-    getWorkspaces
+    getWorkspaces,
+    setOverview
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -96,5 +99,9 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
 
     getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
         return this._messenger.sendRequest(getEggplantConnectors, HOST_EXTENSION, params);
+    }
+
+    setOverview(params: SetOverviewRequest): Promise<SetOverviewResponse> {
+        return this._messenger.sendRequest(setOverview, HOST_EXTENSION, params);
     }
 }

@@ -22,7 +22,7 @@ import {
     EggplantAiSuggestionsRequest,
     EggplantAiSuggestionsResponse,
 } from "../../interfaces/extended-lang-client";
-import { CreateProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse } from "./interfaces";
+import { CreateProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse, SetOverviewResponse, SetOverviewRequest } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "eggplant-diagram";
@@ -38,3 +38,4 @@ export const getProjectStructure: RequestType<void, ProjectStructureResponse> = 
 export const getProjectComponents: RequestType<void, ProjectComponentsResponse> = { method: `${_preFix}/getProjectComponents` };
 export const createComponent: RequestType<CreateComponentRequest, CreateComponentResponse> = { method: `${_preFix}/createComponent` };
 export const getEggplantConnectors: RequestType<EggplantConnectorsRequest, EggplantConnectorsResponse> = { method: `${_preFix}/getEggplantConnectors` };
+export const setOverview: RequestType<SetOverviewRequest, SetOverviewResponse> = { method: `${_preFix}/setOverview` };
