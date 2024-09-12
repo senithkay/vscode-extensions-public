@@ -63,6 +63,17 @@ const CardLabel = styled.div`
     width: 100%;
 `;
 
+const LabelContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    padding-bottom: 10px;
+`;
+
 const SampleGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -83,6 +94,25 @@ const NameLabel = styled(IconLabel)`
     text-align: start;
     font-size: 1.2em;
 `;
+
+const connectorCardStyle = {
+    border: '1px solid var(--vscode-dropdown-border)',
+    backgroundColor: 'var(--vscode-dropdown-background)',
+    padding: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'left',
+    borderRadius: 1,
+    transition: '0.3s',
+    width: '176px',
+    height: '40px',
+    '&:hover': {
+        backgroundColor: 'var(--vscode-button-background)'
+    },
+    fontSize: '15px'
+};
 
 export interface ConnectionStoreProps {
     path: string;
@@ -286,24 +316,7 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                 <ComponentCard
                                     key={connector.name}
                                     onClick={() => selectConnector(connector)}
-                                    sx={{
-                                        border: '1px solid var(--vscode-dropdown-border)',
-                                        backgroundColor: 'var(--vscode-dropdown-background)',
-                                        padding: '10px',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'left',
-                                        borderRadius: 1,
-                                        transition: '0.3s',
-                                        width: '176px',
-                                        height: '40px',
-                                        '&:hover': {
-                                            backgroundColor: 'var(--vscode-button-background)'
-                                        },
-                                        fontSize: '15px'
-                                    }}
+                                    sx={connectorCardStyle}
                                 >
                                     <CardContent>
                                         <IconContainer>
@@ -313,21 +326,14 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                             />
                                         </IconContainer>
                                         <CardLabel>
-                                            <div style={{
-                                                width: '140px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                textAlign: 'center',
-                                                paddingBottom: '10px'
-                                            }}>
+                                            <LabelContainer>
                                                 <NameLabel>
                                                     {capitalizeFirstChar(connector.name)}
                                                 </NameLabel>
                                                 <VersionTag>
                                                     {connector.version}
                                                 </VersionTag>
-                                            </div>
+                                            </LabelContainer>
                                         </CardLabel>
                                     </CardContent>
                                 </ComponentCard>
@@ -339,24 +345,7 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                         <ComponentCard
                                             key={connector.name}
                                             onClick={() => selectStoreConnector(connector)}
-                                            sx={{
-                                                border: '1px solid var(--vscode-dropdown-border)',
-                                                backgroundColor: 'var(--vscode-dropdown-background)',
-                                                padding: '10px',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'left',
-                                                borderRadius: 1,
-                                                transition: '0.3s',
-                                                width: '176px',
-                                                height: '40px',
-                                                '&:hover': {
-                                                    backgroundColor: 'var(--vscode-button-background)'
-                                                },
-                                                fontSize: '15px'
-                                            }}
+                                            sx={connectorCardStyle}
                                         >
                                             <CardContent>
                                                 <IconContainer>
@@ -370,21 +359,14 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                                     />
                                                 </IconContainer>
                                                 <CardLabel>
-                                                    <div style={{
-                                                        width: '140px',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        textAlign: 'center',
-                                                        paddingBottom: '10px'
-                                                    }}>
+                                                    <LabelContainer>
                                                         <NameLabel>
                                                             {capitalizeFirstChar(connector.name)}
                                                         </NameLabel>
                                                         <VersionTag>
                                                             {connector.version}
                                                         </VersionTag>
-                                                    </div>
+                                                    </LabelContainer>
                                                 </CardLabel>
                                             </CardContent>
                                         </ComponentCard>
