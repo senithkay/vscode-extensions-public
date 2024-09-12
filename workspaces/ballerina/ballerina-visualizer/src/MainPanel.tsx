@@ -75,6 +75,7 @@ const MainPanel = () => {
         activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
+    const [showHome, setShowHome] = useState<boolean>(true);
     const [popupState, setPopupState] = useState<PopupMachineStateValue>('initialize');
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
@@ -179,6 +180,7 @@ const MainPanel = () => {
                         setViewComponent(<WelcomeView />)
                         break;
                     case MACHINE_VIEW.EggplantProjectForm:
+                        setShowHome(false);
                         setViewComponent(<ProjectForm />)
                         break;
                     case MACHINE_VIEW.EggplantComponentView:
@@ -222,7 +224,7 @@ const MainPanel = () => {
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
-                {navActive && <NavigationBar />}
+                {navActive && <NavigationBar showHome={showHome} />}
                 {viewComponent && <ComponentViewWrapper>
                     {viewComponent}
                 </ComponentViewWrapper>}
