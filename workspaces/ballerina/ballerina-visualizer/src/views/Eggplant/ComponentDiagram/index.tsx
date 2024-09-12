@@ -13,6 +13,7 @@ import {
     EVENT_TYPE,
     MACHINE_VIEW,
     ProjectStructureResponse,
+    OverviewFlow
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
@@ -23,7 +24,8 @@ import {
     View,
     ViewContent,
     LinkButton,
-    Codicon
+    Codicon,
+    ProgressRing
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
@@ -34,6 +36,14 @@ import { Colors } from "../../../resources/constants";
 const CardTitleContainer = styled.div`
     display: flex;
     justify-content: space-between;
+`;
+
+const Content = styled.div`
+    height: 100%;
+`;
+
+const ContentFooter = styled.div`
+    height: 200px;
 `;
 
 const Title = styled(Typography)`
@@ -47,6 +57,9 @@ interface ComponentDiagramProps {
 export function ComponentDiagram(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
+    const [readmeContent, setReadmeContent] = React.useState<string>("");
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [overviewFlow, setOverviewFlow] = React.useState<OverviewFlow>(null);
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
 
     const fetchContext = () => {
@@ -62,6 +75,15 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             .then((res) => {
                 setProjectName(res.workspaces[0].name);
             });
+
+        rpcClient
+            .getEggplantDiagramRpcClient()
+            .handleReadmeContent({ read: true })
+            .then((res) => {
+                setReadmeContent(res.content);
+            });
+
+        setOverviewFlow(null);
     }
 
     useEffect(() => {
@@ -162,42 +184,105 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     });
 
     const handleSaveOverview = (value: string) => {
-        rpcClient.getEggplantDiagramRpcClient().setOverview({ content: value });
+        rpcClient.getEggplantDiagramRpcClient().handleReadmeContent({ content: value, read: false });
+        setReadmeContent(value);
+    }
+
+    const handleOverviewGenerate = async () => {
+        setIsLoading(true);
+        const suggestion = await rpcClient.getEggplantDiagramRpcClient().getAiSuggestions({ filePath: null, position: null, isOverview: true });
+        setOverviewFlow(suggestion.overviewFlow);
+        setIsLoading(false);
+    }
+
+    const handleDiagramOnAccept = async () => {
+        setIsLoading(true);
+        const res = await rpcClient.getEggplantDiagramRpcClient().createComponents({ overviewFlow });
+        setIsLoading(false);
+        if (res.response) {
+            fetchContext();
+        }
+    }
+
+    const handleDiagramOnReject = () => {
+        setOverviewFlow(null);
+    }
+
+    const generateButton = () => {
+        let component = <LinkButton onClick={handleOverviewGenerate} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+            <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+            Generate components using overview
+        </LinkButton>;
+
+        if (overviewFlow) {
+            component =
+                <span>
+                    <LinkButton onClick={handleDiagramOnAccept} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                        Apply
+                    </LinkButton>
+                    <LinkButton onClick={handleDiagramOnReject} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                        Reject
+                    </LinkButton>
+                </span>;
+            if (isLoading) {
+                component =
+                    <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                        <ProgressRing sx={{ height: '16px', width: '16px' }} />
+                        Applying changes to the project...
+                    </LinkButton>
+            }
+        }
+
+        return component;
     }
 
     console.log(">>> component diagram: project", project);
 
+    // TODO: Refactor this component with meaningful components
     return (
         <View>
             <ViewContent padding>
                 <EggplantHeader />
-                <Title variant="h2">Project Overview</Title>
-                <BodyText>
-                    Provide a detailed description of your integration project, including its purpose, scope, and any key connections or systems involved.
-                </BodyText>
-                <TextArea
-                    placeholder="E.g. A webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
-                    rows={6}
-                    style={{ width: "100%" }}
-
-                    onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
-                />
-                <BodyTinyInfo>This information will be used to generate an optimized and tailored integration solution.</BodyTinyInfo>
-
-                <CardTitleContainer>
-                    <Title variant="h2">Architecture</Title>
-                    <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
-                        <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
-                        Generate components using overview
-                    </LinkButton>
-                </CardTitleContainer>
-                <Diagram
-                    project={project}
-                    onAddEntryPoint={handleAddArtifact}
-                    onAddConnection={handleAddConnection}
-                    onEntryPointSelect={handleGoToEntryPoints}
-                    onConnectionSelect={handleGoToConnection}
-                />
+                <Content>
+                    <Title variant="h2">Project Overview</Title>
+                    <BodyText>
+                        Provide a detailed description of your integration project, including its purpose, scope, and any key connections or systems involved.
+                    </BodyText>
+                    <TextArea
+                        placeholder="E.g. A webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
+                        rows={6}
+                        style={{ width: "100%" }}
+                        value={readmeContent}
+                        onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
+                    />
+                    <BodyTinyInfo>This information will be used to generate an optimized and tailored integration solution.</BodyTinyInfo>
+                    <CardTitleContainer>
+                        <Title variant="h2">Architecture</Title>
+                        {isLoading && !overviewFlow ? <ProgressRing sx={{ height: '16px', width: '16px' }} /> : generateButton()}
+                    </CardTitleContainer>
+                    <Diagram
+                        project={overviewFlow ? overviewFlow as Project : project}
+                        onAddEntryPoint={handleAddArtifact}
+                        onAddConnection={handleAddConnection}
+                        onEntryPointSelect={handleGoToEntryPoints}
+                        onConnectionSelect={handleGoToConnection}
+                    />
+                    <ContentFooter>
+                        <Title variant="h2">Quick Actions</Title>
+                        <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                            <Codicon name={"output"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+                            Import your schema
+                        </LinkButton>
+                        <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                            <Codicon name={"settings"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+                            Add your configurations
+                        </LinkButton>
+                        <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                            <Codicon name={"cloud"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+                            Create connector from Open API
+                        </LinkButton>
+                    </ContentFooter>
+                </Content>
             </ViewContent>
         </View >
     );

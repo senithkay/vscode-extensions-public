@@ -9,15 +9,17 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ComponentsRequest,
     CreateComponentRequest,
-    CreateProjectRequest,
     EggplantAiSuggestionsRequest,
     EggplantAvailableNodesRequest,
     EggplantConnectorsRequest,
     EggplantNodeTemplateRequest,
     EggplantSourceCodeRequest,
-    SetOverviewRequest,
+    ProjectRequest,
+    ReadmeContentRequest,
     createComponent,
+    createComponents,
     createProject,
     deleteFlowNode,
     getAiSuggestions,
@@ -29,7 +31,7 @@ import {
     getProjectStructure,
     getSourceCode,
     getWorkspaces,
-    setOverview
+    handleReadmeContent
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { EggplantDiagramRpcManager } from "./rpc-manager";
@@ -42,11 +44,12 @@ export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableNodes, (args: EggplantAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
     messenger.onRequest(getNodeTemplate, (args: EggplantNodeTemplateRequest) => rpcManger.getNodeTemplate(args));
     messenger.onRequest(getAiSuggestions, (args: EggplantAiSuggestionsRequest) => rpcManger.getAiSuggestions(args));
-    messenger.onNotification(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
+    messenger.onNotification(createProject, (args: ProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getEggplantConnectors, (args: EggplantConnectorsRequest) => rpcManger.getEggplantConnectors(args));
-    messenger.onRequest(setOverview, (args: SetOverviewRequest) => rpcManger.setOverview(args));
+    messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
+    messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
 }
