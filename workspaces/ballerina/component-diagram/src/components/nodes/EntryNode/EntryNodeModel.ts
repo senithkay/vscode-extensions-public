@@ -9,7 +9,7 @@
 
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
 import { EntryPoint } from "../../../utils/types";
 
 export class EntryNodeModel extends NodeModel {
@@ -21,7 +21,7 @@ export class EntryNodeModel extends NodeModel {
         super({
             id: node.id,
             type: NodeTypes.ENTRY_NODE,
-            // locked: true,
+            locked: NODE_LOCKED,
         });
         this.node = node;
         this.addInPort("in");

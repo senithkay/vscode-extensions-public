@@ -19,6 +19,7 @@ import {
     ACTOR_NODE_WIDTH,
     ACTOR_SUFFIX,
     CON_NODE_HEIGHT,
+    ENTRY_NODE_HEIGHT,
     ENTRY_NODE_WIDTH,
     NEW_CONNECTION,
     NODE_GAP_Y,
@@ -26,6 +27,7 @@ import {
     NodeTypes,
 } from "../resources/constants";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
+import { ButtonNodeFactory } from "../components/nodes/ButtonNode/ButtonNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -40,6 +42,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EntryNodeFactory());
     engine.getNodeFactories().registerFactory(new ConnectionNodeFactory());
     engine.getNodeFactories().registerFactory(new ActorNodeFactory());
+    engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
@@ -62,7 +65,7 @@ export function autoDistribute(engine: DiagramEngine) {
                 const entryNodeX = entryNode.getX();
                 const entryNodeY = entryNode.getY();
                 const newActorNodeX = entryNodeX - (NODE_GAP_Y + ACTOR_NODE_WIDTH);
-                const newActorNodeY = entryNodeY + (ENTRY_NODE_WIDTH - ACTOR_NODE_WIDTH) / 2 - NODE_PADDING / 2;
+                const newActorNodeY = entryNodeY + (ENTRY_NODE_HEIGHT - ACTOR_NODE_WIDTH) / 2 - NODE_PADDING / 2;
                 actorNode.setPosition(newActorNodeX, newActorNodeY);
                 return;
             }
@@ -70,27 +73,27 @@ export function autoDistribute(engine: DiagramEngine) {
     });
 
     // reposition new connection node if no more connections
-    const connectionNodes = model
-        .getNodes()
-        .filter((node) => node.getType() === NodeTypes.CONNECTION_NODE && node.getID() !== NEW_CONNECTION);
-    if (connectionNodes.length === 0) {
-        const newConnectionNode = model.getNode(NEW_CONNECTION) as ConnectionNodeModel;
-        if (newConnectionNode) {
-            for (const id in newConnectionNode.getInPort().getLinks()) {
-                const link = newConnectionNode.getInPort().getLinks()[id] as NodeLinkModel;
-                const entryNode = link.sourceNode as EntryNodeModel;
-                console.log(">>> newConnectionNode", {
-                    entryNode: entryNode.getPosition(),
-                    conNode: newConnectionNode.getPosition(),
-                });
-                const entryNodeY = entryNode.getY();
-                const newConNodeX = newConnectionNode.getX();
-                const newConNodeY = entryNodeY + (ENTRY_NODE_WIDTH - CON_NODE_HEIGHT) / 2 + NODE_PADDING / 2;
-                newConnectionNode.setPosition(newConNodeX, newConNodeY);
-                return;
-            }
-        }
-    }
+    // const connectionNodes = model
+    //     .getNodes()
+    //     .filter((node) => node.getType() === NodeTypes.CONNECTION_NODE && node.getID() !== NEW_CONNECTION);
+    // if (connectionNodes.length === 0) {
+    //     const newConnectionNode = model.getNode(NEW_CONNECTION) as ConnectionNodeModel;
+    //     if (newConnectionNode) {
+    //         for (const id in newConnectionNode.getInPort().getLinks()) {
+    //             const link = newConnectionNode.getInPort().getLinks()[id] as NodeLinkModel;
+    //             const entryNode = link.sourceNode as EntryNodeModel;
+    //             console.log(">>> newConnectionNode", {
+    //                 entryNode: entryNode.getPosition(),
+    //                 conNode: newConnectionNode.getPosition(),
+    //             });
+    //             const entryNodeY = entryNode.getY();
+    //             const newConNodeX = newConnectionNode.getX();
+    //             const newConNodeY = entryNodeY + (ENTRY_NODE_WIDTH - CON_NODE_HEIGHT) / 2 + NODE_PADDING / 2;
+    //             newConnectionNode.setPosition(newConNodeX, newConNodeY);
+    //             return;
+    //         }
+    //     }
+    // }
 
     engine.repaintCanvas();
 }
@@ -107,7 +110,7 @@ export function genDagreEngine() {
     return new DagreEngine({
         graph: {
             rankdir: "LR",
-            nodesep: 160,
+            nodesep: 100,
             ranksep: 300,
             marginx: 100,
             marginy: 100,
@@ -168,3 +171,10 @@ export const resetDiagramZoomAndPosition = (file: string) => {
     localStorage.setItem("diagram-offset-x", "0");
     localStorage.setItem("diagram-offset-y", "0");
 };
+
+export const centerDiagram = (engine: DiagramEngine) => {
+    if (engine.getCanvas()?.getBoundingClientRect) {
+        // zoom to fit nodes and center diagram
+        engine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+    }
+}

@@ -9,7 +9,7 @@
 
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
 import { Connection } from "../../../utils/types";
 
 export class ConnectionNodeModel extends NodeModel {
@@ -21,7 +21,7 @@ export class ConnectionNodeModel extends NodeModel {
         super({
             id: node.id,
             type: NodeTypes.CONNECTION_NODE,
-            // locked: true,
+            locked: NODE_LOCKED,
         });
         this.node = node;
         this.addInPort("in");

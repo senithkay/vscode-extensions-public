@@ -11,7 +11,13 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
-import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, NEW_CONNECTION, CON_NODE_HEIGHT } from "../../../resources/constants";
+import {
+    Colors,
+    NODE_BORDER_WIDTH,
+    CON_NODE_WIDTH,
+    NEW_CONNECTION,
+    CON_NODE_HEIGHT,
+} from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
@@ -26,12 +32,8 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        width: ${CON_NODE_WIDTH}px;
+        /* width: ${CON_NODE_WIDTH}px; */
         height: ${CON_NODE_HEIGHT}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-        border-radius: 50px;
-        background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -40,9 +42,22 @@ export namespace NodeStyles {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         gap: 6px;
         padding: 8px;
+    `;
+
+    export const Circle = styled.div<NodeStyleProp>`
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: ${CON_NODE_HEIGHT}px;
+        height: ${CON_NODE_HEIGHT}px;
+        border: ${NODE_BORDER_WIDTH}px solid
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 50%;
+        background-color: ${Colors.SURFACE_DIM};
+        color: ${Colors.ON_SURFACE};
     `;
 
     export const StyledButton = styled(Button)`
@@ -100,11 +115,7 @@ export namespace NodeStyles {
         align-items: center;
         gap: 6px;
         width: 100%;
-        padding: 0 20px;
-        & svg {
-            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
-            opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
-        }
+        padding: 0 8px;
     `;
 
     export const Hr = styled.hr`
@@ -132,8 +143,6 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         }
     };
 
-    const isNewConnection = model.node.id === NEW_CONNECTION;
-
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -142,13 +151,13 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
             onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row hovered={isHovered} inactive={isNewConnection}>
-                {isNewConnection ? <PlusIcon /> : <DatabaseIcon />}
+            <NodeStyles.Row hovered={isHovered}>
+                <NodeStyles.Circle hovered={isHovered}>
+                    <NodeStyles.Icon>{<DatabaseIcon />}</NodeStyles.Icon>
+                </NodeStyles.Circle>
                 <NodeStyles.Header>
-                    <NodeStyles.Title hovered={isHovered} inactive={isNewConnection}>
-                        {model.node.name}
-                    </NodeStyles.Title>
-                    {!isNewConnection && <NodeStyles.Description>Connection</NodeStyles.Description>}
+                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
+                    {<NodeStyles.Description>Connection</NodeStyles.Description>}
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

@@ -11,7 +11,13 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
-import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, NEW_ENTRY } from "../../../resources/constants";
+import {
+    Colors,
+    NODE_BORDER_WIDTH,
+    ENTRY_NODE_WIDTH,
+    NEW_ENTRY,
+    ENTRY_NODE_HEIGHT,
+} from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { HttpIcon, PlusIcon } from "../../../resources";
@@ -26,12 +32,9 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        width: ${ENTRY_NODE_WIDTH}px;
-        height: ${ENTRY_NODE_WIDTH}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-        border-radius: 50%;
-        background-color: ${Colors.SURFACE_DIM};
+        gap: 8px;
+        
+        
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -40,13 +43,9 @@ export namespace NodeStyles {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
-        gap: 10px;
+        align-items: flex-start;
+        gap: 6px;
         width: 100%;
-        & svg {
-            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
-            opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
-        }
     `;
 
     export const StyledButton = styled(Button)`
@@ -75,7 +74,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)<NodeStyleProp>`
-        max-width: ${ENTRY_NODE_WIDTH - 50}px;
+        max-width: ${ENTRY_NODE_WIDTH - 60}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -97,14 +96,19 @@ export namespace NodeStyles {
         opacity: 0.7;
     `;
 
-    export const Row = styled.div`
+    export const Box = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
-        gap: 6px;
-        width: 100%;
-        padding: 0 20px;
+        gap: 10px;
+        width: ${ENTRY_NODE_WIDTH}px;
+        height: ${ENTRY_NODE_HEIGHT}px;
+        border: ${NODE_BORDER_WIDTH}px solid
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 8px;
+        background-color: ${Colors.SURFACE_DIM};
+        padding: 0 12px;
     `;
 
     export const Hr = styled.hr`
@@ -142,15 +146,15 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
+            <NodeStyles.Box hovered={isHovered}>
+                <NodeStyles.Icon>{isNewEntryPoint ? <PlusIcon /> : <HttpIcon />}</NodeStyles.Icon>
                 <NodeStyles.Header hovered={isHovered} inactive={isNewEntryPoint}>
-                    {isNewEntryPoint ? <PlusIcon /> : <HttpIcon />}
                     <NodeStyles.Title hovered={isHovered} inactive={isNewEntryPoint}>
                         {model.node.name}
                     </NodeStyles.Title>
                     {!isNewEntryPoint && <NodeStyles.Description>{model.node.type}</NodeStyles.Description>}
                 </NodeStyles.Header>
-            </NodeStyles.Row>
+            </NodeStyles.Box>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );

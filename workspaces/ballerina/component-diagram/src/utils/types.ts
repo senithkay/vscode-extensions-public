@@ -8,10 +8,11 @@
  */
 
 import { ActorNodeModel } from "../components/nodes/ActorNode";
+import { ButtonNodeModel } from "../components/nodes/ButtonNode/ButtonNodeModel";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 import { EntryNodeModel } from "../components/nodes/EntryNode";
 
-export type NodeModel = EntryNodeModel | ConnectionNodeModel | ActorNodeModel;
+export type NodeModel = EntryNodeModel | ConnectionNodeModel | ActorNodeModel | ButtonNodeModel;
 
 export type Project = {
     name: string;

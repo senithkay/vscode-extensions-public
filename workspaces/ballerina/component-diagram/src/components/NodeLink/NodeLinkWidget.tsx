@@ -51,7 +51,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={link.showAddButton && linkColor}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head-old)` : ""}
+                // markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head-old)` : ""}
             />
 
             <defs>

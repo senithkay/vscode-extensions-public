@@ -10,17 +10,17 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
-import { EntryPoint } from "../../../utils/types";
+import { Connection } from "../../../utils/types";
 
-export class ActorNodeModel extends NodeModel {
-    readonly node: EntryPoint;
+export class ButtonNodeModel extends NodeModel {
+    readonly node: Connection;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(node: EntryPoint) {
+    constructor(node: Connection) {
         super({
             id: node.id,
-            type: NodeTypes.ACTOR_NODE,
+            type: NodeTypes.BUTTON_NODE,
             locked: NODE_LOCKED,
         });
         this.node = node;
