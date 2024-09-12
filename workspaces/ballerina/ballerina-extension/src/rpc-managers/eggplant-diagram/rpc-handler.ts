@@ -16,6 +16,7 @@ import {
     EggplantConnectorsRequest,
     EggplantNodeTemplateRequest,
     EggplantSourceCodeRequest,
+    SetOverviewRequest,
     createComponent,
     createProject,
     deleteFlowNode,
@@ -27,7 +28,8 @@ import {
     getProjectComponents,
     getProjectStructure,
     getSourceCode,
-    getWorkspaces
+    getWorkspaces,
+    setOverview
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { EggplantDiagramRpcManager } from "./rpc-manager";
@@ -46,4 +48,5 @@ export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getEggplantConnectors, (args: EggplantConnectorsRequest) => rpcManger.getEggplantConnectors(args));
+    messenger.onRequest(setOverview, (args: SetOverviewRequest) => rpcManger.setOverview(args));
 }

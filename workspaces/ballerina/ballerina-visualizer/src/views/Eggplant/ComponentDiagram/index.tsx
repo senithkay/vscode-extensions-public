@@ -17,17 +17,27 @@ import {
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
 import {
+    Button,
+    TextArea,
+    Typography,
     View,
     ViewContent,
+    LinkButton,
+    Codicon
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import { useVisualizerContext } from "../../../Context";
+import { BodyText, BodyTinyInfo } from "../../styles";
+import { Colors } from "../../../resources/constants";
 
-const CardContainer = styled.div`
+const CardTitleContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+`;
+
+const Title = styled(Typography)`
+    margin: 8px 0;
 `;
 
 interface ComponentDiagramProps {
@@ -151,12 +161,36 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         });
     });
 
+    const handleSaveOverview = (value: string) => {
+        rpcClient.getEggplantDiagramRpcClient().setOverview({ content: value });
+    }
+
     console.log(">>> component diagram: project", project);
 
     return (
         <View>
             <ViewContent padding>
                 <EggplantHeader />
+                <Title variant="h2">Project Overview</Title>
+                <BodyText>
+                    Provide a detailed description of your integration project, including its purpose, scope, and any key connections or systems involved.
+                </BodyText>
+                <TextArea
+                    placeholder="E.g. A webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
+                    rows={6}
+                    style={{ width: "100%" }}
+
+                    onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
+                />
+                <BodyTinyInfo>This information will be used to generate an optimized and tailored integration solution.</BodyTinyInfo>
+
+                <CardTitleContainer>
+                    <Title variant="h2">Architecture</Title>
+                    <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                        <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+                        Generate components using overview
+                    </LinkButton>
+                </CardTitleContainer>
                 <Diagram
                     project={project}
                     onAddEntryPoint={handleAddArtifact}
@@ -165,7 +199,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     onConnectionSelect={handleGoToConnection}
                 />
             </ViewContent>
-        </View>
+        </View >
     );
 }
 

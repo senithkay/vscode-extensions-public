@@ -25,7 +25,7 @@ import {
     EggplantAiSuggestionsRequest,
     EggplantAiSuggestionsResponse,
 } from "../../interfaces/extended-lang-client";
-import { CreateProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse } from "./interfaces";
+import { CreateProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse, SetOverviewResponse, SetOverviewRequest } from "./interfaces";
 
 export interface EggplantDiagramAPI {
     getFlowModel: () => Promise<EggplantFlowModelResponse>;
@@ -40,4 +40,5 @@ export interface EggplantDiagramAPI {
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: CreateComponentRequest) => Promise<CreateComponentResponse>;
     getEggplantConnectors: (params: EggplantConnectorsRequest) => Promise<EggplantConnectorsResponse>;
+    setOverview: (params: SetOverviewRequest) => Promise<SetOverviewResponse>;
 }

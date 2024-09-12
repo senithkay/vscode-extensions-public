@@ -13,6 +13,8 @@ import path from "path";
 import { CreateComponentRequest, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
 
+export const README_FILE = "readme.md";
+
 export function openEggplantProject() {
     window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open Eggplant Project' })
         .then(uri => {

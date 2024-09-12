@@ -132,7 +132,7 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isEggplant) {
-                            setViewComponent(<EggplantOverview stateUpdated />);
+                            setViewComponent(<ComponentDiagram stateUpdated />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);

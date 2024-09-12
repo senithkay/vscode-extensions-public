@@ -31,16 +31,20 @@ import {
     ProjectComponentsResponse,
     ProjectStructureResponse,
     STModification,
+    SetOverviewRequest,
+    SetOverviewResponse,
     SyntaxTree,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import { writeFileSync } from "fs";
+import * as fs from "fs";
+import * as path from 'path';
 import { Uri, workspace } from "vscode";
-import { StateMachine, updateView } from "../../stateMachine";
-import { createEggplantProjectPure, createEggplantService } from "../../utils/eggplant";
 import { ballerinaExtInstance } from "../../core";
+import { StateMachine, updateView } from "../../stateMachine";
+import { createEggplantProjectPure, createEggplantService, README_FILE } from "../../utils/eggplant";
 
 export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     async getFlowModel(): Promise<EggplantFlowModelResponse> {
@@ -354,6 +358,21 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                         resolve(undefined);
                     });
                 });
+        });
+    }
+
+    async setOverview(params: SetOverviewRequest): Promise<SetOverviewResponse> {
+        console.log(">>> Saving readme.md", params);
+        return new Promise((resolve) => {
+            const projectUri = StateMachine.context().projectUri;
+            const readmePath = path.join(projectUri, README_FILE);
+            if (!fs.existsSync(readmePath)) {
+                fs.writeFileSync(readmePath, params.content);
+                console.log(">>> Created and saved readme.md with content:", params.content);
+            } else {
+                fs.writeFileSync(readmePath, params.content);
+                console.log(">>> Updated readme.md with content:", params.content);
+            }
         });
     }
 }
