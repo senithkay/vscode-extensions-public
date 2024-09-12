@@ -9,11 +9,12 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Dropdown, TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { linter } from "@codemirror/lint";
 import CodeMirror from "@uiw/react-codemirror";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const Container = styled.div({
     display: 'grid',
@@ -32,14 +33,30 @@ const CodeMirrorContainer = styled.div({
     marginTop: 2,
 });
 
-const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, index, last }: any) => {
+const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, index, last, path }: any) => {
     const [codemirrorErrors, setCodemirrorErrors] = useState<any[]>([]);
     const [changesOccured, setChangesOccured] = useState<boolean>(false);
     const [tempEndpoint, setTempEndpoint] = useState<any>(endpoint);
+    const [endpoints, setEndpoints] = useState<any[]>([]);
+    const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
         setChangesOccured(JSON.stringify(endpoint) !== JSON.stringify(tempEndpoint));
     }, [tempEndpoint, endpoint]);
+
+    useEffect(() => {
+        (async () => {
+            const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: path,
+                resourceType: "endpoint"
+            });
+            const endpointList = [
+                ...result.resources.map((endpoint) => ({ value: endpoint.name })),
+                ...result.registryResources.map((endpoint) => ({ value: endpoint.name }))
+            ];
+            setEndpoints(endpointList);
+        })();
+    });
 
     const endpointTypes = [
         { content: 'INLINE', value: 'inline' },
@@ -69,10 +86,11 @@ const Endpoint = ({ endpoint, handleEndpointChange, handleSave, onDeleteClick, i
                 items={endpointTypes}
             />
             {tempEndpoint.type === "static" ? (
-                <TextField
+                <Dropdown
                     id='endpoint-value'
                     value={tempEndpoint.value}
-                    onTextChange={(text: string) => handleChanges("value", text)}
+                    onValueChange={(text: string) => handleChanges("value", text)}
+                    items={endpoints}
                     sx={{ marginTop: '-2px' }}
                 />
             ) : (
