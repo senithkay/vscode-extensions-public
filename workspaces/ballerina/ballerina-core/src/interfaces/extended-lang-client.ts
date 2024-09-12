@@ -491,15 +491,6 @@ export type EggplantConnectorsResponse = {
     categories: Category[];
 }
 
-export interface EggplantAiSuggestionsRequest {
-    position: LineRange;
-    filePath: string;
-}
-export interface EggplantAiSuggestionsResponse {
-    flowModel: Flow;
-    suggestion: string;
-}
-
 export interface EggplantCopilotContextRequest {
     position: LinePosition;
     filePath: string;

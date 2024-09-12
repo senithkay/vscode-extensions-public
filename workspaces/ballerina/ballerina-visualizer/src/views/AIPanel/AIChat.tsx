@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';

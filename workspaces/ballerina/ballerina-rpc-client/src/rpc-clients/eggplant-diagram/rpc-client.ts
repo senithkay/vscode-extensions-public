@@ -9,9 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ComponentsRequest,
+    ComponentsResponse,
     CreateComponentRequest,
     CreateComponentResponse,
-    CreateProjectRequest,
     EggplantAiSuggestionsRequest,
     EggplantAiSuggestionsResponse,
     EggplantAvailableNodesRequest,
@@ -25,11 +26,13 @@ import {
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
     ProjectComponentsResponse,
+    ProjectRequest,
     ProjectStructureResponse,
-    SetOverviewRequest,
-    SetOverviewResponse,
+    ReadmeContentRequest,
+    ReadmeContentResponse,
     WorkspacesResponse,
     createComponent,
+    createComponents,
     createProject,
     deleteFlowNode,
     getAiSuggestions,
@@ -41,7 +44,7 @@ import {
     getProjectStructure,
     getSourceCode,
     getWorkspaces,
-    setOverview
+    handleReadmeContent
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -77,7 +80,7 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
         return this._messenger.sendRequest(getAiSuggestions, HOST_EXTENSION, params);
     }
 
-    createProject(params: CreateProjectRequest): void {
+    createProject(params: ProjectRequest): void {
         return this._messenger.sendNotification(createProject, HOST_EXTENSION, params);
     }
 
@@ -101,7 +104,11 @@ export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
         return this._messenger.sendRequest(getEggplantConnectors, HOST_EXTENSION, params);
     }
 
-    setOverview(params: SetOverviewRequest): Promise<SetOverviewResponse> {
-        return this._messenger.sendRequest(setOverview, HOST_EXTENSION, params);
+    handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
+        return this._messenger.sendRequest(handleReadmeContent, HOST_EXTENSION, params);
+    }
+
+    createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
+        return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
     }
 }
