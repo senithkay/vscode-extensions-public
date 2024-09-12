@@ -33,6 +33,7 @@ import {
     AddComponentView,
     ServiceForm,
     PopupMessage,
+    ComponentDiagram,
 } from "./views/Eggplant";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
