@@ -272,7 +272,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 console.log(">>> readme content", readmeContent);
                 const payload = {
                     projectDescription: readmeContent
-                }
+                };
                 const requestOptions = {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -285,7 +285,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 );
                 const data = await response.json();
                 console.log(">>> ai suggestion", { response: data });
-                resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow })
+                resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
             } else {
                 // check multi line AI completion setting
                 const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
@@ -422,14 +422,14 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                                     path: "/",
                                     port: "9090",
                                     type: DIRECTORY_MAP.SERVICES
-                                }
+                                };
                                 await handleServiceCreation(req);
                                 break;
                             default:
                                 break;
                         }
                     }
-                })
+                });
                 // Create the connections
                 const importStatements: string[] = [];
                 const connectionLines: string[] = [];
@@ -446,7 +446,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                         const connectionLine = `${connection.package}:${connection.client} ${sanitizeName(connection.name)} = check new ({});`;
                         connectionLines.push(connectionLine);
                     }
-                })
+                });
 
                 // Log or return the generated import statements and connection lines
                 console.log("Import Statements:", importStatements);
