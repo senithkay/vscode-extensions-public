@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -39,12 +39,12 @@ import {
     getContainerTitle,
     getFormProperties,
     updateNodeProperties,
-} from "./../../utils/eggplant";
+} from "../../../utils/eggplant";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { applyModifications, getColorByMethod, textToModifications } from "../../utils/utils";
-import { RecordEditor } from "../RecordEditor/RecordEditor";
+import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
+import { RecordEditor } from "../../RecordEditor/RecordEditor";
 
 const Container = styled.div`
     width: 100%;
@@ -67,12 +67,12 @@ export enum SidePanelView {
     FORM = "FORM",
 }
 
-export interface EggplantDiagramProps {
+export interface EggplantFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
     projectPath: string;
 }
 
-export function EggplantDiagram(props: EggplantDiagramProps) {
+export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
     const { syntaxTree, projectPath } = props;
     const { rpcClient } = useRpcContext();
 

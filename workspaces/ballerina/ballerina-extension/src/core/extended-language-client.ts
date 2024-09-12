@@ -37,7 +37,6 @@ import {
     ConnectorsParams,
     TriggersParams,
     Triggers,
-    ConnectorParams,
     Connector,
     TriggerParams,
     Trigger,
@@ -59,8 +58,6 @@ import {
     PackageConfigSchema,
     SyntaxTreeNodeParams,
     SyntaxTreeNode,
-    SequenceDiagramModelParams,
-    SequenceDiagramModel,
     ExecutorPositions,
     JsonToRecordParams,
     XMLToRecordParams,
@@ -92,7 +89,9 @@ import {
     ConnectorResponse,
     EggplantSuggestedFlowModelRequest,
     EggplantCopilotContextRequest,
-    EggplantCopilotContextResponse
+    EggplantCopilotContextResponse,
+    SequenceModelRequest,
+    SequenceModelResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -465,10 +464,6 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_ST_NODE, params);
     }
 
-    async getSequenceDiagramModel(params: SequenceDiagramModelParams): Promise<SequenceDiagramModel> {
-        return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
-    }
-
     async getExecutorPositions(params: BallerinaProjectParams): Promise<ExecutorPositions | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS);
         if (!isSupported) {
@@ -570,6 +565,11 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
         return this.sendRequest<EggplantSourceCodeResponse>(EXTENDED_APIS.EGGPLANT_DELETE_NODE, params);
+    }
+
+    async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL);
+        return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
     }
 
     // <------------ EGGPLANT APIS END --------------->

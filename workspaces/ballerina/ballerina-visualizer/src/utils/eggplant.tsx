@@ -25,7 +25,7 @@ import {
     Branch,
     LineRange,
 } from "@wso2-enterprise/ballerina-core";
-import { SidePanelView } from "./../views/EggplantDiagram";
+import { SidePanelView } from "../views/Eggplant/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
 
