@@ -60,11 +60,27 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         policyKey: yup.string().notRequired().default(""),
         inboundPolicyKey: yup.string().notRequired().default(""),
         outboundPolicyKey: yup.string().notRequired().default(""),
-        suspendErrorCodes: yup.string(),
+        suspendErrorCodes: yup.string().notRequired()
+            .test(
+                'validateNumericOrEmpty',
+                'Suspend Error Codes must be a comma-separated list of error codes',
+                value => {
+                    if (value === '') return true;
+                    return /^(\d+)(,\d+)*$/.test(value);
+                }
+            ),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
         progressionFactor: yup.number().typeError('Progression Factor must be a number'),
-        retryErrorCodes: yup.string(),
+        retryErrorCodes: yup.string().notRequired()
+            .test(
+                'validateNumericOrEmpty',
+                'Retry Error Codes must be a comma-separated list of error codes',
+                value => {
+                    if (value === '') return true;
+                    return /^(\d+)(,\d+)*$/.test(value);
+                }
+            ),
         retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0"),
         retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay must be greater than or equal to 0"),
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
@@ -239,7 +255,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
 
     return (
         <FormView
-            title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
+            title={isTemplate ? 'Template' : 'Endpoint'}
             onClose={props.handlePopupClose ?? openOverview}
             hideClose={props.isPopup}
         >

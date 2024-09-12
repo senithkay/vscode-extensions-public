@@ -122,7 +122,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.65</version>
+            <version>5.2.68</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -168,6 +168,16 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       </properties>
     </profile>
     <profile>
+      <id>test</id>
+      <build/>
+      <properties>
+        <server.type>\${testServerType}</server.type>
+        <server.host>\${testServerHost}</server.host>
+        <server.port>\${testServerPort}</server.port>
+        <server.port>\${testServerPath}</server.port>
+      </properties>
+    </profile>
+    <profile>
       <id>docker</id>
       <build>
         <plugins>
@@ -206,7 +216,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.65</version>
+            <version>5.2.68</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -242,7 +252,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>mi-container-config-mapper</artifactId>
-            <version>5.2.65</version>
+            <version>5.2.68</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -282,13 +292,6 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                         <include name="*.car"/>
                       </fileset>
                     </copy>
-                    <move todir="\${basedir}/target/tmp_docker/CarbonHome/metadata">
-                      <fileset dir="\${basedir}/target/tmp_docker/CarbonHome/.metadata"/>
-                    </move>
-                    <replace file="\${basedir}/target/tmp_docker/Dockerfile">
-                      <replacefilter token="CarbonHome/.metadata/metadata_config.properties" value="CarbonHome/metadata/metadata_config.properties"/>
-                      <replacefilter token="CarbonHome/.metadata/references.properties" value="CarbonHome/metadata/references.properties"/>
-                    </replace>
                   </target>
                 </configuration>
               </execution>
@@ -299,7 +302,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.43.4</version>
+            <version>0.45.0</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -318,6 +321,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                         <args>
                           <BASE_IMAGE>\${dockerfile.base.image}</BASE_IMAGE>
                         </args>
+                        <useDefaultExcludes>false</useDefaultExcludes>
                       </build>
                     </image>
                   </images>
@@ -339,16 +343,6 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         <server.port>9008</server.port>
         <server.path>/</server.path>
         <server.version>\${project.runtime.version}</server.version>
-      </properties>
-    </profile>
-    <profile>
-      <id>test</id>
-      <build/>
-      <properties>
-        <server.type>\${testServerType}</server.type>
-        <server.host>\${testServerHost}</server.host>
-        <server.port>\${testServerPort}</server.port>
-        <server.port>\${testServerPath}</server.port>
       </properties>
     </profile>
   </profiles>
