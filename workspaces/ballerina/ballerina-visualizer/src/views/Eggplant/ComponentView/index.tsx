@@ -10,7 +10,7 @@
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, TextArea, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
 import ButtonCard from "../../../components/ButtonCard";
@@ -64,6 +64,14 @@ export function AddComponentView() {
                     view: MACHINE_VIEW.EggplantServiceForm,
                 },
             });
+        } else if (key === DIRECTORY_MAP.CONNECTIONS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.AddConnectionWizard,
+                },
+                isPopup: true,
+            });
         } else {
             setPopupMessage(true);
         }
@@ -113,7 +121,7 @@ export function AddComponentView() {
                             show={viewMore}
                             {...transitionEffect}
                         > */}
-                        {/* <PanelViewMore>
+                        <PanelViewMore>
                             <Divider />
                             <Title variant="h2">Other Artifacts</Title>
                             <BodyText>
@@ -145,7 +153,7 @@ export function AddComponentView() {
                                     onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                                 />
                             </CardGrid>
-                        </PanelViewMore> */}
+                        </PanelViewMore>
                         {/* </Transition> */}
                         {/* <PanelFooter>
                             {!viewMore ? (
