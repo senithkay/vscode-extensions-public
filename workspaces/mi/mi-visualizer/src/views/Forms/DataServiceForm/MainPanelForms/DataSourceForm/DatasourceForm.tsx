@@ -21,6 +21,7 @@ import { EVENT_TYPE, MACHINE_VIEW, Datasource, Property } from "@wso2-enterprise
 import { TestConnectionForm } from "./TestConnectionForm";
 import { DatabaseDriverForm } from "./DatabaseDriverForm";
 import { driverMap } from "../../../DataSourceForm/types";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 export interface DataServiceDataSourceWizardProps {
     datasource?: any;
@@ -727,10 +728,12 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                             <DataSourceCSVForm renderProps={renderPropsForObject} />
                         )}
                         {watch('dataSourceType') === 'Carbon Datasource' && (
-                            <TextField
+                            <FormKeylookup
+                                control={control}
                                 label="Datasource Name"
+                                filterType="dataSource"
+                                allowItemCreate={false}
                                 required
-                                size={100}
                                 {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}
                             />
                         )}

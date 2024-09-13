@@ -372,9 +372,19 @@ export interface CommandsResponse {
     data: string;
 }
 
-export interface getSTRequest {
+export interface GetSTFromUriRequest {
     documentUri: string;
 }
+
+export type ArtifactType = "api" | "data-services" | "data-sources" | "endpoints" | "inbound-endpoints" | "local-entries" | "message-processors" | "message-stores" | "proxy-services" | "sequences" | "tasks" | "templates";
+
+export type GetSTFromArtifactRequest = {
+    artifactType: ArtifactType;
+    artifactName: string;
+}
+
+export type getSTRequest = GetSTFromUriRequest | GetSTFromArtifactRequest;
+
 export interface getSTResponse {
     syntaxTree: any;
     defFilePath: string;
