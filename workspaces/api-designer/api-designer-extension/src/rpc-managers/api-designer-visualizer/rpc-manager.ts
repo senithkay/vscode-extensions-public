@@ -10,12 +10,14 @@
  */
 import {
     APIDesignerVisualizerAPI,
+    GetOpenAPIContentRequest,
+    GetOpenAPIContentResponse,
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     OpenViewRequest
 } from "@wso2-enterprise/api-designer-core";
-
+import { readFile } from 'fs/promises';
 export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI {
     async openView(params: OpenViewRequest): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
@@ -45,5 +47,30 @@ export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI
     async goToSource(params: GoToSourceRequest): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
+    }
+
+    async getOpenApiContent(params: GetOpenAPIContentRequest): Promise<GetOpenAPIContentResponse> {
+        // Read the file content from the file system
+        let fileType : 'json' | 'yaml' | undefined;
+        let fileContent;
+        if (!params.filePath) {
+            console.error('File path is not provided');
+        } else if (params.filePath.endsWith('.json')) {
+            fileType = 'json';
+        } else if (params.filePath.endsWith('.yaml') || params.filePath.endsWith('.yml')) {
+            fileType = 'yaml';
+        } else {
+            console.error('Unsupported file type');
+        }
+        try {
+            fileContent = await readFile(params.filePath, 'utf8');
+        } catch (err: any) {
+            if (err.code === 'ENOENT') {
+                console.error('File does not exist.');
+            } else {
+                console.error('Error reading file:', err);
+            }
+        }
+        return { content: fileContent, type: fileType };
     }
 }

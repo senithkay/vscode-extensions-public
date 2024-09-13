@@ -7,6 +7,7 @@ import styled from '@emotion/styled';
 import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { NavigationBar } from './components/NavigationBar';
+import { APIDesigner } from './views/APIDesignerView/APIDesigner';
 
 const MainContainer = styled.div`
     display: flex;
@@ -104,6 +105,9 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
             switch (machineView?.view) {
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
+                    break;
+                case MACHINE_VIEW.Welcome:
+                    setViewComponent(<APIDesigner fileUri={machineView.documentUri}/>);
                     break;
                 default:
                     setViewComponent(null);

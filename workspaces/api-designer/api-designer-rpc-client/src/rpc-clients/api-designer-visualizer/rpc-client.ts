@@ -10,12 +10,15 @@
  */
 import {
     APIDesignerVisualizerAPI,
+    GetOpenAPIContentRequest,
+    GetOpenAPIContentResponse,
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     OpenViewRequest,
     addToHistory,
     getHistory,
+    getOpenApiContent,
     goBack,
     goHome,
     goToSource,
@@ -53,5 +56,9 @@ export class ApiDesignerVisualizerRpcClient implements APIDesignerVisualizerAPI 
 
     goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
+    }
+
+    getOpenApiContent(params: GetOpenAPIContentRequest): Promise<GetOpenAPIContentResponse> {
+        return this._messenger.sendRequest(getOpenApiContent, HOST_EXTENSION, params);
     }
 }

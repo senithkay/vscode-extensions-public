@@ -46,11 +46,25 @@
     "commands": [
       {
         "command": "APIDesigner.openAPIDesigner",
+        "icon": {
+          "light": "assets/light-APIResource.svg",
+          "dark": "assets/dark-APIResource.svg"
+        },
         "title": "Open API Designer",
-        "category": "APIDesigner"
+        "category": "APIDesigner",
+        "when": "isFileOpenAPI"
       }
     ],
-    "menus": { },
+    "menus": {
+      "editor/title": [
+        {
+          "when": "isFileOpenAPI",
+          "command": "APIDesigner.openAPIDesigner",
+          "alt": "APIDesigner.openAPIDesigner",
+          "group": "navigation"
+        }
+      ]
+     },
     "icons": {
       "distro-design-view": {
         "description": "design-view",

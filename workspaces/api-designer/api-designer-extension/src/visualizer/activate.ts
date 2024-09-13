@@ -8,17 +8,31 @@
  */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-import { commands, window } from 'vscode';
-import { StateMachine, openView } from '../stateMachine';
+import { openView } from '../stateMachine';
 import { COMMANDS } from '../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
-import { extension } from '../APIDesignerExtensionContext';
+
+
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
+        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, async (fileUri: vscode.Uri) => {
+            let file: string | undefined;
+            const activeDocument = vscode.window.activeTextEditor?.document;
+            if (fileUri?.fsPath) {
+                file = fileUri.fsPath;
+            } else if (activeDocument) {
+                file = activeDocument.fileName;
+                // If the active document is not a yaml or json file, show an error message
+                if (!file.endsWith('.yaml') && !file.endsWith('.yml') && !file.endsWith('.json')) {
+                    vscode.window.showErrorMessage("No API definition found to visualize");
+                    return;
+                }
+            } else {
+                vscode.window.showErrorMessage("No file found to visualize");
+                return;
+            }
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome, documentUri: file });
         })
     );
 }
