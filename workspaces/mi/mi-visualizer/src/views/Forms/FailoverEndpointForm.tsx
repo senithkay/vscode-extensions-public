@@ -289,7 +289,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview}>
+        <FormView title="Endpoint" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Failover Endpoint"}
                 onClick={changeType}

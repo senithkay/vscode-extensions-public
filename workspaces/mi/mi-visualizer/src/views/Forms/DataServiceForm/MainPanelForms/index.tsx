@@ -239,7 +239,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
             {showDatasourceComponent && <DataServiceDataSourceWizard datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} /> }
             {!showDatasourceComponent &&
                 <>
-                    <FormView title='Data Service Artifact' onClose={handleCancel}>
+                    <FormView title='Data Service' onClose={handleCancel}>
                              <FormGroup title="Data Service Properties" isCollapsed={false}>
                                  <TextField
                                     label="Data Service Name"
