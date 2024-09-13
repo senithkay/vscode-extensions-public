@@ -9,7 +9,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, TextField, Dropdown, RadioButtonGroup, FormCheckBox, FormView, FormGroup, FormActions} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
-import {EVENT_TYPE, MACHINE_VIEW, UpdateAddressEndpointRequest} from "@wso2-enterprise/mi-core";
+import {EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE, UpdateAddressEndpointRequest} from "@wso2-enterprise/mi-core";
 import {TypeChip} from "./Commons";
 import {useForm} from "react-hook-form";
 import * as yup from "yup";
@@ -419,7 +419,16 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 isTemplate ? values.templateName : values.endpointName,
                 result.content, values.registryPath, values.artifactName);
         }
-        handleCancel();
+        
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("endpointName") },
+                isPopup: true
+            });
+        } else {
+            handleCancel();
+        }
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
