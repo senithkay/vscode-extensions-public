@@ -579,7 +579,6 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                             onChange={handleModifyURL}
                                         />
                                         <TextField
-                                            label="URL"
                                             required
                                             size={100}
                                             disabled={!isEnableURLEdit}
