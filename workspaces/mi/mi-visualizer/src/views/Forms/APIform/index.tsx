@@ -69,7 +69,7 @@ const initialAPI: APIData = {
     port: "",
     trace: false,
     statistics: false,
-    version: "",
+    version: "1.0.0",
     versionType: "none",
     apiCreateOption: "create-api",
     swaggerDefPath: "",
@@ -94,6 +94,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [APIContexts, setAPIContexts] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name")
@@ -229,6 +230,13 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         })();
     }, []);
 
+    useEffect(() => {
+        setPrevName(watch("apiName").toLowerCase());
+        if (prevName === watch("apiContext").slice(1)) {
+            setValue("apiContext", "/" + watch("apiName").toLowerCase());
+        }
+    }, [watch("apiName")]);
+
     const versionLabels = [
         { content: "None", value: "none" },
         { content: "Context", value: "context" },
@@ -255,6 +263,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     }
 
     const handleCreateAPI = async (values: any) => {
+        if (values.versionType === "none") {
+            values.version = "";
+        }
         if (!apiData) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
@@ -439,7 +450,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     }
 
     return (
-        <FormView title={`${apiData ? "Edit " : ""}Synapse API Artifact`} onClose={handleOnClose}>
+        <FormView title={`${apiData ? "Edit" : "Create"} API`} onClose={handleOnClose}>
             <TextField
                 required
                 label="Name"
