@@ -448,7 +448,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={props.handlePopupClose ?? handleCancel}>
+        <FormView title={isTemplate ? 'Template' : 'Endpoint'} onClose={props.handlePopupClose ?? handleCancel}>
             <TypeChip
                 type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"}
                 onClick={changeType}

@@ -315,7 +315,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview}>
+        <FormView title="Endpoint" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Load Balance Endpoint"}
                 onClick={changeType}

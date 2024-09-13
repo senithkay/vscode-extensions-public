@@ -243,7 +243,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview}>
+        <FormView title="Endpoint" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Template Endpoint"}
                 onClick={changeType}

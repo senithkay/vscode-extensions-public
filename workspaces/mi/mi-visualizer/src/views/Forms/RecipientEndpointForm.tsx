@@ -281,7 +281,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview}>
+        <FormView title="Endpoint" onClose={openOverview}>
             <TypeChip
                 type={"Recipient List Endpoint"}
                 onClick={changeType}

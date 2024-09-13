@@ -53,7 +53,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
     };
 
     return (
-        <FormView title={"Create Endpoint Artifact"} onClose={props.handlePopupClose ?? handleOnClose}>
+        <FormView title={"Create Endpoint"} onClose={props.handlePopupClose ?? handleOnClose}>
             <CardWrapper cardsType={"ENDPOINT"} setType={setEndpointType} />
         </FormView>
     );

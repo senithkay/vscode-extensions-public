@@ -357,7 +357,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     return (
         <FormView
-            title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
+            title={isTemplate ? 'Template' : 'Endpoint'}
             onClose={props.handlePopupClose ?? openOverview}
         >
             <TypeChip
