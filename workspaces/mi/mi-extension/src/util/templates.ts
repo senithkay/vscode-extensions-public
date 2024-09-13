@@ -165,6 +165,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         <server.port>9008</server.port>
         <server.path>/</server.path>
         <server.version>\${project.runtime.version}</server.version>
+        <server.download.link>\${testServerDownloadLink}</server.download.link>
       </properties>
     </profile>
     <profile>
@@ -174,7 +175,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         <server.type>\${testServerType}</server.type>
         <server.host>\${testServerHost}</server.host>
         <server.port>\${testServerPort}</server.port>
-        <server.port>\${testServerPath}</server.port>
+        <server.path>\${testServerPath}</server.path>
       </properties>
     </profile>
     <profile>
@@ -343,6 +344,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
         <server.port>9008</server.port>
         <server.path>/</server.path>
         <server.version>\${project.runtime.version}</server.version>
+        <server.download.link>\${testServerDownloadLink}</server.download.link>
       </properties>
     </profile>
   </profiles>
@@ -368,6 +370,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             <testServerPort>\${server.port}</testServerPort>
             <testServerPath>\${server.path}</testServerPath>
             <testServerVersion>\${server.version}</testServerVersion>
+            <testServerDownloadLink>\${server.download.link}</testServerDownloadLink>
           </server>
           <testCasesFilePath>\${project.basedir}/src/test/wso2mi/\${testFile}</testCasesFilePath>
           <mavenTestSkip>\${maven.test.skip}</mavenTestSkip>
