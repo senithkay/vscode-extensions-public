@@ -277,8 +277,8 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 <Content>
                     <Title variant="h2">Project Overview</Title>
                     <BodyText>
-                        Provide a detailed description of your integration project, including its purpose, scope, and
-                        any key connections or systems involved.
+                        To create a tailored integration solution, please provide a brief description of your project.
+                        What problem are you trying to solve? What systems or data sources will be involved?
                     </BodyText>
                     <TextArea
                         placeholder="E.g. A webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
@@ -287,9 +287,9 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                         value={readmeContent}
                         onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
                     />
-                    <BodyTinyInfo>
+                    {/* <BodyTinyInfo>
                         This information will be used to generate an optimized and tailored integration solution.
-                    </BodyTinyInfo>
+                    </BodyTinyInfo> */}
                     <CardTitleContainer>
                         <Title variant="h2">Architecture</Title>
                         {generateButton()}
