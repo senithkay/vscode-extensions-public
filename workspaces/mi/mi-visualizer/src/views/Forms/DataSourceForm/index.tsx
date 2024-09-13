@@ -473,7 +473,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     };
 
     return (
-        <FormView title='Datasource Artifact' onClose={openOverview}>
+        <FormView title='Datasource' onClose={openOverview}>
             <FormProvider {...formMethods}>
                 {step === 1 ? (
                     <>
