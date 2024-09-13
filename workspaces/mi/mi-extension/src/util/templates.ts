@@ -262,7 +262,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <goal>config-mapper-parser</goal>
                 </goals>
                 <configuration>
-                  <miVersion>4.3.0</miVersion>
+                  <miVersion>\${project.runtime.version}</miVersion>
                   <executeCipherTool>\${ciphertool.enable}</executeCipherTool>
                   <keystoreName>\${keystore.name}</keystoreName>
                   <keystoreAlias>\${keystore.alias}</keystoreAlias>
@@ -307,7 +307,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             <executions>
               <execution>
                 <id>docker-build</id>
-                <phase>compile</phase>
+                <phase>package</phase>
                 <goals>
                   <goal>build</goal>
                 </goals>
