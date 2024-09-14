@@ -33,6 +33,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
+import _ from "lodash";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -89,7 +90,10 @@ export function Diagram(props: DiagramProps) {
         if (!diagramViewStateKey || diagramViewStateKey === "" || !e?.target?.scrollTop || !e?.target?.scrollLeft) {
             return
         }
-        localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop, scrollPositionX: e.target.scrollLeft }));
+        const debounce = _.debounce(() => {
+            localStorage.setItem(diagramViewStateKey, JSON.stringify({ scrollPosition: e.target.scrollTop, scrollPositionX: e.target.scrollLeft }));
+        }, 300);
+        debounce();
     };
 
     useEffect(() => {
