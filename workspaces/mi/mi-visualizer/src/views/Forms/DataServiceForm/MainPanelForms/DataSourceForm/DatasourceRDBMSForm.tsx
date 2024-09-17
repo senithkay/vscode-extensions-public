@@ -52,14 +52,6 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                 props.setValue('rdbms.driverClassName', driverMap.get("MySQL").driverClass);
                 props.setValue('rdbms.url', driverMap.get("MySQL").jdbcUrl);
             }
-            if (!props.isEditDatasource) {
-                if (props.watch('rdbms.hostname') === "") {
-                    props.setValue('rdbms.hostname', "localhost");
-                }
-                if (props.watch('rdbms.port') === "") {
-                    props.setValue('rdbms.port', "3306");
-                }
-            }
         }
 
         props.isEditDatasource && extractValuesFromUrl(props.watch('rdbms.url'), props.watch('rdbms.databaseEngine'));
