@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -39,13 +39,12 @@ import {
     getContainerTitle,
     getFormProperties,
     updateNodeProperties,
-} from "./../../utils/eggplant";
+} from "../../../utils/eggplant";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { applyModifications, getColorByMethod, textToModifications } from "../../utils/utils";
-import { useVisualizerContext } from "../../Context";
-import { RecordEditor } from "../RecordEditor/RecordEditor";
+import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
+import { RecordEditor } from "../../RecordEditor/RecordEditor";
 
 const Container = styled.div`
     width: 100%;
@@ -68,11 +67,13 @@ export enum SidePanelView {
     FORM = "FORM",
 }
 
-export interface EggplantDiagramProps {
+export interface EggplantFlowDiagramProps {
     syntaxTree: STNode; // INFO: this is used to make the diagram rerender when code changes
+    projectPath: string;
 }
 
-export function EggplantDiagram(param: EggplantDiagramProps) {
+export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
+    const { syntaxTree, projectPath } = props;
     const { rpcClient } = useRpcContext();
 
     const [model, setModel] = useState<Flow>();
@@ -91,9 +92,9 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
     const suggestedText = useRef<string>();
 
     useEffect(() => {
-        console.log(">>> Updating sequence model...", param.syntaxTree);
+        console.log(">>> Updating sequence model...", syntaxTree);
         getSequenceModel();
-    }, [param.syntaxTree]);
+    }, [syntaxTree]);
 
     rpcClient.onParentPopupSubmitted(() => {
         // TODO: Fetch the newly added data from the popup view
@@ -196,7 +197,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
-                position: targetRef.current,
+                position: targetRef.current.startLine,
                 filePath: model.fileName,
                 id: node.codedata,
             })
@@ -364,10 +365,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
-                position: {
-                    startLine: targetRef.current.startLine,
-                    endLine: targetRef.current.endLine,
-                },
+                position: targetRef.current.startLine,
                 filePath: model.fileName,
                 id: node.codedata,
             })
@@ -461,14 +459,14 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const method = (param?.syntaxTree as ResourceAccessorDefinition).functionName.value;
+    const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const DiagramTitle = (
         <React.Fragment>
             <span>Resource:</span>
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <span>{getResourcePath(param.syntaxTree as ResourceAccessorDefinition)}</span>
+            <span>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</span>
         </React.Fragment>
     );
 
@@ -492,6 +490,7 @@ export function EggplantDiagram(param: EggplantDiagramProps) {
                                     onAccept: onAcceptSuggestions,
                                     onDiscard: onDiscardSuggestions,
                                 }}
+                                projectPath={projectPath}
                             />
                         )}
                     </Container>

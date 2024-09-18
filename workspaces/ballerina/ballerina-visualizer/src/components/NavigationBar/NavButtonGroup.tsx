@@ -17,6 +17,7 @@ import styled from "@emotion/styled";
 
 interface NavButtonGroupProps {
     historyStack?: HistoryEntry[];
+    showHome?: boolean;
 }
 
 const NavBar = styled.div`
@@ -32,14 +33,14 @@ const RightSection = styled.div``;
 interface NavButtonProps {
     inactive: boolean;
 }
-const NavButton = styled(VSCodeButton)<NavButtonProps>`
+const NavButton = styled(VSCodeButton) <NavButtonProps>`
     padding-right: 2px;
     color: ${(props: NavButtonProps) =>
         props.inactive ? "var(--vscode-activityBar-inactiveForeground)" : "var(--vscode-editor-foreground)"};
 `;
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
-    const { historyStack } = props; 
+    const { historyStack, showHome } = props;
     const { rpcClient } = useRpcContext();
     const isHistoryAvailable = historyStack && historyStack.length > 0;
 
@@ -63,7 +64,7 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
                     >
                         <Codicon name="arrow-left" />
                     </NavButton>
-                    <NavButton
+                    {showHome && <NavButton
                         appearance="icon"
                         title="Home"
                         onClick={isHistoryAvailable ? handleHomeButtonClick : undefined}
@@ -71,6 +72,7 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
                     >
                         <Codicon name="home" />
                     </NavButton>
+                    }
                 </LeftSection>
             </NavBar>
         </>

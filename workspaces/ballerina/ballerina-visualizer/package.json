@@ -27,10 +27,11 @@
     "@wso2-enterprise/ballerina-graphql-design-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-low-code-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
-    "@wso2-enterprise/component-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-side-panel": "workspace:*",
     "@wso2-enterprise/data-mapper-view": "workspace:*",
     "@wso2-enterprise/eggplant-diagram": "workspace:*",
+    "@wso2-enterprise/sequence-diagram": "workspace:*",
+    "@wso2-enterprise/component-diagram": "workspace:*",
     "@wso2-enterprise/overview-view": "workspace:*",
     "@wso2-enterprise/persist-layer-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-statement-editor": "workspace:*",
@@ -45,6 +46,8 @@
     "react-syntax-highlighter": "~15.5.0",
     "vscode-uri": "^3.0.8",
     "lodash": "~4.17.21",
+    "react-lottie": "^1.2.3",
+    "lodash.debounce": "^4.0.8",
     "@types/lodash": "~4.17.7"
   },
   "devDependencies": {
@@ -68,6 +71,8 @@
     "ts-loader": "^9.4.1",
     "typescript": "^5.2.2",
     "webpack": "^5.56.0",
+    "@types/react-lottie": "^1.2.5",
+    "@types/lodash.debounce": "^4.0.6",
     "webpack-dev-server": "^4.11.1"
   },
   "author": "wso2",

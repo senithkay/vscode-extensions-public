@@ -1,11 +1,10 @@
-export const COMMANDS = {
-    REFRESH_COMMAND: 'Eggplant.project-explorer.refresh',
-    FOCUS_PROJECT_EXPLORER: 'Eggplant.project-explorer.focus'
-};
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
-export const VIEWS = {
-    PROJECT_EXPLORER: 'Eggplant.project-explorer',
-    ADD_CONNECTIONS: 'Eggplant.project-explorer.add-connection',
-    ADD_ENTRY_POINT: 'Eggplant.project-explorer.add-entry-point'
-};
-
+// ADD ALL THE NON-SHARED EGGPLANT ONLY ATTRIBUTES HERE.
