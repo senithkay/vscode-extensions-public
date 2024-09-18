@@ -124,26 +124,36 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleSetFieldOptional = async () => {
+        setIsLoading(true);
         const fieldIdentifiers: DMType[] = [];
         let currField = field;
         while (currField.parentType) {
-            fieldIdentifiers.push(currField.type);
+            if (currField.type.fieldName)
+                fieldIdentifiers.push(currField.type);
             currField = currField.parentType;
         }
 
         const sourceFile = context.functionST.getSourceFile();
-        const outputInterface = sourceFile.getInterfaceOrThrow(currField.type.typeName);
+
+        let currInterface = sourceFile.getInterfaceOrThrow(currField.type.typeName);
 
         let currIdentifier = fieldIdentifiers.pop();
-        let currProperty = outputInterface.getProperty(currIdentifier.fieldName);
+        let currProperty = currInterface.getProperty(currIdentifier.fieldName);
 
         while (fieldIdentifiers.length > 0) {
+            if (currIdentifier.kind == TypeKind.Array)
+                currInterface = currProperty?.getType().getArrayElementType()?.getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
+            else
+                currInterface = currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
+
             currIdentifier = fieldIdentifiers.pop();
-            currProperty = (currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration).getProperty(currIdentifier.fieldName);
+            currProperty = currInterface.getProperty(currIdentifier.fieldName);
         }
+
         currProperty?.set({ hasQuestionToken: !field.type.optional });
 
         await context.applyModifications(sourceFile.getFullText());
+        setIsLoading(false);
     };
 
     const handleDeleteValue = async () => {
@@ -273,7 +283,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
-        handleSetFieldOptionalMenuItem
+        !isWithinArray && handleSetFieldOptionalMenuItem
     ];
 
     return (
