@@ -27,7 +27,8 @@ export enum ValueConfigOption {
     InitializeArray = "Initialize Array",
     DeleteValue = "Delete Value",
     DeleteElement = "Delete Element",
-    DeleteArray = "Delete Array"
+    DeleteArray = "Delete Array",
+    MakeFieldOptional = "Make Field Optional",
 }
 
 export interface ValueConfigMenuItem {

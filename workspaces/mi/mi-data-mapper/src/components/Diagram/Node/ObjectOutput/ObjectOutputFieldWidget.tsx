@@ -123,6 +123,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         }
     };
 
+    const handleMakeFieldOptional = () => {
+        console.log("Make Field Optional");
+    };
+
     const handleDeleteValue = async () => {
         setIsLoading(true);
         try {
@@ -200,34 +204,34 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             )}
             {(hasValue || hasDefaultValue) && !connectedViaLink && !portIn.descendantHasValue && (
                 <span className={classes.outputNodeValueBase}>
-                        {diagnostic ? (
-                            <DiagnosticTooltip
-                                diagnostic={diagnostic}
-                                value={initializer.getText()}
-                                onClick={handleEditValue}
-                            >
-                                <Button
-                                    appearance="icon"
-                                    onClick={handleEditValue}
-                                    data-testid={`object-output-field-${portIn?.getName()}`}
-                                >
-                                    {initializer.getText()}
-                                    <Icon
-                                        name="error-icon"
-                                        sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
-                                        iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
-                                    />
-                                </Button>
-                            </DiagnosticTooltip>
-                        ) : (
-                            <span
-                                className={classes.outputNodeValue}
+                    {diagnostic ? (
+                        <DiagnosticTooltip
+                            diagnostic={diagnostic}
+                            value={initializer.getText()}
+                            onClick={handleEditValue}
+                        >
+                            <Button
+                                appearance="icon"
                                 onClick={handleEditValue}
                                 data-testid={`object-output-field-${portIn?.getName()}`}
                             >
                                 {initializer.getText()}
-                            </span>
-                        )}
+                                <Icon
+                                    name="error-icon"
+                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
+                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                />
+                            </Button>
+                        </DiagnosticTooltip>
+                    ) : (
+                        <span
+                            className={classes.outputNodeValue}
+                            onClick={handleEditValue}
+                            data-testid={`object-output-field-${portIn?.getName()}`}
+                        >
+                            {initializer.getText()}
+                        </span>
+                    )}
                 </span>
             )}
         </span>
@@ -242,9 +246,15 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         onClick: handleDeleteValue
     };
 
+    const handleMakeFieldOptionalMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeFieldOptional,
+        onClick: handleMakeFieldOptional
+    };
+
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
+        handleMakeFieldOptionalMenuItem
     ];
 
     return (
