@@ -300,7 +300,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     // Main function to get the mapping from OpenAI and write it to the relevant files
     async getMappingFromAI(): Promise<void> {
         try {
-            await this.writeDataMapping({ dataMapping: "" });
+            //await this.writeDataMapping({ dataMapping: "" });
             // Function to read the TypeScript file
             let tsContent = await readTSFile();
             const backendRootUri = await fetchBackendUrl();
