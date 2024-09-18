@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { css, keyframes } from "@emotion/react";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { BlockNodeModel } from "./BlockNodeModel";
+import { CodeBlockNodeModel } from "./CodeBlockNodeModel";
 import {
     Colors,
     EMPTY_NODE_WIDTH,
@@ -45,7 +45,6 @@ namespace S {
         height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
         border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.ON_SURFACE : "transparent")};
         background-color: ${(props: CircleStyleProp) => (props.show ? Colors.OUTLINE_VARIANT : "transparent")};
-        border-radius: 50%;
         cursor: ${(props: CircleStyleProp) => (props.clickable ? "pointer" : "default")};
     `;
 
@@ -69,12 +68,12 @@ const fadeInZoomIn = keyframes`
     }
 `;
 
-interface BlockNodeWidgetProps {
-    node: BlockNodeModel;
+interface CodeBlockNodeWidgetProps {
+    node: CodeBlockNodeModel;
     engine: DiagramEngine;
 }
 
-export function BlockNodeWidget(props: BlockNodeWidgetProps) {
+export function CodeBlockNodeWidget(props: CodeBlockNodeWidgetProps) {
     const { node, engine } = props;
     const { onAddNode } = useDiagramContext();
 
@@ -95,7 +94,7 @@ export function BlockNodeWidget(props: BlockNodeWidgetProps) {
         }
         const target = node.getTarget();
         if (!target) {
-            console.error(">>> BlockNodeWidget: handleAddNode: target not found");
+            console.error(">>> CodeBlockNodeWidget: handleAddNode: target not found");
             return;
         }
         onAddNode(topNode, { startLine: target, endLine: target });
@@ -113,7 +112,7 @@ export function BlockNodeWidget(props: BlockNodeWidgetProps) {
     const handleAddPrompt = () => {
         const target = node.getTarget();
         if (!target) {
-            console.error(">>> BlockNodeWidget: handleAddPrompt: target not found");
+            console.error(">>> CodeBlockNodeWidget: handleAddPrompt: target not found");
             return;
         }
         // onAddPrompt({ startLine: target, endLine: target });

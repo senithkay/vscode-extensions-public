@@ -10,6 +10,7 @@
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { CodeBlockNodeModel } from "../components/nodes/CodeBlockNode";
 import { ButtonNodeModel } from "../components/nodes/ButtonNode";
 import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
@@ -67,6 +68,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createEmptyNode(id: string, x: number, y: number, visible = true, showButton = false): EmptyNodeModel {
         const nodeModel = new EmptyNodeModel(id, visible, showButton);
+        nodeModel.setPosition(x, y);
+        this.nodes.push(nodeModel);
+        return nodeModel;
+    }
+
+    private createCodeBlockNode(id: string, x: number, y: number, visible = true, showButton = false): CodeBlockNodeModel {
+        const nodeModel = new CodeBlockNodeModel(id, visible, showButton);
         nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
@@ -276,6 +284,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 }
             }
         }
+
+        const codeBlockNode = this.createCodeBlockNode(
+            `${node.id}-endwhile`,
+            node.viewState.x,
+            node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
+        );
 
         // create branch's OUT links
         const endWhileEmptyNode = this.createEmptyNode(

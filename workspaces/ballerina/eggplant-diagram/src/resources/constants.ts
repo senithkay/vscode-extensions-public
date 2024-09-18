@@ -83,6 +83,7 @@ export enum NodeTypes {
     API_CALL_NODE = "api-call-node",
     COMMENT_NODE = "comment-node",
     BUTTON_NODE = "button-node",
+    CODE_BLOCK_NODE = "code-block-node",
 }
 
 export const NODE_LINK = "node-link";

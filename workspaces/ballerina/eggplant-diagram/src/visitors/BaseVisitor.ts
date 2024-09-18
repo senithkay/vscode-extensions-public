@@ -45,6 +45,9 @@ export interface BaseVisitor {
     beginVisitEmpty?(node: FlowNode, parent?: FlowNode): void;
     endVisitEmpty?(node: FlowNode, parent?: FlowNode): void;
 
+    beginVisitCodeBlock?(node: FlowNode, parent?: FlowNode): void;
+    endVisitbeginVisitCodeBlock?(node: FlowNode, parent?: FlowNode): void;
+
     beginVisitDraft?(node: FlowNode, parent?: FlowNode): void;
     endVisitDraft?(node: FlowNode, parent?: FlowNode): void;
 

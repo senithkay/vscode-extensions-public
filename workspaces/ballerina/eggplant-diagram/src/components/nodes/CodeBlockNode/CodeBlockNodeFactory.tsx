@@ -10,20 +10,20 @@
 import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { BlockNodeModel } from "./BlockNodeModel";
-import { BlockNodeWidget } from "./BlockNodeWidget";
+import { CodeBlockNodeModel } from "./CodeBlockNodeModel";
+import { CodeBlockNodeWidget } from "./CodeBlockNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
-export class BlockNodeFactory extends AbstractReactFactory<BlockNodeModel, DiagramEngine> {
+export class CodeBlockNodeFactory extends AbstractReactFactory<CodeBlockNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.EMPTY_NODE);
+        super(NodeTypes.CODE_BLOCK_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): BlockNodeModel {
-        return new BlockNodeModel(event.initialConfig);
+    generateModel(event: GenerateModelEvent): CodeBlockNodeModel {
+        return new CodeBlockNodeModel(event.initialConfig);
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<BlockNodeModel>) {
-        return <BlockNodeWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: GenerateWidgetEvent<CodeBlockNodeModel>) {
+        return <CodeBlockNodeWidget engine={this.engine} node={event.model} />;
     }
 }

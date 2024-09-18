@@ -12,7 +12,7 @@ import { NodePortModel } from "../../NodePort";
 import { NodeTypes } from "../../../resources/constants";
 import { Branch, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 
-export class BlockNodeModel extends NodeModel {
+export class CodeBlockNodeModel extends NodeModel {
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
     protected visible: boolean;
@@ -24,7 +24,7 @@ export class BlockNodeModel extends NodeModel {
     constructor(id: string, visible = true, button = false) {
         super({
             id,
-            type: NodeTypes.EMPTY_NODE,
+            type: NodeTypes.CODE_BLOCK_NODE,
             locked: true,
         });
         this.addInPort("in");
