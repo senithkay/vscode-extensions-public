@@ -105,7 +105,8 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				<div>
 					<SectionHeader
 						title={defaultSchema?.name ?? "Env variables"}
-						subTitle="Following environmental variables will be injected in the container"
+						alignLeft
+						subTitle="Following environmental variables will be injected into the container & these environmental variables will need to be referred from within your component source code in order to connect to the API service."
 					/>
 					<div className="grid gap-4">
 						{defaultSchema?.entries?.map((item, index) => (

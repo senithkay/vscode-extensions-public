@@ -107,6 +107,13 @@ export const  toUpperSnakeCase = (str: string): string => {
     return str.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase().replace(/\s+/g, '_');
 }
 
+export const  capitalizeFirstLetter = (str: string): string => {
+	if(!str || str?.length === 0){
+		return str;
+	}
+    return str?.charAt(0)?.toUpperCase() + str?.slice(1);
+}
+
 export const toSentenceCase = (str: string): string => {
     const spacedString = str.replace(/([a-z])([A-Z])/g, '$1 $2');
     return spacedString.charAt(0).toUpperCase() + spacedString.slice(1);

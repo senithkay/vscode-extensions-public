@@ -44,6 +44,8 @@ import {
 	ReadServiceEndpoints,
 	RefreshContextState,
 	RestoreWebviewCache,
+	SaveFile,
+	type SaveFileReq,
 	SelectCommitToBuild,
 	type SelectCommitToBuildReq,
 	SendTelemetryEventNotification,
@@ -235,6 +237,10 @@ export class ChoreoWebViewAPI {
 
 	public async goToSource(filePath: string): Promise<void> {
 		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
+	}
+
+	public async saveFile(params: SaveFileReq): Promise<void> {
+		return this._messenger.sendRequest(SaveFile, HOST_EXTENSION, params);
 	}
 
 	public async selectCommitToBuild(params: SelectCommitToBuildReq): Promise<CommitHistory | undefined> {

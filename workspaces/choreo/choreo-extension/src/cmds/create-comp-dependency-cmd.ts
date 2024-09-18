@@ -7,12 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds, ComponentViewDrawers, ContextStoreComponentState, getComponentKey } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentViewDrawers, type ContextStoreComponentState, getComponentKey } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, ViewColumn, commands, window } from "vscode";
 import { contextStore } from "../stores/context-store";
+import { webviewStateStore } from "../stores/webview-state-store";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
 import { getUserInfoForCmd, resolveQuickPick } from "./cmd-utils";
-import { webviewStateStore } from "../stores/webview-state-store";
 
 export function createComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -32,7 +32,7 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 
 					const components = contextStore.getState().state.components;
 
-					if(components?.length === 0){
+					if (components?.length === 0) {
 						window.showInformationMessage("No components available within the project directory", "Create Component").then((res) => {
 							if (res === "Create Component") {
 								commands.executeCommand(CommandIds.CreateNewComponent);
@@ -41,17 +41,17 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 						return;
 					}
 
-					let component: ContextStoreComponentState | undefined
-					if(!params.componentFsPath){
-						component = await resolveQuickPick(components?.map(item=>({label:item.component?.metadata?.displayName!, item})))
-					}else{
+					let component: ContextStoreComponentState | undefined;
+					if (!params.componentFsPath) {
+						component = await resolveQuickPick(components?.map((item) => ({ label: item.component?.metadata?.displayName!, item })));
+					} else {
 						component = components?.find((item) => item.componentFsPath === params?.componentFsPath);
 						if (!component?.component) {
 							window
 								.showInformationMessage(
 									`Could not find any Choreo components that match this directory within the the linked project context. (${selected.project?.name})`,
 									"Create Component",
-									"Manage Context"
+									"Manage Context",
 								)
 								.then((res) => {
 									if (res === "Create Component") {
@@ -65,8 +65,8 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 						}
 					}
 
-					if(!component?.component){
-						throw new Error("Failed to select component")
+					if (!component?.component) {
+						throw new Error("Failed to select component");
 					}
 
 					showComponentDetailsView(
@@ -77,7 +77,9 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 						params?.isCodeLens ? ViewColumn.Beside : undefined,
 					);
 
-					webviewStateStore.getState().onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.CreateConnection)
+					webviewStateStore
+						.getState()
+						.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.CreateConnection);
 				}
 			} catch (err: any) {
 				console.error("Failed to create component dependency", err);

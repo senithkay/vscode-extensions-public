@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { existsSync, mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import * as path from "path";
 import type { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
@@ -37,6 +37,36 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
 		await window.showTextDocument(sourceFile);
 		if (focusFileExplorer) {
 			await commands.executeCommand("workbench.explorer.fileView.focus");
+		}
+	}
+};
+
+export const saveFile = async (fileName: string, fileContent: string, baseDirectory: string, dialogTitle?: string, shouldOpen?: boolean) => {
+	const result = await window.showOpenDialog({
+		title: dialogTitle,
+		canSelectFiles: false,
+		canSelectFolders: true,
+		canSelectMany: false,
+		defaultUri: Uri.parse(baseDirectory),
+	});
+	if (result?.[0]) {
+		let tempFileName = fileName;
+		const baseName = fileName.split(".")[0];
+		const extension = fileName.split(".")[1];
+
+		let fileIndex = 1;
+		while (existsSync(join(result?.[0].fsPath, tempFileName))) {
+			tempFileName = `${baseName}-(${fileIndex++}).${extension}`;
+			if (fileIndex > 1000) {
+				tempFileName = `${baseName}-(${Math.random() * (1000000 - 1000) + 1000}).${extension}`;
+				break;
+			}
+		}
+
+		const filePath = join(result?.[0].fsPath, tempFileName);
+		writeFileSync(filePath, fileContent);
+		if (shouldOpen) {
+			await goTosource(filePath, false);
 		}
 	}
 };

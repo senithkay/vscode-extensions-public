@@ -24,6 +24,7 @@ import {
 	WebviewQuickPickItemKind,
 	getTimeAgo,
 	getTypeForDisplayType,
+	capitalizeFirstLetter,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type ReactNode, useState } from "react";
@@ -288,7 +289,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 		mutationFn: async ({ build }: { build: BuildKind }) => {
 			const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
 				title: "Select the environment to deploy the build",
-				items: envs.map((item) => ({ label: item.name, item })),
+				items: envs.map((item) => ({ label: capitalizeFirstLetter(item.name), item })),
 			});
 			if (pickedItem?.item) {
 				triggerDeployment({ build: build, env: pickedItem.item });

@@ -125,7 +125,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 									/>
 								</RightPanelSection>
 							)}
-							<BuildConfigsSection component={component} showDivider={hasLocalChanges || hasConfigDrift} />
+							<BuildConfigsSection component={component} showDivider={!!directoryPath && (hasLocalChanges || hasConfigDrift)} />
 							<EndpointsSection component={component} directoryPath={directoryPath} />
 							<ConnectionsSection org={organization} project={project} component={component} directoryPath={directoryPath} />
 						</div>

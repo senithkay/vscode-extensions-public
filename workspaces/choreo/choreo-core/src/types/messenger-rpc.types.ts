@@ -59,6 +59,7 @@ export const OpenComponentViewDrawer: RequestType<OpenComponentViewDrawerReq, vo
 export const CloseComponentViewDrawer: RequestType<string, void> = { method: "closeComponentViewDrawer" };
 export const HasDirtyLocalGitRepo: RequestType<string, boolean> = { method: "hasDirtyLocalGitRepo" };
 export const HasRepoConfigFileDrift: RequestType<HasRepoConfigFileDriftReq, boolean> = { method: "hasRepoConfigFileDrift" };
+export const SaveFile: RequestType<SaveFileReq, void> = { method: "saveFile" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -163,6 +164,14 @@ export interface HasRepoConfigFileDriftReq {
 	repoDir: string;
 	repoUrl: string;
 	branch: string;
+}
+
+export interface SaveFileReq {
+	fileName: string;
+	fileContent: string;
+	baseDirectory: string;
+	dialogTitle?: string;
+	shouldOpen?: boolean;
 }
 
 export interface OpenComponentViewDrawerReq {

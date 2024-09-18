@@ -207,7 +207,7 @@ const markDownOverrides: { [key: string]: FC<PropsWithChildren<any>> } = {
 
 export const Markdown: FC<Props> = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={[gfm]} rehypePlugins={[rehypeRaw]} components={markDownOverrides}>
+		<ReactMarkdown className="flex flex-col" remarkPlugins={[gfm]} rehypePlugins={[rehypeRaw]} components={markDownOverrides}>
 			{children}
 		</ReactMarkdown>
 	);

@@ -18,7 +18,7 @@ import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
-import { openDirectory } from "./utils";
+import { delay, openDirectory } from "./utils";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
@@ -40,8 +40,10 @@ export function activateURIHandlers() {
 						},
 						async () => {
 							try {
-								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode);
+								const orgId = contextStore?.getState().state?.selected?.org?.id?.toString();
+								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId);
 								if (userInfo) {
+									await delay(1000);
 									authStore.getState().loginSuccess(userInfo);
 								}
 							} catch (error: any) {

@@ -185,7 +185,7 @@ const EnvItem: FC<{
 			<Divider />
 			<div>
 				<div className="mb-3 flex items-center gap-1">
-					<h3 className="flex-1 text-base lg:text-lg">{env.name} Environment</h3>
+					<h3 className="flex-1 text-base capitalize lg:text-lg">{env.name} Environment</h3>
 					<Button
 						onClick={() => refetchDeploymentStatus()}
 						appearance="icon"

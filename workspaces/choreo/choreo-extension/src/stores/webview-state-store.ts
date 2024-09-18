@@ -39,7 +39,10 @@ export const webviewStateStore = createStore<WebviewStateStore>((set) => ({
 		set(({ state }) => ({
 			state: {
 				...state,
-				componentViews: { ...state.componentViews, [componentKey]: { ...state.componentViews[componentKey], openedDrawer: undefined, drawerParams: undefined } },
+				componentViews: {
+					...state.componentViews,
+					[componentKey]: { ...state.componentViews[componentKey], openedDrawer: undefined, drawerParams: undefined },
+				},
 			},
 		})),
 }));

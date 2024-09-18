@@ -21,8 +21,8 @@ interface Props {
 export const Empty: FC<Props> = ({ text, className, subText, showIcon = true }) => {
 	return (
 		<div className={classNames("col-span-full flex flex-col items-center justify-center gap-3 p-8 lg:min-h-44", className)}>
-			<p className="text-center font-light text-sm opacity-40">{text}</p>
-			{subText && <p className="text-center font-thin text-[11px] opacity-40">{subText}</p>}
+			<p className="text-center font-light text-sm opacity-50">{text}</p>
+			{subText && <p className="text-center font-thin text-[11px] opacity-50">{subText}</p>}
 			{showIcon && <Codicon name="inbox" className="!text-4xl opacity-20" />}
 		</div>
 	);

@@ -13,7 +13,8 @@ import * as path from "path";
 import { dirname } from "path";
 import { CommandIds, type ContextItem, type Organization, type Project, type UserInfo } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
-import { type ExtensionContext, Uri, commands, window, workspace } from "vscode";
+import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
+import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { isSubpath } from "../utils";
@@ -101,6 +102,10 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 					const contextFilePath = updateContextFile(gitRoot, userInfo, selectedProject, selectedOrg, projectList);
 
 					await waitForContextStoreToLoad();
+
+					await window.withProgress({ title: `Switching to organization ${selectedOrg.name}...`, location: ProgressLocation.Notification }, () =>
+						ext?.clients?.rpcClient?.changeOrgContext(selectedOrg?.id?.toString()!),
+					);
 
 					contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
 						contextFileFsPath: contextFilePath,

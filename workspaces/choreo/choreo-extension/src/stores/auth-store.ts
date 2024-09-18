@@ -44,7 +44,15 @@ export const authStore = createStore(
 			initAuth: async () => {
 				try {
 					const userInfo = await ext.clients.rpcClient.getUserInfo();
-					userInfo ? get().loginSuccess(userInfo) : get().logout();
+					if (userInfo) {
+						get().loginSuccess(userInfo);
+						const contextStoreState = contextStore.getState().state;
+						if (contextStoreState.selected?.org) {
+							ext?.clients?.rpcClient?.changeOrgContext(contextStoreState.selected?.org?.id?.toString());
+						}
+					} else {
+						get().logout();
+					}
 				} catch (err) {
 					get().logout();
 				}

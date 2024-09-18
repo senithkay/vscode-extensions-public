@@ -127,6 +127,7 @@ export const closeAllComponentTestView = (orgHandle: string, projectHandle: stri
 	});
 };
 
+// todo: replace view with drawer
 export const showComponentTestView = (params: IComponentTestParams) => {
 	const { org, deploymentTrack, component, env, project } = params;
 	const webView = getComponentTestView(org.handle, project.handler, component.metadata.name, deploymentTrack.branch, env.name);

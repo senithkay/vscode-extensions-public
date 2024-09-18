@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { getComponentKey, type ComponentKind, type Organization, type Project, type WebviewProps } from "@wso2-enterprise/choreo-core";
+import { type ComponentKind, type Organization, type Project, type WebviewProps, getComponentKey } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { webviewStateStore } from "../stores/webview-state-store";
@@ -129,7 +129,7 @@ export const showComponentDetailsView = (
 	viewColumn?: vscode.ViewColumn,
 ) => {
 	const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
-	const componentKey = getComponentKey(org, project, component)
+	const componentKey = getComponentKey(org, project, component);
 
 	if (webView) {
 		webView?.reveal(viewColumn);

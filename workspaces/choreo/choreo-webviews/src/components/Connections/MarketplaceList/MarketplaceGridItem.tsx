@@ -27,11 +27,6 @@ export const MarketplaceGridItem: FC<Props> = ({ onClick, item, loading }) => {
 	} else if (item?.visibility.includes("ORGANIZATION")) {
 		visibility = "Organization";
 	}
-	// TODO: add following
-	// add project
-	// add summary
-	// add description (readme)
-	// add tags?
 	return (
 		<div
 			onClick={item ? onClick : undefined}

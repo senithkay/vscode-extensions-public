@@ -241,6 +241,13 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		await this.client.sendRequest("auth/signOut");
 	}
 
+	async changeOrgContext(orgId: string): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest<{ orgId: string }>("auth/changeOrg", { orgId });
+	}
+
 	async createBuild(params: CreateBuildReq): Promise<BuildKind> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");

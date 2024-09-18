@@ -20,8 +20,8 @@ import { refreshContextCommand } from "./refresh-directory-context-cmd";
 import { signInCommand } from "./sign-in-cmd";
 import { signInWithAuthCodeCommand } from "./sign-in-with-code-cmd";
 import { signOutCommand } from "./sign-out-cmd";
-import { viewComponentCommand } from "./view-component-cmd";
 import { viewComponentDependencyCommand } from "./view-comp-dependency-cmd";
+import { viewComponentCommand } from "./view-component-cmd";
 
 export function activateCmds(context: ExtensionContext) {
 	createNewComponentCommand(context);
@@ -37,5 +37,5 @@ export function activateCmds(context: ExtensionContext) {
 	manageProjectContextCommand(context);
 	createDirectoryContextCommand(context);
 	createComponentDependencyCommand(context);
-	viewComponentDependencyCommand(context)
+	viewComponentDependencyCommand(context);
 }

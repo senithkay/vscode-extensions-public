@@ -7,17 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import classNames from "classnames";
+import React, { type ReactNode } from "react";
 import { Divider } from "../../Divider";
 
-export const SectionHeader = ({ title, subTitle }: { title: string; subTitle?: string }) => {
+export const SectionHeader = ({ title, subTitle, alignLeft }: { title: string; subTitle?: ReactNode; alignLeft?: boolean }) => {
 	return (
 		<div className="mb-2">
-			<div className="flex items-center gap-2 sm:gap-4">
+			<div className={classNames("flex items-center gap-2 sm:gap-4", alignLeft && "flex-row-reverse")}>
 				<Divider className="flex-1" />
-				<h1 className="text-right font-light text-base opacity-50">{title}</h1>
+				<h1 className={classNames("font-light text-base opacity-75", !alignLeft && "text-right")}>{title}</h1>
 			</div>
-			{subTitle && <h1 className="hidden text-right font-thin text-xs opacity-50 sm:block">{subTitle}</h1>}
+			{subTitle && <h2 className={classNames("hidden font-extralight text-xs opacity-75 sm:block", !alignLeft && "text-right")}>{subTitle}</h2>}
 		</div>
 	);
 };

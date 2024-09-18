@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { readdirSync, statSync, unlinkSync } from "fs";
+import { readdirSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import {
 	AuthStoreChangedNotification,
 	ClearWebviewCache,
+	CloseComponentViewDrawer,
 	CloseWebViewNotification,
 	type CommitHistory,
 	ContextStoreChangedNotification,
@@ -25,7 +26,12 @@ import {
 	GetSubPath,
 	GetWebviewStoreState,
 	GoToSource,
+	HasDirtyLocalGitRepo,
+	HasRepoConfigFileDrift,
+	type HasRepoConfigFileDriftReq,
 	JoinFilePaths,
+	OpenComponentViewDrawer,
+	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
 	OpenSubDialogRequest,
@@ -34,6 +40,7 @@ import {
 	ReadServiceEndpoints,
 	RefreshContextState,
 	RestoreWebviewCache,
+	SaveFile,
 	SelectCommitToBuild,
 	type SelectCommitToBuildReq,
 	SendTelemetryEventNotification,
@@ -57,12 +64,6 @@ import {
 	type WebviewQuickPickItem,
 	WebviewStateChangedNotification,
 	getShortenedHash,
-	OpenComponentViewDrawer,
-	OpenComponentViewDrawerReq,
-	CloseComponentViewDrawer,
-	HasDirtyLocalGitRepo,
-	HasRepoConfigFileDrift,
-	HasRepoConfigFileDriftReq,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
 import * as vscode from "vscode";
@@ -81,7 +82,7 @@ import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
-import { getSubPath, goTosource, readEndpoints } from "../utils";
+import { getSubPath, goTosource, readEndpoints, saveFile } from "../utils";
 import { showComponentTestView } from "./ComponentTestView";
 
 // Register handlers
@@ -135,6 +136,9 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
 		await goTosource(filePath, false);
+	});
+	messenger.onRequest(SaveFile, async (params): Promise<void> => {
+		saveFile(params.fileName, params.fileContent, params.baseDirectory, params.dialogTitle, params.shouldOpen);
 	});
 	messenger.onRequest(DeleteFile, async (filePath) => {
 		unlinkSync(filePath);
@@ -279,19 +283,19 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			view.dispose();
 		}
 	});
-	messenger.onRequest(OpenComponentViewDrawer, (params: OpenComponentViewDrawerReq)=>{
-		webviewStateStore.getState().onOpenComponentDrawer(params.componentKey, params.drawer, params.params)
+	messenger.onRequest(OpenComponentViewDrawer, (params: OpenComponentViewDrawerReq) => {
+		webviewStateStore.getState().onOpenComponentDrawer(params.componentKey, params.drawer, params.params);
 	});
-	messenger.onRequest(CloseComponentViewDrawer, (componentKey: string)=>{
-		webviewStateStore.getState().onCloseComponentDrawer(componentKey)
+	messenger.onRequest(CloseComponentViewDrawer, (componentKey: string) => {
+		webviewStateStore.getState().onCloseComponentDrawer(componentKey);
 	});
-	messenger.onRequest(HasDirtyLocalGitRepo, async (componentPath: string)=>{
-		return hasDirtyRepo(componentPath, ext.context)
+	messenger.onRequest(HasDirtyLocalGitRepo, async (componentPath: string) => {
+		return hasDirtyRepo(componentPath, ext.context);
 	});
-	messenger.onRequest(HasRepoConfigFileDrift, async (params: HasRepoConfigFileDriftReq)=>{
-		return hadChangesInConfigs(params.repoUrl, params.branch, params.repoDir, ext.context)
+	messenger.onRequest(HasRepoConfigFileDrift, async (params: HasRepoConfigFileDriftReq) => {
+		return hadChangesInConfigs(params.repoUrl, params.branch, params.repoDir, ext.context);
 	});
-	
+
 	// Register Choreo CLL RPC handler
 	registerChoreoRpcResolver(messenger, ext.clients.rpcClient);
 }

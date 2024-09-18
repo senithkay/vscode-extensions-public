@@ -130,11 +130,12 @@ export const submitCreateComponentHandler = async ({ createParams, endpoint, org
 					title: `Generating component-config for new component ${createParams.displayName}...`,
 					location: ProgressLocation.Notification,
 				},
-				() => ext.clients.rpcClient.createComponentConfig({
-					componentDir: createParams.componentDir,
-					type: createParams.type,
-					inbound: endpoint,
-				}),
+				() =>
+					ext.clients.rpcClient.createComponentConfig({
+						componentDir: createParams.componentDir,
+						type: createParams.type,
+						inbound: endpoint,
+					}),
 			);
 
 			window

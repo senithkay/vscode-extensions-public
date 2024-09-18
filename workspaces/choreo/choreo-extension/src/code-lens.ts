@@ -50,15 +50,15 @@ class YAMLCodeLensProvider implements vscode.CodeLensProvider {
 
 			for (let line = 0; line < document.lineCount; line++) {
 				const lineText = document.lineAt(line);
-				
+
 				if (lineText.text.includes("name:")) {
 					const range = new vscode.Range(line, 0, line, lineText.text.length);
 
-					const nextLineText = document.lineAt(line+1);
-					if(nextLineText.text.includes("connectionConfig:")){
-						const connectionConfig = nextLineText.text.split(" ").pop()
-						if(viewDependencyCmd?.arguments?.[0]){
-							viewDependencyCmd.arguments[0] = {...viewDependencyCmd.arguments[0],connectionConfig}
+					const nextLineText = document.lineAt(line + 1);
+					if (nextLineText.text.includes("connectionConfig:")) {
+						const connectionConfig = nextLineText.text.split(" ").pop();
+						if (viewDependencyCmd?.arguments?.[0]) {
+							viewDependencyCmd.arguments[0] = { ...viewDependencyCmd.arguments[0], connectionConfig };
 						}
 						codeLenses.push(new vscode.CodeLens(range, viewDependencyCmd));
 					}

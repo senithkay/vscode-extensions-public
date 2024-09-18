@@ -178,7 +178,7 @@ export interface MarketplaceListResp {
 
 export interface MarketplaceIdlResp {
 	environmentId: string;
-	content: string;
+	content: any;
 	idlType: string;
 }
 

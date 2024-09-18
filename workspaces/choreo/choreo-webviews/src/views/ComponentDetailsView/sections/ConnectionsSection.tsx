@@ -146,14 +146,15 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 			key="Dependencies"
 			title={
 				<div className="flex items-center justify-between gap-2">
-					<span className="line-clamp-1 break-all">Dependencies</span>
+					<span className="line-clamp-1 break-all">API Dependencies</span>
 					<Button
 						appearance="icon"
-						title="Add Dependency"
+						title={directoryPath ? "Add API Dependency" : "Only allowed if you are within the Git repo directory"}
 						onClick={() => {
 							openCreatePanel();
 							setStep("list");
 						}}
+						disabled={!directoryPath}
 					>
 						<Codicon name="plus" />
 					</Button>
@@ -193,7 +194,7 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 				<Empty
 					text="No dependencies available"
 					className="!p-2 !min-h-0 !gap-1 !md:p-4"
-					subText="Connect with a another API by adding it as a dependency."
+					subText="Connect with another service API by adding it as a dependency."
 					showIcon={false}
 				/>
 			)}
@@ -213,7 +214,7 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 								}}
 							/>
 						),
-						details: <MarketplaceItemDetails onCreateClick={() => setStep("create")} item={selectedItem} org={org} />,
+						details: <MarketplaceItemDetails directoryPath={directoryPath} onCreateClick={() => setStep("create")} item={selectedItem} org={org} />,
 						create: (
 							<CreateConnection
 								item={selectedItem}
