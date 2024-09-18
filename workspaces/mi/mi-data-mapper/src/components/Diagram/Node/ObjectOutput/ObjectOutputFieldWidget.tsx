@@ -124,7 +124,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleMakeFieldOptional = () => {
-        console.log("Make Field Optional");
+        let currField = field;
+        while (currField){
+            console.log(currField,currField.type.fieldName || currField.type.typeName);
+            currField = currField.parentType;
+        }
+        console.log(field);
     };
 
     const handleDeleteValue = async () => {
