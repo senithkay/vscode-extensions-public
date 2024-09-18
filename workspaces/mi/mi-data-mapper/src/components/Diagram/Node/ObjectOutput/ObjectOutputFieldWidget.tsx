@@ -11,8 +11,8 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { TypeKind } from "@wso2-enterprise/mi-core";
-import { Block, Node } from "ts-morph";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { Block, InterfaceDeclaration, Node, PropertySignature } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -123,13 +123,27 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         }
     };
 
-    const handleMakeFieldOptional = () => {
+    const handleMakeFieldOptional = async () => {
+        const fieldIdentifiers: DMType[] = [];
         let currField = field;
-        while (currField){
-            console.log(currField,currField.type.fieldName || currField.type.typeName);
+        while (currField.parentType) {
+            fieldIdentifiers.push(currField.type);
             currField = currField.parentType;
         }
-        console.log(field);
+
+        const sourceFile = context.functionST.getSourceFile();
+        const outputInterface = sourceFile.getInterfaceOrThrow(currField.type.typeName);
+
+        let currIdentifier = fieldIdentifiers.pop();
+        let currProperty = outputInterface.getProperty(currIdentifier.fieldName);
+
+        while (fieldIdentifiers.length > 0) {
+            currIdentifier = fieldIdentifiers.pop();
+            currProperty = (currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration).getProperty(currIdentifier.fieldName);
+        }
+        currProperty?.set({ hasQuestionToken: !field.type.optional });
+        
+        await context.applyModifications(sourceFile.getFullText());
     };
 
     const handleDeleteValue = async () => {
