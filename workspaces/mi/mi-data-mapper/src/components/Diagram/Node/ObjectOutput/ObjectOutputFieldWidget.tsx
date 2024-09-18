@@ -123,7 +123,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         }
     };
 
-    const handleMakeFieldOptional = async () => {
+    const handleSetFieldOptional = async () => {
         const fieldIdentifiers: DMType[] = [];
         let currField = field;
         while (currField.parentType) {
@@ -142,7 +142,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             currProperty = (currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration).getProperty(currIdentifier.fieldName);
         }
         currProperty?.set({ hasQuestionToken: !field.type.optional });
-        
+
         await context.applyModifications(sourceFile.getFullText());
     };
 
@@ -265,15 +265,15 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         onClick: handleDeleteValue
     };
 
-    const handleMakeFieldOptionalMenuItem: ValueConfigMenuItem = {
-        title: ValueConfigOption.MakeFieldOptional,
-        onClick: handleMakeFieldOptional
+    const handleSetFieldOptionalMenuItem: ValueConfigMenuItem = {
+        title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
+        onClick: handleSetFieldOptional
     };
 
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
-        handleMakeFieldOptionalMenuItem
+        handleSetFieldOptionalMenuItem
     ];
 
     return (

@@ -29,6 +29,7 @@ export enum ValueConfigOption {
     DeleteElement = "Delete Element",
     DeleteArray = "Delete Array",
     MakeFieldOptional = "Make Field Optional",
+    MakeFieldRequired = "Make Field Required",
 }
 
 export interface ValueConfigMenuItem {
