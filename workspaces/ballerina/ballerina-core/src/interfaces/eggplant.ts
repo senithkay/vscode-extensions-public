@@ -197,3 +197,33 @@ export type NodeKind =
     | "NEW_CONNECTION"
     | "COMMENT"
     | "DATA_MAPPER";
+
+
+export type OverviewFlow = {
+    entryPoints: EntryPoint[];
+    name: string;
+    thinking: string;
+    connections: Connection[];
+}
+
+export type EntryPoint = {
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+    dependencies: Dependency[];
+}
+
+export type Dependency = {
+    id: string;
+    status: string;
+}
+
+export type Connection = {
+    id: string;
+    name: string;
+    status: string;
+    org?: string;
+    package?: string;
+    client?: string;
+}

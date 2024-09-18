@@ -27,6 +27,7 @@ import { StateMachineAI } from './views/ai-panel/aiMachine';
 import path from 'path';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
+import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -65,6 +66,7 @@ export class RPCLayer {
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
         registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
+        registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
         registerConnectorWizardRpcHandlers(RPCLayer._messenger);
 
         // ----- AI Webview RPC Methods

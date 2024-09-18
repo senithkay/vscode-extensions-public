@@ -190,7 +190,7 @@ export function Diagram(props: DiagramProps) {
                     sx={{
                         margin: "auto",
                         position: "fixed",
-                        top: "30px",
+                        bottom: "20px",
                         right: "20px",
                         zIndex: "2",
                         border: "unset",

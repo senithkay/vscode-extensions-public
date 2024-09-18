@@ -16,6 +16,7 @@ import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData } from "./eggplant";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
+import { SqFlow, SqLocation, SqParticipant } from "../rpc-types/sequence-diagram/interfaces";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -420,24 +421,6 @@ export interface BallerinaServerCapability {
 
 
 // <------------ EGGPLANT INTERFACES --------->
-
-// export interface EggplantModelRequest {
-//     filePath: string;
-//     startLine: LinePosition;
-//     endLine: LinePosition;
-// }
-
-// export type EggplantModelResponse = {
-//     flowDesignModel: Flow;
-// };
-
-// export interface UpdateNodeRequest {
-//     diagramNode: Node;
-// }
-
-// export interface UpdateNodeResponse {
-//     textEdits: TextEdit[];
-// }
 export interface EggplantFlowModelRequest {
     filePath: string;
     startLine: LinePosition;
@@ -491,15 +474,6 @@ export type EggplantConnectorsResponse = {
     categories: Category[];
 }
 
-export interface EggplantAiSuggestionsRequest {
-    position: LineRange;
-    filePath: string;
-}
-export interface EggplantAiSuggestionsResponse {
-    flowModel: Flow;
-    suggestion: string;
-}
-
 export interface EggplantCopilotContextRequest {
     position: LinePosition;
     filePath: string;
@@ -509,6 +483,16 @@ export interface EggplantCopilotContextResponse {
     prefix: string;
     suffix: string;
 }
+
+export interface SequenceModelRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export type SequenceModelResponse = {
+    sequenceDiagram: SqFlow;
+};
 
 // <------------ EGGPLANT INTERFACES --------->
 
@@ -528,6 +512,7 @@ export interface EggplantInterface extends BaseLangClientInterface {
     getAvailableNodes: (params: EggplantAvailableNodesRequest) => Promise<EggplantAvailableNodesResponse>;
     getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
     getEggplantConnectors: (params: EggplantConnectorsRequest) => Promise<EggplantConnectorsResponse>;
+    getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
 }
 
 export interface ExtendedLangClientInterface extends EggplantInterface {
@@ -557,7 +542,6 @@ export interface ExtendedLangClientInterface extends EggplantInterface {
     getBallerinaProjectComponents(params: BallerinaPackagesParams): Promise<BallerinaProjectComponents | NOT_SUPPORTED_TYPE>;
     getBallerinaProjectConfigSchema(params: BallerinaProjectParams): Promise<PackageConfigSchema | NOT_SUPPORTED_TYPE>;
     getSyntaxTreeNode(params: SyntaxTreeNodeParams): Promise<SyntaxTreeNode | NOT_SUPPORTED_TYPE>;
-    getSequenceDiagramModel(params: SequenceDiagramModelParams): Promise<SequenceDiagramModel>;
     updateStatusBar(): void;
     getDidOpenParams(): DidOpenParams;
 }
