@@ -15,7 +15,7 @@ import {
     DiagramService,
     Proxy
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { SizingVisitor } from "../visitors/SizingVisitor";
+import { DiagramDimensions, SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
@@ -110,7 +110,7 @@ export function Diagram(props: DiagramProps) {
             if (scrollRef.current && 'scrollLeft' in scrollRef.current && prevScrollPosition !== undefined) {
                 scroll.scrollLeft = prevScrollPositionX;
             } else {
-                scroll.scrollLeft = scroll?.scrollWidth / 2 - scroll?.clientWidth / 2;
+                scroll.scrollLeft = scroll?.clientWidth > diagramData.flow.dimensions.width ? 0 : (scroll?.clientWidth / 2 - diagramData.flow.dimensions.l / 2);
             }
         }
     }, [diagramViewStateKey, canvasDimensions]);
@@ -120,14 +120,22 @@ export function Diagram(props: DiagramProps) {
         flow: {
             engine: generateEngine(),
             model: null,
-            width: 0,
-            height: 0
+            dimensions: {
+                width: 0,
+                height: 0,
+                l: 0,
+                r: 0
+            }
         },
         fault: {
             engine: generateEngine(),
             model: null,
-            width: 0,
-            height: 0
+            dimensions: {
+                width: 0,
+                height: 0,
+                l: 0,
+                r: 0
+            }
         }
     });
 
@@ -209,13 +217,13 @@ export function Diagram(props: DiagramProps) {
     // center diagram when side panel is opened
     useEffect(() => {
         const { flow, fault } = diagramData;
-        const { engine: flowEngine, width: flowWidth, height: flowHeight } = flow;
-        const { engine: faultEngine, width: faultWidth, height: faultHeight } = fault;
+        const { engine: flowEngine, dimensions: flowDimensions } = flow;
+        const { engine: faultEngine, dimensions: faultDimensions } = fault;
 
         if (!isFaultFlow) {
-            centerDiagram(true, flowEngine, flowWidth, flowHeight);
+            centerDiagram(true, flowEngine, flowDimensions);
         } else {
-            centerDiagram(true, faultEngine, faultWidth, faultHeight);
+            centerDiagram(true, faultEngine, faultDimensions);
         }
 
     }, [sidePanelState.isOpen, isFormOpen]);
@@ -238,17 +246,16 @@ export function Diagram(props: DiagramProps) {
             currentBreakpoints = await rpcClient.getMiDebuggerRpcClient().getBreakpoints({ filePath: props.documentUri });
         }
         data.forEach((dataItem) => {
-            const { nodes, links, width, height } = getDiagramData(dataItem.model, currentBreakpoints);
+            const { nodes, links, dimensions } = getDiagramData(dataItem.model, currentBreakpoints);
             drawDiagram(nodes as any, links, dataItem.engine, (newModel: DiagramModel) => {
                 updatedDiagramData[dataItem.modelType] = {
                     ...diagramData[dataItem.modelType],
                     model: newModel,
-                    width,
-                    height
+                    dimensions: dimensions
                 };
-                canvasWidth = Math.max(canvasWidth, width);
-                canvasHeight = Math.max(canvasHeight, height);
-                initDiagram(newModel, dataItem.engine, width, height);
+                canvasWidth = Math.max(canvasWidth, dimensions.width);
+                canvasHeight = Math.max(canvasHeight, dimensions.height);
+                initDiagram(newModel, dataItem.engine, dimensions);
             });
         });
         setCanvasDimensions({ width: canvasWidth, height: canvasHeight });
@@ -262,19 +269,20 @@ export function Diagram(props: DiagramProps) {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor(diagnostics || []);
         traversNode(model, sizingVisitor);
-        const width = sizingVisitor.getSequenceWidth();
+        const dimensions = sizingVisitor.getdiagramDimensions();
 
         // run position visitor
-        const positionVisitor = new PositionVisitor(width);
+        const positionVisitor = new PositionVisitor(dimensions.width);
         traversNode(model, positionVisitor);
         const height = positionVisitor.getSequenceHeight();
+        dimensions.height = height;
 
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any, breakpoints);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
-        return { nodes, links, width, height };
+        return { nodes, links, dimensions };
     };
 
     const drawDiagram = (nodes: MediatorNodeModel[], links: NodeLinkModel[], diagramEngine: DiagramEngine, setModel: any) => {
@@ -286,11 +294,12 @@ export function Diagram(props: DiagramProps) {
     };
 
 
-    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number, diagramHeight: number) => {
+    const initDiagram = (diagramModel: DiagramModel, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         const scroll = scrollRef?.current as any;
-        const offsetWidth = scroll ? scroll.clientWidth : diagramWidth;
-        const centerX = (offsetWidth - diagramWidth) / 2;
-        diagramEngine.getModel().setOffsetX(Math.max(centerX, 0));
+        const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
+        const diagramZero = -(dimensions.width / 2) + dimensions.l;
+        const centerX = (offsetWidth - dimensions.width) / 2;
+        diagramEngine.getModel().setOffsetX(offsetWidth >= dimensions.width ? centerX : diagramZero);
         diagramEngine.getModel().setGridSize(50);
         diagramEngine.setModel(diagramModel);
         diagramEngine.repaintCanvas();
@@ -298,9 +307,9 @@ export function Diagram(props: DiagramProps) {
         setTimeout(() => {
             if (diagramModel) {
                 window.addEventListener("resize", () => {
-                    centerDiagram(false, diagramEngine, diagramWidth, diagramHeight);
+                    centerDiagram(false, diagramEngine, dimensions);
                 });
-                centerDiagram(false, diagramEngine, diagramWidth, diagramHeight);
+                centerDiagram(false, diagramEngine, dimensions);
                 setTimeout(() => {
                     setIsLoading(false);
                 }, 150);
@@ -308,7 +317,7 @@ export function Diagram(props: DiagramProps) {
         }, 150);
     };
 
-    const centerDiagram = async (animate = false, diagramEngine: DiagramEngine, diagramWidth: number, diagramHeight: number) => {
+    const centerDiagram = async (animate = false, diagramEngine: DiagramEngine, dimensions: DiagramDimensions) => {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
             const canvas = diagramEngine.getCanvas();
             const canvasBounds = canvas.getBoundingClientRect();
@@ -316,8 +325,8 @@ export function Diagram(props: DiagramProps) {
             if (animate) {
                 const model = diagramEngine.getModel();
                 const zoomLevel = model.getZoomLevel() / 100;
-                const currentOffsetX = model.getOffsetX() ;
-                const currentOffsetY = model.getOffsetY() ;
+                const currentOffsetX = model.getOffsetX();
+                const currentOffsetY = model.getOffsetY();
 
                 const isSidePanelOpen = sidePanelState.isOpen || isFormOpen;
                 const offsetAdjX = isSidePanelOpen ? (SIDE_PANEL_WIDTH - 20) : 0;
@@ -351,8 +360,11 @@ export function Diagram(props: DiagramProps) {
                 canvas.style.transform = `translate(${centerX}px, ${centerY}px)`;
 
             } else {
-                const centerX = (canvasBounds.width - diagramWidth) / 2;
-                diagramEngine.getModel().setOffsetX(centerX);
+                const scroll = scrollRef?.current as any;
+                const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
+                const diagramZero = -(dimensions.width / 2) + dimensions.l;
+                const centerX = (offsetWidth - dimensions.width) / 2;
+                diagramEngine.getModel().setOffsetX(offsetWidth >= dimensions.width ? centerX : diagramZero);
                 diagramEngine.getModel().setOffsetY(0);
                 diagramEngine.repaintCanvas();
             }
@@ -365,10 +377,11 @@ export function Diagram(props: DiagramProps) {
         const scroll = scrollRef?.current as any;
 
         if (type === 'reset') {
+            const dimensions = isFaultFlow ? diagramData.fault.dimensions : diagramData.flow.dimensions;
             model.setZoomLevel(100);
-            centerDiagram(false, diagramEngine, canvasDimensions.width, canvasDimensions.height);
+            centerDiagram(false, diagramEngine, dimensions);
             diagramEngine.repaintCanvas();
-            scroll.scrollLeft = scroll?.scrollWidth / 2 - scroll?.clientWidth / 2;
+            scroll.scrollLeft = scroll?.clientWidth > dimensions.width ? 0 : (scroll?.clientWidth / 2 - dimensions.l / 2);
             return;
         }
 

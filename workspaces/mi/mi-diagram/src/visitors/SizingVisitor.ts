@@ -76,9 +76,16 @@ import {
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
 
+export interface DiagramDimensions {
+    width: number;
+    height: number;
+    l: number;
+    r: number;
+}
+
 export class SizingVisitor implements Visitor {
     private skipChildrenVisit = false;
-    private sequenceWidth = 0;
+    private diagramDimensions: DiagramDimensions = { width: 0, height: 0, l: 0, r: 0 };
     private diagnostic: Diagnostic[];
 
     constructor(diagnostic: Diagnostic[]) {
@@ -89,7 +96,6 @@ export class SizingVisitor implements Visitor {
         if (node.viewState == undefined) {
             node.viewState = { x: 0, y: 0, w, h }
         }
-        this.sequenceWidth = Math.max(this.sequenceWidth, node.viewState.w);
         this.addDiagnostics(node);
     }
 
@@ -198,7 +204,6 @@ export class SizingVisitor implements Visitor {
             node.viewState.l += NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING;
             node.viewState.r += NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING;
         }
-        this.sequenceWidth = Math.max(this.sequenceWidth, actualWidth);
 
         this.addDiagnostics(node);
     }
@@ -239,8 +244,8 @@ export class SizingVisitor implements Visitor {
         return isMatchStart && isMatchEnd;
     }
 
-    getSequenceWidth(): number {
-        return this.sequenceWidth;
+    getdiagramDimensions(): DiagramDimensions {
+        return this.diagramDimensions;
     }
 
     // visitors
@@ -261,6 +266,16 @@ export class SizingVisitor implements Visitor {
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
+
+        if (node.mediatorList && node.mediatorList.length > 0) {
+            for (const mediator of node.mediatorList) {
+                if (mediator.viewState) {
+                    this.diagramDimensions.l = Math.max(this.diagramDimensions.l, mediator.viewState?.l ?? 0);
+                    this.diagramDimensions.width = Math.max(this.diagramDimensions.width, mediator.viewState?.fw ?? mediator.viewState.w);
+                    this.diagramDimensions.r = Math.max(this.diagramDimensions.r, mediator.viewState?.r ?? 0);
+                }
+            }
+        }
     }
 
     endVisitOutSequence = (node: Sequence): void => {
