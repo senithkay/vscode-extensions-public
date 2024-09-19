@@ -354,7 +354,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                     },
                 ]
             },
-            jsonPayload: sidePanelContext?.formValues?.jsonPayload.replace(/\s+/g, " ").trim() || ''
+            jsonPayload: sidePanelContext?.formValues?.jsonPayload?.replace(/\s+/g, " ").trim() || ''
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
