@@ -517,8 +517,11 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 {sidePanelView === SidePanelView.FORM && (
                     <Form
                         formFields={fields}
+                        projectPath={projectPath}
+                        selectedNode={selectedNodeRef.current.codedata.node}
                         openRecordEditor={handleOpenRecordEditor}
                         onSubmit={handleOnFormSubmit}
+                        openView={handleOpenView}
                     />
                 )}
                 {isRecordEditorOpen && (
