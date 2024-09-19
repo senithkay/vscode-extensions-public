@@ -125,6 +125,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handleSetFieldOptional = async () => {
         setIsLoading(true);
+        // TODO: wrap this in a try-catch block
         await setFieldOptional(field,!field.type.optional,context.functionST.getSourceFile(),context.applyModifications)
         setIsLoading(false);
     };

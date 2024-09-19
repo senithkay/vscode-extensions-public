@@ -29,7 +29,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
-import { createSourceForUserInput } from "../../utils/modification-utils";
+import { createSourceForUserInput, setFieldOptional } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 
@@ -329,6 +329,13 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
+    const handleSetFieldOptional = async () => {
+        setLoading(true);
+        // TODO: wrap this in a try-catch block
+        await setFieldOptional(field,!field.type.optional,context.functionST.getSourceFile(),context.applyModifications)
+        setLoading(false);
+    };
+
     const onMouseEnter = () => {
         setIsHovered(true);
     };
@@ -337,13 +344,20 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
+    const handleSetFieldOptionalMenuItem: ValueConfigMenuItem = {
+        title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
+        onClick: handleSetFieldOptional
+    };
+
     const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
         ? [
             { title: ValueConfigOption.EditValue, onClick: handleEditValue },
             { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
+            handleSetFieldOptionalMenuItem
         ]
         : [
-            { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+            { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
+            handleSetFieldOptionalMenuItem
         ];
 
     return (
