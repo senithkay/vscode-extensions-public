@@ -176,6 +176,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Enable multiline AI completions."
+                },
+                "ballerina.eggplantOverviewV2": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Eggplant overview version 2."
                 }
             }
         },
