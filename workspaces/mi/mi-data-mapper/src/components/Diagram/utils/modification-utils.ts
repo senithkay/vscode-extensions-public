@@ -353,7 +353,7 @@ export async function setFieldOptional(
 			currInterface = currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
 
 		currIdentifier = fieldIdentifiers.pop();
-		currProperty = currInterface.getProperty(currIdentifier.fieldName);
+		currProperty = currInterface?.getProperty(currIdentifier.fieldName);
 	}
 
 	currProperty?.set({ hasQuestionToken: isOptional });
