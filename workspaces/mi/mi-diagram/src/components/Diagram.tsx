@@ -364,7 +364,7 @@ export function Diagram(props: DiagramProps) {
                 const offsetWidth = scroll ? scroll.clientWidth : dimensions.width;
                 const diagramZero = -(dimensions.width / 2) + dimensions.l;
                 const centerX = (offsetWidth - dimensions.width) / 2;
-                diagramEngine.getModel().setOffsetX(offsetWidth >= dimensions.width ? centerX : diagramZero);
+                diagramEngine.getModel().setOffsetX((dimensions.width >= offsetWidth || dimensions.l > offsetWidth / 2 || dimensions.r > offsetWidth / 2) ? diagramZero : centerX);
                 diagramEngine.getModel().setOffsetY(0);
                 diagramEngine.repaintCanvas();
             }
