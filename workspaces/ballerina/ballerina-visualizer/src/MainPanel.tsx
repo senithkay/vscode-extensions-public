@@ -49,6 +49,7 @@ import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/Eggplant/DiagramWrapper";
 import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
+import ComponentDiagramV2 from "./views/Eggplant/ComponentDiagramV2";
 
 const globalStyles = css`
     *,
@@ -150,6 +151,9 @@ const MainPanel = () => {
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
+                        break;
+                    case MACHINE_VIEW.OverviewV2:
+                        setViewComponent(<ComponentDiagramV2 stateUpdated />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(

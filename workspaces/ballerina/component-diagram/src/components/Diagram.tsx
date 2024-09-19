@@ -35,15 +35,11 @@ export function Diagram(props: DiagramProps) {
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
-    console.log(">>>>CD diagram props", props);
-
     useEffect(() => {
         if (diagramEngine) {
-            console.log(">>> diagram engine created");
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
             autoDistribute(diagramEngine);
-            console.log(">>>>CD diagram data created", { nodes, links });
         }
     }, [project]);
 

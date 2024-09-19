@@ -152,7 +152,7 @@ public function main() {
             const generatedBalPath = path.join(workspaceFolderPath, 'generated.bal');
             fs.writeFileSync(generatedBalPath, req.content.trim());
         }
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
 
