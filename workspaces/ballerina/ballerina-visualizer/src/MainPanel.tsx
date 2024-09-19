@@ -48,6 +48,7 @@ import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/C
 import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/Eggplant/DiagramWrapper";
+import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
 
 const globalStyles = css`
     *,
@@ -198,6 +199,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.EggplantServiceForm:
                         setViewComponent(<ServiceForm />);
+                        break;
+                    case MACHINE_VIEW.AddConnectionWizard:
+                        setViewComponent(<AddConnectionWizard />);
                         break;
                     default:
                         setNavActive(false);

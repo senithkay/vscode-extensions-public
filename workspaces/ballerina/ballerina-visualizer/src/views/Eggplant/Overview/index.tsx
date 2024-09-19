@@ -167,7 +167,7 @@ export function Overview(props: OverviewProps) {
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
             },
-            isPopup: true
+            isPopup: false
         });
     };
 

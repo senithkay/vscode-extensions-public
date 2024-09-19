@@ -27,7 +27,7 @@ enum WizardStep {
 }
 
 interface AddConnectionWizardProps {
-    onClose: () => void;
+    onClose?: () => void;
 }
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
@@ -114,7 +114,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         // clear memory
                         setFields([]);
                         selectedNodeRef.current = undefined;
-                        onClose();
+                        onClose?.();
                     } else {
                         console.error(">>> Error updating source code", response);
                         // handle error
