@@ -317,7 +317,14 @@ const AddConnector = (props: AddConnectorProps) => {
                         }
                     }
                 } else {
-                    root.ele(getOriginalName(key)).txt(values[key]);
+                    const value = values[key];
+                    if (typeof value === 'string' && value.includes('<![CDATA[')) {
+                        // Handle CDATA
+                        const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
+                        root.ele(getOriginalName(key)).dat(cdataContent);
+                    } else {
+                        root.ele(getOriginalName(key)).txt(value);
+                    }
                 }
             }
         });
@@ -587,6 +594,16 @@ const AddConnector = (props: AddConnectorProps) => {
                         watchStatements = true;
                     }
                 });
+            } else if (firstElement === "NOT") {
+                // Handle NOT conditions
+                watchStatements = false;
+                const condition = element.value.enableCondition.slice(1)[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) !== conditionValue;
+                }
             } else {
                 // Handle Single condition
                 const condition = element.value.enableCondition[0];

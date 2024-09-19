@@ -28,6 +28,8 @@ export interface FormGeneratorProps {
     setValue: any;
     watch: any;
     getValues: any;
+    skipGeneralHeading?: boolean;
+    ignoreFields?: string[];
 }
 
 interface Element {
@@ -48,7 +50,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData,  sequences, onEdit, control, errors, setValue, getValues, watch } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -224,6 +226,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                     return;
                 }
 
+                if (ignoreFields?.includes(element.value.name)) {
+                    return;
+                }
+
                 if (element.value.name === "sequence") {
                     return (
                         <>
@@ -232,13 +238,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 onChange={handleSequenceGeneration}
                                 checked={autoGenerate}
                             />}
-                            {!autoGenerate && sequenceFieldComponent({ element: element.value})}
+                            {!autoGenerate && sequenceFieldComponent({ element: element.value })}
                         </>);
                 }
 
                 if (element.value.name === "onError") {
                     return (
-                        !autoGenerate && sequenceFieldComponent({ element: element.value})
+                        !autoGenerate && sequenceFieldComponent({ element: element.value })
                     );
                 }
                 
@@ -277,7 +283,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        {element.value.groupName === "Generic" ? renderForm(element.value.elements) :
+                        {(element.value.groupName === "Generic" || (element.value.groupName === "General" && skipGeneralHeading)) ?
+                            renderForm(element.value.elements) :
                             <>
                                 <FormGroup
                                     key={element.value.groupName}
@@ -327,6 +334,16 @@ export function FormGenerator(props: FormGeneratorProps) {
                         watchStatements = true;
                     }
                 });
+            } else if (firstElement === "NOT") {
+                // Handle NOT conditions
+                watchStatements = false;
+                const condition = element.value.enableCondition.slice(1)[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) !== conditionValue;
+                }
             } else {
                 // Handle Single condition
                 const condition = element.value.enableCondition[0];

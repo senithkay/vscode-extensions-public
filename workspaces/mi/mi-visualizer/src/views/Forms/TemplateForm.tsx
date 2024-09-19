@@ -145,7 +145,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 id: 0,
                 type: "TextField",
                 label: "Parameter",
-                defaultValue: "parameter_value",
+                placeholder: "parameter_value",
+                defaultValue: "",
                 isRequired: true
             },
             {
@@ -293,7 +294,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     return (
-        <FormView title="Template Artifact" onClose={handleCancel}>
+        <FormView title="Template" onClose={handleCancel}>
             {templateType === '' && isNewTemplate ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
                 <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={isNewTemplate}/>
                 <TextField

@@ -10,7 +10,7 @@
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -295,7 +295,16 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         if (watch("saveInReg") && isNewEndpoint) {
             await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
         }
-        openOverview();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("name") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const openOverview = () => {
@@ -315,7 +324,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Load Balance Endpoint"}
                 onClick={changeType}
@@ -371,6 +380,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                             endpoint={newEndpoint}
                             handleEndpointChange={handleNewEndpointChange}
                             handleSave={handleAddNewEndpoint}
+                            path={props.path}
                         />
                     )}
                 </FieldGroup>

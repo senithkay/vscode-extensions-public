@@ -198,7 +198,8 @@ import {
     DSSFetchTablesResponse,
     DriverPathResponse,
     AddDriverToLibRequest,
-    AddDriverToLibResponse
+    AddDriverToLibResponse,
+    APIContextsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -308,6 +309,7 @@ export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAll
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
+export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` }
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
