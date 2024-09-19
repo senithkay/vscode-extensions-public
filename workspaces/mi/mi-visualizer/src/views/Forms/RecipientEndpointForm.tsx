@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { Button, TextField, FormView, FormGroup, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
@@ -261,7 +261,16 @@ export function RecipientWizard(props: RecipientWizardProps) {
         if (watch("saveInReg") && isNewEndpoint) {
             await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
         }
-        openOverview();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("name") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const openOverview = () => {
@@ -281,7 +290,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint" onClose={openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint" onClose={openOverview}>
             <TypeChip
                 type={"Recipient List Endpoint"}
                 onClick={changeType}
