@@ -10,8 +10,9 @@
 import { useEffect, useState } from "react";
 import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { convertOpenAPIStringToObject } from "../../components/Utils/APIConversionUtils";
+import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/APIConversionUtils";
 import styled from "@emotion/styled";
+import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 
 interface ServiceDesignerProps {
     fileUri: string;
@@ -27,21 +28,22 @@ const APIDesignerWrapper = styled.div`
 export function APIDesigner(props: ServiceDesignerProps) {
     const { fileUri } = props;
     const { rpcClient } = useVisualizerContext();
-    const [ apiDefinition, setApiDefinition ] = useState<Service | undefined>(undefined);
+    const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
 
     useEffect(() => {
         const fetchData = async () => {
             const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
                 filePath: fileUri,
             });
-            const convertedApiDefinition = convertOpenAPIStringToObject(resp.content, resp.type);
+            const convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
+            console.log("resp", resp);
             setApiDefinition(convertedApiDefinition);
         };
         fetchData();
     }, [fileUri]);
     return (
         <APIDesignerWrapper>
-            <ServiceDesigner model={apiDefinition} disableServiceHeader />
+            {/* <ServiceDesigner model={apiDefinition} disableServiceHeader /> */}
         </APIDesignerWrapper>
     )
 }

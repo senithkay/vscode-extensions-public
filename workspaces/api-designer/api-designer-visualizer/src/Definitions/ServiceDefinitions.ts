@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-interface OpenAPI {
+export interface OpenAPI {
     openapi: string;
     info: Info;
     paths: Paths;
@@ -16,7 +16,7 @@ interface OpenAPI {
     [key: string]: any; // To accommodate extensions and additional properties
 }
 
-interface Info {
+export interface Info {
     title: string;
     version: string;
     description?: string;
@@ -25,26 +25,26 @@ interface Info {
     license?: License;
 }
 
-interface Contact {
+export interface Contact {
     name?: string;
     url?: string;
     email?: string;
 }
 
-interface License {
+export interface License {
     name: string;
     url?: string;
 }
 
-interface Paths {
+export interface Paths {
     [path: string]: PathItem;
 }
 
-interface PathItem {
+export interface PathItem {
     [method: string]: Operation; // GET, POST, etc.
 }
 
-interface Operation {
+export interface Operation {
     tags?: string[];
     summary?: string;
     description?: string;
@@ -55,7 +55,7 @@ interface Operation {
     [key: string]: any; // To accommodate extensions and additional properties
 }
 
-interface Parameter {
+export interface Parameter {
     name: string;
     in: 'query' | 'header' | 'path' | 'cookie';
     description?: string;
@@ -64,45 +64,45 @@ interface Parameter {
     schema?: Schema;
 }
 
-interface RequestBody {
+export interface RequestBody {
     description?: string;
     content: Content;
     required?: boolean;
 }
 
-interface Content {
+export interface Content {
     [mediaType: string]: MediaType;
 }
 
-interface MediaType {
+export interface MediaType {
     schema?: Schema;
     example?: any;
     examples?: { [exampleName: string]: Example };
     encoding?: Encoding;
 }
 
-interface Responses {
+export interface Responses {
     [statusCode: string]: Response;
 }
 
-interface Response {
+export interface Response {
     description: string;
     headersDef?: Headers;
     content?: Content;
     links?: Links;
 }
 
-interface Headers {
+export interface Headers {
     [headerName: string]: Header;
 }
 
-interface Header extends Parameter { }
+export interface Header extends Parameter { }
 
-interface Links {
+export interface Links {
     [linkName: string]: Link;
 }
 
-interface Link {
+export interface Link {
     operationRef?: string;
     operationId?: string;
     parameters?: { [parameterName: string]: any };
@@ -111,7 +111,7 @@ interface Link {
     server?: Server;
 }
 
-interface Schema {
+export interface Schema {
     type?: string;
     format?: string;
     properties?: { [propertyName: string]: Schema };
@@ -121,7 +121,7 @@ interface Schema {
     [key: string]: any; // To accommodate extensions and additional properties
 }
 
-interface Components {
+export interface Components {
     schemas?: { [schemaName: string]: Schema };
     responses?: { [responseName: string]: Response };
     parameters?: { [parameterName: string]: Parameter };
@@ -133,18 +133,18 @@ interface Components {
     callbacks?: { [callbackName: string]: Callback };
 }
 
-interface Example {
+export interface Example {
     summary?: string;
     description?: string;
     value?: any;
     externalValue?: string;
 }
 
-interface Encoding {
+export interface Encoding {
     [propertyName: string]: EncodingProperty;
 }
 
-interface EncodingProperty {
+export interface EncodingProperty {
     contentType?: string;
     headers?: Headers;
     style?: string;
@@ -152,7 +152,7 @@ interface EncodingProperty {
     allowReserved?: boolean;
 }
 
-interface SecurityScheme {
+export interface SecurityScheme {
     type: string;
     description?: string;
     name?: string;
@@ -163,31 +163,31 @@ interface SecurityScheme {
     openIdConnectUrl?: string;
 }
 
-interface OAuthFlows {
+export interface OAuthFlows {
     implicit?: OAuthFlow;
     password?: OAuthFlow;
     clientCredentials?: OAuthFlow;
     authorizationCode?: OAuthFlow;
 }
 
-interface OAuthFlow {
+export interface OAuthFlow {
     authorizationUrl?: string;
     tokenUrl?: string;
     refreshUrl?: string;
     scopes: { [scopeName: string]: string };
 }
 
-interface Callback {
+export interface Callback {
     [expression: string]: PathItem;
 }
 
-interface Server {
+export interface Server {
     url: string;
     description?: string;
     variables?: { [variableName: string]: ServerVariable };
 }
 
-interface ServerVariable {
+export interface ServerVariable {
     enum?: string[];
     default: string;
     description?: string;
