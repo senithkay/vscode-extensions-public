@@ -6,15 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
 	ArrayLiteralExpression,
 	Block,
+	InterfaceDeclaration,
 	Node,
 	ObjectLiteralExpression,
 	PropertyAssignment,
-	ReturnStatement
+	ReturnStatement,
+	SourceFile
 } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
@@ -36,11 +38,11 @@ import { getPosition, isPositionsEquals } from "./st-utils";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 
 export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string) {
-    if (!link.getSourcePort() || !link.getTargetPort()) {
+	if (!link.getSourcePort() || !link.getTargetPort()) {
 		return;
 	}
 
-    let source = "";
+	let source = "";
 	let lhs = "";
 	let rhs = "";
 
@@ -59,7 +61,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 		|| isMappedToObjectLitExprWithinArray(targetPort)
 	) {
 		let targetExpr: Node = targetPort?.typeWithValue.value;
-		
+
 		if (!targetExpr) {
 			// When the return statement is not available in the function body
 			const fnBody = targetNode.context.functionST.getBody() as Block;
@@ -134,12 +136,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 				if (!valueExpr.getText()) {
 					const valueExprSource = constructValueExprSource(lhs, rhs, fieldNames, i);
-                    const updatedValueExpr = valueExpr.replaceWithText(valueExprSource);
-                    await applyModifications(updatedValueExpr.getSourceFile().getFullText());
-                    return valueExprSource;
+					const updatedValueExpr = valueExpr.replaceWithText(valueExprSource);
+					await applyModifications(updatedValueExpr.getSourceFile().getFullText());
+					return valueExprSource;
 				}
 
-				if (Node.isObjectLiteralExpression(valueExpr))  {
+				if (Node.isObjectLiteralExpression(valueExpr)) {
 					objectLitExpr = valueExpr;
 				} else if (Node.isArrayLiteralExpression(valueExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
@@ -164,9 +166,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 			if (propAssignment && !propAssignment.getInitializer().getText()) {
 				const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
-                const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
-                await applyModifications(updatedValueExpr.getSourceFile().getFullText());
-                return valueExprSource;
+				const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
+				await applyModifications(updatedValueExpr.getSourceFile().getFullText());
+				return valueExprSource;
 			}
 			source = `${lhs}: ${rhs}`;
 		}
@@ -175,9 +177,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
-            const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
-            await applyModifications(updatedValueExpr.getSourceFile().getFullText());
-            return valueExprSource;
+			const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
+			await applyModifications(updatedValueExpr.getSourceFile().getFullText());
+			return valueExprSource;
 		}
 		source = `${lhs}: ${rhs}`;
 	}
@@ -193,7 +195,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 			await applyModifications(updatedTargetObjectLitExpr.getSourceFile().getFullText());
 		}
 	} else if (targetNode instanceof ObjectOutputNode) {
-        const updatedExpr = targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
+		const updatedExpr = targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
 		await applyModifications(updatedExpr.getSourceFile().getFullText());
 	}
 
@@ -249,7 +251,7 @@ export async function createSourceForUserInput(
 
 			if (Node.isObjectLiteralExpression(parentFieldInitializer)) {
 				const propAssignment = getPropertyAssignment(parentFieldInitializer, fieldName);
-	
+
 				if (propAssignment && !propAssignment.getInitializer().getText()) {
 					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 					const propertyAssignment = propAssignment.setInitializer(valExprSource);
@@ -260,7 +262,7 @@ export async function createSourceForUserInput(
 				targetObjectLitExpr = parentFieldInitializer;
 			} else if (Node.isArrayLiteralExpression(parentFieldInitializer)
 				&& Node.isObjectLiteralExpression(parentFieldInitializer.getElements()[0])) {
-		
+
 				for (const expr of parentFieldInitializer.getElements()) {
 					if (Node.isObjectLiteralExpression(expr)
 						&& isPositionsEquals(getPosition(expr), getPosition(objectLitExpr))) {
@@ -325,6 +327,40 @@ export async function createSourceForUserInput(
 	}
 }
 
+export async function setFieldOptional(
+	field: DMTypeWithValue,
+	isOptional: boolean,
+	sourceFile: SourceFile,
+	applyModifications: (fileContent: string) => Promise<void>) {
+
+	const fieldIdentifiers: DMType[] = [];
+	let currField = field;
+	while (currField.parentType) {
+		if (currField.type.fieldName)
+			fieldIdentifiers.push(currField.type);
+		currField = currField.parentType;
+	}
+
+	let currInterface = sourceFile.getInterfaceOrThrow(currField.type.typeName);
+
+	let currIdentifier = fieldIdentifiers.pop();
+	let currProperty = currInterface.getProperty(currIdentifier.fieldName);
+
+	while (fieldIdentifiers.length > 0) {
+		if (currIdentifier.kind == TypeKind.Array)
+			currInterface = currProperty?.getType().getArrayElementType()?.getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
+		else
+			currInterface = currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
+
+		currIdentifier = fieldIdentifiers.pop();
+		currProperty = currInterface.getProperty(currIdentifier.fieldName);
+	}
+
+	currProperty?.set({ hasQuestionToken: isOptional });
+
+	await applyModifications(sourceFile.getFullText());
+}
+
 function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
 	let source = "";
 
@@ -370,7 +406,7 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 			if (linkId !== link.getID()) {
 				const targerPortLink = targetPort.getLinks()[linkId];
 				let valueNode: Node;
-	
+
 				if (sourcePort instanceof IntermediatePortModel) {
 					if (sourcePort.getParent() instanceof LinkConnectorNode) {
 						valueNode = (sourcePort.getParent() as LinkConnectorNode).innerNode;
@@ -415,18 +451,18 @@ export async function updateExisitingValue(sourcePort: PortModel, targetPort: Po
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {
-    // Regular expression to match either quoted strings or non-quoted strings with dots
-    const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
+	// Regular expression to match either quoted strings or non-quoted strings with dots
+	const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
 
-    const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
-        if (doubleQuoted) { 
-            return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
-        } else if (singleQuoted) {
+	const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
+		if (doubleQuoted) {
+			return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+		} else if (singleQuoted) {
 			return `['${singleQuoted}']`; // If the part is enclosed in single quotes, wrap it in square brackets
 		} else {
-            return unquoted; // Otherwise, leave the part unchanged
-        }
-    });
+			return unquoted; // Otherwise, leave the part unchanged
+		}
+	});
 
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
@@ -437,7 +473,7 @@ function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boole
 		&& targetPort.field.kind === TypeKind.Array
 		&& (
 			!targetExpr || (targetExpr && Node.isArrayLiteralExpression(targetExpr)
-		));
+			));
 }
 
 function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): boolean {
@@ -446,7 +482,7 @@ function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): bool
 		&& targetPort.field.kind === TypeKind.Interface
 		&& (
 			!targetExpr || (targetExpr && Node.isObjectLiteralExpression(targetExpr)
-		));
+			));
 }
 
 function isMappedToObjectLitExprWithinArray(targetPort: InputOutputPortModel): boolean {

@@ -24,7 +24,7 @@ import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMen
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
-import { createSourceForUserInput } from "../../utils/modification-utils";
+import { createSourceForUserInput, setFieldOptional } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
@@ -125,34 +125,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handleSetFieldOptional = async () => {
         setIsLoading(true);
-        const fieldIdentifiers: DMType[] = [];
-        let currField = field;
-        while (currField.parentType) {
-            if (currField.type.fieldName)
-                fieldIdentifiers.push(currField.type);
-            currField = currField.parentType;
-        }
-
-        const sourceFile = context.functionST.getSourceFile();
-
-        let currInterface = sourceFile.getInterfaceOrThrow(currField.type.typeName);
-
-        let currIdentifier = fieldIdentifiers.pop();
-        let currProperty = currInterface.getProperty(currIdentifier.fieldName);
-
-        while (fieldIdentifiers.length > 0) {
-            if (currIdentifier.kind == TypeKind.Array)
-                currInterface = currProperty?.getType().getArrayElementType()?.getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
-            else
-                currInterface = currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
-
-            currIdentifier = fieldIdentifiers.pop();
-            currProperty = currInterface.getProperty(currIdentifier.fieldName);
-        }
-
-        currProperty?.set({ hasQuestionToken: !field.type.optional });
-
-        await context.applyModifications(sourceFile.getFullText());
+        await setFieldOptional(field,!field.type.optional,context.functionST.getSourceFile(),context.applyModifications)
         setIsLoading(false);
     };
 
