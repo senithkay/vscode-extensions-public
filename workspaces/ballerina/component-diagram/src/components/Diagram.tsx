@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, centerDiagram, createNodesLink, generateEngine, registerListeners } from "../utils/diagram";
+import { autoDistribute, createNodesLink, generateEngine, getNodeId, registerListeners } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -19,7 +19,7 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
-import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NEW_COMPONENT } from "../resources/constants";
+import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NEW_COMPONENT, NodeTypes } from "../resources/constants";
 import { ButtonNodeModel } from "./nodes/ButtonNode/ButtonNodeModel";
 
 export interface DiagramProps {
@@ -57,7 +57,7 @@ export function Diagram(props: DiagramProps) {
             const node = new EntryNodeModel(entryPoint);
             nodes.push(node);
             // add actor node for each entry node
-            const actorNode = new ActorNodeModel({ ...entryPoint, id: entryPoint.id + ACTOR_SUFFIX });
+            const actorNode = new ActorNodeModel({ ...entryPoint, id: node.getID() + ACTOR_SUFFIX });
             nodes.push(actorNode);
             // create link between entry and actor nodes
             const link = createNodesLink(actorNode, node);
@@ -96,7 +96,7 @@ export function Diagram(props: DiagramProps) {
 
         // create links between entry and connection nodes
         project.entryPoints.forEach((entryPoint) => {
-            const entryNode = nodes.find((node) => node.getID() === entryPoint.id);
+            const entryNode = nodes.find((node) => node.getID() === getNodeId(NodeTypes.ENTRY_NODE, entryPoint.id));
             if (entryNode) {
                 nodes
                     .filter((node) => node instanceof ConnectionNodeModel && node.getID() !== NEW_CONNECTION)

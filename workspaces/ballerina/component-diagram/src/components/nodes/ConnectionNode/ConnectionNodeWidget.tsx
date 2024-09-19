@@ -134,6 +134,19 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const { onAddConnection, onConnectionSelect } = useDiagramContext();
+    // TODO: fix this database icon hack with icon prop from node model
+    const databaseNames = [
+        "MySQL",
+        "PostgreSQL",
+        "Oracle",
+        "SQL Server",
+        "Redis",
+        "Derby",
+        "SQLite",
+        "MongoDB",
+        "MariaDB",
+    ];
+    const hasDatabaseName = databaseNames.some((name) => model.node.name.toLowerCase().includes(name.toLowerCase()));
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (model.node.id === NEW_CONNECTION) {
@@ -153,7 +166,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row hovered={isHovered}>
                 <NodeStyles.Circle hovered={isHovered}>
-                    <NodeStyles.Icon>{<DatabaseIcon />}</NodeStyles.Icon>
+                    <NodeStyles.Icon>{hasDatabaseName ? <DatabaseIcon /> : <LinkIcon />}</NodeStyles.Icon>
                 </NodeStyles.Circle>
                 <NodeStyles.Header>
                     <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>

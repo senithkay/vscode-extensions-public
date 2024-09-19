@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import createEngine, { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { EntryNodeFactory, EntryNodeModel } from "../components/nodes/EntryNode";
+import { EntryNodeFactory } from "../components/nodes/EntryNode";
 import { NodePortFactory, NodePortModel } from "../components/NodePort";
 import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
@@ -18,15 +18,11 @@ import { ActorNodeFactory } from "../components/nodes/ActorNode/ActorNodeFactory
 import {
     ACTOR_NODE_WIDTH,
     ACTOR_SUFFIX,
-    CON_NODE_HEIGHT,
     ENTRY_NODE_HEIGHT,
-    ENTRY_NODE_WIDTH,
-    NEW_CONNECTION,
     NODE_GAP_Y,
     NODE_PADDING,
     NodeTypes,
 } from "../resources/constants";
-import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 import { ButtonNodeFactory } from "../components/nodes/ButtonNode/ButtonNodeFactory";
 
 export function generateEngine(): DiagramEngine {
@@ -34,6 +30,7 @@ export function generateEngine(): DiagramEngine {
         registerDefaultDeleteItemsAction: false,
         registerDefaultZoomCanvasAction: false,
         registerDefaultPanAndZoomCanvasAction: false,
+        // repaintDebounceMs: 100,
     });
 
     engine.getPortFactories().registerFactory(new NodePortFactory());
@@ -177,4 +174,8 @@ export const centerDiagram = (engine: DiagramEngine) => {
         // zoom to fit nodes and center diagram
         engine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
     }
-}
+};
+
+export const getNodeId = (nodeType: string, id: string) => {
+    return `${nodeType}-${id}`;
+};

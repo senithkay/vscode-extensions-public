@@ -31,7 +31,7 @@ export namespace NodeStyles {
         border-radius: 50%;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
+        /* cursor: pointer; */
         & svg {
             fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
             opacity: ${(props: NodeStyleProp) => (props.hovered ? 1 : 0.7)};

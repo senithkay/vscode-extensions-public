@@ -11,6 +11,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
 import { EntryPoint } from "../../../utils/types";
+import { getNodeId } from "../../../utils/diagram";
 
 export class EntryNodeModel extends NodeModel {
     readonly node: EntryPoint;
@@ -19,7 +20,7 @@ export class EntryNodeModel extends NodeModel {
 
     constructor(node: EntryPoint) {
         super({
-            id: node.id,
+            id: getNodeId(NodeTypes.ENTRY_NODE, node.id),
             type: NodeTypes.ENTRY_NODE,
             locked: NODE_LOCKED,
         });
