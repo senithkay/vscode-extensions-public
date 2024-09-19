@@ -66,6 +66,9 @@ export * from "./rpc-types/persist-diagram/rpc-type";
 export * from "./rpc-types/ai-panel";
 export * from "./rpc-types/ai-panel/rpc-type";
 export * from "./rpc-types/ai-panel/interfaces";
+export * from "./rpc-types/inline-data-mapper";
+export * from "./rpc-types/inline-data-mapper/rpc-type";
+export * from "./rpc-types/inline-data-mapper/interfaces";
 
 // ------ History class and interface -------->
 export * from "./history";
