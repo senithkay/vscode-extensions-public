@@ -16,7 +16,7 @@ import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnSta
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMViewsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -68,6 +68,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const setExprBarFocusedPort  = useDMExpressionBarStore(state => state.setFocusedPort);
     const viewsStore = useDMViewsStore();
 
     const typeName = getTypeName(field.type);
@@ -130,14 +131,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        let value = field.value;
-
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            value = field.value.getInitializer();
-        }
-
-        const range = getEditorLineAndColumn(value);
-        context.goToSource(range);
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const onAddElementClick = async () => {

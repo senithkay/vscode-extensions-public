@@ -62,7 +62,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+        exprBarFocusedPort: state.focusedPort,
+        setExprBarFocusedPort: state.setFocusedPort
+    }));
     const viewsStore = useDMViewsStore();
 
     let fieldName = field.type.fieldName || '';
@@ -117,11 +121,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            const initializer = field.value.getInitializer();
-            const range = getEditorLineAndColumn(initializer);
-            context.goToSource(range);
-        }
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const handleSetFieldOptional = async () => {
@@ -219,7 +220,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         >
                             <Button
                                 appearance="icon"
-                                onClick={handleEditValue}
                                 data-testid={`object-output-field-${portIn?.getName()}`}
                             >
                                 {initializer.getText()}
