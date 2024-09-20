@@ -13,12 +13,13 @@ import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
 import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { NodeContainer } from "../../resources/styles/styles";
 import { getComponentName } from "../../utils/common-util";
-import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
 
 import { ServiceClassHeadWidget } from "./ClassHead/ClassHead";
 import { ServiceField } from "./FunctionCard/ServiceField";
 import { ServiceClassNodeModel } from "./ServiceClassNodeModel";
+
 
 interface ServiceClassNodeWidgetProps {
     node: ServiceClassNodeModel;
@@ -32,13 +33,13 @@ export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.classObject.serviceName;
 
     return (
-        <ServiceNode isSelected={isNodeSelected} data-testid={`service-class-node-${node?.classObject?.serviceName}`}>
+        <NodeContainer isSelected={isNodeSelected} data-testid={`service-class-node-${node?.classObject?.serviceName}`}>
             <ServiceClassHeadWidget node={node} engine={engine} />
             {node.classObject.functions?.map((classFunction, index) => {
                 return (
                     <ServiceField key={index} node={node} engine={engine} functionElement={classFunction} />
                 );
             })}
-        </ServiceNode>
+        </NodeContainer>
     );
 }

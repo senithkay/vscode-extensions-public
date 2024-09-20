@@ -8,6 +8,8 @@
  */
 import { css } from '@emotion/css';
 
+import { ThemeColors } from '../resources/model';
+
 export const GraphqlUnsupportedStyles = () => ({
     overlayWrapper: css(
         {
@@ -15,7 +17,7 @@ export const GraphqlUnsupportedStyles = () => ({
             '&.overlay': {
                 display: 'block',
                 position: 'relative',
-                backgroundColor: '#fff',
+                backgroundColor: `${ThemeColors.SURFACE_DIM}`,
                 opacity: '0.7',
                 zIndex: -1
             },

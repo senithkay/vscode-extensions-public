@@ -13,12 +13,12 @@ import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
 import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { NodeContainer } from "../../resources/styles/styles";
 import { getComponentName } from "../../utils/common-util";
 
 import { EnumFieldCard } from "./EnumFieldCard/EnumFieldCard";
 import { EnumHeadWidget } from "./EnumHead/EnumHead";
 import { EnumNodeModel } from "./EnumNodeModel";
-import { EnumNode } from "./styles";
 
 interface EnumNodeWidgetProps {
     node: EnumNodeModel;
@@ -31,7 +31,7 @@ export function EnumNodeWidget(props: EnumNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.enumObject.name;
 
     return (
-        <EnumNode isSelected={isNodeSelected} data-testid={`enum-node-${node?.enumObject?.name}`}>
+        <NodeContainer isSelected={isNodeSelected} data-testid={`enum-node-${node?.enumObject?.name}`}>
             <EnumHeadWidget
                 engine={engine}
                 node={node}
@@ -42,6 +42,6 @@ export function EnumNodeWidget(props: EnumNodeWidgetProps) {
                 );
             })
             }
-        </EnumNode>
+        </NodeContainer>
     );
 }

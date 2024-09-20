@@ -12,10 +12,11 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { NodeContainer } from "../../resources/styles/styles";
+
 import { FunctionCard } from "./FunctionCards/FunctionCard";
 import { GraphqlServiceNodeModel } from "./GraphqlServiceNodeModel";
 import { ServiceHeadWidget } from "./ServiceHead/ServiceHead";
-import { ServiceNode } from './styles/styles';
 
 interface ServiceNodeWidgetProps {
     node: GraphqlServiceNodeModel;
@@ -26,7 +27,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <ServiceNode data-testid={`graphql-root-node-${node.serviceObject.serviceName ? node.serviceObject.serviceName : "/root"}`}>
+        <NodeContainer data-testid={`graphql-root-node-${node.serviceObject.serviceName ? node.serviceObject.serviceName : "/root"}`}>
             <ServiceHeadWidget
                 engine={engine}
                 node={node}
@@ -58,6 +59,6 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
                     );
                 })
             }
-        </ServiceNode>
+        </NodeContainer>
     );
 }

@@ -9,12 +9,12 @@
 
 import styled from "@emotion/styled";
 
-import { Colors } from "../model";
+import { ThemeColors } from "../model";
 
 export const FieldType: React.FC<any> = styled.span`
-  background-color: ${Colors.SECONDARY};
+  background-color: ${ThemeColors.SURFACE_CONTAINER};
   border-radius: 3px;
-  color: #000000;
+  color: ${ThemeColors.ON_SURFACE};
   font-family: GilmerRegular;
   font-size: 12px;
   height: 24px;
@@ -26,7 +26,7 @@ export const FieldType: React.FC<any> = styled.span`
 
 export const FieldName: React.FC<any> = styled.span`
   align-items: center;
-  color: #000000;
+  color: ${ThemeColors.ON_SURFACE};
   display: flex;
   flex: 1;
   font-family: GilmerRegular;
@@ -46,23 +46,24 @@ interface StyleProps {
 }
 
 export const NodeContainer: React.FC<any> = styled.div`
-  background-color: ${Colors.SECONDARY};
-  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
+  background-color: ${ThemeColors.SURFACE_DIM};
+  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}`};
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
-  color: ${Colors.PRIMARY};
+  color: ${ThemeColors.ON_SURFACE};
   cursor: pointer;
   display: flex;
   flex-direction: column;
   min-height: 32px;
+  min-width: 160px;
 `;
 
 export const NodeHeader: React.FC<any> = styled.div`
   align-items: center;
   border-bottom: ${(props: StyleProps) =>
-          `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+          `1px solid ${props.isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}`};
   display: flex;
   font-family: GilmerRegular;
   font-size: 13px;
@@ -88,10 +89,10 @@ export const InterfaceSubHeader: React.FC<any> = styled.div`
 `;
 
 export const NodeFieldContainer: React.FC<any> = styled.div`
-  align-items: center;
-  background-color: #FFFFFF;
-  border-bottom: 0.5px solid #cccde3;
-  color: #000000;
+   align-items: center;
+  background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.ON_SECONDARY : ThemeColors.SURFACE_DIM};
+  border-bottom: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
+  color:${ThemeColors.ON_SURFACE};
   display: flex;
   flex-direction: row;
   font-family: GilmerRegular;

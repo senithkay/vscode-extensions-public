@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
-import { Colors } from "../../resources/model";
+import { ThemeColors } from "../../resources/model";
 
 import { DefaultLinkModel } from "./DefaultLinkModel";
 
@@ -60,7 +60,7 @@ export function DefaultLinkWidget(props: WidgetProps) {
         <g>
             <polygon
                 points={link.getArrowHeadPoints()}
-                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+                fill={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
             />
 
             <path
@@ -72,7 +72,7 @@ export function DefaultLinkWidget(props: WidgetProps) {
                 pointerEvents="all"
                 onMouseLeave={onMouseLeave}
                 onMouseOver={onMouseOver}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+                stroke={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
                 strokeWidth={1}
             />
         </g>

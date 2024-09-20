@@ -9,7 +9,7 @@
 
 import React from "react";
 
-import { Param } from "../resources/model";
+import { Param, ThemeColors } from "../resources/model";
 import { FieldName, FieldType } from "../resources/styles/styles";
 
 import { Container } from "./styles";
@@ -23,12 +23,12 @@ export function ParametersPopup(props: ParametersPopupProps) {
     return (
         <Container>
             <div>
-                <p>Parameters</p>
+                <p style={{ color: ThemeColors.ON_SURFACE}}>Parameters</p>
                 <ul style={{ display: 'block', paddingInlineStart: '10px' }}>
                     {/* tslint:disable-next-line:jsx-no-multiline-js */}
                     {parameters.map((param, index) => {
                         return (
-                            <li key={index}>
+                            <li key={index} style={{color: ThemeColors.SURFACE_CONTAINER}}>
                                 <div style={{ display: 'flex' }}>
                                     <FieldName>{param.name}</FieldName>
                                     <FieldType>{param.type}</FieldType>

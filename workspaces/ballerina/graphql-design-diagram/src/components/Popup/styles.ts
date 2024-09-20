@@ -9,6 +9,8 @@
 
 import styled from "@emotion/styled";
 
+import { ThemeColors } from "../resources/model";
+
 export const Container: React.FC<any> = styled.div`
   display: flex;
   flex-direction: row;
@@ -18,8 +20,8 @@ export const Container: React.FC<any> = styled.div`
 `;
 
 export const popOverCompStyle = {
-  backgroundColor: "white",
-  border: "1px solid black",
+  backgroundColor: `${ThemeColors.SURFACE_DIM}`,
+  border: `1px solid ${ThemeColors.PRIMARY}`,
   padding: "10px",
   borderRadius: "5px",
   display: "flex",

@@ -12,8 +12,7 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
-import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
-
+import { NodeContainer } from "../../resources/styles/styles";
 
 import { HierarchicalHeadWidget } from "./HierarchicalHead";
 import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
@@ -28,7 +27,7 @@ export function HierarchicalNodeWidget(props: HierarchicalNodeWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <ServiceNode data-testid={`hierarchical-node-${node?.resourceObject?.name}`}>
+        <NodeContainer data-testid={`hierarchical-node-${node?.resourceObject?.name}`}>
             <HierarchicalHeadWidget node={node} engine={engine}/>
             {node.resourceObject.hierarchicalResources?.map((resource, index) => {
                 return (
@@ -36,6 +35,6 @@ export function HierarchicalNodeWidget(props: HierarchicalNodeWidgetProps) {
                 );
             })}
 
-        </ServiceNode>
+        </NodeContainer>
     );
 }

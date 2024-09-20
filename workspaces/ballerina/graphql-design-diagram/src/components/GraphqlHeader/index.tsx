@@ -13,7 +13,7 @@ import styled from "@emotion/styled";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";
-import { GraphqlDesignModel } from "../resources/model";
+import { GraphqlDesignModel, ThemeColors } from "../resources/model";
 import { OperationTypes, TypeFilter } from "../TypeFilter";
 import { getNodeListOfModel } from "../utils/common-util";
 
@@ -45,7 +45,7 @@ const HeaderContainer = styled.div`
   height: 50px;
   display: flex;
   padding: 15px;
-  background-color: #f7f8fb;
+  background-color: ${ThemeColors.SURFACE_DIM};
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(102, 103, 133, 0.15);
