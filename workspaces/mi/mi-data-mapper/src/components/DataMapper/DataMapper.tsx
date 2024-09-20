@@ -102,8 +102,6 @@ enum ActionType {
     EDIT_VIEW
 }
 
-type ViewState = View[];
-
 type ViewAction = {
     type: ActionType,
     payload: {
@@ -112,7 +110,7 @@ type ViewAction = {
     },
 }
 
-function viewsReducer(state: ViewState, action: ViewAction) {
+function viewsReducer(state: View[], action: ViewAction) {
     switch (action.type) {
         case ActionType.ADD_VIEW:
             return [...state, action.payload.view];
