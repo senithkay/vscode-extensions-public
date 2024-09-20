@@ -50,10 +50,10 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
                         engine={engine}
                     />
                     <HeaderName>{displayName}</HeaderName>
-                    <FilterNodeAndGoToSourceMenu
+                    {/* <FilterNodeAndGoToSourceMenu
                         location={node.interfaceObject?.position}
                         nodeType={{ name: displayName, type: NodeCategory.INTERFACE }}
-                    />
+                    /> */}
                     <GraphqlBasePortWidget
                         port={node.getPort(`right-${node.getID()}`)}
                         engine={engine}

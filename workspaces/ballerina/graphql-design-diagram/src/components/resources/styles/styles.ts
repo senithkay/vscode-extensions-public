@@ -68,7 +68,7 @@ export const NodeHeader: React.FC<any> = styled.div`
   font-family: GilmerRegular;
   font-size: 13px;
   height: 32px;
-  justify-content: space-between;
+  justify-content: center;
   line-height: 24px;
   padding-inline: 8px;
   min-width: calc(100% - 16px);

@@ -28,12 +28,12 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
 
     const getMenuItems = () => {
         const items: Item[] = [];
-        if (location) {
-            items.push(getDesignOperationMenuItem(location, operationDesignView));
-            items.push(getEditOperationMenuItem(location, functionType, functionPanel, model));
-            items.push(getDeleteOperationMenuItem(location, onDelete));
+        // if (location) {
+        //     items.push(getDesignOperationMenuItem(location, operationDesignView));
+        //     items.push(getEditOperationMenuItem(location, functionType, functionPanel, model));
+        //     items.push(getDeleteOperationMenuItem(location, onDelete));
 
-        }
+        // }
         if (location?.filePath) {
             items.push(getGoToSourceMenuItem(location, goToSource));
         }

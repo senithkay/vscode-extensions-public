@@ -52,7 +52,7 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-            <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} />
+            {/* <ContextMenu iconSx={verticalIconStyle} sx={verticalIconWrapper} menuItems={getMenuItems()} /> */}
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
