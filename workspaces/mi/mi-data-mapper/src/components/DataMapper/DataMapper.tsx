@@ -142,7 +142,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             const storeViews = viewsStore.views.slice(0);
             viewsStore.setViews([]);
             return storeViews;
-        }else{
+        } else {
             return views;
         }
     };

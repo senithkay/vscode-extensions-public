@@ -16,7 +16,7 @@ import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnSta
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMViewsStore } from '../../../../store/store';
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -68,6 +68,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const viewsStore = useDMViewsStore();
 
     const typeName = getTypeName(field.type);
     const fieldName = field.type.fieldName || '';
@@ -331,6 +332,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const handleSetFieldOptional = async () => {
         setLoading(true);
+        viewsStore.setViews(context.views);
         // TODO: wrap this in a try-catch block
         await setFieldOptional(field,!field.type.optional,context.functionST.getSourceFile(),context.applyModifications)
         setLoading(false);
