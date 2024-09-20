@@ -12,7 +12,6 @@ import { DSS_TEMPLATES } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 import { ResourceFormData, ResourceType } from "../views/Forms/DataServiceForm/SidePanelForms/ResourceForm";
 import { OperationFormData, OperationType } from "../views/Forms/DataServiceForm/SidePanelForms/OperationForm";
-import { v4 as uuidv4 } from 'uuid';
 
 export const generateResourceData = (model: DSSResource): ResourceType => {
 
@@ -38,7 +37,7 @@ export const generateOperationData = (model: DSSOperation): OperationType => {
 
 export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient, dbName: string) => {
 
-    const queryName = uuidv4();
+    const queryName = data.resourceMethod.toLowerCase() + "_" + data.resourcePath.replace(/[^a-zA-Z]/g, '').toLowerCase() + "_query";
 
     const formValues = {
         path: data.resourcePath,
@@ -69,7 +68,7 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
 
 export const onOperationCreate = (data: OperationFormData, range: Range, documentUri: string, rpcClient: RpcClient, dbName: string) => {
 
-    const queryName = uuidv4();
+    const queryName = data.operationName.replace(/[^a-zA-Z]/g, '').toLowerCase() + "_query";
 
     const formValues = {
         name: data.operationName,

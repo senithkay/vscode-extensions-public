@@ -443,17 +443,17 @@ export function TaskForm(props: TaskFormProps) {
             </FormGroup>
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={cancelHandler}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateTask)}
                     disabled={!isDirty}
                 >
                     {isNewTask ? "Create" : "Update"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={cancelHandler}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView >
