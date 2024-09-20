@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput, setFieldOptional } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
@@ -63,6 +63,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+    const { setViews } = useDMViewsStore();
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -125,8 +126,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handleSetFieldOptional = async () => {
         setIsLoading(true);
+        setViews(context.views)
         // TODO: wrap this in a try-catch block
-        await setFieldOptional(field,!field.type.optional,context.functionST.getSourceFile(),context.applyModifications)
+        await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
         setIsLoading(false);
     };
 

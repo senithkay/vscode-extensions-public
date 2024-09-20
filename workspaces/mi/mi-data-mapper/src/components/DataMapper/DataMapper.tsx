@@ -21,7 +21,7 @@ import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
 import { ImportDataForm } from "./SidePanel/ImportData/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
-import { useDMExpressionBarStore, useDMSearchStore } from "../../store/store";
+import { useDMExpressionBarStore, useDMSearchStore, useDMViewsStore } from "../../store/store";
 import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes } from "../Diagram/utils/type-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfig/SubMappingConfigForm";
@@ -128,14 +128,26 @@ function viewsReducer(state: ViewState, action: ViewAction) {
 export function MIDataMapper(props: MIDataMapperProps) {
     const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading, isMapping, setIsMapping } = props;
 
-    const initialView = [{
+    const initialViews = [{
         targetFieldFQN: "",
         sourceFieldFQN: "",
         sourceNodeType: SourceNodeType.InputNode,
         label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
     }];
 
-    const [views, dispatch] = useReducer(viewsReducer, initialView);
+    const viewsStore = useDMViewsStore();
+
+    const initializeViews = (views: View[]) => {
+        if (viewsStore.views.length > 0) {
+            const storeViews = viewsStore.views.slice(0);
+            viewsStore.setViews([]);
+            return storeViews;
+        }else{
+            return views;
+        }
+    };
+
+    const [views, dispatch] = useReducer(viewsReducer, initialViews, initializeViews);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const { rpcClient } = useVisualizerContext();
