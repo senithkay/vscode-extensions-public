@@ -14,14 +14,14 @@ import { debounce } from 'lodash';
 
 import { css } from '@emotion/css';
 import { useMutation } from '@tanstack/react-query';
-import { ExpressionBar, CompletionItem, ExpressionBarRef } from '@wso2-enterprise/ui-toolkit';
+import { ExpressionBar, CompletionItem, ExpressionBarRef, InputProps, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 import { filterCompletions, getInnermostPropAsmtNode } from './utils';
 import { View } from '../Views/DataMapperView';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
-import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
+import { getDefaultValue, getEditorLineAndColumn } from '../../../components/Diagram/utils/common-utils';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 
@@ -86,7 +86,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         let nodeForSuggestions: Node;
         if (focusedPort) {
             nodeForSuggestions = focusedPort.typeWithValue.value ||
-            (focusedPort.getNode() as DataMapperNodeModel)?.context.functionST;
+                (focusedPort.getNode() as DataMapperNodeModel)?.context.functionST;
         } else {
             nodeForSuggestions = focusedFilter;
         }
@@ -128,7 +128,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     filteredCompletions.push(details);
                 }
             }
-            
+
             return filteredCompletions;
         }
 
@@ -142,7 +142,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (focusedFieldValue.wasForgotten()) {
                 return;
             }
-            
+
             if (Node.isPropertyAssignment(focusedFieldValue)) {
                 const parent = focusedFieldValue.getParent();
                 const propName = focusedFieldValue.getName();
@@ -153,7 +153,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     name: propName,
                     initializer: text
                 });
-                
+
                 if (parent.getProperties().some(prop => prop.isKind(SyntaxKind.ShorthandPropertyAssignment))) {
                     /** 
                      * Creating a PropertyAssignment with invalid or incomplete text can result in unexpected
@@ -220,7 +220,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
-            
+
             disabled = false;
         } else {
             // If displaying a focused view
@@ -235,7 +235,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // Set cursor position
         cursorPositionBeforeSaving.current = value.length;
-        
+
         setTextFieldValue(value);
         setSavedNodeValue(value);
         triggerAction(!action);
@@ -361,11 +361,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             return;
         }
         await applyChanges(value);
-    }
+    };
 
     const handleCancelCompletions = () => {
         setCompletions([]);
-    }
+    };
 
     const handleFocus = async () => {
         const focusedNode = focusedPort?.typeWithValue.value;
@@ -383,7 +383,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setLastFocusedPort(focusedPort);
         setLastFocusedFilter(focusedFilter);
         setLastSavedNodeValue(savedNodeValue);
-    }
+    };
 
     const handleBlur = async () => {
         // Reset the last focused port and filter
@@ -393,14 +393,35 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // Reset text field value
         setTextFieldValue("");
-    }
+    };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const useDisableOnChange = (fn: (...args: any[]) => Promise<any>) => {
         return useMutation({
             mutationFn: fn
         });
-    }
+    };
+
+    const gotoSource = () => {
+        let value = focusedPort?.typeWithValue.value;
+
+        if (value) {
+            if (Node.isPropertyAssignment(value)) {
+                value = value.getInitializer();
+            }
+            const range = getEditorLineAndColumn(value);
+            (focusedPort.getNode() as DataMapperNodeModel)?.context.goToSource(range);
+        }
+
+    };
+
+    const inputProps: InputProps = {
+        endAdornment: (
+            <Button appearance="icon" tooltip="Goto source" onClick={gotoSource}>
+                <Codicon name="code" />
+            </Button>
+        )
+    };
 
     return (
         <div className={classes.exprBarContainer}>
@@ -411,6 +432,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 value={textFieldValue}
                 placeholder={placeholder}
                 completions={completions}
+                inputProps={inputProps}
                 onChange={handleChange}
                 onCompletionSelect={updateSource}
                 onSave={updateSource}
