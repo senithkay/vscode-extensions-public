@@ -61,7 +61,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             .getDiagnostics()
             .map((diagnostic) => diagnostic.message)
             .join("\n")
-        : undefined;
+        : link?.label?.length > 8 ? link.label : undefined;
 
     useEffect(() => {
         const onChange = (event: any) => {
@@ -174,7 +174,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                         fontSize: "14px",
                                     }}
                                 >
-                                    {link.label}
+                                    {link.label.length > 8 ? `${link.label.substring(0, 8)}...` : link.label}
                                 </span>
                             </div>
                         </Tooltip>
