@@ -63,7 +63,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
-    const { setViews } = useDMViewsStore();
+    const viewsStore = useDMViewsStore();
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -126,7 +126,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handleSetFieldOptional = async () => {
         setIsLoading(true);
-        setViews(context.views)
+        viewsStore.setViews(context.views)
         // TODO: wrap this in a try-catch block
         await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
         setIsLoading(false);
