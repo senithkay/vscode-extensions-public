@@ -713,7 +713,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     const showNextButton = watch('dataSourceType') === 'RDBMS' && step === 1;
 
     return (
-        <FormView title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup} >
+        <FormView title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} >
             <FormProvider {...formMethods}>
                 {step === 1 ? (
                     <>
