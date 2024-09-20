@@ -90,21 +90,21 @@ namespace S {
     export type ContainerStyleProp = {
         height: number;
         width: number;
+        left: number;
+        right: number;
     };
     export const ChildNodeContainer = styled.div<ContainerStyleProp>`
         position: absolute;
         top: ${NODE_DIMENSIONS.GROUP.HEIGHT / 2}px;
-        left: ${(props: ContainerStyleProp) => ((NODE_DIMENSIONS.GROUP.WIDTH - props.width) / 2) - NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING}px;
-        width: ${(props: ContainerStyleProp) => props.width - (NODE_DIMENSIONS.BORDER * 2)}px;
+        left: ${(props: ContainerStyleProp) => (NODE_DIMENSIONS.GROUP.WIDTH / 2) - props.left}px;
+        width: ${(props: ContainerStyleProp) => props.left + props.right}px;
         height: ${(props: ContainerStyleProp) => props.height - (NODE_DIMENSIONS.GROUP.HEIGHT / 2) - (NODE_DIMENSIONS.BORDER * 2)}px;
-        padding: 0 ${NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING}px;
         border: ${NODE_DIMENSIONS.BORDER}px dashed ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: transparent;
         z-index: -1;
         display: flex;
         align-items: flex-end;
-        justify-content: center;
         pointer-events: none;
     `;
 
@@ -205,8 +205,10 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     <S.EmptyEl />
                 </S.Node>
             </Tooltip>
-            <S.ChildNodeContainer width={node.stNode.viewState.fw} height={node.stNode.viewState.fh}>
-                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            <S.ChildNodeContainer width={node.stNode.viewState.fw} height={node.stNode.viewState.fh} left={node.stNode.viewState.l} right={node.stNode.viewState.r}>
+                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} style={{
+                    marginLeft: node.stNode.viewState.l
+                }} />
             </S.ChildNodeContainer>
             <Popover
                 anchorEl={popoverAnchorEl}

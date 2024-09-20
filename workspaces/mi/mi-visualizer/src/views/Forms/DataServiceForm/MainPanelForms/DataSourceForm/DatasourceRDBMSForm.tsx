@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect } from "react";
-import { TextField, Dropdown, FormCheckBox, FormGroup, Button } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, FormCheckBox, FormGroup, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import {DataServicePropertyTable} from "../PropertyTable";
 import { driverMap } from "../../../DataSourceForm/types";
 
 export interface DataSourceRDBMSFormProps {
@@ -16,6 +17,8 @@ export interface DataSourceRDBMSFormProps {
     setValue: any;
     control: any;
     isEditDatasource: boolean;
+    setDatasourceConfigurations: any;
+    datasourceConfigurations: any;
 }
 
 interface OptionProps {
@@ -26,6 +29,7 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
 
     const [isInitialLoading, setIsInitialLoading] = React.useState(true);
     const [isEnableURLEdit, setIsEnableURLEdit] = React.useState(false);
+    const [prevDbType, setPrevDbType] = React.useState(props.watch('rdbms.databaseEngine'));
 
     const databaseEngines: OptionProps[] = [
         { value: "MySQL" },
@@ -41,99 +45,26 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
         { value: "Generic" }
     ];
 
-    const drivers = {
-        mysql: {
-            driverClass: "com.mysql.jdbc.Driver",
-            jdbcUrl: "jdbc:mysql://[HOST]:[PORT]/[DATABASE]",
-        },
-        derby: {
-            driverClass: "org.apache.derby.jdbc.EmbeddedDriver",
-            jdbcUrl: "jdbc:derby://[HOST]:[PORT]/[DATABASE]",
-        },
-        microsoft: {
-            driverClass: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-            jdbcUrl: "jdbc:sqlserver://[HOST]:[PORT];databaseName=[DATABASE]",
-        },
-        oracle: {
-            driverClass: "oracle.jdbc.driver.OracleDriver",
-            jdbcUrl: "jdbc:oracle:thin:@//[HOST]:[PORT]/[DATABASE]",
-        },
-        ibm: {
-            driverClass: "com.ibm.db2.jcc.DB2Driver",
-            jdbcUrl: "jdbc:db2:[DATABASE]",
-        },
-        hsql: {
-            driverClass: "org.hsqldb.jdbcDriver",
-            jdbcUrl: "jdbc:hsqldb:[path]",
-        },
-        informix: {
-            driverClass: "com.informix.jdbc.IfxDriver",
-            jdbcUrl: "jdbc:informix-sqli://[HOST]:[PORT]/[DATABASE]:INFORMIXSERVER=[HOST]",
-        },
-        postgre: {
-            driverClass: "org.postgresql.Driver",
-            jdbcUrl: "jdbc:postgresql://[HOST]:[PORT]/[DATABASE]",
-        },
-        sybase: {
-            driverClass: "com.sybase.jdbc3.jdbc.SybDriver",
-            jdbcUrl: "jdbc:sybase:Tds:[HOST]:[PORT]/[DATABASE]",
-        },
-        h2: {
-            driverClass: "org.h2.Driver",
-            jdbcUrl: "jdbc:h2:tcp:[HOST]:[PORT]/[DATABASE]",
-        },
-        generic: {
-            driverClass: "",
-            jdbcUrl: "",
-        }
-    }
-
     useEffect(() => {
         if (isInitialLoading) {
             setIsInitialLoading(false);
             if (props.watch('rdbms.driverClassName') === "" && props.watch('rdbms.url') === "") {
-                props.setValue('rdbms.driverClassName', drivers.mysql.driverClass);
-                props.setValue('rdbms.url', drivers.mysql.jdbcUrl);
+                props.setValue('rdbms.driverClassName', driverMap.get("MySQL").driverClass);
+                props.setValue('rdbms.url', driverMap.get("MySQL").jdbcUrl);
             }
-            return;
         }
 
         props.isEditDatasource && extractValuesFromUrl(props.watch('rdbms.url'), props.watch('rdbms.databaseEngine'));
-        
-        if (props.watch('rdbms.databaseEngine') === 'MySQL') {
-            props.setValue('rdbms.driverClassName', drivers.mysql.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.mysql.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'Apache Derby') {
-            props.setValue('rdbms.driverClassName', drivers.derby.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.derby.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'Microsoft SQL Server') {
-            props.setValue('rdbms.driverClassName', drivers.microsoft.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.microsoft.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'Oracle') {
-            props.setValue('rdbms.driverClassName', drivers.oracle.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.oracle.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'IBM DB2') {
-            props.setValue('rdbms.driverClassName', drivers.ibm.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.ibm.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'HSQLDB') {
-            props.setValue('rdbms.driverClassName', drivers.hsql.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.hsql.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'Informix') {
-            props.setValue('rdbms.driverClassName', drivers.informix.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.informix.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'PostgreSQL') {
-            props.setValue('rdbms.driverClassName', drivers.postgre.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.postgre.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'Sybase ASE') {
-            props.setValue('rdbms.driverClassName', drivers.sybase.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.sybase.jdbcUrl));
-        } else if (props.watch('rdbms.databaseEngine') === 'H2') {
-            props.setValue('rdbms.driverClassName', drivers.h2.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.h2.jdbcUrl));
-        } else {
-            props.setValue('rdbms.driverClassName', drivers.generic.driverClass);
-            props.setValue('rdbms.url', replacePlaceholders(drivers.generic.jdbcUrl));
+
+        const driverUrl = driverMap.get(props.watch("rdbms.databaseEngine"));
+        if (prevDbType !== props.watch('rdbms.databaseEngine')) {
+            setPrevDbType(props.watch('rdbms.databaseEngine'));
+            props.setValue('rdbms.hostname', "localhost");
+            props.setValue('rdbms.port', driverUrl.port);
+            props.setValue('rdbms.driverClassName', driverUrl.driverClass);
         }
+        props.setValue('rdbms.url', replacePlaceholders(driverUrl.jdbcUrl));
+
     }, [props.watch('rdbms.databaseEngine'), props.watch('rdbms.hostname'), props.watch('rdbms.port'), props.watch('rdbms.databaseName'), props.isEditDatasource]);
 
     useEffect(() => {
@@ -160,7 +91,7 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
     const extractValuesFromUrl = (url: string, dbEngine: string) => {
         const driverUrlTemplate = driverMap.get(dbEngine);
         if (driverUrlTemplate) {
-            const urlPattern = driverUrlTemplate.url;
+            const urlPattern = driverUrlTemplate.jdbcUrl;
             const regex = new RegExp(urlPattern
                 .replace('[HOST]', '(?<host>[^:/]+)')
                 .replace('[PORT]', '(?<port>[^/;]+)')
@@ -185,12 +116,6 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
     return (
         <>
             <Dropdown label="Database Engine" required items={databaseEngines} {...props.renderProps('rdbms.databaseEngine')} />
-            <TextField
-                label="Driver Class"
-                required
-                size={100}
-                {...props.renderProps('rdbms.driverClassName')}
-            />
             <FormGroup title="Database Connection Parameters" isCollapsed={false}>
                 <TextField
                     label="Hostname"
@@ -237,20 +162,36 @@ export function DataSourceRDBMSForm(props: DataSourceRDBMSFormProps) {
                         {...props.renderProps('rdbms.password')}
                     />
                 }
+            </FormGroup>
+            <FormGroup title="Advanced Configurations" isCollapsed={true}>
                 <TextField
-                    label="URL"
+                    label="Driver Class"
+                    required
+                    size={100}
+                    {...props.renderProps('rdbms.driverClassName')}
+                />
+                <CheckBox
+                    label="Modify Database Connection URL"
+                    checked={isEnableURLEdit}
+                    onChange={handleModifyURL}
+                />
+                <TextField
                     required
                     size={100}
                     disabled={!isEnableURLEdit}
                     {...props.renderProps('rdbms.url')}
                 />
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                    <Button
-                        appearance="secondary"
-                        onClick={handleModifyURL}>
-                        Modify URL
-                    </Button>
-                </div>
+                <FormCheckBox
+                    label="Enable OData"
+                    control={props.control}
+                    {...props.renderProps('enableOData')}
+                />
+                <TextField
+                    label="Dynamic User Authentication Class"
+                    size={100}
+                    {...props.renderProps('dynamicUserAuthClass')}
+                />
+                <DataServicePropertyTable setProperties={props.setDatasourceConfigurations} properties={props.datasourceConfigurations} type={'datasource'} />
             </FormGroup>
         </>
     );
