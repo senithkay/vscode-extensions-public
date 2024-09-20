@@ -88,9 +88,7 @@ export interface DataMapperArrayFiltersState {
 
 export interface DataMapperViewState {
     views: View[];
-    keepViews: boolean;
     setViews: (newViews: View[]) => void;
-    setKeepViews: (keepViews: boolean) => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -166,7 +164,5 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
 
 export const useDMViewsStore = create<DataMapperViewState>((set) => ({
     views: [],
-    keepViews: false,
-    setViews: (newViews: View[]) => set({ views: newViews }),
-    setKeepViews: (keepViews: boolean) => set({ keepViews })
+    setViews: (newViews: View[]) => set({ views: newViews })
 }));
