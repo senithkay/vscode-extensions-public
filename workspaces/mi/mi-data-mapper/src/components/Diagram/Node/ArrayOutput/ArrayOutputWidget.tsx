@@ -151,6 +151,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			setLoading(false);
 		}
 	};
+
 	const handleEditValue = () => {
 		if (portIn)
 			setExprBarFocusedPort(portIn);
