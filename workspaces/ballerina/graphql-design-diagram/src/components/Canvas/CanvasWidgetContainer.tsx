@@ -11,7 +11,7 @@ import React from "react";
 
 import styled from "@emotion/styled";
 
-const headerHeight = 110;
+const headerHeight = 84;
 
 export const Container: React.FC<any> = styled.div`
   // should take up full height minus the height of the header
