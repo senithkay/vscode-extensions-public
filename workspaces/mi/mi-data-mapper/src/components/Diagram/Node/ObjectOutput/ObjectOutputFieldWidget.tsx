@@ -127,9 +127,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleSetFieldOptional = async () => {
         setIsLoading(true);
         viewsStore.setViews(context.views);
-        // TODO: wrap this in a try-catch block
-        await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
-        setIsLoading(false);
+        try {
+            await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleDeleteValue = async () => {

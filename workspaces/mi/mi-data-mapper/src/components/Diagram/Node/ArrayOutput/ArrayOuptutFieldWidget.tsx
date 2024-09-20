@@ -333,9 +333,11 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleSetFieldOptional = async () => {
         setLoading(true);
         viewsStore.setViews(context.views);
-        // TODO: wrap this in a try-catch block
-        await setFieldOptional(field,!field.type.optional,context.functionST.getSourceFile(),context.applyModifications)
-        setLoading(false);
+        try {
+            await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+        } finally {
+            setLoading(false);
+        }
     };
 
     const onMouseEnter = () => {
