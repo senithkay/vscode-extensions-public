@@ -12,6 +12,7 @@ import { Node } from "ts-morph";
 import { InputOutputPortModel } from "../components/Diagram/Port";
 import { SubMappingConfigForm } from "src/components/DataMapper/SidePanel/SubMappingConfig/SubMappingConfigForm";
 import { IOType } from "@wso2-enterprise/mi-core";
+import { View } from "src/components/DataMapper/Views/DataMapperView";
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
@@ -85,6 +86,13 @@ export interface DataMapperArrayFiltersState {
     setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
+export interface DataMapperViewState {
+    views: View[];
+    keepViews: boolean;
+    setViews: (newViews: View[]) => void;
+    setKeepViews: (keepViews: boolean) => void;
+}
+
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     inputSearch: "",
     outputSearch: "",
@@ -154,4 +162,11 @@ export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) =
     setAddedNewFilter: (addedNewFilter: boolean) => set({ addedNewFilter }),
     isCollapsed: false,
     setIsCollapsed: (isCollapsed: boolean) => set({ isCollapsed }),
+}));
+
+export const useDMViewsStore = create<DataMapperViewState>((set) => ({
+    views: [],
+    keepViews: false,
+    setViews: (newViews: View[]) => set({ views: newViews }),
+    setKeepViews: (keepViews: boolean) => set({ keepViews })
 }));
