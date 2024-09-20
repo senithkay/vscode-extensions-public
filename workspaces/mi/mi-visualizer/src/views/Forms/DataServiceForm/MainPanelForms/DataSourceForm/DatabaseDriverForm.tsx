@@ -77,10 +77,12 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
                                 onClick={handleAddDriver}>
                                 Add Driver
                             </Button>}
-                        <span>Note: </span>
-                        <span>These drivers will only be used in the developer environment to enhance
+                        <span><b>Note:</b>
+                            <br/>
+                            These drivers will only be used in the developer environment to enhance
                             the developer experience and therefore make sure to add them to the
-                            production environment when deploying the carbon application.</span>
+                            production environment when deploying the carbon application.
+                        </span>
                     </>
                 ) : isDriverValid ? <span>Driver added succesfully!</span> :
                     isDriverValid === false && (
@@ -109,8 +111,8 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
             )}
             {continueWithoutDriver && (
                 <>
-                    <span>Note</span>
-                    <span>
+                    <span><b>Note:</b>
+                        <br/>
                         You will not be able to use test database connection and perform resource
                         generation for data services such inbuilt features as the relevant drivers
                         does not exist in the developer environment.
@@ -119,16 +121,16 @@ export function DatabaseDriverForm(props: DatabaseDriverFormProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={props.onBack}>
+                    Back
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={continueWithoutDriver ? props.handleSubmit(props.onSubmit) : props.onNext}
                     disabled={!isFormValid}
                 >
-                    {continueWithoutDriver ? 'Create' : 'Next'}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={props.onBack}>
-                    Back
+                    {continueWithoutDriver ? (props.isEditDatasource ? "Update" : "Create") : 'Next'}
                 </Button>
             </FormActions>
         </>

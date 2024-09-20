@@ -101,15 +101,15 @@ export function TestConnectionForm(props: TestConnectionFormProps) {
             </FormGroup>
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={props.onBack}>
+                    Back
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={props.handleSubmit(props.onSubmit)}
                 >
                     {props.isEditDatasource ? "Update" : "Create"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={props.onBack}>
-                    Back
                 </Button>
             </FormActions>
         </>

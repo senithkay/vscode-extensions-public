@@ -304,7 +304,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                     <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                                 </VSCodeButton>
                                 <VSCodeButton appearance="primary" title="Generate from datasource" onClick={handleGenerateResourceAdd}>
-                                    Generate from datasource
+                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Generate from Datasource
                                 </VSCodeButton>
                             </React.Fragment>
                         ) : (
@@ -333,7 +333,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 model={resourceServiceModel}
                                 disableServiceHeader={true}
                                 onResourceClick={handleResourceClick}
-                                customTitle="Available Resources"
+                                customTitle="Resources"
                             />
                         </ViewContent>
                     ) : (
@@ -342,7 +342,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 model={operationServiceModel}
                                 disableServiceHeader={true}
                                 onResourceClick={handleResourceClick}
-                                customTitle="Available Operations"
+                                customTitle="Operations"
                             />
                         </ViewContent>
                     )}
