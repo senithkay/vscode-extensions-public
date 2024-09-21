@@ -11,6 +11,7 @@ import yaml from 'js-yaml';
 
 import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
 import { OpenAPI, Operation, Schema } from '../../Definitions/ServiceDefinitions';
+import { colors } from '../../constants';
 
 // export function resolveResponseType(response: Response): string {
 //     if (!response.content) {
@@ -116,4 +117,37 @@ export function convertOpenAPIStringToOpenAPI(openAPIString: string, type: "yaml
     } else {
         return convertJSONtoOpenAPI(openAPIString);
     }
+}
+
+export function getColorByMethod(method: string) {
+    switch (method.toUpperCase()) {
+        case "GET":
+            return colors.GET;
+        case "PUT":
+            return colors.PUT;
+        case "POST":
+            return colors.POST;
+        case "DELETE":
+            return colors.DELETE;
+        case "PATCH":
+            return colors.PATCH;
+        case "OPTIONS":
+            return colors.OPTIONS;
+        case "HEAD":
+            return colors.HEAD;
+        default:
+            return '#876036'; // Default color
+    }
+}
+
+export function getResourceID(path: string, method: string): string {
+    return `${method.toUpperCase()}-${path}`;
+}
+
+export function getMethodFromResourceID(resourceID: string): string {
+    return resourceID.split("-")[0];
+}
+
+export function getPathFromResourceID(resourceID: string): string {
+    return resourceID.split("-")[1];
 }

@@ -11,6 +11,7 @@
 import React from "react";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import petstoreJSON from "./Data/petstore.json";
+import coffeshop from "./Data/coffeShop.json";
 import { OpenAPIDefinition } from "./OpenAPIDefinition";
 
 export default {
@@ -25,3 +26,11 @@ export const APIDesignerStory = () => {
         <OpenAPIDefinition  openAPIDefinition={apiDefinition}/>
     );
 };
+
+// Write a new Story for the Coffeeshop component
+const coffeeshopJSON = coffeshop as unknown as OpenAPI;
+export const CoffeeshopStory = () => {
+    return (
+        <OpenAPIDefinition  openAPIDefinition={coffeeshopJSON}/>
+    );
+}

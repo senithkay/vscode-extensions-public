@@ -23,6 +23,7 @@ export interface Info {
     termsOfService?: string;
     contact?: Contact;
     license?: License;
+    summary?: string;
 }
 
 export interface Contact {
@@ -34,6 +35,7 @@ export interface Contact {
 export interface License {
     name: string;
     url?: string;
+    identifier?: string;
 }
 
 export interface Paths {
