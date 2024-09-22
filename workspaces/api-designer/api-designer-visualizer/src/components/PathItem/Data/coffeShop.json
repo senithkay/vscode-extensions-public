@@ -1,0 +1,3720 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "OpenAPI 3.1 Specification for CoffeeShop",
+      "summary": "Sample Coffee Shop Server based on the OpenAPI 3.1 specification.",
+      "description": "This is a sample Coffee Shop Server based on the OpenAPI 3.1 specification. It's the first version and includes several areas, such as 'Menu', 'Order', 'User', 'Inventory', 'Notification', and more. We plan to add more features in the future. Please refer to this sample and help us improve it. If you want to learn more about OpenAPI, you can follow the link to XapiiHub [https://xapihub.io/].",
+      "termsOfService": "http://xapihub.io/terms/",
+      "contact": {
+        "email": "info@xapihub.io"
+      },
+      "license": {
+        "name": "Apache 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+      },
+      "version": "1.0.0"
+    },
+    "externalDocs": {
+      "description": "Find out more about XApi",
+      "url": "http://xapihub.io"
+    },
+    "servers": [
+      {
+        "url": "https://api.xapihub.io/coffeeshop/v1",
+        "description": "Coffeeshop Server"
+      }
+    ],
+    "tags": [
+      {
+        "name": "menu",
+        "description": "Your Coffee Shop menu",
+        "externalDocs": {
+          "description": "Find out more",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "order",
+        "description": "Access to Coffee Shop orders",
+        "externalDocs": {
+          "description": "Find out more",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "inventory",
+        "description": "Access to Coffee Shop inventory",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "notification",
+        "description": "Access to Coffee Shop notifications",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "user",
+        "description": "Access to Coffee Shop Users",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "store",
+        "description": "Access to Coffee Shop Store",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "loyalty programs",
+        "description": "Loyalty program of coffee shop",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "loyalty accounts",
+        "description": "Loyalty accounts of coffee shop",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      },
+      {
+        "name": "analytics",
+        "description": "Analytics of coffee shop",
+        "externalDocs": {
+          "description": "Find out more about our store",
+          "url": "http://xapihub.io"
+        }
+      }
+    ],
+    "paths": {
+      "/menus": {
+        "post": {
+          "tags": [
+            "menu"
+          ],
+          "summary": "Creates a new menu",
+          "description": "Creates a new menu",
+          "operationId": "addMenu",
+          "requestBody": {
+            "description": "Create a new menu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMenuResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMenuResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMenuResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "menu"
+          ],
+          "summary": "Finds all menus",
+          "description": "Finds all menus",
+          "operationId": "findMenus",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "description": "Name of the menu",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "itemName",
+              "in": "query",
+              "description": "Name of an item",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewMenuResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewMenuResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      },
+      "/menus/{id}": {
+        "get": {
+          "tags": [
+            "menu"
+          ],
+          "summary": "Find menu by ID",
+          "description": "Returns a single menu",
+          "operationId": "getMenuById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of menu to return",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewMenuResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewMenuResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "menu"
+          ],
+          "summary": "Updates a menu",
+          "description": "Update a menu in coffee shop",
+          "operationId": "updateMenuById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the menu that need to be updated",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateMenuResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "menu"
+          ],
+          "summary": "Deletes a menu",
+          "description": "Deletes a menu",
+          "operationId": "deleteMenuById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The menu ID to be deleted",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/orders": {
+        "post": {
+          "tags": [
+            "order"
+          ],
+          "summary": "Creates a new order",
+          "description": "Creates a new order",
+          "operationId": "addOrder",
+          "requestBody": {
+            "description": "Creates a new order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOrderResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOrderResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOrderResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "order"
+          ],
+          "summary": "Finds all orders",
+          "description": "Finds all orders",
+          "operationId": "findOrders",
+          "parameters": [
+            {
+              "name": "menu",
+              "in": "query",
+              "description": "Name of the menu",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "item",
+              "in": "query",
+              "description": "Name of an item",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "placedDate",
+              "in": "query",
+              "description": "Date of the order palced",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "placedBy",
+              "in": "query",
+              "description": "Name of the order placed",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewOrderResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewOrderResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      },
+      "/orders/{id}": {
+        "get": {
+          "tags": [
+            "order"
+          ],
+          "summary": "Find order by ID",
+          "description": "Returns a single order",
+          "operationId": "getOrderById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of order",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewOrderResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewOrderResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "order"
+          ],
+          "summary": "Updates an order",
+          "description": "Updates an order",
+          "operationId": "updateOrder",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of order that needs to be updated",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateOrderResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "order"
+          ],
+          "summary": "Deletes an order",
+          "description": "Deletes an order",
+          "operationId": "deleteOrder",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the order to be deleted",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/inventory/items": {
+        "post": {
+          "tags": [
+            "inventory"
+          ],
+          "summary": "Add a new Item to the inventory",
+          "description": "Add a new Item to the inventory",
+          "operationId": "addItem",
+          "requestBody": {
+            "description": "Create a new inventory item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/CreateInventoryItemResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/CreateInventoryItemResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/CreateInventoryItemResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "inventory"
+          ],
+          "summary": "Returns the inventory items",
+          "description": "Returns the inventory items",
+          "operationId": "findItemInvetory",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "description": "Item Name",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewInventoryItemResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewInventoryItemResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/inventory/items/{id}": {
+        "get": {
+          "tags": [
+            "inventory"
+          ],
+          "summary": "Finds an item from the inventory",
+          "description": "Finds an item from the inventory",
+          "operationId": "getItemById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the inventory item",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/ViewInventoryItemResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewInventoryItemResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "inventory"
+          ],
+          "summary": "Updates and inventory item",
+          "description": "Updates and inventory item",
+          "operationId": "updateItemById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of item that needs to be updated",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateInventoryItemResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "inventory"
+          ],
+          "summary": "Deletes and inventory item",
+          "description": "Deletes and inventory item",
+          "operationId": "deleteItemById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Item id to delete",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users": {
+        "post": {
+          "tags": [
+            "user"
+          ],
+          "summary": "Creates a new user",
+          "description": "Creates a new user",
+          "operationId": "createUser",
+          "requestBody": {
+            "description": "Creates a new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "user"
+          ],
+          "summary": "Finds all users",
+          "description": "Finds all users",
+          "operationId": "findUsers",
+          "parameters": [
+            {
+              "name": "username",
+              "in": "query",
+              "description": "The username",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "firstName",
+              "in": "query",
+              "description": "First name of the user",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "lastName",
+              "in": "query",
+              "description": "Last name of the user",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "status",
+              "in": "query",
+              "description": "Status of the user(Active/Inactive)",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewUserResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewUserResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      },
+      "/users/{username}": {
+        "get": {
+          "tags": [
+            "user"
+          ],
+          "summary": "Get user by user name",
+          "description": "",
+          "operationId": "getUserByName",
+          "parameters": [
+            {
+              "name": "username",
+              "in": "path",
+              "description": "The username",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewUserResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewUserResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "user"
+          ],
+          "summary": "Updates an existing user",
+          "description": "Updates an existing user",
+          "operationId": "updateUser",
+          "parameters": [
+            {
+              "name": "username",
+              "in": "path",
+              "description": "The username",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateUserResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "user"
+          ],
+          "summary": "Deletes a user",
+          "description": "Deletes a user",
+          "operationId": "deleteUser",
+          "parameters": [
+            {
+              "name": "username",
+              "in": "path",
+              "description": "The username",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/notifications": {
+        "post": {
+          "tags": [
+            "notification"
+          ],
+          "summary": "Creates a new notification",
+          "description": "Creates a new notification",
+          "operationId": "addNotification",
+          "requestBody": {
+            "description": "Creates a new notification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateNotificationResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateNotificationResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateNotificationResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "notification"
+          ],
+          "summary": "Get all notifications",
+          "description": "Get all notifications",
+          "operationId": "getAllNotification",
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewNotificationResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewNotificationResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/notifications/{id}": {
+        "get": {
+          "tags": [
+            "notification"
+          ],
+          "summary": "Get a notification by ID",
+          "description": "Get a notification by ID",
+          "operationId": "getNotificationById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of of the notification",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewNotificationResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewNotificationResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "notification"
+          ],
+          "summary": "Updates a Notification",
+          "description": "Updates a Notification",
+          "operationId": "updateNotificationById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the notfication",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateNotificationResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/stores": {
+        "post": {
+          "tags": [
+            "store"
+          ],
+          "summary": "Creates a new store",
+          "description": "Creates a new store",
+          "operationId": "addStore",
+          "requestBody": {
+            "description": "Creates a new store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStoreResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStoreResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStoreResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "store"
+          ],
+          "summary": "Finds all stores",
+          "description": "Finds all stores",
+          "operationId": "findShops",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "description": "Name of the store",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "city",
+              "in": "query",
+              "description": "City where the shop(s) situated in",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewStoreResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewStoreResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      },
+      "/stores/{id}": {
+        "get": {
+          "tags": [
+            "store"
+          ],
+          "summary": "Finds a store by ID",
+          "description": "Finds a store by ID",
+          "operationId": "getShopById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the store",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewStoreResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewStoreResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "store"
+          ],
+          "summary": "Updates a store",
+          "description": "Updates a store",
+          "operationId": "updateShopById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the store",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStoreResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "store"
+          ],
+          "summary": "Deletes a store",
+          "description": "Deletes a store",
+          "operationId": "deleteShopById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the store to be deleted",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/loyalty-programs": {
+        "post": {
+          "tags": [
+            "loyalty programs"
+          ],
+          "summary": "Creates a new loyalty program",
+          "description": "Creates a new loyalty program",
+          "operationId": "addLoyaltyProgram",
+          "requestBody": {
+            "description": "Creates a new loyalty program",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLoyaltyProgramResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLoyaltyProgramResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLoyaltyProgramResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "loyalty programs"
+          ],
+          "summary": "Finds all loyalty programs",
+          "description": "Finds all loyalty programs",
+          "operationId": "findLoyaltyProgram",
+          "parameters": [
+            {
+              "name": "status",
+              "in": "query",
+              "description": "Status of the program",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "accrualType",
+              "in": "query",
+              "description": "Accrual type of the program",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewLoyaltyProgramResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewLoyaltyProgramResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      },
+      "/loyalty-programs/{id}": {
+        "get": {
+          "tags": [
+            "loyalty programs"
+          ],
+          "summary": "Finds a loyalty program by ID",
+          "description": "Finds a loyalty program by ID",
+          "operationId": "getLoyaltyProgramById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of loyalty program",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewLoyaltyProgramResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewLoyaltyProgramResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "loyalty programs"
+          ],
+          "summary": "Updates a loyalty program",
+          "description": "Updates a loyalty program",
+          "operationId": "updateLoyaltyProgramById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of loyalty program that needs to be updated",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateLoyaltyProgramResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "loyalty programs"
+          ],
+          "summary": "Deletes a loyalty program",
+          "description": "Deletes a loyalty program",
+          "operationId": "deleteLoyaltyProgramById",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the loyalty program to be deleted",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/loyalty-programs/{id}/loyalty-accounts": {
+        "post": {
+          "tags": [
+            "loyalty accounts"
+          ],
+          "summary": "Creates a new loyalty account for the loyalty program",
+          "description": "Creates a new loyalty account for the loyalty program",
+          "operationId": "addLoyaltyAccount",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The ID of the loyalty program",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "description": "Creates a new loyalty account for the loyalty program",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLoyaltyAccountResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLoyaltyAccountResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLoyaltyAccountResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "loyalty accounts"
+          ],
+          "summary": "Finds all the loyalty accounts for the loyalty program",
+          "description": "Finds all the loyalty accounts for the loyalty program",
+          "operationId": "findLoyaltyAccount",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the loyalty program",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "phoneNumber",
+              "in": "query",
+              "description": "phone number of the loyalty account",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewLoyaltyAccountResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewLoyaltyAccountResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/loyalty-programs/{programId}/loyalty-accounts/{accountId}": {
+        "get": {
+          "tags": [
+            "loyalty accounts"
+          ],
+          "summary": "Finds a loyalty account program ID and account ID",
+          "description": "Finds a loyalty account program ID and account ID",
+          "operationId": "findLoyaltyAccountById",
+          "parameters": [
+            {
+              "name": "programId",
+              "in": "path",
+              "required": true,
+              "description": "The Program ID",
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "example": "189e6756-1a68-11ee-be56-0242ac120002"
+              }
+            },
+            {
+              "name": "accountId",
+              "in": "path",
+              "required": true,
+              "description": "The loyalty Account ID",
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "example": "189e6756-1a68-11ee-be56-0242ac120002"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewLoyaltyAccountResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewLoyaltyAccountResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {}
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "loyalty accounts"
+          ],
+          "summary": "Updates a loyalty account",
+          "description": "Updates a loyalty account",
+          "operationId": "updateLoyaltyAccount",
+          "parameters": [
+            {
+              "name": "programId",
+              "in": "path",
+              "required": true,
+              "description": "The Program ID",
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "example": "189e6756-1a68-11ee-be56-0242ac120002"
+              }
+            },
+            {
+              "name": "accountId",
+              "in": "path",
+              "required": true,
+              "description": "The Loyalty Account ID",
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "example": "189e6756-1a68-11ee-be56-0242ac120002"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateLoyaltyAccountResource"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "Not Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "loyalty accounts"
+          ],
+          "summary": "Deletes a loyalty account",
+          "description": "Deletes a loyalty account",
+          "operationId": "deleteLoyaltyAccount",
+          "parameters": [
+            {
+              "name": "programId",
+              "in": "path",
+              "required": true,
+              "description": "The Loyalty Program ID",
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "example": "189e6756-1a68-11ee-be56-0242ac120002"
+              }
+            },
+            {
+              "name": "accountId",
+              "in": "path",
+              "required": true,
+              "description": "The Loyalty account ID",
+              "schema": {
+                "type": "string",
+                "format": "uuid",
+                "example": "189e6756-1a68-11ee-be56-0242ac120002"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Not Content (Successful)",
+              "content": {}
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "404": {
+              "description": "Not found",
+              "content": {}
+            }
+          }
+        }
+      },
+      "/analytics/sales": {
+        "get": {
+          "tags": [
+            "analytics"
+          ],
+          "summary": "Retrieves the sales information",
+          "description": "Retrieves the sales information",
+          "operationId": "findSales",
+          "parameters": [
+            {
+              "name": "date",
+              "in": "query",
+              "description": "Order date",
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            {
+              "name": "menu",
+              "in": "query",
+              "description": "Menu name",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "item",
+              "in": "query",
+              "description": "Item name",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SalesInformationResource"
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SalesInformationResource"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      },
+      "/analytics/rating-request": {
+        "post": {
+          "tags": [
+            "analytics"
+          ],
+          "summary": "Creates a rating for the order",
+          "description": "Creates a rating for the order",
+          "operationId": "addRating",
+          "requestBody": {
+            "description": "Creates a rating for the order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateRatingResource"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateRatingResource"
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateRatingResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "created",
+              "headers": {
+                "location": {
+                  "description": "URL of created resource",
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "422": {
+              "description": "Un-processable Entity (request well-formed but has business errors, check error section.)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "analytics"
+          ],
+          "summary": "Finds all ratings",
+          "description": "Finds all ratings",
+          "operationId": "findRating",
+          "parameters": [
+            {
+              "name": "menu",
+              "in": "query",
+              "description": "Menu name",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "item",
+              "in": "query",
+              "description": "Item name",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewLoyaltyAccountResource"
+                    }
+                  }
+                },
+                "application/xml": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ViewLoyaltyAccountResource"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized (authentication not done)",
+              "x-not-implemented": true,
+              "content": {}
+            },
+            "403": {
+              "description": "Forbidden (no access rights to this api)",
+              "x-not-implemented": true,
+              "content": {}
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "CreateMenuResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/MenuBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "e2b0a51e-262e-11ee-be56-0242ac120002"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "UpdateMenuResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/MenuBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "e2b0a51e-262e-11ee-be56-0242ac120002"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "ViewMenuResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/MenuResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/ItemResource"
+                  }
+                }
+              }
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "MenuResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/MenuBaseResource"
+            }
+          ]
+        },
+        "MenuBaseResource": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "today special"
+            },
+            "description": {
+              "type": "string",
+              "example": "Sample menu"
+            },
+            "isAvailable": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "CreateOrderResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/OrderBaseResource"
+            }
+          ]
+        },
+        "UpdateOrderResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/OrderBaseResource"
+            }
+          ]
+        },
+        "ViewOrderResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/OrderResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "OrderResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "itemList": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "menu": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/MenuResource"
+                      },
+                      "item": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/ItemResource"
+                      },
+                      "count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 2
+                      },
+                      "notes": {
+                        "type": "string",
+                        "example": "Need to be more spicy"
+                      }
+                    }
+                  }
+                },
+                "totalPrice": {
+                  "type": "number",
+                  "format": "float",
+                  "example": "16.50"
+                },
+                "currency": {
+                  "type": "string",
+                  "format": "iso-4217",
+                  "example": "USD"
+                },
+                "user": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/UserResource"
+                },
+                "notes": {
+                  "type": "string",
+                  "example": "Need to be more spicy"
+                }
+              }
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "OrderBaseResource": {
+          "type": "object",
+          "required": [
+            "itemList"
+          ],
+          "properties": {
+            "itemList": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "menuId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "da8249e2-49ab-4060-bb5e-ca7c66f279ac"
+                  },
+                  "itemId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "e2b0a51e-262e-11ee-be56-0242ac120002"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 2
+                  },
+                  "notes": {
+                    "type": "string",
+                    "example": "Need to be more spicy"
+                  }
+                }
+              }
+            },
+            "userId": {
+              "type": "string",
+              "format": "uuid",
+              "example": "l2b0a7f8-262e-11ee-be56-0242ac120002"
+            },
+            "notes": {
+              "type": "string",
+              "example": "Need to be more spicy"
+            }
+          }
+        },
+        "CreateInventoryItemResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/InventoryItemBaseResource"
+            }
+          ]
+        },
+        "UpdateInventoryItemResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/InventoryItemBaseResource"
+            }
+          ]
+        },
+        "ViewInventoryItemResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/InventoryItemResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "InventoryItemResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/InventoryItemBaseResource"
+            }
+          ]
+        },
+        "InventoryItemBaseResource": {
+          "type": "object",
+          "properties": {
+            "minQuantity": {
+              "type": "integer",
+              "format": "int64",
+              "example": 10
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ItemBaseResource"
+            }
+          ]
+        },
+        "CreateNotificationResource": {
+          "type": "object",
+          "properties": {
+            "userIdList": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "example": "l2b0a7f8-262e-11ee-be56-0242ac120002"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/NotificationBaseResource"
+            }
+          ]
+        },
+        "UpdateNotificationResource": {
+          "type": "object",
+          "properties": {
+            "userIdList": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid",
+                "example": "l2b0a7f8-262e-11ee-be56-0242ac120002"
+              }
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/NotificationBaseResource"
+            }
+          ]
+        },
+        "ViewNotificationResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/NotificationResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "NotificationResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/NotificationBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/UserResource"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "NotificationBaseResource": {
+          "type": "object",
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "string",
+              "example": "Your order is ready"
+            },
+            "effectFrom": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023/04/18"
+            },
+            "effectiveDates": {
+              "type": "integer",
+              "format": "int64",
+              "example": 5
+            }
+          }
+        },
+        "CreateUserResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/UserBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "string",
+                  "description": "This is the user’s password. The password must be relevant to the configuration",
+                  "example": "password"
+                }
+              }
+            }
+          ]
+        },
+        "UpdateUserResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/UserBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "string",
+                  "description": "This is the user’s password. The password must be relevant to the configuration",
+                  "example": "password"
+                }
+              }
+            }
+          ]
+        },
+        "ViewUserResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/UserResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "UserResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/UserBaseResource"
+            }
+          ]
+        },
+        "UserBaseResource": {
+          "type": "object",
+          "required": [
+            "username",
+            "email",
+            "phoneNumber"
+          ],
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "This is the user’s preferred unique user name",
+              "example": "AlexJ"
+            },
+            "firstName": {
+              "type": "string",
+              "example": "Alex"
+            },
+            "lastName": {
+              "type": "string",
+              "example": "Jone"
+            },
+            "email": {
+              "type": "string",
+              "description": "This is the user’s email ID",
+              "example": "alexj@email.com"
+            },
+            "phoneNumber": {
+              "type": "string",
+              "description": "phone number in E.164 format. Should be a unique phone number",
+              "example": "+168954762"
+            },
+            "status": {
+              "type": "string",
+              "description": "Whether the user is currently active",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ]
+            }
+          },
+          "xml": {
+            "name": "user"
+          }
+        },
+        "CreateStoreResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/StoreBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "menuIdList": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "da8249e2-49ab-4060-bb5e-ca7c66f279ac"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "UpdateStoreResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/StoreBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "menuIdList": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "da8249e2-49ab-4060-bb5e-ca7c66f279ac"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "ViewStoreResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/StoreResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "StoreResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/StoreBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "menus": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/MenuResource"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "StoreBaseResource": {
+          "required": [
+            "name",
+            "location",
+            "openHours"
+          ],
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "coffee shop name",
+              "example": "The Family Bean"
+            },
+            "address": {
+              "type": "object",
+              "$ref": "#/components/schemas/AddressResource",
+              "description": "Coffee shop address"
+            },
+            "location": {
+              "type": "string",
+              "description": "Location url from a map api"
+            },
+            "openHours": {
+              "type": "string",
+              "description": "shop open hours",
+              "example": "open-close 10.30pm"
+            }
+          }
+        },
+        "CreateLoyaltyProgramResource": {
+          "type": "object",
+          "required": [
+            "summary",
+            "accrualRuleId"
+          ],
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LoyaltyProgramBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "accrualRuleId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "e2b0a7f8-262e-11ee-be56-0242ac120002"
+                }
+              }
+            }
+          ]
+        },
+        "UpdateLoyaltyProgramResource": {
+          "type": "object",
+          "required": [
+            "summary",
+            "accrualRuleId"
+          ],
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LoyaltyProgramBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "accrualRuleId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "e2b0a7f8-262e-11ee-be56-0242ac120002"
+                }
+              }
+            }
+          ]
+        },
+        "ViewLoyaltyProgramResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LoyaltyProgramResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "LoyaltyProgramResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/LoyaltyProgramBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "accrualRule": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/AccrualRuleResource"
+                }
+              }
+            }
+          ]
+        },
+        "LoyaltyProgramBaseResource": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string",
+              "description": "Summary about the loyalty program",
+              "example": "This is star point loyalty program"
+            },
+            "status": {
+              "type": "string",
+              "description": "Whether the program currently active",
+              "example": "ACTIVE",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ]
+            },
+            "expirationDuration": {
+              "type": "string",
+              "description": "The number of months before points expire. Example for 10 days, 10 hours, 30 minutes, and 30 seconds:P20DT10H30M30S",
+              "example": "P20DT10H30M30S"
+            }
+          }
+        },
+        "CreateLoyaltyAccountResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LoyaltyAccountBaseResource"
+            }
+          ]
+        },
+        "UpdateLoyaltyAccountResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LoyaltyAccountBaseResource"
+            }
+          ]
+        },
+        "ViewLoyaltyAccountResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/LoyaltyAccountResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "LoyaltyAccountResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/LoyaltyAccountBaseResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "program": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/LoyaltyProgramResource"
+                }
+              }
+            }
+          ]
+        },
+        "LoyaltyAccountBaseResource": {
+          "type": "object",
+          "required": [
+            "phoneNumber"
+          ],
+          "properties": {
+            "phoneNumber": {
+              "type": "string",
+              "description": "Buyer phone number in E.164 format. The phone number should be unique.",
+              "example": "+168954762"
+            },
+            "balance": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Number of earn points",
+              "example": 0
+            }
+          }
+        },
+        "CreateRatingResource": {
+          "type": "object",
+          "required": [
+            "menuId",
+            "itemId",
+            "rating"
+          ],
+          "allOf": [
+            {
+              "type": "object",
+              "properties": {
+                "menuId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Menu Id",
+                  "example": "da8249e2-49ab-4060-bb5e-ca7c66f279ac"
+                },
+                "itemId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Item ID",
+                  "example": "e2b0a51e-262e-11ee-be56-0242ac120002"
+                }
+              }
+            },
+            {
+              "$ref": "#/components/schemas/RatingBaseResource"
+            }
+          ]
+        },
+        "ViewRatingResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RatingResource"
+            },
+            {
+              "$ref": "#/components/schemas/AuditResource"
+            }
+          ]
+        },
+        "RatingResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "menu": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/MenuResource"
+                },
+                "item": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/ItemResource"
+                },
+                "user": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/UserResource"
+                }
+              }
+            },
+            {
+              "$ref": "#/components/schemas/RatingBaseResource"
+            }
+          ]
+        },
+        "RatingBaseResource": {
+          "type": "object",
+          "properties": {
+            "rating": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Rating for an item 0 - 5",
+              "example": 4
+            },
+            "comments": {
+              "type": "string",
+              "description": "User can give a comments",
+              "example": "Delicious food item"
+            }
+          }
+        },
+        "ItemResource": {
+          "required": [
+            "id",
+            "name"
+          ],
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "$ref": "#/components/schemas/ItemBaseResource"
+            }
+          ]
+        },
+        "ItemBaseResource": {
+          "required": [
+            "name",
+            "quantity"
+          ],
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "example": "Chicken Burger"
+            },
+            "image": {
+              "type": "string",
+              "example": "../images/chicken-burger.png"
+            },
+            "unitPrice": {
+              "type": "number",
+              "format": "float",
+              "example": 3.5
+            },
+            "currency": {
+              "type": "string",
+              "format": "iso-4217",
+              "example": "USD"
+            },
+            "quantity": {
+              "type": "integer",
+              "format": "int64",
+              "example": 10
+            },
+            "isAvailable": {
+              "type": "boolean",
+              "example": true
+            },
+            "notes": {
+              "type": "string",
+              "example": "With Cheese"
+            }
+          }
+        },
+        "AddressResource": {
+          "type": "object",
+          "properties": {
+            "street": {
+              "type": "string",
+              "example": "437 Lytton"
+            },
+            "city": {
+              "type": "string",
+              "example": "Palo Alto"
+            },
+            "state": {
+              "type": "string",
+              "example": "CA"
+            },
+            "zip": {
+              "type": "string",
+              "example": "94301"
+            }
+          },
+          "xml": {
+            "name": "address"
+          }
+        },
+        "AccrualRuleResource": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/IdentifierResource"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "accrualType": {
+                  "type": "string",
+                  "description": "The type of accrual rule that defines how buyers earn point",
+                  "enum": [
+                    "SPEND",
+                    "VISIT"
+                  ]
+                },
+                "pointCount": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "Number of point the buyers can earn",
+                  "example": 1
+                },
+                "pointRate": {
+                  "type": "string",
+                  "description": "How much money which need to be spent to get one point",
+                  "example": "100"
+                },
+                "currencyType": {
+                  "type": "string",
+                  "description": "Currency type",
+                  "example": "USD"
+                }
+              }
+            }
+          ]
+        },
+        "SalesInformationResource": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string",
+              "description": "The requested date",
+              "example": "2023/04/25"
+            },
+            "ordersByMenu": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/OrderCountPerMenuResource"
+              }
+            },
+            "ordersByItem": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/OrderCountPerItemResource"
+              }
+            }
+          }
+        },
+        "OrderCountPerMenuResource": {
+          "type": "object",
+          "properties": {
+            "menu": {
+              "type": "object",
+              "$ref": "#/components/schemas/MenuResource"
+            },
+            "count": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Number of ordered from the menu",
+              "example": 5
+            }
+          }
+        },
+        "OrderCountPerItemResource": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "object",
+              "$ref": "#/components/schemas/ItemResource"
+            },
+            "count": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Number of ordered from the menu",
+              "example": 10
+            }
+          }
+        },
+        "IdentifierResource": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "example": "189e6756-1a68-11ee-be56-0242ac120002"
+            }
+          }
+        },
+        "AuditResource": {
+          "type": "object",
+          "properties": {
+            "createdBy": {
+              "type": "string",
+              "example": "john"
+            },
+            "createdTimestamp": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-04-30"
+            },
+            "updatedBy": {
+              "type": "string",
+              "example": "john"
+            },
+            "updatedTimestamp": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-04-30"
+            }
+          }
+        },
+        "ErrorResponse": {
+          "type": "object",
+          "properties": {
+            "fieldErrors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/FieldError"
+              }
+            },
+            "globalErrors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GlobalError"
+              }
+            }
+          }
+        },
+        "FieldError": {
+          "type": "object",
+          "properties": {
+            "fieldName": {
+              "type": "string",
+              "description": "This is the error field",
+              "example": "price"
+            },
+            "rejectedValue": {
+              "type": "string",
+              "description": "This is the rejected value belong to error field",
+              "example": "5.0.2"
+            },
+            "userMessage": {
+              "type": "string",
+              "description": "Describe the error message",
+              "example": "Invalid input for price field"
+            }
+          }
+        },
+        "GlobalError": {
+          "type": "object",
+          "properties": {
+            "userMessage": {
+              "type": "string",
+              "description": "Describe the error message",
+              "example": "Maximum value exceeded"
+            }
+          }
+        }
+      }
+    }
+  }
+  

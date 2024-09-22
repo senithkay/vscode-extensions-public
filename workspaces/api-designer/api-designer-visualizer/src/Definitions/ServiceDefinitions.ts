@@ -194,3 +194,11 @@ export interface ServerVariable {
     default: string;
     description?: string;
 }
+
+export type Param = {
+    name?: string;
+    type?: string;
+    defaultValue?: string;
+    isRequired?: boolean;
+    isArray?: boolean;
+};

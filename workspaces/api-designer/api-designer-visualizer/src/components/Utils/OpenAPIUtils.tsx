@@ -10,7 +10,7 @@
 import yaml from 'js-yaml';
 
 import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
-import { OpenAPI, Operation, Schema } from '../../Definitions/ServiceDefinitions';
+import { OpenAPI, Operation, Param, Parameter, Schema } from '../../Definitions/ServiceDefinitions';
 import { colors } from '../../constants';
 
 // export function resolveResponseType(response: Response): string {
@@ -150,4 +150,33 @@ export function getMethodFromResourceID(resourceID: string): string {
 
 export function getPathFromResourceID(resourceID: string): string {
     return resourceID.split("-")[1];
+}
+export function getPathParametersFromParameters(parameters: Parameter[]): Param[] {
+    return parameters.filter((param) => param.in === "path").map((param) => ({
+        name: param.name,
+        type: param.schema ? param.schema.type : "string",
+        defaultValue: param.schema ? param.schema.default : "",
+        isArray: param.schema ? param.schema.type === "array" : false,
+        isRequired: param.required || false,
+    }));
+}
+
+export function getQueryParametersFromParameters(parameters: Parameter[]): Param[] {
+    return parameters.filter((param) => param.in === "query").map((param) => ({
+        name: param.name,
+        type: param.schema ? param.schema.type : "string",
+        defaultValue: param.schema ? param.schema.default : "",
+        isArray: param.schema ? param.schema.type === "array" : false,
+        isRequired: param.required || false,
+    }));
+}
+
+export function getHeaderParametersFromParameters(parameters: Parameter[]): Param[] {
+    return parameters.filter((param) => param.in === "header").map((param) => ({
+        name: param.name,
+        type: param.schema ? param.schema.type : "string",
+        defaultValue: param.schema ? param.schema.default : "",
+        isArray: param.schema ? param.schema.type === "array" : false,
+        isRequired: param.required || false,
+    }));
 }
