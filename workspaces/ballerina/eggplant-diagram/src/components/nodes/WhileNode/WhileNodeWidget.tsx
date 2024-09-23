@@ -38,7 +38,8 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: flex-start;
         width: 100%;
-        padding: 8px;
+        position: absolute;
+        left: ${WHILE_NODE_WIDTH}px;
     `;
 
     export const StyledButton = styled(Button)`
@@ -100,7 +101,7 @@ export namespace NodeStyles {
         ${(props: NodeStyleProp) =>
             props.selected ? Colors.OUTLINE_VARIANT : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 50px;
-        width: ${NODE_HEIGHT * 2}px;
+        width: ${NODE_HEIGHT}px;
         height: ${NODE_HEIGHT}px;
     `;
 
@@ -115,7 +116,7 @@ interface WhileNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> { }
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -141,28 +142,26 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.Row>
-                <NodeStyles.Circle>
-                    <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <g
-                            fill="none"
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2.5"
-                        >
-                            <path d="M12 3a9 9 0 1 1-5.657 2" />
-                            <path d="M3 4.5h4v4" />
-                        </g>
-                    </svg>
-                    <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-                </NodeStyles.Circle>
-                <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
-                </NodeStyles.Header>
-            </NodeStyles.Row>
+            <NodeStyles.Circle>
+                <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2.5"
+                    >
+                        <path d="M12 3a9 9 0 1 1-5.657 2" />
+                        <path d="M3 4.5h4v4" />
+                    </g>
+                </svg>
+                <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+            </NodeStyles.Circle>
+            <NodeStyles.Header>
+                <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
+                <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+            </NodeStyles.Header>
         </NodeStyles.Node>
     );
 }

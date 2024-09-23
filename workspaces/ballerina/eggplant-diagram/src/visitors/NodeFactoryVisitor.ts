@@ -18,10 +18,11 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
+import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_GAP_X, NODE_GAP_Y, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
+import { words } from "lodash";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -73,8 +74,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return nodeModel;
     }
 
-    private createCodeBlockNode(id: string, x: number, y: number, visible = true, showButton = false): CodeBlockNodeModel {
-        const nodeModel = new CodeBlockNodeModel(id, visible, showButton);
+    private createCodeBlockNode(id: string, x: number, y: number, width: number, height: number): CodeBlockNodeModel {
+        const nodeModel = new CodeBlockNodeModel(id, width, height);
         nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
@@ -259,7 +260,14 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitWhile(node: FlowNode): void {
         const nodeModel = new WhileNodeModel(node);
-        // const nodeModel = new BaseNodeModel(node);
+
+        const codeBlockNode = this.createCodeBlockNode(
+            `${node.id}-codeBlock`,
+            node.viewState.x + node.viewState.w / 2 - node.viewState.cw / 2 - NODE_GAP_X / 2,
+            node.viewState.y + node.viewState.h + NODE_GAP_Y / 2,
+            node.viewState.cw + NODE_GAP_X,
+            node.viewState.ch - node.viewState.h - NODE_GAP_Y / 2 - NODE_BORDER_WIDTH
+        );
 
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
@@ -285,16 +293,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
             }
         }
 
-        const codeBlockNode = this.createCodeBlockNode(
-            `${node.id}-endwhile`,
-            node.viewState.x,
-            node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
-        );
-
         // create branch's OUT links
         const endWhileEmptyNode = this.createEmptyNode(
             `${node.id}-endwhile`,
-            node.viewState.x,
+            node.viewState.x + node.viewState.w / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
         ); // TODO: move position logic to position visitor
         endWhileEmptyNode.setParentFlowNode(node);

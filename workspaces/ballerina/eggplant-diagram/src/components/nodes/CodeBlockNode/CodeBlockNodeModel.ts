@@ -18,10 +18,12 @@ export class CodeBlockNodeModel extends NodeModel {
     protected visible: boolean;
     protected parentFlowNode: FlowNode;
     readonly showButton: boolean;
+    readonly boxHeight: number;
+    readonly boxWidth: number;
     topNode: FlowNode | Branch; // top statement node or parent block node
     target: LinePosition;
 
-    constructor(id: string, visible = true, button = false) {
+    constructor(id: string, width: number = 100, height = 100) {
         super({
             id,
             type: NodeTypes.CODE_BLOCK_NODE,
@@ -29,8 +31,11 @@ export class CodeBlockNodeModel extends NodeModel {
         });
         this.addInPort("in");
         this.addOutPort("out");
-        this.visible = visible;
-        this.showButton = button;
+
+        // Using NodeModel's width and height shows an abnormal behaviour,
+        // hence, using custom attributes to manipulate width and height.
+        this.boxWidth = width;
+        this.boxHeight = height;
     }
 
     addPort<T extends NodePortModel>(port: T): T {

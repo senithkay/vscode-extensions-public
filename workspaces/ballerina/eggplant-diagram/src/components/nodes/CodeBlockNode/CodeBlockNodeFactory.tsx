@@ -24,6 +24,6 @@ export class CodeBlockNodeFactory extends AbstractReactFactory<CodeBlockNodeMode
     }
 
     generateReactWidget(event: GenerateWidgetEvent<CodeBlockNodeModel>) {
-        return <CodeBlockNodeWidget engine={this.engine} node={event.model} />;
+        return <CodeBlockNodeWidget engine={this.engine} node={event.model}/>;
     }
 }

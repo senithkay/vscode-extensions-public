@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { COMMENT_NODE_GAP, NODE_GAP_X, NODE_GAP_Y, NODE_PADDING, VSCODE_MARGIN } from "../resources/constants";
+import { COMMENT_NODE_GAP, NODE_BORDER_WIDTH, NODE_GAP_X, NODE_GAP_Y, NODE_PADDING, VSCODE_MARGIN } from "../resources/constants";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -112,8 +112,8 @@ export class PositionVisitor implements BaseVisitor {
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
-        const centerX = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
-        node.viewState.x = centerX - node.viewState.w / 2;
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        node.viewState.x = centerX - NODE_GAP_X / 2;
 
         const bodyBranch = node.branches.find((branch) => branch.label === "Body");
         bodyBranch.viewState.y = this.lastNodeY;
