@@ -203,6 +203,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         }
 
         setIsLoading(true);
+        setLoadingMessage("Reading...");
         let assistant_response = "";
         const controller = new AbortController();
         const signal = controller.signal;
@@ -279,7 +280,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
             component = (
                 <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
                     <ProgressRing sx={{ height: "16px", width: "16px" }} />
-                    {loadingMessage || "Generating components..."}
+                    {loadingMessage || "Reading project overview..."}
                 </LinkButton>
             );
         }
