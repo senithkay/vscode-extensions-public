@@ -6,12 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Dropdown, SidePanelBody, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, FormGroup, SidePanelBody, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
+import { OptionPopup } from '../OptionPopup/OptionPopup';
+import { useState } from 'react';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -19,9 +21,20 @@ const HorizontalFieldWrapper = styled.div`
     gap: 10px;
 `;
 
+export const PanelBody = styled.div`
+    height: calc(100% - 87px);
+    overflow-y: auto;
+    padding: 16px;
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+`;
+
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
 }
+
+const moreOptions = ["Summary", "Servers", "Security"];
 
 const schema = yup.object({
     title: yup.string(),
@@ -53,7 +66,8 @@ type InputsFields = {
 
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition } = props;
-    const defaultValues : InputsFields = {
+    const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
+    const defaultValues: InputsFields = {
         title: openAPIDefinition?.info.title,
         version: openAPIDefinition?.info.version,
         summary: openAPIDefinition?.info.summary,
@@ -81,12 +95,17 @@ export function Overview(props: OverviewProps) {
         mode: "onChange"
     });
 
+    const handleOptionChange = (options: string[]) => {
+        setSelectedOptions(options);
+    };
+
     return (
         <>
             <SidePanelTitleContainer>
-                <Typography sx={{ margin: 0 }} variant="h3">Overview</Typography>
+                <Typography sx={{ margin: 0 }} variant="h1">Overview</Typography>
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange}/>
             </SidePanelTitleContainer>
-            <SidePanelBody>
+            <PanelBody>
                 <HorizontalFieldWrapper>
                     <TextField
                         label="Name"
@@ -101,74 +120,79 @@ export function Overview(props: OverviewProps) {
                         {...register("version")}
                     />
                 </HorizontalFieldWrapper>
-                <TextField
-                    label="Summary"
-                    id="summary"
-                    {...register("summary")}
-                />
+                { selectedOptions.includes("Summary") && (
+                    <TextField
+                        label="Summary"
+                        id="summary"
+                        {...register("summary")}
+                    />
+                )}
                 <TextArea
                     label="Description"
                     id="description"
                     {...register("description")}
                 />
-                <Typography variant="h4">Contact</Typography>
-                <HorizontalFieldWrapper>
-                    <TextField
-                        placeholder="Name"
-                        id="contactName"
-                        sx={{ width: "33%" }}
-                        {...register("contactName")}
-                    />
-                    <TextField
-                        placeholder='URL'
-                        id="contactURL"
-                        sx={{ width: "33%" }}
-                        {...register("contactURL")}
-                    />
-                    <TextField
-                        placeholder='Email'
-                        id="contactEmail"
-                        sx={{ width: "33%" }}
-                        {...register("contactEmail")}
-                    />
-                </HorizontalFieldWrapper>
-                <Typography variant="h4">Licence</Typography>
-                <HorizontalFieldWrapper>
-                    <TextField
-                        placeholder="Name"
-                        id="licenceName"
-                        sx={{ width: "33%" }}
-                        {...register("licenceName")}
-                    />
-                    <Dropdown
-                        id="licenceType"
-                        containerSx={{ width: "33%", gap: 0 }}
-                        dropdownContainerSx={{ gap: 0 }}
-                        items={[
-                            { value: "URL", content: "URL" },
-                            { value: "Identifier", content: "Identifier" }
-                        ]}
-                        {...register("licenceType")}
-                    />
-                    {/* If licenceType value is URL add licenceURL textField else licenceIdentifier textField */}
-                    {/* Fix initial dropdown value */}
-                    {watch("licenceType") === "URL" ? (
+                <FormGroup title="Contact" isCollapsed={false}>
+                    <HorizontalFieldWrapper>
+                        <TextField
+                            placeholder="Name"
+                            id="contactName"
+                            sx={{ width: "33%" }}
+                            {...register("contactName")}
+                        />
                         <TextField
                             placeholder='URL'
-                            id="licenceURL"
+                            id="contactURL"
                             sx={{ width: "33%" }}
-                            {...register("licenceURL")}
+                            {...register("contactURL")}
                         />
-                    ) : (
                         <TextField
-                            placeholder='Identifier'
-                            id="licenceIdentifier"
+                            placeholder='Email'
+                            id="contactEmail"
                             sx={{ width: "33%" }}
-                            {...register("licenceIdentifier")}
+                            {...register("contactEmail")}
                         />
-                    )}
-                </HorizontalFieldWrapper>
-            </SidePanelBody>
+                    </HorizontalFieldWrapper>
+                </FormGroup>
+
+                <FormGroup title="Licence" isCollapsed={false}>
+                    <HorizontalFieldWrapper>
+                        <TextField
+                            placeholder="Name"
+                            id="licenceName"
+                            sx={{ width: "33%" }}
+                            {...register("licenceName")}
+                        />
+                        <Dropdown
+                            id="licenceType"
+                            containerSx={{ width: "33%", gap: 0 }}
+                            dropdownContainerSx={{ gap: 0 }}
+                            items={[
+                                { value: "URL", content: "URL" },
+                                { value: "Identifier", content: "Identifier" }
+                            ]}
+                            {...register("licenceType")}
+                        />
+                        {/* If licenceType value is URL add licenceURL textField else licenceIdentifier textField */}
+                        {/* Fix initial dropdown value */}
+                        {watch("licenceType") === "URL" ? (
+                            <TextField
+                                placeholder='URL'
+                                id="licenceURL"
+                                sx={{ width: "33%" }}
+                                {...register("licenceURL")}
+                            />
+                        ) : (
+                            <TextField
+                                placeholder='Identifier'
+                                id="licenceIdentifier"
+                                sx={{ width: "33%" }}
+                                {...register("licenceIdentifier")}
+                            />
+                        )}
+                    </HorizontalFieldWrapper>
+                </FormGroup>
+            </PanelBody>
         </>
     )
 }

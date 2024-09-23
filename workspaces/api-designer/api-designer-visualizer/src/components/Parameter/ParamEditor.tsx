@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { LinkButton, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { FormGroup, LinkButton, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 
@@ -60,7 +60,7 @@ export function ParamEditor(props: OverviewProps) {
 
     return (
         <>
-            <Typography variant="h4">{`${type} Parameters`}</Typography>
+            <FormGroup title={`${type} Parameters`} isCollapsed={false}>
             <LinkButton onClick={addNewParam}> {`Add ${type} Parameter`} </LinkButton>
             {params?.map((param, index) => (
                 <HorizontalFieldWrapper key={index}>
@@ -86,6 +86,8 @@ export function ParamEditor(props: OverviewProps) {
                     <LinkButton onClick={() => removeParam(index)}>Remove</LinkButton>
                 </HorizontalFieldWrapper>
             ))}
+            </FormGroup>
+            
         </>
     )
 }

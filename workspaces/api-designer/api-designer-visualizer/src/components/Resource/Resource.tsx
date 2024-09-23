@@ -14,6 +14,7 @@ import { ParamEditor } from '../Parameter/ParamEditor';
 import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from '../Utils/OpenAPIUtils';
 import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
+import { PanelBody } from '../Overview/Overview';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -101,11 +102,22 @@ export function Resource(props: OverviewProps) {
 
     const debouncedHandlePathChange = debounce((value: string) => {
         const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
+        const modifiedPathParams = pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }));
+        let p: Parameter[] = convertParamsToParameters(modifiedPathParams, "path");
+        if (values?.queryParams) {
+            p = p.concat(convertParamsToParameters(values?.queryParams, "query"));
+        }
+        if (values?.headerParams) {
+            p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
+        }
         const currentPath = getPath();
         const newPath = {
             ...currentPath,
             path: value,
-            pathParams: pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }))
+            initialOperation: {
+                ...currentPath.initialOperation,
+                parameters: p
+            }
         };
         onPathChange(newPath);
     }, 5000); // 5 seconds debounce
@@ -174,10 +186,10 @@ export function Resource(props: OverviewProps) {
     return (
         <>
             <TitleWrapper>
-                <Typography sx={{ margin: 0 }} variant="h3">Resource Path</Typography>
+                <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
                 <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange}/>
             </TitleWrapper>
-            <SidePanelBody>
+            <PanelBody>
                 <HorizontalFieldWrapper>
                     <Dropdown
                         id="method"
@@ -217,7 +229,7 @@ export function Resource(props: OverviewProps) {
                 <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
                 <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
                 <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
-            </SidePanelBody>
+            </PanelBody>
         </>
     )
 }
