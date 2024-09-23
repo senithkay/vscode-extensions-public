@@ -33,6 +33,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     resolve({ recordST: schema.st as TypeDefinition });
                 }
             });
+            resolve(null);
         });
     }
 }

@@ -7,10 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createElseStatement, createForeachStatement, createIfStatement, createModuleVarDecl, createPropertyStatement, createReturnStatement, createWhileStatement, genVariableName } from "@wso2-enterprise/ballerina-core"
+import { ActionIcon, AssignmentIcon, createElseStatement, createForeachStatement, createIfStatement, createModuleVarDecl, createPropertyStatement, createReturnStatement, createWhileStatement, ConnectorIcon, ForEachIcon, FunctionCallIcon, genVariableName, IfIcon, ModuleVariableIcon, PropertyIcon, ReturnIcon, WhileIcon } from "@wso2-enterprise/ballerina-core"
+
+export type Item = Category | Node;
+export type Category = {
+    title: string;
+    description: string;
+    icon?: React.JSX.Element;
+    items: Item[];
+};
+
+export type Node = {
+    id: string;
+    label: string;
+    description: string;
+    icon?: React.JSX.Element;
+    enabled?: boolean;
+    metadata?: any;
+};
 
 
-export function constructList() {
+export function constructList(): Category[] {
     return [{
         title: "Generics",
         description: "",
@@ -20,18 +37,21 @@ export function constructList() {
                 label: "Variable",
                 description: constructMessage.variableStatement.defaultMessage,
                 enabled: true,
+                icon: <PropertyIcon/>
             },
             {
                 id: "Assignment",
                 label: "Assignment",
                 description: constructMessage.assignmentStatement.defaultMessage,
                 enabled: true,
+                icon: <AssignmentIcon/>
             },
             {
                 id: "FunctionCall",
                 label: "FunctionCall",
                 description: constructMessage.functionCallStatement.defaultMessage,
                 enabled: true,
+                icon: <FunctionCallIcon/>
             }
         ]
     },
@@ -44,18 +64,21 @@ export function constructList() {
                 label: "If",
                 description: constructMessage.ifStatement.defaultMessage,
                 enabled: true,
+                icon: <IfIcon/>
             },
             {
                 id: "Foreach",
                 label: "Foreach",
                 description: constructMessage.foreachStatement.defaultMessage,
                 enabled: true,
+                icon: <ForEachIcon/>
             },
             {
                 id: "While",
                 label: "While",
                 description: constructMessage.whileStatement.defaultMessage,
                 enabled: true,
+                icon: <WhileIcon/>
             }
         ]
 
@@ -69,6 +92,7 @@ export function constructList() {
                 label: "Return",
                 description: constructMessage.returnStatement.defaultMessage,
                 enabled: true,
+                icon: <ReturnIcon/>
             }
         ]
     },
@@ -81,12 +105,14 @@ export function constructList() {
                 label: "Connector",
                 description: constructMessage.connectorStatement.defaultMessage,
                 enabled: true,
+                icon: <ConnectorIcon/>
             },
             {
                 id: "Action",
                 label: "Action",
                 description: constructMessage.actionStatement.defaultMessage,
                 enabled: true,
+                icon: <ActionIcon/>
             }
         ]
     }

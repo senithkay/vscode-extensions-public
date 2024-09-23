@@ -149,6 +149,7 @@ export function ResourceResponse(props: ResourceParamProps) {
                             type: param.type,
                             code: param.code,
                             source: param.source,
+                            isTypeArray: param.isTypeArray,
                             namedRecord: param.namedRecord,
                             defaultCode: getDefaultResponse(method)
                         }}

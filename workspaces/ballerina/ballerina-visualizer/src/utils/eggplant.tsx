@@ -82,7 +82,7 @@ export function convertNodePropertiesToFormFields(
     for (const key in nodeProperties) {
         if (nodeProperties.hasOwnProperty(key)) {
             const expression = nodeProperties[key as NodePropertyKey];
-            if (expression && expression.valueType !== "VIEW") {
+            if (expression) {
                 const formField: FormField = {
                     key,
                     label: expression.metadata?.label || "",
