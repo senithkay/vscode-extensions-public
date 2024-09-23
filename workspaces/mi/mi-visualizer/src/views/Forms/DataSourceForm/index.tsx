@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Button, TextField, FormCheckBox, TextArea, FormView, FormActions, FormGroup, CheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -56,8 +56,8 @@ const newDataSource: InputsFields = {
     type: "RDBMS",
     dataSourceProvider: "default",
     dbEngine: "MySQL",
-    hostname: "",
-    port: "",
+    hostname: "localhost",
+    port: "3306",
     databaseName: "",
     username: "",
     password: "",
@@ -80,6 +80,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     const [schemaParams, setSchemaParams] = useState({});
     const [step, setStep] = useState(1);
     const [isEnableURLEdit, setIsEnableURLEdit] = React.useState(false);
+    const [prevDbType, setPrevDbType] = React.useState("MySQL");
 
     const schema = yup.object({
         name: yup.string().required("Datasource name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in datasource name"),
@@ -232,6 +233,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                         } else {
                             setValue("dbEngine", "Generic");
                         }
+                        setPrevDbType(watch('dbEngine'));
                     }
 
                     if (response.jndiConfig) {
@@ -289,13 +291,18 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     useEffect(() => {
         const driverUrl = driverMap.get(watch("dbEngine"));
         if (driverUrl) {
-            setValue("driverClassName", driverUrl.driver);
-            setValue("url", replacePlaceholders(driverUrl.url));
+            setValue("driverClassName", driverUrl.driverClass);
+            setValue("url", replacePlaceholders(driverUrl.jdbcUrl));
+        }
+        if (prevDbType !== watch('dbEngine')) {
+            setPrevDbType(watch('dbEngine'));
+            setValue('hostname', "localhost");
+            setValue('port', driverUrl.port);
         }
     }, [watch("dbEngine"), watch("hostname"), watch("port"), watch("databaseName")]);
 
     useEffect(() => {
-        if (watch("url") !== driverMap.get(watch("dbEngine"))?.url) {
+        if (watch("url") !== driverMap.get(watch("dbEngine"))?.jdbcUrl) {
             clearErrors("url");
         }
     }, [watch("url")]);
@@ -316,7 +323,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
     const extractValuesFromUrl = (url: string, dbEngine: string) => {
         const driverUrlTemplate = driverMap.get(dbEngine);
         if (driverUrlTemplate) {
-            const urlPattern = driverUrlTemplate.url;
+            const urlPattern = driverUrlTemplate.jdbcUrl;
             const regex = new RegExp(urlPattern
                 .replace('[HOST]', '(?<host>[^:/]+)')
                 .replace('[PORT]', '(?<port>[^/;]+)')
@@ -477,104 +484,108 @@ export function DataSourceWizard(props: DataSourceFormProps) {
             <FormProvider {...formMethods}>
                 {step === 1 ? (
                     <>
-                        <FormGroup title="New Datasource" isCollapsed={false}>
-                            <TextField
-                                label="Datasource name"
-                                autoFocus
-                                required
-                                {...renderProps("name")}
-                            />
-                            <TextField
-                                label="Description"
-                                {...renderProps("description")}
-                            />
-                            <Dropdown label="Datasource Type"
-                                      items={[{ id: "rdbms", value: "RDBMS" }, { id: "custom", value: "Custom" }]}
-                                      {...renderProps("type")} />
-                            {watch("type") === "RDBMS" &&
-                                <>
-                                    <Dropdown label="Datasource Provider"
-                                              items={[{ id: "default", value: "default" }, { id: "external", value: "External Datasource" }]}
-                                              {...renderProps("dataSourceProvider")} />
-                                    {watch("dataSourceProvider") === "default" && <>
-                                        <Dropdown label="Database Engine" items={engineOptions}
-                                                  {...renderProps("dbEngine")} />
-                                        <TextField
-                                            label="Driver"
-                                            required
-                                            {...renderProps("driverClassName")}
-                                        />
-                                    </>} {watch("dataSourceProvider") === "External Datasource" && <>
-                                        <TextField
-                                            label="Datasource Class Name"
-                                            required
-                                            {...renderProps("externalDSClassName")}
-                                        />
-                                        <ParamManager
-                                            paramConfigs={dsProperties}
-                                            readonly={false}
-                                            onChange={onChangeDSProperties} />
-                                    </>}
-                                </>
-                            }
-                            {watch("type") === "Custom" && <>
+                        <TextField
+                            label="Datasource Name"
+                            autoFocus
+                            required
+                            {...renderProps("name")}
+                        />
+                        <Dropdown label="Datasource Type"
+                                  items={[{ id: "rdbms", value: "RDBMS" }, { id: "custom", value: "Custom" }]}
+                                  {...renderProps("type")} />
+                        {watch("type") === "RDBMS" &&
+                            <>
+                                <Dropdown label="Datasource Provider"
+                                          items={[{ id: "default", value: "default" }, { id: "external", value: "External Datasource" }]}
+                                          {...renderProps("dataSourceProvider")} />
+                                {watch("dataSourceProvider") === "default" && <>
+                                    <Dropdown label="Database Engine" items={engineOptions}
+                                              {...renderProps("dbEngine")} />
+                                </>} {watch("dataSourceProvider") === "External Datasource" && <>
                                 <TextField
-                                    label="Custom Datasource Type"
+                                    label="Datasource Class Name"
                                     required
-                                    {...renderProps("customDSType")}
+                                    {...renderProps("externalDSClassName")}
                                 />
-                                <TextArea
-                                    label="Custom Configuration"
-                                    required
-                                    {...renderProps("customDSConfiguration")}
-                                />
+                                <ParamManager
+                                    paramConfigs={dsProperties}
+                                    readonly={false}
+                                    onChange={onChangeDSProperties} />
+                            </>}
                             </>
-                            }
-                        </FormGroup>
+                        }
+                        {watch("type") === "Custom" && <>
+                            <TextField
+                                label="Custom Datasource Type"
+                                required
+                                {...renderProps("customDSType")}
+                            />
+                            <TextArea
+                                label="Custom Configuration"
+                                required
+                                {...renderProps("customDSConfiguration")}
+                            />
+                        </>
+                        }
+                        <TextField
+                            label="Description"
+                            {...renderProps("description")}
+                        />
                         {watch("type") === "RDBMS" &&
                             <>
                                 <FormGroup title="Database Connection Parameters" isCollapsed={false}>
                                     <TextField
                                         label="Hostname"
                                         size={100}
+                                        required
                                         {...renderProps('hostname')}
                                     />
                                     <TextField
                                         label="Port"
                                         size={100}
+                                        required
                                         {...renderProps('port')}
                                     />
                                     <TextField
                                         label="Database Name"
                                         size={100}
+                                        required
                                         {...renderProps('databaseName')}
                                     />
                                     <TextField
                                         label="Username"
                                         size={100}
+                                        required
                                         {...renderProps('username')}
                                     />
                                     <TextField
                                         label="Password"
                                         size={100}
                                         type="password"
+                                        required
                                         {...renderProps('password')}
                                     />
-                                    <TextField
-                                        label="URL"
-                                        required
-                                        size={100}
-                                        disabled={!isEnableURLEdit}
-                                        {...renderProps('url')}
-                                    />
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                        <Button
-                                            appearance="secondary"
-                                            onClick={handleModifyURL}>
-                                            Modify URL
-                                        </Button>
-                                    </div>
                                 </FormGroup>
+                                {watch("type") === "RDBMS" &&
+                                    <FormGroup title="Advanced Configurations" isCollapsed={true}>
+                                        <TextField
+                                            label="Driver Class"
+                                            required
+                                            {...renderProps("driverClassName")}
+                                        />
+                                        <CheckBox
+                                            label="Modify Database Connection URL"
+                                            checked={isEnableURLEdit}
+                                            onChange={handleModifyURL}
+                                        />
+                                        <TextField
+                                            required
+                                            size={100}
+                                            disabled={!isEnableURLEdit}
+                                            {...renderProps('url')}
+                                        />
+                                    </FormGroup>
+                                }
                                 <FormGroup title="Datasource Configuration Parameters" isCollapsed={true}>
                                     {dsConfigParams && Object.keys(dsConfigParams).map((key: string) => (
                                         <ParamField
@@ -629,16 +640,16 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                     showNextButton && (
                         <FormActions>
                             <Button
+                                appearance="secondary"
+                                onClick={handleCancel}>
+                                Cancel
+                            </Button>
+                            <Button
                                 appearance="primary"
                                 onClick={handleSubmit(handleNext)}
                                 disabled={!isDirty}
                             >
                                 Next
-                            </Button>
-                            <Button
-                                appearance="secondary"
-                                onClick={handleCancel}>
-                                Cancel
                             </Button>
                         </FormActions>
                     )
