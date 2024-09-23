@@ -17,6 +17,7 @@ export interface AddDriverProps {
     path: string;
     identifier?: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function AddDriver(props: AddDriverProps) {
@@ -101,7 +102,7 @@ export function AddDriver(props: AddDriverProps) {
     }
 
     return (
-        <FormView title={`Available drivers for ${name}`} onClose={handleOnClose} hideClose={props.isPopup}>
+        <FormView title={`Available drivers for ${name}`} onClose={props.handlePopupClose ?? handleOnClose}>
             <div style={{
                 maxWidth: "49em",
             }}>
@@ -126,16 +127,16 @@ export function AddDriver(props: AddDriverProps) {
             </div>
             <FormActions>
                 <Button
-                    appearance="primary"
-                    onClick={handleSave}
-                >
-                    {"Save Changes"}
-                </Button>
-                <Button
                     appearance="secondary"
                     onClick={handleOnClose}
                 >
                     Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSave}
+                >
+                    {"Save Changes"}
                 </Button>
             </FormActions>
         </FormView>

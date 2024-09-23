@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const AggregateForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -58,6 +58,7 @@ const AggregateForm = (props: AddMediatorProps) => {
             aggregationExpression: sidePanelContext?.formValues?.aggregationExpression || {"isExpression":true,"value":""},
             sequenceType: sidePanelContext?.formValues?.sequenceType || "ANONYMOUS",
             sequenceKey: sidePanelContext?.formValues?.sequenceKey || "",
+            description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
@@ -69,6 +70,7 @@ const AggregateForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         const xml = getXML(MEDIATORS.AGGREGATE, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;
@@ -283,6 +285,16 @@ const AggregateForm = (props: AddMediatorProps) => {
                     }
 
                 </ComponentCard>
+
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" required={false} errorMsg={errors?.description?.message?.toString()} />
+                        )}
+                    />
+                </Field>
 
 
                 <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>

@@ -8,6 +8,28 @@
  */
 import { DMType } from "../../interfaces/mi-data-mapper";
 
+export enum DMDiagnosticCategory {
+    Warning = 0,
+    Error = 1,
+    Suggestion = 2,
+    Message = 3,
+}
+
+export enum IOType {
+    Input = "input",
+    Output = "output",
+    Other = "other"
+}
+
+export interface DMDiagnostic {
+    messageText: string;
+    code: number;
+    category: DMDiagnosticCategory;
+    start: number | undefined;
+    length: number | undefined;
+    source?: string;
+}
+
 export interface DMTypeRequest {
     filePath: string;
     functionName: string;
@@ -41,10 +63,11 @@ export interface BrowseSchemaRequest {
     documentUri: string;
     overwriteSchema?: boolean;
     content: string;
-    resourceName: string;
-    ioType: string;
+    ioType: IOType;
     schemaType: string;
     configName: string;
+    typeName?: string;
+    csvDelimiter?: string;
 }
 
 export interface BrowseSchemaResponse {
@@ -102,3 +125,14 @@ export interface GetCompletionsResponse {
     completions: unknown[];
 }
 
+export interface GetDMDiagnosticsRequest {
+    filePath: string;
+}
+
+export interface GetDMDiagnosticsResponse {
+    diagnostics: DMDiagnostic[];
+}
+
+export interface DataMapWriteRequest {
+    dataMapping: string;
+}

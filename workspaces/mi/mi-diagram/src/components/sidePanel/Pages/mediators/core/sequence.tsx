@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const SequenceForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -48,7 +48,7 @@ const SequenceForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            referringSequence: sidePanelContext?.formValues?.referringSequence || "",
+            referringSequence: sidePanelContext?.formValues?.referringSequence || {"isExpression":false,"value":""},
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -61,6 +61,7 @@ const SequenceForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         const xml = getXML(MEDIATORS.SEQUENCE, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;
@@ -99,7 +100,12 @@ const SequenceForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (

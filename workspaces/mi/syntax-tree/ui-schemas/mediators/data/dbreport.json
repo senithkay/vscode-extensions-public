@@ -27,21 +27,6 @@
           {
             "type": "attribute",
             "value": {
-              "name": "databaseConfiguration",
-              "displayName": "Database Configuration",
-              "inputType": "custom",
-              "enableCondition": [
-                {
-                  "connectionType": "DB_CONNECTION"
-                }
-              ],
-              "required": true,
-              "helpTip": "Customize the database configuration"
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
               "name": "connectionDBType",
               "displayName": "Connection DB Type",
               "inputType": "combo",
@@ -437,6 +422,7 @@
         "elements": [
           {
             "type": "table",
+            "required": true,
             "value": {
               "name": "sqlStatements",
               "displayName": "SQL Statements",
@@ -451,7 +437,7 @@
                     "name": "queryString",
                     "displayName": "Query String",
                     "inputType": "string",
-                    "required": false,
+                    "required": true,
                     "helpTip": ""
                   }
                 },

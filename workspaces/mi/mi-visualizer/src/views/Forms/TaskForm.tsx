@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBoxGroup, CheckBox, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBox, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { Task } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -48,6 +48,7 @@ type InputsFields = {
     sequenceName?: string;
     invokeHandlers?: boolean;
     injectTo?: string;
+    isCountUndefined?: boolean;
 };
 
 const initialInboundEndpoint: InputsFields = {
@@ -56,13 +57,14 @@ const initialInboundEndpoint: InputsFields = {
     implementation: "org.apache.synapse.startup.tasks.MessageInjector",
     pinnedServers: "",
     triggerType: "simple",
-    triggerCount: 1,
+    triggerCount: null,
     triggerInterval: 1,
     triggerCron: "",
     invokeHandlers: false,
     format: "soap12",
     injectTo: "sequence",
     message: "<message></message>",
+    isCountUndefined: true
 };
 
 function generateSequenceName(taskName: string) {
@@ -107,10 +109,11 @@ export function TaskForm(props: TaskFormProps) {
         implementation: yup.string().required("Task Implementation is required"),
         pinnedServers: yup.string(),
         triggerType: yup.mixed().oneOf(["simple", "cron"]),
-        triggerCount: yup.mixed().when('triggerType', {
-            is: 'simple',
-            then: () => yup.number().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-            otherwise: () => yup.string().notRequired().default("1")
+        triggerCount: yup.mixed().when('isCountUndefined', {
+            is: false,
+            then: () => yup.number().typeError('Trigger count must be a number').min(0, "Trigger count must be greater than 0")
+                .required("Trigger count is required"),
+            otherwise: () => yup.string().notRequired()
         }),
         triggerInterval: yup.number().when('triggerType', {
             is: 'simple',
@@ -133,6 +136,7 @@ export function TaskForm(props: TaskFormProps) {
         sequenceName: yup.string().notRequired(),
         soapAction: yup.string().notRequired(),
         message: yup.string().notRequired(),
+        isCountUndefined: yup.boolean().notRequired().default(true),
         invokeHandlers: yup.boolean().default(false),
         registryKey: yup.string().notRequired(),
     })
@@ -158,7 +162,7 @@ export function TaskForm(props: TaskFormProps) {
                 const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: props.path });
                 if (taskRes.name) {
                     setIsNewTask(false);
-                    reset(taskRes);
+                    reset({ ...taskRes, isCountUndefined: taskRes.triggerCount === null });
                     setSavedTaskName(taskRes.name);
                     if (taskRes.taskProperties) {
                         setValue("format", taskRes.taskProperties.find((prop: any) => prop.key === "format")?.value);
@@ -222,7 +226,7 @@ export function TaskForm(props: TaskFormProps) {
                 };
                 taskRequest.sequence = sequenceRequest;
             }
-            taskProperties.push({ key: "sequenceName", value: generateSequenceName(values.name), isLiteral: true });
+            taskProperties.push({ key: "sequenceName", value: values.sequenceName ?? generateSequenceName(values.name), isLiteral: true });
         }
         const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
     };
@@ -289,12 +293,16 @@ export function TaskForm(props: TaskFormProps) {
                 />
                 {watch("triggerType") === 'simple' ? (
                     <>
-                        <TextField
-                            id="triggerCount"
-                            label="Count"
-                            errorMsg={errors.triggerCount?.message}
-                            {...register("triggerCount")}
-                        />
+                        <FormCheckBox label="Trigger Indefinitely" control={control} {...register('isCountUndefined')} />
+                        {!watch("isCountUndefined") &&
+                            <TextField
+                                id="triggerCount"
+                                required
+                                label="Count"
+                                errorMsg={errors.triggerCount?.message}
+                                {...register("triggerCount")}
+                            />
+                        }
                         <TextField
                             id="triggerInterval"
                             required
@@ -435,17 +443,17 @@ export function TaskForm(props: TaskFormProps) {
             </FormGroup>
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={cancelHandler}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateTask)}
                     disabled={!isDirty}
                 >
                     {isNewTask ? "Create" : "Update"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={cancelHandler}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView >

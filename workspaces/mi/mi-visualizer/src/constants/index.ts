@@ -18,6 +18,18 @@ export const MI_SUGGESTIVE_QUESTIONS_INITIAL_BACKEND_URL = `/suggestions/initial
 export const MI_SUGGESTIVE_QUESTIONS_BACKEND_URL = `/suggestions`;
 export const MI_UNIT_TEST_GENERATION_BACKEND_URL = `/unit-test/generate`;
 
+// MI Copilot Error Messages
+export const COPILOT_ERROR_MESSAGES = {
+    BAD_REQUEST: 'Bad Request',
+    UNAUTHORIZED: 'Unauthorized',
+    FORBIDDEN: 'Forbidden',
+    NOT_FOUND: 'Not Found',
+    TOKEN_COUNT_EXCEEDED: 'Token Count Exceeded',
+    ERROR_422: "Something went wrong. Please clear the chat and try again.",
+};
+
+// MI Copilot maximum allowed file size
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // Default to 5MB
 
 // Default Editor Info
 export const TAB_SIZE = 4; // 4 spaces
@@ -106,4 +118,19 @@ export enum InboundEndpointTypes {
 };
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+}
+
+export const connectorFailoverIconUrl = "https://mi-connectors.wso2.com/icons/wordpress.gif";
+
+export const DATASOURCE = {
+    TYPE: {
+        RDBMS: "driverClassName",
+        CARBON_DATASOURCE: "carbon_datasource_name"
+    },
+    PROPERTY: {
+        CLASS_NAME: "driverClassName",
+        DB_URL: "url",
+        USERNAME: "username",
+        PASSWORD: "password"
+    }
 }

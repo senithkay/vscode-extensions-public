@@ -10,12 +10,14 @@
 import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ExpressionFieldValue } from "../Form/ExpressionField/ExpressionInput";
+import { BaseNodeModel } from "../nodes/BaseNodeModel";
+import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
 
 export interface SidePanelPage {
     content: ReactNode;
     isOpen: boolean;
     title?: string;
-    icon?: string;
+    icon?: string | ReactNode;
 }
 
 interface SidePanelContext {
@@ -25,6 +27,7 @@ interface SidePanelContext {
     nodeRange?: Range;
     trailingSpace?: string;
     operationName?: string;
+    node?: BaseNodeModel | NodeLinkModel;
     parentNode?: string;
     previousNode?: string;
     nextNode?: string;

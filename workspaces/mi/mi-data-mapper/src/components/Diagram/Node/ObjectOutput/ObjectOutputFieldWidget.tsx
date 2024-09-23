@@ -26,8 +26,9 @@ import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -61,7 +62,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+        exprBarFocusedPort: state.focusedPort,
+        setExprBarFocusedPort: state.setFocusedPort
+    }));
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -97,7 +102,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const diagnostic = propertyAssignment && getDiagnostics(propertyAssignment)[0];
+    const diagnostic = propertyAssignment && filterDiagnosticsForNode(context.diagnostics, propertyAssignment)[0];
 
     const connectedViaLink = useMemo(() => {
         return hasValue && isConnectedViaLink(initializer);
@@ -115,11 +120,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            const initializer = field.value.getInitializer();
-            const range = getEditorLineAndColumn(initializer);
-            context.goToSource(range);
-        }
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const handleDeleteValue = async () => {
@@ -132,7 +134,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
             collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
         } else {
@@ -207,7 +209,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         >
                             <Button
                                 appearance="icon"
-                                onClick={handleEditValue}
                                 data-testid={`object-output-field-${portIn?.getName()}`}
                             >
                                 {initializer.getText()}
@@ -273,15 +274,17 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     </span>
                     <span className={classes.label}>
                         {fields && (
-                            <Button
-                                appearance="icon"
-                                tooltip="Expand/Collapse"
-                                sx={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                                data-testid={`${portIn?.getName()}-expand-icon-element`}
-                            >
-                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                            </Button>
+                            <FieldActionWrapper>
+                                <Button
+                                    appearance="icon"
+                                    tooltip="Expand/Collapse"
+                                    sx={{ marginLeft: indentation }}
+                                    onClick={handleExpand}
+                                    data-testid={`${portIn?.getName()}-expand-icon-element`}
+                                >
+                                    {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                                </Button>
+                            </FieldActionWrapper>
                         )}
                         {label}
                     </span>
@@ -290,7 +293,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             {(isLoading) ? (
                                 <ProgressRing sx={{ height: '16px', width: '16px' }} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                                <FieldActionWrapper>
+                                    <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                                </FieldActionWrapper>
                             )}
                         </>
                     )}

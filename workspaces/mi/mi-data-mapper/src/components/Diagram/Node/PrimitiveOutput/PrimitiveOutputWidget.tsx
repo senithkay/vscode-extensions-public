@@ -22,6 +22,7 @@ import { TreeBody, TreeHeader, TreeContainer } from "../commons/Tree/Tree";
 import { useIONodesStyles } from "../../../../components/styles";
 import { OutputSearchHighlight } from "../commons/Search";
 import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface PrimitiveOutputWidgetProps {
 	id: string;
@@ -44,7 +45,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	const classes = useIONodesStyles();
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
 		subMappingConfig: state.subMappingConfig,
 		setSubMappingConfig: state.setSubMappingConfig
 	}));
@@ -75,17 +76,17 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
-        if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter(element => element !== fieldId));
-        } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
-        }
+		if (!expanded) {
+			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter(element => element !== fieldId));
+		} else {
+			collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+		}
 	};
 
 	const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault(); 
+		event.preventDefault();
 		onSubMappingEditBtnClick();
-    };
+	};
 
 	const onSubMappingEditBtnClick = () => {
 		setSubMappingConfig({
@@ -103,28 +104,32 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 					}
 				</span>
 				<span className={classes.label}>
-					<Button
-						appearance="icon"
-						sx={{ marginLeft: indentation }}
-						onClick={handleExpand}
-						data-testid={`${id}-expand-icon-primitive-type`}
-					>
-						{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-					</Button>
+					<FieldActionWrapper>
+						<Button
+							appearance="icon"
+							sx={{ marginLeft: indentation }}
+							onClick={handleExpand}
+							data-testid={`${id}-expand-icon-primitive-type`}
+						>
+							{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+						</Button>
+					</FieldActionWrapper>
 					{label}
 				</span>
 				{focuesOnSubMappingRoot && (
-					<Button
-						appearance="icon"
-						data-testid={"edit-sub-mapping-btn"}
-						tooltip="Edit name and type of the sub mapping "
-						onClick={onSubMappingEditBtnClick}
-					>
-						<Codicon
-							name="settings-gear"
-							iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-						/>
-					</Button>
+					<FieldActionWrapper>
+						<Button
+							appearance="icon"
+							data-testid={"edit-sub-mapping-btn"}
+							tooltip="Edit name and type of the sub mapping "
+							onClick={onSubMappingEditBtnClick}
+						>
+							<Codicon
+								name="settings-gear"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
+					</FieldActionWrapper>
 				)}
 			</TreeHeader>
 			{expanded && field && (

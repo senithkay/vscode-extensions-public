@@ -27,6 +27,7 @@ const ParamManagerContainer = styled.div`
 export interface Param {
     id: number;
     label: string;
+    placeholder?: string;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup" | "ParamManager";
     value: string | boolean | ExpressionFieldValue | ParamConfig; // Boolean is for Checkbox
     isRequired?: boolean;
@@ -55,9 +56,13 @@ interface TypeResolverProps {
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
     const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
-        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType } = param;
+        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
+        onChange({ ...param, value: newValue }, param.enableCondition);
+    }
+
+    const handleOnExprChange = (newValue: string | ExpressionFieldValue) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
     }
 
@@ -84,6 +89,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     errorMsg={errorMessage}
                     required={isRequired}
                     onTextChange={handleOnChange}
+                    placeholder={placeholder}
                 />
             );
         case "Dropdown":
@@ -134,6 +140,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     openExpressionEditor={openExpressionEditor}
                     disabled={disabled}
                     label={label}
+                    placeholder={placeholder}
                     errorMsg={errorMessage}
                     onChange={handleOnChange}
                     canChange={canChange}
@@ -162,7 +169,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     label={label}
                     value={value as string}
                     required={isRequired}
-                    onValueChange={handleOnChange}
+                    onValueChange={handleOnExprChange}
                     allowItemCreate={allowItemCreate}
                     nullable={nullable}
                     notItemsFoundMessage={noItemsFoundMessage}

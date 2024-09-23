@@ -72,7 +72,7 @@ const newDataService: DataServiceFields = {
 }
 
 const schema = yup.object({
-    dataServiceName: yup.string().required("Data Service Name is required"),
+    dataServiceName: yup.string().required("Data Service Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in data service name"),
     dataServiceNamespace: yup.string().notRequired(),
     serviceGroup: yup.string().notRequired(),
     selectedTransports: yup.string().notRequired(),
@@ -239,51 +239,50 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
             {showDatasourceComponent && <DataServiceDataSourceWizard datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} /> }
             {!showDatasourceComponent &&
                 <>
-                    <FormView title='Data Service Artifact' onClose={handleCancel}>
-                             <FormGroup title="Data Service Properties" isCollapsed={false}>
-                                 <TextField
-                                    label="Data Service Name"
-                                    autoFocus
-                                    required
-                                    size={100}
-                                    {...renderProps('dataServiceName')}
-                                />
-                                <TextField
-                                    label="Description"
-                                    size={100}
-                                    {...renderProps('description')}
-                                />
-                            </FormGroup>
-                            <FormGroup title="Configure Datasources" isCollapsed={false}>
-                                <DataServiceDisplayTable data={datasources} attributes={['dataSourceType', 'dataSourceName']} onEdit={handleEditDatasource} onDelete={handleDeleteDatasource} />
-                                <AddButtonWrapper>
-                                    <LinkButton onClick={addDatasource} >
-                                        <Codicon name="add" /><>Add Datasource</>
-                                    </LinkButton>
-                                </AddButtonWrapper>
-                            </FormGroup>
-                            <FormGroup title="Transport Settings" isCollapsed={true}>
-                                    <DataServiceTransportWizard authProperties={authProperties} setAuthProperties={setAuthProperties} renderProps={renderProps} control={control} setValue={setValue} />
-                            </FormGroup>
-                            <FormGroup title="Advanced Configurations" isCollapsed={true}>
-                                    <DataServiceAdvancedWizard renderProps={renderProps} control={control} />
-                            </FormGroup>
-                            <FormActions>
-                                <Button
-                                    appearance="secondary"
-                                    onClick={handleCancel}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(handleCreateDataService)}
-                                    disabled={!isDirty}
-                                >
-                                    {isNewDataService ? "Create" : "Save Changes"}
-                                </Button>
-                            </FormActions>
-                        </FormView>
+                    <FormView title='Data Service' onClose={handleCancel}>
+                        <TextField
+                            label="Data Service Name"
+                            autoFocus
+                            required
+                            size={100}
+                            {...renderProps('dataServiceName')}
+                        />
+                        { datasources.length > 0 &&
+                            <DataServiceDisplayTable data={datasources} attributes={['dataSourceType', 'dataSourceName']}
+                                                     onEdit={handleEditDatasource} onDelete={handleDeleteDatasource}/>
+                        }
+                        <AddButtonWrapper>
+                            <LinkButton onClick={addDatasource} >
+                                <Codicon name="add" /><>Add Datasource</>
+                            </LinkButton>
+                        </AddButtonWrapper>
+                        <TextField
+                            label="Description"
+                            size={100}
+                            {...renderProps('description')}
+                        />
+                        <FormGroup title="Transport Settings" isCollapsed={true}>
+                            <DataServiceTransportWizard authProperties={authProperties} setAuthProperties={setAuthProperties} renderProps={renderProps} control={control} setValue={setValue} />
+                        </FormGroup>
+                        <FormGroup title="Advanced Configurations" isCollapsed={true}>
+                            <DataServiceAdvancedWizard renderProps={renderProps} control={control} />
+                        </FormGroup>
+                        <FormActions>
+                            <Button
+                                appearance="secondary"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(handleCreateDataService)}
+                                disabled={!(isDirty && datasources.length > 0)}
+                            >
+                                {isNewDataService ? "Create" : "Save Changes"}
+                            </Button>
+                        </FormActions>
+                    </FormView>
                 </>
             }
         </>

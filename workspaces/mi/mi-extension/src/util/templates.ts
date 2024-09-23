@@ -10,10 +10,10 @@
 export function escapeXml(text: string) {
 
   return String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 };
 
 export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string) => `<?xml version="1.0" encoding="UTF-8"?>
@@ -122,7 +122,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.64</version>
+            <version>5.2.71</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -166,7 +166,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>synapse-unit-test-maven-plugin</artifactId>
-            <version>5.2.64</version>
+            <version>5.2.71</version>
             <executions>
               <execution>
                 <id>synapse-unit-test</id>
@@ -229,7 +229,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.64</version>
+            <version>5.2.71</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -265,7 +265,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>mi-container-config-mapper</artifactId>
-            <version>5.2.64</version>
+            <version>5.2.71</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -305,13 +305,6 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                         <include name="*.car"/>
                       </fileset>
                     </copy>
-                    <move todir="\${basedir}/target/tmp_docker/CarbonHome/metadata">
-                      <fileset dir="\${basedir}/target/tmp_docker/CarbonHome/.metadata"/>
-                    </move>
-                    <replace file="\${basedir}/target/tmp_docker/Dockerfile">
-                      <replacefilter token="CarbonHome/.metadata/metadata_config.properties" value="CarbonHome/metadata/metadata_config.properties"/>
-                      <replacefilter token="CarbonHome/.metadata/references.properties" value="CarbonHome/metadata/references.properties"/>
-                    </replace>
                   </target>
                 </configuration>
               </execution>
@@ -322,7 +315,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.43.4</version>
+            <version>0.45.0</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -341,6 +334,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                         <args>
                           <BASE_IMAGE>\${dockerfile.base.image}</BASE_IMAGE>
                         </args>
+                        <useDefaultExcludes>false</useDefaultExcludes>
                       </build>
                     </image>
                   </images>
@@ -370,6 +364,8 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <dockerfile.base.image>wso2/wso2mi:4.3.0</dockerfile.base.image>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <project.scm.id>integration-project</project.scm.id>
+    <project.runtime.version>4.3.0</project.runtime.version>
   </properties>
 </project>`;
 

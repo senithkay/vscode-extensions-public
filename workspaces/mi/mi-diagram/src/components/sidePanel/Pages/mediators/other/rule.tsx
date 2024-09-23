@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const RuleForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -174,6 +174,7 @@ const RuleForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["targetNamespaces"] = getParamManagerValues(values.targetNamespaces);
         values["factsConfiguration"] = getParamManagerValues(values.factsConfiguration);

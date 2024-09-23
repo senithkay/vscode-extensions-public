@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CallExpression, Node, SyntaxKind, ts } from "ts-morph";
+import { CallExpression, Node, ObjectLiteralExpression, PropertyAssignment, SyntaxKind, ts } from "ts-morph";
 import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 import { View } from "../Views/DataMapperView";
@@ -92,21 +92,21 @@ export function filterCompletions(
     details: ts.CompletionEntryDetails,
     localFunctionNames: string[]
 ): CompletionItem {
-    if (
-        details.kind === ts.ScriptElementKind.parameterElement ||
-        details.kind === ts.ScriptElementKind.memberVariableElement
-    ) {
+    const isParameter = details.kind === ts.ScriptElementKind.parameterElement;
+    const isMemberVariable = details.kind === ts.ScriptElementKind.memberVariableElement;
+    const isFunction =  details.kind === ts.ScriptElementKind.functionElement;
+    const isMethod =  details.kind === ts.ScriptElementKind.memberFunctionElement;
+
+    if (isParameter || isMemberVariable) {
         return {
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
-            value: entry.name,
+            value: entry.insertText || entry.name,
             kind: details.kind as CompletionItemKind,
+            replacementSpan: entry.replacementSpan?.length
         }
-    } else if (
-        details.kind === ts.ScriptElementKind.functionElement ||
-        details.kind === ts.ScriptElementKind.memberFunctionElement
-    ) {
-        if (details.sourceDisplay) {
+    } else if (isFunction || isMethod) {
+        if (isMethod || (isFunction && details.sourceDisplay)) {
             const params: string[] = [];
             let param: string = '';
     
@@ -119,7 +119,7 @@ export function filterCompletions(
                 }
             });
     
-            const action = details.codeActions?.[0].changes[0].textChanges[0].newText;
+            const action = details.codeActions?.[0].changes[0].textChanges[0].newText || "";
             const itemTag = action.substring(0, action.length - 1);
     
             return {
@@ -143,3 +143,21 @@ export function filterCompletions(
     return undefined;
 }
 
+// Function to get the innermost property assignment node from the given property assignment node
+// which allways contains a single property assignment inside the initializer
+export function getInnermostPropAsmtNode(propertyAssignment: PropertyAssignment): PropertyAssignment {
+    let currentNode: PropertyAssignment = propertyAssignment;
+
+    while (Node.isObjectLiteralExpression(currentNode.getInitializer())) {
+        const initializer = currentNode.getInitializer() as ObjectLiteralExpression;
+        const properties = initializer.getProperties();
+
+        if (properties.length === 1 && Node.isPropertyAssignment(properties[0])) {
+            currentNode = properties[0] as PropertyAssignment;
+        } else {
+            break;
+        }
+    }
+
+    return currentNode as PropertyAssignment;
+}

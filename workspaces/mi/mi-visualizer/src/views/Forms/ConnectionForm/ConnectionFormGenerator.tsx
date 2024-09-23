@@ -8,17 +8,15 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormActions, FormView, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
 import { useForm, Controller } from 'react-hook-form';
-import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
-import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
-import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
 import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
+import FormGenerator from '../Commons/FormGenerator';
 
 const cardStyle = {
     display: "block",
@@ -32,21 +30,9 @@ const Error = styled.span`
     font-size: 12px;
 `;
 
-const Field = styled.div`
-    margin-bottom: 12px;
-`;
-
 const ParamManagerContainer = styled.div`
-    width: ; 100%;
+    width: 100%;
 `;
-
-interface Connection {
-    name: string;
-    connectionType: string;
-    path: string;
-    connectorName: string;
-    parameters: any[];
-}
 
 export interface AddConnectionProps {
     path: string;
@@ -56,36 +42,17 @@ export interface AddConnectionProps {
     changeConnector?: () => void;
     fromSidePanel?: boolean;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
-interface Element {
-    inputType: any;
-    name: string | number;
-    displayName: any;
-    required: string;
-    helpTip: any;
-    comboValues?: any[];
-    defaultValue?: any;
-    allowedConnectionTypes?: string[];
-}
-
-interface ExpressionValueWithSetter {
-    value: ExpressionFieldValue;
-    setValue: (value: ExpressionFieldValue) => void;
-};
-
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
-    const { allowedConnectionTypes } = props;
+    const { allowedConnectionTypes, handlePopupClose } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [formData, setFormData] = useState(undefined);
-    const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [connections, setConnections] = useState([]);
-    const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -118,6 +85,10 @@ export function AddConnection(props: AddConnectionProps) {
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
                 setFormData(connectionFormJSON.formJSON);
+                reset({
+                    name: watch('name'),
+                    connectionType: watch('connectionType')
+                });
             }
         };
 
@@ -134,8 +105,6 @@ export function AddConnection(props: AddConnectionProps) {
         const fetchFormData = async () => {
             // If connectionName is provided, it is an update operation
             if (props.connectionName) {
-                setValue('name', props.connectionName);
-
                 const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
                     documentUri: props.path,
                     connectorName: null
@@ -146,20 +115,20 @@ export function AddConnection(props: AddConnectionProps) {
                 if (!connectionFound) {
                     return
                 }
-                // Set Form Data
-                setValue('connectionType', connectionFound.connectionType);
                 const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
                     documentUri: props.path, connectorName: connectionFound.connectorName
                 });
-
-                setValue('name', connector.name)
+                props.connector.name = connector.name;
 
                 const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
                 setFormData(connectionFormJSON.formJSON);
-                reset();
+                reset({
+                    name: props.connectionName,
+                    connectionType: connectionFound.connectionType,
+                });
 
                 const parameters = connectionFound.parameters
 
@@ -253,17 +222,10 @@ export function AddConnection(props: AddConnectionProps) {
 
     const onAddConnection = async (values: any) => {
 
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
-        });
-
         const template = create();
-        const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
-        root.ele('connectionType').txt(getValues("connectionType"));
+        const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
+        const connectorTag = localEntryTag.ele(`${formData.connectorName ?? props.connector.name}.init`);
+        connectorTag.ele('connectionType').txt(getValues("connectionType"));
 
         if (errors && Object.keys(errors).length > 0) {
             console.error("Errors in saving connection form", errors);
@@ -282,20 +244,27 @@ export function AddConnection(props: AddConnectionProps) {
                         if (isExpression) {
                             if (namespaces && namespaces.length > 0) {
                                 // Generate XML with namespaces
-                                const element = root.ele(key);
+                                const element = connectorTag.ele(key);
                                 namespaces.forEach((namespace: any) => {
                                     element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                 });
                                 element.txt(`{${value}}`);
                             } else {
-                                root.ele(key).txt(`{${value}}`);
+                                connectorTag.ele(key).txt(`{${value}}`);
                             }
                         } else {
-                            root.ele(key).txt(value);
+                            connectorTag.ele(key).txt(value);
                         }
                     }
                 } else {
-                    root.ele(key).txt(values[key]);
+                    const value = values[key];
+                    if (typeof value === 'string' && value.includes('<![CDATA[')) {
+                        // Handle CDATA
+                        const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
+                        connectorTag.ele(key).dat(cdataContent);
+                    } else {
+                        connectorTag.ele(key).txt(value);
+                    }
                 }
             }
         });
@@ -380,134 +349,9 @@ export function AddConnection(props: AddConnectionProps) {
         });
     }
 
-    const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
-
-        return expressionEditorField !== element.name ? (
-            <ExpressionField
-                {...field}
-                label={element.displayName}
-                placeholder={element.helpTip}
-                canChange={true}
-                required={element.required === 'true'}
-                errorMsg={errors[element.name] && errors[element.name].message.toString()}
-                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                    setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(String(element.name));
-                }}
-            />
-        ) : (
-            <>
-                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                    <label>{element.displayName}</label>
-                    {element.required === "true" && <RequiredFormInput />}
-                </div>
-                <ExpressionEditor
-                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                    handleOnSave={(newValue) => {
-                        if (currentExpressionValue) {
-                            currentExpressionValue.setValue(newValue);
-                        }
-                        setExpressionEditorField(null);
-                    }}
-                    handleOnCancel={() => {
-                        setExpressionEditorField(null);
-                    }}
-                />
-            </>
-        )
-    }
-
-    const renderFormElement = (element: Element, field: any) => {
-        switch (element.inputType) {
-            case 'string':
-                if (element.name === 'connectionName') {
-                    return null;
-                }
-                return (
-                    <TextField {...field}
-                        label={element.displayName}
-                        size={50}
-                        placeholder={element.helpTip}
-                        required={element.required === 'true'}
-                        errorMsg={errors[element.name] && errors[element.name].message.toString()}
-                    />
-                );
-            case 'stringOrExpression':
-            case 'stringOrExpresion':
-            case 'textOrExpression':
-            case 'textAreaOrExpression':
-            case 'integerOrExpression':
-                return ExpressionFieldComponent({ element, field });
-
-            case 'booleanOrExpression':
-            case 'comboOrExpression':
-                const items = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
-                const allowItemCreate = element.inputType === 'comboOrExpression';
-                return (
-                    <AutoComplete
-                        name={element.name as string}
-                        label={element.displayName}
-                        errorMsg={errors[element.name] && errors[element.name].message.toString()}
-                        items={items}
-                        value={field.value}
-                        onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }}
-                        required={element.required === 'true'}
-                        allowItemCreate={allowItemCreate}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
-
-    const renderForm: any = (elements: any[]) => {
-        return elements.map((element: { type: string; value: any; }) => {
-            if (element.type === 'attribute') {
-                return <Controller
-                    name={element.value.name as string}
-                    control={control}
-                    defaultValue={element.value.defaultValue}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
-                        }
-                    }
-                    render={({ field }) => (
-                        <Field>
-                            {renderFormElement(element.value, field)}
-                        </Field>
-                    )}
-                />;
-            } else if (element.type === 'attributeGroup') {
-                return (
-                    <>
-                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
-                            <>
-                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
-                                    {renderForm(element.value.elements)}
-                                </ComponentCard>
-                            </>
-                        }
-                    </>
-                );
-            }
-            return null;
-        });
-    };
-
     const handleOnClose = () => {
         if (props.fromSidePanel) {
-            rpcClient.getMiVisualizerRpcClient().goBack();
+            handlePopupClose();
         } else if (props.changeConnector) {
             props.changeConnector();
         } else {
@@ -537,19 +381,18 @@ export function AddConnection(props: AddConnectionProps) {
                 errorMsg={errors.name && errors.name.message.toString()} />
         )} />;
     return (
-        <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
+        <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
                 type={props.connector.name}
                 onClick={props.changeConnector}
                 showButton={!props.connectionName}
-                title='Change connector'
                 id='Connector:'
             />}
             {formData ? (
                 <>
                     {ConnectionName}
                     {allowedConnectionTypes && (
-                        <Field>
+                        <>
                             <Controller
                                 name="connectionType"
                                 control={control}
@@ -571,27 +414,33 @@ export function AddConnection(props: AddConnectionProps) {
                                     />
                                 )}
                             />
-                        </Field>
-                    )}
-                    {formData && formData.elements && formData.elements.length > 0 && (
-                        <>
-                            {renderForm(formData.elements)}
-                            <FormActions>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onAddConnection)}
-                                >
-                                    {props.connectionName ? "Update" : "Add"}
-                                </Button>
-                                <Button
-                                    appearance="secondary"
-                                    onClick={handleOnClose}
-                                >
-                                    Cancel
-                                </Button>
-                            </FormActions>
                         </>
                     )}
+                    <>
+                        <FormGenerator
+                            formData={formData}
+                            control={control}
+                            errors={errors}
+                            setValue={setValue}
+                            watch={watch}
+                            getValues={getValues}
+                            skipGeneralHeading={true}
+                            ignoreFields={["connectionName"]} />
+                        <FormActions>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(onAddConnection)}
+                            >
+                                {props.connectionName ? "Update" : "Add"}
+                            </Button>
+                            <Button
+                                appearance="secondary"
+                                onClick={handleOnClose}
+                            >
+                                Cancel
+                            </Button>
+                        </FormActions>
+                    </>
                 </>
             ) : (
                 // If no uiSchema is available, show param manager

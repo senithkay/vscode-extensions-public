@@ -10,7 +10,7 @@
         "name": "payloadFormat",
         "displayName": "Payload Format",
         "inputType": "combo",
-        "defaultValue": "",
+        "defaultValue": "Inline",
         "comboValues": [
           "Inline",
           "Registry Reference"
@@ -57,7 +57,7 @@
         "displayName": "Payload Key",
         "inputType": "registry",
         "defaultValue": "",
-        "required": false,
+        "required": true,
         "helpTip": "",
         "enableCondition": [
           {
@@ -77,9 +77,22 @@
               "name": "payload",
               "displayName": "Payload",
               "inputType": "codeTextArea",
-              "defaultValue": "{\"Sample\":\"Payload\"}",
-              "required": false,
-              "helpTip": "",
+              "defaultValue": "",
+              "required": true,
+              "helpTip": {
+                "conditionField": "mediaType",
+                "values": [
+                  {
+                    "xml": "<inline/>"
+                  },
+                  {
+                    "json": "{\"Inline\":\"json\"}"
+                  },
+                  {
+                    "text": "Inline text"
+                  }
+                ]
+              },
               "enableCondition": [
                 {
                   "payloadFormat": "Inline"
@@ -120,6 +133,13 @@
                       "json"
                     ],
                     "required": false,
+                    "enableCondition": [
+                      {
+                        "argumentValue": {
+                          "isExpression": true
+                        }
+                      }
+                    ],
                     "helpTip": ""
                   }
                 },

@@ -7,15 +7,13 @@
         {
             "type": "attribute",
             "value": {
-                "name": "endopint",
-                "displayName": "Select Endpoint",
-                "inputType": "comboOrKey",
+                "name": "endpoint",
+                "displayName": "Endpoint",
+                "inputType": "keyOrExpression",
                 "comboValues": [
-                    "INLINE",
-                    "NONE",
-                    "REGISTRYKEY",
-                    "XPATH"
+                    "NONE"
                 ],
+                "isCreateNew":true,
                 "required": true,
                 "keyType":"endpoint",
                 "helpTip": "Choose an existing endpoint, or specify a new one"
@@ -30,40 +28,12 @@
                 "required": false,
                 "helpTip": "Define your endpoint as an XML",
                 "enableCondition": [
+                    "AND",
                     {
-                        "endopint": "INLINE"
-                    }
-                ]
-            }
-        },
-        {
-            "type": "attribute",
-            "value": {
-                "name": "endpointRegistryKey",
-                "displayName": "Endpoint Registry Key",
-                "inputType": "string",
-                "defaultValue": "",
-                "required": false,
-                "helpTip": "Endpoint Registry Key",
-                "enableCondition": [
+                        "endpoint.value": "INLINE"
+                    },
                     {
-                        "endpoint": "REGISTRYKEY"
-                    }
-                ]
-            }
-        },
-        {
-            "type": "attribute",
-            "value": {
-                "name": "endpointXpath",
-                "displayName": "Endpoint Xpath",
-                "inputType": "expression",
-                "defaultValue": "",
-                "required": false,
-                "helpTip": "Endpoint Xpath",
-                "enableCondition": [
-                    {
-                        "endpoint": "XPATH"
+                        "endpoint.isExpression": false
                     }
                 ]
             }

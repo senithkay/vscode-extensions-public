@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateWsdlEndpointRequest } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE, UpdateWsdlEndpointRequest } from "@wso2-enterprise/mi-core";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import { InputsFields, initialEndpoint, propertiesConfigs, paramTemplateConfigs } from "./Types";
@@ -23,6 +23,7 @@ export interface WsdlEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -59,11 +60,27 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         policyKey: yup.string().notRequired().default(""),
         inboundPolicyKey: yup.string().notRequired().default(""),
         outboundPolicyKey: yup.string().notRequired().default(""),
-        suspendErrorCodes: yup.string(),
+        suspendErrorCodes: yup.string().notRequired()
+            .test(
+                'validateNumericOrEmpty',
+                'Suspend Error Codes must be a comma-separated list of error codes',
+                value => {
+                    if (value === '') return true;
+                    return /^(\d+)(,\d+)*$/.test(value);
+                }
+            ),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
         progressionFactor: yup.number().typeError('Progression Factor must be a number'),
-        retryErrorCodes: yup.string(),
+        retryErrorCodes: yup.string().notRequired()
+            .test(
+                'validateNumericOrEmpty',
+                'Retry Error Codes must be a comma-separated list of error codes',
+                value => {
+                    if (value === '') return true;
+                    return /^(\d+)(,\d+)*$/.test(value);
+                }
+            ),
         retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0"),
         retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay must be greater than or equal to 0"),
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
@@ -102,7 +119,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -134,6 +152,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -183,6 +202,13 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         })();
     }, [props.path]);
 
+    useEffect(() => {
+        setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
+    }, [isTemplate ? watch("templateName") : watch("endpointName")]);
+
     const handleUpdateWsdlEndpoint = async (values: any) => {
         const updateWsdlEndpointParams: UpdateWsdlEndpointRequest = {
             directory: props.path,
@@ -196,7 +222,16 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 isTemplate ? values.templateName : values.endpointName,
                 result.content, values.registryPath, values.artifactName);
         }
-        openOverview();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("endpointName") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
@@ -229,9 +264,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
 
     return (
         <FormView
-            title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
-            onClose={openOverview}
-            hideClose={props.isPopup}
+            title={isTemplate ? 'Template' : 'Endpoint'}
+            onClose={props.handlePopupClose ?? openOverview}
         >
             <TypeChip
                 type={isTemplate ? "WSDL Endpoint Template" : "WSDL Endpoint"}
@@ -255,7 +289,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             {isNewEndpoint && (
                 <>
                     <FormCheckBox
-                        label="Save the sequence in registry"
+                        label="Save the endpoint in registry"
                         {...register("saveInReg")}
                         control={control}
                     />
@@ -268,17 +302,17 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateWsdlEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

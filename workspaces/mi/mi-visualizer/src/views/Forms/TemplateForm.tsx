@@ -103,7 +103,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("templateName"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -135,6 +136,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     const [savedTemplateName, setSavedTemplateName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [paramsUpdated, setParamsUpdated] = useState(false);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const params: ParamConfig = {
         paramValues: [],
@@ -143,7 +145,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 id: 0,
                 type: "TextField",
                 label: "Parameter",
-                defaultValue: "parameter_value",
+                placeholder: "parameter_value",
+                defaultValue: "",
                 isRequired: true
             },
             {
@@ -205,6 +208,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(watch("templateName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("templateName"));
+        }
+    }, [watch("templateName")]);
 
     const setEndpointType = (type: string) => {
 
@@ -284,7 +294,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     return (
-        <FormView title="Template Artifact" onClose={handleCancel}>
+        <FormView title="Template" onClose={handleCancel}>
             {templateType === '' && isNewTemplate ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
                 <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={isNewTemplate}/>
                 <TextField
@@ -314,7 +324,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 {isNewTemplate && (
                     <>
                         <FormCheckBox
-                            label="Save the sequence in registry"
+                            label="Save the template in registry"
                             {...register("saveInReg")}
                             control={control}
                         />

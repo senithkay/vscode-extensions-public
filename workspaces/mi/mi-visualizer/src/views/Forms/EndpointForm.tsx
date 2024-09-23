@@ -15,6 +15,7 @@ import CardWrapper from "./Commons/CardWrapper";
 export interface EndpointWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function EndpointWizard(props: EndpointWizardProps) {
@@ -52,7 +53,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
     };
 
     return (
-        <FormView title={"Create Endpoint Artifact"} onClose={handleOnClose} hideClose={props.isPopup}>
+        <FormView title={"Create Endpoint"} onClose={props.handlePopupClose ?? handleOnClose}>
             <CardWrapper cardsType={"ENDPOINT"} setType={setEndpointType} />
         </FormView>
     );

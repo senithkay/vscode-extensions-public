@@ -28,17 +28,61 @@ export const engineOptions: OptionProps[] = [
 ];
 
 export const driverMap = new Map([
-    ["MySQL", { driver: "com.mysql.jdbc.Driver", url: "jdbc:mysql://[machine-name/ip]:[port]/[database-name]" }],
-    ["Apache Derby", { driver: "org.apache.derby.jdbc.EmbeddedDriver", url: "jdbc:derby:[path-to-data-file]" }],
-    ["Microsoft SQL Server", { driver: "com.microsoft.sqlserver.jdbc.SQLServerDriver", url: "jdbc:sqlserver://[HOST]:[PORT1433];databaseName=[DB]" }],
-    ["Oracle", { driver: "oracle.jdbc.driver.OracleDriver", url: "jdbc:oracle:[drivertype]:[username/password]@[host]:[port]/[database]" }],
-    ["IBM DB2", { driver: "com.ibm.db2.jcc.DB2Driver", url: "jdbc:db2:[database]" }],
-    ["HSQLDB", { driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:[path]" }],
-    ["Informix", { driver: "com.informix.jdbc.IfxDriver", url: "jdbc:informix-sqli://[HOST]:[PORT]/[database]:INFORMIXSERVER=[server-name]" }],
-    ["PostgreSQL", { driver: "org.postgresql.Driver", url: "jdbc:postgresql://[HOST]:[PORT5432]/[database]" }],
-    ["Sybase ASE", { driver: "com.sybase.jdbc3.jdbc.SybDriver", url: "jdbc:sybase:Tds:[HOST]:[PORT2048]/[database]" }],
-    ["H2", { driver: "org.h2.Driver", url: "jdbc:h2:tcp:[HOST]:[PORT]/[database]" }],
-    ["Generic", { driver: "Generic", url: "Generic" }]
+    ["MySQL", {
+        driverClass: "com.mysql.jdbc.Driver",
+        jdbcUrl: "jdbc:mysql://[HOST]:[PORT]/[DATABASE]",
+        port: "3306"
+    }],
+    ["Apache Derby", {
+        driverClass: "org.apache.derby.jdbc.EmbeddedDriver",
+        jdbcUrl: "jdbc:derby://[HOST]:[PORT]/[DATABASE]",
+        port: "1527"
+    }],
+    ["Microsoft SQL Server", {
+        driverClass: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+        jdbcUrl: "jdbc:sqlserver://[HOST]:[PORT];databaseName=[DATABASE]",
+        port: "1433"
+    }],
+    ["Oracle", {
+        driverClass: "oracle.jdbc.driver.OracleDriver",
+        jdbcUrl: "jdbc:oracle:thin:@//[HOST]:[PORT]/[DATABASE]",
+        port: "1521"
+    }],
+    ["IBM DB2", {
+        driverClass: "com.ibm.db2.jcc.DB2Driver",
+        jdbcUrl: "jdbc:db2://[HOST]:[PORT]/[DATABASE]",
+        port: "50000"
+    }],
+    ["HSQLDB", {
+        driverClass: "org.hsqldb.jdbcDriver",
+        jdbcUrl: "jdbc:hsqldb:hsql://[HOST]:[PORT]/[DATABASE]",
+        port: "9001"
+    }],
+    ["Informix", {
+        driverClass: "com.informix.jdbc.IfxDriver",
+        jdbcUrl: "jdbc:informix-sqli://[HOST]:[PORT]/[DATABASE]:INFORMIXSERVER=[SERVER_NAME]",
+        port: "1526"
+    }],
+    ["PostgreSQL", {
+        driverClass: "org.postgresql.Driver",
+        jdbcUrl: "jdbc:postgresql://[HOST]:[PORT]/[DATABASE]",
+        port: "5432"
+    }],
+    ["Sybase ASE", {
+        driverClass: "com.sybase.jdbc3.jdbc.SybDriver",
+        jdbcUrl: "jdbc:sybase:Tds:[HOST]:[PORT]/[DATABASE]",
+        port: "5000"
+    }],
+    ["H2", {
+        driverClass: "org.h2.Driver",
+        jdbcUrl: "jdbc:h2:tcp:[HOST]:[PORT]/[DATABASE]",
+        port: "9092"
+    }],
+    ["Generic", {
+        driverClass: "",
+        jdbcUrl: "",
+        port: ""
+    }]
 ]);
 
 export const propertyParamConfigs: ParamConfig = {

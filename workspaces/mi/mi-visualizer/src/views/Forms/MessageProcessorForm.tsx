@@ -95,9 +95,15 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         return !(artifactNames.includes(value) && savedMPName !== value)
                     }),
         messageProcessorType: yup.string().default(""),
-        messageStoreType: yup.string(),
+        messageStoreType: yup.string().when('messageProcessorType', {
+            is: (messageProcessorType: string) => messageProcessorType !== "Scheduled Failover Message Forwarding Processor",
+            then: (schema) => schema.required("Message Store is required"),
+        }),
         failMessageStoreType: yup.string().notRequired().default(""),
-        sourceMessageStoreType: yup.string(),
+        sourceMessageStoreType: yup.string().when('messageProcessorType', {
+            is: "Scheduled Failover Message Forwarding Processor",
+            then: (schema) => schema.required("Source Message Store is required"),
+        }),
         targetMessageStoreType: yup.string(),
         processorState: yup.string().default("Activate"),
         dropMessageOption: yup.string().default("Disabled"),
@@ -304,6 +310,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             name="messageStoreType"
                             filterType="messageStore"
                             path={props.path}
+                            required
                             errorMsg={errors.messageStoreType?.message.toString()}
                             {...register("messageStoreType")}
                         />
@@ -316,6 +323,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 name="sourceMessageStoreType"
                                 filterType="messageStore"
                                 path={props.path}
+                                required
                                 errorMsg={errors.sourceMessageStoreType?.message.toString()}
                                 {...register("sourceMessageStoreType")}
                             />
@@ -511,17 +519,17 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                     )}
                     <FormActions>
                         <Button
+                            appearance="secondary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
                             appearance="primary"
                             onClick={handleSubmit(handleCreateMessageProcessor)}
                             disabled={!isDirty}
                         >
                             {isNewMessageProcessor ? "Create" : "Save Changes"}
-                        </Button>
-                        <Button
-                            appearance="secondary"
-                            onClick={handleCancel}
-                        >
-                            Cancel
                         </Button>
                     </FormActions>
                 </>}

@@ -18,6 +18,7 @@ import { Codicon, Switch } from "@wso2-enterprise/ui-toolkit";
 import { generateResourceData, onOperationEdit, onResourceCreate, onOperationCreate, onResourceEdit, generateOperationData } from "../../../utils/DSSResourceForm";
 import { ResourceForm, ResourceFormData } from "../../Forms/DataServiceForm/SidePanelForms/ResourceForm";
 import { OperationForm, OperationFormData } from "./SidePanelForms/OperationForm";
+import { GenerateResourceForm } from "./SidePanelForms/GenerateResourcesForm";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -28,6 +29,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
     const [resourceServiceModel, setResourceServiceModel] = React.useState<Service>(null);
     const [operationServiceModel, setOperationServiceModel] = React.useState<Service>(null);
     const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
+    const [isGenerateResourceFormOpen, setGenerateResourceFormOpen] = React.useState<boolean>(false);
     const [isOperationFormOpen, setOperationFormOpen] = React.useState<boolean>(false);
     const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
     const [operationBodyRange, setOperationBodyRange] = React.useState<any>(null);
@@ -212,6 +214,10 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
         setResourceFormOpen(true);
     };
 
+    const handleGenerateResourceAdd = () => {
+        setGenerateResourceFormOpen(true);
+    };
+
     const handleOperationAdd = () => {
         setMode("create");
         setOperationFormOpen(true);
@@ -220,6 +226,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
     const handleCancel = () => {
         setResourceFormOpen(false);
         setOperationFormOpen(false);
+        setGenerateResourceFormOpen(false);
     };
 
     const handleResourceCreate = (formData: ResourceFormData) => {
@@ -290,11 +297,16 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
         <>
             {(resourceServiceModel || operationServiceModel) && (
                 <View>
-                    <ViewHeader title="Service Designer" codicon="globe" onEdit={handleDataServiceEdit}>
+                    <ViewHeader title="Data Service Designer" icon="APIResource" onEdit={handleDataServiceEdit}>
                         {showResources ? (
-                            <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
-                                <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
-                            </VSCodeButton>
+                            <React.Fragment>
+                                <VSCodeButton appearance="primary" title="Add Resource" onClick={handleResourceAdd}>
+                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                                </VSCodeButton>
+                                <VSCodeButton appearance="primary" title="Generate from datasource" onClick={handleGenerateResourceAdd}>
+                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Generate from Datasource
+                                </VSCodeButton>
+                            </React.Fragment>
                         ) : (
                             <VSCodeButton appearance="primary" title="Edit Service" onClick={handleOperationAdd}>
                                 <Codicon name="add" sx={{ marginRight: 5 }} /> Operation
@@ -321,7 +333,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 model={resourceServiceModel}
                                 disableServiceHeader={true}
                                 onResourceClick={handleResourceClick}
-                                customTitle="Available Resources"
+                                customTitle="Resources"
                             />
                         </ViewContent>
                     ) : (
@@ -330,7 +342,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 model={operationServiceModel}
                                 disableServiceHeader={true}
                                 onResourceClick={handleResourceClick}
-                                customTitle="Available Operations"
+                                customTitle="Operations"
                             />
                         </ViewContent>
                     )}
@@ -343,7 +355,12 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                 documentUri={documentUri}
                 onSave={handleResourceCreate}
             />
-
+            <GenerateResourceForm
+                isOpen={isGenerateResourceFormOpen}
+                documentUri={documentUri}
+                syntaxTree={syntaxTree}
+                onCancel={handleCancel}
+            />
             <OperationForm
                 isOpen={isOperationFormOpen}
                 formData={mode === "edit" && formData}

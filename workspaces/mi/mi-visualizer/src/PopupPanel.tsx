@@ -31,7 +31,7 @@ const ViewContainer = styled.div`
     height: 100vh;
 `;
 
-const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
+const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: () => void }) => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
 
@@ -50,37 +50,37 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
         rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
             switch (machineSate?.view) {
                 case MACHINE_VIEW.EndPointForm:
-                    setViewComponent(<EndpointWizard isPopup={true} path={machineSate.documentUri} />);
+                    setViewComponent(<EndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
                 case MACHINE_VIEW.HttpEndpointForm:
-                    setViewComponent(<HttpEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
+                    setViewComponent(<HttpEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
                     break;
                 case MACHINE_VIEW.AddressEndpointForm:
-                    setViewComponent(<AddressEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
+                    setViewComponent(<AddressEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
                     break;
                 case MACHINE_VIEW.WsdlEndpointForm:
-                    setViewComponent(<WsdlEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
+                    setViewComponent(<WsdlEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
                     break;
                 case MACHINE_VIEW.DefaultEndpointForm:
-                    setViewComponent(<DefaultEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
+                    setViewComponent(<DefaultEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} type={machineSate.customProps.type} />);
                     break;
                 case MACHINE_VIEW.LoadBalanceEndPointForm:
-                    setViewComponent(<LoadBalanceWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
+                    setViewComponent(<LoadBalanceWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.FailoverEndPointForm:
-                    setViewComponent(<FailoverWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
+                    setViewComponent(<FailoverWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.RecipientEndPointForm:
-                    setViewComponent(<RecipientWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
+                    setViewComponent(<RecipientWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.TemplateEndPointForm:
-                    setViewComponent(<TemplateEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
+                    setViewComponent(<TemplateEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.ConnectorStore:
-                    setViewComponent(<ConnectorStore isPopup={true} path={machineSate.documentUri} />);
+                    setViewComponent(<ConnectorStore handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} />);
+                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose}/>);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
@@ -89,11 +89,14 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                             allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
                             connector={machineSate.customProps.connector}
                             fromSidePanel={machineSate.customProps.fromSidePanel}
+                            isPopup={true}
                             path={machineSate.documentUri}
-                            isPopup={true} />);
+                            handlePopupClose={props.handleClose}
+                        />
+                    );
                     break;
                 case MACHINE_VIEW.AddDriverPopup:
-                    setViewComponent(<AddDriver isPopup={true} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
+                    setViewComponent(<AddDriver handlePopupClose={props.handleClose} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
                     break;
                 default:
                     setViewComponent(null);

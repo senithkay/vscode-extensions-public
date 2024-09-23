@@ -1,5 +1,5 @@
 import { Codicon, Drawer, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
@@ -53,7 +53,7 @@ export interface SidePanelListProps {
     documentUri: string;
 }
 
-export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string) => {
+export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string | ReactNode) => {
     sidePanelContext.setSidePanelState({
         ...sidePanelContext,
         pageStack: [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }],
@@ -178,17 +178,21 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const Icon = () => {
         if (sidePanelContext.pageStack.length > 0) {
-            const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
-            return lastPage.icon !== undefined && (
+          const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
+          if (lastPage.icon !== undefined) {
+            if (typeof lastPage.icon === "string") {
+              return (
                 <IconContainer>
-                    <img
-                        src={lastPage.icon}
-                        alt="Icon"
-                    />
+                  <img src={lastPage.icon} alt="Icon" />
                 </IconContainer>
-            );
+              );
+            } else if (React.isValidElement(lastPage.icon)) {
+              return <div style={{width: 40}}>{lastPage.icon}</div>;
+            }
+          }
         }
-    }
+        return null;
+      };
 
     const Title = () => {
         if (sidePanelContext.pageStack.length > 0) {
@@ -198,8 +202,8 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     return (
-        <SidePanelContainer>
-            {isLoading ? <LoaderContainer>
+        <SidePanelContainer data-testid="sidepanel">
+            {isLoading ? <LoaderContainer data-testid="sidepanel-loader">
                 < ProgressRing />
 
             </LoaderContainer > :

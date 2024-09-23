@@ -386,3 +386,56 @@ jobs:
         run: |
           cd workspaces/mi/mi-diagram
           xvfb-run --auto-servernum pnpm run test
+
+  UITest_MI:
+    name: Run MI UI tests
+    needs: Build_Stage
+    if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - name: install packages
+        run: |
+          sudo apt-get install xvfb
+          sudo apt-get install -y gnome-keyring
+          sudo apt-get install libsecret-1.0
+          sudo apt install dbus-x11
+          cd workspaces/mi/mi-extension && npx playwright install
+          
+      - name: Run Test
+        run: |
+          export $(dbus-launch)
+          export DISPLAY=:98.0
+          cd workspaces/mi/mi-extension && xvfb-run --server-num 98.0 -s "-ac -screen 0 1920x1080x24" npx playwright test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MI-e2e-test-results-${{ github.run_attempt }}
+          path: workspaces/mi/mi-extension/test-results/**
+          
+      - name: Upload recordings
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MI-e2e-test-recording-${{ github.run_attempt }}
+          path: workspaces/mi/mi-extension/src/test/test-resources/videos/**

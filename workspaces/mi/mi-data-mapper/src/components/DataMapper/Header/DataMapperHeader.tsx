@@ -13,6 +13,11 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
+import { DataMapperNodeModel } from "../../Diagram/Node/commons/DataMapperNode";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import AIMapButton from './AIMapButton';
+import { DataMapWriteRequest } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
     filePath: string;
@@ -21,10 +26,49 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: (fileContent: string) => Promise<void>;
+    onDataMapButtonClick?: () => void;
+    onDataMapClearClick?: () => void;
+    isLoading: boolean;
+    setIsLoading: (loading: boolean) => void;
+    isMapping: boolean;
+    setIsMapping: (mapping: boolean) => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading, setIsMapping, isMapping } = props;
+    const { rpcClient } = useVisualizerContext();
+
+    const handleDataMapButtonClick = async () => {
+        try {
+            let choice = await rpcClient.getMiDataMapperRpcClient().confirmMappingAction();
+            if (choice) {
+                props.setIsLoading(true);
+                let authstatus = await rpcClient.getMiDataMapperRpcClient().authenticateUser();
+                if (authstatus === false) {
+                    return;
+                }
+                props.setIsMapping(true);
+                await rpcClient.getMiDataMapperRpcClient().getMappingFromAI();
+            }
+            else {
+                return;
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            props.setIsMapping(false);
+            props.setIsLoading(false);
+        }
+    };
+
+    const handleDataMapClearButtonClick = async () => {
+        const dm = "return {}";
+
+        const dataMapWriteRequest: DataMapWriteRequest = {
+            dataMapping: dm
+        };
+        await rpcClient.getMiDataMapperRpcClient().writeDataMapping(dataMapWriteRequest);
+    };
 
     return (
         <HeaderContainer>
@@ -42,6 +86,20 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <>
                         <IOFilterBar>
                             <HeaderSearchBox />
+                            <AIMapButton
+                                onClick={handleDataMapButtonClick}
+                                isLoading={isLoading}
+                            />
+
+                            <DeleteButton
+                                appearance="secondary"
+                                onClick={handleDataMapClearButtonClick}
+                                tooltip='Clear All Mapping'
+                            >
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <span>Clear</span>
+                                </div>
+                            </DeleteButton>
                         </IOFilterBar>
                     </>
                 )}
@@ -92,4 +150,15 @@ const IOFilterBar = styled.div`
     align-items: center;
     justify-content: flex-end;
     margin-bottom: 3px;
+`;
+
+const DeleteButton = styled(Button)`
+    color: var(--vscode-errorForeground);
+    border: none;
+    box-sizing: border-box;
+    border-radius: 3px;
+    margin: 0; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 `;

@@ -4,6 +4,8 @@
 	<resource methods="GET" uri-template="/">
 		<inSequence>
 			<filter description="Filter Description" regex="regex" source="expr">
+				<then></then>
+				<else></else>
 			</filter>
 		</inSequence>
 		<faultSequence>

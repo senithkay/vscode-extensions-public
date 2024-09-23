@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const PublishEventForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -334,6 +334,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["metaAttributes"] = getParamManagerValues(values.metaAttributes);
         values["correlationAttributes"] = getParamManagerValues(values.correlationAttributes);

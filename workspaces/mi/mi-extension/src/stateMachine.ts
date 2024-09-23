@@ -25,7 +25,7 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { MockService, STNode, UnitTest, Task, NamedSequence } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest, Task, NamedSequence, InboundEndpoint } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
@@ -366,14 +366,21 @@ const stateMachine = createMachine<MachineContext>({
         },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Active);
+                    const webview = VisualizerWebview.currentPanel!.getWebview();
+                    webview?.reveal(ViewColumn.Active);
+
+                    // wait until webview is ready
+                    const start = Date.now();
+                    while (!webview?.visible && Date.now() - start < 5000) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
                     resolve(true);
                 }
             });
@@ -383,7 +390,7 @@ const stateMachine = createMachine<MachineContext>({
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
 
-                if (context.view?.includes("Form") && context.view !== MACHINE_VIEW.InboundEPForm) {
+                if (context.view?.includes("Form")) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -462,6 +469,16 @@ const stateMachine = createMachine<MachineContext>({
                                     viewLocation.stNode = node["mock-service"] as MockService;
                                     break;
                                 case !!node.inboundEndpoint:
+                                    // enrich inbound endpoint with the sequence model
+                                    const inboundEndpoint: InboundEndpoint = node.inboundEndpoint as InboundEndpoint;
+                                    viewLocation.view = MACHINE_VIEW.InboundEPView;
+                                    const epSequenceName = inboundEndpoint.sequence;
+                                    const sequenceURI = await langClient.getSequencePath(epSequenceName ? epSequenceName : "");
+                                    if (sequenceURI) {
+                                        const sequence = await langClient.getSyntaxTree({ documentIdentifier: { uri: sequenceURI } });
+                                        inboundEndpoint.sequenceModel = sequence.syntaxTree.sequence;
+                                        inboundEndpoint.sequenceURI = sequenceURI;
+                                    }
                                     viewLocation.stNode = node.inboundEndpoint;
                                     break;
                                 default:

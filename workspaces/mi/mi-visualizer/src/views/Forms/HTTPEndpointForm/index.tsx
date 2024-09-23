@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -23,6 +23,7 @@ export interface HttpEndpointWizardProps {
     path: string;
     type: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
@@ -101,11 +102,27 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         policyKey: yup.string().notRequired().default(""),
         inboundPolicyKey: yup.string().notRequired().default(""),
         outboundPolicyKey: yup.string().notRequired().default(""),
-        suspendErrorCodes: yup.string(),
+        suspendErrorCodes: yup.string().notRequired()
+            .test(
+                'validateNumericOrEmpty',
+                'Suspend Error Codes must be a comma-separated list of error codes',
+                value => {
+                    if (value === '') return true;
+                    return /^(\d+)(,\d+)*$/.test(value);
+                }
+            ),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
         progressionFactor: yup.number().typeError('Progression Factor must be a number'),
-        retryErrorCodes: yup.string(),
+        retryErrorCodes: yup.string().notRequired()
+            .test(
+                'validateNumericOrEmpty',
+                'Retry Error Codes must be a comma-separated list of error codes',
+                value => {
+                    if (value === '') return true;
+                    return /^(\d+)(,\d+)*$/.test(value);
+                }
+            ),
         retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0"),
         retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay must be greater than or equal to 0"),
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
@@ -123,6 +140,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
         templateParameters: yup.array(),
+        basicUsernameExpression: yup.boolean().notRequired().default(false),
+        basicPasswordExpression: yup.boolean().notRequired().default(false),
+        usernameExpression: yup.boolean().notRequired().default(false),
+        passwordExpression: yup.boolean().notRequired().default(false),
+        clientIdExpression: yup.boolean().notRequired().default(false),
+        clientSecretExpression: yup.boolean().notRequired().default(false),
+        tokenUrlExpression: yup.boolean().notRequired().default(false),
+        refreshTokenExpression: yup.boolean().notRequired().default(false),
         saveInReg: yup.boolean(),
         artifactName: yup.string().when('saveInReg', {
             is: false,
@@ -144,11 +169,12 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
-                    if (formattedPath === undefined) return true;
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
+                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                        if (formattedPath === undefined) return true;
+                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                    }),
         }),
         registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"])
     });
@@ -177,6 +203,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -219,6 +246,14 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     }))
                 }));
                 reset(existingEndpoint);
+                setValue('basicAuthUsername', removeBraces(watch('basicAuthUsername'), 'basicUsernameExpression'));
+                setValue('basicAuthPassword', removeBraces(watch('basicAuthPassword'), 'basicPasswordExpression'));
+                setValue('username', removeBraces(watch('username'), 'usernameExpression'));
+                setValue('password', removeBraces(watch('password'), 'passwordExpression'));
+                setValue('clientId', removeBraces(watch('clientId'), 'clientIdExpression'));
+                setValue('clientSecret', removeBraces(watch('clientSecret'), 'clientSecretExpression'));
+                setValue('tokenUrl', removeBraces(watch('tokenUrl'), 'tokenUrlExpression'));
+                setValue('refreshToken', removeBraces(watch('refreshToken'), 'refreshTokenExpression'));
                 setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
                 setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
@@ -239,11 +274,26 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         })();
     }, [props.path]);
 
+    useEffect(() => {
+        setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
+        }
+    }, [isTemplate ? watch("templateName") : watch("endpointName")]);
+
     const handleUpdateHttpEndpoint = async (values: any) => {
         const updateHttpEndpointParams: UpdateHttpEndpointRequest = {
             directory: props.path,
             getContentOnly: watch("saveInReg"),
             ...values,
+            basicAuthUsername: addBracesIfExpressionNotBlank(values.basicUsernameExpression, values.basicAuthUsername),
+            basicAuthPassword: addBracesIfExpressionNotBlank(values.basicPasswordExpression, values.basicAuthPassword),
+            username: addBracesIfExpressionNotBlank(values.usernameExpression, values.username),
+            password: addBracesIfExpressionNotBlank(values.passwordExpression, values.password),
+            clientId: addBracesIfExpressionNotBlank(values.clientIdExpression, values.clientId),
+            clientSecret: addBracesIfExpressionNotBlank(values.clientSecretExpression, values.clientSecret),
+            tokenUrl: addBracesIfExpressionNotBlank(values.tokenUrlExpression, values.tokenUrl),
+            refreshToken: addBracesIfExpressionNotBlank(values.refreshTokenExpression, values.refreshToken)
         }
 
         const result = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
@@ -252,7 +302,16 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 isTemplate ? values.templateName : values.endpointName,
                 result.content, values.registryPath, values.artifactName);
         }
-        openOverview();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("endpointName") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
@@ -262,6 +321,28 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
     };
+
+    const isNotBlank = (value: string) => {
+        return value !== undefined && value !== null && value !== "";
+    }
+
+    const addBracesIfExpressionNotBlank = (condition: boolean | undefined, value: string | undefined | null): string | undefined | null => {
+        if (condition && isNotBlank(value)) {
+            return `{${value}}`;
+        }
+        return value;
+    };
+
+    const removeBraces = (value: string, expressionName: keyof InputsFields): string => {
+        if (isNotBlank(value)) {
+            if (value.length > 1 && value[0] === '{' && value[value.length - 1] === '}') {
+                setValue(expressionName, true);
+                return value.substring(1, value.length - 1);
+            }
+        }
+        setValue(expressionName, false);
+        return value;
+    }
 
     const changeType = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
@@ -285,9 +366,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     return (
         <FormView
-            title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
-            onClose={openOverview}
-            hideClose={props.isPopup}
+            title={isTemplate ? 'Template' : 'Endpoint'}
+            onClose={props.handlePopupClose ?? openOverview}
         >
             <TypeChip
                 type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"}
@@ -313,7 +393,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             {isNewEndpoint && (
                 <>
                     <FormCheckBox
-                        label="Save the sequence in registry"
+                        label="Save the endpoint in registry"
                         {...register("saveInReg")}
                         control={control}
                     />
@@ -326,17 +406,17 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             )}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateHttpEndpoint)}
                     disabled={!isDirty}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

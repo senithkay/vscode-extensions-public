@@ -8,15 +8,16 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Codicon, ErrorBanner, getItemKey, ItemComponent, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { FieldValues, useController, UseControllerProps } from "react-hook-form";
 import { Colors } from "../../../resources/constants";
 import fsPath from "path";
-import { ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
-import { Namespace } from "../../sidePanel/expressionEditor/ExpressionEditor";
+import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
+import { getValue, isExpressionFieldValue } from "./utils";
+import { ResourceType, MultipleResourceType } from "@wso2-enterprise/mi-core";
 
 export type FilterType =
     | "sequence"
@@ -50,6 +51,9 @@ export type FilterType =
 interface IKeylookupBase {
     // AutoComplete props
     id?: string;
+    label?: string;
+    placeholder?: string;
+    disabled?: boolean;
     required?: boolean;
     notItemsFoundMessage?: string;
     widthOffset?: number;
@@ -58,14 +62,14 @@ interface IKeylookupBase {
     sx?: React.CSSProperties;
     borderBox?: boolean;
     errorMsg?: string;
-    value?: string;
-    onValueChange?: (item: string, index?: number) => void;
+    value?: string | ExpressionFieldValue;
+    onValueChange?: (value: string | ExpressionFieldValue) => void;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
     path?: string;
     // Artifact type to be fetched
-    filterType?: FilterType;
+    filterType?: FilterType | ResourceType[];
     // Callback to filter the fetched artifacts
     filter?: (value: string) => boolean;
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
@@ -75,18 +79,10 @@ interface IKeylookupBase {
 // Define the conditional properties for the ExpressionField
 type ExpressionFieldProps = {
     exprToggleEnabled: true;
-    isExpression: boolean;
-    setIsExpression: (isExpr: boolean) => void;
-    namespaces: Namespace[];
-    setNamespaces: (namespaces: Namespace[]) => void;
     canChangeEx?: boolean;
     openExpressionEditor?: (value: ExpressionFieldValue, setValue: (value: ExpressionFieldValue) => void) => void;
 } | {
     exprToggleEnabled?: false | never;
-    isExpression?: never;
-    setIsExpression?: never;
-    namespaces?: never;
-    setNamespaces?: never;
     canChangeEx?: never;
     openExpressionEditor?: never;
 };
@@ -121,13 +117,10 @@ const Container = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: "2px",
-});
 
-const Link = styled.div({
-    position: "absolute",
-    right: "0",
-    top: "0",
-    padding: "2px"
+    "*": {
+        boxSizing: "border-box"
+    }
 });
 
 const ItemContainer = styled.div({
@@ -181,22 +174,18 @@ export const Keylookup = (props: IKeylookup) => {
     const {
         filter,
         filterType,
-        value: initialValue,
+        value = "",
         onValueChange,
         allowItemCreate = true,
         path,
         errorMsg,
         exprToggleEnabled,
-        isExpression,
-        setIsExpression,
-        namespaces,
-        setNamespaces,
         canChangeEx,
         openExpressionEditor,
+        sx,
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
-    const [value, setValue] = useState<string | undefined>();
     const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
@@ -217,7 +206,7 @@ export const Keylookup = (props: IKeylookup) => {
                 result.mockServices.forEach((mockService) => {
                     const fileName = mockService.path.split(mockServicesRoot)[1];
                     const item = { key: mockService.name, item: getItemComponent(fileName.substring(1, fileName.length - 4)) };
-                    if (mockService.name === initialValue) {
+                    if (mockService.name === getValue(value)) {
                         items.unshift(item);
                     } else {
                         items.push(item);
@@ -258,9 +247,17 @@ export const Keylookup = (props: IKeylookup) => {
             return;
         }
 
+        let resourceType: ResourceType | MultipleResourceType[];
+        if (Array.isArray(filterType)) {
+            resourceType = filterType.map((type) => {
+                return { type: type }
+            });
+        } else {
+            resourceType = filterType;
+        }
         const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
             documentIdentifier: path,
-            resourceType: filterType,
+            resourceType: resourceType
         });
 
         let workspaceItems: ItemComponent[] = [];
@@ -269,7 +266,7 @@ export const Keylookup = (props: IKeylookup) => {
         if (result?.resources) {
             result.resources.forEach((resource) => {
                 const item = { key: resource.name, item: getItemComponent(resource.name) };
-                if (resource.name === initialValue) {
+                if (resource.name === getValue(value)) {
                     initialItem = item;
                     return;
                 }
@@ -279,7 +276,7 @@ export const Keylookup = (props: IKeylookup) => {
         if (result?.registryResources) {
             result.registryResources.forEach((resource) => {
                 const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
-                if (resource.registryKey === initialValue) {
+                if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;
                 }
@@ -292,8 +289,8 @@ export const Keylookup = (props: IKeylookup) => {
             ...workspaceItems, ...registryItems];
 
         // Add the initial value to the start of the list if provided
-        if (!!initialValue && initialValue.length > 0) {
-            items.unshift((initialItem || initialValue));
+        if (!!getValue(value) && getValue(value).length > 0) {
+            items.unshift((initialItem || getValue(value)));
         }
 
         if (filter) {
@@ -303,8 +300,11 @@ export const Keylookup = (props: IKeylookup) => {
     };
 
     const handleValueChange = (val: string) => {
-        setValue(val);
-        onValueChange && onValueChange(val);
+        if (isExpressionFieldValue(value)) {
+            onValueChange && onValueChange({ ...value, value: val });
+        } else {
+            onValueChange && onValueChange(val);
+        }
     };
 
     
@@ -317,53 +317,52 @@ export const Keylookup = (props: IKeylookup) => {
             </ExBtn.Container>
         );
     }
-
-    const expressionFieldValue: ExpressionFieldValue = {
-        value: value || initialValue,
-        isExpression,
-        namespaces
-    }
-    
-    const handleExpressionEditorChanges = (value: ExpressionFieldValue) => {
-        setValue(value.value);
-        setNamespaces(value.namespaces);
-        onValueChange && onValueChange(value.value);
-    }
     
     return (
         <Container>
-            {exprToggleEnabled && isExpression && (
-                <Link onClick={() => openExpressionEditor(expressionFieldValue, handleExpressionEditorChanges)}>
-                    <Tooltip content="Open Expression editor" position="left">
-                        <Codicon name="edit" />
-                    </Tooltip>
-                </Link>
+            {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
+            !isExpressionFieldValue(value)) ? (
+                <AutoComplete
+                    {...rest}
+                    value={getValue(value)}
+                    onValueChange={handleValueChange}
+                    borderBox={true}
+                    required={props.required}
+                    items={items}
+                    allowItemCreate={allowItemCreate}
+                    onCreateButtonClick={props.onCreateButtonClick ? () => {
+                        handleValueChange("");
+                        props.onCreateButtonClick(fetchItems, handleValueChange);
+                    } : null}
+                    {...exprToggleEnabled && isExpressionFieldValue(value) && {
+                        actionBtns: [
+                            <ExButton
+                                isActive={value.isExpression}
+                                onClick={() => {
+                                    if (canChangeEx) {
+                                        onValueChange && onValueChange({
+                                            ...value, isExpression: !value.isExpression
+                                        });
+                                    }
+                                }}
+                            />
+                        ],
+                    }}
+                /> 
+            ) : (
+                <ExpressionField
+                    label={props.label}
+                    placeholder={props.placeholder}
+                    required={props.required}
+                    disabled={props.disabled}
+                    value={value}
+                    onChange={onValueChange}
+                    canChange={canChangeEx}
+                    openExpressionEditor={(value, onValueChange) => openExpressionEditor(value, onValueChange)}
+                    errorMsg={errorMsg}
+                    sx={{ ...sx, height: "45px" }}
+                />
             )}
-            <AutoComplete
-                {...rest}
-                value={value || initialValue}
-                onValueChange={handleValueChange}
-                required={props.required}
-                items={items}
-                allowItemCreate={allowItemCreate}
-                onCreateButtonClick={props.onCreateButtonClick ? () => {
-                    handleValueChange("");
-                    props.onCreateButtonClick(fetchItems, handleValueChange);
-                } : null}
-                {...exprToggleEnabled && {
-                    actionBtns: [
-                        <ExButton
-                            isActive={isExpression}
-                            onClick={() => {
-                                if (canChangeEx) {
-                                    setIsExpression(!isExpression);
-                                }
-                            }}
-                        />
-                    ],
-                    hideDropdown: isExpression
-                }}
-            />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </Container>
     );
@@ -376,31 +375,15 @@ export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) =
     } = useController({ name, control });
 
     if (exprToggleEnabled) {
-        const handleValueChange = (val: string) => {
-            onChange({ ...value, value: val });
-        }
-
-        const handleExprChange = (isExpr: boolean) => {
-            onChange({ ...value, isExpression: isExpr });
-        }
-
-        const handleNamespacesChange = (namespaces: Namespace[]) => {
-            onChange({ ...value, namespaces: namespaces });
-        }
-
         return (
             <Keylookup
                 {...rest}
                 name={name}
                 label={label}
-                value={value.value}
-                onValueChange={handleValueChange}
+                value={value}
+                onValueChange={onChange}
                 exprToggleEnabled={true}
-                isExpression={value.isExpression}
-                setIsExpression={handleExprChange}
                 canChangeEx={canChangeEx}
-                namespaces={value.namespaces}
-                setNamespaces={handleNamespacesChange}
                 openExpressionEditor={openExpressionEditor}
             />
         );

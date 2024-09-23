@@ -41,6 +41,7 @@ export enum MACHINE_VIEW {
     TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
     InboundEPForm = "Inbound EP Form",
+    InboundEPView = "Inbound EP View",
     MessageProcessorForm = "Message Processor Form",
     ProxyServiceForm = "Proxy Service Form",
     TaskForm = "Task Form",
@@ -52,7 +53,7 @@ export enum MACHINE_VIEW {
     DefaultEndpointForm = "Default Endpoint Form",
     DataServiceForm = "Data Service Form",
     DssDataSourceForm = "DSS Data Source Form",
-    DSSServiceDesigner = "DSS Service Designer",
+    DSSServiceDesigner = "Data Service Designer",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
@@ -85,7 +86,7 @@ export type MachineStateValue =
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
-export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
+export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled';
 
 export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 
@@ -165,9 +166,25 @@ export interface PopupVisualizerLocation extends VisualizerLocation {
     recentIdentifier?: string;
 }
 
+interface FileObject {
+    fileName: string;
+    fileContent: string;
+}
+
+interface ImageObject {
+    imageName: string;
+    imageBase64: string;
+}
+
+interface PromptObject {
+    aiPrompt: string;
+    files: FileObject[];
+    images: ImageObject[];
+}
+
 export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
-    initialPrompt?: string;
+    initialPrompt?: PromptObject;
     state?: AIMachineStateValue;
     userTokens?: AIUserTokens;
 }
@@ -193,6 +210,12 @@ export interface ConnectorStatus {
     message: string;
 }
 
+export interface DownloadProgressData {
+    percentage: number;
+    downloadedAmount: string;
+    downloadSize: string;
+}
+
 export interface Document {
     uri: string;
 }
@@ -211,4 +234,5 @@ export const onSwaggerSpecReceived: NotificationType<SwaggerData> = { method: `o
 export const miServerRunStateChanged: NotificationType<MiServerRunStatus> = { method: `miServerRunStateChanged` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` };
+export const onDownloadProgress: NotificationType<DownloadProgressData> = { method: `onDownloadProgress` };
 export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };

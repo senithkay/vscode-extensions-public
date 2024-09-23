@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const XSLTForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -50,7 +50,7 @@ const XSLTForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
-            xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || "",
+            xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || {"isExpression":false,"value":""},
             properties: {
                 paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties, 0, 1) : [],
                 paramFields: [
@@ -118,6 +118,7 @@ const XSLTForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["properties"] = getParamManagerValues(values.properties);
         values["resources"] = getParamManagerValues(values.resources);
@@ -176,7 +177,12 @@ const XSLTForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (

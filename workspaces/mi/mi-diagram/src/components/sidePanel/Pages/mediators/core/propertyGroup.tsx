@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const PropertyGroupForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -58,6 +58,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "isExpression": false,
                             "value": ""
                         },
+                        "placeholder": "New Property Name",
                         "isRequired": true,
                         "canChange": true, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
@@ -65,6 +66,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "Dropdown",
                         "label": "Property Action",
                         "defaultValue": "set",
+                        "placeholder": "Property Action",
                         "isRequired": true,
                         "values": [
                             "set",
@@ -75,6 +77,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "Dropdown",
                         "label": "Property Data Type",
                         "defaultValue": "STRING",
+                        "placeholder": "Property Data Type",
                         "isRequired": true,
                         "values": [
                             "STRING",
@@ -101,6 +104,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "isExpression": false,
                             "value": ""
                         },
+                        "placeholder": "Value",
                         "isRequired": false,
                         "canChange": true,
                         "enableCondition": [
@@ -123,6 +127,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "isExpression": false,
                             "value": ""
                         },
+                        "placeholder": "Value",
                         "isRequired": false,
                         "canChange": true,
                         "enableCondition": [
@@ -135,6 +140,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "Dropdown",
                         "label": "Property Scope",
                         "defaultValue": "DEFAULT",
+                        "placeholder": "Property Scope",
                         "isRequired": true,
                         "values": [
                             "DEFAULT",
@@ -151,6 +157,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Value String Pattern",
                         "defaultValue": "",
+                        "placeholder": "Value String Pattern",
                         "isRequired": false,
                         "enableCondition": [
                             "AND",
@@ -166,6 +173,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Value String Capturing Group",
                         "defaultValue": "0",
+                        "placeholder": "Value String Capturing Group",
                         "isRequired": false,
                         "enableCondition": [
                             "AND",
@@ -181,6 +189,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Description",
                         "defaultValue": "",
+                        "placeholder": "Description",
                         "isRequired": false
                     },
                 ]
@@ -197,6 +206,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["properties"] = getParamManagerValues(values.properties);
         const xml = getXML(MEDIATORS.PROPERTYGROUP, values, dirtyFields, sidePanelContext.formValues);

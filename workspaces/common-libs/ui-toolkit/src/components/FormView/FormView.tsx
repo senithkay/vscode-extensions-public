@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../Button/Button';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
@@ -35,6 +35,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
         <div onScroll={handleScroll} style={{
             overflowY: 'auto',
             overflowX: 'hidden',
+            height: '-webkit-fill-available',
             maxHeight: !hideClose ? 'calc(100vh - 22px)' : 'fit-content',
         }} className="form-view">
             <div style={{ maxWidth: '52em', margin: '0 auto' }}>
@@ -73,6 +74,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
     return (
         <div className="form-actions" style={{
             display: 'flex',
+            justifyContent: 'flex-end',
             gap: '10px',
             position: 'sticky',
             bottom: 0,
@@ -92,13 +94,17 @@ interface FormGroupProps {
 
 export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
+    
+    useEffect(() => {
+        setCollapsed(isCollapsed);
+    }, [isCollapsed]);
 
     const toggleCollapse = () => setCollapsed(!collapsed);
 
     return (
         <div className="form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={toggleCollapse}>
-                <Typography variant="h2" sx={{ fontWeight: 'lighter', margin: '0px' }}>{title}</Typography>
+                <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
                 <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-editorIndentGuide-background)' }} />
                 <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
                     <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />

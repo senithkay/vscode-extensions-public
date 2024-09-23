@@ -354,7 +354,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                     },
                 ]
             },
-            jsonPayload: sidePanelContext?.formValues?.jsonPayload || ''
+            jsonPayload: sidePanelContext?.formValues?.jsonPayload?.replace(/\s+/g, " ").trim() || ''
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
@@ -483,7 +483,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                             name="jsonPayload"
                             control={control}
                             render={({field}) => (
-                                <TextArea {...field} label="JSON Payload" placeholder=""/>
+                                <TextArea {...field} label="JSON Payload" placeholder="" rows={15} resize="vertical"/>
                             )}
                         />
                         {errors.jsonPayload && <Error>{errors.jsonPayload.message.toString()}</Error>}

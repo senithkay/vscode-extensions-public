@@ -113,7 +113,8 @@ export function checkServerReadiness(): Promise<void> {
                     if (elapsedTime < maxTimeout) {
                         setTimeout(checkReadiness, retryInterval);
                     } else {
-                        logDebug(`Error while checking for Server readiness: ${error}`, ERROR_LOG);
+                        const errorMsg = error?.errors[0]?.message;
+                        logDebug(`Error while checking for Server readiness: ${errorMsg}`, ERROR_LOG);
                         reject(`CApp has encountered deployment issues. Please refer to the output for error logs.`);
                     }
                 });
@@ -138,7 +139,7 @@ export async function executeCopyTask(task: vscode.Task) {
     });
 }
 
-export async function executeBuildTask(serverPath: string, shouldCopyTarget: boolean = true) {
+export async function executeBuildTask(serverPath: string, shouldCopyTarget: boolean = true, postBuildTask?: Function) {
     return new Promise<void>(async (resolve, reject) => {
         const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
 
@@ -200,6 +201,15 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
                             }
                         }
                     }
+                } else {
+                    reject(`Build process failed`);
+                }
+            });
+        } else if (postBuildTask) {
+            buildProcess.on('exit', async (code) => {
+                if (code === 0) {
+                    postBuildTask();
+                    resolve();
                 } else {
                     reject(`Build process failed`);
                 }

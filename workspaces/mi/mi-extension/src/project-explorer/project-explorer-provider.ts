@@ -496,12 +496,13 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 
 			// Generate resource structure
 			for (let i = 0; i < entry.resources.length; i++) {
-				const resource = entry.resources[i];
+				const resource: any = entry.resources[i];
+				const iconName = resource?.methods?.includes(" ") ? "APIResource" : `${resource?.methods?.toLowerCase()}-api`;
 				const resourceEntry = new ProjectExplorerEntry((resource.uriTemplate || resource.urlMapping) ?? "/", isCollapsibleState(false), {
 					name: (resource.uriTemplate || resource.urlMapping),
 					type: 'resource',
 					path: `${entry.path}/${i}`
-				}, 'code', true);
+				}, iconName);
 				resourceEntry.command = {
 					"title": "Show Diagram",
 					"command": COMMANDS.SHOW_RESOURCE_VIEW,
@@ -639,8 +640,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'data-service';
 			explorerEntry.command = {
 				"title": "Show Data Service",
-				"command": COMMANDS.SHOW_DATA_SERVICE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"command": COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
+				"arguments": [vscode.Uri.file(entry.path)]
 			};
 		}
 		else {

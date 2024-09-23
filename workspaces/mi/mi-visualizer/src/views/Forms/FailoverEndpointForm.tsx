@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
@@ -33,6 +33,7 @@ export interface Region {
 export interface FailoverWizardProps {
     path: string;
     isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 type Endpoint = {
@@ -85,6 +86,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required")
@@ -122,7 +124,8 @@ export function FailoverWizard(props: FailoverWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -149,8 +152,8 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
-            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
-            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+            { id: 1, type: "TextField", label: "Name", placeholder: "parameter_key", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", placeholder: "parameter_value", defaultValue: "", isRequired: true },
             { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
         ]
     });
@@ -197,6 +200,13 @@ export function FailoverWizard(props: FailoverWizardProps) {
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
+    }, [watch("name")]);
 
     const buildMessageOptions = [
         { content: 'True', value: 'true' },
@@ -259,7 +269,16 @@ export function FailoverWizard(props: FailoverWizardProps) {
         if (watch("saveInReg") && isNewEndpoint) {
             await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
         }
-        openOverview();
+        
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("name") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const openOverview = () => {
@@ -279,7 +298,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
+        <FormView title="Endpoint" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Failover Endpoint"}
                 onClick={changeType}
@@ -351,17 +370,17 @@ export function FailoverWizard(props: FailoverWizardProps) {
             </>)}
             <FormActions>
                 <Button
+                    appearance="secondary"
+                    onClick={openOverview}
+                >
+                    Cancel
+                </Button>
+                <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
                     disabled={!(isDirty || endpointsUpdated)}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
-                </Button>
-                <Button
-                    appearance="secondary"
-                    onClick={openOverview}
-                >
-                    Cancel
                 </Button>
             </FormActions>
         </FormView>

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataServiceNodeModel } from "./DataServiceNodeModel";
@@ -143,6 +143,10 @@ export function DataServiceNodeWidget(props: DataServiceNodeWidgetProps) {
         });
     };
 
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
+
     const TooltipEl = useMemo(() => {
         return () => (
             <S.TooltipContent style={{ textWrap: "wrap" }}>
@@ -152,7 +156,7 @@ export function DataServiceNodeWidget(props: DataServiceNodeWidgetProps) {
     }, [tooltip])
 
     return (
-        <div >
+        <div data-testid={`dataServiceNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected() && !isHoveredDataSource}

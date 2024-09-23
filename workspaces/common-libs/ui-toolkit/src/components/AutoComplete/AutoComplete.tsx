@@ -60,6 +60,7 @@ const ActionButtonContainer = cx(css`
 
 const ComboboxButtonContainerActive = cx(css`
     padding-right: 5px;
+    padding-block: 0;
     background-color: var(--vscode-input-background);
     border-right: 1px solid var(--vscode-focusBorder);
     border-bottom: 1px solid var(--vscode-focusBorder);
@@ -69,6 +70,7 @@ const ComboboxButtonContainerActive = cx(css`
 
 const ComboboxButtonContainer = cx(css`
     padding-right: 5px;
+    padding-block: 0;
     background-color: var(--vscode-input-background);
     border-right: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
@@ -85,11 +87,12 @@ export const DropdownIcon = cx(css`
 `);
 
 export const SearchableInput = (hideDropdown: boolean) => cx(css`
+    font-size: var(--vscode-font-size);
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: ${hideDropdown ? '100%' : 'auto'};
+    height: ${hideDropdown ? '100%' : '22px'};
     width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
-    padding-left: 8px;
+    padding-left: 9px;
     padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
@@ -366,7 +369,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
                             className={cx(SearchableInput(hideDropdown), borderBox && cx(css`
-                                height: 28px;
+                                height: 26px;
                             `))}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
@@ -377,7 +380,11 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                 ActionButtonStyles,
                                 isTextFieldFocused ? ActionButtonContainerActive : ActionButtonContainer
                             )}>
-                                {actionBtns}
+                                {actionBtns.map((btn, index) => (
+                                    <React.Fragment key={index}>
+                                        {btn}
+                                    </React.Fragment>
+                                ))}
                             </div>
                         )}
                         <Combobox.Button

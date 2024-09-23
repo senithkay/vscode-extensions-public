@@ -8,19 +8,12 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
-
-const cardStyle = {
-    display: "block",
-    padding: "10px 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
-};
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -28,9 +21,15 @@ const Field = styled.div`
 
 export interface FormGeneratorProps {
     formData: any;
+    sequences?: string[];
+    onEdit?: boolean;
     control: any;
     errors: any;
     setValue: any;
+    watch: any;
+    getValues: any;
+    skipGeneralHeading?: boolean;
+    ignoreFields?: string[];
 }
 
 interface Element {
@@ -51,14 +50,22 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
+    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-
-    const { formData, control, errors, setValue } = props;
+    const [autoGenerate, setAutoGenerate] = useState(!onEdit);
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
     }
+
+    const handleSequenceGeneration = (e: any) => {
+        setAutoGenerate(e);
+        if (e) {
+            setValue("sequence", "");
+            setValue("onError", "");
+        }
+    };
 
     const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
 
@@ -95,6 +102,43 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />
             </>
         )
+    }
+
+    const sequenceFieldComponent = ({ element }: { element: Element }) => {
+        return (
+            <Controller
+                name={getNameForController(element.name)}
+                control={control}
+                rules={
+                    {
+                        ...(element.required === 'true') && {
+                            validate: (value) => {
+                                if (!value || (typeof value === 'object' && !value.value)) {
+                                    return "This field is required";
+                                }
+                                return true;
+                            },
+                        }
+                    }
+                }
+                render={({ field }) => (
+                    <Field>
+                        <AutoComplete
+                            name={getNameForController(element.name)}
+                            label={element.displayName}
+                            items={sequences}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={element.required === 'true'}
+                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            allowItemCreate={false}
+                        />
+                    </Field>
+                )}
+            />
+        );
     }
 
     const renderFormElement = (element: Element, field: any) => {
@@ -178,9 +222,42 @@ export function FormGenerator(props: FormGeneratorProps) {
         return elements.map((element: { type: string; value: any; }) => {
             if (element.type === 'attribute') {
                 if (element.value.hidden) {
-                    setValue(element.value.name, element.value.defaultValue ?? "");
+                    setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
                     return;
                 }
+
+                if (ignoreFields?.includes(element.value.name)) {
+                    return;
+                }
+
+                if (element.value.name === "sequence") {
+                    return (
+                        <>
+                            {!onEdit && <CheckBox
+                                label="Automatically generate sequences"
+                                onChange={handleSequenceGeneration}
+                                checked={autoGenerate}
+                            />}
+                            {!autoGenerate && sequenceFieldComponent({ element: element.value })}
+                        </>);
+                }
+
+                if (element.value.name === "onError") {
+                    return (
+                        !autoGenerate && sequenceFieldComponent({ element: element.value })
+                    );
+                }
+                
+                if (element.value.enableCondition) {
+                    return (
+                        renderControllerIfConditionMet(element)
+                    );
+                }
+
+                if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
+                    setValue(getNameForController(element.value.name), element.value.defaultValue)
+                }
+
                 return <Controller
                     name={getNameForController(element.value.name)}
                     control={control}
@@ -206,12 +283,15 @@ export function FormGenerator(props: FormGeneratorProps) {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                        {(element.value.groupName === "Generic" || (element.value.groupName === "General" && skipGeneralHeading)) ?
+                            renderForm(element.value.elements) :
                             <>
                                 <FormGroup
                                     key={element.value.groupName}
                                     title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced") ? true : false}
+                                    isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
+                                        true : false
+                                    }
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
@@ -223,6 +303,96 @@ export function FormGenerator(props: FormGeneratorProps) {
             return null;
         });
     };
+
+    const renderControllerIfConditionMet = (element: any) => {
+        let watchStatements: boolean;
+
+        if (Array.isArray(element.value.enableCondition)) {
+            const firstElement = element.value.enableCondition[0];
+
+            if (firstElement === "AND") {
+                // Handle AND conditions
+                watchStatements = true;
+                const conditions = element.value.enableCondition.slice(1);
+                const statements = conditions.forEach((condition: any) => {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    if (!(watch(conditionKey) === conditionValue && watchStatements)) {
+                        watchStatements = false;
+                    }
+                });
+            } else if (firstElement === "OR") {
+                // Handle OR conditions
+                watchStatements = false;
+                const conditions = element.value.enableCondition.slice(1);
+                const statements = conditions.forEach((condition: any) => {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    if (watch(conditionKey) === conditionValue || watchStatements) {
+                        watchStatements = true;
+                    }
+                });
+            } else if (firstElement === "NOT") {
+                // Handle NOT conditions
+                watchStatements = false;
+                const condition = element.value.enableCondition.slice(1)[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) !== conditionValue;
+                }
+            } else {
+                // Handle Single condition
+                const condition = element.value.enableCondition[0];
+                if (condition) {
+                    const key = Object.keys(condition)[0];
+                    const conditionKey = getNameForController(key);
+                    const conditionValue = condition[key];
+                    watchStatements = watch(conditionKey) === conditionValue;
+                }
+            }
+        }
+
+        if (watchStatements) {
+            if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
+                setValue(getNameForController(element.value.name), element.value.defaultValue)
+            }
+
+            return (
+                <Controller
+                    name={getNameForController(element.value.name)}
+                    control={control}
+                    defaultValue={element.value.defaultValue ?? ""}
+                    rules={
+                        {
+                            ...(element.value.required === 'true') && {
+                                validate: (value) => {
+                                    if (!value || (typeof value === 'object' && !value.value)) {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
+                            }
+                        }
+                    }
+                    render={({ field }) => (
+                        <Field>
+                            {renderFormElement(element.value, field)}
+                        </Field>
+                    )}
+                />
+            );
+        } else {
+            if (getValues(getNameForController(element.value.name))) {
+                setValue(getNameForController(element.value.name), "")
+            }
+        }
+
+        return null; // Return null if conditions are not met
+    }
 
     return (
         formData && formData.elements && formData.elements.length > 0 && (
