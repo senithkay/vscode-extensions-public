@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useState } from "react";
-import { OpenAPI } from "../../Definitions/ServiceDefinitions";
+import { OpenAPI, Path } from "../../Definitions/ServiceDefinitions";
 import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathsComponent } from "../PathsComponent/PathsComponent";
@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
-import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID } from "../Utils/OpenAPIUtils";
+import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
 
 interface OpenAPIDefinitionProps {
@@ -57,8 +57,9 @@ const schema = yup.object({
 });
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
-    const { openAPIDefinition } = props;
-    const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
+    const { openAPIDefinition: initialOpenAPIDefinition } = props;
+    const [ openAPIDefinition, setOpenAPIDefinition ] = useState<OpenAPI>(initialOpenAPIDefinition);
+    const [ selectedPathID, setSelectedPathID ] = useState<string | undefined>(undefined);
 
     const {
         reset,
@@ -83,11 +84,88 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setSelectedPathID(undefined);
     };
 
+    const handlePathChange = (path: Path) => {
+        // Update the OpenAPI definition with the new path
+        const currentPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
+        const currentPathItems = currentPath && openAPIDefinition.paths[currentPath];
+        let updatedOpenAPIDefinition;
+        if (currentPath) {
+            // Update the existing path
+            const currentPathItem = currentPathItems && currentPathItems[path.initialMethod];
+            // Remove the currentPathItem
+            delete currentPathItems[path.initialMethod];
+            const newPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.path);
+            const newPathItems = newPath && openAPIDefinition.paths[newPath];
+            if (!newPathItems) {
+                updatedOpenAPIDefinition = {
+                    ...openAPIDefinition,
+                    paths: {
+                        ...openAPIDefinition.paths,
+                        [path.path]: {
+                            [path.method]: {
+                                ...path.initialOperation
+                            }
+                        }
+                    }
+                };
+                setSelectedPathID(getResourceID(path.path, path.method));
+            } else {
+                updatedOpenAPIDefinition = {
+                    ...openAPIDefinition,
+                    paths: {
+                        ...openAPIDefinition.paths,
+                        [path.path]: {
+                            ...newPathItems,
+                            [path.method]: {
+                                ...path.initialOperation
+                            }
+                        }
+                    }
+                };
+            }
+        } else {
+            // Add a new path
+            updatedOpenAPIDefinition = {
+                ...openAPIDefinition,
+                paths: {
+                    ...openAPIDefinition.paths,
+                    [path.path]: {
+                        [path.method]: {
+                            ...path.initialOperation
+                        }
+                    }
+                }
+            };
+        }
+        setSelectedPathID(getResourceID(path.path, path.method));
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+    };
+
+
+    const handleAddPath = () => {
+        const updatedOpenAPIDefinition : OpenAPI = {
+            ...openAPIDefinition,
+            paths: {
+                ...openAPIDefinition.paths,
+                ["/path"]: {
+                    ["get"]: {
+                        summary: "",
+                        description: "",
+                        parameters: []
+                    }
+                }
+            }
+        };
+        setSelectedPathID(getResourceID("/path", "get"));
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+    };
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
     console.log("Selected Method", selectedMethod);
+    console.log("Selected Path", selectedPath);
     console.log("OpenAPI Definition", openAPIDefinition);
     console.log("Opraion", operation);
 
@@ -97,13 +175,13 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 <Codicon name="globe" iconSx={{fontSize: 20}} />
                 <Typography variant="h3" sx={{margin: 2}}>Overview</Typography>
             </OverviewTitle>
-            <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick}/>
+            <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath}/>
             <PanelContainer>
                     {selectedPathID === undefined && (
                         <Overview openAPIDefinition={openAPIDefinition}/>
                     )}
                     {operation && selectedPathID !== undefined && (
-                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath}/>
+                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange}/>
                     )}
             </PanelContainer>
         </OverviewContainer>

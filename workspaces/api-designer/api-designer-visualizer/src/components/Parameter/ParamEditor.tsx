@@ -38,13 +38,18 @@ export function ParamEditor(props: OverviewProps) {
     }
 
     const addNewParam = () => {
-        onParamsChange([...params, {
-            name: "",
-            type: "",
-            defaultValue: "",
-            isArray: false,
-            isRequired: false
-        }]);
+        if (!params) {
+            onParamsChange([{ name: "", type: "", defaultValue: "" }]);
+            return;
+        } else {
+            onParamsChange([...params, {
+                name: "",
+                type: "",
+                defaultValue: "",
+                isArray: false,
+                isRequired: false
+            }]);
+        }
     };
 
     const removeParam = (index: number) => {

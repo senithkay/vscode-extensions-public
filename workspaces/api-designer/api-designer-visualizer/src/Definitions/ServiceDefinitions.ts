@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { initial } from "lodash";
+
 export interface OpenAPI {
     openapi: string;
     info: Info;
@@ -53,7 +55,7 @@ export interface Operation {
     operationId?: string;
     parameters?: Parameter[];
     requestBody?: RequestBody;
-    responses: Responses;
+    responses?: Responses;
     [key: string]: any; // To accommodate extensions and additional properties
 }
 
@@ -201,4 +203,12 @@ export type Param = {
     defaultValue?: string;
     isRequired?: boolean;
     isArray?: boolean;
+};
+
+export type Path = {
+    method: string;
+    path: string;
+    initialMethod: string;
+    initialPath: string;
+    initialOperation: Operation;
 };

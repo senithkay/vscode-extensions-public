@@ -191,14 +191,14 @@ export function getOperationFromOpenAPI(path: string, method: string, openAPI: O
 }
 
 // Convert Param[] to Parameter[]
-export function convertParamsToParameters(params: Param[]): Parameter[] {
+export function convertParamsToParameters(params: Param[], type: "path" | "query" | "header"): Parameter[] {
     return params.map((param) => ({
         name: param.name,
-        in: "query",
+        in: type,
         required: param.isRequired,
         schema: {
             type: param.type,
             default: param.defaultValue,
-        },
+        }
     }));
 }

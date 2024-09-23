@@ -15,6 +15,7 @@ import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 interface OpenAPIDefinitionProps {
     paths: Paths;
     selectedPathID?: string;
+    onAddPath: () => void;
     onPathChange?: (pathID: string) => void;
 }
 
@@ -52,7 +53,7 @@ const Operation = styled.div<OperationProps>`
 `;
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
-    const { paths, selectedPathID, onPathChange } = props;
+    const { paths, selectedPathID, onAddPath, onPathChange } = props;
     const [isExpanded, setIsExpanded] = useState<boolean>(true);
 
     const pathsArray = Object.keys(paths);
@@ -97,7 +98,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
     return (
         <PathsContainer>
             <PathsTitle>
-                <Button sx={{marginTop: -2, marginLeft: -2}} appearance="icon" onClick={handleExpand}>
+                <Button sx={{marginTop: -2, marginLeft: -2}} appearance="icon">
                     <Codicon
                         name={isExpanded ? "chevron-up" : "chevron-down"}
                         iconSx={{ fontSize: 20 }}
@@ -106,6 +107,13 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                     />
                 </Button>
                 <Typography variant="h3" sx={{ margin: 2 }}>Paths</Typography>
+                <Button sx={{marginTop: -2, marginLeft: 150}} appearance="icon" onClick={onAddPath}>
+                    <Codicon
+                        name={"add"}
+                        iconSx={{ fontSize: 20 }}
+                        sx={{height: 20, width: 20}}
+                    />
+                </Button>
             </PathsTitle>
             <PathItemContainer>
                 {isExpanded && pathComponents}

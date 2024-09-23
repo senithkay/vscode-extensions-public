@@ -6,15 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Dropdown, SidePanelBody, SidePanelTitleContainer, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from "@emotion/styled";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { Operation, Param } from '../../Definitions/ServiceDefinitions';
-import { ParamEditor } from '../Parameter/ParamEditor';
-import { getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
+import { Dropdown, SidePanelBody, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import styled from "@emotion/styled";
+import { Operation, Param, Parameter, Path } from '../../Definitions/ServiceDefinitions';
+import { ParamEditor } from '../Parameter/ParamEditor';
+import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from '../Utils/OpenAPIUtils';
+import { debounce } from 'lodash';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -26,111 +24,134 @@ interface OverviewProps {
     method: string;
     path: string;
     resourceOperation: Operation;
+    onPathChange: (pathObject: Path) => void;
 }
-
-const schema = yup.object({
-    method: yup.string(),
-    path: yup.string(),
-    queryParams: yup.array().of(
-        yup.object().shape({
-            name: yup.string(),
-            type: yup.string(),
-            defaultValue: yup.string(),
-            isArray: yup.boolean(),
-            isRequired: yup.boolean()
-        })
-    ),
-    pathParams: yup.array().of(
-        yup.object().shape({
-            name: yup.string(),
-            type: yup.string(),
-            defaultValue: yup.string(),
-            isArray: yup.boolean(),
-            isRequired: yup.boolean()
-        })
-    ),
-    headerParams: yup.array().of(
-        yup.object().shape({
-            name: yup.string(),
-            type: yup.string(),
-            defaultValue: yup.string(),
-            isArray: yup.boolean(),
-            isRequired: yup.boolean()
-        })
-    )
-});
 
 type InputsFields = {
     method: string;
     path: string;
+    summary: string;
+    description: string;
     queryParams: Param[];
     pathParams: Param[];
     headerParams: Param[];
 };
 
 export function Resource(props: OverviewProps) {
-    const { resourceOperation, method, path } = props;
-    const defaultValues: InputsFields = {
-        method: method.toLocaleUpperCase(),
-        path: path,
-        queryParams: getQueryParametersFromParameters(resourceOperation.parameters),
-        pathParams: getPathParametersFromParameters(resourceOperation.parameters),
-        headerParams: getHeaderParametersFromParameters(resourceOperation.parameters)
-    };
-    const {
-        reset,
-        register,
-        formState: { errors, isDirty },
-        handleSubmit,
-        getValues,
-        setValue,
-        control,
-        watch,
-    } = useForm({
-        defaultValues: defaultValues,
-        resolver: yupResolver(schema),
-        mode: "onChange"
-    });
+    const { resourceOperation, method, path, onPathChange } = props;
+    const [ initailPath ] = useState<string>(path);
+    const [ initialMethod ] = useState<string>(method);
+    const [ values, setValues ] = useState<InputsFields>();
 
     const handleOnQueryParamsChange = (params: Param[]) => {
-        setValue("queryParams", params);
+        setValues({
+            ...values,
+            queryParams: params
+        });
     };
+
     const handleOnPathParamsChange = (params: Param[]) => {
         const pathParams = params.map((param) => {
             return `{${param.name}}`;
         }).join("/");
-        const path = getValues("path");
+        const path = values.path;
         let containsInitialSlash = path.startsWith("/");
         const initialSlashRemovedPath = 
             path.startsWith("/") ? path.substring(1) : path;
         const pathParamSanitizedPath = initialSlashRemovedPath.split("/")[0];
-        setValue("path", `${containsInitialSlash ? "/" : ""}${pathParamSanitizedPath}/${pathParams}`);
-        setValue("pathParams", params);
-    };
-    const handleOnHeaderParamsChange = (params: Param[]) => {
-        setValue("headerParams", params);
+        let p: Parameter[] = convertParamsToParameters(params, "path");
+        if (values?.queryParams) {
+            p = p.concat(convertParamsToParameters(values?.queryParams, "query"));
+        }
+        if (values?.headerParams) {
+            p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
+        }
+        const currentPath = getPath();
+        const newPath = {
+            ...currentPath,
+            path: `${containsInitialSlash ? "/" : ""}${pathParamSanitizedPath}/${pathParams}`,
+            initialOperation: {
+                ...currentPath.initialOperation,
+                parameters: p
+            }
+        };
+        onPathChange(newPath);
     };
 
-    const handlePathChange = (value: string) => {
+    const handleOnHeaderParamsChange = (params: Param[]) => {
+        setValues({
+            ...values,
+            headerParams: params
+        });
+    };
+
+    const debouncedHandlePathChange = debounce((value: string) => {
         const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
-        setValue("pathParams", pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false })));
+        const currentPath = getPath();
+        const newPath = {
+            ...currentPath,
+            path: value,
+            pathParams: pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }))
+        };
+        onPathChange(newPath);
+    }, 5000); // 5 seconds debounce
+
+    const handlePathChange = (value: string) => {
+         debouncedHandlePathChange(value);
+    };
+
+    const handleMethodChange = (value: string) => {
+        const currentPath = getPath();
+        const newPath = {
+            ...currentPath,
+            method: value
+        }
+        onPathChange(newPath);
     };
 
     // Method to get Form values
-    const getFormValues = () => {
-        const values = getValues();
-        console.log("Form Values", values);
-    }
-
-    console.log("Query Params", watch("queryParams"));
+    const getPath = () : Path => {
+        const { method, path, summary, description, queryParams, pathParams, headerParams } = values;
+        let params: Parameter[] = [];
+        if (queryParams) {
+            params = convertParamsToParameters(queryParams, "query");
+        } 
+        if (pathParams) {
+            params = params.concat(convertParamsToParameters(pathParams, "path"));
+        } 
+        if (headerParams) {
+            params = params.concat(convertParamsToParameters(headerParams, "header"));
+        }
+        const operation : Operation = {
+            summary: summary,
+            description: description,
+            parameters: params
+        };
+        const pathObject: Path = {
+            method: method.toLowerCase(),
+            path: path,
+            initialOperation: operation,
+            initialMethod: initialMethod,
+            initialPath: initailPath
+        };
+        return pathObject;
+    };
 
     useEffect(() => {
-        setValue("method", method);
-        setValue("path", path);
-        setValue("queryParams", getQueryParametersFromParameters(resourceOperation.parameters));
-        setValue("pathParams", getPathParametersFromParameters(resourceOperation.parameters));
-        setValue("headerParams", getHeaderParametersFromParameters(resourceOperation.parameters));
-    } , [method, path]);
+        const values: InputsFields = {
+            method: method.toUpperCase(),
+            path: path,
+            summary: resourceOperation.summary,
+            description: resourceOperation.description,
+            queryParams: getQueryParametersFromParameters(resourceOperation.parameters),
+            pathParams: getPathParametersFromParameters(resourceOperation.parameters),
+            headerParams: getHeaderParametersFromParameters(resourceOperation.parameters)
+        };
+        setValues(values);
+    } , [method, path, resourceOperation]);
+
+    console.log("Path", resourceOperation.parameters);
+    console.log("PathParams", values?.pathParams);
 
     return (
         <>
@@ -151,18 +172,30 @@ export function Resource(props: OverviewProps) {
                             { value: "patch", content: "PATCH" },
                             { value: "options", content: "OPTIONS" },
                         ]}
-                        {...register("method")}
+                        value={values?.method.toLowerCase()}
+                        onValueChange={handleMethodChange}
                     />
                     <TextField
                         id="path"
                         sx={{ width: "80%" }}
                         onTextChange={handlePathChange}
-                        {...register("path")}
+                        value={values?.path}
                     />
                 </HorizontalFieldWrapper>
-                <ParamEditor params={watch("pathParams")} type="Path" onParamsChange={handleOnPathParamsChange} />
-                <ParamEditor params={watch("queryParams")} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                <ParamEditor params={watch("headerParams")} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                <TextField
+                    id="summary"
+                    label="Summary"
+                    value={values?.summary}
+                />
+                <TextArea
+                    id="description"
+                    label="Description"
+                    resize="vertical"
+                    value={values?.description}
+                />
+                <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
+                <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
+                <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
             </SidePanelBody>
         </>
     )
