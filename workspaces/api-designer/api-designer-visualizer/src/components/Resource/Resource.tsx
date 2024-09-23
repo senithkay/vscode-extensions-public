@@ -13,11 +13,22 @@ import { Operation, Param, Parameter, Path } from '../../Definitions/ServiceDefi
 import { ParamEditor } from '../Parameter/ParamEditor';
 import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from '../Utils/OpenAPIUtils';
 import { debounce } from 'lodash';
+import { OptionPopup } from '../OptionPopup/OptionPopup';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
+`;
+
+const TitleWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    padding: 16px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    font: inherit;
+    font-weight: bold;
+    color: var(--vscode-editor-foreground);
 `;
 
 interface OverviewProps {
@@ -37,11 +48,14 @@ type InputsFields = {
     headerParams: Param[];
 };
 
+const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
+
 export function Resource(props: OverviewProps) {
     const { resourceOperation, method, path, onPathChange } = props;
     const [ initailPath ] = useState<string>(path);
     const [ initialMethod ] = useState<string>(method);
     const [ values, setValues ] = useState<InputsFields>();
+    const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
 
     const handleOnQueryParamsChange = (params: Param[]) => {
         setValues({
@@ -109,6 +123,10 @@ export function Resource(props: OverviewProps) {
         onPathChange(newPath);
     };
 
+    const handleOptionChange = (options: string[]) => {
+        setSelectedOptions(options);
+    };
+
     // Method to get Form values
     const getPath = () : Path => {
         const { method, path, summary, description, queryParams, pathParams, headerParams } = values;
@@ -155,9 +173,10 @@ export function Resource(props: OverviewProps) {
 
     return (
         <>
-            <SidePanelTitleContainer>
+            <TitleWrapper>
                 <Typography sx={{ margin: 0 }} variant="h3">Resource Path</Typography>
-            </SidePanelTitleContainer>
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange}/>
+            </TitleWrapper>
             <SidePanelBody>
                 <HorizontalFieldWrapper>
                     <Dropdown
@@ -182,11 +201,13 @@ export function Resource(props: OverviewProps) {
                         value={values?.path}
                     />
                 </HorizontalFieldWrapper>
-                <TextField
-                    id="summary"
-                    label="Summary"
-                    value={values?.summary}
-                />
+                { selectedOptions.includes("Summary") && (
+                    <TextField
+                        id="summary"
+                        label="Summary"
+                        value={values?.summary}
+                    />
+                )}
                 <TextArea
                     id="description"
                     label="Description"
