@@ -14,6 +14,7 @@ import * as yup from "yup";
 import { Operation, Param } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
 import { getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from '../Utils/OpenAPIUtils';
+import { useEffect, useState } from 'react';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -69,7 +70,6 @@ type InputsFields = {
 
 export function Resource(props: OverviewProps) {
     const { resourceOperation, method, path } = props;
-
     const defaultValues: InputsFields = {
         method: method.toLocaleUpperCase(),
         path: path,
@@ -115,6 +115,22 @@ export function Resource(props: OverviewProps) {
         const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
         setValue("pathParams", pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false })));
     };
+
+    // Method to get Form values
+    const getFormValues = () => {
+        const values = getValues();
+        console.log("Form Values", values);
+    }
+
+    console.log("Query Params", watch("queryParams"));
+
+    useEffect(() => {
+        setValue("method", method);
+        setValue("path", path);
+        setValue("queryParams", getQueryParametersFromParameters(resourceOperation.parameters));
+        setValue("pathParams", getPathParametersFromParameters(resourceOperation.parameters));
+        setValue("headerParams", getHeaderParametersFromParameters(resourceOperation.parameters));
+    } , [method, path]);
 
     return (
         <>

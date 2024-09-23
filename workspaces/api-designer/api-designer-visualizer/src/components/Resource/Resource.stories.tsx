@@ -7,11 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-// import React from "react";
-import React from "react";
 import { OpenAPI, PathItem, Operation } from "../../Definitions/ServiceDefinitions";
 import petstoreJSON from "./Data/petstore.json";
-import { Resource } from "./PathItem";
+import { Resource } from "./Resource";
 import styled from "@emotion/styled";
 
 export default {

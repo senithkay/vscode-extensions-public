@@ -6,16 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from "react";
+import { useState } from "react";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
-import { Codicon, SidePanelBody, SidePanelTitleContainer, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathsComponent } from "../PathsComponent/PathsComponent";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { version } from "os";
 import { Overview } from "../Overview/Overview";
+import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID } from "../Utils/OpenAPIUtils";
+import { Resource } from "../Resource/Resource";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -51,7 +52,8 @@ const PanelContainer = styled.div`
 
 const schema = yup.object({
     title: yup.string(),
-    version: yup.string()
+    version: yup.string(),
+    selectedPathID: yup.string()
 });
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
@@ -75,17 +77,34 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     const handlePathClick = (pathID: string) => {
         setSelectedPathID(pathID);
-    }
-    console.log(openAPIDefinition);
+    };
+
+    const handleOverviewClick = () => {
+        setSelectedPathID(undefined);
+    };
+
+    const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
+    const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
+    const operation = selectedPath && selectedMethod &&
+        getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
+    console.log("Selected Method", selectedMethod);
+    console.log("OpenAPI Definition", openAPIDefinition);
+    console.log("Opraion", operation);
+
     return (
         <OverviewContainer>
-            <OverviewTitle>
+            <OverviewTitle onClick={handleOverviewClick}>
                 <Codicon name="globe" iconSx={{fontSize: 20}} />
                 <Typography variant="h3" sx={{margin: 2}}>Overview</Typography>
             </OverviewTitle>
             <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick}/>
             <PanelContainer>
-                <Overview openAPIDefinition={openAPIDefinition}/>
+                    {selectedPathID === undefined && (
+                        <Overview openAPIDefinition={openAPIDefinition}/>
+                    )}
+                    {operation && selectedPathID !== undefined && (
+                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath}/>
+                    )}
             </PanelContainer>
         </OverviewContainer>
     )

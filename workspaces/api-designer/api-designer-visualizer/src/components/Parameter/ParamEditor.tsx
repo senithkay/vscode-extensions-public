@@ -57,7 +57,7 @@ export function ParamEditor(props: OverviewProps) {
         <>
             <Typography variant="h4">{`${type} Parameters`}</Typography>
             <LinkButton onClick={addNewParam}> {`Add ${type} Parameter`} </LinkButton>
-            {params.map((param, index) => (
+            {params?.map((param, index) => (
                 <HorizontalFieldWrapper key={index}>
                     <TextField
                         label="Name"

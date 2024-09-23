@@ -10,7 +10,7 @@
 import yaml from 'js-yaml';
 
 import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
-import { OpenAPI, Operation, Param, Parameter, Schema } from '../../Definitions/ServiceDefinitions';
+import { OpenAPI, Operation, Param, Parameter, PathItem, Schema } from '../../Definitions/ServiceDefinitions';
 import { colors } from '../../constants';
 
 // export function resolveResponseType(response: Response): string {
@@ -145,14 +145,15 @@ export function getResourceID(path: string, method: string): string {
 }
 
 export function getMethodFromResourceID(resourceID: string): string {
-    return resourceID.split("-")[0];
+    return (resourceID.split("-")[0]).toLowerCase();
 }
 
 export function getPathFromResourceID(resourceID: string): string {
     return resourceID.split("-")[1];
 }
+
 export function getPathParametersFromParameters(parameters: Parameter[]): Param[] {
-    return parameters.filter((param) => param.in === "path").map((param) => ({
+    return parameters?.filter((param) => param.in === "path").map((param) => ({
         name: param.name,
         type: param.schema ? param.schema.type : "string",
         defaultValue: param.schema ? param.schema.default : "",
@@ -162,7 +163,7 @@ export function getPathParametersFromParameters(parameters: Parameter[]): Param[
 }
 
 export function getQueryParametersFromParameters(parameters: Parameter[]): Param[] {
-    return parameters.filter((param) => param.in === "query").map((param) => ({
+    return parameters?.filter((param) => param.in === "query").map((param) => ({
         name: param.name,
         type: param.schema ? param.schema.type : "string",
         defaultValue: param.schema ? param.schema.default : "",
@@ -172,11 +173,32 @@ export function getQueryParametersFromParameters(parameters: Parameter[]): Param
 }
 
 export function getHeaderParametersFromParameters(parameters: Parameter[]): Param[] {
-    return parameters.filter((param) => param.in === "header").map((param) => ({
+    return parameters?.filter((param) => param.in === "header").map((param) => ({
         name: param.name,
         type: param.schema ? param.schema.type : "string",
         defaultValue: param.schema ? param.schema.default : "",
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
+    }));
+}
+
+export function getOperationFromPathItem(pathItem: PathItem, method: string): Operation {
+    return pathItem[method];
+}
+
+export function getOperationFromOpenAPI(path: string, method: string, openAPI: OpenAPI): Operation {
+    return getOperationFromPathItem(openAPI.paths[path], method);
+}
+
+// Convert Param[] to Parameter[]
+export function convertParamsToParameters(params: Param[]): Parameter[] {
+    return params.map((param) => ({
+        name: param.name,
+        in: "query",
+        required: param.isRequired,
+        schema: {
+            type: param.type,
+            default: param.defaultValue,
+        },
     }));
 }
