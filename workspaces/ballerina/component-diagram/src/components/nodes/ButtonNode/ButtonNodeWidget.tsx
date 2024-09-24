@@ -10,42 +10,55 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { ActorNodeModel } from "./ActorNodeModel";
-import { Colors, NODE_BORDER_WIDTH, ACTOR_NODE_WIDTH } from "../../../resources/constants";
+import { ButtonNodeModel } from "./ButtonNodeModel";
+import {
+    Colors,
+    NODE_BORDER_WIDTH,
+    CON_NODE_WIDTH,
+    NEW_CONNECTION,
+    CON_NODE_HEIGHT,
+} from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { PersonIcon } from "../../../resources";
+import { useDiagramContext } from "../../DiagramContext";
+import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
+        inactive?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        width: ${ACTOR_NODE_WIDTH}px;
-        height: ${ACTOR_NODE_WIDTH}px;
-        /* border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)}; */
-        border-radius: 50%;
-        background-color: ${Colors.SURFACE_DIM};
+        width: ${CON_NODE_WIDTH}px;
+        height: ${CON_NODE_HEIGHT}px;
         color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
-        & svg {
-            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
-            opacity: ${(props: NodeStyleProp) => (props.hovered ? 1 : 0.7)};
-        }
+        border: ${NODE_BORDER_WIDTH}px dashed
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 40px;
+        background-color: ${Colors.SURFACE_DIM};
+        cursor: pointer;
     `;
 
-    export const Header = styled.div<{}>`
+    export const Header = styled.div`
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
-        gap: 2px;
-        width: 100%;
+        align-items: flex-start;
+        gap: 6px;
         padding: 8px;
+    `;
+
+    export const Circle = styled.div<NodeStyleProp>`
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: ${CON_NODE_HEIGHT}px;
+        height: ${CON_NODE_HEIGHT}px;
+        
+        color: ${Colors.ON_SURFACE};
     `;
 
     export const StyledButton = styled(Button)`
@@ -66,24 +79,26 @@ export namespace NodeStyles {
         font-size: 14px;
     `;
 
-    export const Icon = styled.div`
+    export const Icon = styled.div<NodeStyleProp>`
         padding: 4px;
         svg {
-            fill: ${Colors.ON_SURFACE};
+            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
         }
     `;
 
-    export const Title = styled(StyledText)`
-        max-width: ${ACTOR_NODE_WIDTH - 50}px;
+    export const Title = styled(StyledText)<NodeStyleProp>`
+        max-width: ${CON_NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
+        color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+        opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
     `;
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${ACTOR_NODE_WIDTH - 80}px;
+        max-width: ${CON_NODE_WIDTH - 80}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
@@ -94,12 +109,14 @@ export namespace NodeStyles {
         opacity: 0.7;
     `;
 
-    export const Row = styled.div`
+    export const Row = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
+        gap: 6px;
         width: 100%;
+        padding: 0 8px;
     `;
 
     export const Hr = styled.hr`
@@ -107,19 +124,20 @@ export namespace NodeStyles {
     `;
 }
 
-interface ActorNodeWidgetProps {
-    model: ActorNodeModel;
+interface ButtonNodeWidgetProps {
+    model: ButtonNodeModel;
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ActorNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ButtonNodeWidgetProps, "children"> {}
 
-export function ActorNodeWidget(props: ActorNodeWidgetProps) {
+export function ButtonNodeWidget(props: ButtonNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
+    const { onAddConnection, onConnectionSelect } = useDiagramContext();
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        // event.stopPropagation();
+        onAddConnection();
     };
 
     return (
@@ -130,11 +148,12 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
             onClick={handleOnClick}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
+            <NodeStyles.Row hovered={isHovered}>
+                <NodeStyles.Icon hovered={isHovered}>
+                    <PlusIcon />
+                </NodeStyles.Icon>
                 <NodeStyles.Header>
-                    <NodeStyles.Icon>
-                        <PersonIcon />
-                    </NodeStyles.Icon>
+                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

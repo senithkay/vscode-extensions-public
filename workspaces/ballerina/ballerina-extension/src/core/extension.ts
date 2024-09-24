@@ -29,7 +29,8 @@ import {
     ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
     ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
     ENABLE_LIVE_RELOAD,
-    ENABLE_MULTILINE_AI_COMPLETIONS
+    ENABLE_MULTILINE_AI_COMPLETIONS,
+    ENABLE_EGGPLANT_OVERVIEW_V2
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -630,6 +631,10 @@ export class BallerinaExtension {
 
     public multilineAiSuggestions(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_MULTILINE_AI_COMPLETIONS);
+    }
+
+    public eggplantOverviewV2(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_EGGPLANT_OVERVIEW_V2);
     }
 
     public getDocumentContext(): DocumentContext {

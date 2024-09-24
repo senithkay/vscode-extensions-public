@@ -7,13 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     DIRECTORY_MAP,
     EVENT_TYPE,
     MACHINE_VIEW,
     ProjectStructureResponse,
-    OverviewFlow,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
@@ -29,8 +28,9 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EggplantHeader } from "../EggplantHeader";
-import { BodyText, BodyTinyInfo } from "../../styles";
+import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
+import { parseSSEEvent, splitContent } from "../../AIPanel/AIChat";
 
 const CardTitleContainer = styled.div`
     display: flex;
@@ -66,14 +66,17 @@ interface ComponentDiagramProps {
     stateUpdated: boolean;
 }
 
-export function ComponentDiagram(props: ComponentDiagramProps) {
+export function ComponentDiagramV2(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
-    const [isModelGenerating, setIsModelGenerating] = React.useState<boolean>(false);
     const [isCodeGenerating, setIsCodeGenerating] = React.useState<boolean>(false);
-    const [overviewFlow, setOverviewFlow] = React.useState<OverviewFlow>(null);
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
+
+    const [responseText, setResponseText] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("");
+    const backendRootUri = useRef("");
 
     const fetchContext = () => {
         rpcClient
@@ -96,12 +99,46 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 setReadmeContent(res.content);
             });
 
-        setOverviewFlow(null);
+        // setResponseText("");
+
+        // Fetching the backend root URI
+        rpcClient
+            .getAiPanelRpcClient()
+            .getBackendURL()
+            .then((res) => {
+                backendRootUri.current = res;
+            });
     };
+
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            fetchContext();
+        }
+    });
 
     useEffect(() => {
         fetchContext();
     }, []);
+
+    useEffect(() => {
+        console.log(">>> ai responseText", { responseText });
+        if (!responseText) {
+            return;
+        }
+        const segments = splitContent(responseText);
+        console.log(">>> ai code", { segments });
+
+        // get isCode true segments and append all to a string
+        let code = "";
+        segments.forEach((segment) => {
+            if (segment.isCode) {
+                code += segment.text;
+            }
+        });
+
+        // add code to the generated.bal file
+        rpcClient.getAiPanelRpcClient().addToProject({ content: code });
+    }, [responseText]);
 
     const goToView = async (filePath: string, position: NodePosition) => {
         console.log(">>> component diagram: go to view", { filePath, position });
@@ -127,19 +164,148 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
 
     const handleAddConnection = () => {
         handleAddArtifact();
-        // rpcClient.getVisualizerRpcClient().openView({
-        //     type: EVENT_TYPE.OPEN_VIEW,
-        //     location: {
-        //         view: MACHINE_VIEW.AddConnectionWizard,
-        //     },
-        //     isPopup: true
-        // });
     };
 
     const handleGoToConnection = (connection: Connection) => {
         if (connection.location) {
             goToView(connection.location.filePath, connection.location.position);
         }
+    };
+
+    const handleSaveOverview = (value: string) => {
+        rpcClient.getEggplantDiagramRpcClient().handleReadmeContent({ content: value, read: false });
+        setReadmeContent(value);
+    };
+
+    const handleOverviewGenerate = async () => {
+        fetchAiResponse();
+    };
+
+    const handleDiagramOnAccept = async () => {
+        setIsCodeGenerating(true);
+        setResponseText("");
+        // HACK: code is already added to the generated.bal file. here just show feedback
+        setTimeout(() => {
+            setIsCodeGenerating(false);
+        }, 2000);
+    };
+
+    const handleDiagramOnReject = () => {
+        // INFO: forcefully clear the response text and generated.bal file
+        setResponseText("");
+        // clear generated.bal file
+        rpcClient.getAiPanelRpcClient().addToProject({ content: "" });
+    };
+
+    async function fetchAiResponse(isQuestion: boolean = false) {
+        if (readmeContent === "" && !isQuestion) {
+            return;
+        }
+
+        setIsLoading(true);
+        setLoadingMessage("Reading...");
+        let assistant_response = "";
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        const response = await fetch(backendRootUri.current + "/code", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ usecase: readmeContent, chatHistory: [] }),
+            signal: signal,
+        });
+        if (!response.ok) {
+            setIsLoading(false);
+            throw new Error("Failed to fetch response");
+        }
+
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+
+                try {
+                    const event = parseSSEEvent(chunk);
+                    if (event.event == "libraries") {
+                        setLoadingMessage("Looking for libraries...");
+                    } else if (event.event == "functions") {
+                        setLoadingMessage("Fetching functions...");
+                    } else if (event.event == "content_block_delta") {
+                        let textDelta = event.body.text;
+                        assistant_response += textDelta;
+                        console.log(">>> Text Delta: " + textDelta);
+                        setLoadingMessage("Generating components...");
+                    } else if (event.event == "message_stop") {
+                        console.log(">>> Streaming stop: ", { responseText, assistant_response });
+                        setResponseText(assistant_response);
+                        setIsLoading(false);
+                    } else if (event.event == "error") {
+                        console.log(">>> Streaming Error: " + event.body);
+                        setIsLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+        }
+    }
+
+    const generateButton = () => {
+        let component = (
+            <LinkButton
+                onClick={handleOverviewGenerate}
+                sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}
+            >
+                <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+                Generate components using overview
+            </LinkButton>
+        );
+        if (isLoading) {
+            component = (
+                <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
+                    <ProgressRing sx={{ height: "16px", width: "16px" }} />
+                    {loadingMessage || "Reading project overview..."}
+                </LinkButton>
+            );
+        }
+        if (responseText) {
+            component = (
+                <ButtonContainer>
+                    <Button appearance="primary" onClick={handleDiagramOnAccept}>
+                        Accept
+                    </Button>
+                    <Button appearance="secondary" onClick={handleDiagramOnReject}>
+                        Reject
+                    </Button>
+                </ButtonContainer>
+            );
+            if (isCodeGenerating) {
+                component = (
+                    <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
+                        <ProgressRing sx={{ height: "16px", width: "16px" }} />
+                        Applying changes to the project...
+                    </LinkButton>
+                );
+            }
+        }
+
+        return component;
     };
 
     // TODO: improve loading ux
@@ -164,28 +330,6 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             },
         });
     });
-    // projectStructure.directoryMap[DIRECTORY_MAP.TASKS].forEach((task) => {
-    //     project.entryPoints.push({
-    //         id: task.name,
-    //         name: task.name,
-    //         type: "task",
-    //         location: {
-    //             filePath: task.path,
-    //             position: task.position,
-    //         }
-    //     });
-    // });
-    // projectStructure.directoryMap[DIRECTORY_MAP.TRIGGERS].forEach((trigger) => {
-    //     project.entryPoints.push({
-    //         id: trigger.name,
-    //         name: trigger.name,
-    //         type: "trigger",
-    //         location: {
-    //             filePath: trigger.path,
-    //             position: trigger.position,
-    //         }
-    //     });
-    // });
     projectStructure.directoryMap[DIRECTORY_MAP.CONNECTIONS].forEach((connection) => {
         project.connections.push({
             id: connection.name,
@@ -197,85 +341,13 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         });
     });
 
-    const handleSaveOverview = (value: string) => {
-        rpcClient.getEggplantDiagramRpcClient().handleReadmeContent({ content: value, read: false });
-        setReadmeContent(value);
-    };
-
-    const handleOverviewGenerate = async () => {
-        setIsModelGenerating(true);
-        const suggestion = await rpcClient
-            .getEggplantDiagramRpcClient()
-            .getAiSuggestions({ filePath: null, position: null, isOverview: true });
-        setOverviewFlow(suggestion.overviewFlow);
-        setIsModelGenerating(false);
-        console.log(">>> component diagram: overview flow", suggestion.overviewFlow);
-    };
-
-    const handleDiagramOnAccept = async () => {
-        setIsCodeGenerating(true);
-        const res = await rpcClient.getEggplantDiagramRpcClient().createComponents({ overviewFlow });
-        setIsCodeGenerating(false);
-        if (res.response) {
-            fetchContext();
-        }
-    };
-
-    const handleDiagramOnReject = () => {
-        setOverviewFlow(null);
-    };
-
-    const generateButton = () => {
-        let component = (
-            <LinkButton
-                onClick={handleOverviewGenerate}
-                sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}
-            >
-                <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
-                Generate components using overview
-            </LinkButton>
-        );
-        if (isModelGenerating) {
-            component = (
-                <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                    <ProgressRing sx={{ height: "16px", width: "16px" }} />
-                    Generating components...
-                </LinkButton>
-            );
-        }
-        if (overviewFlow) {
-            component = (
-                <ButtonContainer>
-                    <Button appearance="primary" onClick={handleDiagramOnAccept}>
-                        Accept
-                    </Button>
-                    <Button appearance="secondary" onClick={handleDiagramOnReject}>
-                        Reject
-                    </Button>
-                </ButtonContainer>
-            );
-            if (isCodeGenerating) {
-                component = (
-                    <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                        <ProgressRing sx={{ height: "16px", width: "16px" }} />
-                        Applying changes to the project...
-                    </LinkButton>
-                );
-            }
-        }
-
-        return component;
-    };
-
-    console.log(">>> component diagram: project", { project, overviewFlow });
-
     // TODO: Refactor this component with meaningful components
     return (
         <View>
             <ViewContent padding>
                 <EggplantHeader />
                 <Content>
-                    <Title variant="h2">Project Overview</Title>
+                    <Title variant="h2">Project Overview V2</Title>
                     <BodyText>
                         To create a tailored integration solution, please provide a brief description of your project.
                         What problem are you trying to solve? What systems or data sources will be involved?
@@ -287,21 +359,13 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                         value={readmeContent}
                         onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
                     />
-                    {/* <BodyTinyInfo>
-                        This information will be used to generate an optimized and tailored integration solution.
-                    </BodyTinyInfo> */}
                     <CardTitleContainer>
                         <Title variant="h2">Architecture</Title>
                         {generateButton()}
                     </CardTitleContainer>
                     <DiagramContainer>
                         <Diagram
-                            project={
-                                overviewFlow &&
-                                (overviewFlow.connections.length > 0 || overviewFlow.entryPoints.length > 0)
-                                    ? (overviewFlow as Project)
-                                    : project
-                            }
+                            project={project}
                             onAddEntryPoint={handleAddArtifact}
                             onAddConnection={handleAddConnection}
                             onEntryPointSelect={handleGoToEntryPoints}
@@ -329,4 +393,4 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     );
 }
 
-export default ComponentDiagram;
+export default ComponentDiagramV2;

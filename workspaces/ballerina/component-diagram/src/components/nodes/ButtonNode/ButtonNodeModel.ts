@@ -11,17 +11,16 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
 import { Connection } from "../../../utils/types";
-import { getNodeId } from "../../../utils/diagram";
 
-export class ConnectionNodeModel extends NodeModel {
+export class ButtonNodeModel extends NodeModel {
     readonly node: Connection;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
     constructor(node: Connection) {
         super({
-            id: getNodeId(NodeTypes.CONNECTION_NODE, node.id),
-            type: NodeTypes.CONNECTION_NODE,
+            id: node.id,
+            type: NodeTypes.BUTTON_NODE,
             locked: NODE_LOCKED,
         });
         this.node = node;
