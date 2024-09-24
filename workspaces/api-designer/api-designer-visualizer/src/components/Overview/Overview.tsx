@@ -13,7 +13,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -94,6 +94,10 @@ export function Overview(props: OverviewProps) {
         resolver: yupResolver(schema),
         mode: "onChange"
     });
+
+    useEffect(() => {
+        reset(defaultValues);
+    }, [openAPIDefinition]);
 
     const handleOptionChange = (options: string[]) => {
         setSelectedOptions(options);

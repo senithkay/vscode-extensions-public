@@ -22,7 +22,7 @@ interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
 }
 
-const OverviewContainer = styled.div`
+const NavigationContainer = styled.div`
     padding: 10px;
     max-height: 90vh;
     overflow-y: auto;
@@ -35,12 +35,12 @@ const OverviewTitle = styled.div`
     padding: 5px;
     cursor: pointer;
     &:hover {
-        background-color: var(--vscode-editor-selectionBackground);
+        background-color: var(--vscode-editorHoverWidget-background);
     }
 `;
 
 const PanelContainer = styled.div`
-    background-color: var(--vscode-background);
+    background-color: var(--vscode-editor-background);
     box-shadow: 5px 5px 10px 5px var(--vscode-badge-background);
     width: 900px; // Adjust width as needed
     padding: 10px;
@@ -184,7 +184,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     console.log("OpenAPIDefinition", openAPIDefinition);
 
     return (
-        <OverviewContainer>
+        <NavigationContainer>
             <OverviewTitle onClick={handleOverviewClick}>
                 <Codicon name="globe" iconSx={{ fontSize: 20 }} />
                 <Typography variant="h3" sx={{ margin: 2 }}>Overview</Typography>
@@ -198,6 +198,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeletePath} />
                 )}
             </PanelContainer>
-        </OverviewContainer>
+        </NavigationContainer>
     )
 }
