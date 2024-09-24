@@ -8,6 +8,7 @@
  */
 
 import styled from "@emotion/styled";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export const Container: React.FC<any> = styled.div`
   display: flex;
@@ -18,8 +19,8 @@ export const Container: React.FC<any> = styled.div`
 `;
 
 export const popOverCompStyle = {
-  backgroundColor: "white",
-  border: "1px solid black",
+  backgroundColor: `${ThemeColors.SURFACE_DIM}`,
+  border: `1px solid ${ThemeColors.PRIMARY}`,
   padding: "10px",
   borderRadius: "5px",
   display: "flex",

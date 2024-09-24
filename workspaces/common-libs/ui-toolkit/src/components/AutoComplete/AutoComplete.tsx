@@ -110,7 +110,7 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
 const LabelContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 `;
 
 const ComboboxInputWrapper = styled.div<DropdownProps>`

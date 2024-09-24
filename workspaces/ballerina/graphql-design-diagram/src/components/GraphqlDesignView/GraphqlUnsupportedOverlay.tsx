@@ -16,7 +16,6 @@ export function GraphqlUnsupportedOverlay() {
 
     return (
         <div className={graphqlUnsupportedClasses.overlayWrapper}>
-            <p>Service Invalid Img</p>
             <p className={graphqlUnsupportedClasses.title}>Unable to load the GraphQL visualizer</p>
             <p className={graphqlUnsupportedClasses.subtitle}>Please check for compilation errors within the code</p>
         </div>
