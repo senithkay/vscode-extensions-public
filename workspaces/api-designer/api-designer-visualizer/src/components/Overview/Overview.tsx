@@ -103,7 +103,7 @@ export function Overview(props: OverviewProps) {
         <>
             <SidePanelTitleContainer>
                 <Typography sx={{ margin: 0 }} variant="h1">Overview</Typography>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange}/>
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} hideDelete />
             </SidePanelTitleContainer>
             <PanelBody>
                 <HorizontalFieldWrapper>

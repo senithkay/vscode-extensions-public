@@ -11,7 +11,7 @@ import { Dropdown, SidePanelBody, SidePanelTitleContainer, TextArea, TextField, 
 import styled from "@emotion/styled";
 import { Operation, Param, Parameter, Path } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
-import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from '../Utils/OpenAPIUtils';
+import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters, getResourceID } from '../Utils/OpenAPIUtils';
 import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
@@ -37,6 +37,7 @@ interface OverviewProps {
     path: string;
     resourceOperation: Operation;
     onPathChange: (pathObject: Path) => void;
+    onDelete: (path: string, method: string) => void;
 }
 
 type InputsFields = {
@@ -52,7 +53,7 @@ type InputsFields = {
 const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
 
 export function Resource(props: OverviewProps) {
-    const { resourceOperation, method, path, onPathChange } = props;
+    const { resourceOperation, method, path, onPathChange, onDelete } = props;
     const [ initailPath, setInitailPath ] = useState<string>(path);
     const [ initialMethod, setInitialMethod ] = useState<string>(method);
     const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
@@ -200,6 +201,10 @@ export function Resource(props: OverviewProps) {
         return pathObject;
     };
 
+    const handleDeleteResource = () => {
+        onDelete(path, method);
+    };
+
     useEffect(() => {
         setInitailPath(path);
         setInitialMethod(method);
@@ -212,7 +217,7 @@ export function Resource(props: OverviewProps) {
         <>
             <TitleWrapper>
                 <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange}/>
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource}/>
             </TitleWrapper>
             <PanelBody>
                 <HorizontalFieldWrapper>

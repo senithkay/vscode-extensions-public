@@ -17,7 +17,6 @@ import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
-import { get } from "lodash";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -41,14 +40,16 @@ const OverviewTitle = styled.div`
 `;
 
 const PanelContainer = styled.div`
+    background-color: var(--vscode-background);
+    box-shadow: 5px 5px 10px 5px var(--vscode-badge-background);
     width: 900px; // Adjust width as needed
-    background-color: #f0f0f0; // Change background color as needed
     padding: 10px;
     position: absolute; // Position it absolutely
     right: 0; // Align to the right
-    top: 30px; // Align to the top
+    top: 25px; // Align to the top
     height: 100%; // Full height
     overflow-y: auto; // Enable scrolling if content overflows
+    z-index: 1;
 `;
 
 const schema = yup.object({
@@ -152,6 +153,15 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setOpenAPIDefinition(updatedOpenAPIDefinition);
     };
 
+    const onDeletePath = (p: string, method: string) => {
+        // If p with path and method exists, delete the perticular method
+        if (openAPIDefinition.paths[p][method]) {
+            delete openAPIDefinition.paths[p][method];
+        }
+        setSelectedPathID(undefined);
+        setOpenAPIDefinition({ ...openAPIDefinition });
+    };
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -169,7 +179,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     <Overview openAPIDefinition={openAPIDefinition} />
                 )}
                 {operation && selectedPathID !== undefined && (
-                    <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} />
+                    <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeletePath} />
                 )}
             </PanelContainer>
         </OverviewContainer>

@@ -13,12 +13,13 @@ const ButtonWrapper = styled.div`
 interface OptionPopupProps {
     options: string[];
     selectedOptions: string[];
+    hideDelete?: boolean;
     onOptionChange: (options: string[]) => void;
     onDeleteResource?: () => void;
 }
 
 export function OptionPopup(props: OptionPopupProps) {
-    const { options, selectedOptions, onOptionChange } = props;
+    const { options, selectedOptions, onOptionChange, hideDelete } = props;
     const [isOpen, setIsOpen] = React.useState(false);
 
     const handleOnClose = () => {
@@ -39,7 +40,7 @@ export function OptionPopup(props: OptionPopupProps) {
         <>
             <ButtonWrapper> 
                 <Button appearance="primary" onClick={openDialog}> Add More Options </Button>
-                <Button buttonSx={{background: "red"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>
+                {!hideDelete && <Button buttonSx={{background: "var(--vscode-errorForeground)"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>}
             </ButtonWrapper>
             <Dialog sx={{width: "fit-content", minWidth: 120}} isOpen={isOpen} onClose={handleOnClose}>
                 <CheckBoxGroup>
