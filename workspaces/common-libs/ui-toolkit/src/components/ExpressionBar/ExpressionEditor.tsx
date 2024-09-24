@@ -66,6 +66,7 @@ const StyledTag = styled(VSCodeTag)`
 
 const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
+    z-index: 10000;
     ${(props: StyleBase) => props.sx}
 `;
 

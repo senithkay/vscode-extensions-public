@@ -69,7 +69,6 @@ namespace Ex {
         color: var(--vscode-foreground);
         align-items: center;
         height: 32px;
-        padding-inline: 8px;
         gap: 8px;
         box-sizing: border-box;
 
