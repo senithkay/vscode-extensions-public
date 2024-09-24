@@ -28,6 +28,7 @@ type StyleBase = {
 
 type DropdownProps = StyleBase & {
     items: CompletionItem[];
+    isSavable: boolean;
     onCompletionSelect: (item: CompletionItem) => Promise<void>;
 };
 
