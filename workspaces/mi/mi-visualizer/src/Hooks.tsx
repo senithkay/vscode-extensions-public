@@ -31,6 +31,6 @@ export const useIOTypes = (filePath: string, functionName: string, functionIOTyp
         refetch
     } = useQuery(['getIOTypes', { filePath, functionName, functionIOTypes, interfacesSource }], () => getIOTypes(), { networkMode: 'always' });
 
-    return {  dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch  };
+    return { dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch };
 };
 
