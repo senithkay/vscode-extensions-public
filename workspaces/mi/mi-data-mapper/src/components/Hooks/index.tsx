@@ -163,7 +163,7 @@ export const useDiagramModel = (
     } = useQuery([
         'genModel',
         { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, screenWidth }
-    ], () => genModel(), {});
+    ], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };
 };
