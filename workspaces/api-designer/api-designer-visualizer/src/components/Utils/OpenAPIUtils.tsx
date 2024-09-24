@@ -155,7 +155,7 @@ export function getPathFromResourceID(resourceID: string): string {
 export function getPathParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "path").map((param) => ({
         name: param.name,
-        type: param.schema ? param.schema.type : "string",
+        type: param?.schema?.type === "array" ? param.schema.items.type : param.schema.type,
         defaultValue: param.schema ? param.schema.default : "",
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
@@ -192,13 +192,32 @@ export function getOperationFromOpenAPI(path: string, method: string, openAPI: O
 
 // Convert Param[] to Parameter[]
 export function convertParamsToParameters(params: Param[], type: "path" | "query" | "header"): Parameter[] {
-    return params.map((param) => ({
-        name: param.name,
-        in: type,
-        required: param.isRequired,
-        schema: {
-            type: param.type,
-            default: param.defaultValue,
+    let parameters: Parameter[] = [];
+    params.forEach((param) => {
+        if (param.isArray) {
+            parameters.push({
+                name: param.name,
+                in: type,
+                required: param.isRequired,
+                schema: {
+                    type: "array",
+                    items: {
+                        type: param.type,
+                        default: param.defaultValue,
+                    }
+                }
+            });
+        } else {
+            parameters.push({
+                name: param.name,
+                in: type,
+                required: param.isRequired,
+                schema: {
+                    type: param.type,
+                    default: param.defaultValue,
+                }
+            });
         }
-    }));
+    });
+    return parameters;
 }
