@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { RefObject } from 'react';
+import React from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
 
@@ -41,11 +41,6 @@ export const addClosingBracketIfNeeded = (text: string) => {
     }
 
     return updatedText;
-};
-
-export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: number) => {
-    inputRef.current.focus();
-    inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
 };
 
 export const getIcon = (kind: CompletionItemKind) => {
