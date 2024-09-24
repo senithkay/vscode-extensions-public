@@ -12,7 +12,7 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { getValueType, isConnectingArrays } from "../../utils/common-utils";
+import { getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
@@ -72,7 +72,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
 
-				const connectingArrays = isConnectingArrays(sourcePort, targetPort);
+				const connectingArrays = isConnectingArrays(getMappingType(sourcePort, targetPort));
 
 				if (connectingArrays) {
 					// Source update behavior is determined by the user when connecting arrays.

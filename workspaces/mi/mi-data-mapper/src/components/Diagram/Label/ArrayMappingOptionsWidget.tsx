@@ -13,7 +13,7 @@ import { TypeKind } from '@wso2-enterprise/mi-core';
 import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
-import { InputOutputPortModel, ValueType } from '../Port';
+import { InputOutputPortModel, MappingType, ValueType } from '../Port';
 import { getValueType } from '../utils/common-utils';
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
@@ -44,11 +44,12 @@ const codiconStyles = {
 
 export interface ArrayMappingOptionsWidgetProps {
     link: DataMapperLinkModel;
+    mappingType: MappingType;
 }
 
 export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps) {
     const classes = useStyles();
-    const { link } = props;
+    const { link, mappingType } = props;
 
     const sourcePort = link.getSourcePort();
     const targetPort = link?.getTargetPort();
@@ -98,7 +99,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         );
     }
 
-    const menuItems: Item[] = [
+    const a2aMenuItems: Item[] = [
         {
             id: "a2a-direct",
             label: getItemElement("a2a-direct", "Map Input Array to Output Array"),
@@ -110,6 +111,21 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
             onClick: onClickMapIndividualElements
         }
     ];
+
+    const a2sMenuItems: Item[] = [
+        {
+            id: "a2s-direct",
+            label: getItemElement("a2s-direct", "Access single element"),
+            onClick: onClickMapArrays
+        }, 
+        {
+            id: "a2s-inner",
+            label: getItemElement("a2s-inner", "Map & access single element"),
+            onClick: onClickMapIndividualElements
+        }
+    ];
+
+    const menuItems = mappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
 
     return (
         <div className={classes.arrayMappingMenu}>

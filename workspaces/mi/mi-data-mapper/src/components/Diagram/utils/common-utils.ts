@@ -29,7 +29,7 @@ import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFin
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
-import { InputOutputPortModel, ValueType } from "../Port";
+import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 import {
@@ -735,14 +735,24 @@ export function isFunctionArgument(identifier: string, sourceFile: SourceFile): 
     return false;
 }
 
-export function isConnectingArrays(sourcePort: PortModel, targetPort: PortModel): boolean {
+export function isConnectingArrays(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
+}
+
+export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
     if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
-        return false;
+        return MappingType.Undefined;
     }
     const sourceKind = sourcePort.field.kind;
     const targetKind = targetPort.field.kind;
 
-    return sourceKind === TypeKind.Array && targetKind === TypeKind.Array;
+    if(sourceKind===TypeKind.Array){
+        if(targetKind===TypeKind.Array)
+            return MappingType.ArrayToArray;
+        return MappingType.ArrayToSingleton
+    }
+
+    return MappingType.Undefined;
 }
 
 export function getValueType(lm: DataMapperLinkModel): ValueType {
