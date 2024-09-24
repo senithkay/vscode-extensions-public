@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
@@ -21,6 +21,7 @@ import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
+import { link } from "fs";
 
 namespace S {
     export type NodeStyleProp = {
@@ -83,7 +84,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
@@ -100,6 +101,10 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
+
     const TooltipEl = useMemo(() => {
         return () => (
             <S.TooltipContent style={{ textWrap: "wrap" }}>
@@ -109,7 +114,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     }, [tooltip])
 
     return (
-        <div >
+        <div data-testid={`mediatorNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
@@ -134,11 +139,11 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name>{node.mediatorName}</Name>
+                                    <Name data-testid="mediator-name">{node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >
-                                        <Description>{description}</Description>
+                                        <Description data-testid="mediator-description">{description}</Description>
                                     </Tooltip>
                                 </Body>
                             </Content>
@@ -158,7 +163,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => {node.delete(rpcClient)} }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => {node.delete(rpcClient, setDiagramLoading)} }} />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>

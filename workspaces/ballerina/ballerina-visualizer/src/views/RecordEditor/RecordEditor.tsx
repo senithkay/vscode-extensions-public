@@ -82,7 +82,7 @@ export function RecordEditor(props: RecordEditorProps) {
             rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
             await langServerRPCClient.updateFileContent({
                 content: newSource,
-                fileUri: filePath
+                filePath
             });
         }
         setRecordFullST(syntaxTree);

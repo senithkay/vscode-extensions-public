@@ -7,40 +7,56 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React, { useEffect, useState } from 'react';
-import { KeyboardNavigationManager, MachineStateValue, STModification, MACHINE_VIEW, PopupMachineStateValue, EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
-import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { Global, css } from '@emotion/react';
+import React, { useEffect, useState } from "react";
+import {
+    KeyboardNavigationManager,
+    MachineStateValue,
+    STModification,
+    MACHINE_VIEW,
+    PopupMachineStateValue,
+    EVENT_TYPE,
+} from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Global, css } from "@emotion/react";
 import styled from "@emotion/styled";
-import { NavigationBar } from "./components/NavigationBar"
+import { NavigationBar } from "./components/NavigationBar";
 import { LoadingRing } from "./components/Loader";
-import { DataMapper } from './views/DataMapper';
-import { ERDiagram } from './views/ERDiagram';
-import { GraphQLDiagram } from './views/GraphQLDiagram';
-import { SequenceDiagram } from './views/SequenceDiagram';
-import { EggplantDiagram } from './views/EggplantDiagram';
-import { Overview } from './views/Overview';
-import { ServiceDesigner } from './views/ServiceDesigner';
-import { WelcomeView, ProjectForm, ComponentDiagram, AddComponentView, ServiceForm, EggplantOverview, PopupMessage } from './views/Eggplant';
-import { handleRedo, handleUndo } from './utils/utils';
-import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
-import { URI } from 'vscode-uri';
-// import PopupPanel from './views/Eggplant/PopupPanel';
-import AddConnectionWizard from './views/Eggplant/Connection/AddConnectionWizard';
-import { FormView, Typography } from '@wso2-enterprise/ui-toolkit';
-import { PanelType, useVisualizerContext } from './Context';
-import { SidePanel } from '@wso2-enterprise/ui-toolkit';
+import { DataMapper } from "./views/DataMapper";
+import { ERDiagram } from "./views/ERDiagram";
+import { GraphQLDiagram } from "./views/GraphQLDiagram";
+import { SequenceDiagram } from "./views/SequenceDiagram";
+import { Overview } from "./views/Overview";
+import { ServiceDesigner } from "./views/ServiceDesigner";
+import {
+    WelcomeView,
+    ProjectForm,
+    AddComponentView,
+    ServiceForm,
+    PopupMessage,
+    ComponentDiagram,
+} from "./views/Eggplant";
+import { handleRedo, handleUndo } from "./utils/utils";
+import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { URI } from "vscode-uri";
+import { FormView, Typography } from "@wso2-enterprise/ui-toolkit";
+import { PanelType, useVisualizerContext } from "./Context";
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
-import { RecordEditor } from './views/RecordEditor/RecordEditor';
-import PopupPanel from './PopupPanel';
+import { RecordEditor } from "./views/RecordEditor/RecordEditor";
+import PopupPanel from "./PopupPanel";
+import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard";
+import { EndpointList } from "./views/Connectors/EndpointList";
+import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
+import DiagramWrapper from "./views/Eggplant/DiagramWrapper";
+import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
+import ComponentDiagramV2 from "./views/Eggplant/ComponentDiagramV2";
 
 const globalStyles = css`
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
 `;
 
 const VisualizerContainer = styled.div`
@@ -64,18 +80,14 @@ const PopUpContainer = styled.div`
 
 const MainPanel = () => {
     const { rpcClient } = useRpcContext();
-    const {
-        sidePanel,
-        setSidePanel,
-        popupMessage,
-        setPopupMessage,
-        activePanel } = useVisualizerContext();
+    const { sidePanel, setSidePanel, popupMessage, setPopupMessage, activePanel } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [navActive, setNavActive] = useState<boolean>(true);
-    const [popupState, setPopupState] = useState<PopupMachineStateValue>('initialize');
+    const [showHome, setShowHome] = useState<boolean>(true);
+    const [popupState, setPopupState] = useState<PopupMachineStateValue>("initialize");
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        if (typeof newState === 'object' && 'viewActive' in newState && newState.viewActive === 'viewReady') {
+        if (typeof newState === "object" && "viewActive" in newState && newState.viewActive === "viewReady") {
             fetchContext();
         }
     });
@@ -93,29 +105,35 @@ const MainPanel = () => {
             filePath = (await rpcClient.getVisualizerLocation()).recordFilePath;
             if (modifications.length === 1) {
                 // Change the start position of the modification to the beginning of the file
-                m = [{
-                    ...modifications[0],
-                    startLine: 0,
-                    startColumn: 0,
-                    endLine: 0,
-                    endColumn: 0
-                }];
+                m = [
+                    {
+                        ...modifications[0],
+                        startLine: 0,
+                        startColumn: 0,
+                        endLine: 0,
+                        endColumn: 0,
+                    },
+                ];
             }
         } else {
             filePath = (await rpcClient.getVisualizerLocation()).documentUri;
             m = modifications;
         }
-        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
+        const {
+            parseSuccess,
+            source: newSource,
+            syntaxTree,
+        } = await langServerRPCClient?.stModify({
             astModifications: m,
             documentIdentifier: {
-                uri: URI.file(filePath).toString()
-            }
+                uri: URI.file(filePath).toString(),
+            },
         });
         if (parseSuccess) {
             rpcClient.getVisualizerRpcClient().addToUndoStack(newSource);
             await langServerRPCClient.updateFileContent({
                 content: newSource,
-                fileUri: filePath
+                filePath,
             });
         }
     };
@@ -129,10 +147,13 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isEggplant) {
-                            setViewComponent(<EggplantOverview stateUpdated />);
+                            setViewComponent(<ComponentDiagram stateUpdated />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
+                        break;
+                    case MACHINE_VIEW.OverviewV2:
+                        setViewComponent(<ComponentDiagramV2 stateUpdated />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
@@ -144,39 +165,47 @@ const MainPanel = () => {
                         );
                         break;
                     case MACHINE_VIEW.EggplantDiagram:
-                        setViewComponent(<EggplantDiagram syntaxTree={value?.syntaxTree} />);
+                        setViewComponent(
+                            <DiagramWrapper syntaxTree={value?.syntaxTree} projectPath={value.projectUri} />
+                        );
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.DataMapper:
-                        setViewComponent((
+                        setViewComponent(
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
+                                isEggplant={value.isEggplant}
                                 applyModifications={applyModifications}
                             />
-                        ));
+                        );
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram />);
                         break;
                     case MACHINE_VIEW.SequenceDiagram:
                         setViewComponent(
-                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />)
+                            <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />
+                        );
                         break;
                     case MACHINE_VIEW.EggplantWelcome:
                         setNavActive(false);
-                        setViewComponent(<WelcomeView />)
+                        setViewComponent(<WelcomeView />);
                         break;
                     case MACHINE_VIEW.EggplantProjectForm:
-                        setViewComponent(<ProjectForm />)
+                        setShowHome(false);
+                        setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.EggplantComponentView:
-                        setViewComponent(<AddComponentView />)
+                        setViewComponent(<AddComponentView />);
                         break;
                     case MACHINE_VIEW.EggplantServiceForm:
-                        setViewComponent(<ServiceForm />)
+                        setViewComponent(<ServiceForm />);
+                        break;
+                    case MACHINE_VIEW.AddConnectionWizard:
+                        setViewComponent(<AddConnectionWizard />);
                         break;
                     default:
                         setNavActive(false);
@@ -184,7 +213,7 @@ const MainPanel = () => {
                 }
             }
         });
-    }
+    };
 
     useEffect(() => {
         fetchContext();
@@ -193,35 +222,39 @@ const MainPanel = () => {
     useEffect(() => {
         const mouseTrapClient = KeyboardNavigationManager.getClient();
 
-        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleUndo(rpcClient));
-        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleRedo(rpcClient));
+        mouseTrapClient.bindNewKey(["command+z", "ctrl+z"], () => handleUndo(rpcClient));
+        mouseTrapClient.bindNewKey(["command+shift+z", "ctrl+y"], async () => handleRedo(rpcClient));
 
         return () => {
             mouseTrapClient.resetMouseTrapInstance();
-        }
+        };
     }, [viewComponent]);
 
     const handleOnCloseMessage = () => {
         setPopupMessage(false);
-    }
+    };
 
     const handleOnClose = () => {
-        rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.CLOSE_VIEW, location: { view: null }, isPopup: true })
-    }
+        rpcClient
+            .getVisualizerRpcClient()
+            .openView({ type: EVENT_TYPE.CLOSE_VIEW, location: { view: null }, isPopup: true });
+    };
 
     return (
         <>
             <Global styles={globalStyles} />
             <VisualizerContainer>
-                {navActive && <NavigationBar />}
-                {viewComponent && <ComponentViewWrapper>
-                    {viewComponent}
-                </ComponentViewWrapper>}
-                {popupMessage &&
+                {navActive && <NavigationBar showHome={showHome} />}
+                {viewComponent && <ComponentViewWrapper>{viewComponent}</ComponentViewWrapper>}
+                {sidePanel !== "EMPTY" && sidePanel === "ADD_CONNECTION" && (
+                    <ConnectorList applyModifications={applyModifications} />
+                )}
+
+                {popupMessage && (
                     <PopupMessage onClose={handleOnCloseMessage}>
-                        <Typography variant='h3'>This feature is coming soon!</Typography>
+                        <Typography variant="h3">This feature is coming soon!</Typography>
                     </PopupMessage>
-                }
+                )}
                 {sidePanel === "RECORD_EDITOR" && (
                     <RecordEditor
                         isRecordEditorOpen={sidePanel === "RECORD_EDITOR"}
@@ -231,18 +264,17 @@ const MainPanel = () => {
                 )}
                 {activePanel?.isActive && activePanel.name === PanelType.CONSTRUCTPANEL && (
                     <ConstructPanel applyModifications={applyModifications} />
-                )
-                }
+                )}
                 {activePanel?.isActive && activePanel.name === PanelType.STATEMENTEDITOR && (
                     <EditPanel applyModifications={applyModifications} />
-                )
-                }
-                {typeof popupState === 'object' && 'open' in popupState && (
+                )}
+                {typeof popupState === "object" && "open" in popupState && (
                     <PopUpContainer>
-                        <FormView title='' onClose={handleOnClose}>
-                            <PopupPanel formState={popupState} />
-                        </FormView>
+                        <PopupPanel onClose={handleOnClose} formState={popupState} />
                     </PopUpContainer>
+                )}
+                {sidePanel !== "EMPTY" && sidePanel === "ADD_ACTION" && (
+                    <EndpointList stSymbolInfo={getSymbolInfo()} applyModifications={applyModifications} />
                 )}
             </VisualizerContainer>
         </>

@@ -7,43 +7,46 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
+
 import React from 'react';
-import { ISSUES_URL } from '../utils';
 
-export enum ErrorNodeKind {
-    Input,
-    Output,
-    Intermediate,
-    Other
-}
 
-export interface DataMapperErrorProps {
-    errorNodeKind?: ErrorNodeKind;
-}
+import { AutoMapError } from './AutoMapError';
+import { ErrorNodeKind, RenderingError } from './RenderingError';
+import { WarningBanner } from '../Warning/DataMapperWarning';
 
-export function DataMapperError(props: DataMapperErrorProps) {
-    const { errorNodeKind } = props;
+// Function to render WarningBanner with error message
+const renderWarningBanner = (classes: any, message: React.ReactNode) => (
+    <WarningBanner
+        message={message}
+        className={classes.errorBanner}
+    />
+);
 
-    let errorMessage = "A problem occurred while rendering the ";
-    switch (errorNodeKind) {
-        case ErrorNodeKind.Input:
-            errorMessage += "input.";
-            break;
-        case ErrorNodeKind.Output:
-            errorMessage += "output.";
-            break;
-        default:
-            errorMessage += "diagram.";
+// Function to render error message with overlay
+const renderErrorMessage = (classes: any, errorMessage: React.ReactNode) => (
+    <>
+        <div className={classes.overlay} />
+        <div className={classes.errorMessage}>
+            {errorMessage}
+        </div>
+    </>
+);
+
+// Component to render error based on error kind
+export const IOErrorComponent: React.FC<{ errorKind: ErrorNodeKind; classes: any }> = ({ errorKind, classes }) => {
+    if (errorKind) {
+        const errorMessage = <RenderingError errorNodeKind={errorKind} />;
+        return renderErrorMessage(classes, renderWarningBanner(classes, errorMessage));
     }
+    return null;
+};
 
-    return (
-        <>
-            <p>
-                {errorMessage}
-            </p>
-            <p>
-                Please raise an issue with the sample code in our <a href={ISSUES_URL}>issue tracker</a>
-            </p>
-        </>
-    )
-}
+// Component to render auto map error
+export const AutoMapErrorComponent: React.FC<{ autoMapError: AutoMapError; classes: any }> = ({ autoMapError, classes }) => {
+    if (autoMapError) {
+        const errorMessage = <AutoMapError {...autoMapError} />;
+        return renderErrorMessage(classes, renderWarningBanner(classes, errorMessage));
+    }
+    return null;
+};

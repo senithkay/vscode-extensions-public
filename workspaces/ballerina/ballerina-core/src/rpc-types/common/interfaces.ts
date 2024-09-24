@@ -18,6 +18,7 @@ export interface TypeResponse {
 
 export interface GoToSourceRequest {
     position: NodePosition;
+    filePath?: string
 }
 
 export interface WorkspaceFileRequest {
@@ -47,6 +48,20 @@ export interface BallerinaDiagnosticsResponse {
 export interface CommandsRequest {
     commands: any[];
 }
+
+export interface RunExternalCommandRequest {
+    command: string;
+}
+
+export interface OpenExternalUrlRequest {
+    url: string;
+}
+
+export interface RunExternalCommandResponse {
+    error: boolean,
+    message: string
+}
+
 
 export interface CommandsResponse {
     data: string;

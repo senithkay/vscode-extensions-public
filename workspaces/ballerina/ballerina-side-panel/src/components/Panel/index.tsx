@@ -16,6 +16,7 @@ import { BackIcon, CloseIcon } from "../../resources";
 export interface PanelContainerProps {
     children?: React.ReactNode;
     title?: string;
+    width?: string;
     show: boolean;
     onClose: () => void;
     onBack?: () => void;
@@ -36,7 +37,7 @@ namespace S {
 }
 
 export function PanelContainer(props: PanelContainerProps) {
-    const { children, title, show, onClose, onBack } = props;
+    const { children, title, show, onClose, onBack, width } = props;
 
     return (
         <SidePanel
@@ -44,7 +45,7 @@ export function PanelContainer(props: PanelContainerProps) {
             alignment="right"
             overlay={false}
             sx={{
-                width: "400px",
+                width: width ? width : "400px",
                 fontFamily: "GilmerRegular",
                 backgroundColor: Colors.SURFACE_DIM,
                 boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",

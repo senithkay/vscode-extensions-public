@@ -141,6 +141,13 @@ export interface FormFieldReturnType {
     importTypeInfo?: NonPrimitiveBal[];
 }
 
+export interface FormFieldChecks {
+    name: string;
+    isValid: boolean;
+    isEmpty?: boolean;
+    canIgnore?: boolean; // Ff field is optional or defaultable
+}
+
 // tslint:disable-next-line: max-classes-per-file
 export class ResponsePayloadMap {
     payloadTypes: Map<string, string> = new Map();

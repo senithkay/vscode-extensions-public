@@ -10,6 +10,7 @@
 import React, { ReactNode, useRef, useState, createContext, useContext } from "react";
 import { BallerinaRpcClient, VisualizerContext as RpcContext, Context } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { ConnectorInfo } from "@wso2-enterprise/ballerina-core";
 
 export function RpcContextProvider({ children }: { children: ReactNode }) {
     const rpcClient = useRef(new BallerinaRpcClient());
@@ -38,6 +39,7 @@ interface ComponentInfo {
     model: STNode;
     position: NodePosition;
     componentType: string;
+    connectorInfo?: ConnectorInfo;
 }
 
 interface ActiveFileInfo {
@@ -46,7 +48,7 @@ interface ActiveFileInfo {
     activeSequence: STNode;
 }
 
-export type SidePanel = "EMPTY" | "RECORD_EDITOR";
+export type SidePanel = "EMPTY" | "RECORD_EDITOR" | "ADD_CONNECTION" | "ADD_ACTION";
 
 interface VisualizerContext {
     popupMessage: boolean;

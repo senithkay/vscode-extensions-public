@@ -8,7 +8,7 @@
  */
 import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
-import { isFunctionCall, isInputAccessExpr, isMapFunction, isMethodCall } from "../Diagram/utils/common-utils";
+import { isFunctionArgument, isFunctionCall, isInputAccessExpr, isMapFunction, isMethodCall } from "../Diagram/utils/common-utils";
 
 export class InputAccessNodeFindingVisitor implements Visitor {
     private inputNodes: (PropertyAccessExpression | ElementAccessExpression | Identifier)[];
@@ -66,7 +66,19 @@ export class InputAccessNodeFindingVisitor implements Visitor {
             if (isFunctionCall(parent) || isMethodCall(parent)) {
                 const args = parent.getArguments();
                 if (args.includes(node)) {
+                    // Capture the input access expressions as arguments of the function/method call
+                    // eg: average(ride1.distance, ride2.distance)
                     this.inputNodes.push(node);
+                } else if (isMethodCall(parent)) {
+                    // Capture the input access expressions as access expressions of the function/method call
+                    // eg: ride1.distance.toString()
+                    const isInputAccessExpression = isInputAccessExpr(expr)
+                    const isIdentifier = Node.isIdentifier(expr)
+                        && isFunctionArgument(expr.getText(), parent.getSourceFile());
+                    
+                    if (isInputAccessExpression || isIdentifier) {
+                        this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression | Identifier);
+                    }
                 }
             } else if (isInputAccessExpr(expr) || Node.isIdentifier(expr)) {
                 this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression | Identifier);

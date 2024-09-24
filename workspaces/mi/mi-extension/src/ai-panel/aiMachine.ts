@@ -36,6 +36,22 @@ interface AiMachineContext extends AIVisualizerLocation {
     chatLog: ChatEntry[];
 }
 
+interface FileObject {
+    fileName: string;
+    fileContent: string;
+}
+
+interface ImageObject {
+    imageName: string;
+    imageBase64: string;
+}
+
+interface PromptObject {
+    aiPrompt: string;
+    files: FileObject[];
+    images: ImageObject[];
+}
+
 const aiStateMachine = createMachine<AiMachineContext>({
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaAhqgdASQDtUAXVTAG1QC8wBiCAewLB1QIDcGBrFtLXQiTKUaCNpwDGmUkwDaABgC6CxYlAAHBrCFM1IAB6IATEYAsOAJwBmAOwBWeaZs2rFm-Lt2ANCACeiGwA2QJw7KysjeXkLAA4Y0wt5AEYAXxSfPmx8IlIKajpGZlYObl4MLMFckTAxEqkZAhVZJNUkEE1tBr1DBCMLEJsY+3lA0zshmLsbH38ECz6cd3k+1xikvs80jPKBHOF82jAAJyOGI5x1cmkAMzPkHEzdoTzRcQZ61DklFT0OnQJuohAjFFjYkuEostAvIYvJpn5EEk4fJLKZbEYhs4nEYtiBHjhyAwoDAIAB5ACuxFoABlSQBxPAAOR+bT+XTaPQsphRySSozsJmSgQs3gRCCSSXioJFkqspjMphiOPSeJ2OAASmBMBBfDT6aSAKoAFRZGi0-0BCDsiRwRkCfLWgRcSRcMRmASsdhw0SmNjMGLlcVx+M12t1AFEABrhgDCxvDpva5vZoB663coKMdmhdklNic7qtGO9SXlTmdGPBwbVoZ1tBj1PDAEF1Ym2Z8ARzEeEQaYkhZYn35BEYoFC36QtFEnCjEkwn3ldt+DgAOrYUgEKAAMTO1KJbHoTBYbx4DzVa6Em53Rz3UDYtUk0g7TSUv2THctSO53qcMUSVmhNFwkLIYBnGRIkSmcsbGrZcLw3bdd33AhDhOM4LiuYhbiOe58XgthEJvZCH3eJ8vmUV9WXfXQuwQSYLBwJFoTtFwjHCF0QLCSwe36J1hQ8WCsnwq8kLvFCYybRkY3Dak22oztUwCGwGL6Cx+z-F0ISMQsJVnb0ljtQIIjtOxBNwYTCNvA8tybPBqTwcNW0os1Og-WinRU4JImFfohjsUwdKiAZTBzdwrElKYzJwcN9DACRKQI+tSQAWQABUbI0E2cpNXJoxTxSMFxQmUl0EmBEUjMLPsQRiKx4n7cZuRdKKYrihLN1oRz1VJJzWhci1aPWP8cD-ZTPSdMw4kLADzGiExnDUtx+k9FrYvihDaAAZSNUlUrk3KFIMRE+nMYF-L6YVfTGQs+hsYr7FiQratGQJVrajbaTpcMABFDRNbL2zyo7xTlIxFn7FwHCzDx1h0qxHBwe1lLWf0-0cNIVQIBgIDgPRHjfA7LXQeHGLqv0-X8sI1MCbSxVnFFCvsP9mOCBqosqfYaAJgb8vlEDauK3MlmSELFSiwliUgCliG5lNgetBjJTcOcEkxJUdJdFT4cGfMB1U16VRDLUdVltz8sgsGhkVNYpmSKYLELAUwezWEIWhcLlKiiBUFgTAACNyEgU2gbTO7R3TQqxhCmE6o1yZGNqiIRjR0coos68rMOwHDp6NYrEsMw1MmDF+hcQtHtRHMFy5JG3vWgjg5zxEwnzyYYXmEZXBMx2TFCYFh3h93NYxlIgA */
     id: 'mi-ai',
@@ -70,12 +86,19 @@ const aiStateMachine = createMachine<AiMachineContext>({
                         target: 'loggedOut'
                     }
                 ],
-                onError: {
-                    target: 'disabled',
-                    actions: assign({
-                        errorCode: (context, event) => event.data
-                    })
-                }
+                onError: [
+                    {
+                        cond: (context, event) => event.data.status === 404,
+                        target: 'updateExtension',
+                    },
+                    {
+                        target: 'disabled',
+                        actions:
+                            assign({
+                                errorCode: (context, event) => event.data
+                            })
+                    }
+                ]
             }
         },
 
@@ -116,7 +139,8 @@ const aiStateMachine = createMachine<AiMachineContext>({
             on: {
                 RETRY: {
                     target: "initialize",
-                }
+                },
+                LOGOUT: "loggedOut",
             }
         },
 
@@ -144,6 +168,14 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 STOP: "Ready",
                 LOGEDOUT: "loggedOut"
             }
+        },
+
+        updateExtension: {
+            on: {
+                RETRY: {
+                    target: "initialize",
+                }
+            }
         }
     }
 }, {
@@ -152,7 +184,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
         openLogin: openLogin,
     }
 });
-
 
 async function checkToken(context, event): Promise<UserToken> {
     return new Promise(async (resolve, reject) => {
@@ -194,6 +225,8 @@ async function checkToken(context, event): Promise<UserToken> {
                         }else{
                             resolve({token: undefined, userToken: undefined});
                         }
+                    }else if (response.status === 404){
+                        throw { status: 404, message: 'Resource not found' };
                     }else{
                         console.log("Error: " + response.statusText);
                         console.log("Error Code: " + response.status);
@@ -210,8 +243,6 @@ async function checkToken(context, event): Promise<UserToken> {
     });
 }
 
-
-
 async function openLogin(context, event) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -222,7 +253,6 @@ async function openLogin(context, event) {
     });
 }
 
-
 async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.micro-integrator/signin`)
@@ -230,7 +260,6 @@ async function initiateInbuiltAuth() {
     const oauthURL = await getAuthUrl(callbackUri.toString());
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
-
 
 // Create a service to interpret the machine
 export const aiStateService = interpret(aiStateMachine);
@@ -244,8 +273,8 @@ export const StateMachineAI = {
     sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
 };
 
-export function openAIWebview(initialPrompt?: string) {
-    extension.initialPrompt = typeof initialPrompt === 'string' ? initialPrompt : undefined;
+export function openAIWebview(initialPrompt?: PromptObject) {
+    extension.initialPrompt = initialPrompt;
     if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {

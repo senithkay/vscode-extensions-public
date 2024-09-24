@@ -16,6 +16,7 @@ import { AIProjectGenerationChat } from './views/AIProjectGenerationChat';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { WaitingForLoginMessage } from './views/WaitingForLoginWindow';
 import { DisabledMessage } from './views/DisabledWindow';
+import { UpdateMIExtension } from './views/UpdateExtension';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -64,6 +65,9 @@ const AIPanel = () => {
                     break;
                 case "disabled":
                     setViewComponent(<DisabledMessage />);
+                    break;
+                case "updateExtension":
+                    setViewComponent(<UpdateMIExtension />);
                     break;
                 default:
                     setViewComponent(null);

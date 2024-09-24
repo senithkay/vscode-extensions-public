@@ -863,20 +863,20 @@ suite("Language Server Tests", function () {
     });
 
     // TODO: Enable test. https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/937
-    test.skip("Test get connector", function (done): void {
-        langClient.getConnector({
-            name: "Client",
-            moduleName: "googleapis.sheets",
-            package: { organization: "ballerinax", name: "googleapis.sheets", version: "3.1.0" },
-        }).then(async (res) => {
-            const response = res as Connector;
-            expect(response).not.contains.keys("error");
-            assert.strictEqual(response.name, "Client", "Invalid trigger");
-            done();
-        }, error => {
-            done(error);
-        });
-    });
+    // test.skip("Test get connector", function (done): void {
+    //     langClient.getConnector({
+    //         name: "Client",
+    //         moduleName: "googleapis.sheets",
+    //         package: { organization: "ballerinax", name: "googleapis.sheets", version: "3.1.0" },
+    //     }).then(async (res) => {
+    //         const response = res as Connector;
+    //         expect(response).not.contains.keys("error");
+    //         assert.strictEqual(response.name, "Client", "Invalid trigger");
+    //         done();
+    //     }, error => {
+    //         done(error);
+    //     });
+    // });
 
     test("Test st modify", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'error.bal')).toString();

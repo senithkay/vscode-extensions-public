@@ -342,7 +342,7 @@ export async function updateFileContent(
     skipForceSave?: boolean,
 ): Promise<boolean> {
     const response = await langServerRpcClient.updateFileContent({
-        fileUri,
+        filePath: fileUri,
         content,
         skipForceSave
     });

@@ -60,7 +60,7 @@ const initialLocalEntry: InputsFields = {
     name: "",
     type: "",
     inLineTextValue: "",
-    inLineXmlValue: `<xml version="1.0" encoding="UTF-8"></xml>`,
+    inLineXmlValue: "",
     saveInReg: false,
     sourceURL: "",
     //reg form
@@ -87,6 +87,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         isError: false,
         text: ""
     });
+    const [prevName, setPrevName] = useState<string | null>(null);
 
     const schema = yup.object({
         name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
@@ -131,7 +132,8 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                yup.string().required("Registry Path is required")
+                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
                     const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
                     if (formattedPath === undefined) return true;
                     return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -185,6 +187,13 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
+        setPrevName(watch("name"));
+        if (prevName === watch("artifactName")) {
+            setValue("artifactName", watch("name"));
+        }
+    }, [watch("name")]);
+
+    useEffect(() => {
         if (!validationMessage) {
             handleMessage(`Error ${xmlErrors.code} , ${xmlErrors.msg} in line ${xmlErrors.line}, from ${xmlErrors.col} `, true);
         } else {
@@ -210,8 +219,26 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             setXmlErrors({ code: result.err.code, col: result.err.col, line: result.err.line, msg: result.err.msg });
             return false;
         }
+        let xmlDeclarationLine = findXmlDeclarationLine(xmlString);
+        if (xmlDeclarationLine !== -1) {
+            setXmlErrors({ code: "Unexpected declaration", col: 0, line: xmlDeclarationLine, msg: "XML declaration is not expected" });
+            return false;
+        }
         return result;
     };
+
+    const findXmlDeclarationLine = (xmlString: string): number => {
+        const xmlDeclarationRegex = /<\?xml\s+version\s*=\s*["']1\.0["']\s+encoding\s*=\s*["']UTF-8["']\s*\?>/i;
+        const lines = xmlString.split('\n');
+
+        for (let i = 0; i < lines.length; i++) {
+            if (xmlDeclarationRegex.test(lines[i])) {
+                return i + 1;
+            }
+        }
+
+        return -1;
+    }
 
     const handleXMLInputChange = (text: string) => {
         setValue("inLineXmlValue", text);
@@ -343,7 +370,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                     {isNewTask && (
                         <>
                             <FormCheckBox
-                                label="Save the sequence in registry"
+                                label="Save the local entry in registry"
                                 {...register("saveInReg")}
                                 control={control}
                             />
@@ -352,17 +379,17 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                             </>)}
                             <FormActions>
                                 <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(handleCreateLocalEntry)}
-                                    disabled={message.isError && !isDirty && !isValid}
-                                >
-                                    {isNewTask ? "Create" : "Update"}
-                                </Button>
-                                <Button
                                     appearance="secondary"
                                     onClick={openOverview}
                                 >
                                     Cancel
+                                </Button>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(handleCreateLocalEntry)}
+                                    disabled={message.isError && !isDirty && !isValid}
+                                >
+                                    {isNewTask ? "Create" : "Save Changes"}
                                 </Button>
                                 {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
                             </FormActions>

@@ -39,6 +39,8 @@ export interface DataMapperViewProps {
         closeAddNewRecord: (createdNewRecord?: string) => void,
         onUpdate: (update: boolean) => void
     } & StatementEditorComponentProps) => React.ReactElement;
+    isEggplant?: boolean;
+    experimentalEnabled?: boolean;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {

@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const StoreForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -49,7 +49,7 @@ const StoreForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            messageStore: sidePanelContext?.formValues?.messageStore || "",
+            messageStore: sidePanelContext?.formValues?.messageStore || {"isExpression":false,"value":""},
             onStoreSequence: sidePanelContext?.formValues?.onStoreSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -63,6 +63,7 @@ const StoreForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         const xml = getXML(MEDIATORS.STORE, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;
@@ -101,7 +102,12 @@ const StoreForm = (props: AddMediatorProps) => {
                         control={control}
                         rules={
                             {
-                                required: "This field is required",
+                                validate: (value) => {
+                                    if (!value?.value || value.value === "") {
+                                        return "This field is required";
+                                    }
+                                    return true;
+                                },
                             }
                         }
                         render={({ field }) => (

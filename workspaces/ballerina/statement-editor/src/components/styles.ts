@@ -435,8 +435,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     checked: css({}),
     docParamSuggestions: css({
         height: '100%',
-        overflowY: 'scroll',
-        ...stmtEditorPadding
+        overflowY: 'scroll'
     }),
     returnSeparator: css({
         height: '1px',
@@ -542,7 +541,6 @@ export const useStmtEditorHelperPanelStyles = () => ({
         flex: "inherit",
         whiteSpace: 'pre-wrap',
         marginLeft: '24px',
-        color: "black",
         ...removePadding
     }),
     listItemMultiLine: css({
@@ -553,7 +551,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     }),
     listItemHeader: css({
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         height: '28px'
     }),
     listItemBody: css({
@@ -574,7 +572,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     listOptionalBtn: css({
         textTransform: 'none',
         minWidth: '32px',
-        color: "black"
+        marginLeft: '8px'
     }),
     listOptionalHeader: css({
         fontSize: '13px',

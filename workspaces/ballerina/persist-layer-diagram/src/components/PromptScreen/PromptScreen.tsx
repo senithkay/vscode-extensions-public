@@ -26,8 +26,8 @@ export function PromptScreen(props: PromptScreenProps) {
             {showProblemPanel &&
                 <Button
                     aria-label='add'
-                    className={styles.button}
                     id={'add-component-btn'}
+                    appearance="icon"
                     onClick={showProblemPanel}
                 >
                     <Codicon name='search' iconSx={{ marginRight: '5px' }} />

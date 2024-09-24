@@ -10,6 +10,7 @@
 import React, { useEffect } from "react";
 
 import styled from "@emotion/styled";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";
@@ -45,7 +46,7 @@ const HeaderContainer = styled.div`
   height: 50px;
   display: flex;
   padding: 15px;
-  background-color: #f7f8fb;
+  background-color: ${ThemeColors.SURFACE_DIM};
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(102, 103, 133, 0.15);

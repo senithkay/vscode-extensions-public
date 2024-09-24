@@ -18,7 +18,7 @@ const TitleContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: 20px;
+    /* margin-left: 20px; */
 `;
 
 const AIContainer = styled.div`

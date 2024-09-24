@@ -65,7 +65,7 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
                     isOpen={isFormOpen}
                 /> : 
             <>
-            <ViewHeader title={`Proxy: ${model.name}`} codicon="globe" onEdit={handleEditProxy}>
+            <ViewHeader title={`Proxy: ${model.name}`} codicon="arrow-swap" onEdit={handleEditProxy}>
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Fault"

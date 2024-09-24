@@ -103,7 +103,7 @@ export interface DefinitionPositionRequest {
 }
 
 export interface UpdateFileContentRequest {
-    fileUri: string;
+    filePath: string;
     content: string;
     skipForceSave?: boolean;
 }

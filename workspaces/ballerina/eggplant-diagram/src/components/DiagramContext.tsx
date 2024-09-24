@@ -29,6 +29,7 @@ export interface DiagramContextState {
         onAccept(): void;
         onDiscard(): void;
     };
+    projectPath?: string;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -50,6 +51,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         onAccept: () => {},
         onDiscard: () => {},
     },
+    projectPath: "",
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

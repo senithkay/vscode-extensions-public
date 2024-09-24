@@ -185,11 +185,15 @@
                 "WEB_VIEW_WATCH_MODE": "true",
                 "WEB_VIEW_DEV_HOST": "http://localhost:9000"
             },
+            "debugWebviews": true,
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension"
             ],
             "outFiles": [
-                "${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+                "${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js",
+            ],
+            "skipFiles": [
+                "**/node_modules/**"
             ],
             "preLaunchTask": "npm: watch-mi"
         },
@@ -223,17 +227,17 @@
             "preLaunchTask": "npm: watch-api-chat"
         },
         {
-			"name": "APK Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
-			],
-			"outFiles": [
-				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
-			],
-			"preLaunchTask": "npm: watch-apk"
-		},
+            "name": "APK Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-apk"
+        },
         {
             "name": "FHIR Tools Extension",
             "type": "extensionHost",

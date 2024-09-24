@@ -22,6 +22,7 @@ import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, 
 import { ExtendedLangClient } from './core/extended-language-client';
 import { activate as activateNotebook } from './views/notebook';
 import { activate as activateLibraryBrowser } from './features/library-browser';
+import { activate as activateEggplantFeatures } from './features/eggplant';
 import { activate as activateERDiagram } from './views/persist-layer-diagram';
 import { activateAiPanel } from './views/ai-panel';
 import { debug, handleResolveMissingDependencies, log } from './utils';
@@ -112,6 +113,11 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // <------------ MAIN FEATURES ----------->
         // Enable Ballerina by examples
         activateBBE(ballerinaExtInstance);
+
+        if (StateMachine.context().isEggplant) {
+            //Enable Eggplant Feature
+            activateEggplantFeatures(ballerinaExtInstance);
+        }
 
         // Enable Ballerina Notebook
         activateNotebook(ballerinaExtInstance);

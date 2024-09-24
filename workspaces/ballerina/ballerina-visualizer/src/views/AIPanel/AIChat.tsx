@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
@@ -442,45 +442,7 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    function splitHalfGeneratedCode(content: string) {
-        const segments = [];
-        const regex = /```([\s\S]*?)$/g;
-        let match;
-        let lastIndex = 0;
-
-        while ((match = regex.exec(content)) !== null) {
-            if (match.index > lastIndex) {
-                segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
-            }
-            segments.push({ isCode: true, loading: true, text: match[0] });
-            lastIndex = regex.lastIndex;
-        }
-
-        if (lastIndex < content.length) {
-            segments.push({ isCode: false, loading: false, text: content });
-        }
-        return segments;
-    }
-
-    function splitContent(content: string) {
-        const segments = [];
-        let match;
-        const regex = /```ballerina([\s\S]*?)```/g;
-        let start = 0;
-
-        while ((match = regex.exec(content)) !== null) {
-            if (match.index > start) {
-                const segment = content.slice(start, match.index);
-                segments.push(...splitHalfGeneratedCode(segment));
-            }
-            segments.push({ isCode: true, loading: false, text: match[1] });
-            start = regex.lastIndex;
-        }
-        if (start < content.length) {
-            segments.push(...splitHalfGeneratedCode(content.slice(start)));
-        }
-        return segments;
-    }
+    
 
     async function handleLogout() {
         await rpcClient.getAiPanelRpcClient().logout();
@@ -807,7 +769,7 @@ type SSEEvent =
  * @returns The parsed SSE event containing the event name and body (if present).
  * @throws Will throw an error if the data field is not valid JSON.
  */
-function parseSSEEvent(chunk: string): SSEEvent {
+export function parseSSEEvent(chunk: string): SSEEvent {
     let event: string | undefined;
     let body: any;
 
@@ -832,4 +794,44 @@ function parseSSEEvent(chunk: string): SSEEvent {
     } else {
         return { event, body: body as OtherEventBody };
     }
+}
+
+export function splitHalfGeneratedCode(content: string) {
+    const segments = [];
+    const regex = /```([\s\S]*?)$/g;
+    let match;
+    let lastIndex = 0;
+
+    while ((match = regex.exec(content)) !== null) {
+        if (match.index > lastIndex) {
+            segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
+        }
+        segments.push({ isCode: true, loading: true, text: match[0] });
+        lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < content.length) {
+        segments.push({ isCode: false, loading: false, text: content });
+    }
+    return segments;
+}
+
+export function splitContent(content: string) {
+    const segments = [];
+    let match;
+    const regex = /```ballerina([\s\S]*?)```/g;
+    let start = 0;
+
+    while ((match = regex.exec(content)) !== null) {
+        if (match.index > start) {
+            const segment = content.slice(start, match.index);
+            segments.push(...splitHalfGeneratedCode(segment));
+        }
+        segments.push({ isCode: true, loading: false, text: match[1] });
+        start = regex.lastIndex;
+    }
+    if (start < content.length) {
+        segments.push(...splitHalfGeneratedCode(content.slice(start)));
+    }
+    return segments;
 }

@@ -30,9 +30,9 @@
               "name": "caseRegex",
               "displayName": "Case Regex",
               "inputType": "string",
-              "defaultValue": ".*+",
+              "defaultValue": "",
               "required": false,
-              "helpTip": ""
+              "helpTip": ".*+"
             }
           },
           {

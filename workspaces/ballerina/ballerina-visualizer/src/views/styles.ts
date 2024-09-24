@@ -23,3 +23,12 @@ export const BodyText = styled(Text)`
     margin: 0 0 8px;
     opacity: 0.5;
 `;
+
+export const BodyTinyInfo = styled(Text)`
+    color: var(--vscode-sideBarTitle-foreground);
+    margin: 0 0 8px;
+    opacity: 0.5;
+    font-weight: normal;
+    font-size: 12px;
+    letter-spacing: 0.39px;
+`;

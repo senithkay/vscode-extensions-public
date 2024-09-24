@@ -8,19 +8,64 @@
  */
 
 import styled from "@emotion/styled";
-import { Card } from "@wso2-enterprise/ui-toolkit";
+import { Transition } from "@headlessui/react";
+import { Codicon, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
+import { css } from "@emotion/css";
+import React from "react";
 
-const CardContainer = styled.div({
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 20,
-    justifyContent: "center",
-    width: "100%",
+const PanelViewMore = styled.div({
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
 });
 
-const CARD_WRAPPER_DATA = {
+const HorizontalCardContainer = styled.div({
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gridAutoRows: "minmax(80px, auto)",
+    gap: "20px",
+});
+
+const PanelFooter = styled.div({
+    display: "flex",
+    justifyContent: "center",
+});
+
+const transitionEffect = {
+    enter: css({
+        transition: "opacity 75ms ease-out",
+    }),
+    enterFrom: css({
+        opacity: 0,
+    }),
+    enterTo: css({
+        opacity: 1,
+    }),
+    leave: css({
+        transition: "opacity 150ms ease-in",
+    }),
+    leaveFrom: css({
+        opacity: 1,
+    }),
+    leaveTo: css({
+        opacity: 0,
+    }),
+};
+
+interface CardData {
+    title: string;
+    icon: string;
+    description: string;
+}
+
+interface CardWrapperType {
+    basic: CardData[];
+    advanced?: CardData[];
+}
+
+const CARD_WRAPPER_DATA: { [key: string]: CardWrapperType } = {
     MESSAGE_PROCESSOR: {
-        cards: [
+        basic: [
             {
                 title: 'Message Sampling Processor',
                 icon: 'message-sampling-processor',
@@ -44,22 +89,7 @@ const CARD_WRAPPER_DATA = {
         ]
     },
     ENDPOINT: {
-        cards: [
-            {
-                title: 'Address Endpoint',
-                icon: 'address-endpoint',
-                description: 'Direct address connection',
-            },
-            {
-                title: 'Default Endpoint',
-                icon: 'default-endpoint',
-                description: 'Fallback endpoint',
-            },
-            {
-                title: 'Failover Endpoint',
-                icon: 'failover-endpoint',
-                description: 'Backup endpoint on failure',
-            },
+        basic: [
             {
                 title: 'HTTP Endpoint',
                 icon: 'http-endpoint',
@@ -69,6 +99,23 @@ const CARD_WRAPPER_DATA = {
                 title: 'Load Balance Endpoint',
                 icon: 'load-balance-endpoint',
                 description: 'Distributes load among multiple endpoints',
+            },
+            {
+                title: 'Failover Endpoint',
+                icon: 'failover-endpoint',
+                description: 'Backup endpoint on failure',
+            }
+        ],
+        advanced: [
+            {
+                title: 'Address Endpoint',
+                icon: 'address-endpoint',
+                description: 'Direct address connection',
+            },
+            {
+                title: 'Default Endpoint',
+                icon: 'default-endpoint',
+                description: 'Fallback endpoint',
             },
             {
                 title: 'Recipient List Endpoint',
@@ -88,7 +135,7 @@ const CARD_WRAPPER_DATA = {
         ]
     },
     TEMPLATE: {
-        cards: [
+        basic: [
             {
                 title: 'Address Endpoint Template',
                 icon: 'address-endpoint-template',
@@ -117,7 +164,7 @@ const CARD_WRAPPER_DATA = {
         ]
     },
     LOCAL_ENTRY: {
-        cards: [
+        basic: [
             {
                 title: 'In-Line Text Entry',
                 icon: 'in-line-text-entry',
@@ -136,7 +183,7 @@ const CARD_WRAPPER_DATA = {
         ]
     },
     MESSAGE_STORE: {
-        cards: [
+        basic: [
             {
                 title: 'In Memory Message Store',
                 icon: 'in-memory-message-store',
@@ -182,18 +229,61 @@ type CardWrapperProps = {
 }
 
 const CardWrapper = (props: CardWrapperProps) => {
+
+    const [viewMore, setViewMore] = React.useState<boolean>(false);
+
     return (
-        <CardContainer>
-            {CARD_WRAPPER_DATA[props.cardsType].cards.map((card, index) => (
-                <Card
-                    key={index}
-                    icon={card.icon}
-                    title={card.title}
-                    description={card.description}
-                    onClick={() => props.setType(card.title)}
-                />
-            ))}
-        </CardContainer>
+        <>
+            <HorizontalCardContainer>
+                {CARD_WRAPPER_DATA[props.cardsType].basic.map((card, index) => (
+                    <Card
+                        key={index}
+                        icon={card.icon}
+                        title={card.title}
+                        description={card.description}
+                        onClick={() => props.setType(card.title)}
+                    />
+                ))}
+            </HorizontalCardContainer>
+            {Object.keys(CARD_WRAPPER_DATA[props.cardsType]).length > 1 && 'advanced' in CARD_WRAPPER_DATA[props.cardsType] &&
+                <>
+                    <Transition
+                        show={viewMore}
+                        {...transitionEffect}
+                    >
+                        <PanelViewMore>
+                            <Divider/>
+                            <Typography variant="h3" sx={{margin: 0}}>
+                                Advanced
+                            </Typography>
+                            <HorizontalCardContainer>
+                                {CARD_WRAPPER_DATA[props.cardsType]?.advanced?.map((card, index) => (
+                                    <Card
+                                        key={index}
+                                        icon={card.icon}
+                                        title={card.title}
+                                        description={card.description}
+                                        onClick={() => props.setType(card.title)}
+                                    />
+                                ))}
+                            </HorizontalCardContainer>
+                        </PanelViewMore>
+                    </Transition>
+                    <PanelFooter>
+                        {!viewMore ? (
+                            <LinkButton sx={{padding: "4px 8px"}} onClick={() => setViewMore(true)}>
+                                <Codicon name="plus"/>
+                                <Typography variant="body2">View More</Typography>
+                            </LinkButton>
+                        ) : (
+                            <LinkButton sx={{padding: "4px 8px"}} onClick={() => setViewMore(false)}>
+                                <Typography variant="body2">Show Less</Typography>
+                            </LinkButton>
+                        )}
+                    </PanelFooter>
+                </>
+            }
+        </>
     )
 }
 

@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const DBReportForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -50,7 +50,6 @@ const DBReportForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             connectionType: sidePanelContext?.formValues?.connectionType || "DB_CONNECTION",
-            databaseConfiguration: sidePanelContext?.formValues?.databaseConfiguration || "",
             connectionDBType: sidePanelContext?.formValues?.connectionDBType || "OTHER",
             isRegistryBasedDriverConfig: sidePanelContext?.formValues?.isRegistryBasedDriverConfig || "",
             connectionDBDriver: sidePanelContext?.formValues?.connectionDBDriver || "",
@@ -74,7 +73,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Query String",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "ParamManager",
@@ -89,6 +88,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Data Type",
                                         "defaultValue": "CHAR",
+                                        "placeholder": "Select the data type",
                                         "isRequired": true,
                                         "values": [
                                             "CHAR",
@@ -113,6 +113,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "Dropdown",
                                         "label": "Value Type",
                                         "defaultValue": "LITERAL",
+                                        "placeholder": "Select the value type",
                                         "isRequired": true,
                                         "values": [
                                             "LITERAL",
@@ -123,6 +124,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         "type": "TextField",
                                         "label": "Value Literal",
                                         "defaultValue": "",
+                                        "placeholder": "Enter the value literal",
                                         "isRequired": true,
                                         "enableCondition": [
                                             {
@@ -137,6 +139,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                             "isExpression": true,
                                             "value": ""
                                         },
+                                        "placeholder": "Enter the value expression",
                                         "isRequired": true,
                                         "canChange": false,
                                         "enableCondition": [
@@ -204,6 +207,7 @@ const DBReportForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["sqlStatements"] = getParamManagerValues(values.sqlStatements);
         const xml = getXML(MEDIATORS.DBREPORT, values, dirtyFields, sidePanelContext.formValues);
@@ -264,23 +268,6 @@ const DBReportForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </Field>
-
-                    {watch("connectionType") == "DB_CONNECTION" &&
-                    <Field>
-                        <Controller
-                            name="databaseConfiguration"
-                            control={control}
-                            rules={
-                                {
-                                    required: "This field is required",
-                                }
-                            }
-                            render={({ field }) => (
-                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" required={true} errorMsg={errors?.databaseConfiguration?.message?.toString()} />
-                            )}
-                        />
-                    </Field>
-                    }
 
                     {watch("connectionType") == "DB_CONNECTION" &&
                     <Field>
@@ -577,10 +564,19 @@ const DBReportForm = (props: AddMediatorProps) => {
                         <Controller
                             name="sqlStatements"
                             control={control}
+                            rules={{
+                                validate: (value) => {
+                                    if (!value.paramValues || value.paramValues.length === 0) {
+                                        return "This table is required";
+                                    }
+                                    return true;
+                                },
+                            }}
                             render={({ field: { onChange, value } }) => (
                                 <ParamManager
                                     paramConfigs={value}
                                     readonly={false}
+                                    errorMessage={errors?.sqlStatements?.message?.toString()}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const property: ParamValue[] = param.paramValues;

@@ -199,7 +199,7 @@ const QueryForm = (props: AddMediatorProps) => {
                                 label="Datasource"
                                 allowItemCreate={false}
                                 onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                    openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.documentUri);
+                                    openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.documentUri, { datasource: undefined });
                                 }}
                                 onValueChange={field.onChange}
                             />

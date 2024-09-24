@@ -61,15 +61,6 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-// create link between ports
-export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortModel, options?: NodeLinkModelOptions) {
-    const link = new NodeLinkModel(options);
-    link.setSourcePort(sourcePort);
-    link.setTargetPort(targetPort);
-    sourcePort.addLink(link);
-    return link;
-}
-
 // create link between nodes
 export type AllNodeModel = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel | DataServiceNodeModel;
 export type SourceNodeModel = Exclude<AllNodeModel, EndNodeModel>;
@@ -77,8 +68,12 @@ export type TargetNodeModel = Exclude<AllNodeModel, StartNodeModel>;
 export function createNodesLink(sourceNode: SourceNodeModel, targetNode: TargetNodeModel, options?: NodeLinkModelOptions) {
     const sourcePort = sourceNode.getOutPort();
     const targetPort = targetNode.getInPort();
-    const link = createPortsLink(sourcePort, targetPort, options);
+
+    const link = new NodeLinkModel(options);
+    link.setSourcePort(sourcePort);
+    link.setTargetPort(targetPort);
     link.setSourceNode(sourceNode);
     link.setTargetNode(targetNode);
+    sourcePort.addLink(link);
     return link;
 }

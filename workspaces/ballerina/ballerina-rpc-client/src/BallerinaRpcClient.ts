@@ -35,6 +35,8 @@ import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-clien
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ServiceDesignerRpcClient, AiPanelRpcClient } from "./rpc-clients";
 import { EggplantDiagramRpcClient } from "./rpc-clients/eggplant-diagram/rpc-client";
+import { ConnectorWizardRpcClient } from "./rpc-clients/connector-wizard/rpc-client";
+import { SequenceDiagramRpcClient } from "./rpc-clients/sequence-diagram/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -48,7 +50,9 @@ export class BallerinaRpcClient {
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
     private _RecordCreator: RecordCreatorRpcClient;
     private _eggplantDiagram: EggplantDiagramRpcClient;
+    private _SequenceDiagram: SequenceDiagramRpcClient;
     private _aiPanel: AiPanelRpcClient;
+    private _connectorWizard: ConnectorWizardRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -62,7 +66,13 @@ export class BallerinaRpcClient {
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
         this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
         this._eggplantDiagram = new EggplantDiagramRpcClient(this.messenger);
+        this._SequenceDiagram = new SequenceDiagramRpcClient(this.messenger);
         this._aiPanel = new AiPanelRpcClient(this.messenger);
+        this._connectorWizard = new ConnectorWizardRpcClient(this.messenger);
+    }
+
+    getConnectorWizardRpcClient(): ConnectorWizardRpcClient {
+        return this._connectorWizard;
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -75,6 +85,10 @@ export class BallerinaRpcClient {
 
     getEggplantDiagramRpcClient(): EggplantDiagramRpcClient {
         return this._eggplantDiagram;
+    }
+
+    getSequenceDiagramRpcClient(): SequenceDiagramRpcClient {
+        return this._SequenceDiagram;
     }
 
     getPersistDiagramRpcClient(): PersistDiagramRpcClient {

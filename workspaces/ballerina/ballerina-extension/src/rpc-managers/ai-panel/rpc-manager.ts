@@ -12,22 +12,34 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AI_EVENT_TYPE,
-    AddToProjectRequest
+    AddToProjectRequest,
+    ErrorCode,
+    GenerateMappingsRequest,
+    GenerateMappingsResponse,
+    NotifyAIMappingsRequest,
+    STModification,
+    SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
-import axios from "axios";
+import { ModulePart, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import path from "path";
-import * as vscode from 'vscode';
-import { extension } from "../../BalExtensionContext";
-import { StateMachineAI } from '../../views/ai-panel/aiMachine';
-import { updateView } from "../../stateMachine";
+import { Uri, window, workspace } from 'vscode';
 
+import { extension } from "../../BalExtensionContext";
+import { StateMachine, updateView } from "../../stateMachine";
+import { StateMachineAI } from '../../views/ai-panel/aiMachine';
+import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
+import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
+import { NOT_SUPPORTED } from "../../core";
+import { modifyFileContent } from "../../utils/modification";
+
+export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
-            const config = vscode.workspace.getConfiguration('ballerina');
+            const config = workspace.getConfiguration('ballerina');
             const BACKEND_URL = config.get('rootUrl') as string;
             resolve(BACKEND_URL);
         });
@@ -82,14 +94,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return new Promise(async (resolve) => {
             console.log("Implementing getProjectUuid");
             // Check if there is at least one workspace folder
-            if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+            if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
                 console.error("No workspace folder is open.");
                 resolve("");
                 return;
             }
 
             // Use the path of the first workspace folder
-            const workspaceFolderPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            const workspaceFolderPath = workspace.workspaceFolders[0].uri.fsPath;
 
             // Create a hash of the workspace folder path
             const hash = crypto.createHash('sha256');
@@ -105,7 +117,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // ADD YOUR IMPLEMENTATION HERE
         console.log("Implementing addToProject");
 
-        const workspaceFolders = vscode.workspace.workspaceFolders;
+        const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
             throw new Error("No workspaces found.");
         }
@@ -140,46 +152,159 @@ public function main() {
             const generatedBalPath = path.join(workspaceFolderPath, 'generated.bal');
             fs.writeFileSync(generatedBalPath, req.content.trim());
         }
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
 
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {
-            const CommonReqHeaders = {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
-                'Accept': 'application/json'
-            };
+            const token = await refreshAccessToken();
+            resolve(token);
+        });
+    }
 
-            const config = vscode.workspace.getConfiguration('ballerina');
-            const AUTH_ORG = config.get('authOrg') as string;
-            const AUTH_CLIENT_ID = config.get('authClientID') as string;
+    async generateMappings(params: GenerateMappingsRequest): Promise<GenerateMappingsResponse> {
+        const logged = await isLoggedin();
 
-            const refresh_token = await extension.context.secrets.get('BallerinaAIRefreshToken');
-            if (!refresh_token) {
-                throw new Error("Refresh token is not available.");
-            } else {
-                try {
-                    console.log("Refreshing token...");
-                    const params = new URLSearchParams({
-                        client_id: AUTH_CLIENT_ID,
-                        refresh_token: refresh_token,
-                        grant_type: 'refresh_token',
-                        scope: 'openid'
-                    });
-                    const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
-                    const newAccessToken = response.data.access_token;
-                    const newRefreshToken = response.data.refresh_token;
-                    await extension.context.secrets.store('BallerinaAIUser', newAccessToken);
-                    await extension.context.secrets.store('BallerinaAIRefreshToken', newRefreshToken);
-                    console.log("Token refreshed successfully!");
-                    const token = await extension.context.secrets.get('BallerinaAIUser');
-                    resolve(token);
-                } catch (error: any) {
-                    const errMsg = "Error while refreshing token! " + error?.message;
-                    console.error(errMsg);
+        if (!logged) {
+            return { error: UNAUTHORIZED };
+        }
+
+        const { filePath, position } = params;
+
+        const fileUri = Uri.file(filePath).toString();
+        hasStopped = false;
+
+        const fnSTByRange = await StateMachine.langClient().getSTByRange(
+            {
+                lineRange: {
+                    start: {
+                        line: position.startLine,
+                        character: position.startColumn
+                    },
+                    end: {
+                        line: position.endLine,
+                        character: position.endColumn
+                    }
+                },
+                documentIdentifier: {
+                    uri: fileUri
                 }
             }
+        );
+    
+        if (fnSTByRange === NOT_SUPPORTED) {
+            return { error: UNKNOWN_ERROR };
+        }
+    
+        const {
+            parseSuccess: fnSTByRangeParseSuccess,
+            syntaxTree: fnSTByRangeSyntaxTree,
+            source: oldSource
+        } = fnSTByRange as SyntaxTree;
+        const fnSt = fnSTByRangeSyntaxTree as STNode;
+    
+        if (!fnSTByRangeParseSuccess || !STKindChecker.isFunctionDefinition(fnSt)) {
+            return { error: PARSING_ERROR };
+        }
+    
+        const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+    
+        if (isErrorCode(parameterDefinitions)) {
+            return { error: (parameterDefinitions as ErrorCode) };
+        }
+    
+        const codeObject: object | ErrorCode = await getDatamapperCode(parameterDefinitions);
+        if (isErrorCode(codeObject)) {
+            if ((codeObject as ErrorCode).code === 6) {
+                return { userAborted: true };
+            }
+            return { error: codeObject as ErrorCode };
+        }
+    
+        let codeString: string = constructRecord(codeObject);
+        if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
+            const parameter = fnSt.functionSignature.parameters[0];
+            const param = parameter as RequiredParam;
+            const paramName = param.paramName.value;
+            codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
+            codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+        } else {
+            codeString = `=> ${codeString};`;
+        }
+        const modifications: STModification[] = [];
+        modifications.push({
+            type: "INSERT",
+            config: { STATEMENT: codeString },
+            endColumn: fnSt.functionBody.position.endColumn,
+            endLine: fnSt.functionBody.position.endLine,
+            startColumn: fnSt.functionBody.position.startColumn,
+            startLine: fnSt.functionBody.position.startLine,
         });
+    
+        const stModifyResponse = await StateMachine.langClient().stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: fileUri
+            }
+        });
+    
+        const { parseSuccess, source, syntaxTree } = stModifyResponse as SyntaxTree;
+    
+        if (!parseSuccess) {
+            return { error: MODIFIYING_ERROR };
+        }
+    
+        const fn = getFunction(syntaxTree as ModulePart, fnSt.functionName.value);
+    
+        if (fn && fn.source !== oldSource) {
+            modifyFileContent({ filePath, content: source });
+            updateView();
+    
+            return { newFnPosition: fn.position };
+        } else if (fn.source === oldSource) {
+            notifyNoGeneratedMappings();
+            return {};
+        }
+    
+        return { error: UNKNOWN_ERROR };
+    }
+
+    async notifyAIMappings(params: NotifyAIMappingsRequest): Promise<boolean> {
+        const { newFnPosition, prevFnSource, filePath } = params;
+        const fileUri = Uri.file(filePath).toString();
+        const undoAction = 'Undo';
+        const msg = 'You have automatically generated mappings. Do you want to undo the changes?';
+        const result = await window.showInformationMessage(msg, undoAction, 'Close');
+    
+        if (result === undoAction) {
+            const res = await StateMachine.langClient().stModify({
+                astModifications: [{
+                    type: "INSERT",
+                    config: { STATEMENT: prevFnSource },
+                    ...newFnPosition
+                }],
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            });
+    
+            const { source } = res as SyntaxTree;
+            modifyFileContent({ filePath, content: source });
+            updateView();
+        }
+    
+        return true;
+    }
+
+    async stopAIMappings(): Promise<GenerateMappingsResponse> {
+        hasStopped = true;
+        handleStop();
+        return { userAborted: true };
+    }
+
+    async promptLogin(): Promise<boolean> {
+        await handleLogin();
+        return true;
     }
 }

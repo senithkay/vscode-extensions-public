@@ -113,12 +113,14 @@ export class BaseNodeModel extends NodeModel {
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,
-                parentNode: node.mediatorName
+                parentNode: node.mediatorName,
+                node: node,
             });
         }
     }
 
-    async delete(rpcClient: RpcClient) {
+    async delete(rpcClient: RpcClient, setDiagramLoading: (loading: boolean) => void) {
+        setDiagramLoading(true);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: this.documentUri,
             range: {

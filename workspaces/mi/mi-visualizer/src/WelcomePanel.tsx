@@ -14,6 +14,7 @@ import { SamplesView } from "./views/SamplesView";
 import { ProjectWizard } from "./views/Forms/ProjectForm";
 import { ImportProjectWizard } from "./views/Forms/ImportProjectForm";
 import { WelcomeView } from "./views/WelcomeView";
+import { ImportCAPPWizard } from "./views/Forms/ImportCAPPForm";
 
 export function WelcomePanel() {
     const { rpcClient } = useVisualizerContext();
@@ -33,6 +34,7 @@ export function WelcomePanel() {
             {machineView === MACHINE_VIEW.ProjectCreationForm && <ProjectWizard cancelView={MACHINE_VIEW.Welcome} />}
             {machineView === MACHINE_VIEW.Samples && <SamplesView />}
             {machineView === MACHINE_VIEW.ImportProject && <ImportProjectWizard />}
+            {machineView === MACHINE_VIEW.ImportProjectForm && <ImportCAPPWizard />}
         </>
     );
 }

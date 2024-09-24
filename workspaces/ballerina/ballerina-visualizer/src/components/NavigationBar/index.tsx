@@ -15,6 +15,7 @@ import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { Breadcrumbs, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 interface NavigationBarProps {
+    showHome?: boolean
 }
 
 const NavigationContainer = styled.div`
@@ -76,7 +77,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     return (
         <NavigationContainer id="nav-bar-main">
-            <NavButtonGroup historyStack={history} />
+            <NavButtonGroup historyStack={history} showHome={props.showHome} />
             {fromDataMapper && (
                 <FnNavContainer>
                     <Breadcrumbs

@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DIRECTORY_MAP } from "../../interfaces/eggplant";
+import { LineRange } from "../../interfaces/common";
+import { DIRECTORY_MAP, Flow, OverviewFlow } from "../../interfaces/eggplant";
 import { BallerinaProjectComponents } from "../../interfaces/extended-lang-client";
 
-export interface CreateProjectRequest {
+export interface ProjectRequest {
     projectName: string;
     projectPath: string;
     isService: boolean;
@@ -39,4 +40,31 @@ export interface CreateComponentResponse {
 
 export interface ProjectComponentsResponse {
     components: BallerinaProjectComponents
+}
+
+export interface ReadmeContentRequest {
+    read: boolean
+    content?: string;
+}
+
+export interface ReadmeContentResponse {
+    content: string;
+}
+
+export interface EggplantAiSuggestionsRequest {
+    position: LineRange;
+    filePath: string;
+    isOverview?: boolean;
+}
+export interface EggplantAiSuggestionsResponse {
+    flowModel: Flow;
+    suggestion: string;
+    overviewFlow?: OverviewFlow;
+}
+export interface ComponentsRequest {
+    overviewFlow: OverviewFlow
+}
+
+export interface ComponentsResponse {
+    response: boolean;
 }

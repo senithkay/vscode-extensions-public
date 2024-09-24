@@ -12,9 +12,9 @@ import {
     ObjectOutputNode,
     InputNode,
     ArrayOutputNode,
-    SubMappingNode,
-    ArrayFilterNode,
+    SubMappingNode
 } from "../Node";
+import { ArrayFilterNode } from "../Node/ArrayFilter"
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FocusedInputNode } from "../Node/FocusedInput";

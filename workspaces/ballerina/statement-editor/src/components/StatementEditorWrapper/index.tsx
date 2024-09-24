@@ -57,7 +57,7 @@ export interface LowCodeEditorProps {
     modelTargetSource?: NodePosition;
     ballerinaVersion?: string;
     isCodeServerInstance?: boolean;
-    openExternalUrl?: (url: string) => Promise<boolean>;
+    openExternalUrl?: (url: string) => void;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {

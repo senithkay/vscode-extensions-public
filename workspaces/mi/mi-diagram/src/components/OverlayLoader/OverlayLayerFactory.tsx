@@ -23,6 +23,6 @@ export class OverlayLayerFactory extends AbstractReactFactory<OverlayLayerModel,
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<OverlayLayerModel>): JSX.Element {
-		return <OverlayLayerWidget layer={event.model} engine={this.engine} />;
+		return <OverlayLayerWidget />;
 	}
 }

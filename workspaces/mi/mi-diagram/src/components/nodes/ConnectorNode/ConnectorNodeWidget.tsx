@@ -55,6 +55,24 @@ namespace S {
         font-size: var(--type-ramp-base-font-size);
     `;
 
+    export const ConnectionContainer = styled.div`
+        position: absolute;
+        top: 60px;
+        left: 235px;
+        transform: translateX(-50%);
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
+    `;
+
+    export const ConnectionText = styled.div`
+        max-width: 130px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    `;
+
     export const IconContainer = styled.div`
         padding: 0 4px;
         display: flex;
@@ -103,12 +121,16 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const [isHoveredConnector, setIsHoveredConnector] = React.useState(false);
     const [isConnectorSelected, setIsConnectorSelected] = React.useState(false);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const description = node.stNode.tag.split(".")[1];
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -158,7 +180,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 connectorName: node.stNode.tag.split(".")[0]
             });
 
-            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
+            const operationName = node.stNode.tag.split(/\.(.+)/)[1];
+            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operationName });
 
             sidePanelContext.setSidePanelState({
                 isOpen: true,
@@ -167,20 +190,22 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 isEditing: true,
                 formValues: {
                     form: formJSON.formJSON,
-                    title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                    title: `${connectorData.name} - ${operationName}`,
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
-                    operationName: (node).stNode.tag.split(".")[1]
+                    operationName: operationName,
+                    connectionName: (node.stNode as Connector).configKey
                 },
                 iconPath: iconPath,
-                parentNode: node.mediatorName
+                parentNode: node.mediatorName,
+                node: node,
             });
         }
     }
 
     return (
-        <div >
+        <div data-testid={`connectorNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
@@ -271,6 +296,12 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     </svg>
                 </Tooltip>
             </S.CircleContainer>
+            {(node.stNode as Connector).configKey &&
+                <S.ConnectionContainer>
+                    <S.ConnectionText>
+                        {FirstCharToUpperCase((node.stNode as Connector).configKey)}
+                    </S.ConnectionText>
+                </S.ConnectionContainer>}
             <Popover
                 anchorEl={popoverAnchorEl}
                 open={isPopoverOpen}
@@ -282,7 +313,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>

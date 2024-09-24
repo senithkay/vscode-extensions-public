@@ -8,33 +8,23 @@
  */
 
 import { StateMachine } from '../stateMachine';
-import { COMMANDS, VIEWS } from '../constants';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, commands, window, workspace } from 'vscode';
-import { SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { SHARED_COMMANDS, EGGPLANT_COMMANDS } from '@wso2-enterprise/ballerina-core';
 
 export function activateProjectExplorer(context: ExtensionContext, isEggplant: boolean) {
 	commands.executeCommand('setContext', 'Eggplant.status', 'loading');
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isEggplant);
-	const projectTree = window.createTreeView(VIEWS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
+	const projectTree = window.createTreeView(EGGPLANT_COMMANDS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	if (isEggplant) {
-		commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
-
-		commands.registerCommand(VIEWS.ADD_CONNECTIONS, () => {
-			// Trigger to open the connections popup view
-		});
-
-		commands.registerCommand(VIEWS.ADD_ENTRY_POINT, () => {
-			// Trigger to open the entrypoint view
-		});
-
-		commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+		commands.registerCommand(EGGPLANT_COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
+		commands.executeCommand(EGGPLANT_COMMANDS.FOCUS_PROJECT_EXPLORER);
 		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
 	}
 	projectTree.onDidChangeVisibility(res => {
 		if (res.visible) {
 			if (isEggplant) {
-				commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+				commands.executeCommand(EGGPLANT_COMMANDS.REFRESH_COMMAND);
 			} else {
 				commands.executeCommand('setContext', 'Eggplant.status', 'unknownProject');
 				commands.executeCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME);

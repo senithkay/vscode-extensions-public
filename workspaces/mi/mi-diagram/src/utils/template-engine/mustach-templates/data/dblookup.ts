@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DbMediator } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { DbMediator, DbMediatorConnectionPool } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
 
 export function getDBLookupMustacheTemplate() {
@@ -212,6 +212,7 @@ export function getDBLookupFormDataFromSTNode(data: { [key: string]: any }, node
     data.description = node.description;
     const pool = node.connection?.pool;
     if (pool) {
+        data.connectionDBType = findConnectionType(pool);
         const driver = pool.driver;
         if (driver?.key) {
             data.isRegistryBasedDriverConfig = true;
@@ -256,7 +257,7 @@ export function getDBLookupFormDataFromSTNode(data: { [key: string]: any }, node
 
     data.sqlStatements = node.statement.map((statement: any) => {
         const match = statement?.sql?.match(/<!\[CDATA\[(.*?)]]>/);
-        let sql = match ? match[1] : null;
+        let sql = match ? match[1] : statement?.sql;
         return [
             sql,
             statement?.parameter?.map((parameter: any) => {
@@ -342,4 +343,20 @@ function getPropertiesFromPool(properties: any[], data: { [key: string]: any }) 
             data[key] = value;
         }
     });
+}
+
+function findConnectionType(pool: DbMediatorConnectionPool): any {
+    let driver = pool?.driver?.textNode;
+    let url = pool?.url?.textNode;
+    if (driver == "com.mysql.jdbc.Driver" && url?.startsWith("jdbc:mysql://")) {
+        return "MYSQL";
+    } else if (driver == "oracle.jdbc.OracleDriver" && url?.startsWith("jdbc:oracle:thin:")) {
+        return "ORACLE";
+    } else if (driver == "com.microsoft.sqlserver.jdbc.SQLServerDriver" && url?.startsWith("jdbc:sqlserver://")) {
+        return "MSSQL";
+    } else if (driver == "org.postgresql.Driver" && url?.startsWith("jdbc:postgresql://")) {
+        return "POSTGRESQL";
+    } else {
+        return "OTHER";
+    }
 }

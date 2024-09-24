@@ -23,6 +23,7 @@
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.10.5",
         "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "@wso2-enterprise/ballerina-core": "workspace:*",
         "lodash": "~4.17.21",
         "react-hook-form": "~7.52.1"
     },

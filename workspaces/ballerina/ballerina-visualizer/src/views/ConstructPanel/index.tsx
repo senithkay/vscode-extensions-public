@@ -23,7 +23,7 @@ interface ConstructPanelProps {
 export function ConstructPanel(props: ConstructPanelProps) {
     const { applyModifications } = props;
 
-    const { activePanel, setActivePanel, statementPosition, activeFileInfo } = useVisualizerContext();
+    const { activePanel, setActivePanel, statementPosition, activeFileInfo, setSidePanel } = useVisualizerContext();
     const [showStatementEditor, setShowStatementEditor] = useState<boolean>(false);
     const [initialSource, setInitialSource] = useState<string>();
     const [selectedNode, setSelectedNode] = useState<string>();
@@ -39,7 +39,6 @@ export function ConstructPanel(props: ConstructPanelProps) {
 
 
     const handleOnSelectNode = (nodeId: string) => {
-        console.log(nodeId);
         // create the intial source for the statement editor
         const stSymbolInfo = getSymbolInfo();
         const allVariables = stSymbolInfo ? getAllVariables(stSymbolInfo) : [];
@@ -49,14 +48,21 @@ export function ConstructPanel(props: ConstructPanelProps) {
             const elseTemplateValues = getTemplateValues("ElseStatement", allVariables);
             const elseInitialSource = getInitialSource(elseTemplateValues);
             setInitialSource(initialSource + elseInitialSource);
+            setSelectedNode(nodeId);
+            setShowStatementEditor(true);
+        } else if (nodeId === "Connector") {
+            setActivePanel({ isActive: false });
+            setSidePanel("ADD_CONNECTION");
+        } else if (nodeId === "Action") {
+            setActivePanel({ isActive: false });
+            setSidePanel("ADD_ACTION");
         } else {
             const templateValues = getTemplateValues(nodeId, allVariables);
             const initialSource = getInitialSource(templateValues);
             setInitialSource(initialSource);
+            setSelectedNode(nodeId);
+            setShowStatementEditor(true);
         }
-
-        setSelectedNode(nodeId);
-        setShowStatementEditor(true);
     }
 
 

@@ -8,10 +8,12 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class MediatorNodeModel extends BaseNodeModel {
+    readonly nodeWidth = NODE_DIMENSIONS.DEFAULT.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.DEFAULT.HEIGHT;
     constructor(nodeType:NodeTypes = NodeTypes.MEDIATOR_NODE, stNode: STNode, mediatorName:string, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super(nodeType, mediatorName, documentUri, stNode, parentNode, prevNodes);
     }

@@ -22,6 +22,7 @@ interface MachineContext extends VisualizerLocation {
 
 export let history: History;
 export let undoRedoManager: UndoRedoManager;
+const showEggplantOverviewV2 = ballerinaExtInstance.eggplantOverviewV2();
 
 const stateMachine = createMachine<MachineContext>(
     {
@@ -205,6 +206,11 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
+                        if (context.isEggplant && showEggplantOverviewV2) {
+                            // Render overview 2 if setting is enabled
+                            history.push({ location: { view: MACHINE_VIEW.OverviewV2, documentUri: context.documentUri } });
+                            return resolve();
+                        }
                         if (context.isEggplant) {
                             const entryPoints = (await new EggplantDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
@@ -256,6 +262,10 @@ const stateMachine = createMachine<MachineContext>(
                 }) as SyntaxTree;
 
                 if (!selectedEntry?.location.view) {
+                    if (context.isEggplant && showEggplantOverviewV2) {
+                        // Render overview 2 if setting is enabled
+                        return resolve({ view: MACHINE_VIEW.OverviewV2, documentUri: context.documentUri });
+                    }
                     return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
                 }
 

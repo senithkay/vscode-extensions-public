@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	DiagramModel,
@@ -25,6 +25,7 @@ import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/
 import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
 import { PrimitiveOutputNode } from '../Diagram/Node/PrimitiveOutput';
+import { isInputNode, isOutputNode } from '../Diagram/Actions/utils'
 
 export const useRepositionedNodes = (
     nodes: DataMapperNodeModel[],
@@ -58,7 +59,8 @@ export const useRepositionedNodes = (
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && sameView && filtersUnchanged && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            const hasArrayFilterNode = nodesClone.some(node => node instanceof ArrayFilterNode);
+            let y = exisitingNode && sameView && (!hasArrayFilterNode || filtersUnchanged) && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
             node.setPosition(x, y);
             if (node instanceof InputNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
@@ -87,6 +89,7 @@ export const useDiagramModel = (
     diagramModel: DiagramModel,
     onError:(kind: ErrorNodeKind) => void,
     zoomLevel: number,
+    screenWidth: number
 ): {
     updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
@@ -102,12 +105,20 @@ export const useDiagramModel = (
     const lastView = views ? views[views.length - 1] : undefined;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevScreenWidth = useRef(screenWidth);
 
     const genModel = async () => {
-        if (diagramModel.getZoomLevel() !== zoomLevel && diagramModel.getNodes().length > 0) {
-            // Update only zoom level and offset if zoom level is changed
+        if (prevScreenWidth.current !== screenWidth && diagramModel.getNodes().length > 0) {
+            const diagModelNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+            diagModelNodes.forEach(diagModelNode => {
+                const repositionedNode = nodes.find(newNode => newNode.id === diagModelNode.id);
+                if (repositionedNode) {
+                    diagModelNode.setPosition(repositionedNode.getX(), repositionedNode.getY());
+                }
+            });
             diagramModel.setZoomLevel(zoomLevel);
             diagramModel.setOffset(offSetX, offSetY);
+            prevScreenWidth.current = screenWidth;
             return diagramModel;
         }
         const newModel = new DiagramModel();
@@ -149,7 +160,37 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery([
+        'genModel',
+        { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, screenWidth }
+    ], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };
 };
+
+export const useSearchScrollReset = (
+    diagramModel: DiagramModel<DiagramModelGenerics>
+) => {
+    const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevInSearchTermRef = useRef<string>("");
+    const prevOutSearchTermRef = useRef<string>("");
+
+    useEffect(() => {
+        const nodes = diagramModel.getNodes() as DataMapperNodeModel[];
+        const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof SubMappingNode)));
+        const subMappingNode = nodes.find((node) => (node instanceof SubMappingNode));
+        const outputNode = nodes.find(isOutputNode);
+
+        if (inputNode && prevInSearchTermRef.current != inputSearch) {
+            inputNode.setPosition(inputNode.getX(), 0);
+            subMappingNode?.setPosition(subMappingNode.getX(), inputNode.height + GAP_BETWEEN_INPUT_NODES);
+            prevInSearchTermRef.current = inputSearch;
+        }
+
+        if (outputNode && prevOutSearchTermRef.current != outputSearch) {
+            outputNode.setPosition(outputNode.getX(), 0);
+            prevOutSearchTermRef.current = outputSearch;
+        }
+        
+    }, [diagramModel]);
+}

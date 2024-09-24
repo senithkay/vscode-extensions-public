@@ -10,8 +10,7 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import path = require('path');
-import { VIEWS } from '../constants';
-import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, EGGPLANT_COMMANDS, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../eggplantExtentionContext";
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
@@ -49,7 +48,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 
     refresh(): void {
         window.withProgress({
-            location: { viewId: VIEWS.PROJECT_EXPLORER },
+            location: { viewId: EGGPLANT_COMMANDS.PROJECT_EXPLORER },
             title: 'Loading project structure'
         }, async () => {
             await getProjectStructureData()
@@ -187,6 +186,7 @@ function getEntriesEggplant(components: ProjectStructureResponse): ProjectExplor
         'folder',
         true
     );
+    schemas.contextValue = "schemas";
     schemas.children = getComponents(components.directoryMap[DIRECTORY_MAP.SCHEMAS]);
     entries.push(schemas);
 
@@ -198,6 +198,7 @@ function getEntriesEggplant(components: ProjectStructureResponse): ProjectExplor
         'folder',
         true
     );
+    functions.contextValue = "functions";
     functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.TASKS]);
     entries.push(functions);
 
@@ -209,6 +210,7 @@ function getEntriesEggplant(components: ProjectStructureResponse): ProjectExplor
         'folder',
         true
     );
+    configs.contextValue = "configurations";
     configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS]);
     entries.push(configs);
 

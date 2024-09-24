@@ -31,7 +31,7 @@ import {
 import { getEnrichedDMType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings } from "../../utils/search-utils";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 
 export const PRIMITIVE_OUTPUT_NODE_TYPE = "data-mapper-node-primitive-output";
 const NODE_ID = "primitive-output-node";
@@ -133,7 +133,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
                 if (Node.isVariableStatement(this.context.focusedST)) {
                     targetNodeForDiagnostics = this.context.focusedST;
                 }
-                const diagnostics = getDiagnostics(targetNodeForDiagnostics);
+                const diagnostics = filterDiagnosticsForNode(this.context.diagnostics, targetNodeForDiagnostics);
                 const lm = new DataMapperLinkModel(value, diagnostics, true);
 
                 lm.setTargetPort(mappedOutPort);

@@ -12,7 +12,7 @@ import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./
 import { ClientCapabilities, Location } from "vscode-languageserver-protocol";
 import { DiagramDiagnostic, FunctionDefinitionInfo, NonPrimitiveBal } from "./config-spec";
 import { STModifyParams } from "./extended-lang-client";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",
@@ -181,6 +181,12 @@ export interface BallerinaModule {
     package: Package;
     displayAnnotation?: DisplayAnnotation;
     icon?: string;
+}
+
+export interface ConnectorInfo {
+    connector: any;
+    functionNode?: STNode;
+    action?: FunctionDefinitionInfo;
 }
 
 // tslint:disable-next-line: no-empty-interface
