@@ -193,7 +193,7 @@ export function getOperationFromOpenAPI(path: string, method: string, openAPI: O
 // Convert Param[] to Parameter[]
 export function convertParamsToParameters(params: Param[], type: "path" | "query" | "header"): Parameter[] {
     let parameters: Parameter[] = [];
-    params.forEach((param) => {
+    params?.forEach((param) => {
         if (param.isArray) {
             parameters.push({
                 name: param.name,

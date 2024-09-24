@@ -130,6 +130,7 @@ export function Overview(props: OverviewProps) {
                 <TextArea
                     label="Description"
                     id="description"
+                    rows={4}
                     {...register("description")}
                 />
                 <FormGroup title="Contact" isCollapsed={false}>

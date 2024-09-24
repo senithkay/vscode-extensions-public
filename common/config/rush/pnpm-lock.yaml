@@ -378,13 +378,14 @@ importers:
       css-loader: ^5.2.7
       fast-xml-parser: ~4.3.6
       js-yaml: ~4.1.0
+      lodash: ~4.17.21
       mustache: ~4.2.0
       path: ~0.12.7
       process: ~0.11.10
       react: ~18.2.0
       react-collapse: ~5.1.1
       react-dom: ~18.2.0
-      react-hook-form: 7.51.2
+      react-hook-form: ~7.51.2
       react-markdown: ~9.0.1
       react-split-pane: ~0.1.92
       react-syntax-highlighter: ~15.5.0
@@ -426,6 +427,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       fast-xml-parser: 4.3.6
       js-yaml: 4.1.0
+      lodash: 4.17.21
       mustache: 4.2.0
       path: 0.12.7
       process: 0.11.10

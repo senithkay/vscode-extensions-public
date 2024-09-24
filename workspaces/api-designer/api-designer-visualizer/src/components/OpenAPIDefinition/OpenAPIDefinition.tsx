@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OpenAPI, Path } from "../../Definitions/ServiceDefinitions";
 import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
@@ -109,6 +109,13 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     ...path.initialOperation // Update with new operation details
                 };
             } else {
+                if (updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) {
+                    delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
+                    // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
+                    if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {
+                        delete updatedOpenAPIDefinition.paths[path.initialPath];
+                    }
+                }
                 updatedOpenAPIDefinition.paths[path.path][path.method] = {
                     ...path.initialOperation
                 };
@@ -134,7 +141,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setOpenAPIDefinition(updatedOpenAPIDefinition);
     };
 
-
     const handleAddPath = () => {
         const updatedOpenAPIDefinition: OpenAPI = {
             ...openAPIDefinition,
@@ -158,6 +164,10 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         if (openAPIDefinition.paths[p][method]) {
             delete openAPIDefinition.paths[p][method];
         }
+        // If no more methods are available for the path, delete the path
+        if (Object.keys(openAPIDefinition.paths[p]).length === 0) {
+            delete openAPIDefinition.paths[p];
+        }
         setSelectedPathID(undefined);
         setOpenAPIDefinition({ ...openAPIDefinition });
     };
@@ -167,13 +177,19 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
 
+    useEffect(() => {
+        setOpenAPIDefinition(initialOpenAPIDefinition);
+    }, [initialOpenAPIDefinition]);
+
+    console.log("OpenAPIDefinition", openAPIDefinition);
+
     return (
         <OverviewContainer>
             <OverviewTitle onClick={handleOverviewClick}>
                 <Codicon name="globe" iconSx={{ fontSize: 20 }} />
                 <Typography variant="h3" sx={{ margin: 2 }}>Overview</Typography>
             </OverviewTitle>
-            <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />
+            {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />}
             <PanelContainer>
                 {selectedPathID === undefined && (
                     <Overview openAPIDefinition={openAPIDefinition} />

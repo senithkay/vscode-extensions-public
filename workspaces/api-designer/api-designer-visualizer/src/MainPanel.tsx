@@ -128,7 +128,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     <ProgressRing />
                 </LoaderWrapper>
             ) : <>
-                {showNavigator && <NavigationBar />}
+                {/* {showNavigator && <NavigationBar />} */}
                 {viewComponent}
             </>}
             {typeof formState === 'object' && 'open' in formState && (

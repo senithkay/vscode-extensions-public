@@ -70,7 +70,7 @@ export function Resource(props: OverviewProps) {
 
     const handleOnQueryParamsChange = (params: Param[]) => {
         let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
-        if (values?.queryParams) {
+        if (params) {
             p = p.concat(convertParamsToParameters(params, "query"));
         }
         if (values?.headerParams) {
@@ -120,7 +120,7 @@ export function Resource(props: OverviewProps) {
         if (values?.queryParams) {
             p = p.concat(convertParamsToParameters(values.queryParams, "query"));
         }
-        if (values?.headerParams) {
+        if (params) {
             p = p.concat(convertParamsToParameters(params, "header"));
         }
         const currentPath = getPath();
@@ -154,7 +154,7 @@ export function Resource(props: OverviewProps) {
             }
         };
         onPathChange(newPath);
-    }, 5000); // 5 seconds debounce
+    }, 500);
 
     const handlePathChange = (value: string) => {
          debouncedHandlePathChange(value);
@@ -254,6 +254,7 @@ export function Resource(props: OverviewProps) {
                     id="description"
                     label="Description"
                     resize="vertical"
+                    rows={4}
                     value={values?.description}
                 />
                 <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />

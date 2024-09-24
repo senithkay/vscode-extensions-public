@@ -13,6 +13,7 @@ import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
+import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
 
 interface ServiceDesignerProps {
     fileUri: string;
@@ -35,15 +36,18 @@ export function APIDesigner(props: ServiceDesignerProps) {
             const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
                 filePath: fileUri,
             });
-            const convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
             console.log("resp", resp);
+            const convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
+            console.log("convertedApiDefinition", convertedApiDefinition);
             setApiDefinition(convertedApiDefinition);
         };
         fetchData();
     }, [fileUri]);
+    console.log("Parent", apiDefinition);
     return (
         <APIDesignerWrapper>
             {/* <ServiceDesigner model={apiDefinition} disableServiceHeader /> */}
+            <OpenAPIDefinition openAPIDefinition={apiDefinition} />
         </APIDesignerWrapper>
     )
 }
