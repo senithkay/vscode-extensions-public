@@ -27,6 +27,8 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -40,6 +42,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getExpressionCompletions,
     getFlowModel,
     getFunctions,
     getNodeTemplate,
@@ -117,5 +120,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
         return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
+    }
+
+    getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
     }
 }

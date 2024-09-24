@@ -32,6 +32,8 @@ import {
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     OverviewFlow,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -494,6 +496,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getExpressionCompletions(params)
+                .then((completions) => {
+                    resolve(completions);
+                })
+                .catch((error) => {
+                    reject("Error fetching expression completions from ls");
                 });
         });
     }
