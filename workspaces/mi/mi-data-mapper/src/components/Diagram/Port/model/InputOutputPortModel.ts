@@ -16,7 +16,7 @@ import { getMappingType, getValueType, isConnectingArrays } from "../../utils/co
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
-	updateExisitingValue
+	updateExistingValue
 } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
@@ -84,7 +84,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					await updateExisitingValue(sourcePort, targetPort);
+					await updateExistingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
 					await modifySourceForMultipleMappings(lm);
 				} else {

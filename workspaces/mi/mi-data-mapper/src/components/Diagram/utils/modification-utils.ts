@@ -397,7 +397,7 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 	}
 }
 
-export async function updateExisitingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string) {
+export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string) {
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 	const sourceInputAccessExpr = newValue || buildInputAccessExpr(sourceField);

@@ -17,7 +17,7 @@ import { InputOutputPortModel, MappingType, ValueType } from '../Port';
 import { getValueType } from '../utils/common-utils';
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { buildInputAccessExpr, createSourceForMapping, updateExisitingValue } from '../utils/modification-utils';
+import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -62,7 +62,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     const onClickMapArrays = async () => {
         if (isValueModifiable) {
-           await updateExisitingValue(sourcePort, targetPort);
+           await updateExistingValue(sourcePort, targetPort);
         } else {
             await createSourceForMapping(link);
         }
@@ -78,7 +78,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
 
                 if (isValueModifiable) {
-                    await updateExisitingValue(sourcePort, targetPort, mapFnSrc);
+                    await updateExistingValue(sourcePort, targetPort, mapFnSrc);
                  } else {
                      await createSourceForMapping(link, mapFnSrc);
                  }
