@@ -220,7 +220,7 @@ const DropdownItem = (props: DropdownItemProps) => {
 };
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, onCompletionSelect, sx } = props;
+    const { items, onCompletionSelect, isSavable, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
@@ -269,7 +269,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     <KeyContainer>
                         <DropdownFooterKey>ENTER</DropdownFooterKey>
                     </KeyContainer>
-                    <DropdownFooterText>to select/save.</DropdownFooterText>
+                    <DropdownFooterText>{isSavable ? 'to select/save.' : 'to select.'}</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -404,13 +404,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition, item);
-        setCursor(inputRef, newCursorPosition);
-        await onCompletionSelect(newTextValue);
+        onCompletionSelect && await onCompletionSelect(newTextValue);
     };
 
     const handleExpressionSave = async (value: string) => {
         const valueWithClosingBracket = addClosingBracketIfNeeded(value);
-        await onSave(valueWithClosingBracket);
+        onSave && await onSave(valueWithClosingBracket);
         handleClose();
     }
 
@@ -570,7 +569,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 name="close"
                                 onClick={handleClose}
                             />
-                            <Dropdown ref={listBoxRef} items={completions} onCompletionSelect={handleCompletionSelectMutation} />
+                            <Dropdown
+                                ref={listBoxRef}
+                                isSavable={!!onSave}
+                                items={completions}
+                                onCompletionSelect={handleCompletionSelectMutation}
+                            />
                             <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
                         </Transition>
                     </DropdownContainer>,

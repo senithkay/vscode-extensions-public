@@ -41,17 +41,18 @@ export type ExpressionBarBaseProps = {
     sx?: React.CSSProperties;
     completions: CompletionItem[];
     inputProps?: InputProps;
-    onChange: (value: string) => Promise<void>;
-    onFocus?: () => Promise<void>;
-    onBlur?: () => Promise<void>;
-    onCompletionSelect: (value: string) => Promise<void>;
-    onSave: (value: string) => Promise<void>;
+    onChange: (value: string) => void | Promise<void>;
+    onFocus?: () => void | Promise<void>;
+    onBlur?: () => void | Promise<void>;
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+    onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
-    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
+    useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
     id?: string;
+    name?: string;
 };
 
 export type ExpressionBarRef = {
