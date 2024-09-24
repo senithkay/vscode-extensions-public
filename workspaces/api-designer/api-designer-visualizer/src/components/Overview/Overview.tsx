@@ -112,16 +112,10 @@ export function Overview(props: OverviewProps) {
             <PanelBody>
                 <HorizontalFieldWrapper>
                     <TextField
-                        label="Name"
+                        label="Title"
                         id="title"
-                        sx={{ width: "50%" }}
+                        sx={{ width: "100%" }}
                         {...register("title")}
-                    />
-                    <TextField
-                        label="API Version"
-                        id="API Version"
-                        sx={{ width: "50%" }}
-                        {...register("version")}
                     />
                 </HorizontalFieldWrapper>
                 { selectedOptions.includes("Summary") && (
@@ -160,7 +154,7 @@ export function Overview(props: OverviewProps) {
                     </HorizontalFieldWrapper>
                 </FormGroup>
 
-                <FormGroup title="Licence" isCollapsed={false}>
+                <FormGroup title="License" isCollapsed={false}>
                     <HorizontalFieldWrapper>
                         <TextField
                             placeholder="Name"
@@ -197,6 +191,12 @@ export function Overview(props: OverviewProps) {
                         )}
                     </HorizontalFieldWrapper>
                 </FormGroup>
+                <TextField
+                    label="API Version"
+                    id="API Version"
+                    sx={{ width: "50%" }}
+                    {...register("version")}
+                />
             </PanelBody>
         </>
     )
