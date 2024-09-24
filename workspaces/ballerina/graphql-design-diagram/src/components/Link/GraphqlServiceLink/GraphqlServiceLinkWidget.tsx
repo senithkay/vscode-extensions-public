@@ -11,9 +11,11 @@
 import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+
 
 import { GRAPHQL_SERVICE_NODE } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
-import { RemoteFunction, ResourceFunction, ThemeColors } from "../../resources/model";
+import { RemoteFunction, ResourceFunction } from "../../resources/model";
 
 import { GraphqlServiceLinkModel } from "./GraphqlServiceLinkModel";
 import { findCallingFunction } from "./link-utils";

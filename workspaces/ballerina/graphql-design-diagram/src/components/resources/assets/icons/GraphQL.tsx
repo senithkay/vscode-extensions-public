@@ -9,7 +9,7 @@
 
 import React from 'react';
 
-import { ThemeColors } from '../../model';
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export function GraphQLIcon() {
     return (

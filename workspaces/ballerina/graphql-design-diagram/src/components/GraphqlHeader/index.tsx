@@ -10,10 +10,11 @@
 import React, { useEffect } from "react";
 
 import styled from "@emotion/styled";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";
-import { GraphqlDesignModel, ThemeColors } from "../resources/model";
+import { GraphqlDesignModel } from "../resources/model";
 import { OperationTypes, TypeFilter } from "../TypeFilter";
 import { getNodeListOfModel } from "../utils/common-util";
 

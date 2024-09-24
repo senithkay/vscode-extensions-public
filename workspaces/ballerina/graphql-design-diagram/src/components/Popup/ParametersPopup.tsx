@@ -9,7 +9,9 @@
 
 import React from "react";
 
-import { Param, ThemeColors } from "../resources/model";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+
+import { Param } from "../resources/model";
 import { FieldName, FieldType } from "../resources/styles/styles";
 
 import { Container } from "./styles";

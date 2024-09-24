@@ -8,8 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-
-import { ThemeColors } from "../resources/model";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export const Container: React.FC<any> = styled.div`
   display: flex;

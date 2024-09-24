@@ -11,8 +11,7 @@
 import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
-
-import { ThemeColors } from "../../resources/model";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 import { DefaultLinkModel } from "./DefaultLinkModel";
 

@@ -8,8 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-
-import { ThemeColors } from "../model";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export const FieldType: React.FC<any> = styled.span`
   background-color: ${ThemeColors.SURFACE_CONTAINER};
