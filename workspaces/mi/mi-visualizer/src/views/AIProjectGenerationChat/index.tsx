@@ -826,7 +826,7 @@ export function AIProjectGenerationChat() {
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to MI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
+                    <h3>Welcome to MI Copilot</h3>
                     <p>
                         You may use this chat to generate new artifacts
                         or to make changes to existing artifacts simply using text-based prompts.
@@ -846,7 +846,6 @@ export function AIProjectGenerationChat() {
                                 :
                                 <>
                                     <h3 style={{ margin: 0 }}>{message.role}</h3>
-                                    <PreviewContainer>Preview</PreviewContainer>
                                 </>
                             }
                         </RoleContainer>

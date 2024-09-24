@@ -9,10 +9,7 @@
 
 import { Position, Range, Uri, WorkspaceEdit, commands, workspace } from "vscode";
 import * as fs from "fs";
-import { openView } from "../stateMachine";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
-import { StateMachinePopup } from "../stateMachinePopup";
 
 export async function replaceFullContentToFile(documentUri: string, content: string) {
     // Create the file if not present
@@ -22,12 +19,9 @@ export async function replaceFullContentToFile(documentUri: string, content: str
         isNewFile = true;
     }
     const edit = new WorkspaceEdit();
-    let document = workspace.textDocuments.find(doc => doc.uri.fsPath === documentUri);
-    if (!document) {
-        document = await workspace.openTextDocument(Uri.file(documentUri));
-    }
-    const fullRange = new Range(new Position(0, 0),
-        new Position(document.lineCount, 0));
+    const fileContent = fs.readFileSync(documentUri, 'utf-8');
+    const lineCount = fileContent.split('\n').length;
+    const fullRange = new Range(new Position(0, 0), new Position(lineCount, 0));
 
     edit.replace(Uri.file(documentUri), fullRange, content);
     await workspace.applyEdit(edit);
