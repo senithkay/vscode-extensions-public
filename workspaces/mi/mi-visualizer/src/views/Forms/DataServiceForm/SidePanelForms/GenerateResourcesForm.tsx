@@ -317,12 +317,12 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 sx={{ transition: 'all 0.3s ease-in-out' }}
             >
                 <SidePanelTitleContainer>
+                    <Typography variant="h3" sx={{margin: 0}}>Generate Resources</Typography>
                     <Button sx={{ marginLeft: 'auto' }} onClick={handleCancel} appearance="icon">
                         <Codicon name="close" />
                     </Button>
                 </SidePanelTitleContainer>
                 <SidePanelBody>
-                    <Typography variant="h3">Generate Resources</Typography>
                     <Controller
                         name="datasource"
                         control={control}

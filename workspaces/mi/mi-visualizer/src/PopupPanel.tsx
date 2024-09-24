@@ -80,7 +80,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<ConnectorStore handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose}/>);
+                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose}/>);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
