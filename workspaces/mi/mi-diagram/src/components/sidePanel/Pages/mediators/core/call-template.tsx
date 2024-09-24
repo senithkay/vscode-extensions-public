@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const CallTemplateForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -84,6 +84,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["parameterNameTable"] = getParamManagerValues(values.parameterNameTable);
         const xml = getXML(MEDIATORS.CALLTEMPLATE, values, dirtyFields, sidePanelContext.formValues);
@@ -133,7 +134,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 label="Target Template"
                                 allowItemCreate={false}
                                 onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                    openPopup(rpcClient, "sequenceTemplate", fetchItems, handleValueChange);
+                                    openPopup(rpcClient, 'sequenceTemplate', fetchItems, handleValueChange);
                                 }}
                                 onValueChange={field.onChange}
                                 required={true}

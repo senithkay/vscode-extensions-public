@@ -17,7 +17,9 @@ export interface VisualizerContext {
     rpcClient?: RpcClient
     setViewLocation?: (view: VisualizerLocation) => void
     isLoggedIn: boolean
-    setIsLoggedIn?: (isLoggedIn: boolean) => void
+    setIsLoggedIn?: (isLoggedIn: boolean) => void,
+    isLoading?: boolean
+    setIsLoading?: (isLoading: boolean) => void
 }
 
 /**
@@ -26,7 +28,8 @@ export interface VisualizerContext {
  */
 const defaultState: VisualizerContext = {
     viewLocation: { view: MACHINE_VIEW.Overview },
-    isLoggedIn: false
+    isLoggedIn: false,
+    isLoading: false
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 

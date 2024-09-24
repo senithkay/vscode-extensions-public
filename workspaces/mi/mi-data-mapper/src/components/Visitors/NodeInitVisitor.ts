@@ -51,8 +51,6 @@ import {
     isObjectOrArrayLiteralExpression
 } from "../Diagram/utils/node-utils";
 import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
-import { ArrayFilterNode } from "../Diagram/Node/ArrayFilter";
-import { DefaultPortModel } from "@projectstorm/react-diagrams";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;

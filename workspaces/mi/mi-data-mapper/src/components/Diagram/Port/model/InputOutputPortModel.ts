@@ -8,14 +8,16 @@
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DMType } from "@wso2-enterprise/mi-core";
-import { Node } from "ts-morph";
 
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
-import { isDefaultValue } from "../../utils/common-utils";
-import { buildInputAccessExpr, createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
+import { getValueType, isConnectingArrays } from "../../utils/common-utils";
+import {
+	createSourceForMapping,
+	modifySourceForMultipleMappings,
+	updateExisitingValue
+} from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
@@ -23,7 +25,7 @@ export interface InputOutputPortModelGenerics {
 
 export const INPUT_OUTPUT_PORT = "input-output-port";
 
-enum ValueType {
+export enum ValueType {
 	Default,
 	Empty,
 	NonEmpty
@@ -32,6 +34,7 @@ enum ValueType {
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
 
 	public linkedPorts: PortModel[];
+	public pendingArrayToArray: boolean;
 
 	constructor(
 		public field: DMType,
@@ -62,33 +65,24 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
+
+				const connectingArrays = isConnectingArrays(sourcePort, targetPort);
+
+				if (connectingArrays) {
+					// Source update behavior is determined by the user when connecting arrays.
+					return;
+				}
+
 				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-
-				const targetNode = targetPort.getNode() as DataMapperNodeModel;
-				const valueType = this.getValueType(lm);
+				const valueType = getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
-					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
-					
-					if (targetPort) {
-						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
-						const expr = typeWithValue.value;
-
-						let updatedExpr;
-						if (Node.isPropertyAssignment(expr)) {
-							updatedExpr = expr.setInitializer(sourceInputAccessExpr);
-						} else {
-							updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
-						}
-
-						await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
-					}
+					await updateExisitingValue(sourcePort, targetPort);
 				} else if (targetPortHasLinks) {
 					await modifySourceForMultipleMappings(lm);
 				} else {
-					createSourceForMapping(lm);
+					await createSourceForMapping(lm);
 				}
 			})
 		});
@@ -102,8 +96,12 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		super.addLink(link);
 	}
 
-	addLinkedPort(port: PortModel): void{
+	addLinkedPort(port: PortModel): void {
 		this.linkedPorts.push(port);
+	}
+
+	setIsPendingArrayToArray(pendingA2A: boolean): void {
+		this.pendingArrayToArray = pendingA2A;
 	}
 
 	setDescendantHasValue(): void {
@@ -126,23 +124,5 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		}
 		return this.portType !== port.portType && !isLinkExists
 				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
-	}
-
-	getValueType(lm: DataMapperLinkModel): ValueType {
-		const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
-
-		if (typeWithValue?.value) {
-			let expr = typeWithValue.value;
-	
-			if (Node.isPropertyAssignment(expr)) {
-				expr = expr.getInitializer();
-			}
-			const value = expr?.getText();
-			if (value !== undefined) {
-				return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
-			}
-		}
-
-		return ValueType.Empty;
 	}
 }

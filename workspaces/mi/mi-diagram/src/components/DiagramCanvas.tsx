@@ -18,6 +18,7 @@ export interface DiagramCanvasProps {
     children?: React.ReactNode;
     width?: number;
     height?: number;
+    type: string;
 }
 
 namespace S {
@@ -44,7 +45,7 @@ namespace S {
 }
 
 export function DiagramCanvas(props: DiagramCanvasProps) {
-    const { color, background, children, width, height } = props;
+    const { color, background, children, width, height, type } = props;
     return (
         <>
             <Global styles={S.Expand} />
@@ -52,6 +53,7 @@ export function DiagramCanvas(props: DiagramCanvasProps) {
                 background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}
                 width={width}
                 height={height}
+                data-testid={`diagram-canvas-${type}`}
             >
                 {children}
             </S.Container>

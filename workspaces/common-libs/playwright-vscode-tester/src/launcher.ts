@@ -4,10 +4,10 @@ import { getBrowser, getBrowserLaunchOptions } from './utils';
 import { ReleaseQuality } from './codeUtil';
 
 export const startVSCode = async (resourcesFolder: string, vscodeVersion: string,
-        releaseType: ReleaseQuality = ReleaseQuality.Stable, enableRecorder = false) => {
+    releaseType: ReleaseQuality = ReleaseQuality.Stable, enableRecorder = false, extensionsFolder?: string, projectPath?: string) => {
 
-    const browser = await getBrowser(resourcesFolder, vscodeVersion, releaseType);
-    const browserOptions = await getBrowserLaunchOptions(resourcesFolder, vscodeVersion, releaseType);
+    const browser = await getBrowser(resourcesFolder, vscodeVersion, releaseType, extensionsFolder);
+    const browserOptions = await getBrowserLaunchOptions(resourcesFolder, vscodeVersion, releaseType, projectPath, extensionsFolder);
 
     const args = [...browserOptions.args];
 
@@ -24,8 +24,8 @@ export const startVSCode = async (resourcesFolder: string, vscodeVersion: string
         recordVideo: {
             dir: path.join(resourcesFolder, 'videos'),
             size: {
-                width: 1280,
-                height: 720,
+                width: 1920,
+                height: 1080,
             },
         },
     });

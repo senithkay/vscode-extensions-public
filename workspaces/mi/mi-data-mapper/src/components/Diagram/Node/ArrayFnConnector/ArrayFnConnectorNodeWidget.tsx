@@ -118,7 +118,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                         </Tooltip>
                         <Button
                             appearance="icon"
-                            tooltip="Go to function"
+                            tooltip="Map array elements"
                             onClick={onClickOnExpand}
                             data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
                         >

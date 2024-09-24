@@ -380,12 +380,6 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <LoopbackForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></LoopbackForm>,
             },
             {
-                title: "Publish Event",
-                operationName: MEDIATORS.PUBLISHEVENT,
-                tooltip: "Constructs and publishes events to different systems such as WSO2 BAM/DAS/CEP/SP via event sinks",
-                form: <PublishEventForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PublishEventForm>,
-            },
-            {
                 title: "Fast XSLT",
                 operationName: MEDIATORS.FASTXSLT,
                 tooltip: "Swiftly transforms message streams (not payloads) based on an XSLT script",
@@ -404,46 +398,10 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <XQueryForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></XQueryForm>,
             },
             {
-                title: "Event",
-                operationName: MEDIATORS.EVENT,
-                tooltip: "Sends event notifications to an event source, and publishes messages to topics",
-                form: <EventForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EventForm>,
-            },
-            {
-                title: "Enqueue",
-                operationName: MEDIATORS.ENQUEUE,
-                tooltip: "Executes different sequences for messages with different properties in high-load scenarios",
-                form: <EnqueueForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EnqueueForm>,
-            },
-            {
-                title: "Bean",
-                operationName: MEDIATORS.BEAN,
-                tooltip: "Manipulates JavaBean bound to message context as a property",
-                form: <BeanForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></BeanForm>,
-            },
-            {
-                title: "Command",
-                operationName: MEDIATORS.COMMAND,
-                tooltip: "Creates an instance of a custom class to invoke an object encapsulating a method call",
-                form: <CommandForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CommandForm>,
-            },
-            {
                 title: "EJB",
                 operationName: MEDIATORS.EJB,
                 tooltip: "Calls EJB (Stateless/Stateful) and stores result in message payload/property",
                 form: <EJBForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EJBForm>,
-            },
-            {
-                title: "Spring",
-                operationName: MEDIATORS.SPRING,
-                tooltip: "Exposes a Spring bean as a mediator",
-                form: <SpringForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SpringForm>,
-            },
-            {
-                title: "Conditional Router",
-                operationName: MEDIATORS.CONDITIONALROUTER,
-                tooltip: "Routes messages to target sequence only if conditions are met",
-                form: <ConditionalRouterForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ConditionalRouterForm>,
             },
             {
                 title: "BAM",
@@ -451,7 +409,48 @@ export function getAllMediators(props: GetMediatorsProps) {
                 tooltip: "Deprecated. Use PublishEvent Mediator for similar functionality",
                 form: <BamForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></BamForm>
             }
-        ]
+        ],
+        // "deprecated": [
+        //     {
+        //         title: "Event",
+        //         operationName: MEDIATORS.EVENT,
+        //         tooltip: "Sends event notifications to an event source, and publishes messages to topics",
+        //         form: <EventForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EventForm>,
+        //     },
+        //     {
+        //         title: "Enqueue",
+        //         operationName: MEDIATORS.ENQUEUE,
+        //         tooltip: "Executes different sequences for messages with different properties in high-load scenarios",
+        //         form: <EnqueueForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EnqueueForm>,
+        //     }, {
+        //         title: "Bean",
+        //         operationName: MEDIATORS.BEAN,
+        //         tooltip: "Manipulates JavaBean bound to message context as a property",
+        //         form: <BeanForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></BeanForm>,
+        //     },
+        //     {
+        //         title: "Command",
+        //         operationName: MEDIATORS.COMMAND,
+        //         tooltip: "Creates an instance of a custom class to invoke an object encapsulating a method call",
+        //         form: <CommandForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CommandForm>,
+        //     }, {
+        //         title: "Spring",
+        //         operationName: MEDIATORS.SPRING,
+        //         tooltip: "Exposes a Spring bean as a mediator",
+        //         form: <SpringForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SpringForm>,
+        //     },
+        //     {
+        //         title: "Conditional Router",
+        //         operationName: MEDIATORS.CONDITIONALROUTER,
+        //         tooltip: "Routes messages to target sequence only if conditions are met",
+        //         form: <ConditionalRouterForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ConditionalRouterForm>,
+        //     }, {
+        //         title: "Publish Event",
+        //         operationName: MEDIATORS.PUBLISHEVENT,
+        //         tooltip: "Constructs and publishes events to different systems such as WSO2 BAM/DAS/CEP/SP via event sinks",
+        //         form: <PublishEventForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PublishEventForm>,
+        //     }
+        // ]
     };
 
     const endpoints = {
@@ -507,7 +506,8 @@ export function getAllMediators(props: GetMediatorsProps) {
     // hide respond mediator if next node is present
     if (props.nextNode && !props.parentNode) {
         allMediators["most popular"] = allMediators["most popular"].filter((mediator: any) => !["Respond"].includes(mediator.title));
-        allMediators["generic"] = allMediators["generic"].filter((mediator: any) => !["Respond"].includes(mediator.title));
+        allMediators["generic"] = allMediators["generic"].filter((mediator: any) => !["Respond", "Drop"].includes(mediator.title));
+        allMediators["other"] = allMediators["other"].filter((mediator: any) => !["Send", "Loopback"].includes(mediator.title));
     }
 
     if (props.parentNode) {
@@ -541,12 +541,6 @@ export function getAllMediators(props: GetMediatorsProps) {
             case MEDIATORS.ENTITLEMENT.toLowerCase():
                 // return {...allMediators, "sequences", "connectors"};
                 return { ...allMediators };
-            case MEDIATORS.ITERATE.toLowerCase():
-            case MEDIATORS.FOREACHMEDIATOR.toLowerCase(): {
-                allMediators["generic"] = allMediators["generic"].filter((mediator: any) => !["Send", "Respond", "Loopback", "Drop"].includes(mediator.title));
-                // return {...allMediators, "sequences", "connectors"};
-                return { ...allMediators };
-            }
         }
     }
     return { ...allMediators };

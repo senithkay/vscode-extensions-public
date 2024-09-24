@@ -395,7 +395,7 @@ export async function getDataFromST(name: string, node: STNode, documentUri?: st
         case MEDIATORS.VALIDATE:
             return getValidateFormDataFromSTNode(formData, node as Validate);
         case MEDIATORS.SEND:
-            return getSendFormDataFromSTNode(formData, node as Send);
+            return getSendFormDataFromSTNode(formData, node as Send, documentUri, rpcClient);
         //EIP Mediators
         case MEDIATORS.AGGREGATE:
             return getAggregateFormDataFromSTNode(formData, node as Aggregate);

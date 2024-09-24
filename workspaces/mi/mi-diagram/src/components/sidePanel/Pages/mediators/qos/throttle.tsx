@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const ThrottleForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -118,6 +118,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["policyEntries"] = getParamManagerValues(values.policyEntries);
         const xml = getXML(MEDIATORS.THROTTLE, values, dirtyFields, sidePanelContext.formValues);

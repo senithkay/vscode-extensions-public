@@ -83,7 +83,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
@@ -98,6 +98,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         }
     }, []);
 
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
+
     const getDefinition = async () => {
         let range;
         if (node.mediatorName === MEDIATORS.SEQUENCE) {
@@ -109,13 +113,13 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         if (!range) {
             return;
         }
-        const text = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
+        const text = await rpcClient?.getMiDiagramRpcClient().getTextAtRange({
             documentUri: node.documentUri,
             range
         });
 
         const regex = /\s*(?:key|inSequence|outSequence|serviceName|sequence)\s*=\s*(['"])(.*?)\1/;
-        const match = text.text.match(regex);
+        const match = text?.text?.match(regex);
         if (match) {
             const keyPart = match[0].split("=")[0];
             const valuePart = match[0].split("=")[1];
@@ -138,7 +142,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                     range.start.character + offsetBeforeKey + match[0].length,
             };
 
-            const definition = await rpcClient.getMiDiagramRpcClient().getDefinition({
+            const definition = await rpcClient?.getMiDiagramRpcClient().getDefinition({
                 document: {
                     uri: node.documentUri,
                 },
@@ -189,7 +193,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     }, [tooltip])
 
     return (
-        <div >
+        <div data-testid={`referenceNode-${node.getID()}`}>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
@@ -235,7 +239,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

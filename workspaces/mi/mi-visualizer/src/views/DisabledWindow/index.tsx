@@ -10,10 +10,9 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { AlertBox } from "../AlertBox/AlertBox";
@@ -26,32 +25,75 @@ const Container = styled.div`
     gap: 8px;
 `;
 
-const WideVSCodeButton = styled(VSCodeButton)`
-    width: 100%;
-    max-width: 300px;
-    margin: 15px 0 15px 0;
-    align-self: center;
+const HeaderButtons = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginRight: '10px',
+});
+
+const IssueTrackerLink = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-start',
+    marginLeft: '10px',
+});
+
+const TroubleshootingGuide = styled.div`
+  text-align: left;
+  margin-top: 20px;
+`;
+
+const TroubleshootingHeader = styled.h3`
+  font-size: 15px;
+  margin-bottom: 10px;
+`;
+
+const TroubleshootingList = styled.ol`
+  font-size: 13px;
+  margin-left: 15px;
+  margin-bottom: 20px;
 `;
 
 export const DisabledMessage = (props: { showProjectHeader?: boolean }) => {
     const { rpcClient } = useVisualizerContext();
-    const { showProjectHeader } = props;
-
+    const issueUrl = "https://github.com/wso2/mi-vscode/issues";
     const Retry = () => {
         rpcClient.sendAIStateEvent(AI_EVENT_TYPE.RETRY);
     };
 
+    async function handleLogout() {
+        await rpcClient.getMiDiagramRpcClient().logoutFromMIAccount();
+    }
 
     return (
         <Container>
-                <AlertBox
-                    buttonTitle="Retry"
-                    onClick={Retry} 
-                    subTitle={
-                                "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
-                    }
-                    title={"Error in establishing Connection"}
-                />
+            <AlertBox
+                buttonTitle="Retry"
+                onClick={Retry}
+                subTitle={
+                    "An error occurred while trying to establish a connection with the MI Copilot server. Please click retry to try again."
+                }
+                title={"Error in establishing Connection"}
+            />
+            <AlertBox
+                variant="secondary"
+                buttonTitle="Logout"
+                onClick={handleLogout}
+                subTitle={
+                    "Try logging out and logging back in again."
+                }
+                title={"Still having trouble?"}
+            />
+            <TroubleshootingGuide>
+                <TroubleshootingHeader>Troubleshooting Guide</TroubleshootingHeader>
+                <TroubleshootingList>
+                    <li>Check your internet connection</li>
+                    <li>Try logging out and logging in again</li>
+                    <li>Try restarting VSCode</li>
+                </TroubleshootingList>
+                <IssueTrackerLink>
+                    Please raise an issue in our&nbsp; <a href={issueUrl}>issue tracker</a> .
+                </IssueTrackerLink>
+            </TroubleshootingGuide>
         </Container>
     );
 };

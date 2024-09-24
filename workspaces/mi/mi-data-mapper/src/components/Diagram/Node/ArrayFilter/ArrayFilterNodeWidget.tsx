@@ -109,6 +109,7 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
                 index={index + 1}
                 filterNode={filter}
                 justAdded={index === filterExpressions.length - 1 && addedNewFilter}
+                diagnostics={context.diagnostics}
                 applyModifications={applyModifications}
             />
         ));

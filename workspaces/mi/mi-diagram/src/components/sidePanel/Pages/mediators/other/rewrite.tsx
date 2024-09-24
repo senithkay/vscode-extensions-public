@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const RewriteForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -159,6 +159,7 @@ const RewriteForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["urlRewriteRules"] = getParamManagerValues(values.urlRewriteRules);
         const xml = getXML(MEDIATORS.REWRITE, values, dirtyFields, sidePanelContext.formValues);

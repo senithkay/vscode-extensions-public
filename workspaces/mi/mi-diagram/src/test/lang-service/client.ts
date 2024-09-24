@@ -14,7 +14,7 @@ import { GetSyntaxTreeParams, GetSyntaxTreeResponse, IMILangClient } from ".";
 const { spawn } = require('child_process');
 const { StreamMessageReader, StreamMessageWriter, createMessageConnection } = require('vscode-jsonrpc');
 
-const extensionRoot = path.join(__dirname, "..", "..", "..", "..", "..", "mi-extension");
+const extensionRoot = path.join(__dirname, "..", "..", "..", "..", "mi-extension");
 export class LanguageClient implements IMILangClient {
     connection: any;
     lsProcess: any;

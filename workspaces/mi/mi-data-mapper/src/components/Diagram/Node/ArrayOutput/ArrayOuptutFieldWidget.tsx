@@ -16,7 +16,7 @@ import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnSta
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -25,12 +25,13 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ObjectOutputFieldWidget } from "../ObjectOutput/ObjectOutputFieldWidget";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -42,7 +43,7 @@ export interface ArrayOutputFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: Node) => Promise<void>;
-    asOutput ?: boolean;
+    asOutput?: boolean;
     hasHoveredParent?: boolean;
 }
 
@@ -67,7 +68,9 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-
+    
+    const setExprBarFocusedPort  = useDMExpressionBarStore(state => state.setFocusedPort);
+    
     const typeName = getTypeName(field.type);
     const fieldName = field.type.fieldName || '';
     const fieldId = fieldIndex !== undefined
@@ -79,7 +82,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const bodyNodeForgotten = body && body.wasForgotten();
     const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
 
-    const diagnostic = !bodyNodeForgotten && valExpr && getDiagnostics(valExpr)[0];
+    const diagnostic = !bodyNodeForgotten && valExpr && filterDiagnosticsForNode(context.diagnostics, valExpr)[0];
 
     const hasValue = !bodyNodeForgotten && valExpr && !!valExpr.getText();
     const elements = field.elements;
@@ -128,14 +131,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        let value = field.value;
-    
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            value = field.value.getInitializer();
-        }
-
-        const range = getEditorLineAndColumn(value);
-        context.goToSource(range);
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const onAddElementClick = async () => {
@@ -282,7 +279,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     }, [isAddingElement]);
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
             collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
         } else {
@@ -373,30 +370,30 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     </span>
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
-                            <Button
-                                appearance="icon"
-                                sx={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                                data-testid={`${portIn?.getName()}-expand-icon-array-field`}
-                            >
-                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                            </Button>
+                            <FieldActionWrapper>
+                                <Button
+                                    appearance="icon"
+                                    sx={{ marginLeft: indentation }}
+                                    onClick={handleExpand}
+                                    data-testid={`${portIn?.getName()}-expand-icon-array-field`}
+                                >
+                                    {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                                </Button>
+                            </FieldActionWrapper>
                         )}
                         {label}
                     </span>
                     {(isLoading) ? (
                         <ProgressRing />
-                    ) : (
-                        <>
-                            {((hasValue && !connectedViaLink) || !isDisabled) && (
-                                <ValueConfigMenu
-                                    menuItems={valConfigMenuItems}
-                                    isDisabled={!typeName}
-                                    portName={portIn?.getName()}
-                                />
-                            )}
-                        </>
-                    )}
+                    ) : (((hasValue && !connectedViaLink) || !isDisabled) && (
+                        <FieldActionWrapper>
+                            <ValueConfigMenu
+                                menuItems={valConfigMenuItems}
+                                isDisabled={!typeName}
+                                portName={portIn?.getName()}
+                            />
+                        </FieldActionWrapper>
+                    ))}
                 </div>
             )}
             {((expanded && hasValue && arrayLitExpr) || isReturnStmtMissing) && (

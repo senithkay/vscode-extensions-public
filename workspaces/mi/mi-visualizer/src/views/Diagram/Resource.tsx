@@ -71,7 +71,7 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
 
     return (
         <View>
-            <ViewHeader title={ResourceTitle} codicon="globe" onEdit={handleEditResource}>
+            <ViewHeader title={ResourceTitle} icon="APIResource" onEdit={handleEditResource}>
                 <Switch
                     leftLabel="Flow"
                     rightLabel="Fault"

@@ -8,7 +8,7 @@
  */
 import { KeyboardEvent, MouseEvent } from 'react';
 
-import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
+import { Action, ActionEvent, DragCanvasState, InputType, State } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
@@ -18,12 +18,16 @@ import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
+import { isConnectingArrays } from '../utils/common-utils';
+import { DataMapperLinkModel } from '../Link/DataMapperLink';
+import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
 /**
  * This state is controlling the creation of a link.
  */
 export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
+	a2aTemporayLink: LinkModel;
 
 	constructor() {
 		super({ name: 'create-new-link' });
@@ -38,8 +42,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 					if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
-							if (recordFieldElement) {
+							const targetElement = event.target as Element;
+							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
+							const isNotFieldAction = targetElement.closest('[data-field-action]') == null;
+							if (recordFieldElement && isNotFieldAction) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
 								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;
 								if (portModel) {
@@ -63,6 +69,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 					}
 
+					if (this.a2aTemporayLink) {
+						removeArrayToArrayTempLinkIfExists(this.a2aTemporayLink);
+						this.a2aTemporayLink = undefined;
+					}
+
 					if (isExprBarFocused && element instanceof InputOutputPortModel && element.portType === "OUT") {
 						element.fireEvent({}, "addToExpression");
 						this.clearState();
@@ -78,6 +89,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								const link = this.sourcePort.createLinkModel();
 								link.setSourcePort(this.sourcePort);
 								link.addLabel(new ExpressionLabelModel({
+									link: link as DataMapperLinkModel,
 									value: undefined,
 									context: undefined
 								}));
@@ -107,6 +119,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 									if (this.sourcePort.canLinkToPort(element)) {
 
 										this.link?.setTargetPort(element);
+
+										const connectingArrays = isConnectingArrays(this.sourcePort, element);
+										if (connectingArrays) {
+											const label = this.link.getLabels()
+												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
+											label.setIsPendingArrayToArray(true);
+											this.a2aTemporayLink = this.link;
+										}
+
 										this.engine.getModel().addAll(this.link)
 										if (this.sourcePort instanceof InputOutputPortModel) {
 											this.sourcePort.linkedPorts.forEach((linkedPort) => {

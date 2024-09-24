@@ -39,7 +39,7 @@ const Field = styled.div`
 `;
 
 const CommandForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -152,6 +152,7 @@ const CommandForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["properties"] = getParamManagerValues(values.properties);
         const xml = getXML(MEDIATORS.COMMAND, values, dirtyFields, sidePanelContext.formValues);

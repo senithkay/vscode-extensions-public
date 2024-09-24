@@ -28,7 +28,8 @@ import {
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
-
+import { IOType } from '@wso2-enterprise/mi-core';
+import FieldActionWrapper from '../commons/FieldActionWrapper';
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
@@ -57,7 +58,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	const focusOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
 
 	const classes = useIONodesStyles();
 
@@ -73,7 +74,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setIsSchemaOverridden: state.setIsSchemaOverridden
 	}));
 
-	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+	const { subMappingConfig, setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
 		subMappingConfig: state.subMappingConfig,
 		setSubMappingConfig: state.setSubMappingConfig
 	}));
@@ -85,7 +86,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const hasFields = fields.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
-    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
+	const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -96,9 +97,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
 
 	useEffect(() => {
-		if (focuesOnSubMappingRoot) {
+		if (focusOnSubMappingRoot) {
 			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
-			
+
 			dynamicOutputPort.registerListener({
 				eventDidFire(event) {
 					if (event.function === "firstClickedOnDynamicOutput") {
@@ -112,11 +113,11 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
-        if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
-        } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
-        }
+		if (!expanded) {
+			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+		} else {
+			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+		}
 	};
 
 	const handlePortState = (state: PortState) => {
@@ -147,14 +148,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		if (focuesOnSubMappingRoot) {
+		if (focusOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
-			setIOConfigPanelType("Output");
+			setIOConfigPanelType(IOType.Output);
 			setIsSchemaOverridden(true);
 			setIsIOConfigPanelOpen(true);
 		}
-    };
+	};
 
 	const onSubMappingEditBtnClick = () => {
 		setSubMappingConfig({
@@ -184,29 +185,33 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						}
 					</span>
 					<span className={classes.label}>
-						<Button
-							appearance="icon"
-							tooltip="Expand/Collapse"
-							sx={{ marginLeft: indentation }}
-							onClick={handleExpand}
-							data-testid={`${id}-expand-icon-mapping-target-node`}
-						>
-							{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-						</Button>
+						<FieldActionWrapper>
+							<Button
+								appearance="icon"
+								tooltip="Expand/Collapse"
+								sx={{ marginLeft: indentation }}
+								onClick={handleExpand}
+								data-testid={`${id}-expand-icon-mapping-target-node`}
+							>
+								{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+							</Button>
+						</FieldActionWrapper>
 						{label}
 					</span>
-					{focuesOnSubMappingRoot && (
-						<Button
-							appearance="icon"
-							data-testid={"edit-sub-mapping-btn"}
-							tooltip="Edit name and type of the sub mapping "
-							onClick={onSubMappingEditBtnClick}
-						>
-							<Codicon
-								name="settings-gear"
-								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</Button>
+					{focusOnSubMappingRoot && (
+						<FieldActionWrapper>
+							<Button
+								appearance="icon"
+								data-testid={"edit-sub-mapping-btn"}
+								tooltip="Edit name and type of the sub mapping "
+								onClick={onSubMappingEditBtnClick}
+							>
+								<Codicon
+									name="settings-gear"
+									iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+								/>
+							</Button>
+						</FieldActionWrapper>
 					)}
 				</TreeHeader>
 				{(expanded && fields) && (
@@ -229,7 +234,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						})}
 					</TreeBody>
 				)}
-				{focuesOnSubMappingRoot && (
+				{focusOnSubMappingRoot && (
 					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
 						<span className={classes.objectFieldAdderLabel}>
 							Dynamically add inputs to output
