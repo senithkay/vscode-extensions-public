@@ -62,7 +62,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     const onClickMapArrays = async () => {
         if (isValueModifiable) {
-           await updateExistingValue(sourcePort, targetPort);
+            await updateExistingValue(sourcePort, targetPort);
         } else {
             await createSourceForMapping(link);
         }
@@ -79,21 +79,51 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
                 if (isValueModifiable) {
                     await updateExistingValue(sourcePort, targetPort, mapFnSrc);
-                 } else {
-                     await createSourceForMapping(link, mapFnSrc);
-                 }
+                } else {
+                    await createSourceForMapping(link, mapFnSrc);
+                }
                 await createSourceForMapping(link, mapFnSrc);
             }
         }
     };
-    
+
+    const onClickMapArrayToSingletonDirect = async () => {
+        if (isValueModifiable) {
+            await updateExistingValue(sourcePort, targetPort, undefined, '[0]');
+        } else {
+            await createSourceForMapping(link, undefined, '[0]');
+        }
+    }
+
+    const onClickMapArrayToSingletonIndirect = async () => {
+        if (targetPort instanceof InputOutputPortModel) {
+            const targetPortField = targetPort.field;
+
+            if (targetPortField) {
+                const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
+                let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
+                const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField, isSourceOptional);
+
+                if (isValueModifiable) {
+                    await updateExistingValue(sourcePort, targetPort, mapFnSrc, '[0]');
+                } else {
+                    await createSourceForMapping(link, mapFnSrc, '[0]');
+                }
+                await createSourceForMapping(link, mapFnSrc, '[0]');
+            }
+
+        }
+    };
+
+
+
     const getItemElement = (id: string, label: string) => {
         return (
             <div
                 className={classes.itemContainer}
                 key={id}
             >
-                <Codicon name="lightbulb" sx={codiconStyles}/>
+                <Codicon name="lightbulb" sx={codiconStyles} />
                 {label}
             </div>
         );
@@ -104,7 +134,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
             id: "a2a-direct",
             label: getItemElement("a2a-direct", "Map Input Array to Output Array"),
             onClick: onClickMapArrays
-        }, 
+        },
         {
             id: "a2a-inner",
             label: getItemElement("a2a-inner", "Map Array Elements Individually"),
@@ -115,13 +145,13 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const a2sMenuItems: Item[] = [
         {
             id: "a2s-direct",
-            label: getItemElement("a2s-direct", "Access single element"),
-            onClick: onClickMapArrays
-        }, 
+            label: getItemElement("a2s-direct", "Access Singleton"),
+            onClick: onClickMapArrayToSingletonDirect
+        },
         {
-            id: "a2s-inner",
-            label: getItemElement("a2s-inner", "Map & access single element"),
-            onClick: onClickMapIndividualElements
+            id: "a2s-indirect",
+            label: getItemElement("a2s-indirect", "Map Array Elements Individually & Access Singleton"),
+            onClick: onClickMapArrayToSingletonIndirect
         }
     ];
 
@@ -129,8 +159,8 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     return (
         <div className={classes.arrayMappingMenu}>
-            <Menu sx={a2aMenuStyles}> 
-                {menuItems.map((item: Item) => 
+            <Menu sx={a2aMenuStyles}>
+                {menuItems.map((item: Item) =>
                     <MenuItem
                         key={`item ${item.id}`}
                         item={item}

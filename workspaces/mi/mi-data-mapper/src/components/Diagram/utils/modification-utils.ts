@@ -35,12 +35,12 @@ import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 
-export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string) {
-    if (!link.getSourcePort() || !link.getTargetPort()) {
+export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue?: string, suffix: string = '') {
+	if (!link.getSourcePort() || !link.getTargetPort()) {
 		return;
 	}
 
-    let source = "";
+	let source = "";
 	let lhs = "";
 	let rhs = "";
 
@@ -51,7 +51,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 	const parentFieldNames: string[] = [];
 	const { applyModifications } = targetNode.context;
 
-	rhs = rhsValue || buildInputAccessExpr(sourcePort.fieldFQN);
+	rhs = (rhsValue || buildInputAccessExpr(sourcePort.fieldFQN)) + suffix;
 	lhs = getFieldNameFromOutputPort(targetPort, sourcePort);
 
 	if (isMappedToRootArrayLiteralExpr(targetPort)
@@ -59,7 +59,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 		|| isMappedToObjectLitExprWithinArray(targetPort)
 	) {
 		let targetExpr: Node = targetPort?.typeWithValue.value;
-		
+
 		if (!targetExpr) {
 			// When the return statement is not available in the function body
 			const fnBody = targetNode.context.functionST.getBody() as Block;
@@ -134,12 +134,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 				if (!valueExpr.getText()) {
 					const valueExprSource = constructValueExprSource(lhs, rhs, fieldNames, i);
-                    const updatedValueExpr = valueExpr.replaceWithText(valueExprSource);
-                    await applyModifications(updatedValueExpr.getSourceFile().getFullText());
-                    return valueExprSource;
+					const updatedValueExpr = valueExpr.replaceWithText(valueExprSource);
+					await applyModifications(updatedValueExpr.getSourceFile().getFullText());
+					return valueExprSource;
 				}
 
-				if (Node.isObjectLiteralExpression(valueExpr))  {
+				if (Node.isObjectLiteralExpression(valueExpr)) {
 					objectLitExpr = valueExpr;
 				} else if (Node.isArrayLiteralExpression(valueExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
@@ -164,9 +164,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 			if (propAssignment && !propAssignment.getInitializer().getText()) {
 				const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
-                const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
-                await applyModifications(updatedValueExpr.getSourceFile().getFullText());
-                return valueExprSource;
+				const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
+				await applyModifications(updatedValueExpr.getSourceFile().getFullText());
+				return valueExprSource;
 			}
 			source = `${lhs}: ${rhs}`;
 		}
@@ -175,9 +175,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
-            const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
-            await applyModifications(updatedValueExpr.getSourceFile().getFullText());
-            return valueExprSource;
+			const updatedValueExpr = propAssignment.getInitializer().replaceWithText(valueExprSource);
+			await applyModifications(updatedValueExpr.getSourceFile().getFullText());
+			return valueExprSource;
 		}
 		source = `${lhs}: ${rhs}`;
 	}
@@ -193,7 +193,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 			await applyModifications(updatedTargetObjectLitExpr.getSourceFile().getFullText());
 		}
 	} else if (targetNode instanceof ObjectOutputNode) {
-        const updatedExpr = targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
+		const updatedExpr = targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
 		await applyModifications(updatedExpr.getSourceFile().getFullText());
 	}
 
@@ -249,7 +249,7 @@ export async function createSourceForUserInput(
 
 			if (Node.isObjectLiteralExpression(parentFieldInitializer)) {
 				const propAssignment = getPropertyAssignment(parentFieldInitializer, fieldName);
-	
+
 				if (propAssignment && !propAssignment.getInitializer().getText()) {
 					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 					const propertyAssignment = propAssignment.setInitializer(valExprSource);
@@ -260,7 +260,7 @@ export async function createSourceForUserInput(
 				targetObjectLitExpr = parentFieldInitializer;
 			} else if (Node.isArrayLiteralExpression(parentFieldInitializer)
 				&& Node.isObjectLiteralExpression(parentFieldInitializer.getElements()[0])) {
-		
+
 				for (const expr of parentFieldInitializer.getElements()) {
 					if (Node.isObjectLiteralExpression(expr)
 						&& isPositionsEquals(getPosition(expr), getPosition(objectLitExpr))) {
@@ -370,7 +370,7 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 			if (linkId !== link.getID()) {
 				const targerPortLink = targetPort.getLinks()[linkId];
 				let valueNode: Node;
-	
+
 				if (sourcePort instanceof IntermediatePortModel) {
 					if (sourcePort.getParent() instanceof LinkConnectorNode) {
 						valueNode = (sourcePort.getParent() as LinkConnectorNode).innerNode;
@@ -397,10 +397,10 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 	}
 }
 
-export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string) {
+export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string, suffix: string = '') {
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
-	const sourceInputAccessExpr = newValue || buildInputAccessExpr(sourceField);
+	const sourceInputAccessExpr = (newValue || buildInputAccessExpr(sourceField)) + suffix;
 	const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
 	const expr = typeWithValue.value;
 
@@ -415,18 +415,18 @@ export async function updateExistingValue(sourcePort: PortModel, targetPort: Por
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {
-    // Regular expression to match either quoted strings or non-quoted strings with dots
-    const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
+	// Regular expression to match either quoted strings or non-quoted strings with dots
+	const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
 
-    const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
-        if (doubleQuoted) { 
-            return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
-        } else if (singleQuoted) {
+	const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
+		if (doubleQuoted) {
+			return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+		} else if (singleQuoted) {
 			return `['${singleQuoted}']`; // If the part is enclosed in single quotes, wrap it in square brackets
 		} else {
-            return unquoted; // Otherwise, leave the part unchanged
-        }
-    });
+			return unquoted; // Otherwise, leave the part unchanged
+		}
+	});
 
 	return result.replace(/(?<!\?)\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
@@ -437,7 +437,7 @@ function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boole
 		&& targetPort.field.kind === TypeKind.Array
 		&& (
 			!targetExpr || (targetExpr && Node.isArrayLiteralExpression(targetExpr)
-		));
+			));
 }
 
 function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): boolean {
@@ -446,7 +446,7 @@ function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): bool
 		&& targetPort.field.kind === TypeKind.Interface
 		&& (
 			!targetExpr || (targetExpr && Node.isObjectLiteralExpression(targetExpr)
-		));
+			));
 }
 
 function isMappedToObjectLitExprWithinArray(targetPort: InputOutputPortModel): boolean {
