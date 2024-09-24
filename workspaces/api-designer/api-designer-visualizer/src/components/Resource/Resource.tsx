@@ -53,16 +53,37 @@ const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
 
 export function Resource(props: OverviewProps) {
     const { resourceOperation, method, path, onPathChange } = props;
-    const [ initailPath ] = useState<string>(path);
-    const [ initialMethod ] = useState<string>(method);
-    const [ values, setValues ] = useState<InputsFields>();
+    const [ initailPath, setInitailPath ] = useState<string>(path);
+    const [ initialMethod, setInitialMethod ] = useState<string>(method);
     const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
 
+    const values: InputsFields = {
+        method: method.toUpperCase(),
+        path: path,
+        summary: resourceOperation.summary,
+        description: resourceOperation.description,
+        queryParams: getQueryParametersFromParameters(resourceOperation.parameters),
+        pathParams: getPathParametersFromParameters(resourceOperation.parameters),
+        headerParams: getHeaderParametersFromParameters(resourceOperation.parameters)
+    };
+
     const handleOnQueryParamsChange = (params: Param[]) => {
-        setValues({
-            ...values,
-            queryParams: params
-        });
+        let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
+        if (values?.queryParams) {
+            p = p.concat(convertParamsToParameters(params, "query"));
+        }
+        if (values?.headerParams) {
+            p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
+        }
+        const currentPath = getPath();
+        const newPath = {
+            ...currentPath,
+            initialOperation: {
+                ...currentPath.initialOperation,
+                parameters: p
+            }
+        };
+        onPathChange(newPath);
     };
 
     const handleOnPathParamsChange = (params: Param[]) => {
@@ -94,10 +115,22 @@ export function Resource(props: OverviewProps) {
     };
 
     const handleOnHeaderParamsChange = (params: Param[]) => {
-        setValues({
-            ...values,
-            headerParams: params
-        });
+        let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
+        if (values?.queryParams) {
+            p = p.concat(convertParamsToParameters(values.queryParams, "query"));
+        }
+        if (values?.headerParams) {
+            p = p.concat(convertParamsToParameters(params, "header"));
+        }
+        const currentPath = getPath();
+        const newPath = {
+            ...currentPath,
+            initialOperation: {
+                ...currentPath.initialOperation,
+                parameters: p
+            }
+        };
+        onPathChange(newPath);
     };
 
     const debouncedHandlePathChange = debounce((value: string) => {
@@ -168,17 +201,9 @@ export function Resource(props: OverviewProps) {
     };
 
     useEffect(() => {
-        const values: InputsFields = {
-            method: method.toUpperCase(),
-            path: path,
-            summary: resourceOperation.summary,
-            description: resourceOperation.description,
-            queryParams: getQueryParametersFromParameters(resourceOperation.parameters),
-            pathParams: getPathParametersFromParameters(resourceOperation.parameters),
-            headerParams: getHeaderParametersFromParameters(resourceOperation.parameters)
-        };
-        setValues(values);
-    } , [method, path, resourceOperation]);
+        setInitailPath(path);
+        setInitialMethod(method);
+    }, [path, method]);
 
     console.log("Path", resourceOperation.parameters);
     console.log("PathParams", values?.pathParams);

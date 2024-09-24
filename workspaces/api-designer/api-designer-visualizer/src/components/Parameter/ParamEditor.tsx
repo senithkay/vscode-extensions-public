@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FormGroup, LinkButton, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { FormGroup, LinkButton, TextField, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 
@@ -14,6 +14,13 @@ const HorizontalFieldWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
+`;
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 5px;
 `;
 
 interface OverviewProps {
@@ -24,8 +31,6 @@ interface OverviewProps {
 
 export function ParamEditor(props: OverviewProps) {
     const { params, type, onParamsChange } = props;
-
-    console.log("Params", params);
 
     const updateParentComponent = ( row: number, param: string, value: string) => {
         // Coppy params array
@@ -58,6 +63,24 @@ export function ParamEditor(props: OverviewProps) {
         onParamsChange(paramsCopy);
     }
 
+    const updateRequired = (index: number, value: boolean) => {
+        const paramsCopy: Param[] = [...params];
+        paramsCopy[index] = {
+            ...paramsCopy[index],
+            isRequired: value
+        };
+        onParamsChange(paramsCopy);
+    }
+
+    const updateArray = (index: number, value: boolean) => {
+        const paramsCopy: Param[] = [...params];
+        paramsCopy[index] = {
+            ...paramsCopy[index],
+            isArray: value
+        };
+        onParamsChange(paramsCopy);
+    }
+
     return (
         <>
             <FormGroup title={`${type} Parameters`} isCollapsed={false}>
@@ -65,25 +88,29 @@ export function ParamEditor(props: OverviewProps) {
             {params?.map((param, index) => (
                 <HorizontalFieldWrapper key={index}>
                     <TextField
-                        label="Name"
+                        placeholder="Name"
                         name={`params[${index}].name`}
                         value={param.name || ""}
                         sx={{ width: "33%" }}
                         onChange={(e) => updateParentComponent(index, "name", e.target.value)}
                     />
                     <TextField
-                        label="Type"
+                        placeholder="Type"
                         value={param.type || ""}
                         sx={{ width: "33%" }}
                         onChange={(e) => updateParentComponent(index, "type", e.target.value)}
                     />
                     <TextField
-                        label="Default Value"
+                        placeholder="Default Value"
                         value={param.defaultValue || ""}
                         sx={{ width: "33%" }}
                         onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
                     />
-                    <LinkButton onClick={() => removeParam(index)}>Remove</LinkButton>
+                    <ButtonWrapper>
+                        <Codicon iconSx={{background: param.isRequired ? "red" : "none"}} name="symbol-array" onClick={() => updateRequired(index, !param.isRequired)} />
+                        <Codicon name="question" onClick={() => updateArray(index, !param.isArray)} />
+                        <Codicon name="trash" onClick={() => removeParam(index)} />
+                    </ButtonWrapper>
                 </HorizontalFieldWrapper>
             ))}
             </FormGroup>

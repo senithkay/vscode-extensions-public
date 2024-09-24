@@ -15,8 +15,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
-import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getResourceID } from "../Utils/OpenAPIUtils";
+import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
+import { get } from "lodash";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -58,8 +59,8 @@ const schema = yup.object({
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const { openAPIDefinition: initialOpenAPIDefinition } = props;
-    const [ openAPIDefinition, setOpenAPIDefinition ] = useState<OpenAPI>(initialOpenAPIDefinition);
-    const [ selectedPathID, setSelectedPathID ] = useState<string | undefined>(undefined);
+    const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
+    const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
 
     const {
         reset,
@@ -86,54 +87,45 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     const handlePathChange = (path: Path) => {
         // Update the OpenAPI definition with the new path
-        const currentPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
-        const currentPathItems = currentPath && openAPIDefinition.paths[currentPath];
-        let updatedOpenAPIDefinition;
-        if (currentPath) {
+        const initialPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
+        const initialPathItems = initialPath && openAPIDefinition.paths[initialPath];
+        let updatedOpenAPIDefinition = { ...openAPIDefinition };
+        const initialPathParamaters = getPathParametersFromParameters(openAPIDefinition.paths[path.initialPath][path.initialMethod].parameters);
+        const newPathParameters = getPathParametersFromParameters(path.initialOperation.parameters);
+        if (initialPathParamaters?.length === newPathParameters?.length) {
             // Update the existing path
-            const currentPathItem = currentPathItems && currentPathItems[path.initialMethod];
-            // Remove the currentPathItem
-            delete currentPathItems[path.initialMethod];
-            const newPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.path);
-            const newPathItems = newPath && openAPIDefinition.paths[newPath];
-            if (!newPathItems) {
-                updatedOpenAPIDefinition = {
-                    ...openAPIDefinition,
-                    paths: {
-                        ...openAPIDefinition.paths,
-                        [path.path]: {
-                            [path.method]: {
-                                ...path.initialOperation
-                            }
-                        }
-                    }
+            const initialPathItem = initialPathItems && initialPathItems[path.method];
+            // Update the currentPathItem directly
+            if (initialPathItem) {
+                // If updatedOpenAPIDefinition.paths[path.path] does not exist, create it delete the initial path
+                if (!updatedOpenAPIDefinition.paths[path.path]) {
+                    updatedOpenAPIDefinition.paths[path.path] = {
+                        ...updatedOpenAPIDefinition.paths[path.initialPath]
+                    };
+                    delete updatedOpenAPIDefinition.paths[path.initialPath];
+                }
+                updatedOpenAPIDefinition.paths[path.path][path.method] = {
+                    ...path.initialOperation // Update with new operation details
                 };
-                setSelectedPathID(getResourceID(path.path, path.method));
             } else {
-                updatedOpenAPIDefinition = {
-                    ...openAPIDefinition,
-                    paths: {
-                        ...openAPIDefinition.paths,
-                        [path.path]: {
-                            ...newPathItems,
-                            [path.method]: {
-                                ...path.initialOperation
-                            }
-                        }
-                    }
+                updatedOpenAPIDefinition.paths[path.path][path.method] = {
+                    ...path.initialOperation
                 };
             }
         } else {
+            // If the method does not exist, add it
+            if (updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) {
+                delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
+                // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
+                if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {
+                    delete updatedOpenAPIDefinition.paths[path.initialPath];
+                }
+            }
             // Add a new path
-            updatedOpenAPIDefinition = {
-                ...openAPIDefinition,
-                paths: {
-                    ...openAPIDefinition.paths,
-                    [path.path]: {
-                        [path.method]: {
-                            ...path.initialOperation
-                        }
-                    }
+            updatedOpenAPIDefinition.paths[path.path] = {
+                ...updatedOpenAPIDefinition.paths[path.path],
+                [path.method]: {
+                    ...path.initialOperation
                 }
             };
         }
@@ -143,7 +135,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
 
     const handleAddPath = () => {
-        const updatedOpenAPIDefinition : OpenAPI = {
+        const updatedOpenAPIDefinition: OpenAPI = {
             ...openAPIDefinition,
             paths: {
                 ...openAPIDefinition.paths,
@@ -164,25 +156,21 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
-    console.log("Selected Method", selectedMethod);
-    console.log("Selected Path", selectedPath);
-    console.log("OpenAPI Definition", openAPIDefinition);
-    console.log("Opraion", operation);
 
     return (
         <OverviewContainer>
             <OverviewTitle onClick={handleOverviewClick}>
-                <Codicon name="globe" iconSx={{fontSize: 20}} />
-                <Typography variant="h3" sx={{margin: 2}}>Overview</Typography>
+                <Codicon name="globe" iconSx={{ fontSize: 20 }} />
+                <Typography variant="h3" sx={{ margin: 2 }}>Overview</Typography>
             </OverviewTitle>
-            <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath}/>
+            <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />
             <PanelContainer>
-                    {selectedPathID === undefined && (
-                        <Overview openAPIDefinition={openAPIDefinition}/>
-                    )}
-                    {operation && selectedPathID !== undefined && (
-                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange}/>
-                    )}
+                {selectedPathID === undefined && (
+                    <Overview openAPIDefinition={openAPIDefinition} />
+                )}
+                {operation && selectedPathID !== undefined && (
+                    <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} />
+                )}
             </PanelContainer>
         </OverviewContainer>
     )
