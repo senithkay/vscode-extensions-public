@@ -16,7 +16,7 @@ import classNames from "classnames";
 import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
-import { InputOutputPortModel } from '../Port';
+import { InputOutputPortModel, MappingType } from '../Port';
 import { isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
@@ -80,11 +80,6 @@ export enum LinkState {
     LinkNotSelected
 }
 
-export enum ArrayMappingType {
-    ArrayToArray,
-    ArrayToSingleton
-}
-
 export interface ExpressionLabelWidgetProps {
     model: ExpressionLabelModel;
 }
@@ -92,7 +87,7 @@ export interface ExpressionLabelWidgetProps {
 // now we can render all what we want in the label
 export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
-    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
+    const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
@@ -114,7 +109,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             const isSourceArray = isSourcePortArray(source);
             const isTargetArray = isTargetPortArray(target);
             const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
-            setArrayMappingType(mappingType);
+            setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -154,7 +149,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 >
                     <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                 </Button>
-                <div className={classes.separator}/>
+                <div className={classes.separator} />
                 {deleteInProgress ? (
                     loadingScreen
                 ) : (
@@ -204,23 +199,23 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
 
-                const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
-                await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+            const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
+            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
     };
 
     const codeActions = [];
-    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
+    if (mappingType === MappingType.ArrayToArray) {
         codeActions.push({
             title: "Map array elements individually",
             onClick: onClickMapViaArrayFn
         });
-    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
+    } else if (mappingType === MappingType.ArrayToSingleton) {
         // TODO: Add impl
     }
 
     if (codeActions.length > 0) {
-        elements.push(<div className={classes.separator}/>);
+        elements.push(<div className={classes.separator} />);
         elements.push(
             <CodeActionWidget
                 key={`expression-label-code-action-${value}`}
@@ -231,7 +226,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     }
 
     if (diagnostic) {
-        elements.push(<div className={classes.separator}/>);
+        elements.push(<div className={classes.separator} />);
         elements.push(
             <DiagnosticWidget
                 key={`expression-label-diagnostic-${value}`}
@@ -297,13 +292,13 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     );
 }
 
-export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
-	let mappingType: ArrayMappingType;
-	if (isSourceArray && isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToArray;
-	} else if (isSourceArray && !isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToSingleton;
-	}
+export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): MappingType {
+    let mappingType: MappingType = MappingType.Undefined;
+    if (isSourceArray && isTargetArray) {
+        mappingType = MappingType.ArrayToArray;
+    } else if (isSourceArray && !isTargetArray) {
+        mappingType = MappingType.ArrayToSingleton;
+    }
 
-	return mappingType;
+    return mappingType;
 }

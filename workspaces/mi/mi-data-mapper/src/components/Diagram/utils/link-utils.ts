@@ -9,7 +9,7 @@
 import { LinkModel, PortModel } from "@projectstorm/react-diagrams-core";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
-import { InputOutputPortModel } from "../Port";
+import { InputOutputPortModel, MappingType } from "../Port";
 import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
 
 export function isSourcePortArray(port: PortModel): boolean {
@@ -49,20 +49,20 @@ export function generateArrayMapFunction(srcExpr: string, targetType: DMType, is
     return `${srcExpr.trim()}\n${isSourceOptional ? '?.' : '.'}map((${refinedVarName}) => {${returnExpr}})`;
 }
 
-export function removeArrayToArrayTempLinkIfExists(link: LinkModel) {
+export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 	const sourcePort = link.getSourcePort();
 	const targetPort = link.getTargetPort();
 
-	const isPendingArrayToArray = sourcePort instanceof InputOutputPortModel
+	const pendingMappingType = sourcePort instanceof InputOutputPortModel
 		&& targetPort instanceof InputOutputPortModel
-		&& sourcePort.pendingArrayToArray
-		&& targetPort.pendingArrayToArray;
+		&& sourcePort.pendingMappingType
+		&& targetPort.pendingMappingType;
 
-	if (isPendingArrayToArray) {
+	if (pendingMappingType) {
 		sourcePort?.fireEvent({}, "link-removed");
 		targetPort?.fireEvent({}, "link-removed");
-		sourcePort.setIsPendingArrayToArray(false);
-		targetPort.setIsPendingArrayToArray(false);
+		sourcePort.setPendingMappingType(MappingType.Undefined);
+		targetPort.setPendingMappingType(MappingType.Undefined);
 		link.remove();
 	}
 }

@@ -31,10 +31,16 @@ export enum ValueType {
 	NonEmpty
 }
 
+export enum MappingType {
+	ArrayToArray = "array-array",
+	ArrayToSingleton = "array-singleton",
+	Undefined = undefined
+}
+
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
 
 	public linkedPorts: PortModel[];
-	public pendingArrayToArray: boolean;
+	public pendingMappingType: MappingType;
 
 	constructor(
 		public field: DMType,
@@ -90,7 +96,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {
-		if (this.portType === 'IN'){
+		if (this.portType === 'IN') {
 			this.parentModel?.setDescendantHasValue();
 		}
 		super.addLink(link);
@@ -100,13 +106,13 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		this.linkedPorts.push(port);
 	}
 
-	setIsPendingArrayToArray(pendingA2A: boolean): void {
-		this.pendingArrayToArray = pendingA2A;
+	setPendingMappingType(mappingType: MappingType): void {
+		this.pendingMappingType = mappingType;
 	}
 
 	setDescendantHasValue(): void {
 		this.descendantHasValue = true;
-		if (this.parentModel){
+		if (this.parentModel) {
 			this.parentModel.setDescendantHasValue();
 		}
 	}
@@ -123,6 +129,6 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			})
 		}
 		return this.portType !== port.portType && !isLinkExists
-				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
+			&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 }
