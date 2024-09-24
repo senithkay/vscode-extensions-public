@@ -520,20 +520,24 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
     };
 
+    const handleFocus = async () => {
+        await onFocus?.();
+        inputRef.current?.focus();
+    }
+
+    const handleBlur = async (text?: string) => {
+        // Trigger save event on blur
+        if (text !== undefined) {
+            await handleExpressionSaveMutation(text);
+        }
+        await onBlur?.();
+        inputRef.current?.blur();
+    }
+
     useImperativeHandle(ref, () => ({
         shadowRoot: inputRef.current?.shadowRoot,
-        focus: async () => {
-            await onFocus?.();
-            inputRef.current?.focus();
-        },
-        blur: async (text?: string) => {
-            // Trigger save event on blur
-            if (text !== undefined) {
-                await handleExpressionSaveMutation(text);
-            }
-            await onBlur?.();
-            inputRef.current?.blur();
-        },
+        focus: handleFocus,
+        blur: handleBlur,
         saveExpression: async (text?: string) => {
             await handleExpressionSaveMutation(text);
         }
@@ -546,6 +550,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
+                onFocus={() => handleFocus()}
+                onBlur={() => handleBlur()}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSelectingCompletion || isSavingExpression}
                 {...rest}
