@@ -15,7 +15,9 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { createProject } from './Utils';
+import { closeNotification, createProject, page, vscode } from './Utils';
+import { ConnectorStore } from './components/ConnectorStore';
+import { Overview } from './components/Overview';
 const fs = require('fs');
 
 const resourcesFolder = path.join(__dirname, '..', 'test-resources');
@@ -23,36 +25,39 @@ const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = '1.92.0';
 
-let vscode: ElectronApplication | undefined;
-let page: ExtendedPage;
+// let vscode: ElectronApplication | undefined;
+// let page: ExtendedPage;
 
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-  const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
+  // const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
   // delete and recreate folder
-  if (fs.existsSync(newProjectPath)) {
-    fs.rmSync(newProjectPath, { recursive: true });
-  }
-  fs.mkdirSync(newProjectPath, { recursive: true });
-  vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
-  page = new ExtendedPage(await vscode!.firstWindow());
+  // if (fs.existsSync(newProjectPath)) {
+  //   fs.rmSync(newProjectPath, { recursive: true });
+  // }
+  // fs.mkdirSync(newProjectPath, { recursive: true });
+  // vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
+  // page = new ExtendedPage(await vscode!.firstWindow());
 });
 
 test('Create new project', async () => {
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
-  await page.waitUntilExtensionReady();
+  // await page.waitUntilExtensionReady();
 
-  await createProject(page);
+  // await createProject(page);
 });
 
 test('Create new API', async () => {
 
   // wait until window reload
-  await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
-  page = new ExtendedPage(await vscode!.firstWindow());
-  await page.waitUntilExtensionReady();
+  // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
+  // page = new ExtendedPage(await vscode!.firstWindow());
+  // await page.waitUntilExtensionReady();
+  const overview = new Overview(page.page);
+  overview.init();
+  overview.goToAddArtifact();
 
   const overviewPage = new AddArtifact(page.page);
   await overviewPage.init();
@@ -112,6 +117,39 @@ test('Edit mediator in resource', async () => {
   });
   expect(await mediator.getDescription()).toEqual('log mediator');
 
+});
+
+test('Add new connection', async () => {
+  // Add connection from side panel
+  const diagram = new Diagram(page.page, 'Resource');
+  await diagram.init();
+  await diagram.addNewConnection(1);
+
+  const connectorStore = new ConnectorStore(page.page, 'Resource View');
+  await connectorStore.init();
+  await connectorStore.selectConnector('Email');
+
+  const connectionForm = new Form(page.page, 'Resource View');
+  await connectionForm.switchToFormView();
+  await connectionForm.fill({
+    values: {
+      'Connection Name*': {
+        type: 'input',
+        value: 'email_connection',
+      },
+      'Host': {
+        type: 'expression',
+        value: 'example.com',
+      },
+      'Port': {
+        type: 'expression',
+        value: '80',
+      }
+    }
+  });
+  await closeNotification(page);
+  await connectionForm.submit('Add');
+  expect(await diagram.verifyConnection("email_connection")).toBeTruthy();
 });
 
 test.afterAll(async () => {

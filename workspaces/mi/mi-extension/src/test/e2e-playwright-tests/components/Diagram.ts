@@ -41,6 +41,28 @@ export class Diagram {
         await sidePanel.addMediator(mediatorName);
     }
 
+    public async goToExternalsPage() {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        sidePanel.goToExternalsPage();
+    }
+
+    public async addNewConnection(index: number = 0) {
+        await this.clickPlusButtonByIndex(index);
+
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        sidePanel.goToExternalsPage();
+        sidePanel.addNewConnection();
+    }
+
+    public async verifyConnection(name: string) {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        sidePanel.goToExternalsPage();
+        return sidePanel.verifyConnection(name);
+    }
+
     private async clickPlusButtonByPosition(line: number, column: number) {
         const link = (await this.getDiagramContainer()).locator(`g[data-linkid=${line},${column}]`);
         await link.waitFor();
@@ -122,5 +144,28 @@ class SidePanel {
         const form = new Form(undefined, undefined, this.sidePanel);
         await form.fill(props);
         await form.submit("Submit");
+    }
+
+    public async goToExternalsPage() {
+        const externalPageBtn = this.sidePanel.locator(`vscode-button:text("Externals") >> ..`);
+        await externalPageBtn.waitFor();
+        await externalPageBtn.click();
+    }
+
+    public async addNewConnection() {
+        const addNewConnectionBtn = await this.sidePanel.locator(`div:text("Add new connection")`);
+        await addNewConnectionBtn.waitFor();
+        await addNewConnectionBtn.click();
+    }
+
+    public async verifyConnection(name: string) {
+        const connectionSection = this.sidePanel.locator(`h4:text("Available Connections") >> ../..`);
+        const connectionTitle = connectionSection.locator(`div:text("${name}")`);
+        connectionTitle.waitFor();
+
+        if (connectionTitle) {
+            return true;
+        }
+        return false;
     }
 }

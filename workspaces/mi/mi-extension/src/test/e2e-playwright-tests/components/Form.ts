@@ -14,7 +14,7 @@ export interface FormFillProps {
     values: {
         [key: string]: {
             value: string,
-            type: 'input' | 'dropdown' | 'checkbox' | 'combo'
+            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression'
         }
     }
 }
@@ -95,8 +95,21 @@ export class Form {
                         await option.click();
                         break;
                     }
+                    case 'expression': {
+                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
+                        await parentDiv.waitFor();
+                        const input = parentDiv.locator('input[aria-label="EX"]');
+                        await input.click();
+                        await input.fill(values[key].value);
+                        break;
+                    }
                 }
             }
         }
+    }
+
+    public async getInputValue(key: string) {
+        const input = this.container.locator(`vscode-text-field[aria-label="${key}"]`);
+        return await input.getAttribute('current-value');
     }
 }
