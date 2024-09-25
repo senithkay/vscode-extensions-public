@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Button, Codicon, Drawer, Dropdown, OptionProps, Typography } from '@wso2-enterprise/ui-toolkit';
 import * as yup from 'yup';
 import styled from '@emotion/styled';
-import { SIDE_PANEL_WIDTH } from '../../../../constants';
+import { DATASOURCE, SIDE_PANEL_WIDTH } from '../../../../constants';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -228,29 +228,59 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 if (fetchedData?.length > 0) {
                     const datasourceInfo: DataSource[] = [];
                     for (const item of fetchedData) {
-                        if (item.property.some((property: any) => property.name === 'driverClassName')) {
-                            const datasource = {
-                                id: item.id,
-                                className: '',
-                                dbUrl: '',
-                                name: '',
-                                password: '',
-                            };
+                        const datasource = { id: item.id, className: '', dbUrl: '', name: '', password: '' };
 
+                        if (item.property.some((property: any) => property.name === DATASOURCE.TYPE.RDBMS)) {
                             for (const property of item.property) {
-                                if (property.name === 'driverClassName') {
+                                if (property.name === DATASOURCE.PROPERTY.CLASS_NAME) {
                                     datasource.className = property.textNode;
-                                } else if (property.name === 'url') {
+                                } else if (property.name === DATASOURCE.PROPERTY.DB_URL) {
                                     datasource.dbUrl = property.textNode;
-                                } else if (property.name === 'username') {
+                                } else if (property.name === DATASOURCE.PROPERTY.USERNAME) {
                                     datasource.name = property.textNode;
-                                } else if (property.name === 'password') {
+                                } else if (property.name === DATASOURCE.PROPERTY.PASSWORD) {
                                     datasource.password = property.textNode;
                                 }
                             }
+                        } else if (
+                            item.property.some((property: any) => property.name === DATASOURCE.TYPE.CARBON_DATASOURCE)
+                        ) {
+                            const property = item.property.find(
+                                (property: any) => property.name === DATASOURCE.TYPE.CARBON_DATASOURCE
+                            );
+                            const artifactName = property.textNode;
+                            const datasourceST = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({
+                                artifactType: 'data-sources',
+                                artifactName: `${artifactName}.xml`,
+                            });
 
-                            datasourceInfo.push(datasource);
+                            if (!datasourceST) {
+                                throw new Error('Failed to fetch datasource');
+                            }
+
+                            const properties = datasourceST.syntaxTree.datasource.definition.configuration.content;
+
+                            // Check if the datasource is a RDBMS datasource
+                            if (!properties.some((property: any) => property.tag === DATASOURCE.TYPE.RDBMS)) {
+                                continue;
+                            }
+
+                            for (const property of properties) {
+                                if (property.tag === DATASOURCE.PROPERTY.CLASS_NAME) {
+                                    datasource.className = property.textNode;
+                                } else if (property.tag === DATASOURCE.PROPERTY.DB_URL) {
+                                    datasource.dbUrl = property.textNode;
+                                } else if (property.tag === DATASOURCE.PROPERTY.USERNAME) {
+                                    datasource.name = property.textNode;
+                                } else if (property.tag === DATASOURCE.PROPERTY.PASSWORD) {
+                                    datasource.password = property.textNode;
+                                }
+                            }
+                        } else {
+                            continue;
                         }
+
+                        datasourceInfo.push(datasource);
                     }
 
                     const datasourceItems = datasourceInfo.map((datasource) => ({
@@ -287,12 +317,12 @@ export const GenerateResourceForm = ({ isOpen, documentUri, syntaxTree, onCancel
                 sx={{ transition: 'all 0.3s ease-in-out' }}
             >
                 <SidePanelTitleContainer>
+                    <Typography variant="h3" sx={{margin: 0}}>Generate Resources</Typography>
                     <Button sx={{ marginLeft: 'auto' }} onClick={handleCancel} appearance="icon">
                         <Codicon name="close" />
                     </Button>
                 </SidePanelTitleContainer>
                 <SidePanelBody>
-                    <Typography variant="h3">Generate Resources</Typography>
                     <Controller
                         name="datasource"
                         control={control}

@@ -511,7 +511,7 @@ export function deleteDataMapperResources(filePath: string): Promise<{ status: b
             removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
             removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
             removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
-            fs.unlinkSync(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName + '/' + dmName + '.ts'));
+            workspace.fs.delete(Uri.parse(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName)), { recursive: true, useTrash: true });
             resolve({ status: true, info: "Datamapper resources removed" });
         }
     });

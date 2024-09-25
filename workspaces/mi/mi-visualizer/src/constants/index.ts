@@ -119,3 +119,18 @@ export enum InboundEndpointTypes {
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
 }
+
+export const connectorFailoverIconUrl = "https://mi-connectors.wso2.com/icons/wordpress.gif";
+
+export const DATASOURCE = {
+    TYPE: {
+        RDBMS: "driverClassName",
+        CARBON_DATASOURCE: "carbon_datasource_name"
+    },
+    PROPERTY: {
+        CLASS_NAME: "driverClassName",
+        DB_URL: "url",
+        USERNAME: "username",
+        PASSWORD: "password"
+    }
+}

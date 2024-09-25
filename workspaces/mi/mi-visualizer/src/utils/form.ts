@@ -333,7 +333,8 @@ export const onProxyEdit = async (
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: "\n",
             documentUri: documentUri,
-            range: removeRange
+            range: removeRange,
+            disableFormatting: true
         });
     }
     

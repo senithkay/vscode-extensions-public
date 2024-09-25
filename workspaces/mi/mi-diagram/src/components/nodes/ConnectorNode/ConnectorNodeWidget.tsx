@@ -180,7 +180,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 connectorName: node.stNode.tag.split(".")[0]
             });
 
-            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
+            const operationName = node.stNode.tag.split(/\.(.+)/)[1];
+            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operationName });
 
             sidePanelContext.setSidePanelState({
                 isOpen: true,
@@ -189,11 +190,11 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 isEditing: true,
                 formValues: {
                     form: formJSON.formJSON,
-                    title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                    title: `${connectorData.name} - ${operationName}`,
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
-                    operationName: (node).stNode.tag.split(".")[1],
+                    operationName: operationName,
                     connectionName: (node.stNode as Connector).configKey
                 },
                 iconPath: iconPath,

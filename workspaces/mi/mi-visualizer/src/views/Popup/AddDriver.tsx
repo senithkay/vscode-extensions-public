@@ -102,7 +102,7 @@ export function AddDriver(props: AddDriverProps) {
     }
 
     return (
-        <FormView title={`Available drivers for ${name}`} onClose={props.handlePopupClose ?? handleOnClose} hideClose={props.isPopup}>
+        <FormView title={`Available drivers for ${name}`} onClose={props.handlePopupClose ?? handleOnClose}>
             <div style={{
                 maxWidth: "49em",
             }}>

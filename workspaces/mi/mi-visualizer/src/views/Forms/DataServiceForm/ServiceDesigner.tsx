@@ -300,11 +300,11 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                     <ViewHeader title="Data Service Designer" icon="APIResource" onEdit={handleDataServiceEdit}>
                         {showResources ? (
                             <React.Fragment>
-                                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
+                                <VSCodeButton appearance="primary" title="Add Resource" onClick={handleResourceAdd}>
                                     <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                                 </VSCodeButton>
-                                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleGenerateResourceAdd}>
-                                    Generate from datasource
+                                <VSCodeButton appearance="primary" title="Generate from datasource" onClick={handleGenerateResourceAdd}>
+                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Generate from Datasource
                                 </VSCodeButton>
                             </React.Fragment>
                         ) : (
@@ -333,7 +333,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 model={resourceServiceModel}
                                 disableServiceHeader={true}
                                 onResourceClick={handleResourceClick}
-                                customTitle="Available Resources"
+                                customTitle="Resources"
                             />
                         </ViewContent>
                     ) : (
@@ -342,7 +342,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                                 model={operationServiceModel}
                                 disableServiceHeader={true}
                                 onResourceClick={handleResourceClick}
-                                customTitle="Available Operations"
+                                customTitle="Operations"
                             />
                         </ViewContent>
                     )}

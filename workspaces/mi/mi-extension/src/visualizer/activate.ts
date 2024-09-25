@@ -110,7 +110,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                             await vscode.commands.executeCommand(COMMANDS.SHOW_DATA_SOURCE, file, undefined, false);
                             return;
                         case 'DATA_SERVICE':
-                            await vscode.commands.executeCommand(COMMANDS.SHOW_DATA_SOURCE, file, undefined, false);
+                            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: file.fsPath });
                             return;
                     }
                 }
