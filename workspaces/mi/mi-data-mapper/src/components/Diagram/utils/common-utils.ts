@@ -510,8 +510,12 @@ export function canConnectWithLinkConnector(
     return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
 }
 
-export function hasCallExpressions(node: Node): boolean {
+export function hasCallExpression(node: Node): boolean {
     return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+}
+
+export function hasElementAccessExpression(node: Node): boolean {
+    return Node.isPropertyAssignment(node) && Node.isElementAccessExpression(node.getInitializer());
 }
 
 export function isNodeCallExpression(node: Node): boolean {

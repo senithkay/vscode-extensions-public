@@ -82,7 +82,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 } else {
                     await createSourceForMapping(link, mapFnSrc);
                 }
-                await createSourceForMapping(link, mapFnSrc);
+                await createSourceForMapping(link, mapFnSrc); // TODO: Remove this line
             }
         }
     };
