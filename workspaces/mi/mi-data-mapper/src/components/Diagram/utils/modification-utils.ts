@@ -16,7 +16,8 @@ import {
 	ObjectLiteralExpression,
 	PropertyAssignment,
 	ReturnStatement,
-	SourceFile
+	SourceFile,
+	TypeLiteralNode
 } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
@@ -360,6 +361,33 @@ export async function modifyFieldOptionality(
 
 	await applyModifications(sourceFile.getFullText());
 }
+
+export async function modifyChildFieldsOptionality(
+	field: DMTypeWithValue,
+	isOptional: boolean,
+	sourceFile: SourceFile,
+	applyModifications: (fileContent: string) => Promise<void>) {
+
+	let currInterface = sourceFile.getInterfaceOrThrow(field.type.typeName);
+	modifyInterfaceOptionality(currInterface, isOptional);
+
+	await applyModifications(sourceFile.getFullText());
+}
+
+function modifyInterfaceOptionality(
+	interfaceDeclaration: InterfaceDeclaration | TypeLiteralNode,
+	isOptional: boolean) {
+
+	interfaceDeclaration.getProperties().forEach(property => {
+		property.set({ hasQuestionToken: isOptional });
+		const propertyType = property.getType().getArrayElementType() || property.getType();
+		const typeDeclaration = propertyType.getSymbol()?.getDeclarations()[0] as InterfaceDeclaration;
+		if (typeDeclaration && (Node.isInterfaceDeclaration(typeDeclaration) || Node.isTypeLiteral(typeDeclaration))) {
+			modifyInterfaceOptionality(typeDeclaration, isOptional);
+		}
+	});
+}
+
 
 function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
 	let source = "";

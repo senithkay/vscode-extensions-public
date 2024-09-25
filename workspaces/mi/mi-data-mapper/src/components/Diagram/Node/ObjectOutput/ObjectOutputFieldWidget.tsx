@@ -24,7 +24,7 @@ import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMen
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
-import { createSourceForUserInput, modifyFieldOptionality } from "../../utils/modification-utils";
+import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
@@ -133,6 +133,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => { 
+        await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
     };
 
     const handleDeleteValue = async () => {
@@ -253,15 +257,27 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         onClick: handleDeleteValue
     };
 
-    const handleSetFieldOptionalMenuItem: ValueConfigMenuItem = {
+    const modifyFieldOptionalityMenuItem: ValueConfigMenuItem = {
         title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
         onClick: handleModifyFieldOptionality
+    };
+
+    const makeChildFieldsOptionalMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsOptional,
+        onClick: () => handleModifyChildFieldsOptionality(true)
+    };
+
+    const makeChildFieldsRequiredMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsRequired,
+        onClick: () => handleModifyChildFieldsOptionality(false)
     };
 
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
-        !isWithinArray && handleSetFieldOptionalMenuItem
+        !isWithinArray && modifyFieldOptionalityMenuItem,
+        makeChildFieldsOptionalMenuItem,
+        makeChildFieldsRequiredMenuItem
     ];
 
     return (

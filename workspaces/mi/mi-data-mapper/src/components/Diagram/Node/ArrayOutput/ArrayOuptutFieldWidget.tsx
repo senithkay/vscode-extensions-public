@@ -343,7 +343,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
-    const handleSetFieldOptionalMenuItem: ValueConfigMenuItem = {
+    const handleModifyFieldOptionalityMenuItem: ValueConfigMenuItem = {
         title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
         onClick: handleModifyFieldOptionality
     };
@@ -352,11 +352,11 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         ? [
             { title: ValueConfigOption.EditValue, onClick: handleEditValue },
             { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
-            handleSetFieldOptionalMenuItem
+            handleModifyFieldOptionalityMenuItem
         ]
         : [
             { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
-            handleSetFieldOptionalMenuItem
+            handleModifyFieldOptionalityMenuItem
         ];
 
     return (
