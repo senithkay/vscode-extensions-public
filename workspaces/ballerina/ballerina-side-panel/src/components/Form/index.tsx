@@ -16,6 +16,7 @@ import { FormField, FormValues } from "./types";
 import { FormFieldEditor } from "../editors/FormFieldEditor";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
+import { NodeKind, NodePosition } from "@wso2-enterprise/ballerina-core";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -56,16 +57,36 @@ namespace S {
         flex-grow: 1;
         justify-content: flex-end;
     `;
+
+    export const DataMapperRow = styled.div`
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin: 10px 0;
+    `;
+
+    export const UseDataMapperButton = styled(Button)`
+        & > vscode-button {
+            width: 250px;
+            height: 30px;
+            color: var(--vscode-button-secondaryForeground);
+            border: 1px solid var(--vscode-welcomePage-tileBorder);
+        };
+        align-self: center;
+    `;
 }
 
 interface FormProps {
     formFields: FormField[];
+    projectPath?: string;
+    selectedNode?: NodeKind;
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
+    openView?: (filePath: string, position: NodePosition) => void;
 }
 
 export function Form(props: FormProps) {
-    const { formFields, onSubmit, openRecordEditor } = props;
+    const { formFields, projectPath, selectedNode, onSubmit, openRecordEditor, openView } = props;
     const { getValues, register, setValue, handleSubmit, reset } = useForm<FormValues>();
 
     useEffect(() => {
@@ -102,6 +123,19 @@ export function Form(props: FormProps) {
         setShowAdvancedOptions(false);
     };
 
+    const handleOnUseDataMapper = () => {
+        const viewField = formFields.find((field) => field.key === "view");
+        if (viewField) {
+            const { fileName, startLine, endLine } = viewField.value as any;
+            openView && openView(projectPath + "/" + fileName, {
+                startLine: startLine.line,
+                startColumn: startLine.offset,
+                endLine: endLine.line,
+                endColumn: endLine.offset,
+            });
+        }
+    };
+
     // HACK: hide some fields if the form. need to fix from LS
     formFields.forEach((field) => {
         // hide http scope
@@ -113,10 +147,14 @@ export function Form(props: FormProps) {
     // has optional fields
     const hasOptionalFields = formFields.some((field) => field.optional);
 
+    const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
+    const isExistingDataMapper = isDataMapper
+        && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
+
     // TODO: support multiple type fields
     return (
         <S.Container>
-            {formFields.map((field) => {
+            {formFields.filter(field => field.type !== "VIEW").map((field) => {
                 if (!field.optional) {
                     return (
                         <S.Row key={field.key}>
@@ -129,6 +167,17 @@ export function Form(props: FormProps) {
                     );
                 }
             })}
+
+            {isExistingDataMapper && (
+                <S.DataMapperRow>
+                    <S.UseDataMapperButton
+                        appearance="secondary"
+                        onClick={handleOnUseDataMapper}
+                    >
+                        Use Data Mapper
+                    </S.UseDataMapperButton>
+                </S.DataMapperRow>
+            )}
 
             {hasOptionalFields && (
                 <S.Row>

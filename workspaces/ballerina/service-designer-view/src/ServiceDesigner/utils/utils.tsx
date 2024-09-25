@@ -103,7 +103,7 @@ export async function getServiceST(documentIdentifier: DocumentIdentifier,
 }
 
 export function getDefaultResponse(httpMethod: HTTP_METHOD): number {
-    switch (httpMethod) {
+    switch (httpMethod.toUpperCase()) {
         case HTTP_METHOD.GET:
             return 200;
         case HTTP_METHOD.PUT:
@@ -124,9 +124,9 @@ export function getCodeFromResponse(response: string, httpMethod: HTTP_METHOD): 
     return code?.code || getDefaultResponse(httpMethod);
 }
 
-export function findResponseCodeByRecordSource(recordSource: string): number {
+export function findResponseCodeByRecordSource(recordSource: string, httpMethod: HTTP_METHOD): number {
     const code = responseCodes.find((responseCode) => recordSource?.includes(responseCode.source));
-    return code?.code || 200;
+    return code?.code || getDefaultResponse(httpMethod);
 }
 
 export function getCodeFromSource(response: string, httpMethod: HTTP_METHOD): number {
@@ -190,7 +190,7 @@ export const getRecordSource = async (recordName: string, rpcClient: any): Promi
 export const getNameRecordType = async (recordName: string, rpcClient: any): Promise<string> => {
     let namedRecordType = "";
     const response = await rpcClient?.getRecordST({ recordName: recordName });
-    if (STKindChecker.isRecordTypeDesc(response.recordST?.typeDescriptor)) {
+    if (response && STKindChecker.isRecordTypeDesc(response.recordST?.typeDescriptor)) {
         const record = response.recordST.typeDescriptor as RecordTypeDesc;
         record.fields.forEach(field => {
             if (STKindChecker.isRecordField(field) && field.fieldName.value === "body") {
@@ -293,6 +293,8 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
 
 async function findResponseType(typeSymbol: any, resource: any, index: any, rpcClient: any, members: any) {
     let type = "";
+    const isArray = typeSymbol.typeKind === "array";
+    typeSymbol = isArray && typeSymbol.memberTypeDescriptor ? typeSymbol.memberTypeDescriptor : typeSymbol;
     if (typeSymbol.typeKind === "record") {
         return getInlineRecordConfig(resource, index, typeSymbol);
     } else if (typeSymbol.typeKind === "typeReference" && !typeSymbol.signature?.includes("ballerina")) {
@@ -301,9 +303,10 @@ async function findResponseType(typeSymbol: any, resource: any, index: any, rpcC
         type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.name + "?" : typeSymbol.name;
         return {
             id: index,
-            code: findResponseCodeByRecordSource(recordST),
+            code: findResponseCodeByRecordSource(recordST, resource.functionName.value as HTTP_METHOD),
             type: bodyType || type,
-            source: type,
+            isTypeArray: isArray,
+            source: isArray ? `${type}[]` : type,
             namedRecord: bodyType ? type : null
         };
     } else if (typeSymbol.typeKind === "typeReference" && typeSymbol.signature?.includes("ballerina")) {
@@ -312,7 +315,8 @@ async function findResponseType(typeSymbol: any, resource: any, index: any, rpcC
             id: index,
             code: getCodeFromResponse(name, resource.functionName.value as HTTP_METHOD),
             type: "",
-            source: name
+            source: isArray ? `${name}[]` : name,
+            isTypeArray: isArray,
         };
     } else if (typeSymbol.typeKind !== "nil") {
         type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.typeKind + "?" : typeSymbol.typeKind;
@@ -320,7 +324,8 @@ async function findResponseType(typeSymbol: any, resource: any, index: any, rpcC
             id: index,
             code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(typeSymbol.name as string, resource.functionName.value as HTTP_METHOD)),
             type: type,
-            source: type
+            source: isArray ? `${type}[]` : type,
+            isTypeArray: isArray
         };
     }
 }

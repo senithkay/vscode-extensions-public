@@ -8,7 +8,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
@@ -42,7 +42,7 @@ const EditorContent = styled.div`
 
 const DrawerContent = styled.div`
     padding: 16px 10px 0 20px;
-    width: 410px;
+    width: 420px;
 `;
 
 const isRequiredFieldsFilled = (p: Param[]) => {
@@ -58,6 +58,7 @@ export function ParamEditor(props: ParamProps) {
     const { parameters, paramFields, openInDrawer, onChange, onSave, onCancel } = props;
     const [isDrawerCancelInProgress, setIsDrawerCancelInProgress] = useState(false);
     const [isSaveEnabled, setIsSaveEnabled] = useState(isRequiredFieldsFilled(parameters.parameters));
+    const [drawerTopOffset, setDrawerTopOffset] = useState(0);
 
     const getParamComponent = (p: Param) => {
         const handleTypeResolverChange = (newParam: Param) => {
@@ -100,6 +101,29 @@ export function ParamEditor(props: ParamProps) {
         onSave(parameters);
     };
 
+
+    useEffect(() => {
+        if (openInDrawer) {
+            const drawer1 = document.getElementById("drawer1");
+            if (drawer1) {
+                const scrollPosition = drawer1.scrollTop;
+                setDrawerTopOffset(scrollPosition);
+                // Disable scrolling on the body when the drawer is open
+                drawer1.style.overflow = "hidden";
+            }
+        }
+    }, [openInDrawer]);
+
+    // Enable drawer scrolling when this component is unmounted
+    useEffect(() => {
+        return () => {
+            const drawer1 = document.getElementById("drawer1");
+            if (drawer1) {
+                drawer1.style.overflow = "auto";
+            }
+        }
+    }, []);
+
     return (
         <>
             {!openInDrawer && (
@@ -114,7 +138,7 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </EditorContainer>
             )}
-            <Drawer isOpen={isDrawerCancelInProgress ? false : openInDrawer} id="drawer1" isSelected={true}>
+            <Drawer isOpen={isDrawerCancelInProgress ? false : openInDrawer} id="param-editor-drawer" isSelected={true} sx={{ top: drawerTopOffset }}>
                 {openInDrawer && (
                     <DrawerContent>
                         {parameters?.parameters.map(param => getParamComponent({

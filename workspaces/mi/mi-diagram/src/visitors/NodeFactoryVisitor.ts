@@ -125,34 +125,38 @@ export class NodeFactoryVisitor implements Visitor {
     private documentUri: string;
     private diagramType: DiagramType;
     private resource: DiagramService;
-    private breakpointPositions: BreakpointPosition[];
-    private activatedBreakpoint: BreakpointPosition;
+    private breakpointPositions?: BreakpointPosition[];
+    private activatedBreakpoint?: BreakpointPosition;
 
 
-    constructor(documentUri: string, model: DiagramService, breakpoints: GetBreakpointsResponse) {
+    constructor(documentUri: string, model: DiagramService, breakpoints?: GetBreakpointsResponse) {
         this.documentUri = documentUri;
         this.resource = model;
-        this.breakpointPositions = breakpoints.breakpoints;
-        this.activatedBreakpoint = breakpoints.activeBreakpoint;
+
+        if (breakpoints) {
+            this.breakpointPositions = breakpoints.breakpoints;
+            this.activatedBreakpoint = breakpoints.activeBreakpoint;
+        }
     }
 
     private createNodeAndLinks(params: createNodeAndLinks): void {
         let { node, name, type, data } = params;
 
         // When breakpoint added via sourceCode the column will be undefined, therefore in that case we only check line number
-        for (const breakpoint of this.breakpointPositions) {
-            if (breakpoint.line === node.range.startTagRange.start.line &&
-                (!breakpoint.column || breakpoint.column === node.range.startTagRange.start.character)) {
-                node.hasBreakpoint = true;
-                break;
+        if (this.breakpointPositions && this.breakpointPositions.length > 0) {
+            for (const breakpoint of this.breakpointPositions) {
+                if (breakpoint.line === node.range.startTagRange.start.line &&
+                    (!breakpoint.column || breakpoint.column === node.range.startTagRange.start.character)) {
+                    node.hasBreakpoint = true;
+                    break;
+                }
+            }
+
+            if (this.activatedBreakpoint.line === node.range.startTagRange.start.line &&
+                (!this.activatedBreakpoint.column || this.activatedBreakpoint.column === node.range.startTagRange.start.character)) {
+                node.isActiveBreakpoint = true;
             }
         }
-
-        if (this.activatedBreakpoint.line === node.range.startTagRange.start.line &&
-            (!this.activatedBreakpoint.column || this.activatedBreakpoint.column === node.range.startTagRange.start.character)) {
-            node.isActiveBreakpoint = true;
-        }
-
         // create node
         let diagramNode: AllNodeModel;
         switch (type) {
@@ -220,7 +224,10 @@ export class NodeFactoryVisitor implements Visitor {
                 if (this.currentAddPosition != undefined) {
                     addPosition = this.currentAddPosition;
                 } else if (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) {
-                    addPosition = { position: previousStNode.range.endTagRange.start, trailingSpace: previousStNode.spaces.endingTagSpace.trailingSpace.space };
+                    addPosition = { 
+                        position: previousStNode.range.endTagRange?.end ?? previousStNode.range.startTagRange.end, 
+                        trailingSpace: previousStNode.spaces.endingTagSpace?.trailingSpace?.space ?? previousStNode.spaces.startingTagSpace.trailingSpace.space
+                    };
                 } else {
                     const space = previousStNode?.spaces?.endingTagSpace?.trailingSpace?.range?.end ? previousStNode.spaces.endingTagSpace.trailingSpace : previousStNode.spaces.startingTagSpace.trailingSpace;
                     addPosition = { position: space.range.end, trailingSpace: space.space };
@@ -976,30 +983,35 @@ export class NodeFactoryVisitor implements Visitor {
         inputMapping.tag = "query-inputMapping";
         inputMapping.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
         inputMapping.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.currentAddPosition = { position: { line: 1, character: 1 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: inputMapping, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.INPUT });
 
         const query = structuredClone(node);
         query.tag = "query-query";
         query.viewState.y = inputMapping.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         query.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.currentAddPosition = { position: { line: 1, character: 2 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: query, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.QUERY });
 
         const transformation = structuredClone(node);
         transformation.tag = "query-transformation";
         transformation.viewState.y = query.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         transformation.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.currentAddPosition = { position: { line: 1, character: 3 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: transformation, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.TRANSFORMATION });
 
         const outputMappings = structuredClone(node);
         outputMappings.tag = "query-outputMapping";
         outputMappings.viewState.y = transformation.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         outputMappings.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.currentAddPosition = { position: { line: 1, character: 4 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: outputMappings, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.OUTPUT });
 
         const endnode = structuredClone(node);
         endnode.tag = "end";
         endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+        this.currentAddPosition = { position: { line: 1, character: 5 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(endnode);
 

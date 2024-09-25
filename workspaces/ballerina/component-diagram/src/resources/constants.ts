@@ -77,6 +77,7 @@ export enum NodeTypes {
     ENTRY_NODE = "entry-node",
     CONNECTION_NODE = "connection-node",
     ACTOR_NODE = "actor-node",
+    BUTTON_NODE = "button-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -85,10 +86,14 @@ export const LOADING_OVERLAY = "loading-overlay";
 
 export const NEW_ENTRY = "new-entry";
 export const NEW_CONNECTION = "new-connection";
+export const NEW_COMPONENT = "new-component";
 export const ACTOR_SUFFIX = "-actor";
+
+export const NODE_LOCKED = true;
 
 // sizing
 export const ENTRY_NODE_WIDTH = 180;
+export const ENTRY_NODE_HEIGHT = ENTRY_NODE_WIDTH / 3;
 export const CON_NODE_WIDTH = 200;
 export const CON_NODE_HEIGHT = CON_NODE_WIDTH / 3;
 export const ACTOR_NODE_WIDTH = 50;

@@ -24,14 +24,20 @@ import {
     ConvertRegPathToAbsPathResponse,
     UpdateDMUndoRedoMangerRequest,
     GetCompletionsRequest,
-    GetCompletionsResponse
+    GetCompletionsResponse,
+    GetDMDiagnosticsRequest,
+    GetDMDiagnosticsResponse,
+    DMDiagnostic,
+    DMDiagnosticCategory,
+    IOType,
+    DataMapWriteRequest,
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions } from "../../util/dataMapper";
-import { Project } from "ts-morph";
-import { navigate } from "../../stateMachine";
+import { fetchIOTypes, fetchSubMappingTypes, fetchCompletions, fetchDiagnostics } from "../../util/dataMapper";
+import { StateMachine, navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
-import { updateDMC } from "../../util/tsBuilder";
+import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
+import * as vscode from 'vscode';
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
@@ -41,7 +47,9 @@ import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
-import {DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME} from "../../constants";
+import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL } from "../../constants";
+import { refreshAuthCode } from '../../ai-panel/auth';
+import { fetchBackendUrl, openSignInView, readTSFile, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -67,7 +75,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             const { filePath, functionName } = params;
             try {
                 const subMappingTypes = fetchSubMappingTypes(filePath, functionName);
-
                 return resolve({
                     variableTypes: subMappingTypes
                 });
@@ -100,7 +107,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
-            const { documentUri, overwriteSchema, resourceName, content, ioType, schemaType, configName } = params;
+            const { documentUri, overwriteSchema, content, ioType, schemaType, configName, typeName, csvDelimiter } = params;
             if (overwriteSchema) {
                 const response = await window.showInformationMessage(
                     "Are you sure you want to override the existing schema?\n\nPlease note that this will remove all existing mappings.",
@@ -116,7 +123,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (content) {
                 let schema: JSONSchema3or4;
                 try {
-                    schema = await generateSchemaFromContent(ioType, content, schemaType);
+                    schema = await generateSchemaFromContent(ioType, content, schemaType, csvDelimiter);
                 } catch (error: any) {
                     console.error(error);
                     window.showErrorMessage("Error while generating schema. Please check the input file and Resource Type and try again.");
@@ -124,7 +131,14 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 }
 
                 try {
-                    await updateDMC(configName, documentUri, schema, ioType);
+                    if (ioType === IOType.Input || ioType === IOType.Output)
+                        await updateTsFileIoTypes(configName, documentUri, schema, ioType);
+                    else if (ioType === IOType.Other && typeName)
+                        await updateTsFileCustomTypes(configName, documentUri, schema, typeName);
+                    else {
+                        throw new Error(`ioType or typeName issue : ${ioType},${typeName}`);
+                    }
+
                     await this.formatDMC(documentUri);
                     navigate();
                     return resolve({ success: true });
@@ -188,6 +202,167 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
+    async authenticateUser(): Promise<boolean> {
+        let token;
+        try {
+            // Get the user token from the secrets
+            token = await extension.context.secrets.get('MIAIUser');
+            if (!token) {
+                throw new Error('Token not available');
+            }
+            const url = await fetchBackendUrl() + USER_CHECK_BACKEND_URL;
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    token = await refreshAuthCode();
+                    if (!token) {
+                        throw new Error('Token refresh failed');
+                    }
+                    // retry the request with the new token
+                    response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error('Token verification failed after refresh');
+                    }
+                } else {
+                    throw new Error(`Error while checking token: ${response.statusText}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error while getting or refreshing user token: ', error);
+            showSignedOutNotification();
+            openSignInView();
+            return false;
+        }
+
+        return true;  // token is available and valid
+    }
+
+    // Function to ask whether the user wants to replace all existing mappings with ai generated mappings
+    async confirmMappingAction(): Promise<boolean> {
+        // Define the message based on the action
+        let message = "This will replace any existing mapping, with AI. Are you sure?";
+        // Show the confirmation dialog
+        const response = await window.showInformationMessage(
+            message,
+            { modal: true },
+            "Yes",
+            "No"
+        );
+        // If user confirms the action by choosing Yes, return true. Otherwise, return false.
+        if (!response || response === "No") {
+            return false;
+        }
+        return true;
+    }
+
+    //Function to update the body of a function in a TypeScript file
+    async writeDataMapping(params: DataMapWriteRequest): Promise<void> {
+        const { dataMapping } = params;
+        // sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
+        const sourcePath = StateMachine.context().dataMapperProps?.filePath;
+        if (sourcePath) {
+            try {
+                // Get the project from the sourcePath
+                const project = DMProject.getInstance(sourcePath).getProject();
+                // Get the source file from the project
+                const sourceFile = project.getSourceFileOrThrow(sourcePath);
+                // find the mapFunction declaration
+                const functionDeclaration = sourceFile.getFunction(READONLY_MAPPING_FUNCTION_NAME);
+
+                if (functionDeclaration) {
+                    // update the function body
+                    functionDeclaration.setBodyText(`${dataMapping}`);
+                    // write the updates to the file
+                    await sourceFile.save();
+                    navigate();
+                } else {
+                    console.error("Error in writing data mapping, mapFunction not found in target ts file.");
+                }
+            } catch (error) {
+                console.error('Failed to write data mapping to files: ', error);
+                throw error; // Rethrow the error to handle it further up the call stack if necessary
+            }
+        }
+    }
+
+    // Main function to get the mapping from OpenAI and write it to the relevant files
+    async getMappingFromAI(): Promise<void> {
+        try {
+            await this.writeDataMapping({ dataMapping: "" });
+            // Function to read the TypeScript file
+            let tsContent = await readTSFile();
+            const backendRootUri = await fetchBackendUrl();
+            const url = backendRootUri + DATAMAP_BACKEND_URL;
+            let token;
+            try {
+                // Get the user token from the secrets
+                token = await extension.context.secrets.get('MIAIUser');
+            }
+            catch (error) {
+                console.error('Error while getting user token.');
+                showSignedOutNotification();
+                openSignInView();
+                return; // If there is no token, return early to exit the function
+            }
+            let response;
+            try {
+                // Make a request to the backend to get the data mapping
+                response = await makeRequest(url, token, tsContent);
+            } catch (error) {
+                console.error('Error while making request to backend', error);
+                showMappingEndNotification();
+                openSignInView();
+                return; // If there is an error in the request, return early to exit the function
+            }
+            try {
+                interface DataMapResponse {
+                    mapping: string;
+                    event: string;
+                    usage: string;
+                }
+                // Parse the response from the request
+                const data = await response as DataMapResponse;
+                if (data.event === "data_mapping_success") {
+                    // Extract the mapping string and pass it to the writeDataMapping function
+                    const mappingString = data.mapping;
+                    // Remove the mapFunction line from the mapping string
+                    const mappingRet = removeMapFunctionEntry(mappingString);
+                    // Create an object of type DataMapWriteRequest
+                    const dataMapWriteRequest: DataMapWriteRequest = {
+                        dataMapping: mappingRet
+                    };
+                    await this.writeDataMapping(dataMapWriteRequest);
+                    // Show a notification to the user
+                    showMappingEndNotification();
+                }
+                else {
+                    // Log error or perform error handling
+                    console.error('Data mapping was not successful');
+                }
+            }
+            catch (error) {
+                console.error('Error while generating data mapping', error);
+                throw error;
+            }
+        }
+        catch (requestError) {
+            console.error('Error while making request to backend', requestError);
+            return;
+        }
+    }
+
     async createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return new Promise(async (resolve, reject) => {
             try {
@@ -209,7 +384,9 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
                     const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", `${DM_OPERATORS_FILE_NAME}.ts.lib`);
                     const operatorsDstFilePath = path.join(dataMapperConfigFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
-                    fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
+                    if (!fs.existsSync(operatorsDstFilePath)) {
+                        fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
+                    }
 
                     const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
                     if (!fs.existsSync(dmcFilePath)) {
@@ -221,7 +398,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             artifactName: dmName,
                             registryRoot: "gov",
                             registryPath: `/datamapper/${dmName}`,
-                            createOption : "entryOnly",
+                            createOption: "entryOnly",
                             content: ""
 
                         });
@@ -236,7 +413,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             artifactName: `${dmName}_inputSchema`,
                             registryRoot: "gov",
                             registryPath: `/datamapper/${dmName}`,
-                            createOption : "entryOnly",
+                            createOption: "entryOnly",
                             content: "{}"
 
                         });
@@ -251,7 +428,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                             artifactName: `${dmName}_outputSchema`,
                             registryRoot: "gov",
                             registryPath: `/datamapper/${dmName}`,
-                            createOption : "entryOnly",
+                            createOption: "entryOnly",
                             content: "{}"
 
                         });
@@ -303,5 +480,22 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
+    async getDMDiagnostics(params: GetDMDiagnosticsRequest): Promise<GetDMDiagnosticsResponse> {
+        const diagnostics = fetchDiagnostics(params.filePath);
+
+        const formattedDiagnostics: DMDiagnostic[] = diagnostics.map((diagnostic) => {
+            return {
+                messageText: typeof diagnostic.messageText !== "string"
+                    ? diagnostic.messageText.messageText : diagnostic.messageText,
+                category: diagnostic.category as unknown as DMDiagnosticCategory,
+                code: diagnostic.code,
+                start: diagnostic.start,
+                length: diagnostic.length,
+                source: diagnostic.source
+            };
+        });
+
+        return { diagnostics: formattedDiagnostics };
+    }
 }
 

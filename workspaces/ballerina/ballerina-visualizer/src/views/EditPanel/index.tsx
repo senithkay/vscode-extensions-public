@@ -51,6 +51,8 @@ export function EditPanel(props: EditPanelProps) {
                 componentInfo.connectorInfo.action = action;
             }
             setIsFetching(false);
+        } else {
+            setIsFetching(false);
         }
     };
 

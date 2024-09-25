@@ -42,6 +42,10 @@ export function GraphQLDiagram() {
         setGraphqlModel(response);
     };
 
+    const goToSource = (filePath: string, position: any) => {
+        rpcClient.getCommonRpcClient().goToSource({  position, filePath });
+    }
+
 
     return (
         <>
@@ -49,6 +53,7 @@ export function GraphQLDiagram() {
                 <GraphqlDesignDiagram
                     graphqlModelResponse={graphqlModdel}
                     filePath={visualizerLocation?.documentUri}
+                    goToSource={goToSource}
                 />
             }
         </>

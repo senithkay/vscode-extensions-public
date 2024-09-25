@@ -14,6 +14,7 @@ export interface ResponseConfig {
     id: number;
     code?: number;
     type?: string;
+    isTypeArray?: boolean;
     source?: string;
     isNew?: boolean;
     defaultCode?: number;

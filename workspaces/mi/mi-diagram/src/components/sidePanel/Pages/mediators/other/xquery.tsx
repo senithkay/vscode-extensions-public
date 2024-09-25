@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const XQueryForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -138,6 +138,7 @@ const XQueryForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["variables"] = getParamManagerValues(values.variables);
         const xml = getXML(MEDIATORS.XQUERY, values, dirtyFields, sidePanelContext.formValues);

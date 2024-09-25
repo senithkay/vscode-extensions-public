@@ -51,6 +51,7 @@ const zoomOut = keyframes`
 
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [isSelected, setIsSelected] = useState(false);
     const labelPosition = link.getLabelPosition();
     const addButtonPosition = link.getAddButtonPosition();
     const sidePanelContext = useContext(SidePanelContext);
@@ -60,7 +61,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             .getDiagnostics()
             .map((diagnostic) => diagnostic.message)
             .join("\n")
-        : undefined;
+        : link?.label?.length > 8 ? link.label : undefined;
 
     useEffect(() => {
         const onChange = (event: any) => {
@@ -73,6 +74,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             listener.deregister();
         };
     }, []);
+
+    useEffect(() => {
+        setIsSelected(sidePanelContext?.node === link);
+    }, [sidePanelContext?.node]);
 
     const handleAddNode = async () => {
         if (link.onAddClick) {
@@ -88,12 +93,14 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     end: rangeOrPosition,
                 };
             }
+            setIsSelected(true);
             await new Promise(resolve => setTimeout(resolve, 1));
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: true,
                 parentNode: link.getParentNode(),
                 previousNode: link.getPreviousNode(),
+                node: link,
                 nextNode: link.getNextNode(),
                 nodeRange: nodeRange,
                 trailingSpace: link.trailingSpace,
@@ -110,7 +117,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     };
 
     return (
-        <g pointerEvents={"all"} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <g pointerEvents={"auto"} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} data-testid={`link-${link.getID()}`}>
             <path
                 id={link.getID() + "-bg"}
                 d={link.getSVGPath()}
@@ -125,7 +132,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={isHovered || link.isSelected() ? Colors.SECONDARY : Colors.PRIMARY}
                 strokeWidth={2}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                markerEnd={link.showArrowToNode() && `url(#${link.getID()}-arrow-head)`}
+                {...(link.showArrowToNode() && { markerEnd: `url(#${link.getID()}-arrow-head)` })}
             />
             {link.label && (
                 <foreignObject x={labelPosition.x - 50} y={labelPosition.y - 20} width="100" height="100">
@@ -144,10 +151,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                     alignItems: "center",
                                     borderRadius: "20px",
                                     border: `2px solid ${link.hasDiagnotics()
-                                            ? Colors.ERROR
-                                            : link.showAddButton && isHovered
-                                                ? Colors.SECONDARY
-                                                : Colors.PRIMARY
+                                        ? Colors.ERROR
+                                        : link.showAddButton && isHovered
+                                            ? Colors.SECONDARY
+                                            : Colors.PRIMARY
                                         }`,
                                     backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                     padding: "2px 10px",
@@ -167,7 +174,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                         fontSize: "14px",
                                     }}
                                 >
-                                    {link.label}
+                                    {link.label.length > 8 ? `${link.label.substring(0, 8)}...` : link.label}
                                 </span>
                             </div>
                         </Tooltip>
@@ -181,6 +188,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     width="20"
                     height="30"
                     onClick={handleAddNode}
+                    data-testid={`add-mediator-button`}
                 >
                     <div
                         css={css`
@@ -205,7 +213,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
                             />
                             <path
-                                fill={isHovered ? Colors.SECONDARY : Colors.PRIMARY}
+                                fill={isHovered || isSelected ? Colors.SECONDARY : Colors.PRIMARY}
                                 d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                             />
                         </svg>

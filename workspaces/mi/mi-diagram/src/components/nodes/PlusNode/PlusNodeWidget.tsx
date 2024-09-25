@@ -86,6 +86,7 @@ export function PlusNodeWidget(props: CallNodeWidgetProps) {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
+            data-testid={`plusNode-${node.getID()}`}
         >
             <PortWidget port={node.getPort("in")!} engine={engine} />
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">

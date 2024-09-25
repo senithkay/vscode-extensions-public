@@ -10,13 +10,14 @@ import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { Button, Codicon, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { DMDiagnostic } from '@wso2-enterprise/mi-core';
 import { CallExpression, Node } from 'ts-morph';
 import classNames from 'classnames';
 
 import { ARRAY_FILTER_NODE_ELEMENT_HEIGHT } from '../../utils/constants';
 import { useDMExpressionBarStore } from '../../../../store/store';
 import { getFilterExpression } from '../../../../components/DataMapper/Header/utils';
-import { getDiagnostics } from '../../utils/diagnostics-utils';
+import { filterDiagnosticsForNode } from '../../utils/diagnostics-utils';
 import { getPosition, isPositionsEquals } from '../../utils/st-utils';
 
 
@@ -59,11 +60,12 @@ export interface FilterBarItemProps {
     index: number;
     filterNode: CallExpression;
     justAdded: boolean;
+    diagnostics: DMDiagnostic[];
     applyModifications: (fileContent: string) => Promise<void>;
 };
 
 export default function ArrayFilterItem(props: FilterBarItemProps) {
-    const { index, filterNode, justAdded, applyModifications } = props;
+    const { index, filterNode, justAdded, diagnostics: allDiagnostics, applyModifications } = props;
     const classes = useStyles();
 
     const [isFocused, setIsFocused] = useState(justAdded);
@@ -77,7 +79,7 @@ export default function ArrayFilterItem(props: FilterBarItemProps) {
     }));
 
     const filterExpr = filterNode && !filterNode.wasForgotten() && getFilterExpression(filterNode);
-    const diagnostics = filterExpr && getDiagnostics(filterExpr);
+    const diagnostics = filterExpr && filterDiagnosticsForNode(allDiagnostics, filterExpr);
     const isEmptyExpr = filterExpr && filterExpr.getText() === "";
     const hasDiagnostics = diagnostics && diagnostics.length > 0;
     const diagnosticMsg = hasDiagnostics

@@ -31,7 +31,7 @@ import {
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getPosition, traversNode } from "../../utils/st-utils";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 
@@ -139,7 +139,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             );
 
             if (inPort && mappedOutPort) {
-                const diagnostics = getDiagnostics(otherVal || value);
+                const diagnostics = filterDiagnosticsForNode(this.context.diagnostics, otherVal || value);
                 const lm = new DataMapperLinkModel(value, diagnostics, true, undefined);
                 const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
                 const keepDefault = ((

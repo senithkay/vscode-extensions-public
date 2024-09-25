@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const EJBForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -117,6 +117,7 @@ const EJBForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["methodArguments"] = getParamManagerValues(values.methodArguments);
         const xml = getXML(MEDIATORS.EJB, values, dirtyFields, sidePanelContext.formValues);

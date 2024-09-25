@@ -10,7 +10,7 @@
 export function getAddAPITemplate() {
     return `<?xml version="1.0" encoding="UTF-8" ?>
     <api context="{{context}}" name="{{name}}"{{#version}} version="{{version}}"{{/version}}{{#versionType}} version-type="{{versionType}}"{{/versionType}} xmlns="http://ws.apache.org/ns/synapse">
-        <resource methods="GET" uri-template="/resource">
+        <resource methods="GET" uri-template="/">
             <inSequence>
             </inSequence>
             <faultSequence>
@@ -49,7 +49,7 @@ export const getEditAPIResourceTemplate = () => {
 }
 
 export const getEditSequenceTemplate = () => {
-    return `<sequence name="{{name}}"{{#trace}} trace="{{trace}}"{{/trace}}{{#statistics}} statistics="{{statistics}}"{{/statistics}}{{#onError}} onError="{{onError}}"{{/onError}}>`
+    return `<sequence name="{{name}}"{{#trace}} trace="{{trace}}"{{/trace}}{{#statistics}} statistics="{{statistics}}"{{/statistics}}{{#onError}} onError="{{onError}}"{{/onError}} xmlns="http://ws.apache.org/ns/synapse">`
 }
 
 export const getEditProxyProxyTemplate = () => {

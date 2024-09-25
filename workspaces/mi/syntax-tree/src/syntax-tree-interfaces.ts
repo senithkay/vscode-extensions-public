@@ -418,6 +418,8 @@ export interface InboundEndpoint extends STNode {
     parameters: InboundEndpointParameters[];
     name: string;
     sequence: string;
+    sequenceModel: NamedSequence | undefined;
+    sequenceURI: string | undefined;
     protocol: string;
     onError: string;
     suspend: boolean;
@@ -1803,6 +1805,7 @@ export interface Connector extends STNode {
     connectorName: string;
     method: string;
     parameters: ConnectorParameter[];
+    configKey?: string;
 }
 
 export interface ConnectorParameter extends STNode {

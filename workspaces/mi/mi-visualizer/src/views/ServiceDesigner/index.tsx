@@ -291,7 +291,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         <>
             {serviceModel && (
                 <View>
-                    <ViewHeader title="Service Designer" codicon="globe" onEdit={handleServiceEdit}>
+                    <ViewHeader title="Service Designer" icon="APIResource" onEdit={handleServiceEdit}>
                         <VSCodeButton appearance="secondary" title="Edit OpenAPI Definition" onClick={editOpenAPISpec}>
                             <Codicon name="edit" sx={{ marginRight: 5 }} /> OpenAPI Spec
                         </VSCodeButton>

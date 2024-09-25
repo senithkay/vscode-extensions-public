@@ -30,19 +30,21 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
             config.request = 'launch';
         }
 
+        config.internalConsoleOptions =  config.noDebug ? 'neverOpen' : 'openOnSessionStart';
+
         return config;
     }
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
 
-    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean) => {
+    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean, postBuildTask?: Function) => {
         getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            await executeBuildTask(serverPath, shouldCopyTarget);
+            await executeBuildTask(serverPath, shouldCopyTarget, postBuildTask);
         });
     });
 
@@ -115,10 +117,12 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                     name: 'MI: Run',
                     request: 'launch',
                     noDebug: true,
+                    internalConsoleOptions:'neverOpen'
                 };
             } else {
                 config.name = 'MI: Run';
                 config.noDebug = true;
+                config.internalConsoleOptions = 'neverOpen';
             }
 
             try {

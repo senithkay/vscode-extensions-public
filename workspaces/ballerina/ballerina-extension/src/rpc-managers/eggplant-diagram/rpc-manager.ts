@@ -385,7 +385,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
-        console.log(">>> Savineadme.md", params);
+        // console.log(">>> Savineadme.md", params);
         return new Promise((resolve) => {
             const projectUri = StateMachine.context().projectUri;
             const readmePath = path.join(projectUri, README_FILE);

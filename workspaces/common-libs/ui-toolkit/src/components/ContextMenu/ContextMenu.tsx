@@ -226,6 +226,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                 {menuItems?.map(item => (
                                     <VSCodeDataGridFlexRow
                                         key={item.id}
+                                        data-testid={`context-menu-${item.id}`}
                                         onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
                                             if (!item?.disabled) {
                                                 event.stopPropagation();

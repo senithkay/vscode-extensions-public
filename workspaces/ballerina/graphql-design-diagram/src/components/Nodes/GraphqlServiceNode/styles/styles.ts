@@ -8,8 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-
-import { Colors } from "../../../resources/model";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 interface StyleProps {
     isNew?: boolean;
@@ -18,30 +17,11 @@ interface StyleProps {
     awaitLinking?: boolean;
 }
 
-export const ServiceNode: React.FC<any> = styled.div`
-  background-color: ${Colors.SECONDARY};
-  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-  color: ${Colors.PRIMARY};
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  min-height: 32px;
-  min-width: 160px;
-`;
-
-export const ServiceName: React.FC<any> = styled.span`
-  margin-left: 8px;
-`;
-
 export const FunctionContainer: React.FC<any> = styled.div`
   align-items: center;
-  background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-  border-bottom: 0.5px solid #cccde3;
-  color: #000000;
+  background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.ON_SECONDARY : ThemeColors.SURFACE_DIM};
+  border-bottom: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
+  color:${ThemeColors.ON_SURFACE};
   display: flex;
   flex-direction: row;
   font-family: GilmerRegular;
@@ -52,22 +32,4 @@ export const FunctionContainer: React.FC<any> = styled.div`
   min-width: calc(100% - 16px);
   padding: 8px 0px 8px 8px;
   text-align: center;
-`;
-
-export const ResourceAction: React.FC<any> = styled.div`
-  background-color: ${(props: { color: string }) => `${props.color}`};
-  border-radius: 5px;
-  height: 22px;
-  line-height: 22px;
-  margin-right: 8px;
-  width: 50px;
-`;
-
-export const ResourceName: React.FC<any> = styled.div`
-  display: flex;
-  flex: 1;
-  height: 30px;
-  line-height: 30px;
-  text-align: left;
-  white-space: nowrap;
 `;

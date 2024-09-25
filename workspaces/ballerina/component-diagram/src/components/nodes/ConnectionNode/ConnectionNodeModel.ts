@@ -9,8 +9,9 @@
 
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
 import { Connection } from "../../../utils/types";
+import { getNodeId } from "../../../utils/diagram";
 
 export class ConnectionNodeModel extends NodeModel {
     readonly node: Connection;
@@ -19,9 +20,9 @@ export class ConnectionNodeModel extends NodeModel {
 
     constructor(node: Connection) {
         super({
-            id: node.id,
+            id: getNodeId(NodeTypes.CONNECTION_NODE, node.id),
             type: NodeTypes.CONNECTION_NODE,
-            // locked: true,
+            locked: NODE_LOCKED,
         });
         this.node = node;
         this.addInPort("in");

@@ -58,9 +58,9 @@ export function ResponseEditor(props: ParamProps) {
         onChange({ ...response, code: Number(code), source: "" });
     };
 
-    const handleTypeChange = (value: string) => {
+    const handleTypeChange = (value: string, isArray: boolean) => {
         handleDefinedName(Number(response.code), value);
-        onChange({ ...response, type: value, source: "" });
+        onChange({ ...response, type: value, isTypeArray: isArray, source: "" });
     };
 
     const handleNamedTypeChange = (value: string) => {
@@ -123,6 +123,7 @@ export function ResponseEditor(props: ParamProps) {
                     borderBox={isBallerniaExt}
                     label="Type"
                     selectedItem={response.type}
+                    isTypeArray={response.isTypeArray}
                     onChange={handleTypeChange}
                     applyModifications={applyModifications}
                 />

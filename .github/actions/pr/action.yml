@@ -92,8 +92,8 @@ runs:
           git remote set-url origin https://${{ inputs.bot_username }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
           git tag ${{ inputs.version }}
           git push origin "refs/heads/${{ inputs.version }}" "refs/tags/${{ inputs.version }}"
-          pr=$(gh pr create -B main -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into main' --body '$subject')
-          gh pr create -B "${{ inputs.ref_name }}" -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into "${{ inputs.ref_name }}"' --body '$subject'
+          pr=$(gh pr create -B release-mi -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into release-mi' --body '$subject')
+          gh pr create -B "main" -H "release-mi" --title 'Merge "release-mi" into "main"' --body '$subject'
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ inputs.bot_token }}

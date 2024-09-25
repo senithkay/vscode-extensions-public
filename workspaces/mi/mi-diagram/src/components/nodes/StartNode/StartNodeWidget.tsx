@@ -68,7 +68,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     };
 
     return (
-        <S.Node>
+        <S.Node data-testid={`startNode-${node.getID()}`}>
             <PortWidget port={node.getPort("in")!} engine={engine} />
             {getSVGNode()}
             <PortWidget port={node.getPort("out")!} engine={engine} />

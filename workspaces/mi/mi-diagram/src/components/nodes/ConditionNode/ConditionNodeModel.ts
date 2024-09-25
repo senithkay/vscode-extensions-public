@@ -8,10 +8,12 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class ConditionNodeModel extends BaseNodeModel {
+    readonly nodeWidth = NODE_DIMENSIONS.CONDITION.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.CONDITION.HEIGHT;
 
     constructor(stNode: STNode, mediatorName:string, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super(NodeTypes.CONDITION_NODE, mediatorName, documentUri, stNode, parentNode, prevNodes);

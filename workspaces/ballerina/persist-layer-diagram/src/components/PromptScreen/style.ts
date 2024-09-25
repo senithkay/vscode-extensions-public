@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { css } from '@emotion/css';
-import { Colors } from '../../resources';
+import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 export const useStyles = () => ({
     button: css({
-        backgroundColor: Colors.PRIMARY,
+        backgroundColor: ThemeColors.PRIMARY,
         borderRadius: '5px',
         color: 'white',
         fontSize: '12px',
         marginInline: '5px',
         minWidth: '140px',
         '&:hover': {
-            backgroundColor: Colors.PRIMARY_LIGHT
+            backgroundColor: ThemeColors.PRIMARY_CONTAINER
         }
     }),
     container: css({
@@ -32,7 +32,7 @@ export const useStyles = () => ({
         width: '100vw'
     }),
     messageBox: css({
-        color: '#6b6b6b',
+        color: `${ThemeColors.ON_SURFACE}`,
         fontFamily: 'GilmerRegular',
         fontSize: '16px',
         padding: '10px'

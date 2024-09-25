@@ -48,6 +48,8 @@ import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/C
 import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/Eggplant/DiagramWrapper";
+import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
+import ComponentDiagramV2 from "./views/Eggplant/ComponentDiagramV2";
 
 const globalStyles = css`
     *,
@@ -150,6 +152,9 @@ const MainPanel = () => {
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
+                    case MACHINE_VIEW.OverviewV2:
+                        setViewComponent(<ComponentDiagramV2 stateUpdated />);
+                        break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
                             <ServiceDesigner
@@ -198,6 +203,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.EggplantServiceForm:
                         setViewComponent(<ServiceForm />);
+                        break;
+                    case MACHINE_VIEW.AddConnectionWizard:
+                        setViewComponent(<AddConnectionWizard />);
                         break;
                     default:
                         setNavActive(false);
@@ -262,9 +270,7 @@ const MainPanel = () => {
                 )}
                 {typeof popupState === "object" && "open" in popupState && (
                     <PopUpContainer>
-                        <FormView title="" onClose={handleOnClose}>
-                            <PopupPanel formState={popupState} />
-                        </FormView>
+                        <PopupPanel onClose={handleOnClose} formState={popupState} />
                     </PopUpContainer>
                 )}
                 {sidePanel !== "EMPTY" && sidePanel === "ADD_ACTION" && (

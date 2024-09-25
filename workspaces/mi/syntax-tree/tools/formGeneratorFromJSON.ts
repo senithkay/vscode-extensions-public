@@ -74,10 +74,13 @@ function generateEnabledCondition(enableCondition: any, indentation: number, isS
     let conditions = "";
 
     const getCondition = (condition: string, value: string) => {
+        const watchExpression = condition.includes('.')
+            ? `watch("${condition.split('.')[0]}").${condition.split('.')[1]}`
+            : `watch("${condition}")`;
         if (typeof value === "boolean" || value === "true" || value === "false") {
-            return `watch("${condition}") == ${value}`;
+            return `${watchExpression} == ${value}`;
         } else {
-            return `watch("${condition}") == "${value}"`;
+            return `${watchExpression} == "${value}"`;
         }
     }
 
@@ -163,7 +166,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
 
     const tableKeys: string[] = [];
     elements.forEach((attribute: any, index: number) => {
-        const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
+        const { name, displayName, enableCondition, inputType, required, comboValues, helpTip, validation, validationRegEx } = attribute.value;
         let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
         defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
 
@@ -196,6 +199,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
                 type: type,
                 label: displayName,
                 defaultValue: defaultValue,
+                ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
@@ -261,6 +265,7 @@ const generateForm = (jsonData: any): string => {
     let fields = '';
     let defaultValues = '';
     let valueChanges = '';
+    let placeholders = '';
     const keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
@@ -270,6 +275,24 @@ const generateForm = (jsonData: any): string => {
             if (enableCondition) {
                 fields += generateEnabledCondition(enableCondition, indentation);
                 indentation += 4;
+            }
+            // Create placeholder map if conditional placeholder is needed.
+            let placeholder: string;
+            if (helpTip && Array.isArray(helpTip.values)) {
+                placeholder = `{${name}Placeholders[watch("${helpTip.conditionField}")]}`
+                let placeholderVariable = `const ${name}Placeholders:{[key:string]:string} = {\n`;
+                helpTip.values.forEach((item: any, index: number) => {
+                    const key: string = Object.keys(item)[0];
+                    const value = item[key];
+                    placeholderVariable += `  "${key}": ${JSON.stringify(value)}`;
+                    if (index < helpTip.values.length - 1) {
+                        placeholderVariable += ",\n";
+                    }
+                });
+                placeholderVariable += "\n};";
+                placeholders += placeholderVariable;
+            } else {
+                placeholder = "\"" + helpTip + "\"";
             }
 
             if (element.type === 'attribute') {
@@ -281,7 +304,7 @@ const generateForm = (jsonData: any): string => {
 
                 const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
-                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression') ? `
+                const rules = isRequired || validation ? fixIndentation((inputType === 'stringOrExpression' || inputType === 'expression' || inputType === 'keyOrExpression') ? `
                 {
                     validate: (value) => {
                         if (!value?.value || value.value === "") {
@@ -310,19 +333,19 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} errorMsg={${errMsg}} />`, indentation);
+                        <TextArea {...field} label="${displayName}" placeholder=${placeholder} required={${isRequired}} errorMsg={${errMsg}} />`, indentation);
                 } else if (inputType === 'codeTextArea') {
 
                     fields +=
                         fixIndentation(`
-                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" required={${isRequired}} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={${errMsg}} />`, indentation);
+                        <CodeTextArea {...field} label="${displayName}" placeholder=${placeholder} required={${isRequired}} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={${errMsg}} />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
                     defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
                         fixIndentation(`
                         <ExpressionField 
                             {...field} label="${displayName}"
-                            placeholder="${helpTip}"
+                            placeholder=${placeholder}
                             required={${isRequired}}
                             errorMsg={${errMsg}}
                             canChange={${inputType === 'stringOrExpression'}}
@@ -399,43 +422,57 @@ const generateForm = (jsonData: any): string => {
                     fields +=
                         fixIndentation(checkboxStr, indentation);
                 } else if (inputType === 'key' || inputType === 'comboOrKey') {
-                    const filterType = element.value.keyType;
-
+                    const filterType = Array.isArray(element.value.keyType)
+                        ? `{[${element.value.keyType.map((item: string) => `'${item}'`).join(',')}]}`
+                        : `'${element.value.keyType}'`;
                     let addNewStr = '';
-                    if (inputType === 'comboOrKey') {
+                    if (inputType === 'comboOrKey' && !Array.isArray(filterType)) {
                         addNewStr = `
                         onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                            openPopup(rpcClient, "${filterType}", fetchItems, handleValueChange);
+                            openPopup(rpcClient, ${filterType}, fetchItems, handleValueChange);
                         }}`;
                     }
+                    const additionalItems = element.value.comboValues;
 
                     const comboStr = `
                         <Keylookup
                             value={field.value}${element.value.keyType ? `
-                            filterType='${filterType}'` : ''}
+                            filterType=${filterType}` : ''}
                             label="${element.value.displayName}"
                             allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
                             onValueChange={field.onChange}
                             required={${isRequired}}
-                            errorMsg={${errMsg}}
+                            errorMsg={${errMsg}} ${additionalItems !== undefined ? `
+                            additionalItems={${JSON.stringify(additionalItems)}}` : ``}
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
                 } else if (inputType === 'keyOrExpression') {
-                    const filterType = element.value.keyType;
-
+                    defaultValue = { isExpression: false, value: "" }
+                    const filterType = Array.isArray(element.value.keyType)
+                        ? `{[${element.value.keyType.map((item: string) => `'${item}'`).join(',')}]}`
+                        : `'${element.value.keyType}'`;
+                    const additionalItems = element.value.comboValues;
+                    let addNewStr = '';
+                    if (element.value.isCreateNew) {
+                        addNewStr = `
+                        onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                            openPopup(rpcClient, ${filterType}, fetchItems, handleValueChange);
+                        }}`;
+                    }
                     const keyOrExpStr = `
                         <FormKeylookup
                         control={control}
                         name='${element.value.name}'
                         label="${element.value.displayName}"
-                        filterType='${filterType}'
+                        filterType=${filterType}
                         allowItemCreate={false}
                         required={${element.value.required}}
                         errorMsg={errors?.${element.value.name}?.message?.toString()}
-                        canChangeEx={true}
+                        canChangeEx={true} ${addNewStr}
                         exprToggleEnabled={true}
-                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)} ${additionalItems !== undefined ? `
+                        additionalItems={${JSON.stringify(additionalItems)}}` : ``}
                     />`;
                     fields +=
                         fixIndentation(keyOrExpStr, indentation);
@@ -443,7 +480,7 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(`
-                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" required={${isRequired}} errorMsg={${errMsg}} />`, indentation);
+                        <TextField {...field} label="${displayName}" size={50} placeholder=${placeholder} required={${isRequired}} errorMsg={${errMsg}} />`, indentation);
                 }
 
                 defaultValues +=
@@ -507,14 +544,25 @@ const generateForm = (jsonData: any): string => {
                 valueChanges += fixIndentation(`
                     values["${inputName}"] = getParamManagerValues(values.${inputName});`, 8);
 
+                let rules = element.required ? `{
+                        validate: (value) => {
+                            if (!value.paramValues || value.paramValues.length === 0) {
+                                return "This table is required";
+                            }
+                            return true;
+                        },
+                    }` : '';
+
                 fields += fixIndentation(`
                     <Controller
                         name="${inputName}"
-                        control={control}
+                        control={control}${rules ? `
+                        rules={${rules}}` : ''}
                         render={({ field: { onChange, value } }) => (
                             <ParamManager
                                 paramConfigs={value}
-                                readonly={false}
+                                readonly={false}${rules ? `
+                                errorMessage={errors?.${inputName}?.message?.toString()}` : ''}
                                 onChange= {(values) => {
                                     ${getParamManagerOnChange("values", elements, value.tableKey, value.tableValue)}
                                     onChange(values);
@@ -579,12 +627,12 @@ const Field = styled.div\`
 \`;
 
 const ${operationNameCapitalized} = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
-    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();${placeholders ? "\n" + placeholders : ''}
 
     useEffect(() => {
         reset({${defaultValues}
@@ -599,6 +647,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         ${valueChanges}
         const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;

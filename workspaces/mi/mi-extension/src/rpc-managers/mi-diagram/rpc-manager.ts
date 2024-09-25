@@ -201,12 +201,22 @@ import {
     WriteContentToFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
+    GetSTFromUriRequest,
     getSTResponse,
     onSwaggerSpecReceived,
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    onDownloadProgress,
+    AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DSSQueryGenRequest,
+    AddDriverToLibResponse,
+    AddDriverToLibRequest,
+    APIContextsResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -226,7 +236,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
+import { APIS, COMMANDS, DEFAULT_PROJECT_VERSION, LAST_EXPORTED_CAR_PATH, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -246,6 +256,7 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { importCapp } from "../../util/importCapp";
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -266,11 +277,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
+        const isGetSTFromUriRequest = (params: any): params is GetSTFromUriRequest => {
+            return (params as GetSTFromUriRequest).documentUri !== undefined;
+        };
+
+        let documentUri = '';
+        if (isGetSTFromUriRequest(params)) {
+            documentUri = params.documentUri;
+        } else {
+            const projectUri = StateMachine.context().projectUri!;
+            documentUri = path.join(
+                projectUri,
+                'src',
+                'main',
+                'wso2mi',
+                'artifacts',
+                params.artifactType,
+                params.artifactName
+            );
+        }
+
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getSyntaxTree({
                 documentIdentifier: {
-                    uri: params.documentUri
+                    uri: documentUri
                 },
             });
 
@@ -458,7 +489,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let expectedFileName = `${apiName}${version ? `_v${version}` : ''}`;
             if (path.basename(documentUri).split('.')[0] !== expectedFileName) {
-                this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
+                await this.renameFile({ existingPath: documentUri, newPath: path.join(path.dirname(documentUri), `${expectedFileName}.xml`) });
                 documentUri = path.join(path.dirname(documentUri), `${expectedFileName}.xml`);
             }
 
@@ -599,7 +630,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -667,7 +698,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -725,7 +756,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -781,7 +812,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateParams.name);
+                const filePath = await this.getFilePath(directory, templateParams.name);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -837,7 +868,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (directory.includes('localEntries')) {
                 directory = directory.replace('localEntries', 'local-entries');
             }
-            const filePath = this.getFilePath(directory, name);
+            const filePath = await this.getFilePath(directory, name);
 
             if (params.getContentOnly) {
                 resolve({ filePath: "", fileContent: xmlData });
@@ -877,22 +908,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (jsonData.localEntry["#text"]) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
-                    } else if (firstEntryKey) {
-                        response.type = "In-Line XML Entry";
-                        const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                        if (firstEntryKey) {
-                            const xmlObj = {
-                                [firstEntryKey]: {
-                                    ...jsonData.localEntry[firstEntryKey]
-                                }
-                            }
-                            const builder = new XMLBuilder(options);
-                            let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
-                            response.inLineXmlValue = xml;
-                        }
                     } else if (jsonData.localEntry["@_"]["src"]) {
                         response.type = "Source URL Entry";
                         response.sourceURL = jsonData.localEntry["@_"]["src"];
+                    } else if (firstEntryKey) {
+                        response.type = "In-Line XML Entry";
+                        const xmlObj = {
+                            [firstEntryKey]: {
+                                ...jsonData.localEntry[firstEntryKey]
+                            }
+                        }
+                        const builder = new XMLBuilder(options);
+                        let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
+                        response.inLineXmlValue = xml;
                     }
                 }
                 resolve(response);
@@ -914,7 +942,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (getTemplateParams.directory.includes('messageStores')) {
                 getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores');
             }
-            const filePath = this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
+            const filePath = await this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -1075,7 +1103,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (response.type !== 'Custom Message Store') {
                         parameters.forEach((param: Parameter) => {
                             if (MessageStoreModel.hasOwnProperty(param.name)) {
-                                response[MessageStoreModel[param.name]] = param.value;
+                                if (MessageStoreModel[param.name] === "jmsAPIVersion") {
+                                    response.jmsAPIVersion = Number(param.value).toFixed(1);
+                                } else {
+                                    if (param.value != null) {
+                                        response[MessageStoreModel[param.name]] = param.value;
+                                    }
+                                }
                             }
                         });
                         if (response.queueConnectionFactory) {
@@ -1104,7 +1138,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (directory.includes('inboundEndpoints')) {
                 directory = directory.replace('inboundEndpoints', 'inbound-endpoints');
             }
-            const filePath = this.getFilePath(directory, attributes.name as string);
+            const filePath = await this.getFilePath(directory, attributes.name as string);
 
             const xmlData = getInboundEndpointXmlWrapper({ attributes, parameters });
 
@@ -1113,7 +1147,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sequenceList = endpointsAndSequences.data[1];
             const projectDir = (await this.getProjectRoot({ path: directory })).path;
 
-            let sequencePath = "";
             if (attributes.sequence) {
                 if (!(sequenceList.includes(attributes.sequence as string))) {
 
@@ -1128,9 +1161,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         trace: false
                     };
                     const response = await this.createSequence(sequenceRequest);
-                    sequencePath = response.filePath;
-                } else {
-                    sequencePath = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'sequences', `${attributes.sequence as string}.xml`);
                 }
             }
 
@@ -1152,7 +1182,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             await replaceFullContentToFile(filePath, xmlData);
-            resolve({ path: sequencePath });
+            resolve({ path: filePath });
         });
     }
 
@@ -1248,6 +1278,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve({ data: [] });
+        });
+    }
+
+    async getAllAPIcontexts(): Promise<APIContextsResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const artifacts = (resp.directoryMap as any).src.main.wso2mi.artifacts;
+
+                const contexts: string[] = [];
+
+                for (const api of artifacts.apis) {
+                    contexts.push(api.context);
+                }
+
+                resolve({ contexts: contexts });
+            }
+
+            resolve({ contexts: [] });
         });
     }
 
@@ -1385,7 +1439,7 @@ ${endpointAttributes}
             };
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
-            const filePath = this.getFilePath(directory, templateParams.name);
+            const filePath = await this.getFilePath(directory, templateParams.name);
             if (params.sequence) {
                 await this.createSequence(params.sequence);
             }
@@ -1416,15 +1470,18 @@ ${endpointAttributes}
                     implementation: jsonData.task["@_"]["@_class"],
                     pinnedServers: jsonData.task["@_"]["@_pinnedServers"],
                     triggerType: 'simple',
-                    triggerCount: 1,
+                    triggerCount: null,
                     triggerInterval: 1,
                     triggerCron: '',
                     taskProperties: []
                 };
 
-                if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
-                    response.triggerCount = Number(jsonData.task.trigger["@_"]["@_count"]);
+                if (jsonData.task.trigger["@_"]["@_once"] !== undefined) {
+                    response.triggerCount = 1;
+                } else if (jsonData.task.trigger["@_"]["@_interval"] !== undefined) {
                     response.triggerInterval = Number(jsonData.task.trigger["@_"]["@_interval"]);
+                    response.triggerCount = jsonData.task.trigger["@_"]?.["@_count"] != null ?
+                        Number(jsonData.task.trigger["@_"]["@_count"]) : null;
                 }
                 else if (jsonData.task.trigger["@_"]["@_cron"] !== undefined) {
                     response.triggerType = 'cron';
@@ -1497,7 +1554,7 @@ ${endpointAttributes}
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
-                const filePath = this.getFilePath(directory, templateName);
+                const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1606,7 +1663,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getHttpEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1778,7 +1835,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getAddressEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1882,7 +1939,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getWsdlEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -1988,7 +2045,7 @@ ${endpointAttributes}
             } else {
                 const { templateName, endpointName } = getDefaultEndpointParams;
                 const fileName = templateName?.length > 0 ? templateName : endpointName;
-                const filePath = this.getFilePath(directory, fileName);
+                const filePath = await this.getFilePath(directory, fileName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
@@ -2398,7 +2455,7 @@ ${endpointAttributes}
             if (directory.includes('messageProcessors')) {
                 directory = directory.replace('messageProcessors', 'message-processors');
             }
-            const filePath = this.getFilePath(directory, messageProcessorName);
+            const filePath = await this.getFilePath(directory, messageProcessorName);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -2730,7 +2787,7 @@ ${endpointAttributes}
 
     async importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
         return new Promise(async (resolve) => {
-            resolve(importProject(params));
+            resolve(importCapp(params));
         });
     }
 
@@ -3074,6 +3131,32 @@ ${endpointAttributes}
                     responseType: 'stream',
                     headers: {
                         'User-Agent': 'My Client'
+                    },
+                    onDownloadProgress: (progressEvent) => {
+                        const totalLength = progressEvent.total || 0;
+                        if (totalLength !== 0) {
+                            const progress = Math.round((progressEvent.loaded * 100) / totalLength);
+
+                            const formatSize = (sizeInBytes: number) => {
+                                const sizeInKB = sizeInBytes / 1024;
+                                if (sizeInKB < 1024) {
+                                    return `${Math.floor(sizeInKB)} KB`;
+                                } else {
+                                    return `${Math.floor(sizeInKB / 1024)} MB`;
+                                }
+                            };
+
+                            // Notify the visualizer
+                            RPCLayer._messenger.sendNotification(
+                                onDownloadProgress,
+                                { type: 'webview', webviewType: VisualizerWebview.viewType },
+                                {
+                                    percentage: progress,
+                                    downloadedAmount: formatSize(progressEvent.loaded),
+                                    downloadSize: formatSize(totalLength)
+                                }
+                            );
+                        }
                     }
                 });
 
@@ -3173,18 +3256,26 @@ ${endpointAttributes}
         return { formJSON: formJSON };
     }
 
-    undo(params: UndoRedoParams): void {
-        const lastsource = undoRedo.undo();
-        if (lastsource) {
-            fs.writeFileSync(params.path, lastsource);
-        }
+    undo(params: UndoRedoParams): Promise<boolean> {
+        return new Promise((resolve) => {
+            const lastsource = undoRedo.undo();
+            if (lastsource) {
+                fs.writeFileSync(params.path, lastsource);
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
 
-    redo(params: UndoRedoParams): void {
-        const lastsource = undoRedo.redo();
-        if (lastsource) {
-            fs.writeFileSync(params.path, lastsource);
-        }
+    redo(params: UndoRedoParams): Promise<boolean> {
+        return new Promise((resolve) => {
+            const lastsource = undoRedo.redo();
+            if (lastsource) {
+                fs.writeFileSync(params.path, lastsource);
+                return resolve(true);
+            }
+            return resolve(false);
+        });
     }
 
     async initUndoRedoManager(params: UndoRedoParams): Promise<void> {
@@ -3238,7 +3329,7 @@ ${endpointAttributes}
                 canSelectFiles: params.canSelectFiles,
                 canSelectFolders: params.canSelectFolders,
                 canSelectMany: params.canSelectMany,
-                defaultUri: Uri.file(os.homedir()),
+                defaultUri: params.defaultUri ? Uri.file(params.defaultUri) : Uri.file(os.homedir()),
                 title: params.title,
                 ...params.openLabel && { openLabel: params.openLabel },
             });
@@ -3485,7 +3576,7 @@ ${endpointAttributes}
             if (directory.includes('dataSources')) {
                 directory = directory.replace('dataSources', 'data-sources');
             }
-            const filePath = this.getFilePath(directory, params.name);
+            const filePath = await this.getFilePath(directory, params.name);
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
@@ -3582,6 +3673,71 @@ ${endpointAttributes}
         });
     }
 
+    async askDriverPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDriverPath = await askDriverPath();
+            if (!selectedDriverPath || selectedDriverPath.length === 0) {
+                window.showErrorMessage('A file must be selected as the driver');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDriverPath[0].fsPath;
+                resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async addDriverToLib(params: AddDriverToLibRequest): Promise<AddDriverToLibResponse> {
+        const { url } = params;
+        // Copy the file from url to the lib directory
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const libDirectory = path.join(rootPath, 'deployment', 'libs');
+
+            // Ensure the lib directory exists
+            if (!fs.existsSync(libDirectory)) {
+                fs.mkdirSync(libDirectory, { recursive: true });
+            }
+
+            // Get the file name from the URL
+            const fileName = path.basename(url);
+            const destinationPath = path.join(libDirectory, fileName);
+
+            // Copy the file
+            await fs.promises.copyFile(url, destinationPath);
+
+            return { path: destinationPath };
+
+        } catch (error) {
+            console.error('Error adding driver', error);
+            throw new Error('Failed to add driver');
+        }
+    }
+
+    async deleteDriverFromLib(params: AddDriverToLibRequest): Promise<void> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('Currently no workspace is opened');
+        }
+        const rootPath = workspaceFolders[0].uri.fsPath;
+        const libDirectory = path.join(rootPath, 'deployment', 'libs');
+        const fileName = path.basename(params.url);
+        const filePath = path.join(libDirectory, fileName);
+        if (fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+            } catch (error) {
+                console.error(`Error deleting the file at ${filePath}:`, error);
+            }
+        } else {
+            console.error(`File not found at ${filePath}`);
+        }
+    }
+
     async getIconPathUri(params: GetIconPathUriRequest): Promise<GetIconPathUriResponse> {
         return new Promise(async (resolve) => {
             if (VisualizerWebview.currentPanel) {
@@ -3606,11 +3762,8 @@ ${endpointAttributes}
             const { connectionName, keyValuesXML, directory } = params;
             const localEntryPath = directory;
 
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8"?>
-    <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
-        ${keyValuesXML}
-    </localEntry>`;
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+${keyValuesXML}`;
 
             const filePath = path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
@@ -3741,6 +3894,43 @@ ${endpointAttributes}
         });
     }
 
+    async updateArtifactInRegistry(filePath: string, newFileName: string): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const fileName = path.basename(filePath);
+            const options = {
+                ignoreAttributes: false,
+                attributeNamePrefix: "@",
+                parseTagValue: true,
+                format: true,
+            };
+            const parser = new XMLParser(options);
+            const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
+            const artifactXMLPath = path.join(projectDir ?? "", 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+            if (!fs.existsSync(artifactXMLPath)) {
+                resolve(false);
+            }
+            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+            const artifactXMLData = parser.parse(artifactXML);
+            if (Array.isArray(artifactXMLData.artifacts.artifact)) {
+                var artifacts = artifactXMLData.artifacts.artifact;
+                artifacts.forEach((artifact: any) => {
+                    if (artifact.item.file === fileName) {
+                        artifact.item.file = `${newFileName}.xml`;
+                    }
+                });
+            } else {
+                if (artifactXMLData.artifacts.artifact.item.file === fileName) {
+                    artifactXMLData.artifacts.artifact.item.file = `${newFileName}.xml`;
+                }
+            }
+            const builder = new XMLBuilder(options);
+            const updatedXmlString = builder.build(artifactXMLData);
+            fs.writeFileSync(artifactXMLPath, updatedXmlString);
+            resolve(true);
+        });
+
+    }
+
     async refreshAccessToken(): Promise<void> {
         const CommonReqHeaders = {
             'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
@@ -3788,48 +3978,66 @@ ${endpointAttributes}
 
     async exportProject(params: ExportProjectRequest): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            const carFile = await vscode.workspace.findFiles(
-                new vscode.RelativePattern(params.projectPath, 'target/*.car'),
-                null,
-                1
-            );
-            if (carFile.length === 0) {
-                const errorMessage =
-                    'Error: No .car file found in the target directory. Please build the project before exporting.';
-                window.showErrorMessage(errorMessage);
-                log(errorMessage);
-                return reject(errorMessage);
-            }
-
-            const selection = await vscode.window.showQuickPick(
-                [
+            const exportTask = async () => {
+                const carFile = await vscode.workspace.findFiles(
+                    new vscode.RelativePattern(params.projectPath, 'target/*.car'),
+                    null,
+                    1
+                );
+                if (carFile.length === 0) {
+                    const errorMessage =
+                        'Error: No .car file found in the target directory. Please build the project before exporting.';
+                    window.showErrorMessage(errorMessage);
+                    log(errorMessage);
+                    return reject(errorMessage);
+                }
+                const lastExportedPath: string | undefined = extension.context.globalState.get(LAST_EXPORTED_CAR_PATH);
+                const quickPicks: vscode.QuickPickItem[] = [
                     {
                         label: "Select Destination",
                         description: "Select a destination folder to export .car file",
                     },
-                ],
-                {
-                    placeHolder: "Export Options",
+                ];
+                if (lastExportedPath) {
+                    quickPicks.push({
+                        label: "Last Exported Path: " + lastExportedPath,
+                        description: "Use the last exported path to export .car file",
+                    });
                 }
-            );
+                const selection = await vscode.window.showQuickPick(
+                    quickPicks,
+                    {
+                        placeHolder: "Export Options",
+                    }
+                );
 
-            if (selection) {
-                // Get the destination folder
-                const { filePath: destination } = await this.browseFile({
-                    canSelectFiles: false,
-                    canSelectFolders: true,
-                    canSelectMany: false,
-                    defaultUri: params.projectPath,
-                    title: "Select a folder to export the project",
-                    openLabel: "Select Folder"
-                });
-                if (destination) {
-                    const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
-                    fs.copyFileSync(carFile[0].fsPath, destinationPath);
-                    log(`Project exported to: ${destination}`);
-                    resolve();
+                if (selection) {
+                    let destination: string | undefined;
+                    if (selection.label == "Select Destination") {
+                        // Get the destination folder
+                        const selectedLocation = await this.browseFile({
+                            canSelectFiles: false,
+                            canSelectFolders: true,
+                            canSelectMany: false,
+                            defaultUri: lastExportedPath ?? params.projectPath,
+                            title: "Select a folder to export the project",
+                            openLabel: "Select Folder"
+                        });
+                        destination = selectedLocation.filePath;
+                        await extension.context.globalState.update(LAST_EXPORTED_CAR_PATH, destination);
+                    } else {
+                        destination = lastExportedPath;
+                    }
+                    if (destination) {
+                        const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
+                        fs.copyFileSync(carFile[0].fsPath, destinationPath);
+                        window.showInformationMessage("Project exported successfully!");
+                        log(`Project exported to: ${destination}`);
+                        resolve();
+                    }
                 }
             }
+            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false, exportTask);
         });
     }
 
@@ -4552,35 +4760,93 @@ ${endpointAttributes}
         });
     }
 
-    renameFile(params: FileRenameRequest): void {
+    async renameFile(params: FileRenameRequest): Promise<void> {
         try {
             fs.renameSync(params.existingPath, params.newPath);
+            const newFileName = path.basename(params.newPath);
+            await this.updateArtifactInRegistry(params.existingPath, newFileName.substring(0, newFileName.lastIndexOf('.')));
         } catch (error) {
             console.error(`Error renaming file: ${error}`);
         }
     }
 
-    getFilePath(directory: string, fileName: string): string {
-        let filePath: string;
-        if (directory.endsWith('.xml')) {
-            if (path.basename(directory).split('.')[0] !== fileName) {
-                fs.unlinkSync(directory);
-                filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+    async getFilePath(directory: string, fileName: string): Promise<string> {
+        return new Promise(async (resolve) => {
+            let filePath: string;
+            if (directory.endsWith('.xml')) {
+                if (path.basename(directory).split('.')[0] !== fileName) {
+                    fs.unlinkSync(directory);
+                    filePath = path.join(path.dirname(directory), `${fileName}.xml`);
+                    await this.updateArtifactInRegistry(directory, fileName);
+                } else {
+                    filePath = directory;
+                }
             } else {
-                filePath = directory;
+                filePath = path.join(directory, `${fileName}.xml`);
             }
-        } else {
-            filePath = path.join(directory, `${fileName}.xml`);
-        }
-        return filePath;
+            resolve(filePath);
+        });
     }
 
     async openUpdateExtensionPage(): Promise<void> {
         const extensionId = 'wso2.micro-integrator';
         const url = `vscode:extension/${extensionId}`;
-        console.log("open update ext view url *****", url)
         vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(url));
     }
+
+    async checkDBDriver(className: string): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.checkDBDriver(className);
+            resolve(res);
+        });
+    }
+
+    async addDBDriver(params: AddDriverRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.addDBDriver(params);
+            resolve(res);
+        });
+    }
+
+    async generateDSSQueries(params: ExtendedDSSQueryGenRequest): Promise<boolean> {
+        const { documentUri, position, ...genQueryParams } = params;
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const xml = await langClient.generateQueries(genQueryParams);
+
+            if (!xml) {
+                log('Failed to generate DSS Queries.');
+                resolve(false);
+            }
+
+            const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
+            
+            const xmlLineCount = sanitizedXml.split('\n').length;
+            const insertRange = { start: position, end: position };
+            const formatRange = { 
+                start: position, 
+                end: { line: position.line + xmlLineCount - 1, character: 0 }
+            };
+            await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });
+            await this.rangeFormat({ uri: documentUri, range: formatRange });
+
+            log('Successfully generated DSS Queries.');
+            resolve(true);
+        });
+    }
+
+    async fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.fetchTables({
+                ...params, tableData: "", datasourceName: ""
+            });
+            resolve(res);
+        });
+    }
+
 }
 
 export async function askProjectPath() {
@@ -4593,13 +4859,24 @@ export async function askProjectPath() {
     });
 }
 
-export async function askImportProjectPath() {
+export async function askDriverPath() {
     return await window.showOpenDialog({
-        canSelectFiles: false,
-        canSelectFolders: true,
+        canSelectFiles: true,
+        canSelectFolders: false,
         canSelectMany: false,
         defaultUri: Uri.file(os.homedir()),
-        title: "Select the root directory of the project to import"
+        title: "Select a driver"
+    });
+}
+
+export async function askImportProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        filters: { 'CAPP': ['car', 'zip'] },
+        title: "Select the car file to import"
     });
 }
 
