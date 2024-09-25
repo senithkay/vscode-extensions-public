@@ -52,7 +52,11 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         hasHoveredParent
     } = props;
     const classes = useIONodesStyles();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+    
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+        exprBarFocusedPort: state.focusedPort,
+        setExprBarFocusedPort: state.setFocusedPort
+    }));
 
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -75,10 +79,8 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     const diagnostic = value && filterDiagnosticsForNode(context.diagnostics, field.value)[0];
 
     const handleEditValue = () => {
-        if (field.value) {
-            const range = getEditorLineAndColumn(field.value);
-            context.goToSource(range);
-        }
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const handleDelete = async () => {
@@ -119,7 +121,6 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                     >
                         <Button
                             appearance="icon"
-                            onClick={handleEditValue}
                             data-testid={`object-output-field-${portIn?.getName()}`}
                         >
                             {value}

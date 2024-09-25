@@ -1435,7 +1435,8 @@ ${endpointAttributes}
                 prop.value !== '' && prop.value !== undefined && prop.value !== false);
             const mustacheParams = {
                 ...templateParams,
-                taskProperties: tempParams
+                taskProperties: tempParams,
+                customProperties: params.customProperties
             };
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
@@ -2960,7 +2961,14 @@ ${endpointAttributes}
 
                 //write the content to a file, if file exists, overwrite else create new file
                 var fullPath = '';
-                if (fileType === 'unit-test') {
+                if (fileType === 'apis') {
+                    const version = content[i].match(/<api [^>]*version="([^"]+)"/);
+                    if (version) {
+                        fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}_v${version[1]}.xml`);
+                    } else {
+                        fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                    }
+                } else if (fileType === 'unit-test') {
                     fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
                 } else {
                     fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);

@@ -224,7 +224,10 @@ export class NodeFactoryVisitor implements Visitor {
                 if (this.currentAddPosition != undefined) {
                     addPosition = this.currentAddPosition;
                 } else if (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) {
-                    addPosition = { position: previousStNode.range.endTagRange.end, trailingSpace: previousStNode.spaces.endingTagSpace.trailingSpace.space };
+                    addPosition = { 
+                        position: previousStNode.range.endTagRange?.end ?? previousStNode.range.startTagRange.end, 
+                        trailingSpace: previousStNode.spaces.endingTagSpace?.trailingSpace?.space ?? previousStNode.spaces.startingTagSpace.trailingSpace.space
+                    };
                 } else {
                     const space = previousStNode?.spaces?.endingTagSpace?.trailingSpace?.range?.end ? previousStNode.spaces.endingTagSpace.trailingSpace : previousStNode.spaces.startingTagSpace.trailingSpace;
                     addPosition = { position: space.range.end, trailingSpace: space.space };
