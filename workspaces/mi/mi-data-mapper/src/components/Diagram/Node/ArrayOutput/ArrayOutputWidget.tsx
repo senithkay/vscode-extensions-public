@@ -88,7 +88,6 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const returnStatement = fnBody.getStatements().find(statement => statement.getKind() === SyntaxKind.ReturnStatement) as ReturnStatement;
 	const isReturnsArray = returnStatement?.getExpression()?.getKind() === SyntaxKind.ArrayLiteralExpression;
 
-
 	const portIn = getPort(`${id}.IN`);
 
 	let expanded = true;
