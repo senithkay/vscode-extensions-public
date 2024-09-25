@@ -121,7 +121,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         const fieldName = (Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode()) || (Node.isElementAccessExpression(innerMostExpr) && (innerMostExpr.getParentWhile((parent,child) => !child.isKind(SyntaxKind.PropertyAssignment)) as PropertyAssignment)?.getNameNode());
         const fieldNamePosition = fieldName && getPosition(fieldName);
         const returnStmt = getTnfFnReturnStatement(this.context.functionST);
-        const isRerurnStmtMapFn = Node.isReturnStatement(this.parentNode);
+        const isReturnStmtMapFn = Node.isReturnStatement(this.parentNode);
         const outputSearchValue = useDMSearchStore.getState().outputSearch;
         const shouldFindTargetPort = outputSearchValue === ""
             || fieldName?.getText().toLowerCase().includes(outputSearchValue.toLowerCase());
@@ -147,7 +147,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isRerurnStmtMapFn) {
+        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isReturnStmtMapFn) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ArrayOutputNode) {
                     const ports = Object.entries(node.getPorts());
