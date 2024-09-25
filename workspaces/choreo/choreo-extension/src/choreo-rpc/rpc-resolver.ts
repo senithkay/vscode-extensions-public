@@ -15,6 +15,9 @@ import {
 	ChoreoRpcCreateProjectRequest,
 	ChoreoRpcDeleteComponentRequest,
 	ChoreoRpcDeleteConnection,
+	ChoreoRpcDisableAutoBuild,
+	ChoreoRpcEnableAutoBuild,
+	ChoreoRpcGetAutoBuildStatus,
 	ChoreoRpcGetBranchesRequest,
 	ChoreoRpcGetBuildPacksRequest,
 	ChoreoRpcGetBuildsRequest,
@@ -95,4 +98,7 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 		);
 	});
 	messenger.onRequest(ChoreoRpcGetConnectionGuide, (params) => rpcClient.getConnectionGuide(params));
+	messenger.onRequest(ChoreoRpcGetAutoBuildStatus, (params) => rpcClient.getAutoBuildStatus(params));
+	messenger.onRequest(ChoreoRpcEnableAutoBuild, (params) => rpcClient.enableAutoBuildOnCommit(params));
+	messenger.onRequest(ChoreoRpcDisableAutoBuild, (params) => rpcClient.disableAutoBuildOnCommit(params));
 }

@@ -8,7 +8,7 @@
  */
 
 import { ChoreoComponentType, ComponentDisplayType } from "./enums";
-import { ComponentKind, Organization, Project } from "./types/common.types";
+import type { ComponentKind, Organization, Project } from "./types/common.types";
 
 export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
 
@@ -42,7 +42,6 @@ export const getTimeAgo = (previousTime: Date): string => {
 	}
 	return "Just now";
 };
-
 
 export const getTypeForDisplayType = (displayType: string): string => {
 	switch (displayType) {
@@ -103,22 +102,55 @@ export const toTitleCase = (str: string): string => {
 		?.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-export const  toUpperSnakeCase = (str: string): string => {
-    return str.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase().replace(/\s+/g, '_');
-}
+export const toUpperSnakeCase = (str: string): string => {
+	return str
+		.replace(/([a-z])([A-Z])/g, "$1_$2")
+		.toUpperCase()
+		.replace(/\s+/g, "_");
+};
 
-export const  capitalizeFirstLetter = (str: string): string => {
-	if(!str || str?.length === 0){
+export const capitalizeFirstLetter = (str: string): string => {
+	if (!str || str?.length === 0) {
 		return str;
 	}
-    return str?.charAt(0)?.toUpperCase() + str?.slice(1);
-}
+	return str?.charAt(0)?.toUpperCase() + str?.slice(1);
+};
 
 export const toSentenceCase = (str: string): string => {
-    const spacedString = str.replace(/([a-z])([A-Z])/g, '$1 $2');
-    return spacedString.charAt(0).toUpperCase() + spacedString.slice(1);
-}
+	const spacedString = str.replace(/([a-z])([A-Z])/g, "$1 $2");
+	return spacedString.charAt(0).toUpperCase() + spacedString.slice(1);
+};
 
 export const getComponentKey = (org: Organization, project: Project, component: ComponentKind): string => {
-    return `${org.handle}-${project.handler}-${component.metadata.name}`
-}
+	return `${org.handle}-${project.handler}-${component.metadata.name}`;
+};
+
+// biome-ignore lint/suspicious/noExplicitAny: can be any type of data
+export const deepEqual = (obj1: any, obj2: any): boolean => {
+	if (obj1 === obj2) {
+		return true;
+	}
+
+	if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
+		return false;
+	}
+
+	const keys1 = Object.keys(obj1);
+	const keys2 = Object.keys(obj2);
+
+	if (keys1.length !== keys2.length) {
+		return false;
+	}
+
+	for (const key of keys1) {
+		if (!keys2.includes(key)) {
+			return false;
+		}
+
+		if (!deepEqual(obj1[key], obj2[key])) {
+			return false;
+		}
+	}
+
+	return true;
+};

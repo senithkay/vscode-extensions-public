@@ -36,8 +36,8 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 			{tags.length > 0 && (
 				<div className="flex flex-wrap gap-1 lg:gap-2" ref={tagsRef}>
 					{tags.map((item, index) => (
-						<>
-							<div key={item.label}>
+						<React.Fragment key={item.label}>
+							<div>
 								<span className="font-thin">{item.label}:</span>{" "}
 								{item.onClick ? (
 									<VSCodeLink onClick={item.onClick} className="text-vsc-foreground" title={item.onClickTitle}>
@@ -47,12 +47,8 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 									item.value
 								)}
 							</div>
-							{index !== tags.length - 1 && (
-								<div key={`separator-${item.label}`} className="hidden font-thin opacity-50 md:block">
-									|
-								</div>
-							)}
-						</>
+							{index !== tags.length - 1 && <div className="hidden font-thin opacity-50 md:block">|</div>}
+						</React.Fragment>
 					))}
 				</div>
 			)}

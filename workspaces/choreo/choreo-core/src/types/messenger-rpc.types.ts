@@ -8,6 +8,7 @@
  */
 
 import type { NotificationType, RequestType } from "vscode-messenger-common";
+import type { ComponentViewDrawers } from "../enums";
 import type { CreateComponentReq } from "./cli-rpc.types";
 import type {
 	CommitHistory,
@@ -21,14 +22,13 @@ import type {
 } from "./common.types";
 import type { Endpoint } from "./config-file.types";
 import type { AuthState, ContextStoreState, WebviewState } from "./store.types";
-import { ComponentViewDrawers } from "../enums";
 
 // Request types
 export const GetAuthState: RequestType<void, AuthState> = { method: "getAuthState" };
 export const GetContextState: RequestType<void, ContextStoreState> = { method: "getContextState" };
 export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: "getWebviewStoreState" };
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "openDialog" };
-export const GetGitRemotes: RequestType<string, string[]> = { method: "getGitRemotes" };
+export const GetLocalGitData: RequestType<string, GetLocalGitDataResp | undefined> = { method: "getLocalGitData" };
 export const JoinFilePaths: RequestType<string[], string> = { method: "joinFilePaths" };
 export const GetSubPath: RequestType<{ subPath: string; parentPath: string }, string | null> = { method: "getSubPath" };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: "setWebviewCache" };
@@ -58,8 +58,9 @@ export const SelectCommitToBuild: RequestType<SelectCommitToBuildReq, CommitHist
 export const OpenComponentViewDrawer: RequestType<OpenComponentViewDrawerReq, void> = { method: "openComponentViewDrawer" };
 export const CloseComponentViewDrawer: RequestType<string, void> = { method: "closeComponentViewDrawer" };
 export const HasDirtyLocalGitRepo: RequestType<string, boolean> = { method: "hasDirtyLocalGitRepo" };
-export const HasRepoConfigFileDrift: RequestType<HasRepoConfigFileDriftReq, boolean> = { method: "hasRepoConfigFileDrift" };
-export const SaveFile: RequestType<SaveFileReq, void> = { method: "saveFile" };
+export const GetConfigFileDrifts: RequestType<GetConfigFileDriftsReq, string[]> = { method: "getConfigFileDrifts" };
+export const SaveFile: RequestType<SaveFileReq, string> = { method: "saveFile" };
+export const SubmitEndpointsCreate: RequestType<SubmitEndpointsCreateReq, void> = { method: "submitEndpointsCreate" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -91,7 +92,12 @@ export interface SubmitComponentCreateReq {
 	org: Organization;
 	project: Project;
 	createParams: CreateComponentReq;
-	endpoint?: Endpoint;
+	autoBuildOnCommit?: boolean;
+}
+
+export interface SubmitEndpointsCreateReq {
+	componentDir: string;
+	endpoints?: Endpoint[];
 }
 
 export interface ViewBuildLogsReq {
@@ -160,29 +166,44 @@ export interface SelectCommitToBuildReq {
 	deploymentTrack: DeploymentTrack;
 }
 
-export interface HasRepoConfigFileDriftReq {
+export interface GetConfigFileDriftsReq {
 	repoDir: string;
 	repoUrl: string;
 	branch: string;
+}
+
+export interface CreateNewFilReq {
+	fileDir: string;
+	fileName: string;
+	context?: string;
 }
 
 export interface SaveFileReq {
 	fileName: string;
 	fileContent: string;
 	baseDirectory: string;
+	successMessage?: string;
+	shouldPromptDirSelect?: boolean;
+	isOpenApiFile?: boolean;
 	dialogTitle?: string;
 	shouldOpen?: boolean;
 }
 
 export interface OpenComponentViewDrawerReq {
-	componentKey: string
+	componentKey: string;
 	drawer: ComponentViewDrawers;
-	params?: any
+	// biome-ignore lint/suspicious/noExplicitAny: can be any type of data
+	params?: any;
 }
 
 export interface SetWebviewCacheRequestParam {
 	cacheKey: IDBValidKey;
 	data: unknown;
+}
+
+export interface GetLocalGitDataResp {
+	remotes?: string[];
+	upstream?: { name?: string; remote?: string; remoteUrl?: string };
 }
 
 export interface SendTelemetryExceptionParams {

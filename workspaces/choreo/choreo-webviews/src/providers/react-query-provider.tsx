@@ -37,7 +37,6 @@ export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: str
 						queries: {
 							cacheTime: 1000 * 60 * 60 * 24 * 7 * 31, // 1 month
 							retry: false,
-							// TODO: re-enable once the logout/token issues are fixed
 							refetchOnWindowFocus: false,
 						},
 					},

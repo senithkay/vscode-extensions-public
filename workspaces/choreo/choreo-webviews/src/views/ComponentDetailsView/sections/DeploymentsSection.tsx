@@ -104,7 +104,7 @@ const EnvItem: FC<{
 	const {
 		data: deploymentStatus,
 		isLoading: loadingDeploymentStatus,
-		isFetching: fetchingDeploymentStatus,
+		isRefetching: isRefetchingDeploymentStatus,
 		refetch: refetchDeploymentStatus,
 	} = useGetDeploymentStatus(deploymentTrack, component, organization, env, {
 		enabled: !!deploymentTrack?.id,
@@ -184,17 +184,19 @@ const EnvItem: FC<{
 		<>
 			<Divider />
 			<div>
-				<div className="mb-3 flex items-center gap-1">
-					<h3 className="flex-1 text-base capitalize lg:text-lg">{env.name} Environment</h3>
-					<Button
-						onClick={() => refetchDeploymentStatus()}
-						appearance="icon"
-						title={`${fetchingDeploymentStatus ? "Refreshing" : "Refresh"} Deployment Details`}
-						className="opacity-50"
-						disabled={fetchingDeploymentStatus}
-					>
-						<Codicon name="refresh" />
-					</Button>
+				<div className="mb-3 flex items-center gap-2">
+					<h3 className="text-base capitalize lg:text-lg">{env.name} Environment</h3>
+					{!loadingDeploymentStatus && (
+						<Button
+							onClick={() => refetchDeploymentStatus()}
+							appearance="icon"
+							title={`${isRefetchingDeploymentStatus ? "Refreshing" : "Refresh"} Deployment Details`}
+							className="opacity-50"
+							disabled={isRefetchingDeploymentStatus}
+						>
+							<Codicon name="refresh" className={classNames(isRefetchingDeploymentStatus && "animate-spin")} />
+						</Button>
+					)}
 				</div>
 				<div className="flex flex-col gap-3 ">
 					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3" ref={envDetailsRef}>

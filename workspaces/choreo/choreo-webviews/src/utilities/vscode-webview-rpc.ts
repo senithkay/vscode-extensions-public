@@ -22,15 +22,16 @@ import {
 	ExecuteCommandRequest,
 	FileExists,
 	GetAuthState,
+	GetConfigFileDrifts,
+	type GetConfigFileDriftsReq,
 	GetContextState,
 	GetDirectoryFileNames,
-	GetGitRemotes,
+	GetLocalGitData,
+	type GetLocalGitDataResp,
 	GetSubPath,
 	GetWebviewStoreState,
 	GoToSource,
 	HasDirtyLocalGitRepo,
-	HasRepoConfigFileDrift,
-	type HasRepoConfigFileDriftReq,
 	type IChoreoRPCClient,
 	JoinFilePaths,
 	OpenComponentViewDrawer,
@@ -63,6 +64,8 @@ import {
 	type ShowWebviewQuickPickItemsReq,
 	SubmitComponentCreate,
 	type SubmitComponentCreateReq,
+	SubmitEndpointsCreate,
+	type SubmitEndpointsCreateReq,
 	TriggerGithubAuthFlow,
 	TriggerGithubInstallFlow,
 	type ViewBuildLogsReq,
@@ -155,8 +158,8 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(OpenSubDialogRequest, HOST_EXTENSION, options);
 	}
 
-	public async getGitRemotes(dirPath: string): Promise<string[]> {
-		return this._messenger.sendRequest(GetGitRemotes, HOST_EXTENSION, dirPath);
+	public async getLocalGitData(dirPath: string): Promise<GetLocalGitDataResp> {
+		return this._messenger.sendRequest(GetLocalGitData, HOST_EXTENSION, dirPath);
 	}
 
 	public async joinFilePaths(paths: string[]): Promise<string> {
@@ -223,6 +226,10 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(SubmitComponentCreate, HOST_EXTENSION, params);
 	}
 
+	public async submitEndpointsCreate(params: SubmitEndpointsCreateReq): Promise<void> {
+		return this._messenger.sendRequest(SubmitEndpointsCreate, HOST_EXTENSION, params);
+	}
+
 	public async getDirectoryFileNames(path: string): Promise<string[]> {
 		return this._messenger.sendRequest(GetDirectoryFileNames, HOST_EXTENSION, path);
 	}
@@ -239,7 +246,7 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
 	}
 
-	public async saveFile(params: SaveFileReq): Promise<void> {
+	public async saveFile(params: SaveFileReq): Promise<string> {
 		return this._messenger.sendRequest(SaveFile, HOST_EXTENSION, params);
 	}
 
@@ -263,7 +270,7 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(HasDirtyLocalGitRepo, HOST_EXTENSION, componentPath);
 	}
 
-	public async hasRepoConfigFileDrift(componentPath: HasRepoConfigFileDriftReq): Promise<boolean> {
-		return this._messenger.sendRequest(HasRepoConfigFileDrift, HOST_EXTENSION, componentPath);
+	public async getConfigFileDrifts(componentPath: GetConfigFileDriftsReq): Promise<string[]> {
+		return this._messenger.sendRequest(GetConfigFileDrifts, HOST_EXTENSION, componentPath);
 	}
 }

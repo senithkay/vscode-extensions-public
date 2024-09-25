@@ -10,6 +10,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import type { TestWebviewProps } from "@wso2-enterprise/choreo-core";
+import classNames from "classnames";
 import clipboardy from "clipboardy";
 import React, { type FC, useMemo } from "react";
 import { useForm } from "react-hook-form";
@@ -197,7 +198,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 								<Codicon name="chrome-restore" className="mr-1" /> Copy
 							</Button>
 							<Button appearance="icon" disabled={isFetchingTestKey} onClick={() => refetchTestKey()}>
-								<Codicon name="refresh" className="mr-1" /> Regenerate
+								<Codicon name="refresh" className={classNames("mr-1", isFetchingTestKey && "animate-spin")} /> Regenerate
 							</Button>
 						</div>
 					</FormElementWrap>

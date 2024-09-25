@@ -178,6 +178,7 @@ export interface MarketplaceListResp {
 
 export interface MarketplaceIdlResp {
 	environmentId: string;
+	// biome-ignore lint/suspicious/noExplicitAny: can be any type of data
 	content: any;
 	idlType: string;
 }
@@ -217,18 +218,18 @@ export interface GetMarketplaceIdlReq {
 	serviceId: string;
 }
 
-export interface GetConnectionsReq{
+export interface GetConnectionsReq {
 	orgId: string;
 	projectId: string;
 	componentId: string;
 }
 
-export interface GetConnectionItemReq{
+export interface GetConnectionItemReq {
 	orgId: string;
 	connectionGroupId: string;
 }
 
-export interface CreateComponentConnectionReq{
+export interface CreateComponentConnectionReq {
 	orgId: string;
 	orgUuid: string;
 	projectId: string;
@@ -239,17 +240,17 @@ export interface CreateComponentConnectionReq{
 	serviceVisibility: string;
 	serviceSchemaId: string;
 	name: string;
-	envs: ServiceReferenceEnv[]
+	envs: ServiceReferenceEnv[];
 }
 
-export interface DeleteConnectionReq{
+export interface DeleteConnectionReq {
 	orgId: string;
 	connectionId: string;
 	connectionName: string;
 	componentPath: string;
 }
 
-export interface GetConnectionGuideReq{
+export interface GetConnectionGuideReq {
 	orgId: string;
 	orgUuid: string;
 	serviceId: string;
@@ -258,11 +259,36 @@ export interface GetConnectionGuideReq{
 	audience: string;
 	isSpa: boolean;
 	isProjectLvlConnection: boolean;
-	buildpackType: string
+	buildpackType: string;
 }
 
-export interface GetConnectionGuideResp{
+export interface GetAutoBuildStatusReq {
+	orgId: string;
+	componentId: string;
+	versionId: string;
+}
+
+export interface GetAutoBuildStatusResp {
+	autoBuildId: string;
+	autoBuildEnabled: boolean;
+	componentId: string;
+	versionId: string;
+	envId: string;
+}
+
+export interface ToggleAutoBuildReq {
+	orgId: string;
+	componentId: string;
+	versionId: string;
+	envId: string;
+}
+
+export interface GetConnectionGuideResp {
 	guide: string;
+}
+
+export interface ToggleAutoBuildResp {
+	success: boolean;
 }
 
 export interface IChoreoRPCClient {
@@ -292,6 +318,9 @@ export interface IChoreoRPCClient {
 	createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed>;
 	deleteConnection(params: DeleteConnectionReq): Promise<void>;
 	getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp>;
+	getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp>;
+	enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
+	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -360,10 +389,10 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp> {
 		return this._messenger.sendRequest(ChoreoRpcGetMarketplaceItemIdl, HOST_EXTENSION, params);
 	}
-	getConnections(params: GetConnectionsReq): Promise< ConnectionListItem[]> {
+	getConnections(params: GetConnectionsReq): Promise<ConnectionListItem[]> {
 		return this._messenger.sendRequest(ChoreoRpcGetConnections, HOST_EXTENSION, params);
 	}
-	getConnectionItem(params: GetConnectionItemReq): Promise< ConnectionListItem> {
+	getConnectionItem(params: GetConnectionItemReq): Promise<ConnectionListItem> {
 		return this._messenger.sendRequest(ChoreoRpcGetConnectionItem, HOST_EXTENSION, params);
 	}
 	createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed> {
@@ -374,6 +403,15 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	}
 	getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp> {
 		return this._messenger.sendRequest(ChoreoRpcGetConnectionGuide, HOST_EXTENSION, params);
+	}
+	getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetAutoBuildStatus, HOST_EXTENSION, params);
+	}
+	enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		return this._messenger.sendRequest(ChoreoRpcEnableAutoBuild, HOST_EXTENSION, params);
+	}
+	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		return this._messenger.sendRequest(ChoreoRpcDisableAutoBuild, HOST_EXTENSION, params);
 	}
 }
 
@@ -417,5 +455,6 @@ export const ChoreoRpcCreateComponentConnection: RequestType<CreateComponentConn
 };
 export const ChoreoRpcDeleteConnection: RequestType<DeleteConnectionReq, void> = { method: "rpc/connections/deleteConnection" };
 export const ChoreoRpcGetConnectionGuide: RequestType<GetConnectionGuideReq, GetConnectionGuideResp> = { method: "rpc/connections/getGuide" };
-
-
+export const ChoreoRpcGetAutoBuildStatus: RequestType<GetAutoBuildStatusReq, GetAutoBuildStatusResp> = { method: "rpc/build/getAutoBuildStatus" };
+export const ChoreoRpcEnableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/enableAutoBuild" };
+export const ChoreoRpcDisableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/disableAutoBuild" };

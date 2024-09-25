@@ -9,6 +9,7 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import {
 	type BuildKind,
 	ChoreoComponentType,
@@ -18,13 +19,15 @@ import {
 	type CreateDeploymentReq,
 	type DeploymentTrack,
 	type Environment,
+	type GetAutoBuildStatusResp,
 	type Organization,
 	type Project,
+	type ToggleAutoBuildReq,
 	type WebviewQuickPickItem,
 	WebviewQuickPickItemKind,
+	capitalizeFirstLetter,
 	getTimeAgo,
 	getTypeForDisplayType,
-	capitalizeFirstLetter,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type ReactNode, useState } from "react";
@@ -34,7 +37,7 @@ import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
 import { Empty } from "../../../components/Empty";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { queryKeys, useGetBuildList } from "../../../hooks/use-queries";
+import { queryKeys, useGetAutoBuildStatus, useGetBuildList } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 
 interface Props {
@@ -47,7 +50,7 @@ interface Props {
 }
 
 export const BuildsSection: FC<Props> = (props) => {
-	const { component, organization, project, deploymentTrack } = props;
+	const { component, organization, project, deploymentTrack, envs } = props;
 	const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
 	const [visibleBuildCount, setVisibleBuildCount] = useState(5);
 	const [buildListRef] = useAutoAnimate();
@@ -108,17 +111,21 @@ export const BuildsSection: FC<Props> = (props) => {
 
 	return (
 		<div>
-			<div className="mb-3 flex items-center gap-1">
-				<h3 className="flex-1 text-base lg:text-lg">Builds</h3>
-				<Button
-					onClick={() => refetchBuilds()}
-					appearance="icon"
-					title={`${isRefetchingBuilds ? "Refreshing" : "Refresh"} Build List`}
-					className="opacity-50"
-					disabled={isRefetchingBuilds}
-				>
-					<Codicon name="refresh" />
-				</Button>
+			<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+				<h3 className="text-base lg:text-lg">Builds</h3>
+				{!isLoadingBuilds && (
+					<Button
+						onClick={() => refetchBuilds()}
+						appearance="icon"
+						title={`${isRefetchingBuilds ? "Refreshing" : "Refresh"} Build List`}
+						className="opacity-50"
+						disabled={isRefetchingBuilds}
+					>
+						<Codicon name="refresh" className={classNames(isRefetchingBuilds && "animate-spin")} />
+					</Button>
+				)}
+				<div className="flex-1" />
+				<AutoBuildSwitch component={component} envs={envs} organization={organization} deploymentTrack={deploymentTrack} />
 				{!isLoadingBuilds && (
 					<Button disabled={isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()}>
 						{isTriggeringBuild ? "Triggering Build" : buildInProgress ? "Building Component" : "Build Component"}
@@ -350,3 +357,63 @@ const GridColumnItem: FC<{ label: string; index?: number; children?: ReactNode }
 		<div className={classNames("w-full", index % 2 === 1 && "text-right md:text-left")}>{children}</div>
 	</div>
 );
+
+const AutoBuildSwitch: FC<{
+	component: ComponentKind;
+	organization: Organization;
+	deploymentTrack?: DeploymentTrack;
+	envs: Environment[];
+}> = ({ component, envs = [], organization, deploymentTrack }) => {
+	const queryClient = useQueryClient();
+
+	const { data: autoBuildStatus, isLoading: isLoadingAutoBuildStatus } = useGetAutoBuildStatus(component, deploymentTrack, organization, {
+		enabled: envs?.length > 0 && !!deploymentTrack,
+	});
+
+	const { mutate: toggleAutoBuild } = useMutation({
+		mutationFn: (autoBuildEnabled: boolean) => {
+			const rpcClient = ChoreoWebViewAPI.getInstance().getChoreoRpcClient();
+			const req: ToggleAutoBuildReq = {
+				componentId: component.metadata?.id,
+				orgId: organization.id.toString(),
+				versionId: deploymentTrack.id,
+				// will always be dev env
+				envId: envs[0]?.id ?? "",
+			};
+			return autoBuildEnabled ? rpcClient.enableAutoBuildOnCommit(req) : rpcClient.disableAutoBuildOnCommit(req);
+		},
+		onMutate: async (autoBuildEnabled) => {
+			const queryKey = queryKeys.getAutoBuildStatus(component, deploymentTrack, organization);
+			await queryClient.cancelQueries({ queryKey });
+			const previous: GetAutoBuildStatusResp | undefined = queryClient.getQueryData(queryKey);
+			if (previous) {
+				queryClient.setQueryData(queryKey, { ...previous, autoBuildEnabled });
+			}
+			return { previous };
+		},
+		onError: (_err, _resp, context) => {
+			ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to toggle auto build on commit");
+			const queryKey = queryKeys.getAutoBuildStatus(component, deploymentTrack, organization);
+			queryClient.setQueryData(queryKey, context.previous);
+		},
+		onSettled: () => {
+			const queryKey = queryKeys.getAutoBuildStatus(component, deploymentTrack, organization);
+			queryClient.invalidateQueries({ queryKey });
+		},
+	});
+
+	if (envs.length === 0) {
+		return null;
+	}
+
+	return (
+		<VSCodeCheckbox
+			className={classNames("flex-row-reverse text-[11px]", isLoadingAutoBuildStatus && "animate-pulse")}
+			disabled={isLoadingAutoBuildStatus}
+			checked={autoBuildStatus?.autoBuildEnabled}
+			onChange={(event: any) => toggleAutoBuild(event.target.checked)}
+		>
+			Auto Build on Commit
+		</VSCodeCheckbox>
+	);
+};

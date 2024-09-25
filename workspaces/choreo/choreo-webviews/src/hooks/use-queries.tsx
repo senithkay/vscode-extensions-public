@@ -18,6 +18,7 @@ import type {
 	ConnectionListItem,
 	DeploymentTrack,
 	Environment,
+	GetAutoBuildStatusResp,
 	GetTestKeyResp,
 	Organization,
 	Project,
@@ -44,7 +45,6 @@ export const queryKeys = {
 		{ selectedEndpoint: selectedEndpoint.id, org: org.handle },
 	],
 	getBuildPacks: (selectedType: string, org: Organization) => ["build-packs", { selectedType, orgId: org?.id }],
-	getGitRemotes: (directoryFsPath: string, subPath: string) => ["get-git-remotes", { directoryFsPath, subPath }],
 	getGitBranches: (repoUrl: string, org: Organization) => ["get-git-branches", { repo: repoUrl, orgId: org?.id }],
 	getDeployedEndpoints: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
 		"get-deployed-endpoints",
@@ -68,6 +68,10 @@ export const queryKeys = {
 		{ component: component.metadata.id, organization: org.handle, project: project.handler },
 	],
 	getProjectConnections: (project: Project, org: Organization) => ["get-project-connections", { organization: org.handle, project: project.handler }],
+	getAutoBuildStatus: (component: ComponentKind, deploymentTrack: DeploymentTrack, org: Organization) => [
+		"get-auto-build-status",
+		{ component: component.metadata.id, organization: org.handle, versionId: deploymentTrack?.id },
+	],
 };
 
 export const useGetDeploymentTracks = (component: ComponentKind, project: Project, org: Organization, options?: UseQueryOptions<DeploymentTrack[]>) =>
@@ -129,16 +133,6 @@ export const useGetBuildPacks = (selectedType: string, org: Organization, option
 				orgUuid: org.uuid,
 				orgId: org.id.toString(),
 			}),
-		options,
-	);
-
-export const useGetGitRemotes = (directoryFsPath: string, subPath: string, options?: UseQueryOptions<string[]>) =>
-	useQuery<string[]>(
-		queryKeys.getGitRemotes(directoryFsPath, subPath),
-		async () => {
-			const joinedPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
-			return ChoreoWebViewAPI.getInstance().getGitRemotes(joinedPath);
-		},
 		options,
 	);
 
@@ -236,6 +230,23 @@ export const useProjectConnectionList = (project: Project, org: Organization, op
 				componentId: "",
 				orgId: org.id.toString(),
 				projectId: project.id,
+			}),
+		options,
+	);
+
+export const useGetAutoBuildStatus = (
+	component: ComponentKind,
+	deploymentTrack: DeploymentTrack,
+	org: Organization,
+	options?: UseQueryOptions<GetAutoBuildStatusResp>,
+) =>
+	useQuery<GetAutoBuildStatusResp>(
+		queryKeys.getAutoBuildStatus(component, deploymentTrack, org),
+		() =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getAutoBuildStatus({
+				componentId: component.metadata?.id,
+				orgId: org.id.toString(),
+				versionId: deploymentTrack?.id,
 			}),
 		options,
 	);

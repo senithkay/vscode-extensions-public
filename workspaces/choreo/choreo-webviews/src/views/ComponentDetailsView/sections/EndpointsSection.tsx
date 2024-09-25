@@ -58,7 +58,7 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 					<RightPanelSectionItem label="Port" value={item.port} />
 					{item.type && <RightPanelSectionItem label="Type" value={item.type} />}
 					{item.networkVisibility && <RightPanelSectionItem label="Network Visibility" value={item.networkVisibility} />}
-					{item.context && <RightPanelSectionItem label="Context" value={item.context} />}
+					{item.context && <RightPanelSectionItem label="API Context" value={item.context} />}
 					{item.schemaFilePath && (
 						<RightPanelSectionItem
 							label="Schema File Path"

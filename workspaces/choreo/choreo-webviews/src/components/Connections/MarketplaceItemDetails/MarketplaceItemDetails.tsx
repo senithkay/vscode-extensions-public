@@ -100,7 +100,7 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 			}),
 	});
 
-	const { mutate: switchDeploymentTrack } = useMutation({
+	const { mutate: saveApiDefinitionFile } = useMutation({
 		mutationFn: async (fileContent: string | object) => {
 			ChoreoWebViewAPI.getInstance().saveFile({
 				baseDirectory: directoryPath,
@@ -108,6 +108,7 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 				fileName: `idl.${getIdlFileExt(fileContent)}`,
 				shouldOpen: true,
 				dialogTitle: "Select directory to save IDL file",
+				successMessage: `The API definition file of ${item.name} has been saved successfully within the selected directory`,
 			});
 		},
 		onError: () => ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to download file."),
@@ -124,7 +125,7 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 							disabled={!serviceIdl?.content}
 							appearance="secondary"
 							title="Download API definition"
-							onClick={() => switchDeploymentTrack(serviceIdl?.content)}
+							onClick={() => saveApiDefinitionFile(serviceIdl?.content)}
 						>
 							Download IDL
 						</Button>

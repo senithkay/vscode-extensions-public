@@ -110,7 +110,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 	);
 }
 
-export const submitCreateComponentHandler = async ({ createParams, endpoint, org, project }: SubmitComponentCreateReq) => {
+export const submitCreateComponentHandler = async ({ createParams, org, project, autoBuildOnCommit }: SubmitComponentCreateReq) => {
 	const createdComponent = await window.withProgress(
 		{
 			title: `Creating new component ${createParams.displayName}...`,
@@ -120,39 +120,38 @@ export const submitCreateComponentHandler = async ({ createParams, endpoint, org
 	);
 
 	if (createdComponent) {
-		if (
-			createParams.type === ChoreoComponentType.Service &&
-			!existsSync(join(createParams.componentDir, ".choreo", "endpoints.yaml")) &&
-			!existsSync(join(createParams.componentDir, ".choreo", "component-config.yaml"))
-		) {
-			const componentConfPath = await window.withProgress(
-				{
-					title: `Generating component-config for new component ${createParams.displayName}...`,
-					location: ProgressLocation.Notification,
-				},
+		if (autoBuildOnCommit) {
+			const [deploymentTracks, envs] = await window.withProgress(
+				{ title: `Fetching component metadata of component ${createParams.displayName}...`, location: ProgressLocation.Notification },
 				() =>
-					ext.clients.rpcClient.createComponentConfig({
-						componentDir: createParams.componentDir,
-						type: createParams.type,
-						inbound: endpoint,
-					}),
+					Promise.all([
+						ext.clients.rpcClient.getDeploymentTracks({
+							componentId: createdComponent?.metadata?.id,
+							orgHandler: org.handle,
+							orgId: org.id.toString(),
+							projectId: project.id,
+						}),
+						ext.clients.rpcClient.getEnvs({
+							orgId: org.id.toString(),
+							orgUuid: org.uuid,
+							projectId: project.id,
+						}),
+					]),
 			);
 
-			window
-				.showInformationMessage(
-					`Component ${createParams?.name} and its configuration file have been successfully created.`,
-					"Open Configuration File",
-					"View Documentation",
-				)
-				.then((res) => {
-					if (res === "Open Configuration File") {
-						goTosource(componentConfPath);
-					} else if (res === "View Documentation") {
-						commands.executeCommand("vscode.open", "https://wso2.com/choreo/docs/develop-components/configure-endpoints/");
-					}
-				});
-		} else {
-			window.showInformationMessage(`Component ${createParams?.name} has been successfully created.`);
+			const matchingTrack = deploymentTracks.find((item) => item.branch === createParams.branch);
+			if (matchingTrack) {
+				await window.withProgress(
+					{ title: `Enabling auto build on commit for component ${createParams.displayName}...`, location: ProgressLocation.Notification },
+					() =>
+						ext.clients.rpcClient.enableAutoBuildOnCommit({
+							componentId: createdComponent?.metadata?.id,
+							orgId: org.id.toString(),
+							versionId: matchingTrack.id,
+							envId: envs[0]?.id,
+						}),
+				);
+			}
 		}
 
 		showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);

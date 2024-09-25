@@ -30,7 +30,7 @@ export const ConnectionGuide: FC<Props> = ({ component, org, item, isVisible }) 
 		isLoading: isLoadingGuide,
 	} = useQuery({
 		queryKey: [
-			"connection-guide-v6",
+			"connection-guide",
 			{ orgId: org.id, component: component?.metadata?.id, groupUuid: item?.groupUuid, serviceId: item?.serviceId, isVisible },
 		],
 		queryFn: () =>

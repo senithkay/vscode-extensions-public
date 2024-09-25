@@ -8,14 +8,15 @@
  */
 
 import { promises as fs, createReadStream } from "fs";
-import { dirname, join, relative, sep } from "path";
+import { basename, dirname, join, relative, sep } from "path";
 import type { Readable } from "stream";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import * as byline from "byline";
 import { type Disposable, type Event, EventEmitter, type ExtensionContext } from "vscode";
 import { getLogger } from "../logger/logger";
-import type { Remote } from "./api/git";
+import type { Branch, Remote } from "./api/git";
 import { initGit } from "./main";
+import { readEndpoints } from "../utils";
 
 export const isMacintosh = process.platform === "darwin";
 export const isWindows = process.platform === "win32";
@@ -570,6 +571,20 @@ export const getGitRemotes = async (context: ExtensionContext, directoryPath: st
 	return remotes!;
 };
 
+export const getGitHead = async (context: ExtensionContext, directoryPath: string): Promise<Branch | undefined> => {
+	const newGit = await initGit(context);
+	const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+	const dotGit = await newGit?.getRepositoryDotGit(directoryPath);
+
+	if (!repoRootPath || !dotGit) {
+		return undefined;
+	}
+
+	const repo = newGit?.open(repoRootPath!, dotGit);
+	const head = await repo?.getHEADRef()
+	return head;
+};
+
 export const getGitRoot = async (context: ExtensionContext, directoryPath: string): Promise<string | undefined> => {
 	try {
 		const newGit = await initGit(context);
@@ -660,19 +675,35 @@ export const hasDirtyRepo = async (directoryPath: string, context: ExtensionCont
 	}
 };
 
-export const hadChangesInConfigs = async (gitUrl: string, branch: string, directoryPath: string, context: ExtensionContext): Promise<boolean> => {
+export const getConfigFileDrifts = async (gitUrl: string, branch: string, directoryPath: string, context: ExtensionContext): Promise<string[]> => {
 	try{
+		const fileNames = new Set<string>()
 		const git = await initGit(context);
 		const repoRoot = await git?.getRepositoryRoot(directoryPath)
 		if(repoRoot){
 			const subPath = relative(repoRoot, directoryPath)
 
+			const eps = readEndpoints(directoryPath)
+
 			if(git){
 				const gitRepo = git.open(repoRoot, { path: repoRoot });
 				const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: subPath });
-				const hasLocalChanges =  status.status.filter(item=>item.path.endsWith('component-config.yaml') || item.path.endsWith('endpoints.yaml')).length > 0;
-				if(hasLocalChanges){
-					return true
+
+				status.status.forEach(item=>{
+					if(item.path.endsWith('endpoints.yaml')){
+						fileNames.add("endpoints.yaml")
+					}else if(item.path.endsWith('component-config.yaml')){
+						fileNames.add("component-config.yaml")
+					}
+
+					eps.endpoints?.forEach(epItem=>{
+						if(epItem.schemaFilePath && item.path.endsWith(epItem.schemaFilePath)){
+							fileNames.add(epItem.schemaFilePath)
+						}
+					})
+				})
+				if(fileNames.size){
+					return Array.from(fileNames)
 				}
 
 				const remotes = await getGitRemotes(context, repoRoot)
@@ -687,17 +718,35 @@ export const hadChangesInConfigs = async (gitUrl: string, branch: string, direct
 				})?.name
 
 				if (matchingRemoteName) {
+					try{
+						await gitRepo.fetch({ silent: true, remote: matchingRemoteName })
+					}catch{
+						// ignore error
+					}
 					const changes = await gitRepo.diffWith(`${matchingRemoteName}/${branch}`)
 					const componentConfigYamlPath = join(directoryPath, '.choreo', 'component-config.yaml')
 					const endpointsYamlPath = join(directoryPath, '.choreo', 'endpoints.yaml')
-					if(changes?.some(item=>[componentConfigYamlPath, endpointsYamlPath].includes(item.uri.path))){
-						return true
+					const configPaths = [componentConfigYamlPath, endpointsYamlPath];
+
+					eps.endpoints?.forEach(epItem=>{
+						if(epItem.schemaFilePath){
+							configPaths.push(join(directoryPath, epItem.schemaFilePath))
+						}
+					})
+
+					changes.forEach(item=>{
+						if(configPaths.includes(item.uri.path)){
+							fileNames.add(basename(item.uri.path))
+						}
+					})
+					if(fileNames.size){
+						return Array.from(fileNames)
 					}
 				}
 			}
 		}
-		return false
+		return Array.from(fileNames)
 	}catch{
-		return false
+		return []
 	}
 };

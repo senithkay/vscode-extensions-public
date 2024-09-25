@@ -103,6 +103,14 @@ export enum ChoreoComponentType {
 
 export enum ComponentViewDrawers {
 	Test = "Test",
-	CreateConnection =  "CreateConnection",
-	ConnectionGuide = "ConnectionGuide"
+	CreateConnection = "CreateConnection",
+	ConnectionGuide = "ConnectionGuide",
+}
+
+export enum EndpointType {
+	REST = "REST",
+	GraphQL = "GraphQL",
+	GRPC = "GRPC",
+	TCP = "TCP",
+	UDP = "UDP",
 }

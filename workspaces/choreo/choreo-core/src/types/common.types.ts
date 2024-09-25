@@ -246,10 +246,10 @@ export interface ComponentEP {
 }
 
 export enum EndpointDeploymentStatus {
-	Pending = 'Pending',
-	InProgress = 'Progressing',
-	Active = 'Active',
-	Error = 'Error',
+	Pending = "Pending",
+	InProgress = "Progressing",
+	Active = "Active",
+	Error = "Error",
 }
 
 export interface ComponentDeployment {
@@ -378,11 +378,11 @@ interface ConnectionBase {
 	schemaReference: string;
 	isPartiallyCreated: boolean;
 	status: {
-		[key:string]:ConnectionStatus[]
-	}
+		[key: string]: ConnectionStatus[];
+	};
 }
 
-export interface ConnectionListItem extends ConnectionBase{
+export interface ConnectionListItem extends ConnectionBase {
 	componentId: string;
 	dependentComponentId: string;
 	version: string;
@@ -391,23 +391,23 @@ export interface ConnectionListItem extends ConnectionBase{
 
 export interface ConnectionDetailed {
 	configurations: {
-		[id: string]:{
+		[id: string]: {
 			environmentUuid: string;
-			entries:{
-				[entryName: string]:{
+			entries: {
+				[entryName: string]: {
 					key: string;
 					keyUuid: string;
 					value: string;
 					isSensitive: boolean;
 					isFile: boolean;
-				}
-			}
-		}
-	}
+				};
+			};
+		};
+	};
 	envMapping: object;
 	visibilities: {
 		organizationUuid: string;
 		projectUuid: string;
 		componentUuid: string;
-	}[]
+	}[];
 }

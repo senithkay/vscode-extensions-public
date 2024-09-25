@@ -64,15 +64,16 @@ export const PathSelect: FC<Props> = (props) => {
 						<div
 							onClick={isLoading ? undefined : () => handleClick((selectedPath) => field.onChange(selectedPath))}
 							className={classnames(
-								"flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-1 border-vsc-menu-border bg-vsc-input-background",
+								"flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-[0.5px] bg-vsc-input-background",
 								isLoading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100",
+								fieldState.error?.message ? "border-vsc-errorForeground" : "border-vsc-menu-border",
 							)}
 							ref={field.ref}
 						>
 							<div className="hidden border-vsc-menu-border border-r-2 bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground sm:block">
 								<p className="flex h-full items-center justify-center px-3">Choose {type}</p>
 							</div>
-							<div className="flex flex-1 items-center break-all px-2">{joinedPath}</div>
+							<div className="flex flex-1 items-center break-all px-2">{type === "directory" ? joinedPath : field.value}</div>
 						</div>
 					</FormElementWrap>
 				);

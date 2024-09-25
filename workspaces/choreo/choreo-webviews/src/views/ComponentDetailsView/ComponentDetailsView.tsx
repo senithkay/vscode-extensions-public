@@ -70,10 +70,10 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		refetchOnWindowFocus: true,
 	});
 
-	const { data: hasConfigDrift } = useQuery({
+	const { data: configDriftFiles = [] } = useQuery({
 		queryKey: queryKeys.getComponentConfigDraft(directoryPath, component),
 		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().hasRepoConfigFileDrift({
+			ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
 				repoDir: directoryPath,
 				branch: component?.spec?.source?.github?.branch || component?.spec?.source?.bitbucket?.branch,
 				repoUrl: component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository,
@@ -106,17 +106,17 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 							/>
 						</div>
 						<div className="order-first flex flex-col gap-6 pt-6 lg:order-last lg:p-4" ref={rightPanelRef}>
-							{hasConfigDrift && (
+							{configDriftFiles?.length > 0 && (
 								<RightPanelSection showDivider={false}>
 									<Banner
 										type="warning"
 										className="my-1"
 										title="Configuration Drift Detected"
-										subTitle="Please sync your configuration files in the .choreo directory with the remote repository."
+										subTitle={`Please commit and push the changes in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to your remote Git repository.`}
 									/>
 								</RightPanelSection>
 							)}
-							{!hasConfigDrift && hasLocalChanges && (
+							{configDriftFiles.length === 0 && hasLocalChanges && (
 								<RightPanelSection showDivider={false}>
 									<Banner
 										className="my-1"
@@ -125,7 +125,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 									/>
 								</RightPanelSection>
 							)}
-							<BuildConfigsSection component={component} showDivider={!!directoryPath && (hasLocalChanges || hasConfigDrift)} />
+							<BuildConfigsSection component={component} showDivider={!!directoryPath && (hasLocalChanges || configDriftFiles?.length > 0)} />
 							<EndpointsSection component={component} directoryPath={directoryPath} />
 							<ConnectionsSection org={organization} project={project} component={component} directoryPath={directoryPath} />
 						</div>

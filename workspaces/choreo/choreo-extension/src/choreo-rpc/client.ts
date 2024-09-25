@@ -27,6 +27,8 @@ import type {
 	DeleteConnectionReq,
 	DeploymentTrack,
 	Environment,
+	GetAutoBuildStatusReq,
+	GetAutoBuildStatusResp,
 	GetBranchesReq,
 	GetBuildsReq,
 	GetCommitsReq,
@@ -51,6 +53,8 @@ import type {
 	MarketplaceIdlResp,
 	MarketplaceListResp,
 	Project,
+	ToggleAutoBuildReq,
+	ToggleAutoBuildResp,
 	UserInfo,
 	ViewBuildLogsReq,
 } from "@wso2-enterprise/choreo-core";
@@ -397,6 +401,30 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 			throw new Error("RPC client is not initialized");
 		}
 		const response: GetConnectionGuideResp = await this.client.sendRequest("connections/getGuide", params);
+		return response;
+	}
+
+	async getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: GetAutoBuildStatusResp = await this.client.sendRequest("build/getAutoBuildStatus", params);
+		return response;
+	}
+
+	async enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ToggleAutoBuildResp = await this.client.sendRequest("build/enableAutoBuild", params);
+		return response;
+	}
+
+	async disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ToggleAutoBuildResp = await this.client.sendRequest("build/disableAutoBuild", params);
 		return response;
 	}
 }

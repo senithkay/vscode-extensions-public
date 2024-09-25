@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { readdirSync, statSync, unlinkSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, readdirSync, rmSync, statSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import {
 	AuthStoreChangedNotification,
@@ -15,20 +15,21 @@ import {
 	CloseComponentViewDrawer,
 	CloseWebViewNotification,
 	type CommitHistory,
+	type ComponentYamlContent,
 	ContextStoreChangedNotification,
 	DeleteFile,
 	ExecuteCommandRequest,
 	FileExists,
 	GetAuthState,
+	GetConfigFileDrifts,
+	type GetConfigFileDriftsReq,
 	GetContextState,
 	GetDirectoryFileNames,
-	GetGitRemotes,
+	GetLocalGitData,
 	GetSubPath,
 	GetWebviewStoreState,
 	GoToSource,
 	HasDirtyLocalGitRepo,
-	HasRepoConfigFileDrift,
-	type HasRepoConfigFileDriftReq,
 	JoinFilePaths,
 	OpenComponentViewDrawer,
 	type OpenComponentViewDrawerReq,
@@ -56,6 +57,9 @@ import {
 	ShowOpenDialogRequest,
 	ShowQuickPick,
 	SubmitComponentCreate,
+	SubmitComponentCreateReq,
+	SubmitEndpointsCreate,
+	type SubmitEndpointsCreateReq,
 	TriggerGithubAuthFlow,
 	TriggerGithubInstallFlow,
 	ViewBuildsLogs,
@@ -63,8 +67,10 @@ import {
 	WebviewNotificationsMethodList,
 	type WebviewQuickPickItem,
 	WebviewStateChangedNotification,
+	deepEqual,
 	getShortenedHash,
 } from "@wso2-enterprise/choreo-core";
+import * as yaml from "js-yaml";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
 import * as vscode from "vscode";
 import { Messenger } from "vscode-messenger";
@@ -75,7 +81,7 @@ import { quickPickWithLoader } from "../cmds/cmd-utils";
 import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, hadChangesInConfigs, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
+import { getConfigFileDrifts, getGitHead, getGitRemotes, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
@@ -104,13 +110,29 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			return [];
 		}
 	});
-	messenger.onRequest(GetGitRemotes, async (dirPath: string) => {
+	messenger.onRequest(GetLocalGitData, async (dirPath: string) => {
 		try {
 			const remotes = await getGitRemotes(ext.context, dirPath);
-			return remotes?.map((item) => removeCredentialsFromGitURL(item.fetchUrl!));
+			const head = await getGitHead(ext.context, dirPath);
+			let headRemoteUrl = "";
+			const remotesSet = new Set<string>();
+			remotes.forEach((remote) => {
+				if (remote.fetchUrl) {
+					const sanitized = removeCredentialsFromGitURL(remote.fetchUrl);
+					remotesSet.add(sanitized);
+					if (head?.upstream?.remote === remote.name) {
+						headRemoteUrl = sanitized;
+					}
+				}
+			});
+
+			return {
+				remotes: Array.from(remotesSet),
+				upstream: { name: head?.name, remote: head?.upstream?.remote, remoteUrl: headRemoteUrl },
+			};
 		} catch (error: any) {
 			getLogger().error(error.message);
-			return [];
+			return undefined;
 		}
 	});
 	messenger.onRequest(JoinFilePaths, (files: string[]) => join(...files));
@@ -137,8 +159,17 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
 		await goTosource(filePath, false);
 	});
-	messenger.onRequest(SaveFile, async (params): Promise<void> => {
-		saveFile(params.fileName, params.fileContent, params.baseDirectory, params.dialogTitle, params.shouldOpen);
+	messenger.onRequest(SaveFile, async (params): Promise<string> => {
+		return saveFile(
+			params.fileName,
+			params.fileContent,
+			params.baseDirectory,
+			params.successMessage,
+			params.isOpenApiFile,
+			params.shouldPromptDirSelect,
+			params.dialogTitle,
+			params.shouldOpen,
+		);
 	});
 	messenger.onRequest(DeleteFile, async (filePath) => {
 		unlinkSync(filePath);
@@ -205,6 +236,28 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	messenger.onRequest(SubmitComponentCreate, submitCreateComponentHandler);
 	messenger.onRequest(GetDirectoryFileNames, (dirPath: string) => {
 		return readdirSync(dirPath)?.filter((fileName) => statSync(join(dirPath, fileName)).isFile());
+	});
+	messenger.onRequest(SubmitEndpointsCreate, (params: SubmitEndpointsCreateReq) => {
+		if (existsSync(join(params.componentDir, ".choreo", "endpoints.yaml"))) {
+			rmSync(join(params.componentDir, ".choreo", "endpoints.yaml"));
+		}
+		// todo: delete component-config.yaml when we migrate to component.yaml
+		const componentConfigYamlPath = join(params.componentDir, ".choreo", "component-config.yaml");
+		if (existsSync(componentConfigYamlPath)) {
+			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+			endpointFileContent.spec.inbound = params.endpoints;
+			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+			if (!deepEqual(originalContent, endpointFileContent)) {
+				writeFileSync(componentConfigYamlPath, yaml.dump(endpointFileContent));
+			}
+		} else {
+			const endpointFileContent: ComponentYamlContent = {
+				apiVersion: "core.choreo.dev/v1beta1",
+				kind: "ComponentConfig",
+				spec: { inbound: params.endpoints },
+			};
+			writeFileSync(componentConfigYamlPath, yaml.dump(endpointFileContent));
+		}
 	});
 	messenger.onRequest(FileExists, (filePath: string) => {
 		try {
@@ -292,8 +345,8 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	messenger.onRequest(HasDirtyLocalGitRepo, async (componentPath: string) => {
 		return hasDirtyRepo(componentPath, ext.context);
 	});
-	messenger.onRequest(HasRepoConfigFileDrift, async (params: HasRepoConfigFileDriftReq) => {
-		return hadChangesInConfigs(params.repoUrl, params.branch, params.repoDir, ext.context);
+	messenger.onRequest(GetConfigFileDrifts, async (params: GetConfigFileDriftsReq) => {
+		return getConfigFileDrifts(params.repoUrl, params.branch, params.repoDir, ext.context);
 	});
 
 	// Register Choreo CLL RPC handler
