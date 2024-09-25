@@ -24,7 +24,7 @@ import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMen
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
-import { createSourceForUserInput, setFieldOptional } from "../../utils/modification-utils";
+import { createSourceForUserInput, modifyFieldOptionality } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
@@ -125,11 +125,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             setExprBarFocusedPort(portIn);
     };
 
-    const handleSetFieldOptional = async () => {
+    const handleModifyFieldOptionality = async () => {
         setIsLoading(true);
         viewsStore.setViews(context.views);
         try {
-            await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
         } finally {
             setIsLoading(false);
         }
@@ -255,7 +255,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const handleSetFieldOptionalMenuItem: ValueConfigMenuItem = {
         title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
-        onClick: handleSetFieldOptional
+        onClick: handleModifyFieldOptionality
     };
 
     const valConfigMenuItems = [

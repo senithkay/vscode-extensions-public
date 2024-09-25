@@ -327,7 +327,7 @@ export async function createSourceForUserInput(
 	}
 }
 
-export async function setFieldOptional(
+export async function modifyFieldOptionality(
 	field: DMTypeWithValue,
 	isOptional: boolean,
 	sourceFile: SourceFile,

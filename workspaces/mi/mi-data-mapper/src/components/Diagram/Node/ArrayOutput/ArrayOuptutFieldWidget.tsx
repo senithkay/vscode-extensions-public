@@ -29,7 +29,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
-import { createSourceForUserInput, setFieldOptional } from "../../utils/modification-utils";
+import { createSourceForUserInput, modifyFieldOptionality } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 
@@ -325,11 +325,11 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
-    const handleSetFieldOptional = async () => {
+    const handleModifyFieldOptionality = async () => {
         setLoading(true);
         viewsStore.setViews(context.views);
         try {
-            await setFieldOptional(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
         } finally {
             setLoading(false);
         }
@@ -345,7 +345,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const handleSetFieldOptionalMenuItem: ValueConfigMenuItem = {
         title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
-        onClick: handleSetFieldOptional
+        onClick: handleModifyFieldOptionality
     };
 
     const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
