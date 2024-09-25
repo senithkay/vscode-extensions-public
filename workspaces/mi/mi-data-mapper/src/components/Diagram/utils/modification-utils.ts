@@ -184,7 +184,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 
 	if (targetObjectLitExpr) {
 		const property = targetObjectLitExpr.getProperty(lhs);
-		// Add new property only if the propery with the lhs value doesn't exist
+		// Add new property only if the property with the lhs value doesn't exist
 		// This can occur when adding dynamic fields
 		if (!property) {
 			const updatedTargetObjectLitExpr = targetObjectLitExpr.addProperty(writer => {
@@ -368,15 +368,15 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 		Object.keys(targetPort.getLinks()).forEach(async (linkId) => {
 
 			if (linkId !== link.getID()) {
-				const targerPortLink = targetPort.getLinks()[linkId];
+				const targetPortLink = targetPort.getLinks()[linkId];
 				let valueNode: Node;
 
 				if (sourcePort instanceof IntermediatePortModel) {
 					if (sourcePort.getParent() instanceof LinkConnectorNode) {
 						valueNode = (sourcePort.getParent() as LinkConnectorNode).innerNode;
 					}
-				} else if (targerPortLink.getLabels().length > 0) {
-					valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
+				} else if (targetPortLink.getLabels().length > 0) {
+					valueNode = (targetPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
 				} else if (
 					targetNode instanceof ObjectOutputNode
 					|| targetNode instanceof ArrayOutputNode
@@ -384,7 +384,7 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 				) {
 					const linkConnector = targetNode.getModel().getNodes().find(node =>
 						node instanceof LinkConnectorNode
-						&& node.targetPort.portName === (targerPortLink.getTargetPort() as InputOutputPortModel).portName
+						&& node.targetPort.portName === (targetPortLink.getTargetPort() as InputOutputPortModel).portName
 					);
 					valueNode = (linkConnector as LinkConnectorNode).innerNode;
 				}
