@@ -1501,6 +1501,7 @@ export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
     directory: string;
+    filePath?: string;
 }
 
 export interface CreateConnectionResponse {
