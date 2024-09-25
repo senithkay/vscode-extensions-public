@@ -339,6 +339,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         suffix: /^(\w*)/,
     };
 
+    const isDropdownOpen = completions.length > 0 || !!syntax?.item;
+
     const handleResize = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
@@ -356,7 +358,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             window.removeEventListener('resize', handleResize);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef]);
+    }, [elementRef, isDropdownOpen]);
 
     const handleClose = () => {
         onCancel();
@@ -560,7 +562,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
-                        <Transition show={completions.length > 0 || !!syntax?.item} {...ANIMATION}>
+                        <Transition show={isDropdownOpen} {...ANIMATION}>
                             <Codicon
                                 sx={{
                                     position: 'absolute',
