@@ -25,6 +25,8 @@
     "@wso2-enterprise/ui-toolkit": "workspace:*",
     "@wso2-enterprise/service-designer": "workspace:*",
     "react": "~18.2.0",
+    "@vscode/codicons": "0.0.33",
+    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
     "react-dom": "~18.2.0",
     "react-syntax-highlighter": "~15.5.0",
     "react-markdown": "~9.0.1",
