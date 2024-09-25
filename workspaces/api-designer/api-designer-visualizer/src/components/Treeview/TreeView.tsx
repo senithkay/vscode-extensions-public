@@ -6,84 +6,80 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ReactNode, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import styled from "@emotion/styled";
-import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
-
-export interface TreeItem {
-    id: string;
-    content: string | ReactNode;
-    body?: string | ReactNode;
-    children?: TreeItem[];
-}
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
 
 export interface TreeViewProps {
-    items: TreeItem[];
-    sx?: any;
-    isChild?: boolean;
+    id: string;
+    content?: string | ReactNode;
+    children?: ReactNode;
+    rootTreeView?: boolean;
+    selectedId?: string;
+    onSelect?: (id: string) => void;
 }
 
-const TreeContainer = styled.div`
-    ${(props: TreeViewProps) => props.sx};
+interface TreeContainerProps {
+    isRootTreeView: boolean;
+}
+const TreeContainer = styled.div<TreeContainerProps>`
+    padding-left: ${(props: TreeContainerProps) => props.isRootTreeView ? 0 : "20px"};
 `;
 
-const BodyContainer = styled.div`
-    margin-left: 24px;
-`;
-
-const IconContent = styled.div`
+interface IconContainerProps {
+    isCollapsed: boolean;
+    isSelected?: boolean;
+}
+const IconContainer = styled.div<IconContainerProps>`
     display: flex;
     flex-direction: row;
-    align-items: center;
     gap: 5px;
+    align-items: center;
+    padding-top: 3px;
+    /* padding-bottom: ${(props: IconContainerProps) => props.isCollapsed ? 0 : "5px"}; */
+    padding-bottom: 3px;
+    background-color: ${(props: IconContainerProps) => props.isSelected ? "var(--vscode-editorHoverWidget-background)" : "transparent"};
+    /* hover */
+    &:hover {
+        background-color: var(--vscode-editorHoverWidget-background);
+    }
 `;
 
-interface TreeItemContainerProps {
-    isChild?: boolean;
-};
+export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
+    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId } = props
+    const [isExpanded, setIsExpanded] = useState(false);
 
-const TreeItemContainer = styled.div<TreeItemContainerProps>`
-    margin-left: ${({ isChild }: TreeItemContainerProps) => isChild ? '20px' : '0'};
-    cursor: pointer;
-`;
+    const toggleExpand = (sId: string) => {
+        if (onSelect) {
+            onSelect(sId);
+        }
+        setIsExpanded(!isExpanded);
+    };
 
-const TreeLabel = styled.span`
-    font-weight: bold;
-`;
-const ChildrenContainer = styled.div<{ isExpanded: boolean }>`
-    max-height: ${({ isExpanded }: { isExpanded: boolean }) => isExpanded ? '1000px' : '0'};
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-`;
-
-export function TreeView(props: TreeViewProps) {
-    const { items, isChild } = props;
-    const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-
-    const toggleItem = (id: string) => {
-        setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+    const handleSelect = (sId: string) => {
+        if (onSelect) {
+            onSelect(sId);
+        }
     };
 
     return (
-        <TreeContainer>
-            {items.map((item) => (
-                <TreeItemContainer key={item.id} isChild={isChild}>
-                    <TreeLabel onClick={() => toggleItem(item.id)}>
-                        <IconContent>
-                            <Button appearance='icon'>
-                                <Codicon name={expandedItems[item.id] ? 'chevron-down' : 'chevron-right'} />
-                            </Button>
-                            <>{item.content}</>
-                        </IconContent>
-                        {item.body && expandedItems[item.id] && <BodyContainer>{item.body}</BodyContainer>}
-                    </TreeLabel>
-                    {item.children && (
-                        <ChildrenContainer isExpanded={!!expandedItems[item.id]}>
-                            <TreeView items={item.children} isChild/>
-                        </ChildrenContainer>
+        <TreeContainer isRootTreeView={isRootTreeView}>
+            <div onClick={() => toggleExpand(id)}>
+                <IconContainer isCollapsed={!isExpanded} isSelected={selectedId === id}>
+                    <Codicon name={isExpanded ? 'chevron-down' : 'chevron-right'} />
+                    {content}
+                </IconContainer>
+            </div>
+            {isExpanded && (
+                <div>
+                    {React.Children.map(children, (child) =>
+                        React.cloneElement(child as React.ReactElement<any>, {
+                            selectedId: selectedId,
+                            onSelect: handleSelect,
+                        })
                     )}
-                </TreeItemContainer>
-            ))}
+                </div>
+            )}
         </TreeContainer>
     );
 };
