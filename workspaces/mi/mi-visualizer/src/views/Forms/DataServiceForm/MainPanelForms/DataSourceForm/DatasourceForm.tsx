@@ -149,15 +149,15 @@ export type DataSourceFields = {
 
 export const newDataSource: DataSourceFields = {
     dataSourceName: "",
-    dataSourceType: "RDBMS",
+    dataSourceType: "",
     enableOData: false,
     dynamicUserAuthClass: "",
     rdbms: {
         type: "",
         databaseEngine: "MySQL",
         driverClassName: "",
-        hostname: "",
-        port: "",
+        hostname: "localhost",
+        port: "3306",
         databaseName: "",
         url: "",
         username: "",
@@ -532,6 +532,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     const [isCreate, setIsCreate] = useState(true);
 
     const datasourceTypes: OptionProps[] = [
+        { value: "" },
         { value: "RDBMS" },
         { value: "MongoDB" },
         { value: "Cassandra" },
@@ -593,13 +594,24 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const filterRDBMSvalues = (values: any): Property[] => {
-        if (watch("rdbms.useSecretAlias")) {
-            values.rdbms.password = "";
-        }
 
-        delete values.rdbms.hostname;
-        delete values.rdbms.port;
-        delete values.rdbms.databaseName;
+        if (props.isPopup) {
+            const keysToRemove = ["hostname", "port", "databaseName"];
+            keysToRemove.forEach(key => values.splice(values.findIndex((value: any) => value.key === key), 1));
+            if (watch("rdbms.useSecretAlias")) {
+                const passwordField = values.find((value: any) => value.key === "password");
+                if (passwordField) {
+                    passwordField.value = "";
+                }
+            }
+        } else {
+            if (watch("rdbms.useSecretAlias")) {
+                values.rdbms.password = "";
+            }
+            delete values.rdbms.hostname;
+            delete values.rdbms.port;
+            delete values.rdbms.databaseName;
+        }
         
         return values;
     }
@@ -671,6 +683,8 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const handleCancel = () => {
+
+        setValue('dataSourceType', "");
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
@@ -699,7 +713,7 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     const showNextButton = watch('dataSourceType') === 'RDBMS' && step === 1;
 
     return (
-        <FormView title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} hideClose={props.isPopup} >
+        <FormView title='Create Datasource' onClose={props.handlePopupClose ?? handleCancel} >
             <FormProvider {...formMethods}>
                 {step === 1 ? (
                     <>
@@ -716,7 +730,10 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 watch={watch}
                                 setValue={setValue}
                                 control={control}
-                                isEditDatasource={isEditDatasource} />
+                                isEditDatasource={isEditDatasource}
+                                setDatasourceConfigurations={setDatasourceConfigurations}
+                                datasourceConfigurations={datasourceConfigurations}
+                            />
                         )}
                         {watch('dataSourceType') === 'MongoDB' && (
                             <DataSourceMongoDBForm renderProps={renderPropsForObject} />
@@ -737,17 +754,21 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                                 {...renderPropsForObject('carbonDatasource.carbon_datasource_name')}
                             />
                         )}
-                        <FormCheckBox
-                            label="Enable OData"
-                            control={control}
-                            {...renderProps('enableOData')}
-                        />
-                        <TextField
-                            label="Dynamic User Authentication Class"
-                            size={100}
-                            {...renderProps('dynamicUserAuthClass')}
-                        />
-                        <DataServicePropertyTable setProperties={setDatasourceConfigurations} properties={datasourceConfigurations} type={'datasource'} />
+                        {(watch('dataSourceType') !== "RDBMS" && watch('dataSourceType') !== "") && (
+                            <>
+                                <FormCheckBox
+                                    label="Enable OData"
+                                    control={control}
+                                    {...renderProps('enableOData')}
+                                />
+                                <TextField
+                                    label="Dynamic User Authentication Class"
+                                    size={100}
+                                    {...renderProps('dynamicUserAuthClass')}
+                                />
+                                <DataServicePropertyTable setProperties={setDatasourceConfigurations} properties={datasourceConfigurations} type={'datasource'} />
+                            </>
+                        )}
                     </>
                 ) : step === 2 ? (
                     <DatabaseDriverForm
@@ -775,32 +796,32 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                     showNextButton && (
                         <FormActions>
                             <Button
+                                appearance="secondary"
+                                onClick={props.handlePopupClose ?? handleCancel}>
+                                Cancel
+                            </Button>
+                            <Button
                                 appearance="primary"
                                 onClick={handleSubmit(handleNext)}
                                 disabled={!isDirty}
                             >
                                 Next
                             </Button>
-                            <Button
-                                appearance="secondary"
-                                onClick={props.handlePopupClose ?? handleCancel}>
-                                Cancel
-                            </Button>
                         </FormActions>
                     )
                 ) : (
                     <FormActions>
+                        <Button
+                            appearance="secondary"
+                            onClick={props.handlePopupClose ?? handleCancel}>
+                            Cancel
+                        </Button>
                         <Button
                             appearance="primary"
                             onClick={handleSubmit(handleDatasourceSubmit)}
                             disabled={!isDirty}
                         >
                             {isEditDatasource ? "Update" : "Add"}
-                        </Button>
-                        <Button
-                            appearance="secondary"
-                            onClick={props.handlePopupClose ?? handleCancel}>
-                            Cancel
                         </Button>
                     </FormActions>
                 )}

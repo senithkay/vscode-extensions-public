@@ -317,7 +317,14 @@ const AddConnector = (props: AddConnectorProps) => {
                         }
                     }
                 } else {
-                    root.ele(getOriginalName(key)).txt(values[key]);
+                    const value = values[key];
+                    if (typeof value === 'string' && value.includes('<![CDATA[')) {
+                        // Handle CDATA
+                        const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
+                        root.ele(getOriginalName(key)).dat(cdataContent);
+                    } else {
+                        root.ele(getOriginalName(key)).txt(value);
+                    }
                 }
             }
         });

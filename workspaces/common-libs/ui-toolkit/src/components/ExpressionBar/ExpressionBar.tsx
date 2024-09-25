@@ -11,6 +11,7 @@ import styled from '@emotion/styled';
 import React, { forwardRef } from 'react';
 import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './ExpressionEditor';
+import { InputProps } from '../TextField/TextField';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -39,6 +40,7 @@ export type ExpressionBarBaseProps = {
     placeholder?: string;
     sx?: React.CSSProperties;
     completions: CompletionItem[];
+    inputProps?: InputProps;
     onChange: (value: string) => Promise<void>;
     onFocus?: () => Promise<void>;
     onBlur?: () => Promise<void>;

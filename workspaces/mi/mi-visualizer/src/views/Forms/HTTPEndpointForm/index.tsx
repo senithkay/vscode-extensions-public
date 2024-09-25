@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE, UpdateHttpEndpointRequest } from "@wso2-enterprise/mi-core";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -302,7 +302,16 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 isTemplate ? values.templateName : values.endpointName,
                 result.content, values.registryPath, values.artifactName);
         }
-        openOverview();
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("endpointName") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
+        }
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
@@ -357,9 +366,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     return (
         <FormView
-            title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
+            title={isTemplate ? 'Template' : 'Endpoint'}
             onClose={props.handlePopupClose ?? openOverview}
-            hideClose={props.isPopup}
         >
             <TypeChip
                 type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"}

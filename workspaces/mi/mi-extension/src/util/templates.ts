@@ -122,10 +122,11 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.68</version>
+            <version>5.2.72</version>
             <extensions>true</extensions>
             <executions>
               <execution>
+                <phase>compile</phase>
                 <goals>
                   <goal>car</goal>
                 </goals>
@@ -140,7 +141,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             <executions>
               <execution>
                 <id>install-car</id>
-                <phase>install</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>install-file</goal>
                 </goals>
@@ -158,37 +159,24 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <server.type>local</server.type>
+        <server.host>localhost</server.host>
+        <server.port>9008</server.port>
+        <server.path>/</server.path>
+        <server.version>\${project.runtime.version}</server.version>
+        <server.download.link>\${testServerDownloadLink}</server.download.link>
+      </properties>
     </profile>
     <profile>
       <id>test</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.wso2.maven</groupId>
-            <artifactId>synapse-unit-test-maven-plugin</artifactId>
-            <version>5.2.68</version>
-            <executions>
-              <execution>
-                <id>synapse-unit-test</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>synapse-unit-test</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <server>
-                <testServerType>\${testServerType}</testServerType>
-                <testServerHost>\${testServerHost}</testServerHost>
-                <testServerPort>\${testServerPort}</testServerPort>
-                <testServerPath>\${testServerPath}</testServerPath>
-              </server>
-              <testCasesFilePath>\${project.basedir}/src/test/wso2mi/\${testFile}</testCasesFilePath>
-              <mavenTestSkip>\${maven.test.skip}</mavenTestSkip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
+      <build/>
+      <properties>
+        <server.type>\${testServerType}</server.type>
+        <server.host>\${testServerHost}</server.host>
+        <server.port>\${testServerPort}</server.port>
+        <server.path>\${testServerPath}</server.path>
+      </properties>
     </profile>
     <profile>
       <id>docker</id>
@@ -229,7 +217,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.68</version>
+            <version>5.2.72</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -265,7 +253,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>mi-container-config-mapper</artifactId>
-            <version>5.2.68</version>
+            <version>5.2.72</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -275,7 +263,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
                   <goal>config-mapper-parser</goal>
                 </goals>
                 <configuration>
-                  <miVersion>4.3.0</miVersion>
+                  <miVersion>\${project.runtime.version}</miVersion>
                   <executeCipherTool>\${ciphertool.enable}</executeCipherTool>
                   <keystoreName>\${keystore.name}</keystoreName>
                   <keystoreAlias>\${keystore.alias}</keystoreAlias>
@@ -350,8 +338,46 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <server.type>local</server.type>
+        <server.host>localhost</server.host>
+        <server.port>9008</server.port>
+        <server.path>/</server.path>
+        <server.version>\${project.runtime.version}</server.version>
+        <server.download.link>\${testServerDownloadLink}</server.download.link>
+      </properties>
     </profile>
-  </profiles>    
+  </profiles>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.wso2.maven</groupId>
+        <artifactId>synapse-unit-test-maven-plugin</artifactId>
+        <version>5.2.72</version>
+        <executions>
+          <execution>
+            <id>synapse-unit-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>synapse-unit-test</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <server>
+            <testServerType>\${server.type}</testServerType>
+            <testServerHost>\${server.host}</testServerHost>
+            <testServerPort>\${server.port}</testServerPort>
+            <testServerPath>\${server.path}</testServerPath>
+            <testServerVersion>\${server.version}</testServerVersion>
+            <testServerDownloadLink>\${server.download.link}</testServerDownloadLink>
+          </server>
+          <testCasesFilePath>\${project.basedir}/src/test/wso2mi/\${testFile}</testCasesFilePath>
+          <mavenTestSkip>\${maven.test.skip}</mavenTestSkip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <properties>
     <projectType>integration-project</projectType>
     <uuid>${projectUuid}</uuid>
@@ -361,11 +387,11 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <keystore.password>wso2carbon</keystore.password>
     <keystore.alias>wso2carbon</keystore.alias>
     <ciphertool.enable>true</ciphertool.enable>
-    <dockerfile.base.image>wso2/wso2mi:4.3.0</dockerfile.base.image>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.scm.id>integration-project</project.scm.id>
     <project.runtime.version>4.3.0</project.runtime.version>
+    <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
   </properties>
 </project>`;
 

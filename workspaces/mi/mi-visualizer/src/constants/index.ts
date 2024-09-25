@@ -120,6 +120,8 @@ export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
 }
 
+export const connectorFailoverIconUrl = "https://mi-connectors.wso2.com/icons/wordpress.gif";
+
 export const DATASOURCE = {
     TYPE: {
         RDBMS: "driverClassName",
