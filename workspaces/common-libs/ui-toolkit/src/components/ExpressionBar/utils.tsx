@@ -44,7 +44,7 @@ export const addClosingBracketIfNeeded = (text: string) => {
 };
 
 export const getIcon = (kind: CompletionItemKind) => {
-    if (kind in COMPLETION_ITEM_KIND) {
+    if (Object.values(COMPLETION_ITEM_KIND).includes(kind)) {
         return <Codicon name={`symbol-${kind}`} />;
     }
 
