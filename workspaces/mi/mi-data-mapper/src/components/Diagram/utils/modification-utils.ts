@@ -342,19 +342,22 @@ export async function modifyFieldOptionality(
 		currField = currField.parentType;
 	}
 
-	let currInterface = sourceFile.getInterfaceOrThrow(currField.type.typeName);
+	let rootType: InterfaceDeclaration = sourceFile.getInterfaceOrThrow(currField.type.typeName);
 
 	let currIdentifier = fieldIdentifiers.pop();
-	let currProperty = currInterface.getProperty(currIdentifier.fieldName);
+	let currProperty = rootType.getProperty(currIdentifier.fieldName);
 
 	while (fieldIdentifiers.length > 0) {
+		let currDeclaration:Node;
 		if (currIdentifier.kind == TypeKind.Array)
-			currInterface = currProperty?.getType().getArrayElementType()?.getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
+			currDeclaration = currProperty?.getType().getArrayElementType()?.getSymbol()?.getDeclarations()[0];
 		else
-			currInterface = currProperty?.getType().getSymbol()?.getDeclarations()[0] as InterfaceDeclaration
+			currDeclaration = currProperty?.getType().getSymbol()?.getDeclarations()[0];
 
 		currIdentifier = fieldIdentifiers.pop();
-		currProperty = currInterface?.getProperty(currIdentifier.fieldName);
+		if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
+			currProperty = currDeclaration?.getProperty(currIdentifier.fieldName);
+		}
 	}
 
 	currProperty?.set({ hasQuestionToken: isOptional });
