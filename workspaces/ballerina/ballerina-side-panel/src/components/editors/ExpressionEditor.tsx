@@ -46,14 +46,29 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     const { field } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
-    const { completions, triggerCharacters, onRetrieveCompletions, onCancel } = expressionEditor;
+    const {
+        completions,
+        triggerCharacters,
+        onRetrieveCompletions,
+        onFocus,
+        onBlur,
+        onCompletionSelect,
+        onSave,
+        onCancel,
+    } = expressionEditor;
     const exprRef = useRef<ExpressionBarRef>(null);
+    const cursorPositionRef = useRef<number>(0);
 
     const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
         return useMutation({
             mutationFn: fn,
         });
     };
+
+    const handleFocus = async (value: string) => {
+        await onFocus?.();
+        await onRetrieveCompletions(value, value.length, undefined, true);
+    }
 
     return (
         <S.Container>
@@ -76,25 +91,24 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
 
                             // Check if the current character is a trigger character
                             const cursorPosition = exprRef.current?.shadowRoot.querySelector('input').selectionStart;
+                            cursorPositionRef.current = cursorPosition;
                             const triggerCharacter =
                                 cursorPosition > 0
                                     ? triggerCharacters.find((char) => value[cursorPosition - 1] === char)
                                     : undefined;
                             if (triggerCharacter) {
-                                await onRetrieveCompletions(
-                                    value,
-                                    exprRef.current?.shadowRoot.querySelector('input').selectionStart,
-                                    triggerCharacter
-                                );
+                                await onRetrieveCompletions(value, cursorPosition, triggerCharacter);
                             } else {
-                                await onRetrieveCompletions(
-                                    value,
-                                    exprRef.current?.shadowRoot.querySelector('input').selectionStart
-                                );
+                                await onRetrieveCompletions(value, cursorPosition);
                             }
                         }}
+                        onCompletionSelect={onCompletionSelect}
+                        onFocus={() => handleFocus(value)}
+                        onBlur={onBlur}
+                        onSave={onSave}
                         onCancel={onCancel}
                         useTransaction={useTransaction}
+                        shouldDisableOnSave={false}
                         sx={{ paddingInline: '0' }}
                     />
                 )}
