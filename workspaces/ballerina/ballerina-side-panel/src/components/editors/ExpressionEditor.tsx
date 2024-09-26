@@ -66,9 +66,14 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     };
 
     const handleFocus = async (value: string) => {
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
         await onFocus?.();
-        await onRetrieveCompletions(value, value.length, undefined, true);
-    }
+        await onRetrieveCompletions(value, cursorPosition, undefined, true);
+    };
+
+    const handleBlur = async () => {
+        await onBlur?.();
+    };
 
     return (
         <S.Container>
@@ -103,7 +108,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                         }}
                         onCompletionSelect={onCompletionSelect}
                         onFocus={() => handleFocus(value)}
-                        onBlur={onBlur}
+                        onBlur={handleBlur}
                         onSave={onSave}
                         onCancel={onCancel}
                         useTransaction={useTransaction}
