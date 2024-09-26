@@ -3773,7 +3773,7 @@ ${endpointAttributes}
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 ${keyValuesXML}`;
 
-            const filePath = params?.filePath ?? path.join(localEntryPath, `${connectionName}.xml`);
+            const filePath = params?.filePath?.length ? params.filePath : path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
                 fs.mkdirSync(localEntryPath);
             }
