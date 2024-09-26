@@ -555,12 +555,12 @@ export interface ExpressionCompletionsRequest {
 
 export interface ExpressionCompletionItem {
     label: string;
-    kind: string;
+    kind: number;
     detail: string;
     sortText: string;
     filterText: string;
     insertText: string;
-    insertTextFormat: string;
+    insertTextFormat: number;
 }
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
