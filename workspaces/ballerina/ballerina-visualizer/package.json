@@ -48,7 +48,8 @@
     "lodash": "~4.17.21",
     "react-lottie": "^1.2.3",
     "lodash.debounce": "^4.0.8",
-    "@types/lodash": "~4.17.7"
+    "@types/lodash": "~4.17.7",
+    "react-hook-form": "~7.53.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.33",
