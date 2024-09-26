@@ -165,7 +165,7 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): st
         case SidePanelView.FORM:
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
                 activeNode.metadata.label
-            } Node Properties`;
+            }`;
         default:
             return "";
     }
