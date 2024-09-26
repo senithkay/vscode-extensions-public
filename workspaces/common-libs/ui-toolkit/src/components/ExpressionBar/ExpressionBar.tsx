@@ -65,6 +65,7 @@ export type CompletionItem = {
     kind: CompletionItemKind;
     args?: string[];
     replacementSpan?: number;
+    sortText?: string;
 };
 
 export type ExpressionBarBaseProps = {
@@ -82,6 +83,7 @@ export type ExpressionBarBaseProps = {
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
+    shouldDisableOnSave?: boolean;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {

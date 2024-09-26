@@ -326,6 +326,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         useTransaction,
         onFocus,
         onBlur,
+        shouldDisableOnSave = true,
         ...rest
     } = props;
     const elementRef = useRef<HTMLDivElement>(null);
@@ -555,10 +556,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 onFocus={() => handleFocus()}
                 onBlur={() => handleBlur()}
                 sx={{ width: '100%', ...sx }}
-                disabled={disabled || isSelectingCompletion || isSavingExpression}
+                disabled={disabled || (shouldDisableOnSave && (isSelectingCompletion || isSavingExpression))}
                 {...rest}
             />
-            {(isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
+            {shouldDisableOnSave && (isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
