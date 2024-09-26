@@ -279,7 +279,8 @@ export function AddConnection(props: AddConnectionProps) {
         await rpcClient.getMiDiagramRpcClient().createConnection({
             connectionName: getValues("name"),
             keyValuesXML: modifiedXml,
-            directory: localEntryPath
+            directory: localEntryPath,
+            filePath: props.connectionName ? props.path : ""
         });
 
         if (props.isPopup) {
