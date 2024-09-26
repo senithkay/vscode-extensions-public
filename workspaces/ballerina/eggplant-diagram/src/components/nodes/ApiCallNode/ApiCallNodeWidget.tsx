@@ -22,7 +22,7 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon } from "../../../resources";
+import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
@@ -125,6 +125,34 @@ export namespace NodeStyles {
     export const Hr = styled.hr`
         width: 100%;
     `;
+
+    export const Footer = styled(StyledText)`
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+
+    export type PillStyleProp = {
+        color: string;
+    };
+    export const Pill = styled.div<PillStyleProp>`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: ${(props: PillStyleProp) => props.color};
+        padding: 2px 4px;
+        border-radius: 20px;
+        border: 1px solid ${(props: PillStyleProp) => props.color};
+        font-size: 12px;
+        font-family: monospace;
+        svg {
+            fill: ${(props: PillStyleProp) => props.color};
+            stroke: ${(props: PillStyleProp) => props.color};
+            height: 12px;
+            width: 12px;
+        }
+    `;
 }
 
 interface ApiCallNodeWidgetProps {
@@ -165,7 +193,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
@@ -200,6 +228,20 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                             {model.node.codedata.module} : {model.node.metadata.label}
                         </NodeStyles.Title>
                         <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description>
+                        <NodeStyles.Footer>
+                            {model.node.properties.variable?.value && (
+                                <NodeStyles.Pill color={Colors.PURPLE}>
+                                    <XIcon />
+                                    {model.node.properties.variable.value}
+                                </NodeStyles.Pill>
+                            )}
+                            {model.node.properties.type?.value && (
+                                <NodeStyles.Pill color={Colors.GREEN}>
+                                    <TIcon />
+                                    {model.node.properties.type.value}
+                                </NodeStyles.Pill>
+                            )}
+                        </NodeStyles.Footer>
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />
