@@ -12,7 +12,11 @@ import { css, keyframes } from "@emotion/react";
 import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import { Colors, NODE_BORDER_WIDTH, NODE_PADDING, POPUP_BOX_HEIGHT, POPUP_BOX_WIDTH } from "../../resources/constants";
+import {
+    Colors,
+    NODE_GAP_Y,
+    NODE_WIDTH,
+} from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
 import AddCommentPopup from "../AddCommentPopup";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
@@ -78,7 +82,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     };
 
     return (
-        <g pointerEvents={"all"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <g pointerEvents={"stroke"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <path
                 id={link.getID() + "-bg"}
                 d={link.getSVGPath()}
@@ -96,7 +100,12 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
             />
             {link.label && (
-                <foreignObject x={addButtonPosition.x - 50} y={addButtonPosition.y - 10} width="100" height="100">
+                <foreignObject
+                    x={addButtonPosition.x - NODE_WIDTH / 2}
+                    y={addButtonPosition.y - 12}
+                    width={NODE_WIDTH}
+                    height={NODE_GAP_Y / 2}
+                >
                     <div
                         css={css`
                             display: ${isHovered && link.showAddButton ? "none" : "flex"};
@@ -123,6 +132,11 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                     color: linkColor,
                                     fontSize: "14px",
                                     userSelect: "none",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    maxWidth: "250px",
+                                    display: "inline-block",
                                 }}
                             >
                                 {link.label}

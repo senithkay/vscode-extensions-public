@@ -201,9 +201,9 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                 </NodeStyles.Column>
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
+                    {/* <NodeStyles.Description>
                         {model.node.branches.at(0).properties.condition.value}
-                    </NodeStyles.Description>
+                    </NodeStyles.Description> */}
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
