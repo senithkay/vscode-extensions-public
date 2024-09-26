@@ -72,6 +72,11 @@ export function convertEggplantCategoriesToSidePanelCategories(categories: Categ
     return panelCategories;
 }
 
+export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
+    const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+    return panelCategories;
+}
+
 export function convertNodePropertiesToFormFields(
     nodeProperties: NodeProperties,
     connections?: FlowNode[],
