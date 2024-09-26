@@ -20,6 +20,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
+import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
 interface FormProps {
     node: FlowNode;
@@ -29,10 +30,16 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     onSubmit: (node?: FlowNode) => void;
+    expressionEditor?: {
+        completions: CompletionItem[];
+        triggerCharacters: readonly string[];
+        onRetrieveCompletions: (value: string, offset: number) => any;
+        onCancel: () => void;
+    };
 }
 
 export function FormGenerator(props: FormProps) {
-    const { node, nodeFormTemplate, connections, clientName, targetLineRange, projectPath, onSubmit } = props;
+    const { node, nodeFormTemplate, connections, clientName, targetLineRange, projectPath, onSubmit, expressionEditor } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -150,6 +157,7 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     canUpdateVariable={node.codedata.node !== "NEW_CONNECTION"}
+                    expressionEditor={expressionEditor}
                 />
             )}
             {showRecordEditor && (
