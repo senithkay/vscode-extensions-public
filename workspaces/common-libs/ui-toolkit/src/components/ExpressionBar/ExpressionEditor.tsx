@@ -332,6 +332,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
+    const isExpressionEditorFocused = useRef<boolean>(false);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
     const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
@@ -526,17 +527,27 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleFocus = async () => {
-        await onFocus?.();
-        inputRef.current?.focus();
+        if (!isExpressionEditorFocused.current) {
+            await onFocus?.();
+            inputRef.current?.focus();
+
+            // Set the expression editor as focused
+            isExpressionEditorFocused.current = true;
+        }
     }
 
     const handleBlur = async (text?: string) => {
-        // Trigger save event on blur
-        if (text !== undefined) {
-            await handleExpressionSaveMutation(text);
+        if (isExpressionEditorFocused.current) {
+            // Trigger save event on blur
+            if (text !== undefined) {
+                await handleExpressionSaveMutation(text);
+            }
+            await onBlur?.();
+            inputRef.current?.blur();
+
+            // Set the expression editor as blurred
+            isExpressionEditorFocused.current = false;
         }
-        await onBlur?.();
-        inputRef.current?.blur();
     }
 
     useImperativeHandle(ref, () => ({
