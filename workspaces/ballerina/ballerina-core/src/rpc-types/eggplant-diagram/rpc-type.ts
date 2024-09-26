@@ -19,6 +19,8 @@ import {
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
     EggplantSourceCodeResponse,
+    EggplantGetFunctionsRequest,
+    EggplantGetFunctionsResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, EggplantAiSuggestionsRequest, EggplantAiSuggestionsResponse, ComponentsRequest, ComponentsResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -28,6 +30,7 @@ export const getFlowModel: RequestType<void, EggplantFlowModelResponse> = { meth
 export const getSourceCode: RequestType<EggplantSourceCodeRequest, EggplantSourceCodeResponse> = { method: `${_preFix}/getSourceCode` };
 export const deleteFlowNode: RequestType<EggplantSourceCodeRequest, EggplantSourceCodeResponse> = { method: `${_preFix}/deleteFlowNode` };
 export const getAvailableNodes: RequestType<EggplantAvailableNodesRequest, EggplantAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
+export const getFunctions: RequestType<EggplantGetFunctionsRequest, EggplantGetFunctionsResponse> = { method: `${_preFix}/getFunctions` };
 export const getNodeTemplate: RequestType<EggplantNodeTemplateRequest, EggplantNodeTemplateResponse> = { method: `${_preFix}/getNodeTemplate` };
 export const getAiSuggestions: RequestType<EggplantAiSuggestionsRequest, EggplantAiSuggestionsResponse> = { method: `${_preFix}/getAiSuggestions` };
 export const createProject: NotificationType<ProjectRequest> = { method: `${_preFix}/createProject` };

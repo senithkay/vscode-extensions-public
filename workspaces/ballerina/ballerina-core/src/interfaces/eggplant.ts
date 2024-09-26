@@ -197,6 +197,7 @@ export type NodeKind =
     | "UPDATE_DATA"
     | "NEW_CONNECTION"
     | "COMMENT"
+    | "FUNCTION"
     | "DATA_MAPPER";
 
 
