@@ -34,6 +34,7 @@ interface FormProps {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
         onRetrieveCompletions: (value: string, offset: number) => any;
+        onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
     };
 }

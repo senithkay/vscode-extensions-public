@@ -575,6 +575,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setCompletions([]);
     };
 
+    const handleCompletionSelect = async () => {
+        await debouncedGetCompletions.flush();
+        handleExpressionEditorCancel();
+    }
+
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -654,6 +659,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             completions: filteredCompletions,
                             triggerCharacters: TRIGGER_CHARACTERS,
                             onRetrieveCompletions: handleGetCompletions,
+                            onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
                         }}
                     />
