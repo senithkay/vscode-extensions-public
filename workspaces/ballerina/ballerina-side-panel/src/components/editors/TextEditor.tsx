@@ -23,7 +23,7 @@ const AddTypeContainer = styled.div<{}>`
     margin-left: 8px;
 `;
 
-export const Pill = styled.div`
+const Pill = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,7 +67,7 @@ export function TextEditor(props: TextEditorProps) {
             label={field.label}
             required={!field.optional}
             description={field.documentation}
-            labelAdornment={typeLabel(field.type)}
+            // labelAdornment={typeLabel(field.type)}
             sx={{ width: "100%" }}
         />
     );
