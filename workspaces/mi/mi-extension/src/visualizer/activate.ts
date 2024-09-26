@@ -136,7 +136,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
 
     StateMachine.service().onTransition((state) => {
         if (state.event.viewLocation?.view) {
-            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined);
+            commands.executeCommand('setContext', 'showGoToSource', state.event.viewLocation?.documentUri !== undefined && !state.event.viewLocation.view.endsWith("Form"));
         }
     });
 }
