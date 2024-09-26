@@ -76,7 +76,7 @@ export type ExpressionBarBaseProps = {
     sx?: React.CSSProperties;
     completions: CompletionItem[];
     inputProps?: InputProps;
-    onChange: (value: string) => void | Promise<void>;
+    onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;

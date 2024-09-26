@@ -86,20 +86,19 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                         name={name}
                         completions={completions}
                         value={value}
-                        onChange={async (value: string) => {
+                        onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
 
                             // Check if the current character is a trigger character
-                            const cursorPosition = exprRef.current?.shadowRoot.querySelector('input').selectionStart;
-                            cursorPositionRef.current = cursorPosition;
+                            cursorPositionRef.current = updatedCursorPosition;
                             const triggerCharacter =
-                                cursorPosition > 0
-                                    ? triggerCharacters.find((char) => value[cursorPosition - 1] === char)
+                                updatedCursorPosition > 0
+                                    ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
                                     : undefined;
                             if (triggerCharacter) {
-                                await onRetrieveCompletions(value, cursorPosition, triggerCharacter);
+                                await onRetrieveCompletions(value, updatedCursorPosition, triggerCharacter);
                             } else {
-                                await onRetrieveCompletions(value, cursorPosition);
+                                await onRetrieveCompletions(value, updatedCursorPosition);
                             }
                         }}
                         onCompletionSelect={onCompletionSelect}

@@ -387,8 +387,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleChange = async (text: string, cursorPosition?: number, selectedItem?: CompletionItem) => {
+        const updatedCursorPosition =
+            cursorPosition ?? inputRef.current.shadowRoot.querySelector('input').selectionStart;
         // Update the text field value
-        await onChange(text);
+        await onChange(text, updatedCursorPosition);
 
         // Update selected argument if the cursor is inside a function
         const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
