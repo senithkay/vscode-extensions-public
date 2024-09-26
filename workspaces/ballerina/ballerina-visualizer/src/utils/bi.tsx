@@ -256,8 +256,9 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
     const tag = labelArray.length > 1 ? labelArray.slice(0, -1).join("/") : undefined;
     const label = labelArray[labelArray.length - 1];
     const kind = completion.detail.split(/(?=[A-Z])/).map(word => word.toLowerCase()).join('-') as CompletionItemKind;
-    const value = completion.filterText;
+    const value = completion.filterText ?? completion.insertText;
     const description = completion.detail;
+    const sortText = completion.sortText;
 
     return {
         tag,
@@ -265,5 +266,6 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         value,
         description,
         kind,
+        sortText
     }
 }

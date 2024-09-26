@@ -40,6 +40,7 @@ import { View, ViewContent, ViewHeader, CompletionItem } from "@wso2-enterprise/
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
+import { debounce } from "lodash";
 
 const Container = styled.div`
     width: 100%;
@@ -82,6 +83,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [isChainedExpression, setIsChainedExpression] = useState(false);
+    const [triggerCompletionOnNextRequest, setTriggerCompletionOnNextRequest] = useState(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -121,11 +123,18 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
+    const clearExpressionEditor = () => {
+        // clear memory for expression editor
+        setCompletions([]);
+        setFilteredCompletions([]);
+        setIsChainedExpression(false);
+        setTriggerCompletionOnNextRequest(false);
+    }
+
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
-        setCompletions([]);
-        setFilteredCompletions([]);
+        clearExpressionEditor();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -403,8 +412,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
-        setCompletions([]);
-        setFilteredCompletions([]);
+        clearExpressionEditor();
         selectedNodeRef.current = undefined;
     };
 
@@ -464,72 +472,107 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleGetCompletions = async (value: string, offset: number, triggerCharacter?: string) => {
-        let expressionCompletions: CompletionItem[] = [];
-        const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]$`);
-        if (offset > 0 && endOfChainRegex.test(value[offset - 1])) {
-            setIsChainedExpression(false);
-            setCompletions([]);
-        } else if (completions.length > 0 && !triggerCharacter && !isChainedExpression) {
-            expressionCompletions = completions
-                .filter(completion => {
-                    const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0];
-                    const lowerCaseText = text?.toLowerCase();
-                    const lowerCaseLabel = completion.label.toLowerCase();
-
-                    return lowerCaseLabel.includes(lowerCaseText);
-                })
-                .sort((a, b) => a.label.length - b.label.length);
-        } else {
-            if (triggerCharacter) {
-                setIsChainedExpression(true);
-            } else {
-                const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
-                if (triggerRegex.test(value.slice(0, offset))) {
-                    setIsChainedExpression(true);
-                } else {
-                    setIsChainedExpression(false);
-                }
-            }
-
-            // Retrieve completions from the ls
-            const completions = await rpcClient.getEggplantDiagramRpcClient().getExpressionCompletions({
-                filePath: model.fileName,
-                expression: value,
-                startLine: targetRef.current.startLine,
-                offset: offset,
-                context: {
-                    triggerKind: triggerCharacter ? 2 : 1,
-                    triggerCharacter: triggerCharacter as TriggerCharacter,
-                }
-            });
-
-            // Convert completions to the ExpressionBar format
-            const convertedCompletions = completions?.map(
-                completion => convertBalCompletion(completion)
-            ) ?? [];
-            setCompletions(convertedCompletions);
-
-            if (triggerCharacter) {
-                expressionCompletions = convertedCompletions;
-            } else {
-                expressionCompletions = convertedCompletions
-                    .filter(completion => {
-                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0];
-                        const lowerCaseText = text?.toLowerCase();
+    const debouncedGetCompletions = debounce(
+        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+            let expressionCompletions: CompletionItem[] = [];
+            const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]$`);
+            if (
+                offset > 0 &&
+                endOfChainRegex.test(value[offset - 1]) &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest
+            ) {
+                // Case 1: When a character unrelated to triggering completions is entered
+                setIsChainedExpression(false);
+                setCompletions([]);
+            } else if (
+                completions.length > 0 &&
+                !triggerCharacter &&
+                !isChainedExpression &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest
+            ) {
+                // Case 2: When completions have already been retrieved and only need to be filtered
+                expressionCompletions = completions
+                    .filter((completion) => {
+                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                        const lowerCaseText = text.toLowerCase();
                         const lowerCaseLabel = completion.label.toLowerCase();
 
                         return lowerCaseLabel.includes(lowerCaseText);
                     })
-                    .sort((a, b) => a.label.length - b.label.length);
-            }
-        }
+                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
+            } else {
+                // Case 3: When completions need to be retrieved from the language server
+                if (triggerCharacter) {
+                    setIsChainedExpression(true);
+                } else {
+                    const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
+                    if (triggerRegex.test(value.slice(0, offset))) {
+                        setIsChainedExpression(true);
+                    } else {
+                        setIsChainedExpression(false);
+                    }
+                }
 
-        setFilteredCompletions(expressionCompletions);
+                // Retrieve completions from the ls
+                let completions = await rpcClient.getEggplantDiagramRpcClient().getExpressionCompletions({
+                    filePath: model.fileName,
+                    expression: value,
+                    startLine: targetRef.current.startLine,
+                    offset: offset,
+                    context: {
+                        triggerKind: triggerCharacter ? 2 : 1,
+                        triggerCharacter: triggerCharacter as TriggerCharacter,
+                    },
+                });
+
+                
+                if (onlyVariables) {
+                    // If only variables are requested, filter out the completions based on the kind
+                    // 'kind' for variables = 6
+                    completions = completions?.filter((completion) => completion.kind === 6);
+                    setTriggerCompletionOnNextRequest(true);
+                } else {
+                    setTriggerCompletionOnNextRequest(false);
+                }
+
+                // Convert completions to the ExpressionBar format
+                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                setCompletions(convertedCompletions);
+
+                if (triggerCharacter) {
+                    expressionCompletions = convertedCompletions;
+                } else {
+                    expressionCompletions = convertedCompletions
+                        .filter((completion) => {
+                            const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                            const lowerCaseText = text.toLowerCase();
+                            const lowerCaseLabel = completion.label.toLowerCase();
+
+                            return lowerCaseLabel.includes(lowerCaseText);
+                        })
+                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                }
+            }
+
+            setFilteredCompletions(expressionCompletions);
+        },
+        250
+    );
+
+    const handleGetCompletions = async (
+        value: string,
+        offset: number,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => {
+        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
     }
 
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
     };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
