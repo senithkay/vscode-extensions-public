@@ -178,7 +178,7 @@
       },
       {
         "view": "testing",
-        "contents": "[Add new test suite](command:MI.test.add.suite)"
+        "contents": "[Add Unit Test](command:MI.test.add.suite)"
       }
     ],
     "commands": [
@@ -421,7 +421,7 @@
       },
       {
         "command": "MI.test.add.suite",
-        "title": "Add test suite",
+        "title": "Add unit test",
         "icon": "$(add)",
         "category": "MI"
       },
