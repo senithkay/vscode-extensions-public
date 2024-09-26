@@ -209,23 +209,23 @@ export function removeDraftNodeFromDiagram(flowModel: Flow) {
     return newFlow;
 }
 
-export function enrichNodePropertiesWithValueConstraint(
-    nodeProps: NodeProperties,
-    nodePropsWithValConstrant: NodeProperties
+export function enrichFormPropertiesWithValueConstraint(
+    formProperties: NodeProperties,
+    formTemplateProperties: NodeProperties
 ) {
-    const enrichedNodeProperties: NodeProperties = { ...nodeProps };
+    const enrichedFormProperties = cloneDeep(formProperties);
 
-    for (const key in enrichedNodeProperties) {
-        if (enrichedNodeProperties.hasOwnProperty(key)) {
-            const expression = enrichedNodeProperties[key as NodePropertyKey];
+    for (const key in formTemplateProperties) {
+        if (formTemplateProperties.hasOwnProperty(key)) {
+            const expression = formTemplateProperties[key as NodePropertyKey];
             if (expression) {
-                const valConstraint = nodePropsWithValConstrant[key as NodePropertyKey]?.valueTypeConstraint;
+                const valConstraint = formTemplateProperties[key as NodePropertyKey]?.valueTypeConstraint;
                 if (valConstraint) {
-                    expression.valueTypeConstraint = valConstraint;
+                    enrichedFormProperties[key as NodePropertyKey].valueTypeConstraint = valConstraint;
                 }
             }
         }
     }
 
-    return enrichedNodeProperties;
+    return enrichedFormProperties;
 }

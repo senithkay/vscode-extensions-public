@@ -59,7 +59,7 @@ export function Diagram(props: DiagramProps) {
         goToSource,
         openView,
         suggestions,
-        projectPath
+        projectPath,
     } = props;
 
     const [showErrorFlow, setShowErrorFlow] = useState(false);
@@ -137,7 +137,7 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.getModel().removeLayer(overlayLayer);
         }
 
-        if (nodes.length < 3) {
+        if (nodes.length < 3 || !hasDiagramZoomAndPosition(model.fileName)) {
             resetDiagramZoomAndPosition(model.fileName);
         }
         loadDiagramZoomAndPosition(diagramEngine);

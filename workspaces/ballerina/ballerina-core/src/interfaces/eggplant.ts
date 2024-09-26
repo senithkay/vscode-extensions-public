@@ -160,6 +160,7 @@ export type NodePropertyKey =
     | "client"
     | "targetType"
     | "variable"
+    | "type"
     | "expression"
     | "comment"
     | "connection";

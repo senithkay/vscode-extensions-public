@@ -13,7 +13,7 @@ import { Button, Codicon, LinkButton, SidePanelBody } from "@wso2-enterprise/ui-
 import styled from "@emotion/styled";
 
 import { FormField, FormValues } from "./types";
-import { FormFieldEditor } from "../editors/FormFieldEditor";
+import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { NodeKind, NodePosition } from "@wso2-enterprise/ballerina-core";
@@ -158,7 +158,7 @@ export function Form(props: FormProps) {
                 if (!field.optional) {
                     return (
                         <S.Row key={field.key}>
-                            <FormFieldEditor
+                            <EditorFactory
                                 field={field}
                                 register={register}
                                 openRecordEditor={handleOpenRecordEditor}
@@ -211,7 +211,7 @@ export function Form(props: FormProps) {
                     if (field.optional) {
                         return (
                             <S.Row key={field.key}>
-                                <FormFieldEditor
+                                <EditorFactory
                                     field={field}
                                     register={register}
                                     openRecordEditor={handleOpenRecordEditor}

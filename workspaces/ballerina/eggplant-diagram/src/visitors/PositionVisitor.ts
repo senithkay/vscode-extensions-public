@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { COMMENT_NODE_GAP, NODE_GAP_X, NODE_GAP_Y, NODE_PADDING, VSCODE_MARGIN } from "../resources/constants";
+import { COMMENT_NODE_GAP, DIAGRAM_CENTER_X, NODE_GAP_X, NODE_GAP_Y, NODE_PADDING, VSCODE_MARGIN } from "../resources/constants";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class PositionVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
-    private diagramCenterX = 500;
+    private diagramCenterX = DIAGRAM_CENTER_X;
     private lastNodeY = 200;
 
     constructor() {
@@ -35,23 +35,58 @@ export class PositionVisitor implements BaseVisitor {
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.w / 2;
 
-        const thenBranch = node.branches.find((branch) => branch.label === "Then");
-        thenBranch.viewState.y = this.lastNodeY;
+        // const thenBranch = node.branches.find((branch) => branch.label === "Then");
+        // thenBranch.viewState.y = this.lastNodeY;
 
-        const elseBranch = node.branches.find((branch) => branch.label === "Else");
-        elseBranch.viewState.y = this.lastNodeY;
+        // const elseBranch = node.branches.find((branch) => branch.label === "Else");
+        // elseBranch.viewState.y = this.lastNodeY;
 
-        // center if branch
-        const thenWidth = thenBranch.viewState.cw;
-        const elseWidth = elseBranch.viewState.cw;
-        const gap = NODE_GAP_X;
-        thenBranch.viewState.x = centerX - (3 * thenWidth + elseWidth + 2 * gap) / 4;
-        elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
+        // // center if branch
+        // const thenWidth = thenBranch.viewState.cw;
+        // const elseWidth = elseBranch.viewState.cw;
+        // const gap = NODE_GAP_X;
+        // thenBranch.viewState.x = centerX - (3 * thenWidth + elseWidth + 2 * gap) / 4;
+        // elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
 
-        // HACK
-        if (thenBranch.children.length === 1 && thenBranch.children.at(0).codedata.node === "EMPTY") {
-            thenBranch.viewState.x -= VSCODE_MARGIN;
+        
+
+        if (node.branches.length < 2) {
+            console.error("If node should have 2 branches");
+            return;
         }
+
+        const firstBranchWidth = node.branches.at(0).viewState.cw;
+        const lastBranchWidth = node.branches.at(-1).viewState.cw;
+        // branches from index 1 to n-1
+        let middleBranchesTotalWidth = 0;
+        for (let i = 1; i < node.branches.length - 1; i++) {
+            const branch = node.branches.at(i);
+            middleBranchesTotalWidth += branch.viewState.cw;
+        }
+        const numberOfBranches = node.branches.length;
+        // left side width to center point
+        const leftWidth =
+            (3 * firstBranchWidth +
+                2 * middleBranchesTotalWidth +
+                lastBranchWidth +
+                (numberOfBranches - 1) * NODE_GAP_X) /
+            4;
+        const startX = centerX - leftWidth;
+
+        node.branches.forEach((branch, index) => {
+            if (index === 0) {
+                // then branch
+                branch.viewState.x = startX;
+                // HACK
+                // if(branch.children.length === 1 && branch.children.at(0).codedata.node === "EMPTY") {
+                    branch.viewState.x -= VSCODE_MARGIN;
+                // }
+            } else {
+                const previousBranch = node.branches.at(index - 1);
+                branch.viewState.x = previousBranch.viewState.x + previousBranch.viewState.cw + NODE_GAP_X;
+            }
+            branch.viewState.y = this.lastNodeY;
+        });
     }
 
     endVisitIf(node: FlowNode, parent?: FlowNode): void {

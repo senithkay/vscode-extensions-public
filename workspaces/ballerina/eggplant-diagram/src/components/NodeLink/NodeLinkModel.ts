@@ -8,7 +8,7 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
+import { Colors, NODE_GAP_Y, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { Branch, FlowNode, LinePosition, NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;
@@ -117,7 +117,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
 
         // generate 2 angle lines
-        let curveOffset = 10;
+        let curveOffset = Math.min(Math.abs(source.x - target.x) / 2, Math.abs(source.y - target.y) / 2, 10);
         // is the target on the right?
         let isRight = source.x < target.x;
 
@@ -162,8 +162,11 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
 
         // generate for 2 angle lines
-        const bendY = this.alignBottom ? target.y : source.y + this.linkBottomOffset;
-        return { x: (source.x + target.x) / 2, y: bendY - 2 };
+        const diffY = Math.abs(source.y - target.y);
+        return {
+            x: this.alignBottom ? source.x : target.x,
+            y: this.alignBottom ? source.y + Math.min(diffY, NODE_GAP_Y) / 2 : target.y - NODE_GAP_Y / 2,
+        };
     }
 
     // show node arrow. default true. but target node is a EmptyNodeModel, then false
