@@ -98,17 +98,17 @@ export class InitVisitor implements BaseVisitor {
                     node: "ELSE",
                     lineRange: node.codedata.lineRange,
                 },
-                repeatable: "0..1",
+                repeatable: "ZERO_OR_MORE",
                 properties: {},
                 children: [emptyElseBranch],
             });
         }
 
         // HACK: replace Then branch label with condition
-        const thenBranch = node.branches.find((branch) => branch.label === "Then");
-        if (thenBranch) {
-            thenBranch.label = thenBranch.properties.condition.value;
-        }
+        // const thenBranch = node.branches.find((branch) => branch.label === "Then");
+        // if (thenBranch) {
+        //     thenBranch.label = thenBranch.properties.condition.value;
+        // }
     }
 
     skipChildren(): boolean {

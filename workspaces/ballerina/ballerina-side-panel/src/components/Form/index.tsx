@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, LinkButton, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, LinkButton, SidePanelBody, Switch } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField, FormValues } from "./types";
@@ -138,14 +138,18 @@ interface FormProps {
     formFields: FormField[];
     projectPath?: string;
     selectedNode?: NodeKind;
+    canUpdateVariable?: boolean;
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
 }
 
 export function Form(props: FormProps) {
-    const { formFields, projectPath, selectedNode, onSubmit, openRecordEditor, openView } = props;
+    const { formFields, projectPath, selectedNode, canUpdateVariable, onSubmit, openRecordEditor, openView } = props;
     const { getValues, register, setValue, handleSubmit, reset } = useForm<FormValues>();
+
+    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+    const [createNewVariable, setCreateNewVariable] = useState(true);
 
     useEffect(() => {
         // Reset form with new values when formFields change
@@ -159,8 +163,6 @@ export function Form(props: FormProps) {
         });
         reset(defaultValues);
     }, [formFields, reset]);
-
-    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
@@ -212,6 +214,16 @@ export function Form(props: FormProps) {
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
+    //TODO: get assign variable field from model. need to fix from LS
+    const updateVariableField = {
+        key: "update-variable",
+        label: "Update variable",
+        type: "IDENTIFIER",
+        optional: false,
+        editable: true,
+        documentation: "Select the variable to update",
+        value: "name",
+    };
 
     // TODO: support multiple type fields
     return (
@@ -284,26 +296,54 @@ export function Form(props: FormProps) {
                         }
                     })}
             </S.CategoryRow>
-            <S.CategoryRow showBorder={false}>
-                <S.TitleContainer>
-                    <S.Title>Output Variable</S.Title>
-                    <S.BodyText>Assign node output value to a variable</S.BodyText>
-                </S.TitleContainer>
-                {variableField && (
-                    <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
-                        <EditorFactory field={variableField} register={register} />
-                    </S.EditorContainer>
-                )}
-                {typeField && (
-                    <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
-                        <EditorFactory
-                            field={typeField}
-                            register={register}
-                            openRecordEditor={handleOpenRecordEditor}
-                        />
-                    </S.EditorContainer>
-                )}
-            </S.CategoryRow>
+            {variableField && (
+                <S.CategoryRow showBorder={false}>
+                    <S.TitleContainer>
+                        <S.Title>Output Variable</S.Title>
+                        <S.BodyText>Assign node output value to a variable</S.BodyText>
+                    </S.TitleContainer>
+                    {canUpdateVariable && (
+                        <S.Row>
+                            <Switch
+                                leftLabel="New Variable"
+                                rightLabel="Update Variable"
+                                checked={!createNewVariable}
+                                checkedColor={Colors.PRIMARY}
+                                enableTransition={true}
+                                onChange={() => {
+                                    setCreateNewVariable(!createNewVariable);
+                                }}
+                                sx={{
+                                    margin: "auto",
+                                    zIndex: "2",
+                                    border: "unset",
+                                    width: "100%",
+                                }}
+                                disabled={false}
+                            />
+                        </S.Row>
+                    )}
+                    {variableField && createNewVariable && (
+                        <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
+                            <EditorFactory field={variableField} register={register} />
+                        </S.EditorContainer>
+                    )}
+                    {typeField && createNewVariable && (
+                        <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
+                            <EditorFactory
+                                field={typeField}
+                                register={register}
+                                openRecordEditor={handleOpenRecordEditor}
+                            />
+                        </S.EditorContainer>
+                    )}
+                    {updateVariableField && !createNewVariable && (
+                        <S.EditorContainer key={updateVariableField.key} color={Colors.PURPLE}>
+                            <EditorFactory field={updateVariableField} register={register} />
+                        </S.EditorContainer>
+                    )}
+                </S.CategoryRow>
+            )}
             {onSubmit && (
                 <S.Footer>
                     <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>

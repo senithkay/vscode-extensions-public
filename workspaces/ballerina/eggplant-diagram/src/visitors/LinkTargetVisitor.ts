@@ -10,7 +10,7 @@
 import { NodeLinkModel } from "../components/NodeLink";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { NodeTypes } from "../resources/constants";
-import { getNodeIdFromModel } from "../utils/node";
+import { getBranchLabel, getNodeIdFromModel } from "../utils/node";
 import { Flow, FlowNode, LinkableNodeModel, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -144,7 +144,7 @@ export class LinkTargetVisitor implements BaseVisitor {
 
         node.branches.forEach((branch) => {
             // in link
-            const link = outLinks.find((link) => link.label === branch.label);
+            const link = outLinks.find((link) => link.label === getBranchLabel(branch));
             if (!link) {
                 console.error(">>> Link not found", { node, branch });
                 return;

@@ -9,12 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import {
-    PanelContainer,
-    NodeList,
-    Category as PanelCategory,
-    FormField,
-} from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer, NodeList, Category as PanelCategory, FormField } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { Diagram } from "@wso2-enterprise/eggplant-diagram";
 import {
@@ -61,7 +56,7 @@ const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
-    FUNCTION_LIST = "FUNCTION_LIST"
+    FUNCTION_LIST = "FUNCTION_LIST",
 }
 
 export interface EggplantFlowDiagramProps {
@@ -202,40 +197,43 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         //     setShowSidePanel(true);
         //     setSidePanelView(SidePanelView.FUNCTION_LIST);
         // });
-    }
+    };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         // node is function
         const nodeType: NodeKind = node.codedata.node;
-        if(nodeType === "FUNCTION") {
-            rpcClient.getEggplantDiagramRpcClient().getFunctions({
-                position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
-                filePath: model.fileName,
-                queryMap: undefined,
-            }).then((response) => {
-                console.log(">>> List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-                setSidePanelView(SidePanelView.FUNCTION_LIST);
-                setShowSidePanel(true);
-            });
+        if (nodeType === "FUNCTION") {
+            rpcClient
+                .getEggplantDiagramRpcClient()
+                .getFunctions({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                })
+                .then((response) => {
+                    console.log(">>> List of functions", response);
+                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                    setSidePanelView(SidePanelView.FUNCTION_LIST);
+                    setShowSidePanel(true);
+                });
         } else {
-        // default node 
-        console.log(">>> on select panel node", { nodeId, metadata });
-        selectedClientName.current = category;
-        rpcClient
-            .getEggplantDiagramRpcClient()
-            .getNodeTemplate({
-                position: targetRef.current.startLine,
-                filePath: model.fileName,
-                id: node.codedata,
-            })
-            .then((response) => {
-                console.log(">>> FlowNode template", response);
-                selectedNodeRef.current = response.flowNode;
-                setSidePanelView(SidePanelView.FORM);
-                setShowSidePanel(true);
-            });
+            // default node
+            console.log(">>> on select panel node", { nodeId, metadata });
+            selectedClientName.current = category;
+            rpcClient
+                .getEggplantDiagramRpcClient()
+                .getNodeTemplate({
+                    position: targetRef.current.startLine,
+                    filePath: model.fileName,
+                    id: node.codedata,
+                })
+                .then((response) => {
+                    console.log(">>> FlowNode template", response);
+                    selectedNodeRef.current = response.flowNode;
+                    setSidePanelView(SidePanelView.FORM);
+                    setShowSidePanel(true);
+                });
         }
     };
 
@@ -349,7 +347,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
-        
+
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
@@ -464,7 +462,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 </ViewContent>
             </View>
             <PanelContainer
-                title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
+                title={getContainerTitle(sidePanelView, selectedNodeRef.current, selectedClientName.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
                 onBack={
@@ -485,8 +483,10 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                     <NodeList
                         categories={categories}
                         onSelect={handleOnSelectNode}
-                        onClose={handleOnCloseSidePanel}
                         onSearchTextChange={handleSearchFunction}
+                        onClose={handleOnCloseSidePanel}
+                        title={"Functions"}
+                        onBack={handleOnFormBack}
                     />
                 )}
                 {sidePanelView === SidePanelView.FORM && (

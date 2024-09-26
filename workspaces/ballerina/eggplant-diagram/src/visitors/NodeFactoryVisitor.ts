@@ -18,6 +18,7 @@ import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
+import { getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -141,7 +142,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 return;
             }
 
-            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: branch.label });
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: getBranchLabel(branch) });
             if (link) {
                 this.links.push(link);
             }
@@ -186,7 +187,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
-                    label: branch.label,
+                    label: getBranchLabel(branch),
                     brokenLine: true,
                     showAddButton: false,
                 });
