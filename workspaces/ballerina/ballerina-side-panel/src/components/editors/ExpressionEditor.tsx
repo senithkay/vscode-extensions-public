@@ -7,13 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { FormField } from '../Form/types';
 import { Controller } from 'react-hook-form';
-import { CompletionItem, ExpressionBar, ExpressionBarRef, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import { ExpressionBar, ExpressionBarRef, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { debounce } from 'lodash';
 import { useFormContext } from '../../context';
 
 interface ExpressionEditorProps {

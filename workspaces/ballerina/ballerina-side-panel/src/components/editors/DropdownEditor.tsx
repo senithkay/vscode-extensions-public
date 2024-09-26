@@ -10,18 +10,19 @@
 import React from "react";
 
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
-import { FieldValues, UseFormRegister } from "react-hook-form";
 
 import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
+import { useFormContext } from "../../context";
 
 interface DropdownEditorProps {
     field: FormField;
-    register: UseFormRegister<FieldValues>;
 }
 
 export function DropdownEditor(props: DropdownEditorProps) {
-    const { field, register } = props;
+    const { field } = props;
+    const { form } = useFormContext();
+    const { register } = form;
 
     return (
         <Dropdown

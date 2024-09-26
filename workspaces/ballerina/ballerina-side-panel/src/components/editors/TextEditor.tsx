@@ -10,7 +10,7 @@
 import React from "react";
 import { FormField } from "../Form/types";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
-import { FieldValues, UseFormRegister } from "react-hook-form";
+import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { TIcon } from "../../resources";
@@ -44,11 +44,12 @@ const Pill = styled.div`
 
 interface TextEditorProps {
     field: FormField;
-    register: UseFormRegister<FieldValues>;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { field, register } = props;
+    const { field } = props;
+    const { form } = useFormContext();
+    const { register } = form;
 
     const typeLabel = (type: string) => (
         <AddTypeContainer>

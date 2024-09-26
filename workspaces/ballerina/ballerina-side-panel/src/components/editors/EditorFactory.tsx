@@ -9,17 +9,17 @@
 
 import React from "react";
 
-import { FieldValues, UseFormRegister } from "react-hook-form";
+import { Control, FieldValues, UseFormRegister, UseFormWatch } from "react-hook-form";
 
 import { FormField } from "../Form/types";
 import { DropdownEditor } from "./DropdownEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
+import { ExpressionEditor } from "./ExpressionEditor";
 import { isDropdownField } from "./utils";
 
 interface FormFieldEditorProps {
     field: FormField;
-    register: UseFormRegister<FieldValues>;
     openRecordEditor?: (open: boolean) => void;
 }
 
@@ -27,16 +27,20 @@ export function EditorFactory(props: FormFieldEditorProps) {
     const { field, openRecordEditor } = props;
 
     if (isDropdownField(field)) {
-        return <DropdownEditor {...props} />;
-    } else if (!field.items && (field.key !== "type")) {
-        return (
-            <TextEditor {...props} />
-        )
+        return <DropdownEditor field={field} />;
     } else if (!field.items && (field.key === "type")) {
         return (
-            <TypeEditor {...props} openRecordEditor={openRecordEditor} />
+            <TypeEditor field={field} openRecordEditor={openRecordEditor} />
         );
-    } else  {
-        return <TextEditor {...props} />;
+    } else if (!field.items && field.key === "expression") {
+        return (
+            <ExpressionEditor field={field} />
+        );
+    } else if (!field.items && (field.key !== "type")) {
+        return (
+            <TextEditor field={field} />
+        );
+    } else {
+        return <TextEditor field={field} />;
     }
 }
