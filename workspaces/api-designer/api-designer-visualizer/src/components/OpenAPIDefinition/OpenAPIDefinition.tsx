@@ -31,8 +31,8 @@ const NavigationContainer = styled.div`
 const OverviewTitle = styled.div`
     display: flex;
     flex-direction: row;
-    gap: 9px;
-    padding: 5px;
+    gap: 6px;
+    padding: 2px 0;
     cursor: pointer;
     &:hover {
         background-color: var(--vscode-editorHoverWidget-background);
@@ -186,12 +186,12 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     return (
         <NavigationContainer>
             <OverviewTitle onClick={handleOverviewClick}>
-                <Codicon name="globe" iconSx={{ fontSize: 20 }} />
-                <Typography variant="h3" sx={{ margin: 2 }}>Overview</Typography>
+                <Codicon name="globe" />
+                <Typography variant="h3" sx={{margin: 0}}>Overview</Typography>
             </OverviewTitle>
             {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />}
             <PanelContainer>
-                {selectedPathID === undefined && (
+                {(selectedPathID === undefined || !operation) && (
                     <Overview openAPIDefinition={openAPIDefinition} />
                 )}
                 {operation && selectedPathID !== undefined && (

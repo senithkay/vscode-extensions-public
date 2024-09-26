@@ -6,11 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ReactNode, useState } from "react";
 import { Paths } from "../../Definitions/ServiceDefinitions";
-import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
+import { TreeView } from "../Treeview/TreeView";
+import { TreeViewItem } from "../Treeview/TreeViewItem";
 
 interface OpenAPIDefinitionProps {
     paths: Paths;
@@ -49,75 +50,42 @@ const Operation = styled.div<OperationProps>`
     background-color: ${(props: OperationProps) => props.backgroundColor};
     border: ${(props: OperationProps) => props.selected ? "2px solid var(--vscode-inputOption-activeForeground)" : "2px solid transparent"};
     border-radius: 4px;
+    margin-bottom: 3px;
+    width: fit-content;
+    color: white;
     cursor: pointer;
 `;
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
     const { paths, selectedPathID, onAddPath, onPathChange } = props;
-    const [isExpanded, setIsExpanded] = useState<boolean>(true);
-
     const pathsArray = Object.keys(paths);
-    const pathComponents: ReactNode[] = [];
     // Get PathItems from paths
     const pathItems = Object.values(paths);
-    pathsArray.forEach((path, index) => {
-        const pathItem = pathItems[index];
-        // Get operations from pathItem
-        const operations = Object.keys(pathItem);
-        pathComponents.push((
-            <>
-                <Typography
-                    variant="h4"
-                    sx={{ margin: 2, paddingTop: 5, paddingBottom: 5 }}
-                >
-                    {path}
-                </Typography>
-                <Operations>
-                    {operations.map((operation) => {
-                        return (
-                            <Operation
-                                backgroundColor={getColorByMethod(operation.toUpperCase())}
-                                selected={selectedPathID === getResourceID(path, operation)}
-                                onClick={() => onPathChange && onPathChange(getResourceID(path, operation))}
-                            >
-                                <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>{operation.toUpperCase()}</Typography>
-                            </Operation>
-                        );
-                    })}
-                </Operations>
-            </>
-        )
-        );
-    });
-
-    const handleExpand = () => {
-        setIsExpanded(!isExpanded);
-        onPathChange && onPathChange("");
-    };
-
     return (
         <PathsContainer>
-            <PathsTitle>
-                <Button sx={{marginTop: -2, marginLeft: -2}} appearance="icon">
-                    <Codicon
-                        name={isExpanded ? "chevron-up" : "chevron-down"}
-                        iconSx={{ fontSize: 20 }}
-                        sx={{height: 20, width: 20}}
-                        onClick={handleExpand} 
-                    />
-                </Button>
-                <Typography variant="h3" sx={{ margin: 2 }}>Paths</Typography>
-                <Button sx={{marginTop: -2, marginLeft: 150}} appearance="icon" onClick={onAddPath}>
-                    <Codicon
-                        name={"add"}
-                        iconSx={{ fontSize: 20 }}
-                        sx={{height: 20, width: 20}}
-                    />
-                </Button>
-            </PathsTitle>
-            <PathItemContainer>
-                {isExpanded && pathComponents}
-            </PathItemContainer>
+            <TreeView rootTreeView id="Paths" content={<Typography sx={{ margin: "0 0 0 2px" }} variant="h3">Paths</Typography>} selectedId={selectedPathID} onSelect={onPathChange}>
+                {pathsArray.map((path, index) => {
+                    const pathItem = pathItems[index];
+                    const operations = Object.keys(pathItem);
+                    return (
+                        <TreeView id={path} content={<Typography sx={{ margin: "0 0 0 2px"  }} variant="h3">{path}</Typography>} selectedId={selectedPathID} onSelect={onPathChange}>
+                            {operations.map((operation) => {
+                                return (
+                                    <TreeViewItem id={getResourceID(path, operation)}>
+                                        <Operation
+                                            backgroundColor={getColorByMethod(operation.toUpperCase())}
+                                            selected={selectedPathID === getResourceID(path, operation)}
+                                            onClick={() => onPathChange && onPathChange(getResourceID(path, operation))}
+                                        >
+                                            <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>{operation.toUpperCase()}</Typography>
+                                        </Operation>
+                                    </TreeViewItem>
+                                );
+                            })}
+                        </TreeView>
+                    );
+                })}
+            </TreeView>
         </PathsContainer>
     )
 }
