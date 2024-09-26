@@ -181,6 +181,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable Eggplant overview version 2."
+                },
+                "ballerina.enableAiSuggestions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable Eggplant AI suggestions from Copilot."
                 }
             }
         },
