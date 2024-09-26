@@ -25,15 +25,18 @@ import {
     MACHINE_VIEW,
     NodeKind,
     BIGetFunctionsRequest,
+    TRIGGER_CHARACTERS,
+    TriggerCharacter
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
+    convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent, ViewHeader, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
@@ -76,6 +79,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const [isChainedExpression, setIsChainedExpression] = useState(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -118,6 +124,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
+        setCompletions([]);
+        setFilteredCompletions([]);
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -395,6 +403,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
+        setCompletions([]);
+        setFilteredCompletions([]);
         selectedNodeRef.current = undefined;
     };
 
@@ -452,6 +462,74 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             position: position,
         };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
+    };
+
+    const handleGetCompletions = async (value: string, offset: number, triggerCharacter?: string) => {
+        let expressionCompletions: CompletionItem[] = [];
+        const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]$`);
+        if (offset > 0 && endOfChainRegex.test(value[offset - 1])) {
+            setIsChainedExpression(false);
+            setCompletions([]);
+        } else if (completions.length > 0 && !triggerCharacter && !isChainedExpression) {
+            expressionCompletions = completions
+                .filter(completion => {
+                    const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0];
+                    const lowerCaseText = text?.toLowerCase();
+                    const lowerCaseLabel = completion.label.toLowerCase();
+
+                    return lowerCaseLabel.includes(lowerCaseText);
+                })
+                .sort((a, b) => a.label.length - b.label.length);
+        } else {
+            if (triggerCharacter) {
+                setIsChainedExpression(true);
+            } else {
+                const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
+                if (triggerRegex.test(value.slice(0, offset))) {
+                    setIsChainedExpression(true);
+                } else {
+                    setIsChainedExpression(false);
+                }
+            }
+
+            // Retrieve completions from the ls
+            const completions = await rpcClient.getEggplantDiagramRpcClient().getExpressionCompletions({
+                filePath: model.fileName,
+                expression: value,
+                startLine: targetRef.current.startLine,
+                offset: offset,
+                context: {
+                    triggerKind: triggerCharacter ? 2 : 1,
+                    triggerCharacter: triggerCharacter as TriggerCharacter,
+                }
+            });
+
+            // Convert completions to the ExpressionBar format
+            const convertedCompletions = completions?.map(
+                completion => convertBalCompletion(completion)
+            ) ?? [];
+            setCompletions(convertedCompletions);
+
+            if (triggerCharacter) {
+                expressionCompletions = convertedCompletions;
+            } else {
+                expressionCompletions = convertedCompletions
+                    .filter(completion => {
+                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0];
+                        const lowerCaseText = text?.toLowerCase();
+                        const lowerCaseLabel = completion.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    })
+                    .sort((a, b) => a.label.length - b.label.length);
+            }
+        }
+
+        setFilteredCompletions(expressionCompletions);
+    }
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredCompletions([]);
     };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
@@ -529,6 +607,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         targetLineRange={targetRef.current}
                         projectPath={projectPath}
                         onSubmit={handleOnFormSubmit}
+                        expressionEditor={{
+                            completions: filteredCompletions,
+                            triggerCharacters: TRIGGER_CHARACTERS,
+                            onRetrieveCompletions: handleGetCompletions,
+                            onCancel: handleExpressionEditorCancel,
+                        }}
                     />
                 )}
             </PanelContainer>

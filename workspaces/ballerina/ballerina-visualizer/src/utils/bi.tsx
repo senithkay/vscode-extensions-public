@@ -24,10 +24,12 @@ import {
     Flow,
     Branch,
     LineRange,
+    ExpressionCompletionItem
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
+import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     return {
@@ -247,4 +249,21 @@ export function enrichFormPropertiesWithValueConstraint(
     }
 
     return enrichedFormProperties;
+}
+
+export function convertBalCompletion(completion: ExpressionCompletionItem): CompletionItem {
+    const labelArray = completion.label.split("/");
+    const tag = labelArray.length > 1 ? labelArray.slice(0, -1).join("/") : undefined;
+    const label = labelArray[labelArray.length - 1];
+    const kind = completion.detail.split(/(?=[A-Z])/).map(word => word.toLowerCase()).join('-') as CompletionItemKind;
+    const value = completion.filterText;
+    const description = completion.detail;
+
+    return {
+        tag,
+        label,
+        value,
+        description,
+        kind,
+    }
 }
