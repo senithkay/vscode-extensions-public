@@ -27,7 +27,7 @@ function modityTestCaseData(data: TestCaseEntry) {
                 (data.input.properties as any).properties.length === 0) ||
             (data.input.properties as any).properties === undefined
         ) {
-            data.input.properties = null;
+            delete data.input.properties;
         } else {
             (data.input.properties as any).properties = (data.input.properties as any).properties.map((property: any) => {
                 return {
