@@ -363,7 +363,11 @@ function modifyTypeDeclarationOptionality(
 
 	typeDeclaration.getProperties().forEach(property => {
 		property.set({ hasQuestionToken: isOptional });
-		const propertyType = property?.getType().getArrayElementType() || property?.getType();
+
+		let propertyType = property?.getType();
+		while (propertyType?.getArrayElementType())
+			propertyType = propertyType.getArrayElementType();
+
 		const propertyTypeDeclaration = propertyType?.getSymbol()?.getDeclarations()[0];
 		if (Node.isInterfaceDeclaration(propertyTypeDeclaration) || Node.isTypeLiteral(propertyTypeDeclaration)) {
 			modifyTypeDeclarationOptionality(propertyTypeDeclaration, isOptional);
@@ -384,13 +388,21 @@ function getTypeDeclaration(
 		currField = currField.parentType;
 	}
 
-	let currDeclaration: Node = sourceFile.getInterfaceOrThrow(currField.type.typeName);
+	let currFieldType = currField.type;
+	while (currFieldType.kind === TypeKind.Array)
+		currFieldType = currFieldType.memberType;
+
+	let currDeclaration: Node = sourceFile.getInterfaceOrThrow(currFieldType.typeName);
 
 	while (fieldIdentifiers.length > 0) {
 		const currIdentifier = fieldIdentifiers.pop();
 		if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
 			const currProperty = currDeclaration?.getProperty(currIdentifier.fieldName);
-			const currPropertyType = currProperty?.getType().getArrayElementType() || currProperty?.getType();
+
+			let currPropertyType = currProperty?.getType();
+			while (currPropertyType?.getArrayElementType())
+				currPropertyType = currPropertyType.getArrayElementType();
+			
 			currDeclaration = currPropertyType?.getSymbol()?.getDeclarations()[0];
 		}
 	}
