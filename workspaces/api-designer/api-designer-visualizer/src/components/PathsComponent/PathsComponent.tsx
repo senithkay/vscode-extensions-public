@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Paths } from "../../Definitions/ServiceDefinitions";
-import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ContextMenu, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
@@ -17,6 +17,8 @@ interface OpenAPIDefinitionProps {
     paths: Paths;
     selectedPathID?: string;
     onAddPath: () => void;
+    onAddResource?: (resourceID: string) => void;
+    onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
 }
 
@@ -50,33 +52,119 @@ const OverviewTitle = styled.div`
     }
 `;
 
+const LeftPathContainer = styled.div`
+    width: 90%;
+`;
+const RightPathContainer = styled.div`
+    width: 10%;
+`;
+const PathContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+`;
+
+export const contextMenuSx = {
+    transform: "rotate(90deg)",
+    fontSize: "15px",
+    marginLeft: "-2px"
+}
+
+export const subMenuverticalIconWrapper = {
+    ":hover": {
+        backgroundColor: "var(--vscode-inputOption-hoverBackground)",
+    },
+    borderRadius: "3px",
+    width: "10px",
+    height: "15px"
+}
+
+export const menuVerticalIconWrapper = {
+    ":hover": {
+        backgroundColor: "var(--vscode-inputOption-hoverBackground)",
+    },
+    borderRadius: "3px",
+    width: "10px",
+    height: "15px",
+    marginLeft: "1px"
+}
+
 export function PathsComponent(props: OpenAPIDefinitionProps) {
-    const { paths, selectedPathID, onAddPath, onPathChange } = props;
+    const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
     const pathsArray = Object.keys(paths);
     // Get PathItems from paths
     const pathItems = Object.values(paths);
     const handleOverviewClick = () => {
         onPathChange && onPathChange(undefined);
     };
+    const handleAddPath = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        onAddPath && onAddPath();
+    }
+    const handleAddResource = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        onAddPath && onAddResource(selectedPathID);
+    }
+    const handleDeletePath = (evt: React.MouseEvent, path: string) => {
+        evt.stopPropagation();
+        onDeletePath && onDeletePath(path);
+    }
+
+    const menuItems = [
+        { id: "add", label: "Add Path", onClick: handleAddPath }
+    ];
+
     return (
         <PathsContainer>
             <OverviewTitle onClick={handleOverviewClick}>
                 <Codicon name="globe" />
-                <Typography variant="h3" sx={{margin: 0}}>Overview</Typography>
+                <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
             </OverviewTitle>
-            <TreeView rootTreeView id="Paths" content={<Typography sx={{ margin: "0 0 0 2px" }} variant="h3">Paths</Typography>} selectedId={selectedPathID} onSelect={onPathChange}>
+            <TreeView rootTreeView id="Paths"
+                content={
+                    <PathContainer>
+                        <LeftPathContainer>
+                            <Typography sx={{ margin: "0 0 0 2px" }} variant="h3">Paths</Typography>
+                        </LeftPathContainer>
+                        <RightPathContainer>
+                            <ContextMenu iconSx={contextMenuSx} sx={menuVerticalIconWrapper} menuItems={menuItems} />
+                        </RightPathContainer>
+                    </PathContainer>
+                }
+                selectedId={selectedPathID}
+                onSelect={onPathChange}
+            >
                 {pathsArray.map((path, index) => {
                     const pathItem = pathItems[index];
                     const operations = Object.keys(pathItem);
+                    const resourceMenuItems = [
+                        { id: "add", label: "Add Opreration", onClick: handleAddPath },
+                        { id: "delete", label: "Delete Path",
+                             onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => handleDeletePath(evt, path) 
+                        }
+                    ];
                     return (
-                        <TreeView id={path} content={<Typography sx={{ margin: "0 0 0 2px"  }} variant="h3">{path}</Typography>} selectedId={selectedPathID} onSelect={onPathChange}>
+                        <TreeView
+                            id={path} content={
+                                <PathContainer>
+                                    <LeftPathContainer>
+                                        <Typography sx={{ margin: "0 0 0 2px" }} variant="h3">{path}</Typography>
+                                    </LeftPathContainer>
+                                    <RightPathContainer>
+                                        <ContextMenu iconSx={contextMenuSx} sx={subMenuverticalIconWrapper} menuItems={resourceMenuItems} />
+                                    </RightPathContainer>
+                                </PathContainer>
+                            }
+                            selectedId={selectedPathID}
+                            onSelect={onPathChange}
+                        >
                             {operations.map((operation) => {
                                 return (
                                     <TreeViewItem id={getResourceID(path, operation)}>
                                         <Operation
                                             backgroundColor={getColorByMethod(operation.toUpperCase())}
                                             selected={selectedPathID === getResourceID(path, operation)}
-                                            onClick={() => onPathChange && onPathChange(getResourceID(path, operation))}
+                                            onClick={() => onPathChange && onPathChange(selectedPathID)}
                                         >
                                             <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>{operation.toUpperCase()}</Typography>
                                         </Operation>

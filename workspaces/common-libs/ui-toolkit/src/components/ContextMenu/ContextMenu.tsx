@@ -23,7 +23,7 @@ import { debounce } from "lodash";
 interface Item {
     id: number | string;
     label: React.ReactNode;
-    onClick: () => void;
+    onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     disabled?: boolean;
 }
 
@@ -231,7 +231,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                             if (!item?.disabled) {
                                                 event.stopPropagation();
                                                 if (item?.onClick) {
-                                                    item.onClick();
+                                                    item.onClick(event);
                                                 }
                                                 setIsMenuOpen(false);
                                             }

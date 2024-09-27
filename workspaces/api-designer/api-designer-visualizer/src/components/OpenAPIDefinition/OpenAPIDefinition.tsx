@@ -149,7 +149,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setOpenAPIDefinition(updatedOpenAPIDefinition);
     };
 
-    const onDeletePath = (p: string, method: string) => {
+    const onDeleteResource = (p: string, method: string) => {
         // If p with path and method exists, delete the perticular method
         if (openAPIDefinition.paths[p][method]) {
             delete openAPIDefinition.paths[p][method];
@@ -160,6 +160,14 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         }
         setSelectedPathID(undefined);
         setOpenAPIDefinition({ ...openAPIDefinition });
+    };
+
+    const onDeletePath = (p: string) => {
+        // If p with path and method exists, delete the perticular method
+        if (openAPIDefinition.paths[p]) {
+            delete openAPIDefinition.paths[p];
+            setOpenAPIDefinition({ ...openAPIDefinition });
+        }
     };
 
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
@@ -175,14 +183,14 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         <NavigationContainer>
             <SplitView defaultWidths={[25, 75]}>
                 <NvigationPanelContainer>
-                    {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />}
+                    {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} onDeletePath={onDeletePath} />}
                 </NvigationPanelContainer>
                 <div>
                     {(selectedPathID === undefined || !operation) && (
                         <Overview openAPIDefinition={openAPIDefinition} />
                     )}
                     {operation && selectedPathID !== undefined && (
-                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeletePath} />
+                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeleteResource} />
                     )}
                 </div>
             </SplitView>
