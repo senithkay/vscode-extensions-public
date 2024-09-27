@@ -126,17 +126,20 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleModifyFieldOptionality = async () => {
-        setIsLoading(true);
         viewsStore.setViews(context.views);
         try {
             await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
-        } finally {
-            setIsLoading(false);
+        } catch (error) {
+            console.error(error);
         }
     };
 
-    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => { 
-        await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+        try {
+            await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleDeleteValue = async () => {
@@ -276,8 +279,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
         !isWithinArray && modifyFieldOptionalityMenuItem,
-        makeChildFieldsOptionalMenuItem,
-        makeChildFieldsRequiredMenuItem
+        !isWithinArray && isInterface && makeChildFieldsOptionalMenuItem,
+        !isWithinArray && isInterface && makeChildFieldsRequiredMenuItem
     ];
 
     return (

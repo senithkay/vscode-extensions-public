@@ -28,8 +28,8 @@ export enum ValueConfigOption {
     DeleteValue = "Delete Value",
     DeleteElement = "Delete Element",
     DeleteArray = "Delete Array",
-    MakeFieldOptional = "Make Field Optional",
-    MakeFieldRequired = "Make Field Required",
+    MakeFieldOptional = "Make This Field Optional",
+    MakeFieldRequired = "Make This Field Required",
     MakeChildFieldsOptional = "Make All Child Fields Optional",
     MakeChildFieldsRequired = "Make All Child Fields Required",
 }
