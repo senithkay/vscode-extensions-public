@@ -11,16 +11,29 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '../Button/Button';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
-
+import styled from '@emotion/styled';
 
 interface FormViewProps {
     title: string;
     children: React.ReactNode;
     onClose: () => void; // Added onClose prop
     hideClose?: boolean;
+    sx?: any;
 }
 
-export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose }) => {
+interface FormViewContainerProps {
+    sx?: any;
+}
+
+const FormViewContainer = styled.div<FormViewContainerProps & { className?: string }>`
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: -webkit-fill-available;
+    max-height: ${(props: FormViewProps) => !props.hideClose ? 'calc(100vh - 22px)' : 'fit-content'};
+    ${(props: FormViewContainerProps) => props.sx};
+`;
+
+export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose, sx }) => {
     const [isScrolling, setIsScrolling] = useState(false);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -32,12 +45,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
     };
 
     return (
-        <div onScroll={handleScroll} style={{
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            height: '-webkit-fill-available',
-            maxHeight: !hideClose ? 'calc(100vh - 22px)' : 'fit-content',
-        }} className="form-view">
+        <FormViewContainer onScroll={handleScroll} className="form-view" sx={sx}>
             <div style={{ maxWidth: '52em', margin: '0 auto' }}>
                 <div style={{ margin: '0 15px' }}>
                     <div style={{
@@ -62,7 +70,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
                     </div>
                 </div>
             </div>
-        </div>
+        </FormViewContainer>
     );
 };
 
