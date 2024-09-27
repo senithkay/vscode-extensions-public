@@ -328,6 +328,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'localEntry':
 			case 'template':
 			case 'dataSource':
+			case 'connection':
 			case 'data-service':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;

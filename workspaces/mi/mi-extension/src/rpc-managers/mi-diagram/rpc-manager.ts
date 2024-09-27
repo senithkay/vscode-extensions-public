@@ -3783,7 +3783,7 @@ ${endpointAttributes}
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 ${keyValuesXML}`;
 
-            const filePath = path.join(localEntryPath, `${connectionName}.xml`);
+            const filePath = params?.filePath?.length ? params.filePath : path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
                 fs.mkdirSync(localEntryPath);
             }
@@ -4265,8 +4265,9 @@ ${keyValuesXML}`;
                 if (!name) {
                     throw new Error('Name is required');
                 }
-                const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'test', "wso2mi");
+                const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(artifact)) || workspace.workspaceFolders?.[0];
+                const projectRoot = workspaceFolder?.uri.fsPath;
+                const testDir = path.join(projectRoot!, 'src', 'test', "wso2mi");
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {
