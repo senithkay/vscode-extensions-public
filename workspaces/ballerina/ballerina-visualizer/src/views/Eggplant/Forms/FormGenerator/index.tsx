@@ -74,7 +74,7 @@ export function FormGenerator(props: FormProps) {
     };
 
     const handleOnSubmit = (data: FormValues) => {
-        console.log(">>> on form submit", data);
+        console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
             let updatedNode: FlowNode = {
                 ...node,
@@ -135,7 +135,7 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm node={node} targetLineRange={targetLineRange} onSubmit={handleOnSubmit} />;
+        return <IfForm node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
     }
 
     // default form

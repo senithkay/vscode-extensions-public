@@ -16,13 +16,13 @@ import { Colors } from "../../../../resources/constants";
 import { FormValues, EditorFactory } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertNodePropertyToFormField } from "../../../../utils/eggplant";
-import {  cloneDeep } from "lodash";
+import { cloneDeep } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/eggplant-diagram";
 
 interface IfFormProps {
     node: FlowNode;
     targetLineRange: LineRange;
-    onSubmit?: (data: FormValues) => void;
+    onSubmit: (node?: FlowNode) => void;
 }
 
 export function IfForm(props: IfFormProps) {
@@ -31,26 +31,35 @@ export function IfForm(props: IfFormProps) {
 
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
 
-    console.log(">>> form fields", { node, values: getValues() });
+    console.log(">>> form fields", { node, values: getValues(), branches });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> on form submit", {data, branches});
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
+            if(!updatedNode.codedata.lineRange){
+                updatedNode.codedata.lineRange = {
+                    ...node.codedata.lineRange,
+                    startLine: targetLineRange.startLine,
+                    endLine: targetLineRange.endLine,
+                };
+            }
+
             // loop data and update branches (properties.condition.value)
             branches.forEach((branch, index) => {
-                if(branch.label === "Else"){
+                if (branch.label === "Else") {
                     return;
                 }
-                const conditionValue = data[branch.label];
+                const conditionValue = data[branch.label]?.trim();
                 if (conditionValue) {
                     branch.properties.condition.value = conditionValue;
+                    if (branch.label !== "Then") {
+                        branch.label = "";
+                    }
                 }
             });
 
             updatedNode.branches = branches;
-            console.log(">>> Updated node", updatedNode);
 
             // check all nodes and remove empty nodes
             const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
@@ -68,17 +77,7 @@ export function IfForm(props: IfFormProps) {
             kind: "block",
             codedata: {
                 node: "CONDITIONAL",
-                lineRange: {
-                    fileName: "pett.bal",
-                    startLine: {
-                        line: 0,
-                        offset: 0,
-                    },
-                    endLine: {
-                        line: 0,
-                        offset: 0,
-                    },
-                },
+                lineRange: null,
             },
             repeatable: "ONE_OR_MORE",
             properties: {
