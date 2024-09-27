@@ -15,6 +15,7 @@ import {
 	Node,
 	ObjectLiteralExpression,
 	PropertyAssignment,
+	PropertySignature,
 	ReturnStatement,
 	SourceFile,
 	TypeLiteralNode
@@ -334,35 +335,12 @@ export async function modifyFieldOptionality(
 	sourceFile: SourceFile,
 	applyModifications: (fileContent: string) => Promise<void>) {
 
-	const fieldIdentifiers: DMType[] = [];
-	let currField = field;
-	while (currField.parentType) {
-		if (currField.type.fieldName)
-			fieldIdentifiers.push(currField.type);
-		currField = currField.parentType;
+	const parentTypeDeclaration = getTypeDeclaration(field.parentType, sourceFile);
+	if (parentTypeDeclaration) {
+		parentTypeDeclaration.getProperty(field.type.fieldName)?.set({ hasQuestionToken: isOptional });
+		await applyModifications(sourceFile.getFullText());
 	}
 
-	let rootType: InterfaceDeclaration = sourceFile.getInterfaceOrThrow(currField.type.typeName);
-
-	let currIdentifier = fieldIdentifiers.pop();
-	let currProperty = rootType.getProperty(currIdentifier.fieldName);
-
-	while (fieldIdentifiers.length > 0) {
-		let currDeclaration:Node;
-		if (currIdentifier.kind == TypeKind.Array)
-			currDeclaration = currProperty?.getType().getArrayElementType()?.getSymbol()?.getDeclarations()[0];
-		else
-			currDeclaration = currProperty?.getType().getSymbol()?.getDeclarations()[0];
-
-		currIdentifier = fieldIdentifiers.pop();
-		if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
-			currProperty = currDeclaration?.getProperty(currIdentifier.fieldName);
-		}
-	}
-
-	currProperty?.set({ hasQuestionToken: isOptional });
-
-	await applyModifications(sourceFile.getFullText());
 }
 
 export async function modifyChildFieldsOptionality(
@@ -371,26 +349,58 @@ export async function modifyChildFieldsOptionality(
 	sourceFile: SourceFile,
 	applyModifications: (fileContent: string) => Promise<void>) {
 
-	let currInterface = sourceFile.getInterfaceOrThrow(field.type.typeName);
-	modifyInterfaceOptionality(currInterface, isOptional);
+	const typeDeclaration = getTypeDeclaration(field, sourceFile);
+	if (typeDeclaration) {
+		modifyTypeDeclarationOptionality(typeDeclaration, isOptional);
+		await applyModifications(sourceFile.getFullText());
+	}
 
-	await applyModifications(sourceFile.getFullText());
 }
 
-function modifyInterfaceOptionality(
-	interfaceDeclaration: InterfaceDeclaration | TypeLiteralNode,
+function modifyTypeDeclarationOptionality(
+	typeDeclaration: InterfaceDeclaration | TypeLiteralNode,
 	isOptional: boolean) {
 
-	interfaceDeclaration.getProperties().forEach(property => {
+	typeDeclaration.getProperties().forEach(property => {
 		property.set({ hasQuestionToken: isOptional });
-		const propertyType = property.getType().getArrayElementType() || property.getType();
-		const typeDeclaration = propertyType.getSymbol()?.getDeclarations()[0] as InterfaceDeclaration;
-		if (typeDeclaration && (Node.isInterfaceDeclaration(typeDeclaration) || Node.isTypeLiteral(typeDeclaration))) {
-			modifyInterfaceOptionality(typeDeclaration, isOptional);
+		const propertyType = property?.getType().getArrayElementType() || property?.getType();
+		const propertyTypeDeclaration = propertyType?.getSymbol()?.getDeclarations()[0];
+		if (Node.isInterfaceDeclaration(propertyTypeDeclaration) || Node.isTypeLiteral(propertyTypeDeclaration)) {
+			modifyTypeDeclarationOptionality(propertyTypeDeclaration, isOptional);
 		}
 	});
 }
 
+function getTypeDeclaration(
+	field: DMTypeWithValue,
+	sourceFile: SourceFile): InterfaceDeclaration | TypeLiteralNode | undefined {
+
+	const fieldIdentifiers: DMType[] = [];
+	let currField = field;
+
+	while (currField.parentType) {
+		if (currField.type.fieldName)
+			fieldIdentifiers.push(currField.type);
+		currField = currField.parentType;
+	}
+
+	let currDeclaration: Node = sourceFile.getInterfaceOrThrow(currField.type.typeName);
+
+	while (fieldIdentifiers.length > 0) {
+		const currIdentifier = fieldIdentifiers.pop();
+		if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
+			const currProperty = currDeclaration?.getProperty(currIdentifier.fieldName);
+			const currPropertyType = currProperty?.getType().getArrayElementType() || currProperty?.getType();
+			currDeclaration = currPropertyType?.getSymbol()?.getDeclarations()[0];
+		}
+	}
+
+	if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
+		return currDeclaration;
+	}
+
+	return undefined;
+}
 
 function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
 	let source = "";
