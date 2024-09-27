@@ -17,6 +17,7 @@ import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
+import { SplitView } from "../SplitView/SplitView";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -28,35 +29,28 @@ const NavigationContainer = styled.div`
     overflow-y: auto;
 `;
 
-const OverviewTitle = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    padding: 2px 0;
-    cursor: pointer;
-    &:hover {
-        background-color: var(--vscode-editorHoverWidget-background);
-    }
-`;
-
-const PanelContainer = styled.div`
-    background-color: var(--vscode-editor-background);
-    box-shadow: 5px 5px 10px 5px var(--vscode-badge-background);
-    width: 900px; // Adjust width as needed
-    padding: 10px;
-    position: absolute; // Position it absolutely
-    right: 0; // Align to the right
-    top: 25px; // Align to the top
-    height: 100%; // Full height
-    overflow-y: auto; // Enable scrolling if content overflows
-    z-index: 1;
-`;
+// const PanelContainer = styled.div`
+//     background-color: var(--vscode-editor-background);
+//     box-shadow: 5px 5px 10px 5px var(--vscode-badge-background);
+//     width: 900px; // Adjust width as needed
+//     padding: 10px;
+//     position: absolute; // Position it absolutely
+//     right: 0; // Align to the right
+//     top: 25px; // Align to the top
+//     height: 100%; // Full height
+//     overflow-y: auto; // Enable scrolling if content overflows
+//     z-index: 1;
+// `;
 
 const schema = yup.object({
     title: yup.string(),
     version: yup.string(),
     selectedPathID: yup.string()
 });
+
+const NvigationPanelContainer = styled.div`
+    padding: 10px;
+`;
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const { openAPIDefinition: initialOpenAPIDefinition } = props;
@@ -80,10 +74,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     const handlePathClick = (pathID: string) => {
         setSelectedPathID(pathID);
-    };
-
-    const handleOverviewClick = () => {
-        setSelectedPathID(undefined);
     };
 
     const handlePathChange = (path: Path) => {
@@ -181,23 +171,21 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setOpenAPIDefinition(initialOpenAPIDefinition);
     }, [initialOpenAPIDefinition]);
 
-    console.log("OpenAPIDefinition", openAPIDefinition);
-
     return (
         <NavigationContainer>
-            <OverviewTitle onClick={handleOverviewClick}>
-                <Codicon name="globe" />
-                <Typography variant="h3" sx={{margin: 0}}>Overview</Typography>
-            </OverviewTitle>
-            {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />}
-            <PanelContainer>
-                {(selectedPathID === undefined || !operation) && (
-                    <Overview openAPIDefinition={openAPIDefinition} />
-                )}
-                {operation && selectedPathID !== undefined && (
-                    <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeletePath} />
-                )}
-            </PanelContainer>
+            <SplitView defaultWidths={[25, 75]}>
+                <NvigationPanelContainer>
+                    {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} />}
+                </NvigationPanelContainer>
+                <div>
+                    {(selectedPathID === undefined || !operation) && (
+                        <Overview openAPIDefinition={openAPIDefinition} />
+                    )}
+                    {operation && selectedPathID !== undefined && (
+                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeletePath} />
+                    )}
+                </div>
+            </SplitView>
         </NavigationContainer>
     )
 }

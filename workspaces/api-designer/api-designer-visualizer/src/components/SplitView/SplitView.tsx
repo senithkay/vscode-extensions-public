@@ -19,15 +19,16 @@ const Container = styled.div<SplitViewProps>`
 `;
 
 const DynamicDiv = styled.div<{ width: number }>`
+    height: 100vh;
     width: ${(props: { width: number; }) => props.width}%;
-    height: 100%;
     overflow: hidden;
+    border: 1px solid var(--vscode-editorWidget-border);
 `;
 
 const Resizer = styled.div`
     cursor: ew-resize;
-    background-color: var(--vscode-editorWidget-border);
-    width: 5px;
+    /* background-color: var(--vscode-editorWidget-border); */
+    width: 2px;
     &:hover {
         background-color: var(--vscode-button-hoverBackground);
     }
@@ -36,11 +37,12 @@ const Resizer = styled.div`
 interface SplitViewProps {
     children: ReactNode[];
     sx?: any;
+    defaultWidths?: number[];
 }
 
 export function SplitView(props: SplitViewProps) {
-    const { children, sx } = props;
-    const initialWidths = new Array(children.length).fill(100 / children.length); // Initial width distribution
+    const { children, sx, defaultWidths } = props;
+    const initialWidths = defaultWidths || new Array(children.length).fill(100 / children.length); // Use default widths if provided
 
     const [widths, setWidths] = useState<number[]>(initialWidths);
     const resizingRef = useRef<{ index: number; startX: number; initialWidths: number[] } | null>(null);
