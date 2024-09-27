@@ -22,13 +22,21 @@ function modityTestCaseData(data: TestCaseEntry) {
         data.input.payload = data.input.payload.substring(9, data.input.payload.length - 3);
     }
     if ((data?.input?.properties as any)?.properties) {
-        (data.input.properties as any).properties = (data.input.properties as any).properties.map((property: any) => {
-            return {
-                name: property[0],
-                scope: property[1],
-                value: property[2]
-            }
-        });
+        if (
+            (Array.isArray((data.input.properties as any).properties) &&
+                (data.input.properties as any).properties.length === 0) ||
+            (data.input.properties as any).properties === undefined
+        ) {
+            delete data.input.properties;
+        } else {
+            (data.input.properties as any).properties = (data.input.properties as any).properties.map((property: any) => {
+                return {
+                    name: property[0],
+                    scope: property[1],
+                    value: property[2]
+                }
+            });
+        }
     }
     const assertions = data.assertions.map((assertion: string[]) => {
         // replace spaces and join camel case
@@ -78,11 +86,11 @@ function getTestSuiteMustacheTemplate() {
         <test-artifact>
             <artifact>{{{artifact}}}</artifact>
         </test-artifact>
-        <supporttive-artifacts>
+        <supportive-artifacts>
             {{#supportiveArtifacts}}
                 <artifact>{{{.}}}</artifact>
             {{/supportiveArtifacts}}
-        </supporttive-artifacts>
+        </supportive-artifacts>
     </artifacts>
     <test-cases>
         {{#testCases}}
