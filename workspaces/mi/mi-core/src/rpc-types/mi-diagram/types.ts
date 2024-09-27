@@ -1388,7 +1388,7 @@ export interface RegistryArtifact {
 }
 export interface RangeFormatRequest {
     uri: string;
-    range: Range
+    range?: Range
 }
 
 export interface DownloadConnectorRequest {
@@ -1501,6 +1501,7 @@ export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
     directory: string;
+    filePath?: string;
 }
 
 export interface CreateConnectionResponse {
