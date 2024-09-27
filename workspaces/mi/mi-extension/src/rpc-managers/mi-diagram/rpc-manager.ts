@@ -2417,11 +2417,16 @@ ${endpointAttributes}
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             // if vscode format on save is enable do not do range format 
-            if (workspace.getConfiguration('editor').get('formatOnSave')) {
+            const editorConfig = workspace.getConfiguration('editor');
+            if (editorConfig.get('formatOnSave')) {
                 resolve({ status: true });
                 return;
             }
-            let formattingOptions = { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false };
+            let formattingOptions = {
+                tabSize: editorConfig.get("tabSize") ?? 4,
+                insertSpaces: editorConfig.get("insertSpaces") ?? false,
+                trimTrailingWhitespace: editorConfig.get("trimTrailingWhitespace") ?? false
+            };
             const uri = Uri.file(req.uri);
             let edits: TextEdit[];
             if (req.range) {
