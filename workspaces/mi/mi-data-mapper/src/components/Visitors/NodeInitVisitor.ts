@@ -236,6 +236,8 @@ export class NodeInitVisitor implements Visitor {
         if (!isParentFocusedST && this.isWithinVariableStmt === 0) {
             if (isMapFn) {
                 this.isWithinArrayFn += 1;
+                while (!parent.isKind(SyntaxKind.PropertyAssignment) && parent.getParent())
+                    parent = parent.getParent();
                 const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
                 this.intermediateNodes.push(arrayFnConnectorNode);
             } else if (isFilterFn) {

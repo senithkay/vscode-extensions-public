@@ -118,7 +118,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
     private findTargetPort(): void {
         const innerMostExpr = this.parentNode;
-        const fieldName = (Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode()) || (Node.isElementAccessExpression(innerMostExpr) && (innerMostExpr.getParentWhile((parent,child) => !child.isKind(SyntaxKind.PropertyAssignment)) as PropertyAssignment)?.getNameNode());
+        const fieldName = Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode();
         const fieldNamePosition = fieldName && getPosition(fieldName);
         const returnStmt = getTnfFnReturnStatement(this.context.functionST);
         const isReturnStmtMapFn = Node.isReturnStatement(this.parentNode);
