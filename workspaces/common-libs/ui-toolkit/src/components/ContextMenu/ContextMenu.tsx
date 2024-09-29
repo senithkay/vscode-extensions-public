@@ -119,6 +119,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuSx, menuItems, icon, position = "bottom" } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
     const [subMenuItems, setSubMenuItems] = useState<Item[]>([]);
+    const [mouseLeaveTimeout, setMouseLeaveTimeout] = useState(null);
 
     const [topPosition, setTopPosition] = useState(0);
     const [leftPosition, setLeftPosition] = useState(0);
@@ -206,6 +207,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     }, [calculatePosition, position]);
 
     const handleItemHover = (event: React.MouseEvent<HTMLElement>, item: Item) => {
+        if (mouseLeaveTimeout) {
+            clearTimeout(mouseLeaveTimeout);
+            setMouseLeaveTimeout(null);
+        }
+
         if (item.sunMenuItems) {
             setSubMenuItems(item.sunMenuItems);
             const itemTop = event.currentTarget.offsetTop;
@@ -220,9 +226,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     };
 
     const handleMouseLeave = () => {
-        setTimeout(() => {
-            setSubMenuItems([])
+        const timeout = setTimeout(() => {
+            setSubMenuItems([]);
         }, 300);
+        setMouseLeaveTimeout(timeout);
     };
 
     useEffect(() => {
@@ -244,6 +251,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             window.removeEventListener('resize', resizeListener);
         };
     }, [onWindowResize, position]);
+
+    useEffect(() => {
+        setIsMenuOpen(isOpen);
+    }, [isOpen]);
 
     useLayoutEffect(() => {
         if (mainMenuRef.current) {
@@ -288,9 +299,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                                     if (item?.onClick) {
                                                         item.onClick();
                                                     }
-                                                    setIsMenuOpen(false);
                                                     if (item.sunMenuItems) {
                                                         handleItemHover(event, item);
+                                                    } else {
+                                                        setIsMenuOpen(false);
                                                     }
                                                 }
                                             }}
@@ -312,13 +324,30 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                     ))}
                                 </VSCodeDataGrid>
                                 {(subMenuItems.length > 0) && (
-                                    <SubMenuContainer top={subMenuTop} ref={subMenuRef}>
+                                    <SubMenuContainer 
+                                        top={subMenuTop}
+                                        ref={subMenuRef}
+                                        onMouseEnter={() => {
+                                            if (mouseLeaveTimeout) {
+                                                clearTimeout(mouseLeaveTimeout);
+                                                setMouseLeaveTimeout(null);
+                                            }
+                                        }}
+                                    >
                                         <VSCodeDataGrid aria-label="Context Sub Menu">
                                             {subMenuItems.map(item => (
                                                 <VSCodeDataGridFlexRow
                                                     key={item.id}
                                                     data-testid={`context-menu-${item.id}`}
-                                                    onClick={item.onClick}
+                                                    onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+                                                        if (!item?.disabled) {
+                                                            event.stopPropagation();
+                                                            if (item?.onClick) {
+                                                                item.onClick(event);
+                                                            }
+                                                            setIsMenuOpen(false);
+                                                        }
+                                                    }}
                                                     style={{
                                                         cursor: item.disabled ? "not-allowed" : "pointer",
                                                         opacity: item.disabled ? 0.5 : 1,
