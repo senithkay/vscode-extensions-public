@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import styled from "@emotion/styled";
 import { Codicon } from '@wso2-enterprise/ui-toolkit';
 
@@ -59,6 +59,16 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
             onSelect(sId);
         }
     };
+
+    useEffect(() => {
+        // Expand if this TreeView is selected or contains the selected item
+        if (
+            selectedId === id || (children && React.Children.toArray(children).some((child: any) =>
+                 child.props.id === selectedId))
+        ) {
+            setIsExpanded(true);
+        }
+    }, [selectedId, id, children]);
 
     return (
         <TreeContainer isRootTreeView={isRootTreeView}>
