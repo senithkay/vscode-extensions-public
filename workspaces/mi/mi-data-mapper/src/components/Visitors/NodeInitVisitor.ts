@@ -76,10 +76,23 @@ export class NodeInitVisitor implements Visitor {
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
-            const callExpr = node.getInitializer() as CallExpression;
+            let exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
+            let initializer = node.getInitializer();
 
-            // Create output node
-            const exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
+            while (Node.isElementAccessExpression(initializer)) {
+                initializer = initializer.getExpression();
+                exprType = {
+                    kind: TypeKind.Array,
+                    optional: false,
+                    memberType: {
+                        kind: exprType.kind,
+                        optional: false
+                    }
+                };
+            }
+
+            const callExpr = initializer as CallExpression;
+ 
             const returnStatement = getCallExprReturnStmt(callExpr);
 
             const innerExpr = returnStatement?.getExpression();
