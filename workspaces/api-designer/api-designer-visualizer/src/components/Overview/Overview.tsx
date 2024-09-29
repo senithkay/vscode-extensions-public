@@ -194,7 +194,7 @@ export function Overview(props: OverviewProps) {
                 <TextField
                     label="API Version"
                     id="API Version"
-                    sx={{ width: "50%" }}
+                    sx={{ width: "100%" }}
                     {...register("version")}
                 />
             </PanelBody>
