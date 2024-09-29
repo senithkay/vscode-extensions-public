@@ -283,11 +283,20 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                             key={item.id}
                                             data-testid={`context-menu-${item.id}`}
                                             onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-                                                handleItemHover(event, item);
+                                                if (!item?.disabled) {
+                                                    event.stopPropagation();
+                                                    if (item?.onClick) {
+                                                        item.onClick();
+                                                    }
+                                                    setIsMenuOpen(false);
+                                                    if (item.sunMenuItems) {
+                                                        handleItemHover(event, item);
+                                                    }
+                                                }
                                             }}
-                                            onMouseEnter={() => {
+                                            onMouseEnter={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
                                                 if (item.sunMenuItems) {
-                                                    setSubMenuItems(item.sunMenuItems);
+                                                    handleItemHover(event, item);
                                                 } else {
                                                     setSubMenuItems([]);
                                                 }
