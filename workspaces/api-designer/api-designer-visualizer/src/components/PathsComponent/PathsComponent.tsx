@@ -12,12 +12,13 @@ import styled from "@emotion/styled";
 import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
 import { TreeViewItem } from "../Treeview/TreeViewItem";
+import { useState } from "react";
 
 interface OpenAPIDefinitionProps {
     paths: Paths;
     selectedPathID?: string;
     onAddPath: () => void;
-    onAddResource?: (resourceID: string) => void;
+    onAddResource?: (path: string, method: string) => void;
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
 }
@@ -91,6 +92,7 @@ export const menuVerticalIconWrapper = {
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
     const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
+    const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
     const pathsArray = Object.keys(paths);
     // Get PathItems from paths
     const pathItems = Object.values(paths);
@@ -101,9 +103,10 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
         evt.stopPropagation();
         onAddPath && onAddPath();
     }
-    const handleAddResource = (evt: React.MouseEvent) => {
+    const handleAddResource = (evt: React.MouseEvent, path: string, method: string) => {
         evt.stopPropagation();
-        onAddPath && onAddResource(selectedPathID);
+        setIsContextMenuOpen(false);
+        onAddResource && onAddResource(path, method);
     }
     const handleDeletePath = (evt: React.MouseEvent, path: string) => {
         evt.stopPropagation();
@@ -138,8 +141,53 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                     const pathItem = pathItems[index];
                     const operations = Object.keys(pathItem);
                     const resourceMenuItems = [
-                        { id: "add", label: "Add Opreration", onClick: handleAddPath },
-                        { id: "delete", label: "Delete Path",
+                        { 
+                            id: "add", 
+                            label: "Add Opreration",
+                            onClick: () => {},
+                            sunMenuItems: [{
+                                id: "get",
+                                label: <>GET</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "get")}
+                            },
+                            {
+                                id: "post",
+                                label: <>POST</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "post")}
+                            },
+                            {
+                                id: "put",
+                                label: <>PUT</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "put")}
+                            },
+                            {
+                                id: "delete",
+                                label: <>DELETE</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "delete")}
+                            },
+                            {
+                                id: "patch",
+                                label: <>PATCH</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "patch")}
+                            },
+                            {
+                                id: "head",
+                                label: <>HEAD</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "head")}
+                            },
+                            {
+                                id: "options",
+                                label: <>OPTIONS</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "options")}
+                            },
+                            {
+                                id: "trace",
+                                label: <>TRACE</>,
+                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "trace")}
+                            }
+                            ]
+                        },
+                        { id: "delete path", label: "Delete Path",
                              onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => handleDeletePath(evt, path) 
                         }
                     ];
@@ -151,7 +199,12 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                         <Typography sx={{ margin: "0 0 0 2px" }} variant="h3">{path}</Typography>
                                     </LeftPathContainer>
                                     <RightPathContainer>
-                                        <ContextMenu iconSx={contextMenuSx} sx={subMenuverticalIconWrapper} menuItems={resourceMenuItems} />
+                                        <ContextMenu
+                                            isOpen={isContextMenuOpen}
+                                            iconSx={contextMenuSx}
+                                            sx={subMenuverticalIconWrapper}
+                                            menuItems={resourceMenuItems}
+                                        />
                                     </RightPathContainer>
                                 </PathContainer>
                             }

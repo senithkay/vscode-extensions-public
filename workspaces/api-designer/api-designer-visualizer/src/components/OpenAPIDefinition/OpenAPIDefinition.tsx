@@ -132,12 +132,14 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handleAddPath = () => {
+        // If Genetrate a new path with "path" prefix and 1,2,3 ... suffix if the path already exists
+        const newPath = Object.keys(openAPIDefinition.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPIDefinition.paths).length + 1}` : "/path";
         const updatedOpenAPIDefinition: OpenAPI = {
             ...openAPIDefinition,
             paths: {
                 ...openAPIDefinition.paths,
-                ["/path"]: {
-                    ["get"]: {
+                [newPath]: {
+                    get: {
                         summary: "",
                         description: "",
                         parameters: []
@@ -146,6 +148,26 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
             }
         };
         setSelectedPathID(getResourceID("/path", "get"));
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+    };
+
+    const handleAddResource = (path: string, method: string) => {
+        // Get current path
+        const currentPath = openAPIDefinition.paths[path];
+        // Add a new method to the current path
+        currentPath[method] = {
+            summary: "",
+            description: "",
+            parameters: []
+        };
+        const updatedOpenAPIDefinition: OpenAPI = {
+            ...openAPIDefinition,
+            paths: {
+                ...openAPIDefinition.paths,
+                [path]: currentPath
+            }
+        };
+        setSelectedPathID(getResourceID(path, method));
         setOpenAPIDefinition(updatedOpenAPIDefinition);
     };
 
@@ -183,10 +205,18 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         <NavigationContainer>
             <SplitView defaultWidths={[25, 75]}>
                 <NvigationPanelContainer>
-                    {openAPIDefinition?.paths && <PathsComponent paths={openAPIDefinition.paths} selectedPathID={selectedPathID} onPathChange={handlePathClick} onAddPath={handleAddPath} onDeletePath={onDeletePath} />}
+                    {openAPIDefinition?.paths && 
+                        <PathsComponent 
+                            paths={openAPIDefinition.paths}
+                            selectedPathID={selectedPathID}
+                            onPathChange={handlePathClick}
+                            onAddPath={handleAddPath}
+                            onAddResource={handleAddResource}
+                            onDeletePath={onDeletePath} />
+                        }
                 </NvigationPanelContainer>
                 <div>
-                    {(selectedPathID === undefined || !operation) && (
+                    {(selectedPathID === undefined) && (
                         <Overview openAPIDefinition={openAPIDefinition} />
                     )}
                     {operation && selectedPathID !== undefined && (
