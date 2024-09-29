@@ -78,10 +78,12 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
                 <SmallProgressRing />
             ) : (
                 <DropDownContainer sx={dropdownContainerSx}>
-                    <LabelContainer>
-                        <label htmlFor={id}>{label}</label> 
-                        {(isRequired && label) && (<RequiredFormInput />)}
-                    </LabelContainer>
+                    { label && (
+                        <LabelContainer>
+                            <label htmlFor={id}>{label}</label> 
+                            {(isRequired) && (<RequiredFormInput />)}
+                        </LabelContainer>
+                    )}
                     <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
                         {items?.map((item: OptionProps) => (
                             <VSCodeOption key={item?.id} value={item.value}>
