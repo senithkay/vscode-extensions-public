@@ -216,7 +216,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         }
                 </NvigationPanelContainer>
                 <div>
-                    {(selectedPathID === undefined) && (
+                    {(selectedPathID === undefined || !operation) && (
                         <Overview openAPIDefinition={openAPIDefinition} />
                     )}
                     {operation && selectedPathID !== undefined && (

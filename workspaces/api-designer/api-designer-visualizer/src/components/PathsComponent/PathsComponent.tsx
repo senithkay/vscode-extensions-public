@@ -92,7 +92,6 @@ export const menuVerticalIconWrapper = {
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
     const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
-    const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
     const pathsArray = Object.keys(paths);
     // Get PathItems from paths
     const pathItems = Object.values(paths);
@@ -105,7 +104,6 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
     }
     const handleAddResource = (evt: React.MouseEvent, path: string, method: string) => {
         evt.stopPropagation();
-        setIsContextMenuOpen(false);
         onAddResource && onAddResource(path, method);
     }
     const handleDeletePath = (evt: React.MouseEvent, path: string) => {
@@ -193,14 +191,14 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                     ];
                     return (
                         <TreeView
-                            id={path} content={
+                            id={path} 
+                            content={
                                 <PathContainer>
                                     <LeftPathContainer>
                                         <Typography sx={{ margin: "0 0 0 2px" }} variant="h3">{path}</Typography>
                                     </LeftPathContainer>
                                     <RightPathContainer>
                                         <ContextMenu
-                                            isOpen={isContextMenuOpen}
                                             iconSx={contextMenuSx}
                                             sx={subMenuverticalIconWrapper}
                                             menuItems={resourceMenuItems}

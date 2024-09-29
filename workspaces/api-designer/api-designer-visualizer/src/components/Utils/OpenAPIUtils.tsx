@@ -149,7 +149,7 @@ export function getMethodFromResourceID(resourceID: string): string {
 }
 
 export function getPathFromResourceID(resourceID: string): string {
-    return resourceID.split("-")[1];
+    return resourceID?.split("-")[1];
 }
 
 export function getPathParametersFromParameters(parameters: Parameter[]): Param[] {
