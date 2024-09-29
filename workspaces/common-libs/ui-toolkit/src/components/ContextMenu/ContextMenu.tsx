@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import {
     VSCodeButton,
     VSCodeDataGrid,
@@ -25,6 +25,7 @@ interface Item {
     label: React.ReactNode;
     onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     disabled?: boolean;
+    sunMenuItems?: Item[];
 }
 
 type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "top" | "bottom" | "left" | "right";
@@ -86,6 +87,21 @@ const IconWrapper = styled.div<ContainerProps>`
     ${(props: ContextMenuProps) => props.sx};
 `;
 
+const MenuContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap : 2px;
+    position: relative;
+`;
+
+const SubMenuContainer = styled.div<{ top: number }>`
+    position: absolute;
+    left: calc(100% + 2px);
+    top: ${(props: { top: number; }) => props.top}px;
+    background: var(--vscode-editor-background);
+    box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
+`;
+
 const SmallProgressRing = styled(VSCodeProgressRing)`
     height: calc(var(--design-unit) * 3px);
     width: calc(var(--design-unit) * 3px);
@@ -102,6 +118,7 @@ const Container = styled.div`
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
     const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuSx, menuItems, icon, position = "bottom" } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
+    const [subMenuItems, setSubMenuItems] = useState<Item[]>([]);
 
     const [topPosition, setTopPosition] = useState(0);
     const [leftPosition, setLeftPosition] = useState(0);
@@ -109,6 +126,12 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     const iconRef = React.useRef<HTMLDivElement>(null);
 
     const expandMenuRef = React.useRef<HTMLDivElement>(null);
+
+    const [mainMenuHeight, setMainMenuHeight] = useState(0);
+    const [subMenuHeight, setSubMenuHeight] = useState(0);
+    const [subMenuTop, setSubMenuTop] = useState(0);
+    const mainMenuRef = React.useRef<HTMLDivElement>(null);
+    const subMenuRef = React.useRef<HTMLDivElement>(null);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.stopPropagation();
@@ -182,6 +205,26 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         debouncedResize();
     }, [calculatePosition, position]);
 
+    const handleItemHover = (event: React.MouseEvent<HTMLElement>, item: Item) => {
+        if (item.sunMenuItems) {
+            setSubMenuItems(item.sunMenuItems);
+            const itemTop = event.currentTarget.offsetTop;
+            const newSubMenuTop = Math.min(
+                itemTop,
+                Math.max(0, mainMenuHeight - subMenuHeight)
+            );
+            setSubMenuTop(newSubMenuTop);
+        } else {
+            setSubMenuItems([]);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setTimeout(() => {
+            setSubMenuItems([])
+        }, 300);
+    };
+
     useEffect(() => {
         if (isMenuOpen) {
             const expandMenuWidth = expandMenuRef.current?.getBoundingClientRect().width || 0;
@@ -201,6 +244,17 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             window.removeEventListener('resize', resizeListener);
         };
     }, [onWindowResize, position]);
+
+    useLayoutEffect(() => {
+        if (mainMenuRef.current) {
+            setMainMenuHeight(mainMenuRef.current.scrollHeight);
+        }
+    }, [menuItems]);
+    useLayoutEffect(() => {
+        if (subMenuRef.current) {
+            setSubMenuHeight(subMenuRef.current.scrollHeight);
+        }
+    }, [subMenuItems]);
 
     return (
         <>
@@ -222,30 +276,53 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                 createPortal(
                     <>
                         <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={topPosition} left={leftPosition}>
-                            <VSCodeDataGrid aria-label="Context Menu">
-                                {menuItems?.map(item => (
-                                    <VSCodeDataGridFlexRow
-                                        key={item.id}
-                                        data-testid={`context-menu-${item.id}`}
-                                        onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-                                            if (!item?.disabled) {
-                                                event.stopPropagation();
-                                                if (item?.onClick) {
-                                                    item.onClick(event);
+                            <MenuContainer onMouseLeave={handleMouseLeave}>
+                                <VSCodeDataGrid aria-label="Context Menu" ref={mainMenuRef}>
+                                    {menuItems?.map(item => (
+                                        <VSCodeDataGridFlexRow
+                                            key={item.id}
+                                            data-testid={`context-menu-${item.id}`}
+                                            onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+                                                handleItemHover(event, item);
+                                            }}
+                                            onMouseEnter={() => {
+                                                if (item.sunMenuItems) {
+                                                    setSubMenuItems(item.sunMenuItems);
+                                                } else {
+                                                    setSubMenuItems([]);
                                                 }
-                                                setIsMenuOpen(false);
-                                            }
-                                        }}
-                                        style={{
-                                            cursor: item.disabled ? "not-allowed" : "pointer",
-                                            opacity: item.disabled ? 0.5 : 1,
-                                        }}
-                                        id={`component-list-menu-${item.id}`}
-                                    >
-                                        <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                                    </VSCodeDataGridFlexRow>
-                                ))}
-                            </VSCodeDataGrid>
+                                            }}
+                                            style={{
+                                                cursor: item.disabled ? "not-allowed" : "pointer",
+                                                opacity: item.disabled ? 0.5 : 1,
+                                            }}
+                                            id={`component-list-menu-${item.id}`}
+                                        >
+                                            <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
+                                        </VSCodeDataGridFlexRow>
+                                    ))}
+                                </VSCodeDataGrid>
+                                {(subMenuItems.length > 0) && (
+                                    <SubMenuContainer top={subMenuTop} ref={subMenuRef}>
+                                        <VSCodeDataGrid aria-label="Context Sub Menu">
+                                            {subMenuItems.map(item => (
+                                                <VSCodeDataGridFlexRow
+                                                    key={item.id}
+                                                    data-testid={`context-menu-${item.id}`}
+                                                    onClick={item.onClick}
+                                                    style={{
+                                                        cursor: item.disabled ? "not-allowed" : "pointer",
+                                                        opacity: item.disabled ? 0.5 : 1,
+                                                    }}
+                                                    id={`component-list-menu-${item.id}`}
+                                                >
+                                                    <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
+                                                </VSCodeDataGridFlexRow>
+                                            ))}
+                                        </VSCodeDataGrid>
+                                    </SubMenuContainer>
+                                )}
+                            </MenuContainer>
                         </ExpandedMenu>
                         {isMenuOpen && <Overlay onClose={handleMenuClose} />}
                     </>,
