@@ -13,7 +13,7 @@ import * as path from 'path';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ConnectorStore } from './components/ConnectorStore';
-import { closeNotification, createProject, initializeVSCode, page, vscode } from './Utils';
+import { closeNotification, createProject } from './Utils';
 import { Overview } from './components/Overview';
 const fs = require('fs');
 
@@ -22,21 +22,20 @@ const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = '1.92.0';
 
-// let vscode: ElectronApplication | undefined;
-// let page: ExtendedPage;
+let vscode: ElectronApplication | undefined;
+let page: ExtendedPage;
 
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-    await initializeVSCode();
     const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
     // delete and recreate folder
     if (fs.existsSync(newProjectPath)) {
         fs.rmSync(newProjectPath, { recursive: true });
     }
     fs.mkdirSync(newProjectPath, { recursive: true });
-    //   vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
-    // page = new ExtendedPage(await vscode!.firstWindow());
+    vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
+    page = new ExtendedPage(await vscode!.firstWindow());
 });
 
 test('Create new project', async () => {
@@ -121,14 +120,14 @@ test('Edit Connection', async () => {
 
 
 test.afterAll(async () => {
-    //   await vscode?.close();
+      await vscode?.close();
 
-    // const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
-    // const video = page.page.video()
-    // const videoDir = path.resolve(resourcesFolder, 'videos')
-    // const videoPath = await video?.path()
+    const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
+    const video = page.page.video()
+    const videoDir = path.resolve(resourcesFolder, 'videos')
+    const videoPath = await video?.path()
 
-    // if (video && videoPath) {
-    //     await fs.renameSync(videoPath, `${videoDir}/${videoTitle}.webm`)
-    // }
+    if (video && videoPath) {
+        await fs.renameSync(videoPath, `${videoDir}/${videoTitle}.webm`)
+    }
 });

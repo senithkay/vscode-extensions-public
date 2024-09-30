@@ -56,11 +56,11 @@ export class Diagram {
         sidePanel.addNewConnection();
     }
 
-    public async verifyConnection(name: string) {
+    public async verifyConnection(name: string, type: string) {
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         sidePanel.goToExternalsPage();
-        return sidePanel.verifyConnection(name);
+        return sidePanel.verifyConnection(name, type);
     }
 
     private async clickPlusButtonByPosition(line: number, column: number) {
@@ -158,12 +158,13 @@ class SidePanel {
         await addNewConnectionBtn.click();
     }
 
-    public async verifyConnection(name: string) {
+    public async verifyConnection(name: string, type: string) {
         const connectionSection = this.sidePanel.locator(`h4:text("Available Connections") >> ../..`);
         const connectionTitle = connectionSection.locator(`div:text("${name}")`);
         connectionTitle.waitFor();
-
-        if (connectionTitle) {
+        const connectionTypeLabel = connectionSection.locator(`div:text("${type}")`);
+        connectionTypeLabel.waitFor();
+        if (connectionTitle && connectionTypeLabel) {
             return true;
         }
         return false;
