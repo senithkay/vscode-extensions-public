@@ -76,21 +76,21 @@ export function IfForm(props: IfFormProps) {
             label: "branch-" + branches.length,
             kind: "block",
             codedata: {
-                node: "CONDITIONAL",
-                lineRange: null,
+            node: "CONDITIONAL",
+            lineRange: null,
             },
             repeatable: "ONE_OR_MORE",
             properties: {
-                condition: {
-                    metadata: {
-                        label: "Condition",
-                        description: "Boolean Condition",
-                    },
-                    valueType: "EXPRESSION",
-                    value: "true",
-                    optional: false,
-                    editable: true,
+            condition: {
+                metadata: {
+                label: "Else If Condition",
+                description: "Add condition to evaluate if the previous conditions are false",
                 },
+                valueType: "EXPRESSION",
+                value: "true",
+                optional: false,
+                editable: true,
+            },
             },
             children: [],
         };
@@ -114,7 +114,7 @@ export function IfForm(props: IfFormProps) {
 
             <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
                 <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                Add Condition
+                Add Else IF Condition
             </LinkButton>
 
             {onSubmit && (

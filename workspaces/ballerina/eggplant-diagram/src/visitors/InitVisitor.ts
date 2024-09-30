@@ -47,7 +47,7 @@ export class InitVisitor implements BaseVisitor {
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
         node.viewState = this.getDefaultViewState();
         // add empty node if branch is empty
-        node.branches?.forEach((branch) => {
+        node.branches?.forEach((branch, index) => {
             // if branch is not empty remove empty node
             if (branch.children && branch.children.length > 0) {
                 const emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
@@ -61,7 +61,7 @@ export class InitVisitor implements BaseVisitor {
                 // empty branch
                 // add empty node as `add new node` button
                 const emptyNode: FlowNode = {
-                    id: `${node.id}-${branch.label}-branch`,
+                    id: `${node.id}-${branch.label}-branch-${index}`,
                     codedata: {
                         node: "EMPTY",
                     },
