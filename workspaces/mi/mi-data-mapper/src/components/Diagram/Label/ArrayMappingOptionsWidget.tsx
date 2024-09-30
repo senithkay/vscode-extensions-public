@@ -86,7 +86,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     };
 
-    const onClickMapArrayToSingletonDirect = async () => {
+    const onClickMapArraysAccessSingleton = async () => {
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort, undefined, '[0]');
         } else {
@@ -94,7 +94,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     }
 
-    const onClickMapArrayToSingletonIndirect = async () => {
+    const onClickMapIndividualElementsAccessSingleton = async () => {
         if (targetPort instanceof InputOutputPortModel) {
             const targetPortField = targetPort.field;
 
@@ -144,12 +144,12 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         {
             id: "a2s-direct",
             label: getItemElement("a2s-direct", "Access Singleton"),
-            onClick: onClickMapArrayToSingletonDirect
+            onClick: onClickMapArraysAccessSingleton
         },
         {
-            id: "a2s-indirect",
-            label: getItemElement("a2s-indirect", "Map Array Elements Individually & Access Singleton"),
-            onClick: onClickMapArrayToSingletonIndirect
+            id: "a2s-inner",
+            label: getItemElement("a2s-inner", "Map Array Elements Individually & Access Singleton"),
+            onClick: onClickMapIndividualElementsAccessSingleton
         }
     ];
 
