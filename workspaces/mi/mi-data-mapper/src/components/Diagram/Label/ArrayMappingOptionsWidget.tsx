@@ -82,7 +82,6 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 } else {
                     await createSourceForMapping(link, mapFnSrc);
                 }
-                await createSourceForMapping(link, mapFnSrc); // TODO: Remove this line
             }
         }
     };
@@ -109,7 +108,6 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 } else {
                     await createSourceForMapping(link, mapFnSrc, '[0]');
                 }
-                await createSourceForMapping(link, mapFnSrc, '[0]');
             }
 
         }
