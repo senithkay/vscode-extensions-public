@@ -51,7 +51,7 @@ function modityTestCaseData(data: TestCaseEntry) {
             expectedValue = assertion[2];
             errorMessage = assertion[3];
 
-            if (expectedValue.startsWith("<![CDATA[")) {
+            if (expectedValue?.startsWith("<![CDATA[")) {
                 expectedValue = expectedValue.substring(9, expectedValue.length - 3);
             }
         } else {
