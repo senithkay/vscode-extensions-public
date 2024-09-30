@@ -18,9 +18,11 @@ import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
 import { SplitView } from "../SplitView/SplitView";
+import { on } from "events";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
+    onOpenApiDefinitionChange: (openApiDefinition: OpenAPI) => void;
 }
 
 const NavigationContainer = styled.div`
@@ -53,7 +55,7 @@ const NvigationPanelContainer = styled.div`
 `;
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
-    const { openAPIDefinition: initialOpenAPIDefinition } = props;
+    const { openAPIDefinition: initialOpenAPIDefinition, onOpenApiDefinitionChange } = props;
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
 
@@ -129,6 +131,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         }
         setSelectedPathID(getResourceID(path.path, path.method));
         setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const handleAddPath = () => {
@@ -149,6 +152,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         };
         setSelectedPathID(getResourceID("/path", "get"));
         setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const handleAddResource = (path: string, method: string) => {
@@ -169,6 +173,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         };
         setSelectedPathID(getResourceID(path, method));
         setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const onDeleteResource = (p: string, method: string) => {
@@ -182,6 +187,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         }
         setSelectedPathID(undefined);
         setOpenAPIDefinition({ ...openAPIDefinition });
+        onOpenApiDefinitionChange(openAPIDefinition);
     };
 
     const onDeletePath = (p: string) => {
@@ -217,7 +223,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 </NvigationPanelContainer>
                 <div>
                     {(selectedPathID === undefined || !operation) && (
-                        <Overview openAPIDefinition={openAPIDefinition} />
+                        <Overview openAPIDefinition={openAPIDefinition} onOpenApiDefinitionChange={onOpenApiDefinitionChange} />
                     )}
                     {operation && selectedPathID !== undefined && (
                         <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeleteResource} />

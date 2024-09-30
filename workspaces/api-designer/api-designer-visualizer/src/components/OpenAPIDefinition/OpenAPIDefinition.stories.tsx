@@ -21,9 +21,13 @@ export default {
 
 const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 
+const onOpenAPIDefinitionChange = (openAPIDefinition: OpenAPI) => {
+    console.log(openAPIDefinition);
+}
+
 export const APIDesignerStory = () => {
     return (
-        <OpenAPIDefinition  openAPIDefinition={apiDefinition}/>
+        <OpenAPIDefinition openAPIDefinition={apiDefinition} onOpenApiDefinitionChange={onOpenAPIDefinitionChange}/>
     );
 };
 
@@ -31,6 +35,6 @@ export const APIDesignerStory = () => {
 const coffeeshopJSON = coffeshop as unknown as OpenAPI;
 export const CoffeeshopStory = () => {
     return (
-        <OpenAPIDefinition  openAPIDefinition={coffeeshopJSON}/>
+        <OpenAPIDefinition openAPIDefinition={coffeeshopJSON} onOpenApiDefinitionChange={onOpenAPIDefinitionChange}/>
     );
 }

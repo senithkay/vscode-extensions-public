@@ -43,3 +43,12 @@ export interface GetOpenAPIContentResponse {
 export interface GetOpenAPIContentRequest {
     filePath: string;
 }
+
+export interface WriteOpenAPIContentRequest {
+    filePath: string;
+    content: string;
+}
+
+export interface WriteOpenAPIContentResponse {
+    success: boolean;
+}

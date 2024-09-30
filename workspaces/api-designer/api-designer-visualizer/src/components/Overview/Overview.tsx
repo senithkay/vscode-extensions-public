@@ -32,6 +32,7 @@ export const PanelBody = styled.div`
 
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
+    onOpenApiDefinitionChange: (openAPIDefinition: OpenAPI) => void;
 }
 
 const moreOptions = ["Summary", "Servers", "Security"];
@@ -102,6 +103,13 @@ export function Overview(props: OverviewProps) {
     const handleOptionChange = (options: string[]) => {
         setSelectedOptions(options);
     };
+
+    // Watch for changes in the form and update the openAPIDefinition
+    useEffect(() => {
+        // if (isDirty) {
+        //     props.onOpenApiDefinitionChange(getValues());
+        // }
+    }, [isDirty]);
 
     return (
         <>

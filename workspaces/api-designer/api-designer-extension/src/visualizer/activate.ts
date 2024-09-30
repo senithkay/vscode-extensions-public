@@ -16,10 +16,12 @@ import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/api-designer-core';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, async (fileUri: vscode.Uri) => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_WELCOME, async (fileUri: vscode.Uri | string) => {
             let file: string | undefined;
             const activeDocument = vscode.window.activeTextEditor?.document;
-            if (fileUri?.fsPath) {
+            if (typeof fileUri === 'string') {
+                file = fileUri;
+            } else if (fileUri?.fsPath) {
                 file = fileUri.fsPath;
             } else if (activeDocument) {
                 file = activeDocument.fileName;

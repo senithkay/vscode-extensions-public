@@ -13,13 +13,15 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     OpenViewRequest,
+    WriteOpenAPIContentRequest,
     addToHistory,
     getHistory,
     getOpenApiContent,
     goBack,
     goHome,
     goToSource,
-    openView
+    openView,
+    writeOpenApiContent
 } from "@wso2-enterprise/api-designer-core";
 import { Messenger } from "vscode-messenger";
 import { ApiDesignerVisualizerRpcManager } from "./rpc-manager";
@@ -33,4 +35,5 @@ export function registerApiDesignerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onRequest(getOpenApiContent, (args: GetOpenAPIContentRequest) => rpcManger.getOpenApiContent(args));
+    messenger.onRequest(writeOpenApiContent, (args: WriteOpenAPIContentRequest) => rpcManger.writeOpenApiContent(args));
 }

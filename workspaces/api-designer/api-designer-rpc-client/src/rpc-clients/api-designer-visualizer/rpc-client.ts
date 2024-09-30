@@ -16,13 +16,16 @@ import {
     HistoryEntry,
     HistoryEntryResponse,
     OpenViewRequest,
+    WriteOpenAPIContentRequest,
+    WriteOpenAPIContentResponse,
     addToHistory,
     getHistory,
     getOpenApiContent,
     goBack,
     goHome,
     goToSource,
-    openView
+    openView,
+    writeOpenApiContent
 } from "@wso2-enterprise/api-designer-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -60,5 +63,9 @@ export class ApiDesignerVisualizerRpcClient implements APIDesignerVisualizerAPI 
 
     getOpenApiContent(params: GetOpenAPIContentRequest): Promise<GetOpenAPIContentResponse> {
         return this._messenger.sendRequest(getOpenApiContent, HOST_EXTENSION, params);
+    }
+
+    writeOpenApiContent(params: WriteOpenAPIContentRequest): Promise<WriteOpenAPIContentResponse> {
+        return this._messenger.sendRequest(writeOpenApiContent, HOST_EXTENSION, params);
     }
 }

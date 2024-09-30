@@ -15,6 +15,8 @@ import {
     GoToSourceRequest,
     GetOpenAPIContentRequest,
     GetOpenAPIContentResponse,
+    WriteOpenAPIContentResponse,
+    WriteOpenAPIContentRequest,
 } from "./types";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
@@ -26,3 +28,4 @@ export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const getOpenApiContent: RequestType<GetOpenAPIContentRequest, GetOpenAPIContentResponse> = { method: `${_preFix}/getOpenApiContent` };
+export const writeOpenApiContent: RequestType<WriteOpenAPIContentRequest, WriteOpenAPIContentResponse> = { method: `${_preFix}/writeOpenApiContent` };

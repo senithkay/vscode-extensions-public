@@ -15,9 +15,12 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
-    OpenViewRequest
+    OpenViewRequest,
+    WriteOpenAPIContentRequest,
+    WriteOpenAPIContentResponse
 } from "@wso2-enterprise/api-designer-core";
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
+import yaml from 'js-yaml';
 export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI {
     async openView(params: OpenViewRequest): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
@@ -72,5 +75,37 @@ export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI
             }
         }
         return { content: fileContent, type: fileType };
+    }
+
+    async writeOpenApiContent(params: WriteOpenAPIContentRequest): Promise<WriteOpenAPIContentResponse> {
+        const { filePath, content } = params;
+        if (!filePath) {
+            throw new Error('File path is not provided');
+        }
+        try {
+            let formattedContent: string;
+
+            if (filePath.endsWith('.json')) {
+                // Parse and stringify JSON with formatting
+                const jsonObject = JSON.parse(content);
+                formattedContent = JSON.stringify(jsonObject, null, 2);
+            } else if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
+                // Parse and dump YAML with formatting
+                const yamlObject = yaml.load(content);
+                formattedContent = yaml.dump(yamlObject, {
+                    indent: 2,
+                    lineWidth: -1, // Disable line wrapping
+                    noRefs: true,
+                });
+            } else {
+                throw new Error('Unsupported file type');
+            }
+
+            await writeFile(filePath, formattedContent, 'utf8');
+            return { success: true };
+        } catch (err: any) {
+            console.error('Error writing file:', err);
+            return { success: false };
+        }
     }
 }

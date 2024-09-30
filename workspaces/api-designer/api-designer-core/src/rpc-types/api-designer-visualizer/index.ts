@@ -14,6 +14,8 @@ import {
     GoToSourceRequest,
     GetOpenAPIContentRequest,
     GetOpenAPIContentResponse,
+    WriteOpenAPIContentResponse,
+    WriteOpenAPIContentRequest,
 } from "./types";
 
 export interface APIDesignerVisualizerAPI {
@@ -24,4 +26,5 @@ export interface APIDesignerVisualizerAPI {
     goHome: () => void;
     goToSource: (params: GoToSourceRequest) => void;
     getOpenApiContent: (params: GetOpenAPIContentRequest) => Promise<GetOpenAPIContentResponse>;
+    writeOpenApiContent: (params: WriteOpenAPIContentRequest) => Promise<WriteOpenAPIContentResponse>;
 }

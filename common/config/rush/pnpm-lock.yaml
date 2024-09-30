@@ -184,6 +184,7 @@ importers:
       '@iarna/toml': ^2.2.5
       '@playwright/test': ~1.37.1
       '@types/fs-extra': ~11.0.4
+      '@types/js-yaml': ~4.0.9
       '@types/json-schema': 7.0.15
       '@types/lodash': ~4.14.199
       '@types/mocha': ^10.0.1
@@ -210,6 +211,7 @@ importers:
       fast-xml-parser: ~4.3.2
       fs-extra: ~11.2.0
       glob: ^10.3.3
+      js-yaml: ~4.1.0
       json-schema: 0.4.0
       json-schema-to-ts: 3.0.1
       jsonix: ~3.0.0
@@ -265,6 +267,7 @@ importers:
       cors-anywhere: 0.4.4
       fast-xml-parser: 4.3.6
       fs-extra: 11.2.0
+      js-yaml: 4.1.0
       json-schema: 0.4.0
       json-schema-to-ts: 3.0.1
       jsonix: 3.0.0
@@ -289,6 +292,7 @@ importers:
       xml2js: 0.6.2
       xstate: 4.38.3
     devDependencies:
+      '@types/js-yaml': 4.0.9
       '@types/mocha': 10.0.6
       '@types/node': 16.18.79
       '@types/vscode': 1.86.0
@@ -9611,17 +9615,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -26633,7 +26626,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

@@ -14,6 +14,7 @@ import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUti
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
+import { debounce } from "lodash";
 
 interface ServiceDesignerProps {
     fileUri: string;
@@ -31,6 +32,14 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const { rpcClient } = useVisualizerContext();
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
 
+    const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
+        const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
+            filePath: fileUri,
+            content: JSON.stringify(openApiDefinition),
+        });
+    };
+    const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 1000);
+
     useEffect(() => {
         const fetchData = async () => {
             const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
@@ -47,7 +56,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
     return (
         <APIDesignerWrapper>
             {/* <ServiceDesigner model={apiDefinition} disableServiceHeader /> */}
-            <OpenAPIDefinition openAPIDefinition={apiDefinition} />
+            <OpenAPIDefinition openAPIDefinition={apiDefinition} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
         </APIDesignerWrapper>
     )
 }
