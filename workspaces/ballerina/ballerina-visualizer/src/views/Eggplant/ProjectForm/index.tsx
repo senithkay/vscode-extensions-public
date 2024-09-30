@@ -42,7 +42,7 @@ export function ProjectForm() {
     };
 
     const handleProjecDirSelection = async () => {
-        const projectDirectory = await rpcClient.getCommonRpcClient().askProjectDirPath();
+        const projectDirectory = await rpcClient.getCommonRpcClient().selectFileOrDirPath({});
         setPath(projectDirectory.path);
     };
 

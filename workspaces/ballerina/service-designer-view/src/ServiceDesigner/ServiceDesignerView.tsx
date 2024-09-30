@@ -132,6 +132,10 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         }]);
     };
 
+    const handleExportOAS = () => {
+        serviceDesignerRpcClient.exportOASFile({});
+    };
+
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
             <div data-testid="service-design-view">
@@ -139,6 +143,9 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     <ViewHeader title={`Service ${serviceConfig?.path}`} codicon="globe" onEdit={handleServiceEdit}>
                         <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
                             <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                        </VSCodeButton>
+                        <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
+                            <Codicon name="export" sx={{ marginRight: 5 }} /> Export OAS
                         </VSCodeButton>
                     </ViewHeader>
                     <ServiceHeader>

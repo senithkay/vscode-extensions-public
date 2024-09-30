@@ -18,12 +18,13 @@ import {
     CommandsResponse,
     GoToSourceRequest,
     OpenExternalUrlRequest,
-    ProjectDirResponse,
+    FileOrDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
-    WorkspacesFileResponse
+    WorkspacesFileResponse,
+    FileOrDirRequest
 } from "./interfaces";
 
 export interface CommonRPCAPI {
@@ -34,6 +35,6 @@ export interface CommonRPCAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
     runBackgroundTerminalCommand: (params: RunExternalCommandRequest) => Promise<RunExternalCommandResponse>;
     openExternalUrl: (params: OpenExternalUrlRequest) => void;
-    askProjectDirPath: () => Promise<ProjectDirResponse>;
+    selectFileOrDirPath: (params: FileOrDirRequest) => Promise<FileOrDirResponse>;
     experimentalEnabled: () => Promise<boolean>;
 }

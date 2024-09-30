@@ -10,7 +10,7 @@ import { exec } from "child_process";
 import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { CreateComponentRequest, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { CreateComponentRequest, CreateComponentResponse, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
 
 export const README_FILE = "readme.md";
@@ -104,11 +104,46 @@ eggplant = true
 }
 
 
-export async function createEggplantService(params: CreateComponentRequest) {
-    const serviceFile = await handleServiceCreation(params);
-    history.clear();
-    openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
-    commands.executeCommand("Eggplant.project-explorer.refresh");
+export async function createEggplantService(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        if (params.specPath) {
+            // Call LS to create the service and get the serviceFile URI and the position of the serviceDeclaration.
+            const projectDir = path.join(StateMachine.context().projectUri);
+            try {
+                const response = await StateMachine.langClient().generateServiceFromOAS({
+                    openApiContractPath: params.specPath,
+                    projectPath: projectDir,
+                    port: Number(params.port)
+                });
+                if (response.service) {
+                    const serviceFile = path.join(projectDir, response.service.fileName);
+                    openView(EVENT_TYPE.OPEN_VIEW,
+                        {
+                            documentUri: serviceFile,
+                            position: {
+                                startLine: response.service.startLine.line,
+                                startColumn: response.service.startLine.offset,
+                                endLine: response.service.endLine.line,
+                                endColumn: response.service.endLine.offset,
+                            }
+                        });
+                }
+                if (response.errorMsg) {
+                    resolve({ response: false, error: response.errorMsg })
+                }
+            } catch (error) {
+                console.log(error);
+                resolve({ response: false, error: error as string })
+            }
+
+        } else {
+            const serviceFile = await handleServiceCreation(params);
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
+        }
+        history.clear();
+        commands.executeCommand("Eggplant.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
 }
 
 export async function handleServiceCreation(params: CreateComponentRequest) {

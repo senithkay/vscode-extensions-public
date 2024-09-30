@@ -37,7 +37,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 rpcClients={{
                     serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
                     commonRpcClient: rpcClient.getCommonRpcClient(),
-
                 }}
                 applyModifications={applyModifications}
                 goToSource={handleOpenDiagram}

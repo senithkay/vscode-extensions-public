@@ -14,15 +14,15 @@ import {
     CommandsRequest,
     CommandsResponse,
     CommonRPCAPI,
+    FileOrDirRequest,
+    FileOrDirResponse,
     GoToSourceRequest,
     OpenExternalUrlRequest,
-    ProjectDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
-    askProjectDirPath,
     executeCommand,
     experimentalEnabled,
     getBallerinaDiagnostics,
@@ -30,7 +30,8 @@ import {
     getWorkspaceFiles,
     goToSource,
     openExternalUrl,
-    runBackgroundTerminalCommand
+    runBackgroundTerminalCommand,
+    selectFileOrDirPath
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -70,8 +71,8 @@ export class CommonRpcClient implements CommonRPCAPI {
         return this._messenger.sendNotification(openExternalUrl, HOST_EXTENSION, params);
     }
 
-    askProjectDirPath(): Promise<ProjectDirResponse> {
-        return this._messenger.sendRequest(askProjectDirPath, HOST_EXTENSION);
+    selectFileOrDirPath(params: FileOrDirRequest): Promise<FileOrDirResponse> {
+        return this._messenger.sendRequest(selectFileOrDirPath, HOST_EXTENSION, params);
     }
 
     experimentalEnabled(): Promise<boolean> {

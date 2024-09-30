@@ -12,6 +12,12 @@ import { TypeDefinition } from "@wso2-enterprise/syntax-tree";
 export interface RecordSTRequest {
     recordName: string;
 }
+export interface ExportOASRequest {
+    documentFilePath?: string;
+}
+export interface ExportOASResponse {
+    openSpecFile: string;
+}
 
 export interface RecordSTResponse {
     recordST: TypeDefinition;

@@ -32,10 +32,12 @@ export interface CreateComponentRequest {
     name: string;
     path: string;
     port: string;
+    specPath?: string;
 }
 
 export interface CreateComponentResponse {
     response: boolean,
+    error: string
 }
 
 export interface ProjectComponentsResponse {
