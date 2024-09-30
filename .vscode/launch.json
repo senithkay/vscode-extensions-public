@@ -64,7 +64,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-ballerina"
+            "preLaunchTask": "watch-ballerina"
         },
         {
             "name": "Ballerina Extension Tests",
