@@ -158,7 +158,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
             });
             setIsLoaded(true);
         })();
-    }, []);
+    }, [props.filePath, mockService]);
 
     const handleGoBack = () => {
         if (props.onGoBack) {
