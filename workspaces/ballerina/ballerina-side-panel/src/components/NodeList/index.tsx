@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { Button, Codicon, SearchBox, SidePanelBody, Switch, TextArea, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, SearchBox, SidePanelBody, Switch, TextArea, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { CloseIcon, LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
@@ -152,7 +152,7 @@ namespace S {
         justify-content: center;
         align-items: center;
         gap: 8px;
-        padding: 20px 12px;
+        padding: 6px 2px;
         color: ${Colors.PRIMARY};
         border: 1px dashed ${Colors.PRIMARY};
         border-radius: 5px;
@@ -262,26 +262,41 @@ export function NodeList(props: NodeListProps) {
                                     <S.SubTitle>{group.title}</S.SubTitle>
                                 </Tooltip>
                             )}
-                            {!isSubCategory && <S.Title>{group.title}</S.Title>}
+                            {!isSubCategory && (
+                                <>
+                                    <S.Title>{group.title}</S.Title>
+                                    {(isConnectionCategory || isProjectFunctionsCategory) && (
+                                        <Button
+                                            appearance="icon"
+                                            sx={{background: `${ThemeColors.SURFACE}`}}
+                                            buttonSx={{background: `${ThemeColors.SURFACE}`}}
+                                            tooltip={isConnectionCategory ? "Add Connection" : "Create Function"}
+                                            onClick={isConnectionCategory ? handleAddConnection : handleAddFunction}
+                                        >
+                                            <Codicon name="add" />
+                                        </Button>
+                                    )}
+                                </>
+                            )}
                         </S.Row>
                         {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>}
-                        {isConnectionCategory && (
+                        {isConnectionCategory && group.items.length === 0 && (
                             <S.HighlightedButton onClick={handleAddConnection}>
-                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                <Codicon name="add" iconSx={{ fontSize: 12 }} />
                                 Add Connection
                             </S.HighlightedButton>
                         )}
-                        {isProjectFunctionsCategory && (
+                        {isProjectFunctionsCategory && group.items.length === 0 &&  (
                             <S.HighlightedButton onClick={handleAddFunction}>
-                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                Add Function
+                                <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                Create Function
                             </S.HighlightedButton>
                         )}
                         {group.items.length > 0 && "id" in group.items.at(0)
                             ? getNodesContainer(group.items as Node[])
                             : (isConnectionCategory || isProjectFunctionsCategory)
-                            ? getConnectionContainer(group.items as Category[])
-                            : getCategoryContainer(group.items as Category[], true)}
+                                ? getConnectionContainer(group.items as Category[])
+                                : getCategoryContainer(group.items as Category[], true)}
                     </S.CategoryRow>
                 );
             })}
