@@ -466,6 +466,17 @@ export type EggplantNodeTemplateResponse = {
     flowNode: FlowNode;
 };
 
+export type EggplantGetFunctionsRequest = {
+    position: LineRange;
+    filePath: string;
+    queryMap: any;
+}
+
+export type EggplantGetFunctionsResponse = {
+    categories: Category[];
+}
+
+
 export type EggplantConnectorsRequest = {
     keyword: string;
 }

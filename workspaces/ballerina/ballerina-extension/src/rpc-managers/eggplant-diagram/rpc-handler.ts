@@ -14,6 +14,7 @@ import {
     EggplantAiSuggestionsRequest,
     EggplantAvailableNodesRequest,
     EggplantConnectorsRequest,
+    EggplantGetFunctionsRequest,
     EggplantNodeTemplateRequest,
     EggplantSourceCodeRequest,
     ProjectRequest,
@@ -26,6 +27,7 @@ import {
     getAvailableNodes,
     getEggplantConnectors,
     getFlowModel,
+    getFunctions,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
@@ -42,6 +44,7 @@ export function registerEggplantDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSourceCode, (args: EggplantSourceCodeRequest) => rpcManger.getSourceCode(args));
     messenger.onRequest(deleteFlowNode, (args: EggplantSourceCodeRequest) => rpcManger.deleteFlowNode(args));
     messenger.onRequest(getAvailableNodes, (args: EggplantAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
+    messenger.onRequest(getFunctions, (args: EggplantGetFunctionsRequest) => rpcManger.getFunctions(args));
     messenger.onRequest(getNodeTemplate, (args: EggplantNodeTemplateRequest) => rpcManger.getNodeTemplate(args));
     messenger.onRequest(getAiSuggestions, (args: EggplantAiSuggestionsRequest) => rpcManger.getAiSuggestions(args));
     messenger.onNotification(createProject, (args: ProjectRequest) => rpcManger.createProject(args));

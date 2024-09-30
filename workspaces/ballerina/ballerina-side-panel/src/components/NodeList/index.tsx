@@ -214,6 +214,10 @@ export function NodeList(props: NodeListProps) {
         }
     };
 
+    // TODO: Add the logic to handle adding a function
+    const handleAddFunction = () => {
+    }
+
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
             {nodes.map((node, index) => (
@@ -246,7 +250,8 @@ export function NodeList(props: NodeListProps) {
         <>
             {groups.map((group, index) => {
                 const isConnectionCategory = group.title === "Connections";
-                if ((!group || group.items.length === 0) && !isConnectionCategory) {
+                const isProjectFunctionsCategory = group.title === "Project";
+                if ((!group || group.items.length === 0) && (!isConnectionCategory && !isProjectFunctionsCategory)) {
                     return null;
                 }
                 return (
@@ -266,9 +271,15 @@ export function NodeList(props: NodeListProps) {
                                 Add Connection
                             </S.HighlightedButton>
                         )}
+                        {isProjectFunctionsCategory && (
+                            <S.HighlightedButton onClick={handleAddFunction}>
+                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                Add Function
+                            </S.HighlightedButton>
+                        )}
                         {group.items.length > 0 && "id" in group.items.at(0)
                             ? getNodesContainer(group.items as Node[])
-                            : isConnectionCategory
+                            : (isConnectionCategory || isProjectFunctionsCategory)
                             ? getConnectionContainer(group.items as Category[])
                             : getCategoryContainer(group.items as Category[], true)}
                     </S.CategoryRow>

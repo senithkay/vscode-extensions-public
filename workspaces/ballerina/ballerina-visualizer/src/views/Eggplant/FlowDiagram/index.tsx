@@ -28,10 +28,12 @@ import {
     EVENT_TYPE,
     VisualizerLocation,
     MACHINE_VIEW,
+    NodeKind,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
     convertEggplantCategoriesToSidePanelCategories,
+    convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/eggplant";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -59,6 +61,7 @@ const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
+    FUNCTION_LIST = "FUNCTION_LIST"
 }
 
 export interface EggplantFlowDiagramProps {
@@ -184,10 +187,39 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
             });
     };
 
+    const handleSearchFunction = (searchText: string) => {
+        // TODO: Fix incosistency in the search and re-nable search through LS
+        // const searchQueryMap: Map<string, string> = new Map<string, string>();
+        // searchQueryMap.set("q", searchText);
+        // const request: EggplantGetFunctionsRequest = {
+        //     position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
+        //     filePath: model.fileName,
+        //     queryMap: searchText
+        // };
+        // rpcClient.getEggplantDiagramRpcClient().getFunctions(request).then((response) => {
+        //     console.log(">>> Searched List of functions", response);
+        //     setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+        //     setShowSidePanel(true);
+        //     setSidePanelView(SidePanelView.FUNCTION_LIST);
+        // });
+    }
+
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         // node is function
-
+        const nodeType: NodeKind = node.codedata.node;
+        if(nodeType === "FUNCTION") {
+            rpcClient.getEggplantDiagramRpcClient().getFunctions({
+                position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
+                filePath: model.fileName,
+                queryMap: undefined,
+            }).then((response) => {
+                console.log(">>> List of functions", response);
+                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setSidePanelView(SidePanelView.FUNCTION_LIST);
+                setShowSidePanel(true);
+            });
+        } else {
         // default node 
         console.log(">>> on select panel node", { nodeId, metadata });
         selectedClientName.current = category;
@@ -204,6 +236,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 setSidePanelView(SidePanelView.FORM);
                 setShowSidePanel(true);
             });
+        }
     };
 
     const handleOnFormSubmit = (updatedNode?: FlowNode) => {
@@ -446,6 +479,14 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         onSelect={handleOnSelectNode}
                         onAddConnection={handleOnAddConnection}
                         onClose={handleOnCloseSidePanel}
+                    />
+                )}
+                {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
+                    <NodeList
+                        categories={categories}
+                        onSelect={handleOnSelectNode}
+                        onClose={handleOnCloseSidePanel}
+                        onSearchTextChange={handleSearchFunction}
                     />
                 )}
                 {sidePanelView === SidePanelView.FORM && (
