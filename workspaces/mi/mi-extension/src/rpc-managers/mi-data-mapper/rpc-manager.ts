@@ -37,7 +37,6 @@ import { StateMachine, navigate } from "../../stateMachine";
 import { generateSchemaFromContent } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateTsFileCustomTypes, updateTsFileIoTypes } from "../../util/tsBuilder";
-import * as vscode from 'vscode';
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
@@ -245,7 +244,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             openSignInView();
             return false;
         }
-
         return true;  // token is available and valid
     }
 
@@ -267,32 +265,33 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return true;
     }
 
-    //Function to update the body of a function in a TypeScript file
+    // Function to update the body of a function in a TypeScript file
     async writeDataMapping(params: DataMapWriteRequest): Promise<void> {
         const { dataMapping } = params;
-        // sourcePath is the path of the TypeScript file which contains the schema interfaces to be mapped
         const sourcePath = StateMachine.context().dataMapperProps?.filePath;
         if (sourcePath) {
             try {
-                // Get the project from the sourcePath
                 const project = DMProject.getInstance(sourcePath).getProject();
-                // Get the source file from the project
                 const sourceFile = project.getSourceFileOrThrow(sourcePath);
-                // find the mapFunction declaration
                 const functionDeclaration = sourceFile.getFunction(READONLY_MAPPING_FUNCTION_NAME);
-
                 if (functionDeclaration) {
-                    // update the function body
-                    functionDeclaration.setBodyText(`${dataMapping}`);
-                    // write the updates to the file
+                    // Determine the return type of the function
+                    const returnType = functionDeclaration.getReturnType();
+                    let defaultReturnValue = 'return {}';
+                    if (returnType.isArray()) {
+                        defaultReturnValue = 'return []';
+                    }
+                    // Update the function body
+                    functionDeclaration.setBodyText(`${dataMapping || defaultReturnValue}`);
+                    // Write the updates to the file
                     await sourceFile.save();
-                    navigate();
+                    await navigate();
                 } else {
                     console.error("Error in writing data mapping, mapFunction not found in target ts file.");
                 }
             } catch (error) {
                 console.error('Failed to write data mapping to files: ', error);
-                throw error; // Rethrow the error to handle it further up the call stack if necessary
+                throw error;
             }
         }
     }
@@ -300,7 +299,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     // Main function to get the mapping from OpenAI and write it to the relevant files
     async getMappingFromAI(): Promise<void> {
         try {
-            //await this.writeDataMapping({ dataMapping: "" });
             // Function to read the TypeScript file
             let tsContent = await readTSFile();
             const backendRootUri = await fetchBackendUrl();
