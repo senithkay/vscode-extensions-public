@@ -12,7 +12,6 @@ import styled from "@emotion/styled";
 import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
 import { TreeViewItem } from "../Treeview/TreeViewItem";
-import { useState } from "react";
 
 interface OpenAPIDefinitionProps {
     paths: Paths;
@@ -90,6 +89,10 @@ export const menuVerticalIconWrapper = {
     marginLeft: "1px"
 }
 
+const APIResources = [
+    "get","post","put","delete","patch","head","options","trace"
+];
+
 export function PathsComponent(props: OpenAPIDefinitionProps) {
     const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
     const pathsArray = Object.keys(paths);
@@ -138,52 +141,20 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                 {pathsArray.map((path, index) => {
                     const pathItem = pathItems[index];
                     const operations = Object.keys(pathItem);
+                    const newOperations = APIResources.filter((operation) => !operations.includes(operation));
+                    const subMenuItems = newOperations.map((operation) => {
+                        return {
+                            id: operation,
+                            label: operation.toUpperCase(),
+                            onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => { handleAddResource(evt, path, operation) }
+                        }
+                    });
                     const resourceMenuItems = [
                         { 
                             id: "add", 
                             label: "Add Opreration",
                             onClick: () => {},
-                            sunMenuItems: [{
-                                id: "get",
-                                label: <>GET</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "get")}
-                            },
-                            {
-                                id: "post",
-                                label: <>POST</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "post")}
-                            },
-                            {
-                                id: "put",
-                                label: <>PUT</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "put")}
-                            },
-                            {
-                                id: "delete",
-                                label: <>DELETE</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "delete")}
-                            },
-                            {
-                                id: "patch",
-                                label: <>PATCH</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "patch")}
-                            },
-                            {
-                                id: "head",
-                                label: <>HEAD</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "head")}
-                            },
-                            {
-                                id: "options",
-                                label: <>OPTIONS</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "options")}
-                            },
-                            {
-                                id: "trace",
-                                label: <>TRACE</>,
-                                onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => {handleAddResource(evt, path, "trace")}
-                            }
-                            ]
+                            sunMenuItems: subMenuItems
                         },
                         { id: "delete path", label: "Delete Path",
                              onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => handleDeletePath(evt, path) 

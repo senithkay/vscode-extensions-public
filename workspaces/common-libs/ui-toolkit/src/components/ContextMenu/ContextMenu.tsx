@@ -297,7 +297,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                                 if (!item?.disabled) {
                                                     event.stopPropagation();
                                                     if (item?.onClick) {
-                                                        item.onClick();
+                                                        item.onClick(event);
                                                     }
                                                     if (item.sunMenuItems) {
                                                         handleItemHover(event, item);

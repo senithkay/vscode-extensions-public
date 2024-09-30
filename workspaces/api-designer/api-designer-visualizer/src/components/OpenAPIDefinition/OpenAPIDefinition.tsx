@@ -81,7 +81,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         const initialPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
         const initialPathItems = initialPath && openAPIDefinition.paths[initialPath];
         let updatedOpenAPIDefinition = { ...openAPIDefinition };
-        const initialPathParamaters = getPathParametersFromParameters(openAPIDefinition.paths[path.initialPath][path.initialMethod].parameters);
+        const initialPathParamaters = getPathParametersFromParameters(openAPIDefinition.paths[path?.initialPath][path?.initialMethod].parameters);
         const newPathParameters = getPathParametersFromParameters(path.initialOperation.parameters);
         if (initialPathParamaters?.length === newPathParameters?.length) {
             // Update the existing path
