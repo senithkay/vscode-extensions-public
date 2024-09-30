@@ -161,6 +161,7 @@ const MainPanel = () => {
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
                                 isEggplant={value.isEggplant}
+                                isEditingDisabled={value.haveServiceType}
                             />
                         );
                         break;

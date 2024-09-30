@@ -112,6 +112,7 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
                                     syntaxTree: (context, event) => event.data.syntaxTree,
+                                    haveServiceType: (context, event) => event.data.haveServiceType,
                                 })
                             }
                         }

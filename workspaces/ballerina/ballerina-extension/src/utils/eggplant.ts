@@ -129,11 +129,11 @@ export async function createEggplantService(params: CreateComponentRequest): Pro
                         });
                 }
                 if (response.errorMsg) {
-                    resolve({ response: false, error: response.errorMsg })
+                    resolve({ response: false, error: response.errorMsg });
                 }
             } catch (error) {
                 console.log(error);
-                resolve({ response: false, error: error as string })
+                resolve({ response: false, error: error as string });
             }
 
         } else {

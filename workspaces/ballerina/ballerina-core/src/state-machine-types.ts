@@ -73,6 +73,7 @@ export interface VisualizerLocation {
     syntaxTree?: STNode;
     isEggplant?: boolean;
     recordFilePath?: string;
+    haveServiceType?: boolean;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
