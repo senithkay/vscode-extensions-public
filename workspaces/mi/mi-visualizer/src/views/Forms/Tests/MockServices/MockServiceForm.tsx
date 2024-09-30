@@ -163,6 +163,8 @@ export function MockServiceForm(props: MockServiceFormProps) {
     const handleGoBack = () => {
         if (props.onGoBack) {
             props.onGoBack();
+        } else {
+            openOverview();
         }
     }
 
