@@ -331,9 +331,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             const assertions = testCase.assertions.assertions.map((assertion) => {
                 return [
                     assertion.tag,
-                    assertion.actual.textNode,
-                    assertion.expected.textNode,
-                    assertion.message.textNode,
+                    assertion?.actual?.textNode,
+                    assertion?.expected?.textNode,
+                    assertion?.message?.textNode,
                 ]
             });
             const input = {

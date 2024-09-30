@@ -132,7 +132,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "type": "TextArea",
                     "label": "Expected Value",
                     "defaultValue": "",
-                    "isRequired": true,
+                    "isRequired": false,
                     "enableCondition": [
                         { 0: "Assert Equals" }
                     ]
@@ -151,14 +151,15 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 }
                 if (props?.testCase?.assertions) {
                     props.testCase.assertions = props.testCase.assertions.map((assertion: string[]) => {
-                        if (assertion[2].startsWith("<![CDATA[")) {
+                        assertion[0] = assertion[0]?.toLowerCase() === "assertequals" ? "Assert Equals" : "Assert Not Null";
+                        if (assertion[2]?.startsWith("<![CDATA[")) {
                             assertion[2] = assertion[2].substring(9, assertion[2].length - 3);
                         }
                         return assertion;
                     });
                 }
                 props.testCase.input.properties = {
-                    paramValues: props.testCase.input.properties ? getParamManagerFromValues(props.testCase.input.properties) : [],
+                    paramValues: props.testCase.input.properties ? getParamManagerFromValues(props.testCase.input.properties, 0, 2) : [],
                     paramFields: inputPropertiesFields
                 } as any;
 
@@ -174,10 +175,12 @@ export function TestCaseForm(props: TestCaseFormProps) {
             }
 
             reset({
+                name: "",
                 input: {
                     requestPath: !isSequence ? "/" : undefined,
                     requestMethod: !isSequence ? "GET" : undefined,
                     requestProtocol: !isSequence ? "HTTP" : undefined,
+                    payload: "",
                     properties: {
                         paramValues: [],
                         paramFields: inputPropertiesFields
@@ -190,7 +193,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
             });
             setIsLoaded(true);
         })();
-    }, []);
+    }, [props.filePath, props.testCase]);
 
     const handleGoBack = () => {
         if (props.onGoBack) {
@@ -281,7 +284,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                                 values.paramValues = values.paramValues.map((param: any) => {
                                     const property: ParamValue[] = param.paramValues;
                                     param.key = property[0].value;
-                                    param.value = property[1].value;
+                                    param.value = property[2].value;
                                     param.icon = 'query';
                                     return param;
                                 });
