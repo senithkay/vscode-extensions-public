@@ -229,10 +229,10 @@ export function Form(props: FormProps) {
     return (
         <S.Container>
             <S.CategoryRow showBorder={variableField !== undefined || typeField !== undefined}>
-                <S.TitleContainer>
+                {/* <S.TitleContainer>
                     <S.Title>Input Parameters</S.Title>
                     <S.BodyText>Lorem ipsum dolor sit amet, consectetur adipiscing</S.BodyText>
-                </S.TitleContainer>
+                </S.TitleContainer> */}
                 {formFields
                     .filter((field) => field.type !== "VIEW")
                     .map((field) => {
@@ -257,7 +257,7 @@ export function Form(props: FormProps) {
                 )}
                 {hasOptionalFields && (
                     <S.Row>
-                        Advanced Properties
+                        Optional Parameters
                         <S.ButtonContainer>
                             {!showAdvancedOptions && (
                                 <LinkButton
@@ -299,10 +299,10 @@ export function Form(props: FormProps) {
             {variableField && (
                 <S.CategoryRow showBorder={false}>
                     <S.TitleContainer>
-                        <S.Title>Output Variable</S.Title>
+                        <S.Title>Variable</S.Title>
                         <S.BodyText>Assign node output value to a variable</S.BodyText>
                     </S.TitleContainer>
-                    {canUpdateVariable && (
+                    {/* {canUpdateVariable && (
                         <S.Row>
                             <Switch
                                 leftLabel="New Variable"
@@ -322,26 +322,26 @@ export function Form(props: FormProps) {
                                 disabled={false}
                             />
                         </S.Row>
-                    )}
+                    )} */}
                     {variableField && createNewVariable && (
-                        <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
+                        // <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
                             <EditorFactory field={variableField} register={register} />
-                        </S.EditorContainer>
+                        // </S.EditorContainer>
                     )}
                     {typeField && createNewVariable && (
-                        <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
+                        // <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
                             <EditorFactory
                                 field={typeField}
                                 register={register}
                                 openRecordEditor={handleOpenRecordEditor}
                             />
-                        </S.EditorContainer>
+                        // </S.EditorContainer>
                     )}
-                    {updateVariableField && !createNewVariable && (
+                    {/* {updateVariableField && !createNewVariable && (
                         <S.EditorContainer key={updateVariableField.key} color={Colors.PURPLE}>
                             <EditorFactory field={updateVariableField} register={register} />
                         </S.EditorContainer>
-                    )}
+                    )} */}
                 </S.CategoryRow>
             )}
             {onSubmit && (
