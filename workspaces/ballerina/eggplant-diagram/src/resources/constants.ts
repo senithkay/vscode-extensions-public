@@ -106,7 +106,7 @@ export const NODE_GAP_X = 60;
 
 // custom nodes
 export const IF_NODE_WIDTH = 65;
-export const WHILE_NODE_WIDTH = 65;
+export const WHILE_NODE_WIDTH = 50;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
 

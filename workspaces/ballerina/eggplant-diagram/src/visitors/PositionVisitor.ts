@@ -113,7 +113,7 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
-        node.viewState.x = centerX - NODE_GAP_X / 2;
+        node.viewState.x = centerX - node.viewState.w / 2;
 
         const bodyBranch = node.branches.find((branch) => branch.label === "Body");
         bodyBranch.viewState.y = this.lastNodeY;

@@ -38,7 +38,7 @@ namespace S {
         height: ${(props: DottedBoxStyleProp) => (props.height)}px;
         border: 2px dashed ${Colors.PRIMARY};
         pointer-events: none;
-        z-index: -1000;
+        border-radius: 20px;
     `;
 }
 

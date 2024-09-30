@@ -39,6 +39,7 @@ export namespace NodeStyles {
         align-items: flex-start;
         width: 100%;
         position: absolute;
+        padding: 8px;
         left: ${WHILE_NODE_WIDTH}px;
     `;
 

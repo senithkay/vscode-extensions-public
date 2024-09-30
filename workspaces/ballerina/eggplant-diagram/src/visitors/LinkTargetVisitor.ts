@@ -211,21 +211,21 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
 
-        const bodyLink = outLinks.find((link) => link.label === "Body");
+        const bodyLink = outLinks.at(0);
         if (bodyLink) {
-            const thenBranch = node.branches.find((branch) => branch.label === "Body");
-            const line = thenBranch.codedata.lineRange.startLine;
+            const bodyBranch = node.branches.at(0);
+            const line = bodyBranch.codedata.lineRange.startLine;
             bodyLink.setTarget({
                 line: line.line,
                 offset: line.offset + 1, // HACK: need to fix with LS extension
             });
-            bodyLink.setTopNode(thenBranch);
-            // if body branch is empty, target node is empty node.
+            bodyLink.setTopNode(bodyBranch);
+            // if the body branch is empty, target node is empty node.
             // improve empty node with target position and top node
             const firstNode = bodyLink.targetNode;
             if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
                 const emptyNode = firstNode as EmptyNodeModel;
-                emptyNode.setTopNode(thenBranch);
+                emptyNode.setTopNode(bodyBranch);
                 emptyNode.setTarget({
                     line: line.line,
                     offset: line.offset + 1, // HACK: need to fix with LS extension
@@ -233,23 +233,23 @@ export class LinkTargetVisitor implements BaseVisitor {
             }
         }
 
-        // update end-if link target
+        // update end-while link target
         const endWhileModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === `${node.id}-endwhile`);
         if (!endWhileModel) {
             console.log("End-while node model not found", node);
             return;
         }
         const endWhileOutLinks = this.getOutLinksFromModel(endWhileModel);
-        if (!endWhileOutLinks) {
+        if (!endWhileOutLinks || endWhileOutLinks.length == 0) {
             return;
         }
-        endWhileOutLinks.forEach((outLink) => {
-            // set target position
-            if (outLink && node.codedata?.lineRange?.endLine) {
-                outLink.setTarget(node.codedata.lineRange.endLine);
-            }
-            outLink.setTopNode(node);
-        });
+        const outLink = endWhileOutLinks.at(0);
+
+        // set target position
+        if (outLink && node.codedata?.lineRange?.endLine) {
+            outLink.setTarget(node.codedata.lineRange.endLine);
+        }
+        outLink.setTopNode(node);
     }
 
     skipChildren(): boolean {
