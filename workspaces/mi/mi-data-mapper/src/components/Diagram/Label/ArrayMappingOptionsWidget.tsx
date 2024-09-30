@@ -113,8 +113,6 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     };
 
-
-
     const getItemElement = (id: string, label: string) => {
         return (
             <div

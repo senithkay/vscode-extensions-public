@@ -747,13 +747,15 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
     if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
         return MappingType.Undefined;
     }
-    const sourceKind = sourcePort.field.kind;
-    const targetKind = targetPort.field.kind;
 
-    if(sourceKind===TypeKind.Array){
-        if(targetKind===TypeKind.Array)
-            return MappingType.ArrayToArray;
-        return MappingType.ArrayToSingleton
+    const sourceDim = getFieldDim(sourcePort.field);
+    const targetDim = getFieldDim(targetPort.field);
+
+    if (sourceDim > 0) {
+        const dimDelta = sourceDim - targetDim;
+        if (dimDelta == 1) return MappingType.ArrayToSingleton;
+        if (dimDelta == 0) return MappingType.ArrayToArray;
+        // TODO: Have to discuss other cases behavior 
     }
 
     return MappingType.Undefined;
@@ -775,6 +777,15 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
     }
 
     return ValueType.Empty;
+}
+
+function getFieldDim(field: DMType) {
+    let dim = 0;
+    while (field?.kind == TypeKind.Array) {
+        dim++;
+        field = field.memberType;
+    }
+    return dim;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
