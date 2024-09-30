@@ -15,7 +15,8 @@ import model10 from "./10-suggested-action.json";
 import model11 from "./11-suggested-if.json";
 import model12 from "./12-if-else-if-empty-4-branch.json";
 import model13 from "./13-if-else-if-empty-3-branch.json";
-import model14 from "./14-while.json";
+import model14 from "./14-while-basic-body.json";
+import model15 from "./15-while-empty-body.json";
 
 export default {
     title: "Eggplant/Diagram",
@@ -99,7 +100,12 @@ IfElseIfEmpty3Branch.args = {
     model: model13,
 };
 
-export const While = Template.bind({});
-While.args = {
+export const WhileBasicBody = Template.bind({});
+WhileBasicBody.args = {
     model: model14,
+}
+
+export const WhileEmptyBody = Template.bind({});
+WhileEmptyBody.args = {
+    model: model15,
 }
