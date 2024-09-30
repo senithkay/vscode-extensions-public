@@ -142,49 +142,32 @@ export class LinkTargetVisitor implements BaseVisitor {
             return;
         }
 
-        const thenLink = outLinks.find((link) => link.label === "Then");
-        if (thenLink) {
-            const thenBranch = node.branches.find((branch) => branch.label === "Then");
-            const line = thenBranch.codedata.lineRange.startLine;
-            thenLink.setTarget({
+        node.branches.forEach((branch) => {
+            // in link
+            const link = outLinks.find((link) => link.label === branch.label);
+            if (!link) {
+                console.error(">>> Link not found", { node, branch });
+                return;
+            }
+            const line = branch.codedata.lineRange.startLine;
+            link.setTarget({
                 line: line.line,
                 offset: line.offset + 1, // HACK: need to fix with LS extension
             });
-            thenLink.setTopNode(thenBranch);
-            // if then branch is empty, target node is empty node.
+            link.setTopNode(branch);
+
+            // if branch is empty, target node is empty node.
             // improve empty node with target position and top node
-            const firstNode = thenLink.targetNode;
+            const firstNode = link.targetNode;
             if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
                 const emptyNode = firstNode as EmptyNodeModel;
-                emptyNode.setTopNode(thenBranch);
+                emptyNode.setTopNode(branch);
                 emptyNode.setTarget({
                     line: line.line,
                     offset: line.offset + 1, // HACK: need to fix with LS extension
                 });
             }
-        }
-
-        const elseLink = outLinks.find((link) => link.label === "Else");
-        if (elseLink) {
-            const elseBranch = node.branches.find((branch) => branch.label === "Else");
-            const line = elseBranch.codedata.lineRange.startLine;
-            elseLink.setTarget({
-                line: line.line,
-                offset: line.offset + 6, //HACK: need to fix with LS extension
-            });
-            elseLink.setTopNode(elseBranch);
-            // if else branch is empty, target node is empty node.
-            // improve empty node with target position and top node
-            const firstNode = elseLink.targetNode;
-            if (firstNode && firstNode.getType() === NodeTypes.EMPTY_NODE) {
-                const emptyNode = firstNode as EmptyNodeModel;
-                emptyNode.setTopNode(elseBranch);
-                emptyNode.setTarget({
-                    line: line.line,
-                    offset: line.offset + 6, // HACK: need to fix with LS extension
-                });
-            }
-        }
+        });
 
         // update end-if link target
         const endIfModel = this.nodeModels.find((nodeModel) => nodeModel.getID() === `${node.id}-endif`);

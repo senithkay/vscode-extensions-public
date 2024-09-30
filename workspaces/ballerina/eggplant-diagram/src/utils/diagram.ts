@@ -20,7 +20,7 @@ import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory
 import { ApiCallNodeFactory } from "../components/nodes/ApiCallNode";
 import { DraftNodeFactory } from "../components/nodes/DraftNode/DraftNodeFactory";
 import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
-import { NodeTypes } from "../resources/constants";
+import { DIAGRAM_CENTER_X, NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
 import { WhileNodeFactory } from "../components/nodes/WhileNode";
 import { CodeBlockNodeFactory } from "../components/nodes/CodeBlockNode";
@@ -129,6 +129,6 @@ export const hasDiagramZoomAndPosition = (file: string) => {
 export const resetDiagramZoomAndPosition = (file: string) => {
     localStorage.setItem("diagram-file-path", file);
     localStorage.setItem("diagram-zoom-level", "100");
-    localStorage.setItem("diagram-offset-x", "0");
+    localStorage.setItem("diagram-offset-x", (-1 * (DIAGRAM_CENTER_X - 500)).toString());
     localStorage.setItem("diagram-offset-y", "0");
 };

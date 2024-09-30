@@ -25,6 +25,8 @@ export * from "./icons/nodes/SecurityIcon";
 export * from "./icons/nodes/LockIcon";
 export * from "./icons/nodes/TransformIcon";
 export * from "./icons/nodes/CommentIcon";
+export * from "./icons/nodes/XIcon";
+export * from "./icons/nodes/TIcon";
 
 export * from "./icons/PlusIcon";
 export * from "./icons/SendIcon";

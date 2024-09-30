@@ -73,10 +73,10 @@ export function ObservationLabel({ observations }: ObservationLabelProps) {
                 name: "Error Percentage",
                 valueFn: (obs: Observations) => ((obs.errorCount * 100) / obs.requestCount).toFixed(2) + "%",
             },
-            { name: "Average Latency", valueFn: (obs: Observations) => obs.avgLatency.toFixed(2) + " ms" },
-            { name: "99% Latency", valueFn: (obs: Observations) => obs.p99Latency.toFixed(2) + " ms" },
-            { name: "90% Latency", valueFn: (obs: Observations) => obs.p90Latency.toFixed(2) + " ms" },
-            { name: "50% Latency", valueFn: (obs: Observations) => obs.p50Latency.toFixed(2) + " ms" },
+            { name: "Average Latency", valueFn: (obs: Observations) => obs.avgLatency.toFixed(2) + " s" },
+            { name: "99% Latency", valueFn: (obs: Observations) => obs.p99Latency.toFixed(2) + " s" },
+            { name: "90% Latency", valueFn: (obs: Observations) => obs.p90Latency.toFixed(2) + " s" },
+            { name: "50% Latency", valueFn: (obs: Observations) => obs.p50Latency.toFixed(2) + " s" },
         ];
     }
 

@@ -20,7 +20,7 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon } from "../../../resources";
+import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
@@ -93,7 +93,6 @@ export namespace NodeStyles {
     `;
 
     export const Description = styled(StyledText)`
-        font-size: 12px;
         max-width: ${NODE_WIDTH - 80}px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -103,6 +102,10 @@ export namespace NodeStyles {
         -webkit-box-orient: vertical;
         color: ${Colors.ON_SURFACE};
         opacity: 0.7;
+        white-space: normal;
+        font-size: 12px;
+        line-height: 14px;
+        max-height: 28px;
     `;
 
     export const Row = styled.div`
@@ -115,6 +118,34 @@ export namespace NodeStyles {
 
     export const Hr = styled.hr`
         width: 100%;
+    `;
+
+    export const Footer = styled(StyledText)`
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+
+    export type PillStyleProp = {
+        color: string;
+    };
+    export const Pill = styled.div<PillStyleProp>`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: ${(props: PillStyleProp) => props.color};
+        padding: 2px 4px;
+        border-radius: 20px;
+        border: 1px solid ${(props: PillStyleProp) => props.color};
+        font-size: 12px;
+        font-family: monospace;
+        svg {
+            fill: ${(props: PillStyleProp) => props.color};
+            stroke: ${(props: PillStyleProp) => props.color};
+            height: 12px;
+            width: 12px;
+        }
     `;
 }
 
@@ -141,12 +172,13 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                 const nodeProperties = model.node.properties;
                 if (nodeProperties.hasOwnProperty("view")) {
                     const { fileName, startLine, endLine } = nodeProperties["view"].value;
-                    openView && openView(projectPath + "/" + fileName, {
-                        startLine: startLine.line,
-                        startColumn: startLine.offset,
-                        endLine: endLine.line,
-                        endColumn: endLine.offset,
-                    });
+                    openView &&
+                        openView(projectPath + "/" + fileName, {
+                            startLine: startLine.line,
+                            startColumn: startLine.offset,
+                            endLine: endLine.line,
+                            endColumn: endLine.offset,
+                        });
                 }
             } else {
                 onGoToSource();
@@ -209,6 +241,20 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                             {model.node.metadata.description || "..."}
                         </Tooltip>
                     </NodeStyles.Description>
+                    <NodeStyles.Footer>
+                        {model.node.properties.variable?.value && (
+                            <NodeStyles.Pill color={Colors.PURPLE}>
+                                <XIcon />
+                                {model.node.properties.variable.value}
+                            </NodeStyles.Pill>
+                        )}
+                        {model.node.properties.type?.value && (
+                            <NodeStyles.Pill color={Colors.GREEN}>
+                                <TIcon />
+                                {model.node.properties.type.value}
+                            </NodeStyles.Pill>
+                        )}
+                    </NodeStyles.Footer>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

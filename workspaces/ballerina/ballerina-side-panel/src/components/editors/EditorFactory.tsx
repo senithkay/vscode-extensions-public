@@ -23,7 +23,7 @@ interface FormFieldEditorProps {
     openRecordEditor?: (open: boolean) => void;
 }
 
-export function FormFieldEditor(props: FormFieldEditorProps) {
+export function EditorFactory(props: FormFieldEditorProps) {
     const { field, openRecordEditor } = props;
 
     if (isDropdownField(field)) {

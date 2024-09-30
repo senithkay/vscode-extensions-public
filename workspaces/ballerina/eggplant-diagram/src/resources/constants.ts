@@ -27,6 +27,10 @@ export enum DefaultColors {
     OUTLINE_VARIANT = "#a8a8a8",
 
     ERROR = "#ED2633",
+
+    BLUE = "#1a85ff",
+    GREEN = "#388a34",
+    PURPLE = "#652d90",
 }
 
 export enum VSCodeColors {
@@ -49,6 +53,10 @@ export enum VSCodeColors {
     OUTLINE_VARIANT = "var(--vscode-dropdown-border)",
 
     ERROR = "var(--vscode-errorForeground)",
+
+    BLUE = "var(--vscode-charts-blue)",
+    GREEN = "var(--vscode-charts-green)",
+    PURPLE = "var(--vscode-charts-purple)",
 }
 
 export const Colors = {
@@ -71,6 +79,10 @@ export const Colors = {
     OUTLINE_VARIANT: VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
+
+    BLUE: VSCodeColors.BLUE || DefaultColors.BLUE,
+    GREEN: VSCodeColors.GREEN || DefaultColors.GREEN,
+    PURPLE: VSCodeColors.PURPLE || DefaultColors.PURPLE,
 };
 
 export enum NodeTypes {
@@ -101,6 +113,7 @@ export const NODE_BORDER_WIDTH = 1.8;
 export const NODE_PADDING = 8;
 
 // position
+export const DIAGRAM_CENTER_X = 2000;
 export const NODE_GAP_Y = 60;
 export const NODE_GAP_X = 60;
 

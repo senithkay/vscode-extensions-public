@@ -160,6 +160,7 @@ export type NodePropertyKey =
     | "client"
     | "targetType"
     | "variable"
+    | "type"
     | "expression"
     | "comment"
     | "connection";
@@ -196,6 +197,7 @@ export type NodeKind =
     | "UPDATE_DATA"
     | "NEW_CONNECTION"
     | "COMMENT"
+    | "FUNCTION"
     | "DATA_MAPPER";
 
 

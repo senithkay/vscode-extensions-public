@@ -657,6 +657,7 @@ importers:
       react: ^18.2.0
       react-collapse: ~5.1.1
       react-dom: ^18.2.0
+      react-hook-form: ~7.53.0
       react-lottie: ^1.2.3
       react-markdown: ~9.0.1
       react-syntax-highlighter: ~15.5.0
@@ -698,6 +699,7 @@ importers:
       react: 18.2.0
       react-collapse: 5.1.1_react@18.2.0
       react-dom: 18.2.0_react@18.2.0
+      react-hook-form: 7.53.0_react@18.2.0
       react-lottie: 1.2.4_react@18.2.0
       react-markdown: 9.0.1_eteh3so6nztr56vqc4nbg6qqla
       react-syntax-highlighter: 15.5.0_react@18.2.0
@@ -45948,6 +45950,15 @@ packages:
   /react-hook-form/7.52.1_react@18.2.0:
     resolution: {integrity: sha512-uNKIhaoICJ5KQALYZ4TOaOLElyM+xipord+Ha3crEFhTntdLvWZqVY49Wqd/0GiVCA/f9NjemLeiNPjG7Hpurg==}
     engines: {node: '>=12.22.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /react-hook-form/7.53.0_react@18.2.0:
+    resolution: {integrity: sha512-M1n3HhqCww6S2hxLxciEXy2oISPnAzxY7gvwVPrtlczTM/1dDadXgUxDpHMrMTblDOcm/AXtXxHwZ3jpg1mqKQ==}
+    engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
     dependencies:

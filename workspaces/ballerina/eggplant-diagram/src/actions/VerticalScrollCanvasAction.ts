@@ -58,9 +58,18 @@ export class VerticalScrollCanvasAction extends Action {
                     );
                 } else {
                     // vertical scroll
-                    const yDelta = options.inverseZoom ? -event.deltaY : event.deltaY;
-					const offsetY = Math.min(10, model.getOffsetY() - yDelta);
-                    model.setOffset(model.getOffsetX(), offsetY);
+                    const xDelta = Math.abs(event.deltaX);
+                    const yDelta = Math.abs(event.deltaY);
+
+                    if (yDelta < xDelta && xDelta > 8) {
+                        const horizontalDelta = options.inverseZoom ? -event.deltaX : event.deltaX;
+                        const offsetX = Math.min(10, model.getOffsetX() - horizontalDelta);
+                        model.setOffset(offsetX, model.getOffsetY());
+                    } else {
+                        const verticalDelta = options.inverseZoom ? -event.deltaY : event.deltaY;
+                        const offsetY = Math.min(10, model.getOffsetY() - verticalDelta);
+                        model.setOffset(model.getOffsetX(), offsetY);
+                    }
                 }
                 this.engine.repaintCanvas();
 

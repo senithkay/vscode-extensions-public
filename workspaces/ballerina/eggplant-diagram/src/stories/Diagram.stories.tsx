@@ -13,7 +13,9 @@ import model8 from "./8-comment.json";
 import model9 from "./9-suggested.json";
 import model10 from "./10-suggested-action.json";
 import model11 from "./11-suggested-if.json";
-import model12 from "./12-while.json";
+import model12 from "./12-if-else-if-empty-4-branch.json";
+import model13 from "./13-if-else-if-empty-3-branch.json";
+import model14 from "./14-while.json";
 
 export default {
     title: "Eggplant/Diagram",
@@ -64,7 +66,7 @@ IfThenBodyDraft.args = {
         fetching: false,
         onAccept: () => {},
         onDiscard: () => {},
-    }
+    },
 };
 
 export const Comment = Template.bind({});
@@ -87,7 +89,17 @@ SuggestedIf.args = {
     model: model11,
 };
 
+export const IfElseIfEmpty4Branch = Template.bind({});
+IfElseIfEmpty4Branch.args = {
+    model: model12,
+};
+
+export const IfElseIfEmpty3Branch = Template.bind({});
+IfElseIfEmpty3Branch.args = {
+    model: model13,
+};
+
 export const While = Template.bind({});
 While.args = {
-    model: model12,
+    model: model14,
 }
