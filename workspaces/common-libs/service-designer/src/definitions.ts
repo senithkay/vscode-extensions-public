@@ -55,6 +55,7 @@ export interface Resource {
     payloadConfig?: ParameterConfig;
     responses?: ResponseConfig[];
     expandable?: boolean;
+    isOpen?: boolean;
     updatePosition?: NodePosition; // Insert or Edit position of the resource
     position?: NodePosition; // Actual position of the resource which is used to render the resource
     addtionalInfo?: JSX.Element; // Addtional information to be displayed in the resource expanded view

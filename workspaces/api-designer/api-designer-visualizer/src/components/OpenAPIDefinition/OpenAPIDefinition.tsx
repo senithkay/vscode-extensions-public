@@ -18,10 +18,11 @@ import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
 import { SplitView } from "../SplitView/SplitView";
-import { on } from "events";
+import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
+    serviceDesModel: Service;
     onOpenApiDefinitionChange: (openApiDefinition: OpenAPI) => void;
 }
 
@@ -55,9 +56,10 @@ const NvigationPanelContainer = styled.div`
 `;
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
-    const { openAPIDefinition: initialOpenAPIDefinition, onOpenApiDefinitionChange } = props;
+    const { openAPIDefinition: initialOpenAPIDefinition, serviceDesModel, onOpenApiDefinitionChange } = props;
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
+    const [isViewMode, setIsViewMode] = useState<boolean>(true);
 
     const {
         reset,
@@ -202,6 +204,15 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
+    if (selectedMethod && selectedPath) {
+        serviceDesModel.resources.forEach((resource) => {
+            if (resource.path === selectedPath && resource.methods.includes(selectedMethod)) {
+                resource.isOpen = true;
+            } else {
+                resource.isOpen = false;
+            }
+        });
+    }
 
     useEffect(() => {
         setOpenAPIDefinition(initialOpenAPIDefinition);
@@ -211,24 +222,28 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         <NavigationContainer>
             <SplitView defaultWidths={[25, 75]}>
                 <NvigationPanelContainer>
-                    {openAPIDefinition?.paths && 
-                        <PathsComponent 
+                    {openAPIDefinition?.paths &&
+                        <PathsComponent
                             paths={openAPIDefinition.paths}
                             selectedPathID={selectedPathID}
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}
                             onAddResource={handleAddResource}
                             onDeletePath={onDeletePath} />
-                        }
+                    }
                 </NvigationPanelContainer>
-                <div>
-                    {(selectedPathID === undefined || !operation) && (
-                        <Overview openAPIDefinition={openAPIDefinition} onOpenApiDefinitionChange={onOpenApiDefinitionChange} />
-                    )}
-                    {operation && selectedPathID !== undefined && (
-                        <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeleteResource} />
-                    )}
-                </div>
+                {isViewMode ? (
+                    <ServiceDesigner model={serviceDesModel} selectedResourceId={selectedPathID} disableTitle disableServiceHeader />
+                ) : (
+                    <div>
+                        {(selectedPathID === undefined || !operation) && (
+                            <Overview openAPIDefinition={openAPIDefinition} onOpenApiDefinitionChange={onOpenApiDefinitionChange} />
+                        )}
+                        {operation && selectedPathID !== undefined && (
+                            <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeleteResource} />
+                        )}
+                    </div>
+                )}
             </SplitView>
         </NavigationContainer>
     )

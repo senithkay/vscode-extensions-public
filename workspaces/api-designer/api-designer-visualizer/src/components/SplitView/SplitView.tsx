@@ -21,7 +21,7 @@ const Container = styled.div<SplitViewProps>`
 const DynamicDiv = styled.div<{ width: number }>`
     height: 100vh;
     width: ${(props: { width: number; }) => props.width}%;
-    overflow: hidden;
+    overflow: auto;
     border: 1px solid var(--vscode-editorWidget-border);
 `;
 

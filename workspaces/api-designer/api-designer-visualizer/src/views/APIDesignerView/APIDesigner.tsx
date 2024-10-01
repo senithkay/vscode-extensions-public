@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
+import { convertOpenAPIStringToObject, convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
@@ -31,6 +31,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const { fileUri } = props;
     const { rpcClient } = useVisualizerContext();
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
+    const [ serviceDesModel, setServiceDesModel ] = useState<Service | undefined>(undefined);
 
     const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
@@ -47,7 +48,8 @@ export function APIDesigner(props: ServiceDesignerProps) {
             });
             console.log("resp", resp);
             const convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
-            console.log("convertedApiDefinition", convertedApiDefinition);
+            const serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
+            setServiceDesModel(serDesModel);
             setApiDefinition(convertedApiDefinition);
         };
         fetchData();
@@ -55,8 +57,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
     console.log("Parent", apiDefinition);
     return (
         <APIDesignerWrapper>
-            {/* <ServiceDesigner model={apiDefinition} disableServiceHeader /> */}
-            <OpenAPIDefinition openAPIDefinition={apiDefinition} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
+            <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
         </APIDesignerWrapper>
     )
 }
