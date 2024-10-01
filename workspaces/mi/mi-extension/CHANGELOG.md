@@ -2,8 +2,10 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
-## [1.1.1] - 2024-09-30
+## [1.1.1] - 2024-10-01
 
+### New Features
+- Added: [DataMapper]Provide a way to make output data fields optional ([#382](https://github.com/wso2/mi-vscode/issues/382))
 ### Fixes
 
 - Fixed: Not having empty "username" and "password" tags for RabbitMQ message store causes an error ([#51](https://github.com/wso2/mi-vscode/issues/51))  

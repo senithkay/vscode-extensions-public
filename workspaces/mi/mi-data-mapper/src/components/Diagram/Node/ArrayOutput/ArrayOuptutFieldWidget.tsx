@@ -16,7 +16,7 @@ import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnSta
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -29,7 +29,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
-import { createSourceForUserInput } from "../../utils/modification-utils";
+import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 
@@ -68,9 +68,9 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    
-    const setExprBarFocusedPort  = useDMExpressionBarStore(state => state.setFocusedPort);
-    
+    const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
+    const viewsStore = useDMViewsStore();
+
     const typeName = getTypeName(field.type);
     const fieldName = field.type.fieldName || '';
     const fieldId = fieldIndex !== undefined
@@ -125,6 +125,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             isDisabled = true;
         }
     }
+
+    const isMemberTypeInterface = field.type.memberType.kind === TypeKind.Interface;
 
     const handlePortState = (state: PortState) => {
         setPortState(state)
@@ -325,6 +327,23 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
+    const handleModifyFieldOptionality = async () => {
+        viewsStore.setViews(context.views);
+        try {
+            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+        try {
+            await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const onMouseEnter = () => {
         setIsHovered(true);
     };
@@ -333,14 +352,34 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
-    const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
-        ? [
-            { title: ValueConfigOption.EditValue, onClick: handleEditValue },
-            { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
-        ]
-        : [
-            { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
-        ];
+    const modifyFieldOptionalityMenuItem: ValueConfigMenuItem = {
+        title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
+        onClick: handleModifyFieldOptionality
+    };
+
+    const makeChildFieldsOptionalMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsOptional,
+        onClick: () => handleModifyChildFieldsOptionality(true)
+    };
+
+    const makeChildFieldsRequiredMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsRequired,
+        onClick: () => handleModifyChildFieldsOptionality(false)
+    };
+
+    const valConfigMenuItems: ValueConfigMenuItem[] = [
+        ...(hasValue || hasDefaultValue
+            ? [
+                { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+                { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
+            ]
+            : [
+                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+            ]),
+        modifyFieldOptionalityMenuItem,
+        isMemberTypeInterface && makeChildFieldsOptionalMenuItem,
+        isMemberTypeInterface && makeChildFieldsRequiredMenuItem
+    ];
 
     return (
         <div

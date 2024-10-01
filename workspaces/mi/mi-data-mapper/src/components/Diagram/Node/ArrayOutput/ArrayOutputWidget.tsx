@@ -26,9 +26,8 @@ import { getDefaultValue, isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 import { IOType } from "@wso2-enterprise/mi-core";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
-import { createSourceForUserInput } from "../../utils/modification-utils";
-import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
-import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
+import { createSourceForUserInput, modifyChildFieldsOptionality } from "../../utils/modification-utils";
+import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
 export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
@@ -53,7 +52,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	} = props;
 	const { views } = context;
 	const focusedView = views[views.length - 1];
-	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	const focusedOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
 
 	const classes = useIONodesStyles();
 
@@ -158,7 +157,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		if (focuesOnSubMappingRoot) {
+		if (focusedOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
 			setIOConfigPanelType(IOType.Output);
@@ -172,6 +171,14 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			...subMappingConfig,
 			isSMConfigPanelOpen: true
 		});
+	};
+
+	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+		try {
+			await modifyChildFieldsOptionality(dmTypeWithValue, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	const label = (
@@ -188,13 +195,26 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		</span>
 	);
 
-	const valConfigMenuItems: ValueConfigMenuItem[] = isRootArray && !isReturnsArray && Object.keys(portIn.links).length === 0
-		? [
-			{ title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
-		]
-		: [
-			{ title: ValueConfigOption.EditValue, onClick: handleEditValue }
-		];
+
+	const valConfigMenuItems: ValueConfigMenuItem[] = [
+		isRootArray && !isReturnsArray && Object.keys(portIn.links).length === 0
+			? {
+				title: ValueConfigOption.InitializeArray,
+				onClick: handleArrayInitialization
+			}
+			: {
+				title: ValueConfigOption.EditValue,
+				onClick: handleEditValue
+			},
+		{
+			title: ValueConfigOption.MakeChildFieldsOptional,
+			onClick: () => handleModifyChildFieldsOptionality(true)
+		},
+		{
+			title: ValueConfigOption.MakeChildFieldsRequired,
+			onClick: () => handleModifyChildFieldsOptionality(false)
+		}
+	];
 
 	return (
 		<>
@@ -227,7 +247,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 						{label}
 					</span>
-					{focuesOnSubMappingRoot && (
+					{focusedOnSubMappingRoot && (
 						<FieldActionWrapper>
 							<Button
 								appearance="icon"
