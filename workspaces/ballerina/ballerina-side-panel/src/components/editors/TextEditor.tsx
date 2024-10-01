@@ -63,8 +63,8 @@ export function TextEditor(props: TextEditorProps) {
     return (
         <TextField
             id={field.key}
-            {...register(field.key, { required: !field.optional, value: field.value })}
-            value={field.value}
+            name={field.key}
+            {...register(field.key, { required: !field.optional })}
             label={field.label}
             required={!field.optional}
             description={field.documentation}

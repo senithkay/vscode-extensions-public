@@ -85,6 +85,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
             <Controller
                 control={control}
                 name={field.key}
+                rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
                         ref={exprRef}
