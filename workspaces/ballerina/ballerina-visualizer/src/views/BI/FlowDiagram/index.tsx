@@ -568,6 +568,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         onlyVariables?: boolean
     ) => {
         await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
+
+        if (triggerCharacter) {
+            await debouncedGetCompletions.flush();
+        }
     }
 
     const handleExpressionEditorCancel = () => {
@@ -576,7 +580,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleCompletionSelect = async () => {
-        await debouncedGetCompletions.flush();
+        debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
     }
 
