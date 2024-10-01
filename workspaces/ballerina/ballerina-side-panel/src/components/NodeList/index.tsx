@@ -187,11 +187,10 @@ interface NodeListProps {
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
     onClose?: () => void;
-    isFunctionSearch?: boolean;
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, showAiPanel, onSelect, onSearchTextChange, onAddConnection, onClose, isFunctionSearch } = props;
+    const { categories, showAiPanel, onSelect, onSearchTextChange, onAddConnection, onClose } = props;
 
     console.log(">>> categories", { categories });
 
@@ -201,13 +200,13 @@ export function NodeList(props: NodeListProps) {
 
     useEffect(() => {
         if (onSearchTextChange) {
+            setIsSearching(true);
             debouncedSearch(searchText);
             return () => debouncedSearch.cancel();
         }
     }, [searchText]);
 
     const handleSearch = (text: string) => {
-        setIsSearching(true);
         onSearchTextChange(text);
     }
 
@@ -215,10 +214,6 @@ export function NodeList(props: NodeListProps) {
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
-        // if (isFunctionSearch) {
-        //     debouncedSearch(searchText);
-        //     return () => debouncedSearch.cancel();
-        // }
     };
 
 
@@ -268,8 +263,8 @@ export function NodeList(props: NodeListProps) {
         </S.Grid>
     );
 
-    const getCategoryContainer = (groups: Category[], isSubCategory = false) => (
-        <>
+    const getCategoryContainer = (groups: Category[], isSubCategory = false) => {
+        const content = (<>
             {groups.map((group, index) => {
                 const isConnectionCategory = group.title === "Connections";
                 const isProjectFunctionsCategory = group.title === "Project";
@@ -311,7 +306,7 @@ export function NodeList(props: NodeListProps) {
                                 Add Connection
                             </S.HighlightedButton>
                         )}
-                        {isProjectFunctionsCategory && group.items.length === 0 && !searchText && (
+                        {isProjectFunctionsCategory && group.items.length === 0 && !searchText &&  !isSearching && (
                             <S.HighlightedButton onClick={handleAddFunction}>
                                 <Codicon name="add" iconSx={{ fontSize: 12 }} />
                                 Create Function
@@ -325,8 +320,17 @@ export function NodeList(props: NodeListProps) {
                     </S.CategoryRow>
                 );
             })}
-        </>
-    );
+        </>);
+
+        // Check if the content is empty
+        const isEmpty = React.Children.toArray(content.props.children).every(child => child === null);
+
+        return isEmpty ? (
+            <div style={{paddingTop: "10px"}}>No matching results found</div>
+        ) : (
+            content
+        );
+    };
 
     // filter out category items based on search text
     const filterItems = (items: Item[]): Item[] => {
@@ -354,7 +358,7 @@ export function NodeList(props: NodeListProps) {
     };
 
     const filteredCategories = cloneDeep(categories).map((category) => {
-        if (!category || !category.items || isFunctionSearch) {
+        if (!category || !category.items || onSearchTextChange) {
             return category;
         }
         category.items = filterItems(category.items);
