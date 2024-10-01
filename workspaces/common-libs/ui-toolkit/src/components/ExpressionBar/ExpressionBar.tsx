@@ -77,8 +77,8 @@ export type ExpressionBarBaseProps = {
     completions: CompletionItem[];
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
-    onFocus?: () => void | Promise<void>;
-    onBlur?: () => void | Promise<void>;
+    onFocus?: (value?: string) => void | Promise<void>;
+    onBlur?: (value?: string) => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
@@ -93,9 +93,9 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 
 export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
-    focus: (text?: string) => Promise<void>;
-    blur: (text?: string) => Promise<void>;
-    saveExpression: (text?: string) => Promise<void>;
+    focus: (value?: string) => Promise<void>;
+    blur: (value?: string) => Promise<void>;
+    saveExpression: (value?: string) => Promise<void>;
 };
 
 // Styled Components

@@ -529,9 +529,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
     };
 
-    const handleFocus = async () => {
+    const handleFocus = async (value?: string) => {
         if (!isExpressionEditorFocused.current) {
-            await onFocus?.();
+            await onFocus?.(value);
             inputRef.current?.focus();
 
             // Set the expression editor as focused
@@ -539,13 +539,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
     }
 
-    const handleBlur = async (text?: string) => {
+    const handleBlur = async (value?: string) => {
         if (isExpressionEditorFocused.current) {
             // Trigger save event on blur
-            if (text !== undefined) {
-                await handleExpressionSaveMutation(text);
+            if (value !== undefined) {
+                await handleExpressionSaveMutation(value);
             }
-            await onBlur?.();
+            await onBlur?.(value);
             inputRef.current?.blur();
 
             // Set the expression editor as blurred
@@ -557,8 +557,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         shadowRoot: inputRef.current?.shadowRoot,
         focus: handleFocus,
         blur: handleBlur,
-        saveExpression: async (text?: string) => {
-            await handleExpressionSaveMutation(text);
+        saveExpression: async (value?: string) => {
+            await handleExpressionSaveMutation(value);
         }
     }));
 
