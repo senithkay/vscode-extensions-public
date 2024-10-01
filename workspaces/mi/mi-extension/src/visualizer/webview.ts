@@ -50,7 +50,9 @@ export class VisualizerWebview {
             }
             if (VisualizerWebview.currentPanel?.getWebview()?.active || AiPanelWebview.currentPanel?.getWebview()?.active) {
                 await document.document.save();
-                refreshDiagram();
+                if (!StateMachine.context().view?.endsWith('Form')) {
+                    refreshDiagram();
+                }
             }
         }, extension.context);
 
