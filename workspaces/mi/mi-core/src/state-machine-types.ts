@@ -67,8 +67,8 @@ export enum MACHINE_VIEW {
     ImportProject = "Import Project",
     ConnectorStore = "Connector Store Form",
     ConnectionForm = "Connection Creation Form",
-    TestSuite = "Test Suite",
-    TestCase = "Test Cases",
+    TestSuite = "Test Suite Form",
+    TestCase = "Test Case Form",
     AITestGen = "AI Test Generation",
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
@@ -137,6 +137,7 @@ export interface ErrorType {
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
+    functionIOTypes?: string;
     fileContent?: string;
     interfacesSource?: string;
     configName: string;

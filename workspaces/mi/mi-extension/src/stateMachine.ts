@@ -23,7 +23,7 @@ import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
-import { getSources } from './util/dataMapper';
+import { getFunctionIOTypes, getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
 import { MockService, STNode, UnitTest, Task, NamedSequence, InboundEndpoint } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
@@ -390,7 +390,7 @@ const stateMachine = createMachine<MachineContext>({
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
 
-                if (context.view?.includes("Form")) {
+                if (context.view?.includes("Form") && !context.view.includes("Test")) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -399,9 +399,11 @@ const stateMachine = createMachine<MachineContext>({
                         const functionName = DM_FUNCTION_NAME;
                         DMProject.refreshProject(filePath);
                         const [fnSource, interfacesSrc] = getSources(filePath);
+                        const functionIOTypes = getFunctionIOTypes(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
+                            functionIOTypes: functionIOTypes,
                             fileContent: fnSource,
                             interfacesSource: interfacesSrc,
                             configName: deriveConfigName(filePath)

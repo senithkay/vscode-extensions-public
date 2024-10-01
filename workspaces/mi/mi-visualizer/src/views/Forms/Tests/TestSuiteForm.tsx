@@ -91,9 +91,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     // Schema
     const schema = yup.object({
-        name: yup.string().required("Test suite name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in test suite name")
+        name: yup.string().required("Unit test name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in unit test name")
             .test('validateTestSuiteName',
-                'A test suite with same name already exists', value => {
+                'A unit test with same name already exists', value => {
                     let isDuplicate = false;
                     for (let i = 0; i < allTestSuites.length; i++) {
                         if (allTestSuites[i].name === value && allTestSuites[i].path !== filePath) {
@@ -331,9 +331,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             const assertions = testCase.assertions.assertions.map((assertion) => {
                 return [
                     assertion.tag,
-                    assertion.actual.textNode,
-                    assertion.expected.textNode,
-                    assertion.message.textNode,
+                    assertion?.actual?.textNode,
+                    assertion?.expected?.textNode,
+                    assertion?.message?.textNode,
                 ]
             });
             const input = {
@@ -470,11 +470,11 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     }
 
     return (
-        <FormView title={`${isUpdate ? "Update" : "Create New"} Test Suite`} onClose={handleBackButtonClick}>
+        <FormView title={`${isUpdate ? "Update" : "Create New"} Unit Test`} onClose={handleBackButtonClick}>
             < TextField
                 label="Name"
                 id="name"
-                placeholder="Test suite name"
+                placeholder="Unit test name"
                 required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}

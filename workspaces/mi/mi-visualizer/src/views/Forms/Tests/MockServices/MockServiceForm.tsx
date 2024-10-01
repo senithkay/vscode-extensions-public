@@ -158,14 +158,14 @@ export function MockServiceForm(props: MockServiceFormProps) {
             });
             setIsLoaded(true);
         })();
-    }, []);
+    }, [props.filePath, mockService]);
 
     const handleGoBack = () => {
         if (props.onGoBack) {
             props.onGoBack();
-            return;
+        } else {
+            openOverview();
         }
-        rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
     const openOverview = () => {
@@ -325,7 +325,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
                 >
                     {`${isUpdate ? "Update" : "Create"}`}
                 </Button>
-                <Button appearance="secondary" onClick={openOverview}>
+                <Button appearance="secondary" onClick={handleGoBack}>
                     Cancel
                 </Button>
             </FormActions>
