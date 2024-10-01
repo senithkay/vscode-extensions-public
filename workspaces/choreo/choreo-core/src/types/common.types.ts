@@ -94,6 +94,9 @@ export interface ComponentKind {
 	kind: string;
 	metadata: ComponentKindMetadata;
 	spec: ComponentKindSpec;
+	deploymentTracks: DeploymentTrack[];
+	apiVersions: ApiVersion[];
+	createdAt: string;
 }
 
 export interface Project {
@@ -156,6 +159,24 @@ export interface DeploymentTrack {
 	componentId: string;
 	latest: boolean;
 	versionStrategy: string;
+}
+
+export interface ApiVersion {
+	apiVersion: string;
+	proxyName: string;
+	proxyUrl: string;
+	proxyId: string;
+	id: string;
+	state: string;
+	latest: boolean;
+	branch: string;
+	versionId: string;
+	appEnvVersions: AppEnvVersions[]
+}
+
+export interface AppEnvVersions {
+	environmentId: string;
+	releaseId: string;
 }
 
 export interface CommitHistory {
@@ -410,4 +431,30 @@ export interface ConnectionDetailed {
 		projectUuid: string;
 		componentUuid: string;
 	}[];
+}
+
+export interface ProxyDeploymentInfo {
+    apiId: string;
+    environment: {
+        choreoEnv: string;
+        name: string;
+        id: string;
+    };
+    lifecycleStatus: string;
+    version: string;
+    invokeUrl: string;
+    endpoint: string;
+    sandboxEndpoint: string;
+    apiRevision: {
+        id: string;
+        displayName: string;
+        createdTime: number;
+    };
+    build: {
+        id: string;
+        baseRevisionId: string;
+        deployedRevisionId: string;
+    };
+    deployedTime: number;
+    successDeployedTime: number;
 }

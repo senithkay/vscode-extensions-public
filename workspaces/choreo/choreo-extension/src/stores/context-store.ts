@@ -225,9 +225,6 @@ const getEnrichedContexts = async (items: { [key: string]: ContextItemEnriched }
 	const orgHandleList = Array.from(orgsSet);
 
 	const projectsMap = new Map<string, Project[]>();
-	//
-	// TODO: check if calling following in parallel would cause issues
-	/*
 	await Promise.all(
 		orgHandleList.map(async (orgHandle) => {
 			const matchingOrg = userOrgs?.find((item) => item.handle === orgHandle);
@@ -242,19 +239,6 @@ const getEnrichedContexts = async (items: { [key: string]: ContextItemEnriched }
 			}
 		}),
 	);
-	*/
-	for (const orgHandle of orgHandleList) {
-		const matchingOrg = userOrgs?.find((item) => item.handle === orgHandle);
-		if (matchingOrg) {
-			try {
-				const projects = await ext.clients.rpcClient.getProjects(matchingOrg.id.toString());
-				dataCacheStore.getState().setProjects(matchingOrg.handle, projects);
-				projectsMap.set(orgHandle, projects);
-			} catch (err) {
-				console.log("failed to fetch project", err);
-			}
-		}
-	}
 
 	const enrichedItems: { [key: string]: ContextItemEnriched } = {};
 	Object.keys(items).forEach((itemKey) => {
@@ -282,11 +266,22 @@ const getComponentsInfo = async (selected?: ContextItemEnriched): Promise<Contex
 		return getComponentsInfoCache(selected);
 	}
 
-	const components = await ext.clients.rpcClient.getComponentList({
-		orgId: selected?.org?.id.toString(),
-		projectHandle: selected.projectHandle,
-	});
+	const [components, envs] = await Promise.all([
+		ext.clients.rpcClient.getComponentList({
+			orgId: selected?.org?.id.toString(),
+			orgHandle: selected?.org?.handle,
+			projectHandle: selected.projectHandle,
+			projectId: selected.project?.id!,
+		}),
+		ext.clients.rpcClient.getEnvs({
+			orgId: selected?.org?.id.toString(),
+			orgUuid: selected?.org?.uuid,
+			projectId: selected.project?.id!,
+		}),
+	]);
+
 	dataCacheStore.getState().setComponents(selected.orgHandle, selected.projectHandle, components);
+	dataCacheStore.getState().setEnvs(selected.orgHandle, selected.projectHandle, envs);
 
 	return mapComponentList(components, selected);
 };

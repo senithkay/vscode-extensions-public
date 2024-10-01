@@ -55,7 +55,6 @@ export const componentGeneralDetailsSchema = z.object({
 		.max(60, "Max length exceeded")
 		.regex(/^[A-Za-z]/, "Needs to start with alphabetic letter")
 		.regex(/^[A-Za-z\s\d\-_]+$/, "Cannot have special characters"),
-	type: z.string().min(1, "Required"),
 	subPath: z.string(),
 	repoUrl: z.string().min(1, "Required"),
 	branch: z.string().min(1, "Required"),
@@ -105,6 +104,32 @@ export const componentEndpointsFormSchema = z.object({
 				} else {
 					epSet.add(epItem.name.trim());
 				}
+			}
+		}),
+});
+
+export const componentGitProxyFormSchema = z.object({
+	proxyTargetUrl: z.string().url().min(1, "Required"),
+	// todo: check if duplicate exist if its returned from API
+	proxyContext: z
+		.string()
+		.min(1, "Required")
+		.regex(/^(?:\/)?[\w-]+(?:\/[\w-]+)*$/, "Invalid Context Path"),
+	proxyVersion: z.string().min(1, "Required"),
+	componentConfig: z
+		.object({
+			type: z.string().min(1, "Required"),
+			networkVisibility: z.string().min(1, "Required"),
+			// TODO: validate path
+			schemaFilePath: z.string().min(1, "Required"),
+			// TODO: validate path
+			thumbnailPath: z.string(),
+			// TODO: validate path
+			docPath: z.string(),
+		})
+		.superRefine((data, ctx) => {
+			if (data.type === "REST" && !data.schemaFilePath) {
+				ctx.addIssue({ path: ["schemaFilePath"], code: z.ZodIssueCode.custom, message: "Required" });
 			}
 		}),
 });
@@ -217,7 +242,7 @@ export const getComponentFormSchema = (existingComponents: ComponentKind[], dire
 		}
 
 		if (data.type === ChoreoComponentType.Service && !data.port) {
-			const endpoints = await ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
+			const endpoints = await ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(compPath);
 			if (endpoints?.endpoints?.length === 0) {
 				ctx.addIssue({ path: ["port"], code: z.ZodIssueCode.custom, message: "Required" });
 			}

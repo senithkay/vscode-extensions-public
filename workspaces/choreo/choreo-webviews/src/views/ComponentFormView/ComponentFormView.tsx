@@ -16,9 +16,10 @@ import {
 	type Endpoint,
 	type NewComponentWebviewProps,
 	type SubmitComponentCreateReq,
+	getRandomNumber,
 	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
-import React, { type FC, useState } from "react";
+import React, { type FC, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { HeaderSection } from "../../components/HeaderSection";
@@ -28,6 +29,7 @@ import {
 	type componentBuildDetailsSchema,
 	componentEndpointsFormSchema,
 	type componentGeneralDetailsSchema,
+	componentGitProxyFormSchema,
 	getComponentFormSchemaBuildDetails,
 	getComponentFormSchemaGenDetails,
 	sampleEndpointItem,
@@ -35,14 +37,17 @@ import {
 import { ComponentFormBuildSection } from "./sections/ComponentFormBuildSection";
 import { ComponentFormEndpointsSection } from "./sections/ComponentFormEndpointsSection";
 import { ComponentFormGenDetailsSection } from "./sections/ComponentFormGenDetailsSection";
+import { ComponentFormGitProxySection } from "./sections/ComponentFormGitProxySection";
 import { ComponentFormSummarySection } from "./sections/ComponentFormSummarySection";
 
 type ComponentFormGenDetailsType = z.infer<typeof componentGeneralDetailsSchema>;
 type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>;
 type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
+type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
-	const { project, organization, directoryPath, directoryFsPath, initialValues, existingComponents } = props;
+	const { project, organization, directoryFsPath, initialValues, existingComponents } = props;
+	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
 
 	const [stepIndex, setStepIndex] = useState(0);
@@ -52,20 +57,17 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		mode: "all",
 		defaultValues: {
 			name: "",
-			type: initialValues?.type ?? "",
 			subPath: initialValues?.subPath || "",
 			repoUrl: "",
 			branch: "",
 		},
 	});
-	const genDetails = genDetailsForm.watch();
+
+	const subPath = genDetailsForm.watch("subPath");
+	const name = genDetailsForm.watch("name");
 
 	const buildDetailsForm = useForm<ComponentFormBuildDetailsType>({
-		resolver: zodResolver(
-			getComponentFormSchemaBuildDetails(genDetails?.type, directoryFsPath, genDetails?.subPath),
-			{ async: true },
-			{ mode: "async" },
-		),
+		resolver: zodResolver(getComponentFormSchemaBuildDetails(type, directoryFsPath, subPath), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: {
 			buildPackLang: initialValues?.buildPackLang ?? "",
@@ -79,50 +81,80 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 			useDefaultEndpoints: true,
 		},
 	});
-	const buildDetails = buildDetailsForm.watch();
+
+	const useDefaultEndpoints = buildDetailsForm.watch("useDefaultEndpoints");
+	const buildPackLang = buildDetailsForm.watch("buildPackLang");
 
 	const endpointDetailsForm = useForm<ComponentFormEndpointsType>({
 		resolver: zodResolver(componentEndpointsFormSchema),
 		mode: "all",
 		defaultValues: { endpoints: [] },
 	});
-	const endpointDetails = endpointDetailsForm.watch();
 
-	useQuery({
-		queryKey: ["service-dir-endpoints", { directoryPath, subPath: genDetails?.subPath, type: genDetails?.type }],
-		queryFn: async () => {
-			const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, genDetails?.subPath]);
-			return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
-		},
-		select: (resp) => resp?.endpoints,
-		refetchOnWindowFocus: false,
-		enabled: genDetails?.type === ChoreoComponentType.Service,
-		onSuccess: (resp) => {
-			endpointDetailsForm.setValue("endpoints", resp?.length > 0 ? resp : [{ ...sampleEndpointItem, name: genDetails?.name }]);
+	const gitProxyForm = useForm<ComponentFormGitProxyType>({
+		resolver: zodResolver(componentGitProxyFormSchema),
+		mode: "all",
+		defaultValues: {
+			proxyTargetUrl: "",
+			proxyVersion: "1.0",
+			componentConfig: { type: "REST", schemaFilePath: "", docPath: "", thumbnailPath: "", networkVisibility: "Public" },
 		},
 	});
 
 	const { data: compPath = directoryFsPath } = useQuery({
-		queryKey: ["comp-create-path", { directoryFsPath, subPath: genDetails?.subPath || "" }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, genDetails?.subPath || ""]),
+		queryKey: ["comp-create-path", { directoryFsPath, subPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]),
+	});
+
+	useQuery({
+		queryKey: ["service-dir-endpoints", { compPath, type }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(compPath),
+		select: (resp) => resp?.endpoints,
+		refetchOnWindowFocus: false,
+		enabled: type === ChoreoComponentType.Service,
+		onSuccess: (resp) => {
+			endpointDetailsForm.setValue("endpoints", resp?.length > 0 ? resp : [{ ...sampleEndpointItem, name: name || "endpoint-1" }]);
+		},
+	});
+
+	useQuery({
+		queryKey: ["read-local-proxy-config", { compPath, type }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(compPath),
+		select: (resp) => resp?.proxy,
+		refetchOnWindowFocus: false,
+		enabled: type === ChoreoComponentType.ApiProxy,
+		onSuccess: (resp) => {
+			gitProxyForm.setValue("componentConfig.type", resp?.type ?? "REST");
+			gitProxyForm.setValue("componentConfig.schemaFilePath", resp?.schemaFilePath ?? "");
+			gitProxyForm.setValue("componentConfig.thumbnailPath", resp?.thumbnailPath ?? "");
+			gitProxyForm.setValue("componentConfig.docPath", resp?.docPath ?? "");
+			gitProxyForm.setValue("componentConfig.networkVisibility", resp?.networkVisibilities?.[0] ?? "Public");
+		},
 	});
 
 	const { mutate: createComponent, isLoading: isCreatingComponent } = useMutation({
 		mutationFn: async () => {
+			const genDetails = genDetailsForm.getValues();
+			const buildDetails = buildDetailsForm.getValues();
+			const gitProxyDetails = gitProxyForm.getValues();
+
 			const componentName = makeURLSafe(genDetails.name);
 
-			const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, genDetails.subPath]);
+			const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
 
 			const createCompCommandParams: SubmitComponentCreateReq = {
 				org: organization,
 				project: project,
-				autoBuildOnCommit: buildDetails?.autoBuildOnCommit,
+				autoBuildOnCommit: type === ChoreoComponentType.ApiProxy ? false : buildDetails?.autoBuildOnCommit,
+				type,
 				createParams: {
 					orgId: organization.id.toString(),
+					orgUUID: organization.uuid,
+					projectId: project.id,
 					projectHandle: project.handler,
 					name: componentName,
 					displayName: genDetails.name,
-					type: genDetails.type,
+					type,
 					buildPackLang: buildDetails.buildPackLang,
 					componentDir,
 					repoUrl: genDetails.repoUrl,
@@ -133,6 +165,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					spaBuildCommand: buildDetails.spaBuildCommand,
 					spaNodeVersion: buildDetails.spaNodeVersion,
 					spaOutputDir: buildDetails.spaOutputDir,
+					proxyAccessibility: "external", // TODO: remove after CLI change
+					proxyApiContext: gitProxyDetails.proxyContext?.charAt(0) === "/" ? gitProxyDetails.proxyContext.substring(1) : gitProxyDetails.proxyContext,
+					proxyApiVersion: gitProxyDetails.proxyVersion,
+					proxyEndpointUrl: gitProxyDetails.proxyTargetUrl,
 				},
 			};
 
@@ -146,7 +182,23 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 
 	const { mutate: submitEndpoints, isLoading: isSubmittingEndpoints } = useMutation({
 		mutationFn: (endpoints: Endpoint[] = []) => {
-			return ChoreoWebViewAPI.getInstance().submitEndpointsCreate({ componentDir: compPath, endpoints });
+			return ChoreoWebViewAPI.getInstance().createLocalEndpointsConfig({ componentDir: compPath, endpoints });
+		},
+		onSuccess: () => setStepIndex(stepIndex + 1),
+	});
+
+	const { mutate: submitProxyConfig, isLoading: isSubmittingProxyConfig } = useMutation({
+		mutationFn: (data: ComponentFormGitProxyType) => {
+			return ChoreoWebViewAPI.getInstance().createLocalProxyConfig({
+				componentDir: compPath,
+				proxy: {
+					type: data.componentConfig?.type,
+					schemaFilePath: data.componentConfig?.schemaFilePath,
+					docPath: data.componentConfig?.docPath,
+					thumbnailPath: data.componentConfig?.thumbnailPath,
+					networkVisibilities: data.componentConfig?.networkVisibility ? [data.componentConfig?.networkVisibility] : undefined,
+				},
+			});
 		},
 		onSuccess: () => setStepIndex(stepIndex + 1),
 	});
@@ -155,10 +207,24 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		{
 			label: "General Details",
 			content: (
-				<ComponentFormGenDetailsSection {...props} key="gen-details-step" form={genDetailsForm} onNextClick={() => setStepIndex(stepIndex + 1)} />
+				<ComponentFormGenDetailsSection
+					{...props}
+					key="gen-details-step"
+					form={genDetailsForm}
+					onNextClick={() => {
+						gitProxyForm.setValue(
+							"proxyContext",
+							genDetailsForm.getValues()?.name ? `/${makeURLSafe(genDetailsForm.getValues()?.name)}` : `/path-${getRandomNumber()}`,
+						);
+						setStepIndex(stepIndex + 1);
+					}}
+				/>
 			),
 		},
-		{
+	];
+
+	if (type !== ChoreoComponentType.ApiProxy) {
+		steps.push({
 			label: "Build Details",
 			content: (
 				<ComponentFormBuildSection
@@ -167,23 +233,23 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					onNextClick={() => setStepIndex(stepIndex + 1)}
 					onBackClick={() => setStepIndex(stepIndex - 1)}
 					form={buildDetailsForm}
-					selectedType={genDetails?.type}
-					subPath={genDetails?.subPath}
+					selectedType={type}
+					subPath={subPath}
 					compPath={compPath}
 				/>
 			),
-		},
-	];
+		});
+	}
 
-	if (genDetails?.type === ChoreoComponentType.Service) {
-		if (buildDetails?.buildPackLang !== ChoreoBuildPackNames.MicroIntegrator || !buildDetails.useDefaultEndpoints) {
+	if (type === ChoreoComponentType.Service) {
+		if (buildPackLang !== ChoreoBuildPackNames.MicroIntegrator || useDefaultEndpoints) {
 			steps.push({
 				label: "Endpoint Details",
 				content: (
 					<ComponentFormEndpointsSection
 						{...props}
 						key="endpoints-step"
-						componentName={genDetails?.name || "component"}
+						componentName={name || "component"}
 						compPath={compPath}
 						onNextClick={(data) => submitEndpoints(data.endpoints as Endpoint[])}
 						onBackClick={() => setStepIndex(stepIndex - 1)}
@@ -194,6 +260,22 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 			});
 		}
 	}
+	if (type === ChoreoComponentType.ApiProxy) {
+		steps.push({
+			label: "Proxy Details",
+			content: (
+				<ComponentFormGitProxySection
+					{...props}
+					key="git-proxy-step"
+					onNextClick={(data) => submitProxyConfig(data)}
+					onBackClick={() => setStepIndex(stepIndex - 1)}
+					isSaving={isSubmittingProxyConfig}
+					form={gitProxyForm}
+					compPath={compPath}
+				/>
+			),
+		});
+	}
 
 	steps.push({
 		label: "Summary",
@@ -201,9 +283,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 			<ComponentFormSummarySection
 				{...props}
 				key="summary-step"
-				genDetails={genDetails}
-				buildDetails={buildDetails}
-				endpointDetails={endpointDetails}
+				genDetailsForm={genDetailsForm}
+				buildDetailsForm={buildDetailsForm}
+				endpointDetailsForm={endpointDetailsForm}
+				gitProxyForm={gitProxyForm}
 				onNextClick={() => createComponent()}
 				onBackClick={() => setStepIndex(stepIndex - 1)}
 				isCreating={isCreatingComponent}

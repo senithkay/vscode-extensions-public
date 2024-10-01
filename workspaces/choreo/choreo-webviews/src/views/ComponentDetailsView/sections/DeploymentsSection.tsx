@@ -32,7 +32,7 @@ import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
 import { Divider } from "../../../components/Divider";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { useGetDeployedEndpoints, useGetDeploymentStatus } from "../../../hooks/use-queries";
+import { useGetDeployedEndpoints, useGetDeploymentStatus, useGetProxyDeploymentInfo } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 
 interface Props {
@@ -49,9 +49,10 @@ interface Props {
 export const DeploymentsSection: FC<Props> = (props) => {
 	const { envs, loadingEnvs, deploymentTrack, component, organization, project, triggeredDeployment = {}, onLoadDeploymentStatus } = props;
 	const [hasInactiveEndpoints, setHasInactiveEndpoints] = useState(false);
+	const componentType = getTypeForDisplayType(component.spec.type);
 
 	const { data: endpoints = [], refetch: refetchEndpoints } = useGetDeployedEndpoints(deploymentTrack, component, organization, {
-		enabled: !!deploymentTrack?.id && getTypeForDisplayType(component.spec.type) === ChoreoComponentType.Service,
+		enabled: !!deploymentTrack?.id && componentType === ChoreoComponentType.Service,
 		onSuccess: (data = []) => setHasInactiveEndpoints(data.some((item) => item.state !== "Active")),
 		refetchInterval: hasInactiveEndpoints ? 5000 : false,
 	});
@@ -66,6 +67,25 @@ export const DeploymentsSection: FC<Props> = (props) => {
 		);
 	}
 
+	if (componentType === ChoreoComponentType.ApiProxy) {
+		return (
+			<>
+				{envs?.map((item) => (
+					<ProxyEnvItem
+						key={item.name}
+						env={item}
+						component={component}
+						organization={organization}
+						project={project}
+						deploymentTrack={deploymentTrack}
+						triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
+						loadedDeploymentStatus={() => onLoadDeploymentStatus(item)}
+					/>
+				))}
+			</>
+		);
+	}
+
 	return (
 		<>
 			{envs?.map((item) => (
@@ -73,7 +93,7 @@ export const DeploymentsSection: FC<Props> = (props) => {
 					key={item.name}
 					env={item}
 					endpoints={endpoints.filter((endpointItem) => endpointItem.environmentId === item.id)}
-					refetchEndpoint={refetchEndpoints}
+					refetchEndpoint={componentType === ChoreoComponentType.Service ? refetchEndpoints : undefined}
 					component={component}
 					organization={organization}
 					project={project}
@@ -109,6 +129,9 @@ const EnvItem: FC<{
 	} = useGetDeploymentStatus(deploymentTrack, component, organization, env, {
 		enabled: !!deploymentTrack?.id,
 		onSuccess: (data) => {
+			if (refetchEndpoint) {
+				refetchEndpoint();
+			}
 			refetchEndpoint();
 			if (triggeredDeployment) {
 				loadedDeploymentStatus();
@@ -128,39 +151,9 @@ const EnvItem: FC<{
 		statusStr = "Deployed";
 	}
 
-	const { mutate: viewRuntimeLogs } = useMutation({
-		mutationFn: (logType: "component-application" | "component-gateway") =>
-			ChoreoWebViewAPI.getInstance().viewRuntimeLogs({
-				componentName: component.metadata.name,
-				projectName: project.name,
-				orgName: organization.name,
-				deploymentTrackName: deploymentTrack?.branch,
-				envName: env.name,
-				type: logType,
-			}),
-	});
+	const { viewRuntimeLogs } = useViewRunTimeLogs(component, organization, project, env, deploymentTrack);
 
-	const { mutate: selectLogType } = useMutation({
-		mutationFn: async () => {
-			if ([ChoreoComponentType.Service, ChoreoComponentType.Webhook].includes(componentType as ChoreoComponentType)) {
-				const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
-					title: "Select Log Type",
-					items: [
-						{ label: "Application Logs", item: "component-application" },
-						{ label: "Gateway Logs", item: "component-gateway" },
-					],
-				});
-
-				if (pickedItem) {
-					viewRuntimeLogs(pickedItem.item);
-				}
-			} else if (componentType === ChoreoComponentType.ApiProxy) {
-				viewRuntimeLogs("component-gateway");
-			} else {
-				viewRuntimeLogs("component-application");
-			}
-		},
-	});
+	const { selectLogType } = useSelectLogType(componentType, (logType) => viewRuntimeLogs(logType));
 
 	const activePublicEndpoints = endpoints?.filter((item) => item.visibility === "Public" && item.state === "Active");
 
@@ -328,6 +321,148 @@ const EnvItem: FC<{
 	);
 };
 
+const ProxyEnvItem: FC<{
+	component: ComponentKind;
+	project: Project;
+	organization: Organization;
+	deploymentTrack?: DeploymentTrack;
+	env: Environment;
+	triggeredDeployment?: boolean;
+	loadedDeploymentStatus: () => void;
+}> = ({ organization, project, deploymentTrack, component, env, triggeredDeployment, loadedDeploymentStatus }) => {
+	const componentType = getTypeForDisplayType(component.spec.type);
+	const [envDetailsRef] = useAutoAnimate();
+	const latestApiVersion = component?.apiVersions?.find((item) => item.latest);
+
+	const {
+		data: proxyDeploymentData,
+		refetch: refetchProxyDeploymentData,
+		isLoading: isLoadingProxyDeploymentData,
+		isRefetching: isRefetchingProxyDeploymentData,
+	} = useGetProxyDeploymentInfo(component, organization, env, latestApiVersion, {
+		enabled: !!latestApiVersion,
+		onSuccess: () => {
+			loadedDeploymentStatus();
+		},
+		refetchInterval: triggeredDeployment ? 5000 : false,
+	});
+
+	let timeAgo = "";
+	if (proxyDeploymentData?.deployedTime) {
+		timeAgo = getTimeAgo(new Date(proxyDeploymentData?.deployedTime));
+	}
+
+	const { viewRuntimeLogs } = useViewRunTimeLogs(component, organization, project, env, deploymentTrack);
+
+	const { selectLogType } = useSelectLogType(componentType, (logType) => viewRuntimeLogs(logType));
+
+	const getStatusText = () => {
+		if (proxyDeploymentData) {
+			if (triggeredDeployment) {
+				return "Redeploying";
+			}
+			return toTitleCase(proxyDeploymentData?.lifecycleStatus);
+		}
+		if (triggeredDeployment) {
+			return "In Progress";
+		}
+		return "Not Deployed";
+	};
+
+	return (
+		<>
+			<Divider />
+			<div>
+				<div className="mb-3 flex items-center gap-2">
+					<h3 className="text-base capitalize lg:text-lg">{env.name} Environment</h3>
+					{!isLoadingProxyDeploymentData && (
+						<Button
+							onClick={() => refetchProxyDeploymentData()}
+							appearance="icon"
+							title={`${isRefetchingProxyDeploymentData ? "Refreshing" : "Refresh"} Deployment Details`}
+							className="opacity-50"
+							disabled={isRefetchingProxyDeploymentData}
+						>
+							<Codicon name="refresh" className={classNames(isRefetchingProxyDeploymentData && "animate-spin")} />
+						</Button>
+					)}
+				</div>
+				<div className="flex flex-col gap-3 ">
+					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3" ref={envDetailsRef}>
+						<>
+							{isLoadingProxyDeploymentData ? (
+								<>
+									<GridColumnItem label="Lifecycle Status">
+										<SkeletonText className="w-24" />
+									</GridColumnItem>
+									<GridColumnItem label="Proxy URL">
+										<SkeletonText className="max-w-44" />
+									</GridColumnItem>
+									<GridColumnItem label="Observability">
+										<SkeletonText className="max-w-24" />
+									</GridColumnItem>
+								</>
+							) : (
+								<>
+									<GridColumnItem label="Status">
+										<span
+											className={classNames({
+												"font-medium text-vsc-charts-green": ["CREATED", "PUBLISHED"].includes(proxyDeploymentData?.lifecycleStatus),
+												"animate-pulse text-vsc-charts-orange": triggeredDeployment,
+											})}
+										>
+											{getStatusText()}
+										</span>
+										{timeAgo && <span className="ml-2 opacity-70">{`(${timeAgo})`}</span>}
+									</GridColumnItem>
+									{proxyDeploymentData?.invokeUrl && (
+										<EndpointItem type="Proxy" name="proxy-url" state={EndpointDeploymentStatus.Active} url={proxyDeploymentData?.invokeUrl} />
+									)}
+									{proxyDeploymentData && (
+										<GridColumnItem label="Observability">
+											<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
+												View Runtime Logs
+											</VSCodeLink>
+										</GridColumnItem>
+									)}
+									{proxyDeploymentData && (
+										<GridColumnItem label="Test">
+											<VSCodeLink
+												className="text-vsc-foreground"
+												onClick={() =>
+													ChoreoWebViewAPI.getInstance().openTestView({
+														component,
+														project,
+														org: organization,
+														env,
+														deploymentTrack,
+														// TODO: have a better way to pass this prop
+														// make it usable with both services and proxies
+														endpoints: [
+															{
+																id: proxyDeploymentData?.apiRevision?.id,
+																apimRevisionId: proxyDeploymentData?.apiRevision?.id,
+																apimId: proxyDeploymentData?.apiId,
+																publicUrl: proxyDeploymentData?.invokeUrl,
+															} as any,
+														],
+													})
+												}
+											>
+												Open Swagger View
+											</VSCodeLink>
+										</GridColumnItem>
+									)}
+								</>
+							)}
+						</>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+};
+
 const EnvItemSkeleton: FC = () => {
 	return (
 		<>
@@ -423,4 +558,50 @@ const EndpointItem: FC<{
 			)}
 		</GridColumnItem>
 	);
+};
+
+const useViewRunTimeLogs = (
+	component: ComponentKind,
+	organization: Organization,
+	project: Project,
+	env: Environment,
+	deploymentTrack: DeploymentTrack,
+) => {
+	const { mutate: viewRuntimeLogs } = useMutation({
+		mutationFn: (logType: "component-application" | "component-gateway") =>
+			ChoreoWebViewAPI.getInstance().viewRuntimeLogs({
+				componentName: component.metadata.name,
+				projectName: project.name,
+				orgName: organization.name,
+				deploymentTrackName: deploymentTrack?.branch,
+				envName: env.name,
+				type: logType,
+			}),
+	});
+	return { viewRuntimeLogs };
+};
+
+const useSelectLogType = (componentType: string, onSelectLogType: (logType: "component-gateway" | "component-application") => void) => {
+	const { mutate: selectLogType } = useMutation({
+		mutationFn: async () => {
+			if ([ChoreoComponentType.Service, ChoreoComponentType.Webhook].includes(componentType as ChoreoComponentType)) {
+				const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
+					title: "Select Log Type",
+					items: [
+						{ label: "Application Logs", item: "component-application" },
+						{ label: "Gateway Logs", item: "component-gateway" },
+					],
+				});
+
+				if (pickedItem) {
+					onSelectLogType(pickedItem.item);
+				}
+			} else if (componentType === ChoreoComponentType.ApiProxy) {
+				onSelectLogType("component-gateway");
+			} else {
+				onSelectLogType("component-application");
+			}
+		},
+	});
+	return { selectLogType };
 };

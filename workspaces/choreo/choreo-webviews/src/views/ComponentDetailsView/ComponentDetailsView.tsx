@@ -9,11 +9,18 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { type ComponentsDetailsWebviewProps, type DeploymentTrack, type Environment, WebviewQuickPickItemKind } from "@wso2-enterprise/choreo-core";
+import {
+	ChoreoComponentType,
+	type ComponentsDetailsWebviewProps,
+	type DeploymentTrack,
+	type Environment,
+	WebviewQuickPickItemKind,
+	getTypeForDisplayType,
+} from "@wso2-enterprise/choreo-core";
 import React, { type FC, useEffect, useState } from "react";
 import { Banner } from "../../components/Banner";
 import { Divider } from "../../components/Divider";
-import { queryKeys, useGetDeploymentTracks, useGetProjectEnvs } from "../../hooks/use-queries";
+import { queryKeys, useGetProjectEnvs } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { BuildConfigsSection } from "./sections/BuildConfigsSection";
 import { BuildsSection } from "./sections/BuildsSection";
@@ -21,13 +28,14 @@ import { ConnectionsSection } from "./sections/ConnectionsSection";
 import { DeploymentsSection } from "./sections/DeploymentsSection";
 import { EndpointsSection } from "./sections/EndpointsSection";
 import { HeaderSection } from "./sections/HeaderSection";
+import { ProxyConfigSection } from "./sections/ProxyConfigSection";
 import { RightPanelSection } from "./sections/RightPanelSection";
 
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
-	const { component, project, organization, directoryPath } = props;
+	const { component, project, organization, directoryPath, initialEnvs = [] } = props;
+	const deploymentTracks = component?.deploymentTracks ?? [];
 	const [rightPanelRef] = useAutoAnimate();
-
-	const { data: deploymentTracks = [] } = useGetDeploymentTracks(component, project, organization);
+	const type = getTypeForDisplayType(props.component.spec?.type);
 
 	const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
 
@@ -56,7 +64,10 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		},
 	});
 
-	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization);
+	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization, {
+		initialData: initialEnvs,
+		enabled: initialEnvs.length === 0,
+	});
 
 	const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>();
 	const onTriggerDeployment = (env: Environment, deploying: boolean) => {
@@ -74,6 +85,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		queryKey: queryKeys.getComponentConfigDraft(directoryPath, component),
 		queryFn: () =>
 			ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
+				type: getTypeForDisplayType(component?.spec?.type),
 				repoDir: directoryPath,
 				branch: component?.spec?.source?.github?.branch || component?.spec?.source?.bitbucket?.branch,
 				repoUrl: component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository,
@@ -112,7 +124,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 										type="warning"
 										className="my-1"
 										title="Configuration Drift Detected"
-										subTitle={`Please commit and push the changes in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to your remote Git repository.`}
+										subTitle={`Please commit and push the changes in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to your remote Git repo.`}
 									/>
 								</RightPanelSection>
 							)}
@@ -125,9 +137,20 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 									/>
 								</RightPanelSection>
 							)}
-							<BuildConfigsSection component={component} showDivider={!!directoryPath && (hasLocalChanges || configDriftFiles?.length > 0)} />
-							<EndpointsSection component={component} directoryPath={directoryPath} />
-							<ConnectionsSection org={organization} project={project} component={component} directoryPath={directoryPath} />
+							{type !== ChoreoComponentType.ApiProxy && (
+								<BuildConfigsSection component={component} showDivider={!!directoryPath && (hasLocalChanges || configDriftFiles?.length > 0)} />
+							)}
+							{type === ChoreoComponentType.Service && <EndpointsSection component={component} directoryPath={directoryPath} />}
+							{type !== ChoreoComponentType.ApiProxy && (
+								<ConnectionsSection org={organization} project={project} component={component} directoryPath={directoryPath} />
+							)}
+							{type === ChoreoComponentType.ApiProxy && (
+								<ProxyConfigSection
+									component={component}
+									directoryPath={directoryPath}
+									showDivider={!!directoryPath && (hasLocalChanges || configDriftFiles?.length > 0)}
+								/>
+							)}
 						</div>
 					</div>
 				</div>

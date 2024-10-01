@@ -40,7 +40,7 @@ interface Props extends NewComponentWebviewProps {
 }
 
 export const ComponentFormBuildSection: FC<Props> = (props) => {
-	const { onBackClick, onNextClick, compPath, organization, selectedType, subPath, directoryName, form } = props;
+	const { onBackClick, onNextClick, compPath, organization, selectedType, subPath, form } = props;
 
 	const [buildConfigSections] = useAutoAnimate();
 
@@ -71,7 +71,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 	useEffect(() => {
 		if (supportedVersions.length > 0 && (!form.getValues("langVersion") || !supportedVersions.includes(form.getValues("langVersion")))) {
 			setTimeout(() => {
-				form.setValue("langVersion", supportedVersions[0]);
+				form.setValue("langVersion", supportedVersions[0], { shouldValidate: true });
 			}, 100);
 		}
 	}, [supportedVersions]);
@@ -84,7 +84,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 			const possiblePack = await getPossibleBuildPack(compPath, buildpacks);
 			if (possiblePack === ChoreoBuildPackNames.Docker) {
 				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
-				form.setValue("dockerFile", dockerFilePath);
+				form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
 			}
 			return null;
 		},
@@ -114,7 +114,6 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 				required
 				control={form.control}
 				basePath={compPath}
-				directoryName={directoryName}
 				type="file"
 				key="docker-path"
 				promptTitle="Select Dockerfile"
@@ -179,13 +178,15 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 					disabled={buildpacks.length === 0}
 				/>
 				{buildConfigs}
-				<CheckBox
-					control={form.control}
-					className="col-span-full"
-					name="autoBuildOnCommit"
-					label="Auto Trigger Build on New Commit"
-					key="auto-build-on-trigger"
-				/>
+				{selectedType !== ChoreoComponentType.ApiProxy && (
+					<CheckBox
+						control={form.control}
+						className="col-span-full"
+						name="autoBuildOnCommit"
+						label="Auto Trigger Build on New Commit"
+						key="auto-build-on-trigger"
+					/>
+				)}
 			</div>
 
 			<div className="flex justify-end gap-3 pt-6 pb-2">

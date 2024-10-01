@@ -13,6 +13,7 @@ import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
+import { getChoreoEnv } from "../choreo-rpc/cli-install";
 
 interface IComponentCreateFormParams {
 	directoryPath: string;
@@ -78,6 +79,7 @@ export class ComponentFormView {
                   document.getElementById("root"),
                   ${JSON.stringify({
 										type: "NewComponentForm",
+										choreoEnv: getChoreoEnv(),
 										existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
 										...params,
 									} as NewComponentWebviewProps)}

@@ -13,6 +13,7 @@ import { ChoreoComponentType, type ComponentKind, getTypeForDisplayType } from "
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
+import { useGoToSource } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
@@ -26,20 +27,12 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 
 	const { data: endpointsResp } = useQuery({
 		queryKey: ["get-service-endpoints", { directoryPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().readServiceEndpoints(directoryPath),
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(directoryPath),
 		enabled: !!directoryPath && componentType === ChoreoComponentType.Service,
 		refetchOnWindowFocus: true,
 	});
 
-	const { mutate: openSchemaFile } = useMutation({
-		mutationFn: async (schemaFilePath: string) => {
-			const filePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, schemaFilePath]);
-			return ChoreoWebViewAPI.getInstance().goToSource(filePath);
-		},
-		onError: () => {
-			ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to open schema path");
-		},
-	});
+	const { openFile } = useGoToSource();
 
 	return (
 		<>
@@ -49,7 +42,7 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 					title={
 						<div className="flex items-center justify-between gap-2">
 							<span className="line-clamp-1 break-all">{`Endpoint: ${item.name}`}</span>
-							<Button appearance="icon" title="Edit endpoint" onClick={() => ChoreoWebViewAPI.getInstance().goToSource(endpointsResp.filePath)}>
+							<Button appearance="icon" title="Edit endpoint" onClick={() => openFile([endpointsResp.filePath])}>
 								<Codicon name="edit" />
 							</Button>
 						</div>
@@ -61,10 +54,10 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
 					{item.context && <RightPanelSectionItem label="API Context" value={item.context} />}
 					{item.schemaFilePath && (
 						<RightPanelSectionItem
-							label="Schema File Path"
+							label="API Schema"
 							value={
-								<VSCodeLink onClick={() => openSchemaFile(item.schemaFilePath)} className="text-vsc-foreground">
-									{item.schemaFilePath}
+								<VSCodeLink onClick={() => openFile([directoryPath, item.schemaFilePath])} className="text-vsc-foreground">
+									View
 								</VSCodeLink>
 							}
 						/>

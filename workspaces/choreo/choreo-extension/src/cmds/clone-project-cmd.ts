@@ -60,6 +60,8 @@ export function cloneRepoCommand(context: ExtensionContext) {
 						() =>
 							ext.clients.rpcClient.getComponentList({
 								orgId: selectedOrg.id.toString(),
+								orgHandle: selectedOrg.handle,
+								projectId: selectedProject.id,
 								projectHandle: selectedProject.handler,
 							}),
 					);

@@ -13,6 +13,7 @@ export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "
 
 export interface TestWebviewProps {
 	type: "TestView";
+	choreoEnv: string;
 	component: ComponentKind;
 	project: Project;
 	org: Organization;
@@ -23,6 +24,7 @@ export interface TestWebviewProps {
 
 export interface NewComponentWebviewProps {
 	type: "NewComponentForm";
+	choreoEnv: string;
 	directoryPath: string;
 	directoryFsPath: string;
 	directoryName: string;
@@ -34,14 +36,17 @@ export interface NewComponentWebviewProps {
 
 export interface ComponentsDetailsWebviewProps {
 	type: "ComponentDetailsView";
+	choreoEnv: string;
 	organization: Organization;
 	project: Project;
 	component: ComponentKind;
 	directoryPath?: string;
+	initialEnvs: Environment[];
 }
 
 export interface ComponentsListActivityViewProps {
 	type: "ComponentsListActivityView";
+	choreoEnv: string;
 	directoryPath?: string;
 }
 

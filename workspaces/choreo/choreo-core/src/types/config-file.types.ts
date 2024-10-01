@@ -51,8 +51,8 @@ export interface ComponentMetadata {
 	annotations: Record<string, string>;
 }
 
-// component.yaml
-export interface ComponentYamlContent {
+// component-config.yaml
+export interface ComponentConfigYamlContent {
 	apiVersion: "core.choreo.dev/v1beta1";
 	kind: "ComponentConfig";
 	// todo: remove metadata
@@ -71,4 +71,79 @@ export interface ComponentYamlContent {
 			}[];
 		};
 	};
+}
+
+// component yaml v1.1
+export interface ComponentYamlContent {
+	schemaVersion: 1.1;
+	/* optional Incoming connection details for the component */
+	endpoints?: ComponentYamlEndpoint[];
+	// TODO re-enable following after verifying the format
+	/* optional Outgoing connection details for the component */
+	// dependencies?: {
+	// 	/* optional Defines the service references from the Internal Marketplace. */
+	// 	serviceReferences?: ServiceReference[];
+	// };
+	/** optional Git based proxy related configs */
+	proxy?: ProxyConfig;
+}
+
+export interface ComponentYamlEndpoint {
+	/*
+	+required Unique name for the endpoint.
+ 	This name will be used when generating the managed API
+	*/
+	name: string;
+	/* optional Display name for the endpoint. */
+	displayName?: string;
+	service: {
+		/*
+		optional Base path of the API that gets exposed via the endpoint.
+    	This is mandatory if the endpoint type is set to REST or GraphQL.
+		*/
+		basePath?: string;
+		/* required Numeric port value that gets exposed via the endpoint */
+		port: number;
+	};
+	/*
+	# required Type of traffic that the endpoint is accepting.
+   	# Allowed values: REST, GraphQL, GRPC, TCP, UDP.
+	*/
+	type: string;
+	/*
+	optional Network level visibilities of the endpoint.
+   	Takes priority over networkVisibility if defined. 
+   	Accepted values: Project|Organization|Public(Default).
+	*/
+	networkVisibilities?: string[];
+	/*
+	optional The path to the schema definition file.
+   	Defaults to wildcard route if not specified.
+   	This is only applicable to REST endpoint types.
+   	The path should be relative to the docker context.
+	*/
+	schemaFilePath?: string;
+}
+
+export interface ProxyConfig {
+	/*
+	# +required Type of traffic that the endpoint is accepting.
+  	# Allowed values: REST, GraphQL, WS
+	*/
+	type: string;
+	/*
+	# +required The path to the schema definition file.
+  	# This is only applicable to REST endpoint types.
+	*/
+	schemaFilePath: string;
+	/*
+	# +optional Network level visibilities of the endpoint.
+  	# Takes priority over networkVisibility if defined.
+  	# Accepted values: Organization|Public(Default).
+	*/
+	networkVisibilities?: string[];
+	/** optional */
+	thumbnailPath?: string;
+	/** optional */
+	docPath?: string;
 }

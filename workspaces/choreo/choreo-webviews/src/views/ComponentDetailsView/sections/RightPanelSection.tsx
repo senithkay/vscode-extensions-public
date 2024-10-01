@@ -40,7 +40,7 @@ export interface IRightPanelSectionItem {
 export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value }) => {
 	return (
 		<div className="flex flex-wrap items-center gap-0.5 duration-200 hover:bg-vsc-editorHoverWidget-background">
-			<p className="flex-1 font-light">{label}</p>
+			<p className="flex-1 font-extralight opacity-80">{label}</p>
 			<p>{value}</p>
 		</div>
 	);

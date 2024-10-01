@@ -10,13 +10,13 @@
 import { promises as fs, createReadStream } from "fs";
 import { basename, dirname, join, relative, sep } from "path";
 import type { Readable } from "stream";
-import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, GitProvider } from "@wso2-enterprise/choreo-core";
 import * as byline from "byline";
 import { type Disposable, type Event, EventEmitter, type ExtensionContext } from "vscode";
 import { getLogger } from "../logger/logger";
 import type { Branch, Remote } from "./api/git";
 import { initGit } from "./main";
-import { readEndpoints } from "../utils";
+import { readLocalEndpointsConfig, readLocalProxyConfig } from "../utils";
 
 export const isMacintosh = process.platform === "darwin";
 export const isWindows = process.platform === "win32";
@@ -675,7 +675,7 @@ export const hasDirtyRepo = async (directoryPath: string, context: ExtensionCont
 	}
 };
 
-export const getConfigFileDrifts = async (gitUrl: string, branch: string, directoryPath: string, context: ExtensionContext): Promise<string[]> => {
+export const getConfigFileDrifts = async (type: string, gitUrl: string, branch: string, directoryPath: string, context: ExtensionContext): Promise<string[]> => {
 	try{
 		const fileNames = new Set<string>()
 		const git = await initGit(context);
@@ -683,7 +683,6 @@ export const getConfigFileDrifts = async (gitUrl: string, branch: string, direct
 		if(repoRoot){
 			const subPath = relative(repoRoot, directoryPath)
 
-			const eps = readEndpoints(directoryPath)
 
 			if(git){
 				const gitRepo = git.open(repoRoot, { path: repoRoot });
@@ -694,13 +693,29 @@ export const getConfigFileDrifts = async (gitUrl: string, branch: string, direct
 						fileNames.add("endpoints.yaml")
 					}else if(item.path.endsWith('component-config.yaml')){
 						fileNames.add("component-config.yaml")
+					}else if(item.path.endsWith('component.yml')){
+						fileNames.add("component.yml")
 					}
 
-					eps.endpoints?.forEach(epItem=>{
-						if(epItem.schemaFilePath && item.path.endsWith(epItem.schemaFilePath)){
-							fileNames.add(epItem.schemaFilePath)
+					if(type === ChoreoComponentType.Service){
+						const eps = readLocalEndpointsConfig(directoryPath)
+						eps.endpoints?.forEach(epItem=>{
+							if(epItem.schemaFilePath && item.path.endsWith(epItem.schemaFilePath)){
+								fileNames.add(epItem.schemaFilePath)
+							}
+						})
+					}else if(type === ChoreoComponentType.ApiProxy){
+						const proxyConfig = readLocalProxyConfig(directoryPath);
+						if(proxyConfig?.proxy?.schemaFilePath && item.path.endsWith(proxyConfig?.proxy?.schemaFilePath)){
+							fileNames.add(proxyConfig?.proxy?.schemaFilePath)
 						}
-					})
+						if(proxyConfig?.proxy?.docPath && item.path.endsWith(proxyConfig?.proxy?.docPath)){
+							fileNames.add(proxyConfig?.proxy?.docPath)
+						}
+						if(proxyConfig?.proxy?.thumbnailPath && item.path.endsWith(proxyConfig?.proxy?.thumbnailPath)){
+							fileNames.add(proxyConfig?.proxy?.thumbnailPath)
+						}
+					}	
 				})
 				if(fileNames.size){
 					return Array.from(fileNames)
@@ -726,13 +741,28 @@ export const getConfigFileDrifts = async (gitUrl: string, branch: string, direct
 					const changes = await gitRepo.diffWith(`${matchingRemoteName}/${branch}`)
 					const componentConfigYamlPath = join(directoryPath, '.choreo', 'component-config.yaml')
 					const endpointsYamlPath = join(directoryPath, '.choreo', 'endpoints.yaml')
-					const configPaths = [componentConfigYamlPath, endpointsYamlPath];
+					const componentYamlPath = join(directoryPath, '.choreo', 'component.yml')
+					const configPaths = [componentYamlPath, componentConfigYamlPath, endpointsYamlPath];
 
-					eps.endpoints?.forEach(epItem=>{
-						if(epItem.schemaFilePath){
-							configPaths.push(join(directoryPath, epItem.schemaFilePath))
+					if(type === ChoreoComponentType.Service){
+						const eps = readLocalEndpointsConfig(directoryPath)
+						eps.endpoints?.forEach(epItem=>{
+							if(epItem.schemaFilePath){
+								configPaths.push(join(directoryPath, epItem.schemaFilePath))
+							}
+						})
+					}else if(type === ChoreoComponentType.ApiProxy){
+						const proxyConfig = readLocalProxyConfig(directoryPath);
+						if(proxyConfig?.proxy?.schemaFilePath){
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.schemaFilePath))
 						}
-					})
+						if(proxyConfig?.proxy?.docPath){
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.docPath))
+						}
+						if(proxyConfig?.proxy?.thumbnailPath){
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.thumbnailPath))
+						}
+					}	
 
 					changes.forEach(item=>{
 						if(configPaths.includes(item.uri.path)){

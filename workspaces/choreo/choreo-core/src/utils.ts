@@ -45,17 +45,24 @@ export const getTimeAgo = (previousTime: Date): string => {
 
 export const getTypeForDisplayType = (displayType: string): string => {
 	switch (displayType) {
-		case ComponentDisplayType.RestApi:
 		case ComponentDisplayType.Service:
 		case ComponentDisplayType.ByocService:
-		case ComponentDisplayType.GraphQL:
-		case ComponentDisplayType.MiApiService:
-		case ComponentDisplayType.MiRestApi:
-		case ComponentDisplayType.BuildpackService:
-		case ComponentDisplayType.BuildRestApi:
-		case ComponentDisplayType.Websocket:
 		case ComponentDisplayType.ByoiService:
+		case ComponentDisplayType.BuildpackService:
+		case ComponentDisplayType.MiApiService:
+		case ComponentDisplayType.GraphQL:
+		case ComponentDisplayType.Websocket:
+		case ComponentDisplayType.RestApi:
+		case ComponentDisplayType.ThirdPartyAPI:
+		case ComponentDisplayType.ByocRestApi:
+		case ComponentDisplayType.MiRestApi:
+		case ComponentDisplayType.PrismMockService:
 			return ChoreoComponentType.Service;
+		case ComponentDisplayType.ByocWebApp:
+		case ComponentDisplayType.ByocWebAppDockerLess:
+		case ComponentDisplayType.ByoiWebApp:
+		case ComponentDisplayType.BuildpackWebApp:
+			return ChoreoComponentType.WebApplication;
 		case ComponentDisplayType.ManualTrigger:
 		case ComponentDisplayType.ByocJob:
 		case ComponentDisplayType.ByoiJob:
@@ -74,22 +81,19 @@ export const getTypeForDisplayType = (displayType: string): string => {
 		case ComponentDisplayType.BuildpackWebhook:
 		case ComponentDisplayType.BallerinaWebhook:
 			return ChoreoComponentType.Webhook;
-		case ComponentDisplayType.Proxy:
-			return ChoreoComponentType.ApiProxy;
-		case ComponentDisplayType.ByocWebApp:
-		case ComponentDisplayType.ByocWebAppDockerLess:
-		case ComponentDisplayType.ByoiWebApp:
-		case ComponentDisplayType.BuildpackWebApp:
-			return ChoreoComponentType.WebApplication;
-		case ComponentDisplayType.MiEventHandler:
-		case ComponentDisplayType.BallerinaEventHandler:
-		case ComponentDisplayType.BuildpackEventHandler:
-		case ComponentDisplayType.ByocEventHandler:
-			return ChoreoComponentType.EventHandler;
 		case ComponentDisplayType.ByocTestRunner:
 		case ComponentDisplayType.BuildpackTestRunner:
 		case ComponentDisplayType.PostmanTestRunner:
 			return ChoreoComponentType.TestRunner;
+
+		case ComponentDisplayType.BallerinaEventHandler:
+		case ComponentDisplayType.MiEventHandler:
+		case ComponentDisplayType.ByocEventHandler:
+		case ComponentDisplayType.BuildpackEventHandler:
+			return ChoreoComponentType.EventHandler;
+		case ComponentDisplayType.Proxy:
+		case ComponentDisplayType.GitProxy:
+			return ChoreoComponentType.ApiProxy;
 		default:
 			return displayType;
 	}
@@ -153,4 +157,8 @@ export const deepEqual = (obj1: any, obj2: any): boolean => {
 	}
 
 	return true;
+};
+
+export const getRandomNumber = (min = 1, max = 1000) => {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 };

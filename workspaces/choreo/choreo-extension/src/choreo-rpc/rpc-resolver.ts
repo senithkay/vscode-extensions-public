@@ -34,6 +34,7 @@ import {
 	ChoreoRpcGetMarketplaceItemIdl,
 	ChoreoRpcGetMarketplaceItems,
 	ChoreoRpcGetProjectsRequest,
+	ChoreoRpcGetProxyDeploymentInfo,
 	ChoreoRpcGetSwaggerRequest,
 	ChoreoRpcGetTestKeyRequest,
 	ChoreoRpcIsRepoAuthorizedRequest,
@@ -75,6 +76,7 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	messenger.onRequest(ChoreoRpcGetEnvsRequest, (params) => rpcClient.getEnvs(params));
 	messenger.onRequest(ChoreoRpcGetEndpointsRequest, (params) => rpcClient.getComponentEndpoints(params));
 	messenger.onRequest(ChoreoRpcGetDeploymentStatusRequest, (params) => rpcClient.getDeploymentStatus(params));
+	messenger.onRequest(ChoreoRpcGetProxyDeploymentInfo, (params) => rpcClient.getProxyDeploymentInfo(params));
 	messenger.onRequest(ChoreoRpcCreateDeploymentRequest, async (params) => {
 		return window.withProgress(
 			{ title: `Deploying component ${params.componentName} in ${params.envName} environment...`, location: ProgressLocation.Notification },

@@ -23,6 +23,7 @@ import type {
 	MarketplaceItem,
 	Pagination,
 	Project,
+	ProxyDeploymentInfo,
 } from "./common.types";
 import type { InboundConfig, ServiceReferenceEnv } from "./config-file.types";
 
@@ -46,6 +47,8 @@ export interface GetComponentItemReq {
 }
 export interface GetComponentsReq {
 	orgId: string;
+	orgHandle: string;
+	projectId: string;
 	projectHandle: string;
 }
 export interface CreateProjectReq {
@@ -63,6 +66,8 @@ export interface DeleteCompReq {
 }
 export interface CreateComponentReq {
 	orgId: string;
+	orgUUID: string;
+	projectId: string;
 	projectHandle: string;
 	name: string;
 	displayName: string;
@@ -77,6 +82,11 @@ export interface CreateComponentReq {
 	spaBuildCommand: string;
 	spaNodeVersion: string;
 	spaOutputDir: string;
+	proxyApiVersion: string;
+	proxyEndpointUrl: string;
+	proxyApiContext: string;
+	// todo: remove
+	proxyAccessibility: string;
 }
 export interface CreateConfigYamlReq {
 	componentDir: string;
@@ -85,9 +95,11 @@ export interface CreateConfigYamlReq {
 }
 export interface GetBuildsReq {
 	orgId: string;
+	componentId: string;
 	componentName: string;
-	projectHandle: string;
-	deploymentTrackId: string;
+	displayType: string;
+	branch: string;
+	apiVersionId: string;
 }
 export interface CreateBuildReq {
 	orgId: string;
@@ -140,7 +152,7 @@ export interface CreateDeploymentReq {
 	componentDisplayType: string;
 	projectHandle: string;
 	projectId: string;
-	deploymentTrackId: string;
+	versionId: string;
 	commitHash: string;
 	envName: string;
 	envId: string;
@@ -291,8 +303,18 @@ export interface ToggleAutoBuildResp {
 	success: boolean;
 }
 
+export interface GetProxyDeploymentInfoReq {
+	orgId: string;
+	orgHandler: string;
+	orgUuid: string;
+	componentId: string;
+	versionId: string;
+	envId: string;
+}
+
 export interface IChoreoRPCClient {
 	getProjects(orgID: string): Promise<Project[]>;
+	// this also can be removed
 	getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
 	getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
 	createProject(params: CreateProjectReq): Promise<Project>;
@@ -303,6 +325,7 @@ export interface IChoreoRPCClient {
 	deleteComponent(params: DeleteCompReq): Promise<void>;
 	getBuilds(params: GetBuildsReq): Promise<BuildKind[]>;
 	createBuild(params: CreateBuildReq): Promise<BuildKind>;
+	// also can be removed
 	getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
 	getCommits(params: GetCommitsReq): Promise<CommitHistory[]>;
 	getEnvs(params: GetProjectEnvsReq): Promise<Environment[]>;
@@ -321,6 +344,7 @@ export interface IChoreoRPCClient {
 	getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp>;
 	enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
 	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
+	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -413,6 +437,9 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
 		return this._messenger.sendRequest(ChoreoRpcDisableAutoBuild, HOST_EXTENSION, params);
 	}
+	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null> {
+		return this._messenger.sendRequest(ChoreoRpcGetProxyDeploymentInfo, HOST_EXTENSION, params);
+	}
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: "rpc/project/getProjects" };
@@ -458,3 +485,4 @@ export const ChoreoRpcGetConnectionGuide: RequestType<GetConnectionGuideReq, Get
 export const ChoreoRpcGetAutoBuildStatus: RequestType<GetAutoBuildStatusReq, GetAutoBuildStatusResp> = { method: "rpc/build/getAutoBuildStatus" };
 export const ChoreoRpcEnableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/enableAutoBuild" };
 export const ChoreoRpcDisableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/disableAutoBuild" };
+export const ChoreoRpcGetProxyDeploymentInfo: RequestType<GetProxyDeploymentInfoReq, ProxyDeploymentInfo | null> = { method: "rpc/deployment/getProxyDeploymentInfo" };

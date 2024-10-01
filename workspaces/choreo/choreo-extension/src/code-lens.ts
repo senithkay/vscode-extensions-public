@@ -20,6 +20,7 @@ export function activateCodeLenses(context: vscode.ExtensionContext) {
 class YAMLCodeLensProvider implements vscode.CodeLensProvider {
 	provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
 		const codeLenses: vscode.CodeLens[] = [];
+		// todo: add code lens for component.yaml
 		if (document.fileName.endsWith("component-config.yaml")) {
 			const addDependencyCmd: vscode.Command = {
 				title: "Add Dependency",

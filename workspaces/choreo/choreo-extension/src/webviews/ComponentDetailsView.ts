@@ -10,9 +10,11 @@
 import { type ComponentKind, type Organization, type Project, type WebviewProps, getComponentKey } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
+import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
+import { getChoreoEnv } from "../choreo-rpc/cli-install";
 
 const componentViewMap = new Map<string, ComponentDetailsView>();
 
@@ -80,10 +82,12 @@ class ComponentDetailsView {
                   document.getElementById("root"),
                   ${JSON.stringify({
 										type: "ComponentDetailsView",
+										choreoEnv: getChoreoEnv(),
 										directoryPath,
 										organization,
 										project,
 										component,
+										initialEnvs: dataCacheStore.getState().getEnvs(organization.handle, project.handler),
 									} as WebviewProps)}
                 );
               }

@@ -52,11 +52,11 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	});
 
 	useEffect(() => {
-		if (gitData?.remotes.length > 0 && !gitData?.remotes.includes(form.getValues("repoUrl"))) {
+		if (gitData?.remotes?.length > 0 && !gitData?.remotes.includes(form.getValues("repoUrl"))) {
 			if (gitData?.upstream?.remoteUrl) {
-				form.setValue("repoUrl", gitData?.upstream?.remoteUrl);
+				form.setValue("repoUrl", gitData?.upstream?.remoteUrl, { shouldValidate: true });
 			} else {
-				form.setValue("repoUrl", gitData?.remotes[0]);
+				form.setValue("repoUrl", gitData?.remotes[0], { shouldValidate: true });
 			}
 		}
 	}, [gitData]);
@@ -74,13 +74,13 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	useEffect(() => {
 		if (branches?.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
 			if (branches.includes(gitData.upstream?.name)) {
-				form.setValue("branch", gitData.upstream?.name);
+				form.setValue("branch", gitData.upstream?.name, { shouldValidate: true });
 			} else if (branches.includes("main")) {
-				form.setValue("branch", "main");
+				form.setValue("branch", "main", { shouldValidate: true });
 			} else if (branches.includes("master")) {
-				form.setValue("branch", "master");
+				form.setValue("branch", "master", { shouldValidate: true });
 			} else {
-				form.setValue("branch", branches[0]);
+				form.setValue("branch", branches[0], { shouldValidate: true });
 			}
 		}
 	}, [branches, gitData]);
@@ -155,21 +155,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 	return (
 		<>
 			<div className="grid gap-4 md:grid-cols-2" ref={compDetailsSections}>
-				<TextField label="Name" required name="name" placeholder="component-name" control={form.control} />
-				<Dropdown
-					label="Type"
-					required
-					name="type"
-					items={[
-						{ label: "Service", value: ChoreoComponentType.Service },
-						{ label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-						{ label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
-						{ label: "Web Application", value: ChoreoComponentType.WebApplication },
-						// TODO: Re-enable this after testing webhooks
-						// { label: "Webhook", value: ChoreoComponentType.Webhook },
-					]}
-					control={form.control}
-				/>
+				<TextField label="Name" required name="name" placeholder="component-name" control={form.control} wrapClassName="col-span-full" />
 				<PathSelect
 					name="subPath"
 					label="Directory"
@@ -194,7 +180,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 							refreshBtn={onInvalidRepoRefreshClick ? { onClick: onInvalidRepoRefreshClick, isRefreshing: onInvalidRepoRefreshing } : undefined}
 						/>
 					)}
-					{!invalidRepoMsg && !isLoadingBranches && branches.length === 0 && (
+					{!invalidRepoMsg && !isLoadingBranches && branches?.length === 0 && (
 						<Banner
 							type="warning"
 							className="col-span-full md:order-last"

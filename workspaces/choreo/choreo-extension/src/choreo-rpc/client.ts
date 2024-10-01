@@ -44,6 +44,7 @@ import type {
 	GetMarketplaceIdlReq,
 	GetMarketplaceListReq,
 	GetProjectEnvsReq,
+	GetProxyDeploymentInfoReq,
 	GetSwaggerSpecReq,
 	GetTestKeyReq,
 	GetTestKeyResp,
@@ -53,6 +54,7 @@ import type {
 	MarketplaceIdlResp,
 	MarketplaceListResp,
 	Project,
+	ProxyDeploymentInfo,
 	ToggleAutoBuildReq,
 	ToggleAutoBuildResp,
 	UserInfo,
@@ -311,6 +313,17 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		return response?.deployment ?? null;
 	}
 
+	async getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: { deploymentInfo: ProxyDeploymentInfo | undefined } | undefined = await this.client.sendRequest(
+			"deployment/getProxyDeploymentInfo",
+			params,
+		);
+		return response?.deploymentInfo ?? null;
+	}
+	
 	async createDeployment(params: CreateDeploymentReq): Promise<void> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");

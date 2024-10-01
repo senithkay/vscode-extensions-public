@@ -20,7 +20,7 @@ import type {
 	Project,
 	WebviewQuickPickItem,
 } from "./common.types";
-import type { Endpoint } from "./config-file.types";
+import type { Endpoint, ProxyConfig } from "./config-file.types";
 import type { AuthState, ContextStoreState, WebviewState } from "./store.types";
 
 // Request types
@@ -42,7 +42,8 @@ export const DeleteFile: RequestType<string, void> = { method: "deleteFile" };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: "showConfirmMessage" };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: "showQuickPicks" };
 export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: "showWebviewInputBoxReq" };
-export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: "readServiceEndpoints" };
+export const ReadLocalEndpointsConfig: RequestType<string, ReadLocalEndpointsConfigResp> = { method: "readLocalEndpointsConfig" };
+export const ReadLocalProxyConfig: RequestType<string, ReadLocalProxyConfigResp> = { method: "readLocalProxyConfig" };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: "viewBuildLogs" };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: "viewRuntimeLogs" };
 export const TriggerGithubAuthFlow: RequestType<string, void> = { method: "triggerGithubAuthFlow" };
@@ -60,7 +61,8 @@ export const CloseComponentViewDrawer: RequestType<string, void> = { method: "cl
 export const HasDirtyLocalGitRepo: RequestType<string, boolean> = { method: "hasDirtyLocalGitRepo" };
 export const GetConfigFileDrifts: RequestType<GetConfigFileDriftsReq, string[]> = { method: "getConfigFileDrifts" };
 export const SaveFile: RequestType<SaveFileReq, string> = { method: "saveFile" };
-export const SubmitEndpointsCreate: RequestType<SubmitEndpointsCreateReq, void> = { method: "submitEndpointsCreate" };
+export const CreateLocalEndpointsConfig: RequestType<CreateLocalEndpointsConfigReq, void> = { method: "createLocalEndpointsConfig" };
+export const CreateLocalProxyConfig: RequestType<CreateLocalProxyConfigReq, void> = { method: "createLocalProxyConfig" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -93,11 +95,17 @@ export interface SubmitComponentCreateReq {
 	project: Project;
 	createParams: CreateComponentReq;
 	autoBuildOnCommit?: boolean;
+	type: string;
 }
 
-export interface SubmitEndpointsCreateReq {
+export interface CreateLocalEndpointsConfigReq {
 	componentDir: string;
 	endpoints?: Endpoint[];
+}
+
+export interface CreateLocalProxyConfigReq {
+	componentDir: string;
+	proxy: ProxyConfig;
 }
 
 export interface ViewBuildLogsReq {
@@ -118,8 +126,13 @@ export interface ViewRuntimeLogsReq {
 	envName: string;
 }
 
-export interface ReadEndpointsResp {
+export interface ReadLocalEndpointsConfigResp {
 	endpoints: Endpoint[];
+	filePath: string;
+}
+
+export interface ReadLocalProxyConfigResp {
+	proxy?: ProxyConfig;
 	filePath: string;
 }
 
@@ -167,6 +180,7 @@ export interface SelectCommitToBuildReq {
 }
 
 export interface GetConfigFileDriftsReq {
+	type: string;
 	repoDir: string;
 	repoUrl: string;
 	branch: string;

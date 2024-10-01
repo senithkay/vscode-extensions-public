@@ -55,6 +55,7 @@ export const BuildsSection: FC<Props> = (props) => {
 	const [visibleBuildCount, setVisibleBuildCount] = useState(5);
 	const [buildListRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
+	const type = getTypeForDisplayType(component.spec.type);
 
 	const {
 		isLoading: isLoadingBuilds,
@@ -95,7 +96,8 @@ export const BuildsSection: FC<Props> = (props) => {
 				triggerBuild({
 					commitHash: pickedItem.sha,
 					componentName: component.metadata.name,
-					deploymentTrackId: deploymentTrack?.id,
+					deploymentTrackId:
+						type === ChoreoComponentType.ApiProxy ? component?.apiVersions?.find((item) => item.latest)?.versionId : deploymentTrack?.id,
 					projectHandle: project.handler,
 					orgId: organization.id?.toString(),
 					displayType: component.spec.type,
@@ -125,7 +127,9 @@ export const BuildsSection: FC<Props> = (props) => {
 					</Button>
 				)}
 				<div className="flex-1" />
-				<AutoBuildSwitch component={component} envs={envs} organization={organization} deploymentTrack={deploymentTrack} />
+				{type !== ChoreoComponentType.ApiProxy && (
+					<AutoBuildSwitch component={component} envs={envs} organization={organization} deploymentTrack={deploymentTrack} />
+				)}
 				{!isLoadingBuilds && (
 					<Button disabled={isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()}>
 						{isTriggeringBuild ? "Triggering Build" : buildInProgress ? "Building Component" : "Build Component"}
@@ -154,13 +158,13 @@ export const BuildsSection: FC<Props> = (props) => {
 						) : (
 							<>
 								{builds?.slice(0, visibleBuildCount)?.map((item, index) => (
-									<>
+									<React.Fragment key={index}>
 										{item.status.status === "Triggered" ? (
 											<LoadingBuildRow key={index} />
 										) : (
 											<BuiltItemRow key={item.status?.runId} item={item} {...props} />
 										)}
-									</>
+									</React.Fragment>
 								))}
 								{builds.length > visibleBuildCount && (
 									<div className="mt-2 flex flex-row justify-end">
@@ -204,6 +208,7 @@ const LoadingBuildRow = () => {
 
 const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, organization, project, deploymentTrack, onTriggerDeployment }) => {
 	const queryClient = useQueryClient();
+	const type = getTypeForDisplayType(component.spec?.type);
 
 	const { mutate: showBuiltLogs, isLoading: isLoadingBuildLogs } = useMutation({
 		mutationFn: async (buildId: number) => {
@@ -222,13 +227,13 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 		mutationFn: async (params: { build: BuildKind; env: Environment }) => {
 			const req: CreateDeploymentReq = {
 				commitHash: params.build.spec.revision,
-				buildRef: params.build.status.images?.[0]?.id,
+				buildRef: type === ChoreoComponentType.ApiProxy ? params.build.status?.runId?.toString() : params.build.status.images?.[0]?.id,
 				componentName: component.metadata.name,
 				componentId: component.metadata.id,
 				componentDisplayType: component.spec.type,
 				envId: params.env.id,
 				envName: params.env.name,
-				deploymentTrackId: deploymentTrack?.id,
+				versionId: type === ChoreoComponentType.ApiProxy ? component?.apiVersions?.find((item) => item.latest)?.versionId : deploymentTrack?.id,
 				orgId: organization.id.toString(),
 				orgHandler: organization.handle,
 				projectId: project.id,

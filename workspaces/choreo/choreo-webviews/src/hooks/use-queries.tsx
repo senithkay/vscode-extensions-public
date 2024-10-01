@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
+import { type UseQueryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import type {
+	ApiVersion,
 	BuildKind,
 	Buildpack,
 	CommitHistory,
@@ -22,6 +23,7 @@ import type {
 	GetTestKeyResp,
 	Organization,
 	Project,
+	ProxyDeploymentInfo,
 } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 
@@ -31,24 +33,24 @@ export const queryKeys = {
 		"has-config-drift",
 		{ directoryPath, component: component?.metadata?.id },
 	],
-	getDeploymentTracks: (component: ComponentKind, project: Project, org: Organization) => [
-		"get-deployment-tracks",
-		{ component: component.metadata.id, organization: org.handle, project: project.handler },
-	],
 	getProjectEnvs: (project: Project, org: Organization) => ["get-project-envs", { organization: org.handle, project: project.handler }],
 	getTestKey: (selectedEndpoint: ComponentEP, env: Environment, org: Organization) => [
 		"get-test-key",
-		{ endpoint: selectedEndpoint.id, env: env.id, org: org.handle },
+		{ endpoint: selectedEndpoint?.id, env: env.id, org: org.handle },
 	],
 	getSwaggerSpec: (selectedEndpoint: ComponentEP, org: Organization) => [
 		"get-swagger-spec",
-		{ selectedEndpoint: selectedEndpoint.id, org: org.handle },
+		{ selectedEndpoint: selectedEndpoint?.id, org: org.handle },
 	],
 	getBuildPacks: (selectedType: string, org: Organization) => ["build-packs", { selectedType, orgId: org?.id }],
 	getGitBranches: (repoUrl: string, org: Organization) => ["get-git-branches", { repo: repoUrl, orgId: org?.id }],
 	getDeployedEndpoints: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization) => [
 		"get-deployed-endpoints",
 		{ organization: org.handle, component: component.metadata.id, deploymentTrackId: deploymentTrack?.id },
+	],
+	getProxyDeploymentInfo: (component: ComponentKind, org: Organization, env: Environment, apiVersion: ApiVersion) => [
+		"get-proxy-deployment-info",
+		{ org: org.handle, component: component.metadata.id, env: env?.id, apiVersion: apiVersion?.id },
 	],
 	getDeploymentStatus: (deploymentTrack: DeploymentTrack, component: ComponentKind, org: Organization, env: Environment) => [
 		"get-deployment-status",
@@ -73,19 +75,6 @@ export const queryKeys = {
 		{ component: component.metadata.id, organization: org.handle, versionId: deploymentTrack?.id },
 	],
 };
-
-export const useGetDeploymentTracks = (component: ComponentKind, project: Project, org: Organization, options?: UseQueryOptions<DeploymentTrack[]>) =>
-	useQuery<DeploymentTrack[]>(
-		queryKeys.getDeploymentTracks(component, project, org),
-		() =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentTracks({
-				componentId: component.metadata.id,
-				orgHandler: org.handle,
-				orgId: org.id.toString(),
-				projectId: project.id,
-			}),
-		options,
-	);
 
 export const useGetProjectEnvs = (project: Project, org: Organization, options?: UseQueryOptions<Environment[]>) =>
 	useQuery<Environment[]>(
@@ -139,11 +128,17 @@ export const useGetBuildPacks = (selectedType: string, org: Organization, option
 export const useGetGitBranches = (repoUrl: string, org: Organization, options?: UseQueryOptions<string[]>) =>
 	useQuery<string[]>(
 		queryKeys.getGitBranches(repoUrl, org),
-		() =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getRepoBranches({
-				repoUrl,
-				orgId: org.id.toString(),
-			}),
+		async () => {
+			try {
+				const branches = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getRepoBranches({
+					repoUrl,
+					orgId: org.id.toString(),
+				});
+				return branches ?? [];
+			} catch {
+				return [];
+			}
+		},
 		options,
 	);
 
@@ -155,13 +150,46 @@ export const useGetDeployedEndpoints = (
 ) =>
 	useQuery<ComponentEP[]>(
 		queryKeys.getDeployedEndpoints(deploymentTrack, component, org),
-		() =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentEndpoints({
-				orgId: org.id.toString(),
-				orgHandler: org.handle,
-				componentId: component.metadata.id,
-				deploymentTrackId: deploymentTrack?.id,
-			}),
+		async () => {
+			try {
+				const resp = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentEndpoints({
+					orgId: org.id.toString(),
+					orgHandler: org.handle,
+					componentId: component.metadata.id,
+					deploymentTrackId: deploymentTrack?.id,
+				});
+				return resp ?? [];
+			} catch {
+				return [];
+			}
+		},
+		options,
+	);
+
+export const useGetProxyDeploymentInfo = (
+	component: ComponentKind,
+	org: Organization,
+	env: Environment,
+	apiVersion: ApiVersion,
+	options?: UseQueryOptions<ProxyDeploymentInfo>,
+) =>
+	useQuery<ProxyDeploymentInfo>(
+		queryKeys.getProxyDeploymentInfo(component, org, env, apiVersion),
+		async () => {
+			try {
+				const resp = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getProxyDeploymentInfo({
+					orgId: org.id?.toString(),
+					orgUuid: org.uuid,
+					orgHandler: org.handle,
+					componentId: component.metadata?.id,
+					envId: env?.id,
+					versionId: apiVersion?.id,
+				});
+				return resp || null;
+			} catch {
+				return null;
+			}
+		},
 		options,
 	);
 
@@ -196,12 +224,16 @@ export const useGetBuildList = (
 	useQuery<BuildKind[]>(
 		queryKeys.getBuilds(deploymentTrack, component, project, org),
 		() =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getBuilds({
-				componentName: component.metadata.name,
-				deploymentTrackId: deploymentTrack?.id,
-				projectHandle: project.handler,
-				orgId: org.id?.toString(),
-			}),
+			ChoreoWebViewAPI.getInstance()
+				.getChoreoRpcClient()
+				.getBuilds({
+					componentId: component.metadata.id,
+					componentName: component.metadata.name,
+					displayType: component.spec.type,
+					branch: deploymentTrack?.branch,
+					orgId: org.id?.toString(),
+					apiVersionId: component?.apiVersions?.find((item) => item.latest)?.versionId,
+				}),
 		options,
 	);
 
@@ -250,3 +282,58 @@ export const useGetAutoBuildStatus = (
 			}),
 		options,
 	);
+
+export const useGoToSource = () => {
+	const { mutate: openFile } = useMutation({
+		mutationFn: async (paths: string[]) => {
+			const filePath = await ChoreoWebViewAPI.getInstance().joinFilePaths(paths);
+			const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(filePath);
+			if (fileExists) {
+				return ChoreoWebViewAPI.getInstance().goToSource(filePath);
+			}
+			ChoreoWebViewAPI.getInstance().showErrorMsg("File does not not exist");
+		},
+		onError: () => {
+			ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to open file");
+		},
+	});
+	return { openFile };
+};
+
+export const useCreateNewOpenApiFile = ({ onSuccess, compPath }: { compPath: string; onSuccess?: (subPath: string) => void }) => {
+	const sampleOpenAPIContent = `openapi: 3.0.0
+info:
+  title: My API
+  version: 1.0.0
+paths:
+  /example:
+    get:
+      summary: Retrieve an example resource
+      responses:
+        '200':
+          description: Successful response
+`;
+	const { mutate: createNewOpenApiFile } = useMutation({
+		mutationFn: async () => {
+			return ChoreoWebViewAPI.getInstance().saveFile({
+				baseDirectory: compPath,
+				fileContent: sampleOpenAPIContent,
+				shouldPromptDirSelect: true,
+				fileName: "swagger.yaml",
+				isOpenApiFile: true,
+				successMessage: `A sample OpenAPI specification file has been created at ${compPath}`,
+			});
+		},
+		onSuccess: async (createdPath) => {
+			const subPath = await ChoreoWebViewAPI.getInstance().getSubPath({
+				subPath: createdPath,
+				parentPath: compPath,
+			});
+			if (onSuccess) {
+				onSuccess(subPath);
+			}
+		},
+		onError: () => ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to create openapi file"),
+	});
+	return { createNewOpenApiFile };
+};

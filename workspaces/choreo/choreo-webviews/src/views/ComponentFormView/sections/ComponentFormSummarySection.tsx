@@ -18,39 +18,55 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type HTMLProps, type FC, type ReactNode, useMemo } from "react";
+import type { UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
 import { Banner } from "../../../components/Banner";
 import { Button } from "../../../components/Button";
 import { queryKeys } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { getComponentTypeText } from "../../ComponentDetailsView/utils";
-import type { componentBuildDetailsSchema, componentEndpointsFormSchema, componentGeneralDetailsSchema } from "../componentFormSchema";
+import type {
+	componentBuildDetailsSchema,
+	componentEndpointsFormSchema,
+	componentGeneralDetailsSchema,
+	componentGitProxyFormSchema,
+} from "../componentFormSchema";
 
 type ComponentFormGenDetailsType = z.infer<typeof componentGeneralDetailsSchema>;
 type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>;
 type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
+type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 interface Props extends NewComponentWebviewProps {
-	genDetails: ComponentFormGenDetailsType;
-	buildDetails: ComponentFormBuildDetailsType;
-	endpointDetails: ComponentFormEndpointsType;
 	isCreating: boolean;
 	onNextClick: () => void;
 	onBackClick: () => void;
+	genDetailsForm: UseFormReturn<ComponentFormGenDetailsType>;
+	buildDetailsForm: UseFormReturn<ComponentFormBuildDetailsType>;
+	endpointDetailsForm: UseFormReturn<ComponentFormEndpointsType>;
+	gitProxyForm: UseFormReturn<ComponentFormGitProxyType>;
 }
 
 export const ComponentFormSummarySection: FC<Props> = ({
 	organization,
-	genDetails,
-	buildDetails,
-	endpointDetails,
 	onBackClick,
 	onNextClick,
 	directoryFsPath,
 	isCreating,
+	buildDetailsForm,
+	endpointDetailsForm,
+	genDetailsForm,
+	gitProxyForm,
+	initialValues,
 }) => {
 	const [summaryWrapRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
+
+	const genDetails = genDetailsForm.getValues();
+	const buildDetails = buildDetailsForm.getValues();
+	const endpointDetails = endpointDetailsForm.getValues();
+	const gitProxyDetails = gitProxyForm.getValues();
+	const type = initialValues?.type;
 
 	const {
 		data: configDriftFiles = [],
@@ -61,7 +77,12 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		queryKey: ["get-config-drift", { dirPath: genDetails?.subPath }],
 		queryFn: async () => {
 			const directoryPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, genDetails.subPath]);
-			return ChoreoWebViewAPI.getInstance().getConfigFileDrifts({ repoDir: directoryPath, branch: genDetails.branch, repoUrl: genDetails.repoUrl });
+			return ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
+				type,
+				repoDir: directoryPath,
+				branch: genDetails.branch,
+				repoUrl: genDetails.repoUrl,
+			});
 		},
 		refetchOnWindowFocus: true,
 		enabled: genDetails?.repoUrl?.length > 0,
@@ -77,13 +98,28 @@ export const ComponentFormSummarySection: FC<Props> = ({
 	});
 
 	const buildPackName = useMemo(() => {
-		const buildPackQueryKey = queryKeys.getBuildPacks(genDetails?.type, organization);
+		const buildPackQueryKey = queryKeys.getBuildPacks(type, organization);
 		const buildPacks: Buildpack[] | undefined = queryClient.getQueryData(buildPackQueryKey);
 		return buildPacks?.find((item) => item.language === buildDetails?.buildPackLang)?.displayName || buildDetails?.buildPackLang;
-	}, [genDetails?.type, buildDetails?.buildPackLang, organization]);
+	}, [type, buildDetails?.buildPackLang, organization]);
 
 	const items: ReactNode[] = [];
-	if (buildPackName) {
+	if (type === ChoreoComponentType.ApiProxy) {
+		items.push(<ComponentSummaryItem title="Type" text={gitProxyDetails?.componentConfig?.type} />);
+		items.push(<ComponentSummaryItem title="Target URL" text={gitProxyDetails?.proxyTargetUrl} className="col-span-2" />);
+		items.push(<ComponentSummaryItem title="API Context" text={gitProxyDetails?.proxyContext} />);
+		items.push(<ComponentSummaryItem title="Version" text={gitProxyDetails?.proxyVersion} />);
+		items.push(<ComponentSummaryItem title="Visibility" text={gitProxyDetails?.componentConfig?.networkVisibility} />);
+		if (gitProxyDetails?.componentConfig?.type === "REST" && gitProxyDetails?.componentConfig?.schemaFilePath) {
+			items.push(<ComponentSummaryItem title="Schema Path" text={gitProxyDetails?.componentConfig?.schemaFilePath} />);
+		}
+		if (gitProxyDetails?.componentConfig?.docPath) {
+			items.push(<ComponentSummaryItem title="Documentation Path" text={gitProxyDetails?.componentConfig?.docPath} />);
+		}
+		if (gitProxyDetails?.componentConfig?.thumbnailPath) {
+			items.push(<ComponentSummaryItem title="Thumbnail Path" text={gitProxyDetails?.componentConfig?.thumbnailPath} />);
+		}
+	} else if (buildPackName) {
 		items.push(<ComponentSummaryItem title="Build Pack" text={buildPackName} />);
 
 		if (
@@ -95,7 +131,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		} else if (buildDetails?.buildPackLang === ChoreoBuildPackNames.Docker) {
 			items.push(<ComponentSummaryItem title="Docker File" text={buildDetails?.dockerFile} />);
 
-			if (genDetails?.type === ChoreoComponentType.WebApplication) {
+			if (type === ChoreoComponentType.WebApplication) {
 				items.push(<ComponentSummaryItem title="Port" text={buildDetails?.webAppPort} />);
 			}
 		} else if (WebAppSPATypes.includes(buildDetails?.buildPackLang as ChoreoBuildPackNames)) {
@@ -105,13 +141,13 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		} else if (buildDetails?.buildPackLang) {
 			// Build pack type
 			items.push(<ComponentSummaryItem title="Language Version" text={buildDetails?.langVersion} />);
-			if (genDetails?.type === ChoreoComponentType.WebApplication) {
+			if (type === ChoreoComponentType.WebApplication) {
 				items.push(<ComponentSummaryItem title="Port" text={buildDetails?.webAppPort} />);
 			}
 		}
 
 		// todo: check if we need to handle MI
-		if (genDetails?.type === ChoreoComponentType.Service && endpointDetails?.endpoints?.length) {
+		if (type === ChoreoComponentType.Service && endpointDetails?.endpoints?.length) {
 			items.push(
 				<ComponentSummaryItem
 					title="Endpoints"
@@ -145,7 +181,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				className={classNames("grid grid-cols-2 gap-1 md:grid-cols-3 md:gap-2 xl:grid-cols-4 xl:gap-3", isLoadingConfigDriftFiles && "animate-pulse")}
 			>
 				<ComponentSummaryItem title="Name" text={genDetails?.name} />
-				<ComponentSummaryItem title="Type" text={getComponentTypeText(genDetails?.type)} />
+				<ComponentSummaryItem title="Type" text={getComponentTypeText(type)} />
 				<ComponentSummaryItem title="Repository" text={genDetails?.repoUrl} className="col-span-2" />
 				<ComponentSummaryItem title="Branch" text={genDetails?.branch} />
 				{genDetails?.subPath && <ComponentSummaryItem title="Directory" text={genDetails?.subPath} />}
@@ -170,9 +206,9 @@ const ComponentSummaryItem: FC<{ title: string; text: string | number; className
 	className,
 }) => {
 	return (
-		<div title={`${title}: ${text}`} className={className}>
+		<div key={title} title={`${title}: ${text}`} className={className}>
 			<div className="line-clamp-1 text-sm">{title}</div>
-			<div className="line-clamp-1 font-light opacity-80">{text}</div>
+			<div className="line-clamp-1 break-all font-light opacity-80">{text}</div>
 		</div>
 	);
 };

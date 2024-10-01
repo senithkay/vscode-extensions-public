@@ -10,12 +10,20 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import * as path from "path";
-import type { ComponentYamlContent, Endpoint, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
+import {
+	type ComponentConfigYamlContent,
+	type ComponentYamlContent,
+	type Endpoint,
+	type EndpointYamlContent,
+	type ReadLocalEndpointsConfigResp,
+	type ReadLocalProxyConfigResp,
+	getRandomNumber,
+} from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
 
-export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
+export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
 	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
 
 	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>
@@ -37,13 +45,24 @@ export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
 
 	const componentConfigYamlPath = join(componentPath, ".choreo", "component-config.yaml");
 	if (existsSync(componentConfigYamlPath)) {
-		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+		const endpointFileContent: ComponentConfigYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
 		return {
 			endpoints: filterEndpointSchemaPath(endpointFileContent?.spec?.inbound),
 			filePath: componentConfigYamlPath,
 		};
 	}
+
+	// TODO: also read from component.yaml and the order should be reversed. read from component.yaml first, then component-config and finally endpoints.yaml
 	return { endpoints: [], filePath: "" };
+};
+
+export const readLocalProxyConfig = (componentPath: string): ReadLocalProxyConfigResp => {
+	const componentYamlPath = join(componentPath, ".choreo", "component.yml");
+	if (existsSync(componentYamlPath)) {
+		const fileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+		return { proxy: fileContent.proxy, filePath: componentYamlPath };
+	}
+	return { filePath: "" };
 };
 
 // TODO: move into ChoreoExtensionApi()
@@ -78,7 +97,7 @@ export const saveFile = async (
 		while (existsSync(join(basePath, tempFileName))) {
 			tempFileName = `${baseName}-(${fileIndex++}).${extension}`;
 			if (fileIndex > 1000) {
-				tempFileName = `${baseName}-(${Math.random() * (1000000 - 1000) + 1000}).${extension}`;
+				tempFileName = `${baseName}-(${getRandomNumber(1000, 10000)}).${extension}`;
 				break;
 			}
 		}

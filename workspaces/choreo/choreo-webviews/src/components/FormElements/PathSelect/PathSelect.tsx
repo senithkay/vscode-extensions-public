@@ -12,6 +12,8 @@ import classnames from "classnames";
 import React, { type FC, type HTMLProps, type ReactNode } from "react";
 import { type Control, Controller } from "react-hook-form";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
+import { Button } from "../../Button";
+import { Codicon } from "../../Codicon";
 import { FormElementWrap } from "../FormElementWrap";
 
 interface Props {
@@ -64,7 +66,7 @@ export const PathSelect: FC<Props> = (props) => {
 						<div
 							onClick={isLoading ? undefined : () => handleClick((selectedPath) => field.onChange(selectedPath))}
 							className={classnames(
-								"flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-[0.5px] bg-vsc-input-background",
+								"group relative flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-[0.5px] bg-vsc-input-background",
 								isLoading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100",
 								fieldState.error?.message ? "border-vsc-errorForeground" : "border-vsc-menu-border",
 							)}
@@ -74,6 +76,19 @@ export const PathSelect: FC<Props> = (props) => {
 								<p className="flex h-full items-center justify-center px-3">Choose {type}</p>
 							</div>
 							<div className="flex flex-1 items-center break-all px-2">{type === "directory" ? joinedPath : field.value}</div>
+							{field.value && (
+								<Button
+									title="Clear Input Selection"
+									appearance="icon"
+									className="mr-1 self-center text-vsc-descriptionForeground opacity-0 duration-300 group-hover:opacity-75"
+									onClick={(event) => {
+										event.stopPropagation();
+										field.onChange("");
+									}}
+								>
+									<Codicon title="Clear Input Selection" name="error" className=" text-vsc-descriptionForeground" />
+								</Button>
+							)}
 						</div>
 					</FormElementWrap>
 				);

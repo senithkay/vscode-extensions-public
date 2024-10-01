@@ -18,7 +18,7 @@ import {
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
-import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
+import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
 import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
@@ -51,6 +51,25 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							`Select the project from '${selectedOrg.name}', to create the component in`,
 						);
 						selectedProject = createdProjectRes.selectedProject;
+					}
+
+					let selectedType: string | undefined = params?.initialValues?.type;
+					if (!selectedType) {
+						const typeQuickPicks: (QuickPickItem & { value: string })[] = [
+							{ label: "Service", value: ChoreoComponentType.Service },
+							{ label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
+							{ label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
+							{ label: "Web Application", value: ChoreoComponentType.WebApplication },
+							{ label: "Proxy", value: ChoreoComponentType.ApiProxy },
+						];
+						const selectedTypePick = await window.showQuickPick(typeQuickPicks, { title: "Select Component Type" });
+						if (selectedTypePick?.value) {
+							selectedType = selectedTypePick?.value;
+						}
+					}
+
+					if (!selectedType) {
+						throw new Error("Component type is required");
 					}
 
 					let subPath: string | null = null;
@@ -95,7 +114,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						organization: selectedOrg!,
 						project: selectedProject!,
 						initialValues: {
-							type: params?.initialValues?.type,
+							type: selectedType,
 							buildPackLang: params?.initialValues?.buildPackLang,
 							subPath: subPath || "",
 						},
@@ -110,7 +129,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 	);
 }
 
-export const submitCreateComponentHandler = async ({ createParams, org, project, autoBuildOnCommit }: SubmitComponentCreateReq) => {
+export const submitCreateComponentHandler = async ({ createParams, org, project, autoBuildOnCommit, type }: SubmitComponentCreateReq) => {
 	const createdComponent = await window.withProgress(
 		{
 			title: `Creating new component ${createParams.displayName}...`,
@@ -120,26 +139,9 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 	);
 
 	if (createdComponent) {
-		if (autoBuildOnCommit) {
-			const [deploymentTracks, envs] = await window.withProgress(
-				{ title: `Fetching component metadata of component ${createParams.displayName}...`, location: ProgressLocation.Notification },
-				() =>
-					Promise.all([
-						ext.clients.rpcClient.getDeploymentTracks({
-							componentId: createdComponent?.metadata?.id,
-							orgHandler: org.handle,
-							orgId: org.id.toString(),
-							projectId: project.id,
-						}),
-						ext.clients.rpcClient.getEnvs({
-							orgId: org.id.toString(),
-							orgUuid: org.uuid,
-							projectId: project.id,
-						}),
-					]),
-			);
-
-			const matchingTrack = deploymentTracks.find((item) => item.branch === createParams.branch);
+		if (type !== ChoreoComponentType.ApiProxy && autoBuildOnCommit) {
+			const envs = dataCacheStore.getState().getEnvs(org.handle, project.handler);
+			const matchingTrack = createdComponent?.deploymentTracks.find((item) => item.branch === createParams.branch);
 			if (matchingTrack) {
 				await window.withProgress(
 					{ title: `Enabling auto build on commit for component ${createParams.displayName}...`, location: ProgressLocation.Notification },

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { CommitHistory, ComponentKind, Organization, Project, UserInfo } from "./common.types";
+import type { CommitHistory, ComponentKind, Environment, Organization, Project, UserInfo } from "./common.types";
 
 export interface DataCacheState {
 	orgs?: {
@@ -15,6 +15,7 @@ export interface DataCacheState {
 			projects?: {
 				[projectHandle: string]: {
 					data?: Project;
+					envs?: Environment[];
 					components?: {
 						[componentHandle: string]: {
 							data?: ComponentKind;

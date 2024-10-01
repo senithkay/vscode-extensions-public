@@ -18,6 +18,10 @@ import {
 	type ComponentKind,
 	ContextStoreChangedNotification,
 	type ContextStoreState,
+	CreateLocalEndpointsConfig,
+	type CreateLocalEndpointsConfigReq,
+	CreateLocalProxyConfig,
+	type CreateLocalProxyConfigReq,
 	DeleteFile,
 	ExecuteCommandRequest,
 	FileExists,
@@ -41,8 +45,10 @@ import {
 	OpenSubDialogRequest,
 	OpenTestView,
 	type OpenTestViewReq,
-	type ReadEndpointsResp,
-	ReadServiceEndpoints,
+	ReadLocalEndpointsConfig,
+	type ReadLocalEndpointsConfigResp,
+	ReadLocalProxyConfig,
+	type ReadLocalProxyConfigResp,
 	RefreshContextState,
 	RestoreWebviewCache,
 	SaveFile,
@@ -64,8 +70,6 @@ import {
 	type ShowWebviewQuickPickItemsReq,
 	SubmitComponentCreate,
 	type SubmitComponentCreateReq,
-	SubmitEndpointsCreate,
-	type SubmitEndpointsCreateReq,
 	TriggerGithubAuthFlow,
 	TriggerGithubInstallFlow,
 	type ViewBuildLogsReq,
@@ -194,8 +198,12 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(ShowConfirmMessage, HOST_EXTENSION, params);
 	}
 
-	public async readServiceEndpoints(componentPath: string): Promise<ReadEndpointsResp> {
-		return this._messenger.sendRequest(ReadServiceEndpoints, HOST_EXTENSION, componentPath);
+	public async readLocalEndpointsConfig(componentPath: string): Promise<ReadLocalEndpointsConfigResp> {
+		return this._messenger.sendRequest(ReadLocalEndpointsConfig, HOST_EXTENSION, componentPath);
+	}
+
+	public async readLocalProxyConfig(componentPath: string): Promise<ReadLocalProxyConfigResp> {
+		return this._messenger.sendRequest(ReadLocalProxyConfig, HOST_EXTENSION, componentPath);
 	}
 
 	public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {
@@ -226,8 +234,12 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(SubmitComponentCreate, HOST_EXTENSION, params);
 	}
 
-	public async submitEndpointsCreate(params: SubmitEndpointsCreateReq): Promise<void> {
-		return this._messenger.sendRequest(SubmitEndpointsCreate, HOST_EXTENSION, params);
+	public async createLocalEndpointsConfig(params: CreateLocalEndpointsConfigReq): Promise<void> {
+		return this._messenger.sendRequest(CreateLocalEndpointsConfig, HOST_EXTENSION, params);
+	}
+
+	public async createLocalProxyConfig(params: CreateLocalProxyConfigReq): Promise<void> {
+		return this._messenger.sendRequest(CreateLocalProxyConfig, HOST_EXTENSION, params);
 	}
 
 	public async getDirectoryFileNames(path: string): Promise<string[]> {

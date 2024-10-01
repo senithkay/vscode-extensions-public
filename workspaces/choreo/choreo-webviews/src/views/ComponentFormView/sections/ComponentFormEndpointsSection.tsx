@@ -20,6 +20,7 @@ import { Divider } from "../../../components/Divider";
 import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
+import { useCreateNewOpenApiFile, useGoToSource } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { type componentEndpointItemSchema, type componentEndpointsFormSchema, sampleEndpointItem } from "../componentFormSchema";
 
@@ -82,48 +83,15 @@ interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "comp
 	remove: UseFieldArrayRemove;
 }
 
-const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
-	item,
-	endpoints,
-	form,
-	index,
-	componentName,
-	append,
-	remove,
-	directoryName,
-	compPath,
-}) => {
+const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints, form, index, componentName, append, remove, compPath }) => {
 	const [endpointListItemRef] = useAutoAnimate();
 
-	const { mutate: createNewOpenApiFile } = useMutation({
-		mutationFn: async () => {
-			return ChoreoWebViewAPI.getInstance().saveFile({
-				baseDirectory: compPath,
-				fileContent: sampleOpenAPIContent,
-				fileName: "openapi.yaml",
-				isOpenApiFile: true,
-				successMessage: `A sample OpenAPI specification file has been created at ${compPath}`,
-			});
-		},
-		onSuccess: async (createdPath) => {
-			const subPath = await ChoreoWebViewAPI.getInstance().getSubPath({
-				subPath: createdPath,
-				parentPath: compPath,
-			});
-			form.setValue(`endpoints.${index}.schemaFilePath`, subPath, { shouldValidate: true });
-		},
-		onError: () => ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to create openapi file"),
+	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
+		compPath,
+		onSuccess: (subPath) => form.setValue(`endpoints.${index}.schemaFilePath`, subPath, { shouldValidate: true }),
 	});
 
-	const { mutate: openSchemaFile } = useMutation({
-		mutationFn: async () => {
-			const filePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, item.schemaFilePath]);
-			return ChoreoWebViewAPI.getInstance().goToSource(filePath);
-		},
-		onError: () => {
-			ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to open schema path");
-		},
-	});
+	const { openFile } = useGoToSource();
 
 	const fields: ReactNode[] = [
 		<TextField
@@ -191,16 +159,19 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 					required
 					control={form.control}
 					basePath={compPath}
-					directoryName={directoryName}
 					type="file"
 					promptTitle="Select Schema File Path"
 				/>
-				<VSCodeLink
-					className="mt-0.5 font-semibold text-[11px] text-vsc-foreground"
-					onClick={item.schemaFilePath ? () => openSchemaFile() : () => createNewOpenApiFile()}
-				>
-					{item.schemaFilePath ? "Edit Schema File" : "Create new OpenAPI schema file"}
-				</VSCodeLink>
+				{item.schemaFilePath && (
+					<VSCodeLink className="mt-0.5 font-semibold text-[11px] text-vsc-foreground" onClick={() => openFile([compPath, item.schemaFilePath])}>
+						Edit Schema File
+					</VSCodeLink>
+				)}
+				{!item.schemaFilePath && item.type === EndpointType.REST && (
+					<VSCodeLink className="mt-0.5 font-semibold text-[11px] text-vsc-foreground" onClick={() => createNewOpenApiFile()}>
+						Create new OpenAPI schema file
+					</VSCodeLink>
+				)}
 			</div>,
 		);
 	}
@@ -239,16 +210,3 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 		</div>
 	);
 };
-
-const sampleOpenAPIContent = `openapi: 3.0.0
-info:
-  title: My API
-  version: 1.0.0
-paths:
-  /example:
-    get:
-      summary: Retrieve an example resource
-      responses:
-        '200':
-          description: Successful response
-`;

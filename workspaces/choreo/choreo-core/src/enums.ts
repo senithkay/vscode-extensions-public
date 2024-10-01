@@ -14,6 +14,7 @@ export enum ComponentDisplayType {
 	Webhook = "webhook",
 	Websocket = "webSocket",
 	Proxy = "proxy",
+	GitProxy = "gitProxy",
 	ByocCronjob = "byocCronjob",
 	ByocJob = "byocJob",
 	GraphQL = "graphql",
@@ -43,12 +44,13 @@ export enum ComponentDisplayType {
 	BuildpackCronJob = "buildpackCronjob",
 	BuildpackWebApp = "buildpackWebApp",
 	BuildpackWebhook = "buildpackWebhook",
-	BuildpackRestApi = "buildpackRestApi",
 	BuildRestApi = "buildpackRestApi",
 	PostmanTestRunner = "byocTestRunnerDockerfileLess",
 	BallerinaEventHandler = "ballerinaEventHandler",
 	BallerinaService = "ballerinaService",
 	BallerinaWebhook = "ballerinaWebhook",
+	ExternalConsumer = "externalConsumer",
+	PrismMockService = "prismMockService",
 }
 
 export enum DeploymentStatus {

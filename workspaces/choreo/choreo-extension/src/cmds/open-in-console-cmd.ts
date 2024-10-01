@@ -77,6 +77,8 @@ export function openInConsoleCommand(context: ExtensionContext) {
 							loadQuickPicks: async () => {
 								const components = await ext.clients.rpcClient.getComponentList({
 									orgId: selectedOrg.id.toString(),
+									orgHandle: selectedOrg.handle,
+									projectId: selectedProject.id,
 									projectHandle: selectedProject.handler,
 								});
 								dataCacheStore.getState().setComponents(selectedOrg.handle, selectedProject.handler, components);

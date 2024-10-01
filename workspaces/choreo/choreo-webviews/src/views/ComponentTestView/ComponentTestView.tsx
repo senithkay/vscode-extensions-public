@@ -12,9 +12,10 @@ import { useMutation } from "@tanstack/react-query";
 import type { TestWebviewProps } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import clipboardy from "clipboardy";
-import React, { type FC, useMemo } from "react";
+import React, { type FC, useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Banner } from "../../components/Banner";
 import { Button } from "../../components/Button";
 import { Codicon } from "../../components/Codicon";
 import { Dropdown } from "../../components/FormElements/Dropdown";
@@ -27,7 +28,6 @@ import { useGetSwaggerSpec, useGetTestKey } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 
 const MAX_RESPONSE_SIZE = 4 * 1024 * 1024;
-const INTERNAL_KEY_HEADER_NAME = "API-Key";
 
 interface SwaggerSecuritySchemasValue {
 	type: string;
@@ -66,11 +66,15 @@ const disableAuthorizeAndInfoPluginCustomSecuritySchema = {
 	wrapComponents: { info: () => (): any => null },
 };
 
-export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, project, deploymentTrack, endpoints }) => {
+export const ComponentTestView: FC<TestWebviewProps> = ({ env, choreoEnv, component, org, project, deploymentTrack, endpoints }) => {
+	const INTERNAL_KEY_HEADER_NAME = choreoEnv === "prod" ? "api-key" : "test-key";
+	const [refetchInterval, setRefetchInterval] = useState(10 * 60 * 1000);
+	const [isRefreshPressed, setIsRefreshPressed] = useState(false);
+
 	const form = useForm<serviceTestType>({
 		resolver: zodResolver(serviceTestSchema),
 		mode: "all",
-		defaultValues: { endpoint: endpoints[0].id || "" },
+		defaultValues: { endpoint: endpoints[0]?.id || "" },
 	});
 
 	const selectedEndpointId = form.watch("endpoint");
@@ -89,9 +93,13 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 		isFetching: isFetchingTestKey,
 	} = useGetTestKey(selectedEndpoint, env, org, {
 		enabled: !!selectedEndpoint,
-		refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+		refetchInterval: refetchInterval - 15000, // Refetch every 10 minutes minus 15 seconds
 		cacheTime: 0,
 		refetchOnWindowFocus: true,
+		onSuccess: (data) => {
+			setRefetchInterval(data.validityTime * 1000);
+			setIsRefreshPressed(false);
+		},
 	});
 
 	const { data: swaggerSpec, isLoading: isLoadingSwagger } = useGetSwaggerSpec(selectedEndpoint, org, {
@@ -164,7 +172,6 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 			<div className="container">
 				<div className="mx-auto flex max-w-5xl flex-col gap-4 p-4">
 					<HeaderSection title={`${env.name} Environment`} tags={headerLabels} />
-
 					{endpoints.length > 1 && (
 						<Dropdown
 							wrapClassName="max-w-xs"
@@ -177,8 +184,8 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 					)}
 					<FormElementWrap label="Invoke URL" wrapClassName="max-w-sm">
 						<div className="flex items-center gap-2">
-							<span className="line-clamp-1 break-all">{selectedEndpoint.publicUrl}</span>
-							<Button appearance="icon" onClick={() => copyUrl({ value: selectedEndpoint.publicUrl, label: "Invocation URL" })}>
+							<span className="line-clamp-1 break-all">{selectedEndpoint?.publicUrl}</span>
+							<Button appearance="icon" onClick={() => copyUrl({ value: selectedEndpoint?.publicUrl, label: "Invocation URL" })}>
 								<Codicon name="chrome-restore" className="mr-1" /> Copy
 							</Button>
 						</div>
@@ -197,13 +204,20 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, component, org, p
 							>
 								<Codicon name="chrome-restore" className="mr-1" /> Copy
 							</Button>
-							<Button appearance="icon" disabled={isFetchingTestKey} onClick={() => refetchTestKey()}>
+							<Button
+								appearance="icon"
+								disabled={isFetchingTestKey}
+								onClick={() => {
+									refetchTestKey();
+									setIsRefreshPressed(true);
+								}}
+							>
 								<Codicon name="refresh" className={classNames("mr-1", isFetchingTestKey && "animate-spin")} /> Regenerate
 							</Button>
 						</div>
 					</FormElementWrap>
 					{(isLoadingSwagger || isLoadingTestKey) && <SwaggerUISkeleton />}
-					{swaggerObj && !isLoadingTestKey && testKeyResp?.apiKey && (
+					{swaggerObj && !isLoadingTestKey && testKeyResp?.apiKey && !isRefreshPressed && (
 						<SwaggerUI
 							spec={swaggerObj}
 							requestInterceptor={requestInterceptor}

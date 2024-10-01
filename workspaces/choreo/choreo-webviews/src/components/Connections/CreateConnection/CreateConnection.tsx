@@ -80,6 +80,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 			const created = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponentConnection(req);
 
 			if (created) {
+				// TODO: replace all instance of component-config.yaml and endpoints.yaml with component.yaml
 				ChoreoWebViewAPI.getInstance().showInfoMsg(
 					`Connection ${data.name} created and component-config.yaml updated. Follow the developer guide to finish integration. Once done, commit and push your changes.`,
 				);

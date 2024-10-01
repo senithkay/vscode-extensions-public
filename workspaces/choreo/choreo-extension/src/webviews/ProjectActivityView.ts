@@ -13,6 +13,7 @@ import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { WebViewViewRPC } from "./WebviewRPC";
 import { getUri } from "./utils";
+import { getChoreoEnv } from "../choreo-rpc/cli-install";
 
 export class ProjectActivityView implements vscode.WebviewViewProvider {
 	public static readonly viewType = "choreo.activity.project";
@@ -67,6 +68,7 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 						document.getElementById("root"), 
 						${JSON.stringify({
 							type: "ComponentsListActivityView",
+							choreoEnv: getChoreoEnv(),
 							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath,
 						} as WebviewProps)}
 					);
