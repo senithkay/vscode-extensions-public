@@ -751,12 +751,8 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
     const sourceDim = getFieldDim(sourcePort.field);
     const targetDim = getFieldDim(targetPort.field);
 
-    if (sourceDim > 0) {
-        const dimDelta = sourceDim - targetDim;
-        if (dimDelta == 1) return MappingType.ArrayToSingleton;
-        if (dimDelta == 0) return MappingType.ArrayToArray;
-        // TODO: Have to discuss other cases behavior 
-    }
+    if (sourceDim > 0 && sourceDim == targetDim) return MappingType.ArrayToArray;
+    if (sourceDim == 1 && targetDim == 0) return MappingType.ArrayToSingleton;
 
     return MappingType.Undefined;
 }
