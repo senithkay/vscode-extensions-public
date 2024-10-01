@@ -110,11 +110,11 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
             name: unitTestST.name,
             assertions: unitTestST?.assertions?.assertions.map((assertion) => { return [assertion.tag, assertion?.actual?.textNode, assertion?.expected?.textNode, assertion?.message?.textNode] }),
             input: {
-                requestPath: unitTestST?.input?.requestPath?.textNode,
-                requestMethod: unitTestST?.input?.requestMethod?.textNode,
-                requestProtocol: unitTestST?.input?.requestProtocol?.textNode,
-                payload: unitTestST?.input?.payload?.textNode,
-                // properties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
+                requestPath: unitTestST?.input?.requestPath?.textNode ?? "",
+                requestMethod: unitTestST?.input?.requestMethod?.textNode ?? "GET",
+                requestProtocol: unitTestST?.input?.requestProtocol?.textNode ?? "HTTP",
+                payload: unitTestST?.input?.payload?.textNode ?? "",
+                properties: unitTestST?.input?.properties?.properties?.map((property) => { return [property.name, property.scope, property.value] }),
             },
         };
 

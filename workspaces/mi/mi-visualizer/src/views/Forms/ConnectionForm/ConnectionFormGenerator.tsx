@@ -8,17 +8,15 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, FormActions, FormGroup, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormActions, FormView, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
 import { useForm, Controller } from 'react-hook-form';
-import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
-import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
-import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
 import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
+import FormGenerator from '../Commons/FormGenerator';
 
 const cardStyle = {
     display: "block",
@@ -36,14 +34,6 @@ const ParamManagerContainer = styled.div`
     width: 100%;
 `;
 
-interface Connection {
-    name: string;
-    connectionType: string;
-    path: string;
-    connectorName: string;
-    parameters: any[];
-}
-
 export interface AddConnectionProps {
     path: string;
     allowedConnectionTypes?: string[];
@@ -55,22 +45,6 @@ export interface AddConnectionProps {
     handlePopupClose?: () => void;
 }
 
-interface Element {
-    inputType: any;
-    name: string | number;
-    displayName: any;
-    required: string;
-    helpTip: any;
-    comboValues?: any[];
-    defaultValue?: any;
-    allowedConnectionTypes?: string[];
-}
-
-interface ExpressionValueWithSetter {
-    value: ExpressionFieldValue;
-    setValue: (value: ExpressionFieldValue) => void;
-};
-
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
@@ -78,11 +52,7 @@ export function AddConnection(props: AddConnectionProps) {
     const { rpcClient } = useVisualizerContext();
 
     const [formData, setFormData] = useState(undefined);
-    const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [connections, setConnections] = useState([]);
-    const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -115,6 +85,10 @@ export function AddConnection(props: AddConnectionProps) {
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
                 setFormData(connectionFormJSON.formJSON);
+                reset({
+                    name: watch('name'),
+                    connectionType: watch('connectionType')
+                });
             }
         };
 
@@ -248,14 +222,6 @@ export function AddConnection(props: AddConnectionProps) {
 
     const onAddConnection = async (values: any) => {
 
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
-        });
-
         const template = create();
         const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
         const connectorTag = localEntryTag.ele(`${formData.connectorName ?? props.connector.name}.init`);
@@ -291,7 +257,14 @@ export function AddConnection(props: AddConnectionProps) {
                         }
                     }
                 } else {
-                    connectorTag.ele(key).txt(values[key]);
+                    const value = values[key];
+                    if (typeof value === 'string' && value.includes('<![CDATA[')) {
+                        // Handle CDATA
+                        const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
+                        connectorTag.ele(key).dat(cdataContent);
+                    } else {
+                        connectorTag.ele(key).txt(value);
+                    }
                 }
             }
         });
@@ -306,7 +279,8 @@ export function AddConnection(props: AddConnectionProps) {
         await rpcClient.getMiDiagramRpcClient().createConnection({
             connectionName: getValues("name"),
             keyValuesXML: modifiedXml,
-            directory: localEntryPath
+            directory: localEntryPath,
+            filePath: props.connectionName ? props.path : ""
         });
 
         if (props.isPopup) {
@@ -325,11 +299,12 @@ export function AddConnection(props: AddConnectionProps) {
 
         const name = getValues("name") ?? 'CONNECTION_1';
         const template = create();
-        const root = template.ele(`${getValues("name")}.init`);
 
-        root.ele('name').txt(name);
+        const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
+        const connectorTag = localEntryTag.ele(`${getValues("name")}.init`);
+
         params.paramValues.forEach(param => {
-            root.ele(param.key).txt(param.value);
+            connectorTag.ele(param.key).txt(param.value);
         })
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
@@ -342,7 +317,8 @@ export function AddConnection(props: AddConnectionProps) {
         await rpcClient.getMiDiagramRpcClient().createConnection({
             connectionName: name,
             keyValuesXML: modifiedXml,
-            directory: localEntryPath
+            directory: localEntryPath,
+            filePath: props.connectionName ? props.path : ""
         });
 
         if (props.isPopup) {
@@ -376,133 +352,9 @@ export function AddConnection(props: AddConnectionProps) {
         });
     }
 
-    const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
-
-        return expressionEditorField !== element.name ? (
-            <ExpressionField
-                {...field}
-                label={element.displayName}
-                placeholder={element.helpTip}
-                canChange={true}
-                required={element.required === 'true'}
-                errorMsg={errors[element.name] && errors[element.name].message.toString()}
-                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                    setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(String(element.name));
-                }}
-            />
-        ) : (
-            <>
-                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                    <label>{element.displayName}</label>
-                    {element.required === "true" && <RequiredFormInput />}
-                </div>
-                <ExpressionEditor
-                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                    handleOnSave={(newValue) => {
-                        if (currentExpressionValue) {
-                            currentExpressionValue.setValue(newValue);
-                        }
-                        setExpressionEditorField(null);
-                    }}
-                    handleOnCancel={() => {
-                        setExpressionEditorField(null);
-                    }}
-                />
-            </>
-        )
-    }
-
-    const renderFormElement = (element: Element, field: any) => {
-        switch (element.inputType) {
-            case 'string':
-                if (element.name === 'connectionName') {
-                    return null;
-                }
-                return (
-                    <TextField {...field}
-                        label={element.displayName}
-                        size={50}
-                        placeholder={element.helpTip}
-                        required={element.required === 'true'}
-                        errorMsg={errors[element.name] && errors[element.name].message.toString()}
-                    />
-                );
-            case 'stringOrExpression':
-            case 'stringOrExpresion':
-            case 'textOrExpression':
-            case 'textAreaOrExpression':
-            case 'integerOrExpression':
-                return ExpressionFieldComponent({ element, field });
-
-            case 'booleanOrExpression':
-            case 'comboOrExpression':
-                const items = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
-                const allowItemCreate = element.inputType === 'comboOrExpression';
-                return (
-                    <AutoComplete
-                        name={element.name as string}
-                        label={element.displayName}
-                        errorMsg={errors[element.name] && errors[element.name].message.toString()}
-                        items={items}
-                        value={field.value}
-                        onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }}
-                        required={element.required === 'true'}
-                        allowItemCreate={allowItemCreate}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
-
-    const renderForm: any = (elements: any[]) => {
-        return elements.map((element: { type: string; value: any; }) => {
-            if (element.type === 'attribute') {
-                return <Controller
-                    name={element.value.name as string}
-                    control={control}
-                    defaultValue={element.value.defaultValue}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
-                        }
-                    }
-                    render={({ field }) => (
-                        <>
-                            {renderFormElement(element.value, field)}
-                        </>
-                    )}
-                />;
-            } else if (element.type === 'attributeGroup') {
-                return (
-                    <>
-                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
-                            <>
-                                <FormGroup title={element.value.groupName} isCollapsed={false}>
-                                    {renderForm(element.value.elements)}
-                                </FormGroup>
-                            </>
-                        }
-                    </>
-                );
-            }
-            return null;
-        });
-    };
-
     const handleOnClose = () => {
         if (props.fromSidePanel) {
-            rpcClient.getMiVisualizerRpcClient().goBack();
+            handlePopupClose();
         } else if (props.changeConnector) {
             props.changeConnector();
         } else {
@@ -537,7 +389,6 @@ export function AddConnection(props: AddConnectionProps) {
                 type={props.connector.name}
                 onClick={props.changeConnector}
                 showButton={!props.connectionName}
-                title='Change connector'
                 id='Connector:'
             />}
             {formData ? (
@@ -568,25 +419,31 @@ export function AddConnection(props: AddConnectionProps) {
                             />
                         </>
                     )}
-                    {formData && formData.elements && formData.elements.length > 0 && (
-                        <>
-                            {renderForm(formData.elements)}
-                            <FormActions>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onAddConnection)}
-                                >
-                                    {props.connectionName ? "Update" : "Add"}
-                                </Button>
-                                <Button
-                                    appearance="secondary"
-                                    onClick={handleOnClose}
-                                >
-                                    Cancel
-                                </Button>
-                            </FormActions>
-                        </>
-                    )}
+                    <>
+                        <FormGenerator
+                            formData={formData}
+                            control={control}
+                            errors={errors}
+                            setValue={setValue}
+                            watch={watch}
+                            getValues={getValues}
+                            skipGeneralHeading={true}
+                            ignoreFields={["connectionName"]} />
+                        <FormActions>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(onAddConnection)}
+                            >
+                                {props.connectionName ? "Update" : "Add"}
+                            </Button>
+                            <Button
+                                appearance="secondary"
+                                onClick={handleOnClose}
+                            >
+                                Cancel
+                            </Button>
+                        </FormActions>
+                    </>
                 </>
             ) : (
                 // If no uiSchema is available, show param manager

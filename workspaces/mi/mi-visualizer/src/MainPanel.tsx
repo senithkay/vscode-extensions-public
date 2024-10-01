@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue, Platform } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
@@ -152,6 +152,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
     const fetchContext = () => {
         setIsLoading(true);
         rpcClient.getVisualizerState().then(async (machineView) => {
+            const isWindows = machineView.platform === Platform.WINDOWS;
             let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Overview:
@@ -342,7 +343,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                             path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TestSuite:
-                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);
+                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} isWindows={isWindows} />);
                     break;
                 case MACHINE_VIEW.LoggedOut:
                     setViewComponent(<SignInToCopilotMessage />);
@@ -360,7 +361,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     />);
                     break;
                 case MACHINE_VIEW.MockService:
-                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} />);
+                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} isWindows={isWindows} />);
                     break;
                 case MACHINE_VIEW.DSSServiceDesigner:
                     setViewComponent(<DSSServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);

@@ -1854,6 +1854,11 @@ export interface TestCaseInput extends STNode {
     requestMethod: STNode;
     requestProtocol: STNode;
     payload: STNode;
+    properties?: TestCaseInputProperties;
+}
+
+export interface TestCaseInputProperties extends STNode {
+    properties: Property[];
 }
 
 export interface Assertion extends STNode {

@@ -326,14 +326,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             id: 0,
             type: "TextField",
             label: "Name",
-            defaultValue: "Parameter Name",
+            placeholder: "Parameter Name",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Value",
-            defaultValue: "Parameter Value",
+            placeholder: "Parameter Value",
+            defaultValue: "",
             isRequired: true
         }]
     }
@@ -345,7 +347,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             id: 0,
             type: "AutoComplete",
             label: "Service Policy",
-            defaultValue: "value",
+            placeholder: "Policy",
+            defaultValue: "",
             isRequired: true,
             values: [],
             allowItemCreate: true}]
@@ -358,14 +361,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             id: 0,
             type: "TextField",
             label: "Location",
-            defaultValue: "Resource Location",
+            placeholder: "Resource Location",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Key",
-            defaultValue: "Resource Key",
+            placeholder: "Resource Key",
+            defaultValue: "",
             isRequired: true
         }]
     }
@@ -528,15 +533,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         const parser = new XMLParser(options);
         const builder = new XMLBuilder(options);
         const jsonData = parser.parse(getValues("wsdlInLine"));
-        if(jsonData["wsdl:definitions"]["@_"]["xmlns"] || jsonData["wsdl:definitions"]["@_"]["xmlns:wsdl"]) {
-            if (jsonData["wsdl:definitions"]["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
-                delete jsonData["wsdl:definitions"]["@_"]["xmlns"];
+        if (jsonData["wsdl:definitions"]?.["@_"]) {
+            if (jsonData["wsdl:definitions"]["@_"]["xmlns"] || jsonData["wsdl:definitions"]["@_"]["xmlns:wsdl"]) {
+                if (jsonData["wsdl:definitions"]["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
+                    delete jsonData["wsdl:definitions"]["@_"]["xmlns"];
+                }
+            }
+            else {
+                jsonData["wsdl:definitions"]["@_"]["xmlns"] = "";
             }
         }
-        else {
-             jsonData["wsdl:definitions"]["@_"]["xmlns"] = "";
-        }
-        console.log(jsonData);
         return builder.build(jsonData) as string;
     }
 

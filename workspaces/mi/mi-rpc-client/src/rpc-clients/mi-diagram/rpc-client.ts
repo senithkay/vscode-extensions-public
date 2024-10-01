@@ -330,7 +330,9 @@ import {
     addDriverToLib,
     deleteDriverFromLib,
     AddDriverToLibRequest,
-    AddDriverToLibResponse
+    AddDriverToLibResponse,
+    APIContextsResponse,
+    getAllAPIcontexts
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -756,6 +758,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     deleteArtifact(params: DeleteArtifactRequest): void {
         return this._messenger.sendNotification(deleteArtifact, HOST_EXTENSION, params);
+    }
+
+    getAllAPIcontexts(): Promise<APIContextsResponse> {
+        return this._messenger.sendRequest(getAllAPIcontexts, HOST_EXTENSION);
     }
 
     buildProject(): void {

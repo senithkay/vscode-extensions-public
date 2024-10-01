@@ -234,7 +234,8 @@ import {
     askDriverPath,
     addDriverToLib,
     deleteDriverFromLib,
-    AddDriverToLibRequest
+    AddDriverToLibRequest,
+    getAllAPIcontexts
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -345,6 +346,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
+    messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts())
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());

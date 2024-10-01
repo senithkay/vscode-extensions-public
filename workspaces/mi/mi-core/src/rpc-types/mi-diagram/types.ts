@@ -372,9 +372,19 @@ export interface CommandsResponse {
     data: string;
 }
 
-export interface getSTRequest {
+export interface GetSTFromUriRequest {
     documentUri: string;
 }
+
+export type ArtifactType = "api" | "data-services" | "data-sources" | "endpoints" | "inbound-endpoints" | "local-entries" | "message-processors" | "message-stores" | "proxy-services" | "sequences" | "tasks" | "templates";
+
+export type GetSTFromArtifactRequest = {
+    artifactType: ArtifactType;
+    artifactName: string;
+}
+
+export type getSTRequest = GetSTFromUriRequest | GetSTFromArtifactRequest;
+
 export interface getSTResponse {
     syntaxTree: any;
     defFilePath: string;
@@ -885,6 +895,7 @@ export interface CreateTaskRequest {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
+    customProperties: any[];
     sequence: CreateSequenceRequest | undefined;
 }
 
@@ -1377,7 +1388,7 @@ export interface RegistryArtifact {
 }
 export interface RangeFormatRequest {
     uri: string;
-    range: Range
+    range?: Range
 }
 
 export interface DownloadConnectorRequest {
@@ -1490,6 +1501,7 @@ export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
     directory: string;
+    filePath?: string;
 }
 
 export interface CreateConnectionResponse {
@@ -1544,6 +1556,10 @@ export interface GetAllArtifactsResponse {
 export interface DeleteArtifactRequest {
     path: string;
     enableUndo?: boolean;
+}
+
+export interface APIContextsResponse {
+    contexts: string[]
 }
 
 export interface ExportProjectRequest {

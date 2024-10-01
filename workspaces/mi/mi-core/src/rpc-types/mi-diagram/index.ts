@@ -197,7 +197,8 @@ import {
     DSSFetchTablesResponse,
     DriverPathResponse,
     AddDriverToLibRequest,
-    AddDriverToLibResponse
+    AddDriverToLibResponse,
+    APIContextsResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -305,6 +306,7 @@ export interface MiDiagramAPI {
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
+    getAllAPIcontexts: () => Promise<APIContextsResponse>;
     buildProject: () => void;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
