@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
-import { Button, Codicon, SearchBox, SidePanelBody, Switch, TextArea, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import React, { useEffect, useState } from "react";
+import { Button, Codicon, ProgressRing, SearchBox, SidePanelBody, Switch, TextArea, ThemeColors, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { CloseIcon, LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
@@ -187,22 +187,44 @@ interface NodeListProps {
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
     onClose?: () => void;
+    isFunctionSearch?: boolean;
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, showAiPanel, onSelect, onSearchTextChange, onAddConnection, onClose } = props;
+    const { categories, showAiPanel, onSelect, onSearchTextChange, onAddConnection, onClose, isFunctionSearch } = props;
 
     console.log(">>> categories", { categories });
 
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+
+    useEffect(() => {
+        if (onSearchTextChange) {
+            debouncedSearch(searchText);
+            return () => debouncedSearch.cancel();
+        }
+    }, [searchText]);
+
+    const handleSearch = (text: string) => {
+        setIsSearching(true);
+        onSearchTextChange(text);
+    }
+
+    const debouncedSearch = debounce(handleSearch, 1100);
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
-        if (onSearchTextChange) {
-            debounce(onSearchTextChange, 300)(text);
-        }
+        // if (isFunctionSearch) {
+        //     debouncedSearch(searchText);
+        //     return () => debouncedSearch.cancel();
+        // }
     };
+
+
+    useEffect(() => {
+        setIsSearching(false);
+    }, [categories]);
 
     const handleAddNode = (node: Node, category?: string) => {
         onSelect(node.id, { node: node.metadata, category });
@@ -254,6 +276,9 @@ export function NodeList(props: NodeListProps) {
                 if ((!group || group.items.length === 0) && (!isConnectionCategory && !isProjectFunctionsCategory)) {
                     return null;
                 }
+                if (searchText && group.items.length === 0) {
+                    return null;
+                }
                 return (
                     <S.CategoryRow key={group.title + index} showBorder={!isSubCategory}>
                         <S.Row>
@@ -268,8 +293,8 @@ export function NodeList(props: NodeListProps) {
                                     {(isConnectionCategory || isProjectFunctionsCategory) && (
                                         <Button
                                             appearance="icon"
-                                            sx={{background: `${ThemeColors.SURFACE}`}}
-                                            buttonSx={{background: `${ThemeColors.SURFACE}`}}
+                                            sx={{ background: `${ThemeColors.SURFACE}` }}
+                                            buttonSx={{ background: `${ThemeColors.SURFACE}` }}
                                             tooltip={isConnectionCategory ? "Add Connection" : "Create Function"}
                                             onClick={isConnectionCategory ? handleAddConnection : handleAddFunction}
                                         >
@@ -286,7 +311,7 @@ export function NodeList(props: NodeListProps) {
                                 Add Connection
                             </S.HighlightedButton>
                         )}
-                        {isProjectFunctionsCategory && group.items.length === 0 &&  (
+                        {isProjectFunctionsCategory && group.items.length === 0 && !searchText && (
                             <S.HighlightedButton onClick={handleAddFunction}>
                                 <Codicon name="add" iconSx={{ fontSize: 12 }} />
                                 Create Function
@@ -329,7 +354,7 @@ export function NodeList(props: NodeListProps) {
     };
 
     const filteredCategories = cloneDeep(categories).map((category) => {
-        if (!category || !category.items) {
+        if (!category || !category.items || isFunctionSearch) {
             return category;
         }
         category.items = filterItems(category.items);
@@ -376,7 +401,13 @@ export function NodeList(props: NodeListProps) {
                     </S.Row>
                 )}
             </S.HeaderContainer>
-            {!showGeneratePanel && <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>}
+            {isSearching && (
+                <S.PanelBody>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                        <ProgressRing />
+                    </div>
+                </S.PanelBody>)}
+            {!showGeneratePanel && !isSearching && <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>}
             {showAiPanel && showGeneratePanel && (
                 <S.PanelBody>
                     <S.AiContainer>

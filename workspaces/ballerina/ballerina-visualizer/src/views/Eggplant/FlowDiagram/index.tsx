@@ -29,6 +29,7 @@ import {
     VisualizerLocation,
     MACHINE_VIEW,
     NodeKind,
+    EggplantGetFunctionsRequest,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
@@ -187,21 +188,20 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
             });
     };
 
-    const handleSearchFunction = (searchText: string) => {
+    const handleSearchFunction = async (searchText: string) => {
         // TODO: Fix incosistency in the search and re-nable search through LS
-        // const searchQueryMap: Map<string, string> = new Map<string, string>();
-        // searchQueryMap.set("q", searchText);
-        // const request: EggplantGetFunctionsRequest = {
-        //     position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
-        //     filePath: model.fileName,
-        //     queryMap: searchText
-        // };
-        // rpcClient.getEggplantDiagramRpcClient().getFunctions(request).then((response) => {
-        //     console.log(">>> Searched List of functions", response);
-        //     setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-        //     setShowSidePanel(true);
-        //     setSidePanelView(SidePanelView.FUNCTION_LIST);
-        // });
+        const request: EggplantGetFunctionsRequest = {
+            position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
+            filePath: model.fileName,
+            queryMap: searchText.trim() ? searchText : undefined 
+        };
+        console.log(">>> Search function request", request);
+        rpcClient.getEggplantDiagramRpcClient().getFunctions(request).then((response) => {
+            console.log(">>> Searched List of functions", response);
+            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], true));
+            setSidePanelView(SidePanelView.FUNCTION_LIST);
+            setShowSidePanel(true);
+        });
     }
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
@@ -487,6 +487,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         onSelect={handleOnSelectNode}
                         onClose={handleOnCloseSidePanel}
                         onSearchTextChange={handleSearchFunction}
+                        isFunctionSearch={true}
                     />
                 )}
                 {sidePanelView === SidePanelView.FORM && (
