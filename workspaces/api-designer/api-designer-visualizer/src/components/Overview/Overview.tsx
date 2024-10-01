@@ -6,14 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Dropdown, FormGroup, SidePanelBody, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, FormGroup, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -68,48 +66,61 @@ type InputsFields = {
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition } = props;
     const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
-    const defaultValues: InputsFields = {
-        title: openAPIDefinition?.info.title,
-        version: openAPIDefinition?.info.version,
-        summary: openAPIDefinition?.info.summary,
-        description: openAPIDefinition?.info.description,
-        contactName: openAPIDefinition?.info.contact?.name,
-        contactURL: openAPIDefinition?.info.contact?.url,
-        contactEmail: openAPIDefinition?.info.contact?.email,
-        licenceName: openAPIDefinition?.info.license?.name,
-        licenceType: openAPIDefinition?.info.license?.url ? "URL" : "Identifier",
-        licenceURL: openAPIDefinition?.info.license?.url,
-        licenceIdentifier: openAPIDefinition?.info.license?.identifier,
-    };
-    const {
-        reset,
-        register,
-        formState: { errors, isDirty },
-        handleSubmit,
-        getValues,
-        setValue,
-        control,
-        watch,
-    } = useForm({
-        defaultValues: defaultValues,
-        resolver: yupResolver(schema),
-        mode: "onChange"
-    });
-
-    useEffect(() => {
-        reset(defaultValues);
-    }, [openAPIDefinition]);
 
     const handleOptionChange = (options: string[]) => {
         setSelectedOptions(options);
     };
 
-    // Watch for changes in the form and update the openAPIDefinition
-    useEffect(() => {
-        // if (isDirty) {
-        //     props.onOpenApiDefinitionChange(getValues());
-        // }
-    }, [isDirty]);
+    const handleTitleChange = (title: string) => {
+        openAPIDefinition.info.title = title;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleSummaryChange = (summary: string) => {
+        openAPIDefinition.info.summary = summary;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleDescriptionChange = (description: string) => {
+        openAPIDefinition.info.description = description;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleContactNameChange = (contactName: string) => {
+        openAPIDefinition.info.contact.name = contactName;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleContactURLChange = (contactURL: string) => {
+        openAPIDefinition.info.contact.url = contactURL;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleContactEmailChange = (contactEmail: string) => {
+        openAPIDefinition.info.contact.email = contactEmail;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleLicenceNameChange = (licenceName: string) => {
+        openAPIDefinition.info.license.name = licenceName;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleLicenceTypeChange = (licenceType: string) => {
+        if (licenceType === "URL") {
+            openAPIDefinition.info.license.url = openAPIDefinition.info.license.identifier;
+            delete openAPIDefinition.info.license.identifier;
+        } else {
+            openAPIDefinition.info.license.identifier = openAPIDefinition.info.license.url;
+            delete openAPIDefinition.info.license.url;
+        }
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleLicenceURLChange = (licenceURL: string) => {
+        openAPIDefinition.info.license.url = licenceURL;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleLicenceIdentifierChange = (licenceIdentifier: string) => {
+        openAPIDefinition.info.license.identifier = licenceIdentifier;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
+    const handleApiVersionChange = (version: string) => {
+        openAPIDefinition.info.version = version;
+        props.onOpenApiDefinitionChange(openAPIDefinition);
+    };
 
     return (
         <>
@@ -123,21 +134,25 @@ export function Overview(props: OverviewProps) {
                         label="Title"
                         id="title"
                         sx={{ width: "100%" }}
-                        {...register("title")}
+                        value={openAPIDefinition?.info.title}
+                        onTextChange={handleTitleChange}
                     />
                 </HorizontalFieldWrapper>
                 { selectedOptions.includes("Summary") && (
                     <TextField
                         label="Summary"
                         id="summary"
-                        {...register("summary")}
+                        sx={{ width: "100%" }}
+                        value={openAPIDefinition?.info.summary}
+                        onTextChange={handleSummaryChange}
                     />
                 )}
                 <TextArea
                     label="Description"
                     id="description"
                     rows={4}
-                    {...register("description")}
+                    value={openAPIDefinition?.info.description}
+                    onTextChange={handleDescriptionChange}
                 />
                 <FormGroup title="Contact" isCollapsed={false}>
                     <HorizontalFieldWrapper>
@@ -145,19 +160,22 @@ export function Overview(props: OverviewProps) {
                             placeholder="Name"
                             id="contactName"
                             sx={{ width: "33%" }}
-                            {...register("contactName")}
+                            value={openAPIDefinition?.info.contact.name}
+                            onTextChange={handleContactNameChange}
                         />
                         <TextField
                             placeholder='URL'
                             id="contactURL"
                             sx={{ width: "33%" }}
-                            {...register("contactURL")}
+                            value={openAPIDefinition?.info.contact.url}
+                            onTextChange={handleContactURLChange}
                         />
                         <TextField
                             placeholder='Email'
                             id="contactEmail"
                             sx={{ width: "33%" }}
-                            {...register("contactEmail")}
+                            value={openAPIDefinition?.info.contact.email}
+                            onTextChange={handleContactEmailChange}
                         />
                     </HorizontalFieldWrapper>
                 </FormGroup>
@@ -168,7 +186,8 @@ export function Overview(props: OverviewProps) {
                             placeholder="Name"
                             id="licenceName"
                             sx={{ width: "33%" }}
-                            {...register("licenceName")}
+                            value={openAPIDefinition?.info.license.name}
+                            onTextChange={handleLicenceNameChange}
                         />
                         <Dropdown
                             id="licenceType"
@@ -178,11 +197,12 @@ export function Overview(props: OverviewProps) {
                                 { value: "URL", content: "URL" },
                                 { value: "Identifier", content: "Identifier" }
                             ]}
-                            {...register("licenceType")}
+                            value={openAPIDefinition?.info.license.url ? "URL" : "Identifier"}
+                            onValueChange={handleLicenceTypeChange}
                         />
                         {/* If licenceType value is URL add licenceURL textField else licenceIdentifier textField */}
                         {/* Fix initial dropdown value */}
-                        {watch("licenceType") === "URL" ? (
+                        {/* {watch("licenceType") === "URL" ? (
                             <TextField
                                 placeholder='URL'
                                 id="licenceURL"
@@ -196,6 +216,23 @@ export function Overview(props: OverviewProps) {
                                 sx={{ width: "33%" }}
                                 {...register("licenceIdentifier")}
                             />
+                        )} */}
+                        {openAPIDefinition?.info.license.url ? (
+                            <TextField
+                                placeholder='URL'
+                                id="licenceURL"
+                                sx={{ width: "33%" }}
+                                value={openAPIDefinition?.info.license.url}
+                                onTextChange={handleLicenceURLChange}
+                            />
+                        ) : (
+                            <TextField
+                                placeholder='Identifier'
+                                id="licenceIdentifier"
+                                sx={{ width: "33%" }}
+                                value={openAPIDefinition?.info.license.identifier}
+                                onTextChange={handleLicenceIdentifierChange}
+                            />
                         )}
                     </HorizontalFieldWrapper>
                 </FormGroup>
@@ -203,7 +240,8 @@ export function Overview(props: OverviewProps) {
                     label="API Version"
                     id="API Version"
                     sx={{ width: "100%" }}
-                    {...register("version")}
+                    value={openAPIDefinition?.info.version}
+                    onTextChange={handleApiVersionChange}
                 />
             </PanelBody>
         </>
