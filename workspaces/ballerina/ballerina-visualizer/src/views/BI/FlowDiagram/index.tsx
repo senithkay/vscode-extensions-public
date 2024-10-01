@@ -82,8 +82,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
-    const [isChainedExpression, setIsChainedExpression] = useState(false);
-    const [triggerCompletionOnNextRequest, setTriggerCompletionOnNextRequest] = useState(false);
+    const isChainedExpression = useRef<boolean>(false);
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -127,8 +127,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // clear memory for expression editor
         setCompletions([]);
         setFilteredCompletions([]);
-        setIsChainedExpression(false);
-        setTriggerCompletionOnNextRequest(false);
+        isChainedExpression.current = false;
+        triggerCompletionOnNextRequest.current = false;
     }
 
     const handleOnCloseSidePanel = () => {
@@ -483,7 +483,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 !triggerCompletionOnNextRequest
             ) {
                 // Case 1: When a character unrelated to triggering completions is entered
-                setIsChainedExpression(false);
+                isChainedExpression.current = false;
                 setCompletions([]);
             } else if (
                 completions.length > 0 &&
@@ -505,13 +505,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             } else {
                 // Case 3: When completions need to be retrieved from the language server
                 if (triggerCharacter) {
-                    setIsChainedExpression(true);
+                    isChainedExpression.current = true;
                 } else {
                     const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
                     if (triggerRegex.test(value.slice(0, offset))) {
-                        setIsChainedExpression(true);
+                        isChainedExpression.current = true;
                     } else {
-                        setIsChainedExpression(false);
+                        isChainedExpression.current = false;
                     }
                 }
 
@@ -527,14 +527,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     },
                 });
 
-                
                 if (onlyVariables) {
                     // If only variables are requested, filter out the completions based on the kind
                     // 'kind' for variables = 6
                     completions = completions?.filter((completion) => completion.kind === 6);
-                    setTriggerCompletionOnNextRequest(true);
+                    triggerCompletionOnNextRequest.current = true;
                 } else {
-                    setTriggerCompletionOnNextRequest(false);
+                    triggerCompletionOnNextRequest.current = false;
                 }
 
                 // Convert completions to the ExpressionBar format
