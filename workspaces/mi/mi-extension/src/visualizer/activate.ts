@@ -136,8 +136,8 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
 
     StateMachine.service().onTransition((state) => {
         if (state.event.viewLocation?.view) {
-            const documentUri = state.event.viewLocation?.documentUri;
-            commands.executeCommand('setContext', 'showGoToSource', documentUri.toLowerCase().endsWith('.xml') || documentUri.toLowerCase().endsWith('.ts'));
+            const documentUri = state.event.viewLocation?.documentUri?.toLowerCase();
+            commands.executeCommand('setContext', 'showGoToSource', documentUri?.endsWith('.xml') || documentUri?.endsWith('.ts'));
         }
     });
 }
