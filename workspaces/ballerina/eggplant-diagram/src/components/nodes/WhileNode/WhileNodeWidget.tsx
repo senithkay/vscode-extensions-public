@@ -15,7 +15,6 @@ import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } 
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
-import NodeIcon from "../../NodeIcon";
 import { MoreVertIcon } from "../../../resources";
 
 export namespace NodeStyles {

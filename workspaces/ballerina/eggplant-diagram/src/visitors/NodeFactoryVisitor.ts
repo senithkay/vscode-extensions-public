@@ -18,11 +18,16 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_GAP_X, NODE_GAP_Y, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH, VSCODE_MARGIN, WHILE_NODE_WIDTH } from "../resources/constants";
+import {
+    BUTTON_NODE_HEIGHT,
+    EMPTY_NODE_WIDTH,
+    NODE_HEIGHT,
+    NODE_WIDTH,
+    VSCODE_MARGIN
+} from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
-import { words } from "lodash";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];

@@ -7,21 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /** @jsxImportSource @emotion/react */
-import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { css, keyframes } from "@emotion/react";
-import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { CodeBlockNodeModel } from "./CodeBlockNodeModel";
-import {
-    Colors,
-    EMPTY_NODE_WIDTH,
-    NODE_BORDER_WIDTH,
-    NODE_PADDING,
-    POPUP_BOX_HEIGHT,
-    POPUP_BOX_WIDTH,
-} from "../../../resources/constants";
-import { useDiagramContext } from "../../DiagramContext";
-import AddCommentPopup from "../../AddCommentPopup";
+import { Colors } from "../../../resources/constants";
 
 namespace S {
     export type DottedBoxStyleProp = {
