@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { WebviewView, WebviewPanel, window } from 'vscode';
+import { WebviewView, WebviewPanel, window, env } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, sendAIStateEvent, AI_EVENT_TYPE, aiStateChanged, themeChanged, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged, webviewReady } from '@wso2-enterprise/mi-core';
+import { stateChanged, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, sendAIStateEvent, AI_EVENT_TYPE, aiStateChanged, themeChanged, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged, webviewReady, Platform } from '@wso2-enterprise/mi-core';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 import { VisualizerWebview } from './visualizer/webview';
 import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
@@ -21,6 +21,8 @@ import { extension } from './MIExtensionContext';
 import { registerMiDebuggerRpcHandlers } from './rpc-managers/mi-debugger/rpc-handler';
 import { StateMachinePopup } from './stateMachinePopup';
 import path = require('path');
+const os = require('os')
+const platform = getPlatform();
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -77,6 +79,7 @@ async function getContext(): Promise<VisualizerLocation> {
             view: context.view,
             identifier: context.identifier,
             projectUri: context.projectUri,
+            platform,
             pathSeparator: path.sep,
             projectOpened: context.projectOpened,
             customProps: context.customProps,
@@ -91,7 +94,7 @@ async function getContext(): Promise<VisualizerLocation> {
 async function getAIContext(): Promise<AIVisualizerLocation> {
     const context = StateMachineAI.context();
     return new Promise((resolve) => {
-        resolve({ view: context.view, initialPrompt: extension.initialPrompt, state: StateMachineAI.state(), userTokens: context.userTokens});
+        resolve({ view: context.view, initialPrompt: extension.initialPrompt, state: StateMachineAI.state(), userTokens: context.userTokens });
     });
 }
 
@@ -109,4 +112,16 @@ async function getFormContext(): Promise<PopupVisualizerLocation> {
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     return webview.viewType === VisualizerWebview.viewType;
+}
+
+function getPlatform() {
+    if (os.platform() === 'linux' || env.remoteName === 'wsl') {
+        return Platform.LINUX;
+    }
+    if (os.platform()?.startsWith('win')) {
+        return Platform.WINDOWS;
+    }
+    if (os.platform() === 'darwin') {
+        return Platform.MAC;
+    }
 }

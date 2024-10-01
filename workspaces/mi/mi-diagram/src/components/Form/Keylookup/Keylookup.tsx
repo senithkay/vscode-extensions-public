@@ -17,7 +17,7 @@ import { Colors } from "../../../resources/constants";
 import fsPath from "path";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { getValue, isExpressionFieldValue } from "./utils";
-import { ResourceType, MultipleResourceType } from "@wso2-enterprise/mi-core";
+import { ResourceType, MultipleResourceType, Platform } from "@wso2-enterprise/mi-core";
 
 export type FilterType =
     | "sequence"
@@ -199,9 +199,8 @@ export const Keylookup = (props: IKeylookup) => {
             if (result?.mockServices) {
                 const machineView = await rpcClient.getVisualizerState();
                 const projectUri = machineView.projectUri;
-                const isWindows = navigator.platform.toLowerCase().includes("win");
                 const mockServicesDirs = [projectUri, "src", "test", "resources", "mock-services"];
-                const mockServicesRoot = isWindows ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
+                const mockServicesRoot = machineView.platform === Platform.WINDOWS ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
 
                 result.mockServices.forEach((mockService) => {
                     const fileName = mockService.path.split(mockServicesRoot)[1];
