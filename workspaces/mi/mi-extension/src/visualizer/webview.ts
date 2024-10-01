@@ -21,6 +21,7 @@ import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
 import { DMProject } from '../datamapper/DMProject';
+import { deleteSwagger, generateSwagger } from '../util/swagger';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -56,6 +57,17 @@ export class VisualizerWebview {
             }
         }, extension.context);
 
+        vscode.workspace.onDidDeleteFiles(async function (event) {
+            const projectRoot = StateMachine.context().projectUri!;
+            const apiDir = path.join(projectRoot, 'src', 'main', "wso2mi", "artifacts", "apis");
+            event.files.forEach(file => {
+                const filePath = file?.fsPath;
+                if (filePath?.includes(apiDir)) {
+                    deleteSwagger(filePath);
+                }
+            });
+        }, extension.context);
+
         vscode.workspace.onDidSaveTextDocument(async function (document) {
             const projectUri = StateMachine.context().projectUri!;
             if (SWAGGER_LANG_ID === document.languageId) {
@@ -66,12 +78,19 @@ export class VisualizerWebview {
                 }
             } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
                 return;
-            } 
+            }
             RPCLayer._messenger.sendNotification(
                 onDocumentSave,
                 { type: 'webview', webviewType: VisualizerWebview.viewType },
                 { uri: document.uri.toString() }
             );
+
+            // Generate Swagger file for API files
+            const apiDir = path.join(projectUri!, 'src', 'main', "wso2mi", "artifacts", "apis");
+            if (document?.uri.fsPath.includes(apiDir)) {
+                generateSwagger(document.uri.fsPath);
+            }
+
             refreshDiagram();
         }, extension.context);
 
@@ -79,9 +98,9 @@ export class VisualizerWebview {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
             vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
 
-            if(this._panel?.active && StateMachine.context().view === MACHINE_VIEW.DataMapperView) {
+            if (this._panel?.active && StateMachine.context().view === MACHINE_VIEW.DataMapperView) {
                 refreshDiagram();
-            } 
+            }
         });
     }
 
