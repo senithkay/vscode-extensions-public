@@ -44,6 +44,7 @@ import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 import { View } from "../../../components/DataMapper/Views/DataMapperView";
 import { DataMapperLinkModel } from "../Link";
+import { getDMTypeDim } from "./type-utils";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -748,13 +749,13 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
         return MappingType.Undefined;
     }
 
-    const sourceDim = getFieldDim(sourcePort.field);
-    const targetDim = getFieldDim(targetPort.field);
+    const sourceDim = getDMTypeDim(sourcePort.field);
+    const targetDim = getDMTypeDim(targetPort.field);
 
     if (sourceDim > 0) {
         const dimDelta = sourceDim - targetDim;
-        if (dimDelta == 1) return MappingType.ArrayToSingleton;
         if (dimDelta == 0) return MappingType.ArrayToArray;
+        if (dimDelta > 0) return MappingType.ArrayToSingleton;
     }
 
     return MappingType.Undefined;
@@ -789,14 +790,19 @@ export function genElementAccessRepr(initializer: Expression): string {
     return `[${accessors.join(",")}]`;
 }
 
-function getFieldDim(field: DMType) {
-    let dim = 0;
-    while (field?.kind == TypeKind.Array) {
-        dim++;
-        field = field.memberType;
+export function genElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
+    if (sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel) {
+        let suffix = '';
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+        const dimDelta = sourceDim - targetDim;
+        for (let i = 0; i < dimDelta; i++) {
+            suffix += '[0]';
+        }
+        return suffix;
     }
-    return dim;
-}
+    return '';
+};
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();
