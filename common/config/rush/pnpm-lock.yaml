@@ -636,7 +636,7 @@ importers:
       '@wso2-enterprise/ballerina-statement-editor': workspace:*
       '@wso2-enterprise/component-diagram': workspace:*
       '@wso2-enterprise/data-mapper-view': workspace:*
-      '@wso2-enterprise/eggplant-diagram': workspace:*
+      '@wso2-enterprise/bi-diagram': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
       '@wso2-enterprise/persist-layer-diagram': workspace:*
       '@wso2-enterprise/record-creator': workspace:*
@@ -684,7 +684,7 @@ importers:
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/component-diagram': link:../component-diagram
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
-      '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
+      '@wso2-enterprise/bi-diagram': link:../bi-diagram
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/persist-layer-diagram': link:../persist-layer-diagram
       '@wso2-enterprise/record-creator': link:../record-creator
@@ -969,7 +969,7 @@ importers:
       webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
 
-  ../../workspaces/ballerina/eggplant-diagram:
+  ../../workspaces/ballerina/bi-diagram:
     specifiers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
@@ -1837,7 +1837,7 @@ importers:
       react-error-boundary: 4.0.13
       typescript: 4.9.5
 
-  ../../workspaces/eggplant/eggplant-extension:
+  ../../workspaces/bi/bi-extension:
     specifiers:
       '@types/mocha': ^10.0.3
       '@types/node': 18.x

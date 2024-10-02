@@ -19,7 +19,7 @@
 //     SwitchCaseBlock,
 //     SwitchNodeProperties,
 //     TransformNodeProperties,
-// } from "../../interfaces/eggplant";
+// } from "../../interfaces/bi";
 // import { getNodeMetadata } from "./metadata-utils";
 // import { getComponentSource } from "./template-utils";
 

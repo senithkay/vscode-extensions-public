@@ -887,9 +887,9 @@ importers:
       '@wso2-enterprise/data-mapper-view':
         specifier: workspace:*
         version: link:../data-mapper-view
-      '@wso2-enterprise/eggplant-diagram':
+      '@wso2-enterprise/bi-diagram':
         specifier: workspace:*
-        version: link:../eggplant-diagram
+        version: link:../bi-diagram
       '@wso2-enterprise/overview-view':
         specifier: workspace:*
         version: link:../overview-view
@@ -1283,7 +1283,7 @@ importers:
         specifier: ^4.11.1
         version: 4.15.2(webpack-cli@4.10.0)(webpack@5.93.0)
 
-  workspaces/ballerina/eggplant-diagram:
+  workspaces/ballerina/bi-diagram:
     dependencies:
       '@emotion/react':
         specifier: ^11.9.3
@@ -2757,7 +2757,7 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  workspaces/eggplant/eggplant-extension:
+  workspaces/bi/bi-extension:
     dependencies:
       '@wso2-enterprise/ballerina-core':
         specifier: workspace:*

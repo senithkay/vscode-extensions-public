@@ -33,7 +33,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            StateMachine.context().isEggplant ? "Eggplant Copilot" : "Ballerina Copilot",
+            StateMachine.context().isBI ? "BI Copilot" : "Ballerina Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,

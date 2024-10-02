@@ -75,27 +75,27 @@ import {
     PartialST,
     BallerinaServerCapability,
     ExtendedLangClientInterface,
-    EggplantAvailableNodesRequest,
-    EggplantAvailableNodesResponse,
-    EggplantNodeTemplateRequest,
-    EggplantNodeTemplateResponse,
-    EggplantFlowModelRequest,
-    EggplantFlowModelResponse,
-    EggplantSourceCodeRequest,
-    EggplantSourceCodeResponse,
-    EggplantConnectorsRequest,
-    EggplantConnectorsResponse,
+    BIAvailableNodesRequest,
+    BIAvailableNodesResponse,
+    BINodeTemplateRequest,
+    BINodeTemplateResponse,
+    BIFlowModelRequest,
+    BIFlowModelResponse,
+    BISourceCodeRequest,
+    BISourceCodeResponse,
+    BIConnectorsRequest,
+    BIConnectorsResponse,
     ConnectorRequest,
     ConnectorResponse,
-    EggplantSuggestedFlowModelRequest,
-    EggplantCopilotContextRequest,
-    EggplantCopilotContextResponse,
+    BISuggestedFlowModelRequest,
+    BICopilotContextRequest,
+    BICopilotContextResponse,
     SequenceModelRequest,
     SequenceModelResponse,
     ServiceFromOASRequest,
     ServiceFromOASResponse,
-    EggplantGetFunctionsRequest,
-    EggplantGetFunctionsResponse,
+    BIGetFunctionsRequest,
+    BIGetFunctionsResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -151,16 +151,16 @@ enum EXTENDED_APIS {
     PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels',
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
     SEQUENCE_DIAGRAM_MODEL = 'sequenceModelGeneratorService/getSequenceDiagramModel',
-    EGGPLANT_FLOW_MODEL = 'flowDesignService/getFlowModel',
-    EGGPLANT_SUGGESTED_FLOW_MODEL = 'flowDesignService/getSuggestedFlowModel',
-    EGGPLANT_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
-    EGGPLANT_SOURCE_CODE = 'flowDesignService/getSourceCode',
-    EGGPLANT_DELETE_NODE = 'flowDesignService/deleteFlowNode',
-    EGGPLANT_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
-    EGGPLANT_GET_FUNCTIONS = 'flowDesignService/getFunctions',
-    EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
-    EGGPLANT_CONNECTOR = 'flowDesignService/getConnectors',
-    EGGPLANT_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract'
+    BI_FLOW_MODEL = 'flowDesignService/getFlowModel',
+    BI_SUGGESTED_FLOW_MODEL = 'flowDesignService/getSuggestedFlowModel',
+    BI_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
+    BI_SOURCE_CODE = 'flowDesignService/getSourceCode',
+    BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
+    BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
+    BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
+    BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
+    BI_CONNECTOR = 'flowDesignService/getConnectors',
+    BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -539,46 +539,46 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     // <------------ EXTENDED APIS END --------------->
 
-    // <------------ EGGPLANT APIS START --------------->
+    // <------------ BI APIS START --------------->
 
-    async getFlowModel(params: EggplantFlowModelRequest): Promise<EggplantFlowModelResponse> {
-        return this.sendRequest<EggplantFlowModelResponse>(EXTENDED_APIS.EGGPLANT_FLOW_MODEL, params);
+    async getFlowModel(params: BIFlowModelRequest): Promise<BIFlowModelResponse> {
+        return this.sendRequest<BIFlowModelResponse>(EXTENDED_APIS.BI_FLOW_MODEL, params);
     }
 
-    async getSourceCode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
-        return this.sendRequest<EggplantSourceCodeResponse>(EXTENDED_APIS.EGGPLANT_SOURCE_CODE, params);
+    async getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_SOURCE_CODE, params);
     }
 
-    async getAvailableNodes(params: EggplantAvailableNodesRequest): Promise<EggplantAvailableNodesResponse> {
-        return this.sendRequest<EggplantAvailableNodesResponse>(EXTENDED_APIS.EGGPLANT_AVAILABLE_NODES, params);
+    async getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
+        return this.sendRequest<BIAvailableNodesResponse>(EXTENDED_APIS.BI_AVAILABLE_NODES, params);
     }
 
-    async getFunctions(params: EggplantGetFunctionsRequest): Promise<EggplantGetFunctionsResponse> {
-        return this.sendRequest<EggplantGetFunctionsResponse>(EXTENDED_APIS.EGGPLANT_GET_FUNCTIONS, params);
+    async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
+        return this.sendRequest<BIGetFunctionsResponse>(EXTENDED_APIS.BI_GET_FUNCTIONS, params);
     }
 
-    async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
-        return this.sendRequest<EggplantNodeTemplateResponse>(EXTENDED_APIS.EGGPLANT_NODE_TEMPLATE, params);
+    async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
+        return this.sendRequest<BINodeTemplateResponse>(EXTENDED_APIS.BI_NODE_TEMPLATE, params);
     }
 
-    async getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
-        return this.sendRequest<EggplantConnectorsResponse>(EXTENDED_APIS.EGGPLANT_CONNECTOR, params);
+    async getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
+        return this.sendRequest<BIConnectorsResponse>(EXTENDED_APIS.BI_CONNECTOR, params);
     }
 
     async generateServiceFromOAS(params: ServiceFromOASRequest): Promise<ServiceFromOASResponse> {
-        return this.sendRequest<ServiceFromOASResponse>(EXTENDED_APIS.EGGPLANT_GEN_OPEN_API, params);
+        return this.sendRequest<ServiceFromOASResponse>(EXTENDED_APIS.BI_GEN_OPEN_API, params);
     }
 
-    async getSuggestedFlowModel(params: EggplantSuggestedFlowModelRequest): Promise<EggplantFlowModelResponse> {
-        return this.sendRequest<EggplantFlowModelResponse>(EXTENDED_APIS.EGGPLANT_SUGGESTED_FLOW_MODEL, params);
+    async getSuggestedFlowModel(params: BISuggestedFlowModelRequest): Promise<BIFlowModelResponse> {
+        return this.sendRequest<BIFlowModelResponse>(EXTENDED_APIS.BI_SUGGESTED_FLOW_MODEL, params);
     }
 
-    async getCopilotContext(params: EggplantCopilotContextRequest): Promise<EggplantCopilotContextResponse> {
-        return this.sendRequest<EggplantCopilotContextResponse>(EXTENDED_APIS.EGGPLANT_COPILOT_CONTEXT, params);
+    async getCopilotContext(params: BICopilotContextRequest): Promise<BICopilotContextResponse> {
+        return this.sendRequest<BICopilotContextResponse>(EXTENDED_APIS.BI_COPILOT_CONTEXT, params);
     }
 
-    async deleteFlowNode(params: EggplantSourceCodeRequest): Promise<EggplantSourceCodeResponse> {
-        return this.sendRequest<EggplantSourceCodeResponse>(EXTENDED_APIS.EGGPLANT_DELETE_NODE, params);
+    async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_NODE, params);
     }
 
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
@@ -586,7 +586,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
     }
 
-    // <------------ EGGPLANT APIS END --------------->
+    // <------------ BI APIS END --------------->
 
 
     // <------------ OTHER UTILS START --------------->
