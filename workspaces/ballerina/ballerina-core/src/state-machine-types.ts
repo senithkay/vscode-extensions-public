@@ -45,11 +45,11 @@ export enum MACHINE_VIEW {
     ERDiagram = "ER Diagram",
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
-    EggplantDiagram = "Eggplant Diagram",
-    EggplantWelcome = "Eggplant Welcome",
-    EggplantProjectForm = "Eggplant Project Form",
-    EggplantComponentView = "Eggplant Component View",
-    EggplantServiceForm = "Eggplant Service Form",
+    BIDiagram = "BI Diagram",
+    BIWelcome = "BI Welcome",
+    BIProjectForm = "BI Project Form",
+    BIComponentView = "BI Component View",
+    BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
 }
 
@@ -71,7 +71,7 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: NodePosition;
     syntaxTree?: STNode;
-    isEggplant?: boolean;
+    isBI?: boolean;
     recordFilePath?: string;
     haveServiceType?: boolean;
 }

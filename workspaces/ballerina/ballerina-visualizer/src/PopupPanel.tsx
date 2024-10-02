@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
+import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { Colors } from "./resources/constants";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
