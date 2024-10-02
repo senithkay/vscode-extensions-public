@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import { Button, Codicon, SearchBox, SidePanelBody, Switch, TextArea, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { CloseIcon, LogIcon } from "../../resources";
+import { BackIcon, CloseIcon, LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
 import { Category, Item, Node } from "./types";
 import { cloneDeep, debounce } from "lodash";
@@ -59,6 +59,10 @@ namespace S {
         margin-top: 4px;
         margin-bottom: 4px;
         width: 100%;
+    `;
+
+    export const LeftAlignRow = styled(Row)`
+        justify-content: flex-start;
     `;
 
     export const Grid = styled.div<{ columns: number }>`
@@ -137,6 +141,12 @@ namespace S {
         border-top: 1px solid ${Colors.OUTLINE_VARIANT};
     `;
 
+    export const BackButton = styled(Button)`
+        /* position: absolute;
+        right: 10px; */
+        border-radius: 5px;
+    `;
+
     export const CloseButton = styled(Button)`
         position: absolute;
         right: 10px;
@@ -183,14 +193,16 @@ namespace S {
 interface NodeListProps {
     categories: Category[];
     showAiPanel?: boolean;
+    title?: string;
     onSelect: (id: string, metadata?: any) => void;
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
+    onBack?: () => void;
     onClose?: () => void;
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, showAiPanel, onSelect, onSearchTextChange, onAddConnection, onClose } = props;
+    const { categories, showAiPanel, title, onSelect, onSearchTextChange, onAddConnection, onBack, onClose } = props;
 
     console.log(">>> categories", { categories });
 
@@ -215,18 +227,17 @@ export function NodeList(props: NodeListProps) {
     };
 
     // TODO: Add the logic to handle adding a function
-    const handleAddFunction = () => {
-    }
+    const handleAddFunction = () => {};
 
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
             {nodes.map((node, index) => (
-                <Tooltip content={node.description} key={node.id + index + "tooltip"}>
+                // <Tooltip content={node.description} key={node.id + index + "tooltip"}>
                     <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
                         <S.ComponentTitle>{node.label}</S.ComponentTitle>
                     </S.Component>
-                </Tooltip>
+                // </Tooltip>
             ))}
         </S.Grid>
     );
@@ -251,7 +262,7 @@ export function NodeList(props: NodeListProps) {
             {groups.map((group, index) => {
                 const isConnectionCategory = group.title === "Connections";
                 const isProjectFunctionsCategory = group.title === "Project";
-                if ((!group || group.items.length === 0) && (!isConnectionCategory && !isProjectFunctionsCategory)) {
+                if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
                     return null;
                 }
                 return (
@@ -279,7 +290,7 @@ export function NodeList(props: NodeListProps) {
                         )}
                         {group.items.length > 0 && "id" in group.items.at(0)
                             ? getNodesContainer(group.items as Node[])
-                            : (isConnectionCategory || isProjectFunctionsCategory)
+                            : isConnectionCategory || isProjectFunctionsCategory
                             ? getConnectionContainer(group.items as Category[])
                             : getCategoryContainer(group.items as Category[], true)}
                     </S.CategoryRow>
@@ -342,6 +353,14 @@ export function NodeList(props: NodeListProps) {
                             }}
                             disabled={false}
                         />
+                    )}
+                    {onBack && title && (
+                        <S.LeftAlignRow>
+                            <S.BackButton appearance="icon" onClick={onBack}>
+                                <BackIcon />
+                            </S.BackButton>
+                            {title}
+                        </S.LeftAlignRow>
                     )}
                     {onClose && (
                         <S.CloseButton appearance="icon" onClick={onClose}>

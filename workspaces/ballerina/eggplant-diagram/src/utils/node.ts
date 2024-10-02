@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FlowNode } from "./types";
+import { Branch, FlowNode } from "./types";
 
 export function getNodeIdFromModel(node: FlowNode, prefix?: string) {
     if (!node) {
@@ -17,4 +17,8 @@ export function getNodeIdFromModel(node: FlowNode, prefix?: string) {
         return `${prefix}-${node.id}`;
     }
     return node.id;
+}
+
+export function getBranchLabel(branch: Branch): string {
+    return branch.properties?.condition?.value?.toString().trim() || branch.label;
 }

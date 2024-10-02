@@ -29,6 +29,8 @@ namespace S {
         justify-content: flex-start;
         align-items: center;
         gap: 8px;
+        font-size: 14px;
+        font-family: GilmerBold;
     `;
 
     export const StyledButton = styled(Button)`
