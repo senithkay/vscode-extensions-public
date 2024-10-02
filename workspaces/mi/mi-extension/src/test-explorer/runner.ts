@@ -253,7 +253,7 @@ function printToOutput(runner: TestRun, line: string, isError: boolean = false) 
 async function runTests(testNames: string, projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
-        const testRunCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
+        const testRunCmd = `${mvnCmd} compile && ${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
 
         let finished = false;
         const onData = (data: string) => {

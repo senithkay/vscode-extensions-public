@@ -1435,7 +1435,8 @@ ${endpointAttributes}
                 prop.value !== '' && prop.value !== undefined && prop.value !== false);
             const mustacheParams = {
                 ...templateParams,
-                taskProperties: tempParams
+                taskProperties: tempParams,
+                customProperties: params.customProperties
             };
             const xmlData = getTaskXmlWrapper(mustacheParams);
 
@@ -2416,13 +2417,23 @@ ${endpointAttributes}
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             // if vscode format on save is enable do not do range format 
-            if (workspace.getConfiguration('editor').get('formatOnSave')) {
+            const editorConfig = workspace.getConfiguration('editor');
+            if (editorConfig.get('formatOnSave')) {
                 resolve({ status: true });
                 return;
             }
+            let formattingOptions = {
+                tabSize: editorConfig.get("tabSize") ?? 4,
+                insertSpaces: editorConfig.get("insertSpaces") ?? false,
+                trimTrailingWhitespace: editorConfig.get("trimTrailingWhitespace") ?? false
+            };
             const uri = Uri.file(req.uri);
-            const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
-                { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
+            let edits: TextEdit[];
+            if (req.range) {
+                edits = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range, formattingOptions);
+            } else {
+                edits = await commands.executeCommand("vscode.executeFormatDocumentProvider", uri, formattingOptions);
+            }
             const workspaceEdit = new WorkspaceEdit();
             workspaceEdit.set(uri, edits);
             await workspace.applyEdit(workspaceEdit);
@@ -2955,7 +2966,14 @@ ${endpointAttributes}
 
                 //write the content to a file, if file exists, overwrite else create new file
                 var fullPath = '';
-                if (fileType === 'unit-test') {
+                if (fileType === 'apis') {
+                    const version = content[i].match(/<api [^>]*version="([^"]+)"/);
+                    if (version) {
+                        fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}_v${version[1]}.xml`);
+                    } else {
+                        fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                    }
+                } else if (fileType === 'unit-test') {
                     fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
                 } else {
                     fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
@@ -3765,7 +3783,7 @@ ${endpointAttributes}
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 ${keyValuesXML}`;
 
-            const filePath = path.join(localEntryPath, `${connectionName}.xml`);
+            const filePath = params?.filePath?.length ? params.filePath : path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
                 fs.mkdirSync(localEntryPath);
             }
@@ -4247,8 +4265,9 @@ ${keyValuesXML}`;
                 if (!name) {
                     throw new Error('Name is required');
                 }
-                const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'test', "wso2mi");
+                const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(artifact)) || workspace.workspaceFolders?.[0];
+                const projectRoot = workspaceFolder?.uri.fsPath;
+                const testDir = path.join(projectRoot!, 'src', 'test', "wso2mi");
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {
