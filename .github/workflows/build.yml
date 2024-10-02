@@ -162,7 +162,7 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ env.RUN_BALLERINA_UI_TESTS == 'true' && (inputs.ballerina == 'true' && needs.Build_Stage.outputs.runBalExtTests == 'true') || github.base_ref == 'release-ballerina' }}
+    if: ${{ (inputs.ballerina == 'true' && needs.Build_Stage.outputs.runBalExtTests == 'true') || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -207,7 +207,7 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
+    if: ${{ env.RUN_BALLERINA_UI_TESTS == 'true' && !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
