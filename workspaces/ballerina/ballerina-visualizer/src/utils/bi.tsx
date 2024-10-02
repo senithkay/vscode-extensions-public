@@ -62,18 +62,19 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
 
 export function convertBICategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
     const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
-    if (!panelCategories.find((category) => category.title === "Connections")) {
-        panelCategories.push({
-            title: "Connections",
-            description: "The connections used in the flow",
-            items: [],
-        });
+    const connectorCategory = panelCategories.find((category) => category.title === "Connections");
+    if (connectorCategory && !connectorCategory.items.length) {
+        connectorCategory.description = "No connections available. Click below to add a new connector.";
     }
     return panelCategories;
 }
 
 export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
     const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+    const functionCategory = panelCategories.find((category) => category.title === "Project")
+    if (functionCategory && !functionCategory.items.length) {
+        functionCategory.description = "No functions defined. Click below to create a new function.";
+    }
     return panelCategories;
 }
 

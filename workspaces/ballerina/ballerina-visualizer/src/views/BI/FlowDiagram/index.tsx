@@ -24,6 +24,7 @@ import {
     VisualizerLocation,
     MACHINE_VIEW,
     NodeKind,
+    BIGetFunctionsRequest,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
@@ -182,43 +183,47 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
-    const handleSearchFunction = (searchText: string) => {
-        // TODO: Fix incosistency in the search and re-nable search through LS
-        // const searchQueryMap: Map<string, string> = new Map<string, string>();
-        // searchQueryMap.set("q", searchText);
-        // const request: BIGetFunctionsRequest = {
-        //     position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
-        //     filePath: model.fileName,
-        //     queryMap: searchText
-        // };
-        // rpcClient.getBIDiagramRpcClient().getFunctions(request).then((response) => {
-        //     console.log(">>> Searched List of functions", response);
-        //     setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-        //     setShowSidePanel(true);
-        //     setSidePanelView(SidePanelView.FUNCTION_LIST);
-        // });
-    };
+    const handleSearchFunction = async (searchText: string) => {
+        const request: BIGetFunctionsRequest = {
+            position: {
+                startLine: targetRef.current.startLine,
+                endLine: targetRef.current.endLine
+            },
+            filePath: model.fileName,
+            queryMap: searchText.trim() ?
+                {
+                    q: searchText,
+                    limit: 12,
+                    offset: 0
+                } :
+                undefined
+        };
+        console.log(">>> Search function request", request);
+        rpcClient.getBIDiagramRpcClient().getFunctions(request).then((response) => {
+            console.log(">>> Searched List of functions", response);
+            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+            setSidePanelView(SidePanelView.FUNCTION_LIST);
+            setShowSidePanel(true);
+        });
+    }
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         // node is function
         const nodeType: NodeKind = node.codedata.node;
         if (nodeType === "FUNCTION") {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getFunctions({
-                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                    filePath: model.fileName,
-                    queryMap: undefined,
-                })
-                .then((response) => {
-                    console.log(">>> List of functions", response);
-                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-                    setSidePanelView(SidePanelView.FUNCTION_LIST);
-                    setShowSidePanel(true);
-                });
+            rpcClient.getBIDiagramRpcClient().getFunctions({
+                position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                filePath: model.fileName,
+                queryMap: undefined,
+            }).then((response) => {
+                console.log(">>> List of functions", response);
+                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setSidePanelView(SidePanelView.FUNCTION_LIST);
+                setShowSidePanel(true);
+            });
         } else {
-            // default node
+            // default node 
             console.log(">>> on select panel node", { nodeId, metadata });
             selectedClientName.current = category;
             rpcClient

@@ -477,16 +477,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
         console.log(">>> requesting bi function list from ls", params);
-        let queryMap = {};
-        if (params?.queryMap) {
-            queryMap = {
-                q: params?.queryMap?.toString(),
-                limit: "10",
-                offset: "0"
-            };
-        }
-
-        params.queryMap = queryMap;
+        params.queryMap = params?.queryMap || {};
 
         return new Promise((resolve) => {
             StateMachine.langClient()

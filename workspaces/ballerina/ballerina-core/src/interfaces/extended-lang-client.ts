@@ -466,10 +466,16 @@ export type BINodeTemplateResponse = {
     flowNode: FlowNode;
 };
 
+export type SearchQueryParams = {
+    q?: string;
+    limit?: number;
+    offset?: number;
+}
+
 export type BIGetFunctionsRequest = {
     position: LineRange;
     filePath: string;
-    queryMap: any;
+    queryMap: SearchQueryParams;
 }
 
 export type BIGetFunctionsResponse = {
