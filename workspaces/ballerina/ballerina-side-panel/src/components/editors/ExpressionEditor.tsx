@@ -57,8 +57,9 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         onCancel,
     } = expressionEditor;
     const exprRef = useRef<ExpressionBarRef>(null);
-    const cursorPositionRef = useRef<number>(0);
+    const cursorPositionRef = useRef<number | undefined>(undefined);
 
+    // Use to disable the expression editor on save and completion selection
     const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
         return useMutation({
             mutationFn: fn,
@@ -66,14 +67,30 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         });
     };
 
-    const handleFocus = async (value: string) => {
+    const handleFocus = async (value?: string) => {
+        // Retrieve the cursor position from the expression editor
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+
+        // Trigger actions on focus
         await onFocus?.();
         await onRetrieveCompletions(value, cursorPosition, undefined, true);
     };
 
     const handleBlur = async () => {
+        // Trigger actions on blur
         await onBlur?.();
+
+        // Clean up memory
+        cursorPositionRef.current = undefined;
+    };
+
+    const handleCompletionSelect = async (value: string) => {
+        // Trigger actions on completion select
+        await onCompletionSelect?.(value);
+
+        // Set cursor position
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
     };
 
     return (
@@ -108,7 +125,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                                 await onRetrieveCompletions(value, updatedCursorPosition);
                             }
                         }}
-                        onCompletionSelect={onCompletionSelect}
+                        onCompletionSelect={handleCompletionSelect}
                         onFocus={() => handleFocus(value)}
                         onBlur={handleBlur}
                         onSave={onSave}
