@@ -291,6 +291,11 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 console.log(">>> ai suggestion", { response: data });
                 resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
             } else {
+                const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
+                if(!enableAiSuggestions) {
+                    resolve(undefined);
+                    return;
+                }
                 // check multi line AI completion setting
                 const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
                 console.log(">>> multi line AI completion setting", multiLineCompletion);

@@ -235,12 +235,12 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                                     {model.node.properties.variable.value}
                                 </NodeStyles.Pill>
                             )}
-                            {model.node.properties.type?.value && (
+                            {/* {model.node.properties.type?.value && (
                                 <NodeStyles.Pill color={Colors.GREEN}>
                                     <TIcon />
                                     {model.node.properties.type.value}
                                 </NodeStyles.Pill>
-                            )}
+                            )} */}
                         </NodeStyles.Footer>
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>

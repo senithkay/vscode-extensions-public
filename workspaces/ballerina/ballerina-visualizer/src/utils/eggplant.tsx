@@ -88,22 +88,32 @@ export function convertNodePropertiesToFormFields(
         if (nodeProperties.hasOwnProperty(key)) {
             const expression = nodeProperties[key as NodePropertyKey];
             if (expression) {
-                const formField: FormField = {
-                    key,
-                    label: expression.metadata?.label || "",
-                    type: expression.valueType,
-                    optional: expression.optional,
-                    editable: isFieldEditable(expression, connections, clientName),
-                    documentation: expression.metadata?.description || "",
-                    value: getFormFieldValue(expression, clientName),
-                    items: getFormFieldItems(expression, connections),
-                };
+                const formField: FormField = convertNodePropertyToFormField(key, expression, connections, clientName);
                 formFields.push(formField);
             }
         }
     }
 
     return formFields;
+}
+
+export function convertNodePropertyToFormField(
+    key: string,
+    property: Property,
+    connections?: FlowNode[],
+    clientName?: string
+): FormField {
+    const formField: FormField = {
+        key,
+        label: property.metadata?.label || "",
+        type: property.valueType,
+        optional: property.optional,
+        editable: isFieldEditable(property, connections, clientName),
+        documentation: property.metadata?.description || "",
+        value: getFormFieldValue(property, clientName),
+        items: getFormFieldItems(property, connections),
+    };
+    return formField;
 }
 
 function isFieldEditable(expression: Property, connections?: FlowNode[], clientName?: string) {
@@ -163,14 +173,17 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
     return updatedNodeProperties;
 }
 
-export function getContainerTitle(view: SidePanelView, activeNode: FlowNode): string {
+export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, clientName?: string): string {
     switch (view) {
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
+            if (activeNode.codedata?.node === "ACTION_CALL") {
+                return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
+            }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
                 activeNode.metadata.label
-            } Node Properties`;
+            }`;
         default:
             return "";
     }
