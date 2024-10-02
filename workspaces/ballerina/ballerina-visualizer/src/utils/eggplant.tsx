@@ -69,10 +69,10 @@ export function convertEggplantCategoriesToSidePanelCategories(categories: Categ
     return panelCategories;
 }
 
-export function convertFunctionCategoriesToSidePanelCategories(categories: Category[], isSearching?: boolean): PanelCategory[] {
+export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
     const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
     const functionCategory = panelCategories.find((category) => category.title === "Project")
-    if (!isSearching && functionCategory && !functionCategory.items.length) {
+    if (functionCategory && !functionCategory.items.length) {
         functionCategory.description = "No functions defined. Click below to create a new function.";
     }
     return panelCategories;

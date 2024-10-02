@@ -201,7 +201,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         console.log(">>> Search function request", request);
         rpcClient.getEggplantDiagramRpcClient().getFunctions(request).then((response) => {
             console.log(">>> Searched List of functions", response);
-            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], true));
+            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
             setSidePanelView(SidePanelView.FUNCTION_LIST);
             setShowSidePanel(true);
         });
