@@ -73,8 +73,8 @@ export class RPCLayer {
         registerAiPanelRpcHandlers(RPCLayer._messenger);
         RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
 
-         // ----- Popup Views RPC Methods
-         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
+        // ----- Popup Views RPC Methods
+        RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 
 }
@@ -91,6 +91,7 @@ async function getContext(): Promise<VisualizerLocation> {
             isEggplant: context.isEggplant,
             projectUri: context.projectUri,
             recordFilePath: path.join(context.projectUri, 'types.bal'),
+            haveServiceType: context.haveServiceType
         });
     });
 }

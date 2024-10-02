@@ -34,6 +34,10 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         }
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
+            let haveServiceType = false;
+            if (node.syntaxTree.typeDescriptor && STKindChecker.isSimpleNameReference(node.syntaxTree.typeDescriptor)) {
+                haveServiceType = true;
+            }
             if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
                 return {
                     location: {
@@ -49,7 +53,8 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        haveServiceType: haveServiceType
                     }
                 };
             }

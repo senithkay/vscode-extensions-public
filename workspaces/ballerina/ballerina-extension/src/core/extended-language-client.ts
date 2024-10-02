@@ -92,6 +92,8 @@ import {
     EggplantCopilotContextResponse,
     SequenceModelRequest,
     SequenceModelResponse,
+    ServiceFromOASRequest,
+    ServiceFromOASResponse,
     EggplantGetFunctionsRequest,
     EggplantGetFunctionsResponse,
 } from "@wso2-enterprise/ballerina-core";
@@ -158,6 +160,7 @@ enum EXTENDED_APIS {
     EGGPLANT_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     EGGPLANT_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     EGGPLANT_CONNECTOR = 'flowDesignService/getConnectors',
+    EGGPLANT_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -557,9 +560,13 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getNodeTemplate(params: EggplantNodeTemplateRequest): Promise<EggplantNodeTemplateResponse> {
         return this.sendRequest<EggplantNodeTemplateResponse>(EXTENDED_APIS.EGGPLANT_NODE_TEMPLATE, params);
     }
-    
+
     async getEggplantConnectors(params: EggplantConnectorsRequest): Promise<EggplantConnectorsResponse> {
         return this.sendRequest<EggplantConnectorsResponse>(EXTENDED_APIS.EGGPLANT_CONNECTOR, params);
+    }
+
+    async generateServiceFromOAS(params: ServiceFromOASRequest): Promise<ServiceFromOASResponse> {
+        return this.sendRequest<ServiceFromOASResponse>(EXTENDED_APIS.EGGPLANT_GEN_OPEN_API, params);
     }
 
     async getSuggestedFlowModel(params: EggplantSuggestedFlowModelRequest): Promise<EggplantFlowModelResponse> {

@@ -219,13 +219,15 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
 
     async createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
         return new Promise(async (resolve) => {
+            let res: CreateComponentResponse;
             switch (params.type) {
                 case DIRECTORY_MAP.SERVICES:
-                    createEggplantService(params);
+                    res = await createEggplantService(params);
                     break;
                 default:
                     break;
             }
+            resolve(res);
         });
     }
 

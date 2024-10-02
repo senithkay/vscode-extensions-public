@@ -16,7 +16,7 @@ import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData } from "./eggplant";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
-import { SqFlow, SqLocation, SqParticipant } from "../rpc-types/sequence-diagram/interfaces";
+import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -442,7 +442,7 @@ export interface EggplantSourceCodeRequest {
 }
 
 export type EggplantSourceCodeResponse = {
-    textEdits:  {
+    textEdits: {
         [key: string]: TextEdit[];
     };
 };
@@ -485,6 +485,21 @@ export type EggplantConnectorsResponse = {
     categories: Category[];
 }
 
+export type ServiceFromOASRequest = {
+    openApiContractPath: string;
+    projectPath: string;
+    port: number;
+}
+
+export type ServiceFromOASResponse = {
+    service: {
+        fileName: string,
+        startLine: LinePosition;
+        endLine: LinePosition;
+    },
+    errorMsg?: string;
+}
+
 export interface EggplantCopilotContextRequest {
     position: LinePosition;
     filePath: string;
@@ -524,6 +539,7 @@ export interface EggplantInterface extends BaseLangClientInterface {
     getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
     getEggplantConnectors: (params: EggplantConnectorsRequest) => Promise<EggplantConnectorsResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
+    generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
 }
 
 export interface ExtendedLangClientInterface extends EggplantInterface {
