@@ -147,6 +147,8 @@ export interface FormProps {
         triggerCharacters: readonly string[];
         onRetrieveCompletions: (value: string, offset: number) => any;
         onCompletionSelect?: (value: string) => Promise<void>;
+        onFocus?: () => void | Promise<void>;
+        onBlur?: () => void | Promise<void>;
         onCancel: () => void;
     };
 }
