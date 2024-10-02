@@ -22,6 +22,7 @@ const MultiSelectContainer = styled.div<MultiSelectContainerProps>`
 interface ContainerProps {
     isOpen: boolean;
     hasDisplayValue?: boolean;
+    dropdownSx?: any;
 }
 
 const ValueContainer = styled.div<ContainerProps>`
@@ -69,6 +70,7 @@ const Dropdown = styled.div<ContainerProps>`
     max-height: 200px;
     overflow-y: auto;
     padding-left: 10px;
+    ${(props: ContainerProps) => props.dropdownSx};
 `;
 
 // Add a placeholder
@@ -89,11 +91,12 @@ export interface MultiSelectProps {
     placeholder?: string;
     sx?: any;
     iconSx?: any;
+    dropdownSx?: any;
     onChange?: (values: string[]) => void;
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps) => {
-    const { id, className, values, placeholder, displayValue, options, sx } = props;
+    const { id, className, values, placeholder, displayValue, options, sx, dropdownSx } = props;
     const [isComponentOpen, setIsComponentOpen] = React.useState(false);
     const containerRef = useRef<HTMLDivElement>(null); // Reference to the container
 
@@ -143,7 +146,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
                 </ValueContainer>
             )}
             {isComponentOpen && (
-                <Dropdown isOpen={isComponentOpen} onClick={handleDropdownClick}>
+                <Dropdown dropdownSx={dropdownSx} isOpen={isComponentOpen} onClick={handleDropdownClick}>
                     {options.map((option, key) => (
                         <CheckBox
                             key={key}
