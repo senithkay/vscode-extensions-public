@@ -437,11 +437,6 @@
       "versionPolicyName": "service-designer"
     },
     {
-      "packageName": "@wso2-enterprise/choreo-client",
-      "projectFolder": "workspaces/choreo/choreo-client",
-      "versionPolicyName": "choreo-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/choreo-core",
       "projectFolder": "workspaces/choreo/choreo-core",
       "versionPolicyName": "choreo-extension"
@@ -581,11 +576,11 @@
     //   "projectFolder": "workspaces/ballerina/perf-forecast",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    {
-      "packageName": "@wso2-enterprise/cell-diagram",
-      "projectFolder": "workspaces/choreo/cell-diagram",
-      "versionPolicyName": "choreo-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/cell-diagram",
+    //   "projectFolder": "workspaces/choreo/cell-diagram",
+    //   "versionPolicyName": "choreo-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",
       "projectFolder": "workspaces/ballerina/persist-layer-diagram",

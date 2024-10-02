@@ -63,6 +63,7 @@ jobs:
       mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
+      skipBallerinaUiTests: ${{ github.event.inputs.choreo == 'true' }}
 
   Release:
     name: Release VSIX
@@ -84,7 +85,6 @@ jobs:
       - name: Setup Rush
         uses: gigara/setup-rush@v1
         with:
-          pnpm: 7.26.3
           node: 16.x
           cache-rush: false
           cache-pnpm: false

@@ -2,10 +2,11 @@
     "extends": "../../../rush-config.json",
     "operationSettings": [
         {
-            "operationName": "build",
-            "dependsOnAdditionalFiles": [
-                "../cell-diagram/build/*",
-            ]
+            "operationName": "build"
+            // TODO: uncomment when adding back cell diagram to choreo
+            // "dependsOnAdditionalFiles": [
+            //     "../cell-diagram/build/*",
+            // ]
         }
     ]
 }

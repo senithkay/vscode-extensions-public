@@ -4,8 +4,9 @@
   "description": "Contains models related to Choreo APIs",
   "main": "lib/index.js",
   "scripts": {
-    "lint": "eslint .",
-    "build": "pnpm run lint && tsc --pretty",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write . ",
+    "build": "tsc --pretty",
     "watch": "tsc --pretty --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "npm publish"
@@ -13,13 +14,11 @@
   "author": "WSO2",
   "devDependencies": {
     "typescript": "^4.9.4",
-    "@typescript-eslint/eslint-plugin": "~5.48.2",
-    "eslint": "^8.32.0",
-    "@typescript-eslint/parser": "~5.48.2"
+    "@biomejs/biome": "^1.8.3"
   },
   "dependencies": {
     "vscode-messenger-common": "^0.4.3",
-    "@wso2-enterprise/ballerina-core": "workspace:*"
+    "vscode-messenger-webview": "^0.4.3"
   },
   "repository": {
     "type": "git",
