@@ -19,6 +19,7 @@ import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
+import { deleteSwagger } from '../util/swagger';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -346,6 +347,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
+
+							if (item.contextValue === 'api') {
+								deleteSwagger(fileUri);
+							}
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}

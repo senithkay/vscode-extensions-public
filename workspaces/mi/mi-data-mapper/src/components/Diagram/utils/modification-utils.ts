@@ -6,15 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { PortModel } from "@projectstorm/react-diagrams-core";
 import {
 	ArrayLiteralExpression,
 	Block,
+	InterfaceDeclaration,
 	Node,
 	ObjectLiteralExpression,
 	PropertyAssignment,
-	ReturnStatement
+	PropertySignature,
+	ReturnStatement,
+	SourceFile,
+	TypeLiteralNode
 } from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
@@ -323,6 +327,91 @@ export async function createSourceForUserInput(
 			? `\t${missingFields[0]}: {${createSpecificField(missingFields.slice(1))}}`
 			: `\t${missingFields[0]}: ${newValue}`;
 	}
+}
+
+export async function modifyFieldOptionality(
+	field: DMTypeWithValue,
+	isOptional: boolean,
+	sourceFile: SourceFile,
+	applyModifications: (fileContent: string) => Promise<void>) {
+
+	const parentTypeDeclaration = getTypeDeclaration(field.parentType, sourceFile);
+	if (parentTypeDeclaration) {
+		parentTypeDeclaration.getProperty(field.type.fieldName)?.set({ hasQuestionToken: isOptional });
+		await applyModifications(sourceFile.getFullText());
+	}
+
+}
+
+export async function modifyChildFieldsOptionality(
+	field: DMTypeWithValue,
+	isOptional: boolean,
+	sourceFile: SourceFile,
+	applyModifications: (fileContent: string) => Promise<void>) {
+
+	const typeDeclaration = getTypeDeclaration(field, sourceFile);
+	if (typeDeclaration) {
+		modifyTypeDeclarationOptionality(typeDeclaration, isOptional);
+		await applyModifications(sourceFile.getFullText());
+	}
+
+}
+
+function modifyTypeDeclarationOptionality(
+	typeDeclaration: InterfaceDeclaration | TypeLiteralNode,
+	isOptional: boolean) {
+
+	typeDeclaration.getProperties().forEach(property => {
+		property.set({ hasQuestionToken: isOptional });
+
+		let propertyType = property?.getType();
+		while (propertyType?.getArrayElementType())
+			propertyType = propertyType.getArrayElementType();
+
+		const propertyTypeDeclaration = propertyType?.getSymbol()?.getDeclarations()[0];
+		if (Node.isInterfaceDeclaration(propertyTypeDeclaration) || Node.isTypeLiteral(propertyTypeDeclaration)) {
+			modifyTypeDeclarationOptionality(propertyTypeDeclaration, isOptional);
+		}
+	});
+}
+
+function getTypeDeclaration(
+	field: DMTypeWithValue,
+	sourceFile: SourceFile): InterfaceDeclaration | TypeLiteralNode | undefined {
+
+	const fieldIdentifiers: DMType[] = [];
+	let currField = field;
+
+	while (currField.parentType) {
+		if (currField.type.fieldName)
+			fieldIdentifiers.push(currField.type);
+		currField = currField.parentType;
+	}
+
+	let currFieldType = currField.type;
+	while (currFieldType.kind === TypeKind.Array)
+		currFieldType = currFieldType.memberType;
+
+	let currDeclaration: Node = sourceFile.getInterfaceOrThrow(currFieldType.typeName);
+
+	while (fieldIdentifiers.length > 0) {
+		const currIdentifier = fieldIdentifiers.pop();
+		if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
+			const currProperty = currDeclaration?.getProperty(currIdentifier.fieldName);
+
+			let currPropertyType = currProperty?.getType();
+			while (currPropertyType?.getArrayElementType())
+				currPropertyType = currPropertyType.getArrayElementType();
+			
+			currDeclaration = currPropertyType?.getSymbol()?.getDeclarations()[0];
+		}
+	}
+
+	if (Node.isInterfaceDeclaration(currDeclaration) || Node.isTypeLiteral(currDeclaration)) {
+		return currDeclaration;
+	}
+
+	return undefined;
 }
 
 function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {

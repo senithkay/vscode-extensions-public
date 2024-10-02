@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, Platform } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ import { MI_UNIT_TEST_GENERATION_BACKEND_URL } from "../../../constants";
 interface TestSuiteFormProps {
     stNode?: UnitTest;
     filePath?: string;
+    isWindows: boolean;
 }
 
 interface MockServiceEntry {
@@ -86,7 +87,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     const syntaxTree = props.stNode;
     const filePath = props.filePath;
 
-    const isWindows = navigator.platform.toLowerCase().includes("win");
+    const isWindows = props.isWindows;
     const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : undefined;
 
     // Schema
@@ -466,7 +467,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         };
         const availableMockServices = mockServices.map((mockService) => mockService.name);
 
-        return <SelectMockService name={currentMockService?.name} availableMockServices={availableMockServices} onGoBack={goBack} onSubmit={onSubmit} />
+        return <SelectMockService name={currentMockService?.name} availableMockServices={availableMockServices} isWindows={isWindows} onGoBack={goBack} onSubmit={onSubmit}/>
     }
 
     return (
