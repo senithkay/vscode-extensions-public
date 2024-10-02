@@ -25,11 +25,6 @@ export class DraftNodeFactory extends AbstractReactFactory<DraftNodeModel, Diagr
     }
 
     generateReactWidget(event: GenerateWidgetEvent<DraftNodeModel>) {
-        switch (event.model.node.codedata.node as NodeKind) {
-            default:
-                return (
-                    <DraftNodeWidget engine={this.engine} model={event.model} />
-                );
-        }
+        return <DraftNodeWidget engine={this.engine} model={event.model} />;
     }
 }

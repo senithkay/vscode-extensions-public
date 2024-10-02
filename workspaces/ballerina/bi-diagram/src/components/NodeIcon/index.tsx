@@ -16,16 +16,18 @@ import {
     CodeIcon,
     CommentIcon,
     ContinueIcon,
+    EqualIcon,
+    FunctionIcon,
     LockIcon,
     LoopIcon,
     PlusIcon,
+    ReturnIcon,
+    SecurityIcon,
     StopIcon,
     TransformIcon,
+    VarIcon,
 } from "../../resources";
 import { NodeKind } from "../../utils/types";
-import { ReturnIcon } from "../../resources/icons/nodes/ReturnIcon";
-import { VarIcon } from "../../resources/icons/nodes/VarIcon";
-import { SecurityIcon } from "../../resources/icons/nodes/SecurityIcon";
 
 interface NodeIconProps {
     type: NodeKind;
@@ -46,6 +48,7 @@ export function NodeIcon(props: NodeIconProps) {
         case "NEW_DATA":
         case "UPDATE_DATA":
             return <VarIcon />;
+        case "FOREACH":
         case "WHILE":
             return <LoopIcon />;
         case "BREAK":
@@ -66,6 +69,11 @@ export function NodeIcon(props: NodeIconProps) {
             return <PlusIcon />;
         case "COMMENT":
             return <CommentIcon />;
+        case "ASSIGN":
+            return <EqualIcon />;
+        case "FUNCTION":
+        case "FUNCTION_CALL":
+            return <FunctionIcon />;
         
         default:
             return <CodeIcon />;

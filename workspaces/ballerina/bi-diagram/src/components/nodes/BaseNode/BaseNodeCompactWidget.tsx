@@ -24,6 +24,7 @@ import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
+import { BaseNodeWidgetProps } from "./BaseNodeWidget";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -149,15 +150,7 @@ export namespace NodeStyles {
     `;
 }
 
-export interface BaseNodeWidgetProps {
-    model: BaseNodeModel;
-    engine: DiagramEngine;
-    onClick?: (node: FlowNode) => void;
-}
-
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
-
-export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
@@ -241,14 +234,6 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                             {model.node.metadata.description || "..."}
                         </Tooltip>
                     </NodeStyles.Description>
-                    <NodeStyles.Footer>
-                        {model.node.properties.variable?.value && (
-                            <NodeStyles.Pill color={Colors.PURPLE}>
-                                <XIcon />
-                                {model.node.properties.variable.value}
-                            </NodeStyles.Pill>
-                        )}
-                    </NodeStyles.Footer>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

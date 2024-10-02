@@ -25,11 +25,6 @@ export class ApiCallNodeFactory extends AbstractReactFactory<ApiCallNodeModel, D
     }
 
     generateReactWidget(event: GenerateWidgetEvent<ApiCallNodeModel>) {
-        switch (event.model.node.codedata.node as NodeKind) {
-            default:
-                return (
-                    <ApiCallNodeWidget engine={this.engine} model={event.model} />
-                );
-        }
+        return <ApiCallNodeWidget engine={this.engine} model={event.model} />;
     }
 }

@@ -20,10 +20,11 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
+import { EqualIcon, MoreVertIcon, TIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
+import { BaseNodeWidgetProps } from "./BaseNodeWidget";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -149,15 +150,7 @@ export namespace NodeStyles {
     `;
 }
 
-export interface BaseNodeWidgetProps {
-    model: BaseNodeModel;
-    engine: DiagramEngine;
-    onClick?: (node: FlowNode) => void;
-}
-
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
-
-export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+export function BaseNodeAssignWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
@@ -232,23 +225,23 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
-                    <NodeIcon type={model.node.codedata.node} />
+                    <EqualIcon />
                 </NodeStyles.Icon>
                 <NodeStyles.Header onClick={handleOnClick}>
-                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        <Tooltip content={model.node.metadata.description}>
-                            {model.node.metadata.description || "..."}
-                        </Tooltip>
-                    </NodeStyles.Description>
-                    <NodeStyles.Footer>
-                        {model.node.properties.variable?.value && (
-                            <NodeStyles.Pill color={Colors.PURPLE}>
-                                <XIcon />
-                                {model.node.properties.variable.value}
-                            </NodeStyles.Pill>
-                        )}
-                    </NodeStyles.Footer>
+                    <NodeStyles.Title>Assign</NodeStyles.Title>
+                    {model.node.metadata.label !== "Assign" && (
+                        <NodeStyles.Description>
+                            {model.node.metadata.label || model.node.codedata.node}
+                        </NodeStyles.Description>
+                    )}
+                    {/* <NodeStyles.Description>{model.node.properties?.expression?.value || "..."}</NodeStyles.Description> */}
+                    {(model.node.properties.variable?.value ||
+                        model.node.properties?.expression?.value ||
+                        model.node.properties.statement?.value) && (
+                        <NodeStyles.Description>{`${model.node.properties.variable?.value || "_"} = ${
+                            model.node.properties?.expression?.value || model.node.properties.statement?.value || "..."
+                        }`}</NodeStyles.Description>
+                    )}
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
