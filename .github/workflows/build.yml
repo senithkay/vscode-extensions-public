@@ -29,8 +29,8 @@ on:
         type: boolean
         required: false
         default: false  
-      eggplant:
-        description: Update EggPlant extension version
+      bi:
+        description: Update BI extension version
         type: boolean
         required: false
         default: false           
@@ -67,7 +67,7 @@ jobs:
       runMIExtTests: ${{ steps.testMatrix.outputs.runMIExtTests }}
       runAPIChatExtTests: ${{ steps.testMatrix.outputs.runAPIChatExtTests }}
       runAPKExtTests: ${{ steps.testMatrix.outputs.runAPKExtTests }}
-      runEggplantExtTests: ${{ steps.testMatrix.outputs.runEggplantExtTests }}
+      runBIExtTests: ${{ steps.testMatrix.outputs.runBIExtTests }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -113,9 +113,9 @@ jobs:
             echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
           fi
 
-          # Eggplant ext
-          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/eggplant" ]]; then
-            echo "hasEggplantDiff=true" >> $GITHUB_OUTPUT
+          # BI ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/bi" ]]; then
+            echo "hasBIDiff=true" >> $GITHUB_OUTPUT
           fi
 
           # Common
@@ -125,7 +125,7 @@ jobs:
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
-            echo "hasEggplantDiff=true" >> $GITHUB_OUTPUT
+            echo "hasBIDiff=true" >> $GITHUB_OUTPUT
             echo "hasMIDiff=true" >> $GITHUB_OUTPUT
           fi
 
@@ -139,7 +139,7 @@ jobs:
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
           echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
-          echo "runEggplantExtTests=${{ steps.diff.outputs.hasEggplantDiff }}" >> $GITHUB_OUTPUT
+          echo "runBIExtTests=${{ steps.diff.outputs.hasBIDiff }}" >> $GITHUB_OUTPUT
           echo "MI Tests: ${{ steps.diff.outputs.hasMIDiff }}"
           echo "runMIExtTests=${{ steps.diff.outputs.hasMIDiff }}" >> $GITHUB_OUTPUT
 
@@ -152,7 +152,7 @@ jobs:
           choreo: ${{ inputs.choreo }}
           api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
-          eggplant: ${{ inputs.eggplant }}
+          bi: ${{ inputs.bi }}
           mi: ${{ inputs.mi }}
           version: ${{ inputs.version }}
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  

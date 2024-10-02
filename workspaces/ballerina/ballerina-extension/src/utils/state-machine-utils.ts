@@ -75,10 +75,10 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
         ) {
-            if (StateMachine.context().isEggplant) {
+            if (StateMachine.context().isBI) {
                 return {
                     location: {
-                        view: MACHINE_VIEW.EggplantDiagram,
+                        view: MACHINE_VIEW.BIDiagram,
                         documentUri: documentUri,
                         position: position
                     },

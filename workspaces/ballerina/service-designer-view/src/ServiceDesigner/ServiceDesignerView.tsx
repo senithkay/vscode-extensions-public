@@ -37,8 +37,8 @@ interface ServiceDesignerProps {
     applyModifications?: (modifications: STModification[]) => Promise<void>;
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) => void;
-    // If the service designer is for eggplant
-    isEggplant?: boolean;
+    // If the service designer is for bi
+    isBI?: boolean;
     // If editing needs to be disabled
     isEditingDisabled?: boolean;
 }
@@ -116,7 +116,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isEggplant, handleResourceEdit, handleResourceDelete));
+            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isBI, handleResourceEdit, handleResourceDelete));
         };
         fetchService();
     }, [model]);
@@ -160,7 +160,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                         <ServiceDesigner
                             model={serviceConfig}
                             onResourceClick={handleGoToSource}
-                            disableServiceHeader={props.isEggplant}
+                            disableServiceHeader={props.isBI}
                         />
                     </ViewContent>
                 </View>

@@ -22,5 +22,5 @@ export const ENABLE_RUN_FAST = "ballerina.enableRunFast";
 export const FILE_DOWNLOAD_PATH = "ballerina.samplesDownloadDirectory";
 export const ENABLE_INLAY_HINTS = "ballerina.enableInlayHints";
 export const ENABLE_MULTILINE_AI_COMPLETIONS = "ballerina.multilineAiCompletions";
-export const ENABLE_EGGPLANT_OVERVIEW_V2 = "ballerina.eggplantOverviewV2";
+export const ENABLE_BI_OVERVIEW_V2 = "ballerina.biOverviewV2";
 export const ENABLE_AI_SUGGESTIONS = "ballerina.enableAiSuggestions";

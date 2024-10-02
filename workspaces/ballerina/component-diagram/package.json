@@ -15,7 +15,7 @@
         "watch": "tsc --pretty --watch",
         "build-storybook": "build-storybook",
         "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
-        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../eggplant-extension/resources/jslibs"
+        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../bi-extension/resources/jslibs"
     },
     "keywords": [],
     "author": "",

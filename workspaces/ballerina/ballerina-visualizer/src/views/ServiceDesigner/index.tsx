@@ -17,7 +17,7 @@ import { ViewWrapper } from "../styles";
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    isEggplant?: boolean;
+    isBI?: boolean;
     isEditingDisabled?: boolean;
 }
 
@@ -41,7 +41,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 }}
                 applyModifications={applyModifications}
                 goToSource={handleOpenDiagram}
-                isEggplant={props.isEggplant}
+                isBI={props.isBI}
                 isEditingDisabled={props.isEditingDisabled}
             />
         </>
