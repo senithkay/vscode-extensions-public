@@ -279,7 +279,8 @@ export function AddConnection(props: AddConnectionProps) {
         await rpcClient.getMiDiagramRpcClient().createConnection({
             connectionName: getValues("name"),
             keyValuesXML: modifiedXml,
-            directory: localEntryPath
+            directory: localEntryPath,
+            filePath: props.connectionName ? props.path : ""
         });
 
         if (props.isPopup) {
@@ -298,11 +299,12 @@ export function AddConnection(props: AddConnectionProps) {
 
         const name = getValues("name") ?? 'CONNECTION_1';
         const template = create();
-        const root = template.ele(`${getValues("name")}.init`);
 
-        root.ele('name').txt(name);
+        const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
+        const connectorTag = localEntryTag.ele(`${getValues("name")}.init`);
+
         params.paramValues.forEach(param => {
-            root.ele(param.key).txt(param.value);
+            connectorTag.ele(param.key).txt(param.value);
         })
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
@@ -315,7 +317,8 @@ export function AddConnection(props: AddConnectionProps) {
         await rpcClient.getMiDiagramRpcClient().createConnection({
             connectionName: name,
             keyValuesXML: modifiedXml,
-            directory: localEntryPath
+            directory: localEntryPath,
+            filePath: props.connectionName ? props.path : ""
         });
 
         if (props.isPopup) {

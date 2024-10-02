@@ -66,23 +66,23 @@ export const getEditProxyTemplate = (name:string) => {
             return `<target {{#endpoint}}endpoint="{{endpoint}}"{{/endpoint}} {{#inSequence}}inSequence="{{inSequence}}"{{/inSequence}} {{#outSequence}}outSequence="{{outSequence}}"{{/outSequence}} {{#faultSequence}}faultSequence="{{faultSequence}}"{{/faultSequence}}>`
         case "other":
             return `{{#wsdlEnabled}}
-            <publishWSDL {{#publishWsdl.key}}key="{{publishWsdl.key}}"{{/publishWsdl.key}} {{#publishWsdl.preservePolicy}}preservePolicy="{{publishWsdl.preservePolicy}}"{{/publishWsdl.preservePolicy}} {{#publishWsdl.uri}}uri="{{publishWsdl.uri}}"{{/publishWsdl.uri}}>
-                {{#publishWsdl.inlineWsdl}}{{publishWsdl.inlineWsdl}}{{/publishWsdl.inlineWsdl}}
-                {{#publishWsdl.resource}}<resource key="{{key}}" location="{{location}}"/>{{/publishWsdl.resource}} 
+            <publishWSDL {{#publishWsdl.key}}key="{{{publishWsdl.key}}}"{{/publishWsdl.key}} {{#publishWsdl.preservePolicy}}preservePolicy="{{publishWsdl.preservePolicy}}"{{/publishWsdl.preservePolicy}} {{#publishWsdl.uri}}uri="{{{publishWsdl.uri}}}"{{/publishWsdl.uri}}>
+                {{#publishWsdl.inlineWsdl}}{{{publishWsdl.inlineWsdl}}}{{/publishWsdl.inlineWsdl}}
+                {{#publishWsdl.resource}}<resource key="{{{key}}}" location="{{{location}}}"/>{{/publishWsdl.resource}}
             </publishWSDL>
             {{/wsdlEnabled}}
+            {{#enableAddressing}}
+            <enableAddressing/>
+            {{/enableAddressing}}
+            {{#enableSec}}
+            <enableSec/>
+            {{/enableSec}}
             {{#policies}}
             <policy key="{{key}}"/>
             {{/policies}}
             {{#parameters}}
             <parameter name="{{name}}">{{textNode}}</parameter>
             {{/parameters}}
-            {{#enableSec}}
-            <enableSec/>
-            {{/enableSec}}
-            {{#enableAddressing}}
-            <enableAddressing/>
-            {{/enableAddressing}}
             `
         default:
             return ""                

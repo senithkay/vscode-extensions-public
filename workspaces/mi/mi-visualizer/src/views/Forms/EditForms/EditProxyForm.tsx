@@ -533,15 +533,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         const parser = new XMLParser(options);
         const builder = new XMLBuilder(options);
         const jsonData = parser.parse(getValues("wsdlInLine"));
-        if(jsonData["wsdl:definitions"]["@_"]["xmlns"] || jsonData["wsdl:definitions"]["@_"]["xmlns:wsdl"]) {
-            if (jsonData["wsdl:definitions"]["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
-                delete jsonData["wsdl:definitions"]["@_"]["xmlns"];
+        if (jsonData["wsdl:definitions"]?.["@_"]) {
+            if (jsonData["wsdl:definitions"]["@_"]["xmlns"] || jsonData["wsdl:definitions"]["@_"]["xmlns:wsdl"]) {
+                if (jsonData["wsdl:definitions"]["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
+                    delete jsonData["wsdl:definitions"]["@_"]["xmlns"];
+                }
+            }
+            else {
+                jsonData["wsdl:definitions"]["@_"]["xmlns"] = "";
             }
         }
-        else {
-             jsonData["wsdl:definitions"]["@_"]["xmlns"] = "";
-        }
-        console.log(jsonData);
         return builder.build(jsonData) as string;
     }
 

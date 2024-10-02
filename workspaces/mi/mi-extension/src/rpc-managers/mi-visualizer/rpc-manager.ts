@@ -104,8 +104,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     goBack(): void {
-        const entry = history.pop();
-        navigate(entry);
+        if (!StateMachine.context().view?.includes("Form")) {
+            const entry = history.pop();
+            navigate(entry);
+        } else {
+            navigate();
+        }
     }
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {

@@ -18,4 +18,7 @@ playwright-report
 *.log
 mappings
 config
-.config.js
+*.config.js
+vsix/**
+test-results/**
+.rush/**
