@@ -1,6 +1,7 @@
 import { ExtendedPage } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form } from "./components/Form";
 import { Welcome } from "./components/Welcome";
+const fs = require('fs');
 
 export async function createProject(page: ExtendedPage) {
     await page.selectSidebarItem('Micro Integrator');
@@ -19,4 +20,9 @@ export async function createProject(page: ExtendedPage) {
         }
     });
     await createNewProjectForm.submit();
+}
+
+export async function closeNotification(page: ExtendedPage) {
+    const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
+    await notificationsCloseButton.click({ force: true });
 }
