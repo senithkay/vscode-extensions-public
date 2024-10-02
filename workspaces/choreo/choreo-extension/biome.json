@@ -1,7 +1,7 @@
 {
 	"extends": ["../biome.json"],
 	"files": {
-		"ignore": ["dist/**", "jslibs/**", "src/git", "*.json"]
+		"ignore": ["dist/**", "jslibs/**", "src/git", "*.json", "codicon.css"]
 	},
 	"linter": {
 		"rules": {

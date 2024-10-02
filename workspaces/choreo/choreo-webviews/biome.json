@@ -19,7 +19,8 @@
 			},
 			"a11y": {
 				"noSvgWithoutTitle": "off",
-				"useKeyWithClickEvents": "off"
+				"useKeyWithClickEvents": "off",
+				"noLabelWithoutControl": "off"
 			},
 			"nursery": {
 				"useSortedClasses": "warn"

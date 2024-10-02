@@ -235,45 +235,42 @@ const EnvItem: FC<{
 										{deploymentStatus?.invokeUrl && (
 											<EndpointItem type="Invoke" name="invoke-url" state="Active" url={deploymentStatus?.invokeUrl} showOpen={true} />
 										)}
-										{componentType === ChoreoComponentType.Service && (
-											<>
-												{endpoints.map((item) => {
-													const endpointsNodes: ReactNode[] = [];
+										{componentType === ChoreoComponentType.Service &&
+											endpoints.map((item) => {
+												const endpointsNodes: ReactNode[] = [];
+												endpointsNodes.push(
+													<EndpointItem
+														type="Project"
+														name={item.displayName}
+														url={item.projectUrl}
+														hasMultiple={endpoints.length > 1}
+														state={item.state}
+													/>,
+												);
+												if (item.visibility === "Organization") {
 													endpointsNodes.push(
 														<EndpointItem
-															type="Project"
+															type="Organization"
 															name={item.displayName}
-															url={item.projectUrl}
+															url={item.organizationUrl}
 															hasMultiple={endpoints.length > 1}
 															state={item.state}
 														/>,
 													);
-													if (item.visibility === "Organization") {
-														endpointsNodes.push(
-															<EndpointItem
-																type="Organization"
-																name={item.displayName}
-																url={item.organizationUrl}
-																hasMultiple={endpoints.length > 1}
-																state={item.state}
-															/>,
-														);
-													} else if (item.visibility === "Public") {
-														endpointsNodes.push(
-															<EndpointItem
-																type="Public"
-																name={item.displayName}
-																url={item.publicUrl}
-																showOpen={true}
-																hasMultiple={endpoints.length > 1}
-																state={item.state}
-															/>,
-														);
-													}
-													return endpointsNodes;
-												})}
-											</>
-										)}
+												} else if (item.visibility === "Public") {
+													endpointsNodes.push(
+														<EndpointItem
+															type="Public"
+															name={item.displayName}
+															url={item.publicUrl}
+															showOpen={true}
+															hasMultiple={endpoints.length > 1}
+															state={item.state}
+														/>,
+													);
+												}
+												return endpointsNodes;
+											})}
 
 										{activePublicEndpoints.length > 0 && (
 											<GridColumnItem label="Test">
