@@ -47,6 +47,12 @@ export class Diagram {
         sidePanel.goToExternalsPage();
     }
 
+    public async goToConnectorsPage() {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        sidePanel.goToConnectorsPage();
+    }
+
     public async addNewConnection(index: number = 0) {
         await this.clickPlusButtonByIndex(index);
 
@@ -56,11 +62,48 @@ export class Diagram {
         sidePanel.addNewConnection();
     }
 
+    public async addNewConnectionFromConnectorTab() {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        sidePanel.addNewConnection();
+    }
+
     public async verifyConnection(name: string, type: string) {
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         sidePanel.goToExternalsPage();
         return sidePanel.verifyConnection(name, type);
+    }
+
+    public async addConnector(connectionName: string, operationName: string, index: number = 0, props: FormFillProps) {
+        await this.clickPlusButtonByIndex(index);
+        await this.goToExternalsPage();
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+
+        await sidePanel.addConnector(connectionName, operationName, props);
+    }
+
+    public async selectConnectorFromConnectorTab(connectorName: string, operationName: string, index: number = 0) {
+        await this.clickPlusButtonByIndex(index);
+        await this.goToConnectorsPage();
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+
+        return await sidePanel.selectConnectorOperationFromConnectorTab(connectorName, operationName);
+    }
+
+    public async getConnector(connectorName: string, operationName: string, index: number = 0) {
+        const connectorNode = (await this.getDiagramContainer()).locator(`[data-testid^="connectorNode-${connectorName}.${operationName}"]`).nth(index).locator('div').first();
+        await connectorNode.waitFor();
+        await connectorNode.hover();
+        return new Mediator(this.diagramWebView, connectorNode);
+    }
+
+    public async closeSidePanel() {
+        const sidePanel = new SidePanel(this.diagramWebView);
+        await sidePanel.init();
+        await sidePanel.close();
     }
 
     private async clickPlusButtonByPosition(line: number, column: number) {
@@ -146,10 +189,43 @@ class SidePanel {
         await form.submit("Submit");
     }
 
+    public async addConnector(connectionName: string, operationName: string, props: FormFillProps) {
+        const connection = this.sidePanel.locator(`#card-select-${connectionName}`);
+        await connection.waitFor();
+        await connection.click();
+
+        const operation = this.sidePanel.locator(`#card-select-${operationName}`);
+        await operation.waitFor();
+        await operation.click();
+
+        const form = new Form(undefined, undefined, this.sidePanel);
+        await form.fill(props);
+        await form.submit("Submit");
+    }
+
+    public async selectConnectorOperationFromConnectorTab (connectorName: string, operationName: string) {
+        const connector = this.sidePanel.locator(`#card-select-${connectorName}`);
+        await connector.waitFor();
+        await connector.click();
+
+        const operation = this.sidePanel.locator(`#card-select-${operationName}`);
+        await operation.waitFor();
+        await operation.click();
+
+        const form = new Form(undefined, undefined, this.sidePanel);
+        return form;
+    }
+
     public async goToExternalsPage() {
         const externalPageBtn = this.sidePanel.locator(`vscode-button:text("Externals") >> ..`);
         await externalPageBtn.waitFor();
         await externalPageBtn.click();
+    }
+
+    public async goToConnectorsPage() {
+        const connectorsPageBtn = this.sidePanel.locator(`vscode-button:text("Connectors") >> ..`);
+        await connectorsPageBtn.waitFor();
+        await connectorsPageBtn.click();
     }
 
     public async addNewConnection() {
@@ -168,5 +244,11 @@ class SidePanel {
             return true;
         }
         return false;
+    }
+
+    public async close() {
+        const closeIcon = this.sidePanel.locator('i.codicon.codicon-close');
+        await closeIcon.waitFor();
+        await closeIcon.click();
     }
 }

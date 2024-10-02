@@ -19,6 +19,10 @@ export interface FormFillProps {
     }
 }
 
+export interface ParamManagerValues {
+    [key: string]: string;
+}
+
 export class Form {
     private container!: Locator;
 
@@ -111,5 +115,23 @@ export class Form {
     public async getInputValue(key: string) {
         const input = this.container.locator(`vscode-text-field[aria-label="${key}"]`);
         return await input.getAttribute('current-value');
+    }
+
+    public async fillParamManager(props: ParamManagerValues) {
+        for (const key in props) {
+            const addParamaterBtn = this.container.locator(`div:text("Add Parameter")`).locator('..');
+            await addParamaterBtn.waitFor();
+            await addParamaterBtn.click();
+            
+            const value = props[key];
+            const keyInput = await getWebviewInput(this.container, "Key*");
+            await keyInput.fill(key);
+            const valueInput = await getWebviewInput(this.container, "Value*");
+            await valueInput.fill(value);
+
+            const saveBtn = this.container.locator(`div:text("Save")`).locator('..');
+            await saveBtn.waitFor();
+            await saveBtn.click();
+        }
     }
 }
