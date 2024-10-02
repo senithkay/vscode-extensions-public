@@ -206,7 +206,7 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ inputs.skipBallerinaUiTests && (!inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina') }}
+    if: ${{ !inputs.skipBallerinaUiTests && (!inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina') }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
