@@ -72,8 +72,14 @@ export interface VisualizerLocation {
     position?: NodePosition;
     syntaxTree?: STNode;
     isBI?: boolean;
-    recordFilePath?: string;
     haveServiceType?: boolean;
+    metadata?: VisualizerMetadata;
+}
+
+export interface VisualizerMetadata {
+    recordFilePath?: string;
+    enableSequenceDiagram?: boolean; // Enable sequence diagram view
+    flowNodeStyle?: string; // BI flow diagram flow node style
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

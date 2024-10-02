@@ -185,6 +185,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         console.log(">>> requesting bi node template from ls", params);
+        const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
+        console.log(">>> flow node style", flowNodeStyle);
+        // TODO: improve request with flowNodeStyle
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
@@ -296,9 +299,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                     return;
                 }
-                // check multi line AI completion setting
-                const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
-                console.log(">>> multi line AI completion setting", multiLineCompletion);
 
                 // get copilot context form ls
                 const copilotContextRequest: BICopilotContextRequest = {
@@ -312,7 +312,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 // get suggestions from ai
                 const requestBody = {
                     ...copilotContext,
-                    singleCompletion: !multiLineCompletion,
+                    singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
                 };
                 const requestOptions = {
                     method: "POST",
