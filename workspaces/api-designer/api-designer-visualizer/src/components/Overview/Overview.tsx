@@ -66,10 +66,34 @@ type InputsFields = {
 
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition, onViewSwagger } = props;
-    const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
+    let selectedOptions: string[] = [];
+    if (openAPIDefinition.info.summary) {
+        selectedOptions.push("Summary");
+    }
+    if (openAPIDefinition.servers) {
+        selectedOptions.push("Servers");
+    }
+    if (openAPIDefinition.security) {
+        selectedOptions.push("Security");
+    }
 
     const handleOptionChange = (options: string[]) => {
-        setSelectedOptions(options);
+        if (options.includes("Summary") && !openAPIDefinition.info.summary) {
+            openAPIDefinition.info.summary = "";
+        } else if (!options.includes("Summary") && openAPIDefinition.info.summary) {
+            delete openAPIDefinition.info.summary;
+        }
+        if (options.includes("Servers") && !openAPIDefinition.servers) {
+            openAPIDefinition.servers = [];
+        } else if (!options.includes("Servers") && openAPIDefinition.servers) {
+            delete openAPIDefinition.servers;
+        }
+        if (options.includes("Security") && !openAPIDefinition.security) {
+            openAPIDefinition.security = [];
+        } else if (!options.includes("Security") && openAPIDefinition.security) {
+            delete openAPIDefinition.security;
+        }
+        props.onOpenApiDefinitionChange(openAPIDefinition);
     };
 
     const handleTitleChange = (title: string) => {
@@ -122,6 +146,8 @@ export function Overview(props: OverviewProps) {
         openAPIDefinition.info.version = version;
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
+
+    console.log("Overview rendered", openAPIDefinition);
 
     return (
         <>

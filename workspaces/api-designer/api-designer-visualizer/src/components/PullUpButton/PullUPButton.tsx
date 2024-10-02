@@ -18,31 +18,33 @@ interface ContainerProps {
 const Container = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
-    width: 100%;
-    height: 100%;
     ${(props: PullUpProps) => props.sx};
 `;
 
 interface PullUpProps {
     options: string[];
     children: ReactNode;
+    selectedOptions?: string[];
+    onOptionChange?: (options: string[]) => void;
     sx?: any;
 }
 
 export function PullUpButton(props: PullUpProps) {
-    const { options, sx, children } = props;
-    const [values, setValues] = useState<string[]>([]);
+    const { options, sx, children, selectedOptions, onOptionChange } = props;
 
     const onChangeValues = (values: string[]) => {
-        setValues(values);
+        if (onOptionChange) {
+            onOptionChange(values);
+        }
     };
 
     return (
         <Container sx={sx}>
             <MultiSelect
                 dropdownSx={{marginTop: 2}}
-                options={options} displayValue={children}
-                values={values}
+                options={options} 
+                displayValue={children}
+                values={selectedOptions}
                 onChange={onChangeValues}
             />
         </Container>

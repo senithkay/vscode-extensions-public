@@ -10,6 +10,7 @@
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { PullUpButton } from "./PullUPButton";
 import styled from "@emotion/styled";
+import { useState } from "react";
 
 export default {
     component: PullUpButton,
@@ -23,9 +24,11 @@ const Container = styled.div`
 const options = ["Option 1", "Option 2", "Option 3"];
 
 export const SplitViewStory = () => {
+    const [values, setValues] = useState<string[]>(options);
+
     return (
         <Container>
-            <PullUpButton options={options}>
+            <PullUpButton options={options} onOptionChange={setValues}>
                 <Button appearance={"primary"}>
                     Add More
                 </Button>

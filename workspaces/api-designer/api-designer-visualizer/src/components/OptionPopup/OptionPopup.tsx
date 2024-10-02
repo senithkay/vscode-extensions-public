@@ -1,6 +1,15 @@
-import { Button, Dialog, CheckBoxGroup, CheckBox, Codicon } from '@wso2-enterprise/ui-toolkit';
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import React from 'react';
+import { PullUpButton } from '../PullUpButton/PullUPButton';
 
 const ButtonWrapper = styled.div`
     display: flex;
@@ -21,15 +30,6 @@ interface OptionPopupProps {
 
 export function OptionPopup(props: OptionPopupProps) {
     const { options, selectedOptions, onOptionChange, hideDelete, onViewSwagger } = props;
-    const [isOpen, setIsOpen] = React.useState(false);
-
-    const handleOnClose = () => {
-        setIsOpen(false);
-    };
-
-    const openDialog = () => {
-        setIsOpen(true);
-    };
 
     const handleOnDelete = () => {
         if (props.onDeleteResource) {
@@ -43,32 +43,15 @@ export function OptionPopup(props: OptionPopupProps) {
 
     return (
         <>
-            <ButtonWrapper> 
-                <Button appearance="primary" onClick={openDialog}> Add More Options </Button>
+            <ButtonWrapper>
+                <PullUpButton options={options} selectedOptions={selectedOptions} onOptionChange={onOptionChange}>
+                    <Button appearance="primary"> Add More Options </Button>
+                </PullUpButton>
                 {!hideDelete && <Button buttonSx={{background: "var(--vscode-errorForeground)"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>}
                 <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleViewSwagger}> 
                     <Codicon name="eye" />
                 </Button>
             </ButtonWrapper>
-            <Dialog sx={{width: "fit-content", minWidth: 120}} isOpen={isOpen} onClose={handleOnClose}>
-                <CheckBoxGroup>
-                    {options.map((option) => (
-                        <CheckBox
-                            key={option}
-                            label={option}
-                            value={option}
-                            checked={selectedOptions?.includes(option)}
-                            onChange={(checked: boolean) => {
-                                if (checked) {
-                                    onOptionChange([...selectedOptions, option]);
-                                } else {
-                                    onOptionChange(selectedOptions.filter((selectedOption) => selectedOption !== option));
-                                }
-                            }}
-                        />
-                    ))}
-                </CheckBoxGroup>
-            </Dialog>
         </>
     );
 }

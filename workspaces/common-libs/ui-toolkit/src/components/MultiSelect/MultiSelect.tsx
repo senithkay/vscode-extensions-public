@@ -6,10 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useRef } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
 import { CheckBox } from "../CheckBoxGroup/CheckBoxGroup";
+import { createPortal } from "react-dom";
+import { Overlay } from "../Commons/Overlay";
 
 interface MultiSelectContainerProps {
     sx?: any;
@@ -61,7 +63,7 @@ const Dropdown = styled.div<ContainerProps>`
     flex-direction: column;
     position: absolute;
     width: fit-content;
-    z-index: 1;
+    z-index: 1001;
     background-color: var(--vscode-dropdown-background);
     border: 1px solid var(--vscode-dropdown-border);
     border-color: ${(props: ContainerProps) => (props.isOpen ? "var(--vscode-focusBorder)" : "var(--vscode-dropdown-border)")};
@@ -98,24 +100,14 @@ export interface MultiSelectProps {
 export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps) => {
     const { id, className, values, placeholder, displayValue, options, sx, dropdownSx } = props;
     const [isComponentOpen, setIsComponentOpen] = React.useState(false);
+    const [valueContainerPosition, setValueContainerPosition] = React.useState<DOMRect | null>(null);
     const containerRef = useRef<HTMLDivElement>(null); // Reference to the container
+    const valueContainerRef = useRef<HTMLDivElement>(null); // Reference to the value container
 
     const handleComponentClick = () => {
+        setValueContainerPosition(valueContainerRef.current?.getBoundingClientRect());
         setIsComponentOpen(!isComponentOpen);
     };
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsComponentOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
 
     const handleDropdownClick = (event: React.MouseEvent) => {
         event.stopPropagation(); // Prevent click from bubbling up to the container
@@ -131,10 +123,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
         props.onChange && props.onChange(newValues);
     };
 
+    const handleCloseComponent = () => {
+        setIsComponentOpen(false);
+    };
+
     return (
-        <MultiSelectContainer ref={containerRef} id={id} className={className} sx={sx} onClick={handleComponentClick}>
-            {displayValue ? <div onClick={handleComponentClick}>{displayValue}</div> : (
-                <ValueContainer isOpen={isComponentOpen}>
+        <MultiSelectContainer ref={containerRef} id={id} className={className} sx={sx}>
+            {displayValue ? <div ref={valueContainerRef} onClick={handleComponentClick}>{displayValue}</div> : (
+                <ValueContainer ref={valueContainerRef} isOpen={isComponentOpen}>
                     {values?.length > 0 ? (
                         values.map((value, key) => (
                             <Chip key={key}>{value}</Chip>
@@ -145,18 +141,35 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
                     <Codicon sx={{ display: "flex", flexGrow: 1, justifyContent: "flex-end", marginTop: 4 }} name="chevron-down" onClick={handleComponentClick} />
                 </ValueContainer>
             )}
-            {isComponentOpen && (
-                <Dropdown dropdownSx={dropdownSx} isOpen={isComponentOpen} onClick={handleDropdownClick}>
-                    {options.map((option, key) => (
-                        <CheckBox
-                            key={key}
-                            label={option}
-                            checked={(values?.length > 0) ? (values.indexOf(option) !== -1) : false}
-                            onChange={isSelected => handleChange(option, isSelected)}
-                        />
-                    ))}
-                </Dropdown>
-            )}
+            {isComponentOpen &&
+                <>
+                    {createPortal(
+                        <Dropdown
+                            dropdownSx={dropdownSx}
+                            isOpen={isComponentOpen}
+                            onClick={handleDropdownClick}
+                            style={{
+                                top: (window.innerHeight - valueContainerPosition?.bottom < 200) ? 
+                                    valueContainerPosition?.top - 200 : valueContainerPosition?.bottom,
+                                left: valueContainerPosition?.left,
+                            }}
+                        >
+                            {options.map((option, key) => (
+                                <CheckBox
+                                    key={key}
+                                    label={option}
+                                    checked={(values?.length > 0) ? (values.indexOf(option) !== -1) : false}
+                                    onChange={isSelected => handleChange(option, isSelected)}
+                                />
+                            ))}
+                        </Dropdown>
+                        , document.body
+                    )}
+                    <>
+                        {isComponentOpen && <Overlay onClose={handleCloseComponent} />}
+                    </>
+                </>
+            }
         </MultiSelectContainer>
     );
 };
