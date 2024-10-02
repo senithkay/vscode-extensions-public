@@ -62,6 +62,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
         return useMutation({
             mutationFn: fn,
+            networkMode: 'always',
         });
     };
 
