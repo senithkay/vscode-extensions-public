@@ -18,6 +18,8 @@ import {
 } from "../../../../utils/eggplant";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
+import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/eggplant-diagram";
+import IfForm from "../IfForm";
 
 interface FormProps {
     node: FlowNode;
@@ -38,6 +40,9 @@ export function FormGenerator(props: FormProps) {
     const [showRecordEditor, setShowRecordEditor] = useState(false);
 
     useEffect(() => {
+        if (node.codedata.node === "IF") {
+            return;
+        }
         initForm();
     }, [node]);
 
@@ -54,12 +59,22 @@ export function FormGenerator(props: FormProps) {
             onSubmit();
             return;
         }
+
+        // hide connection property if node is a ACTION_CALL node
+        if (node.codedata.node === "ACTION_CALL") {
+            if (enrichedNodeProperties) {
+                enrichedNodeProperties.connection.optional = true;
+            } else {
+                formProperties.connection.optional = true;
+            }
+        }
+
         // get node properties
         setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
     };
 
     const handleOnSubmit = (data: FormValues) => {
-        console.log(">>> on form submit", data);
+        console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
             let updatedNode: FlowNode = {
                 ...node,
@@ -86,7 +101,13 @@ export function FormGenerator(props: FormProps) {
                 console.error(">>> Error updating source code. No properties found");
             }
             console.log(">>> Updated node", updatedNode);
-            onSubmit(updatedNode);
+
+            // check all nodes and remove empty nodes
+            const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
+            traverseNode(updatedNode, removeEmptyNodeVisitor);
+            const updatedNodeWithoutEmptyNodes = removeEmptyNodeVisitor.getNode();
+
+            onSubmit(updatedNodeWithoutEmptyNodes);
         }
     };
 
@@ -112,6 +133,11 @@ export function FormGenerator(props: FormProps) {
         setShowRecordEditor(isOpen);
     };
 
+    // handle if node form
+    if (node.codedata.node === "IF") {
+        return <IfForm node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+    }
+
     // default form
     return (
         <>
@@ -123,6 +149,7 @@ export function FormGenerator(props: FormProps) {
                     openRecordEditor={handleOpenRecordEditor}
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
+                    canUpdateVariable={node.codedata.node !== "NEW_CONNECTION"}
                 />
             )}
             {showRecordEditor && (

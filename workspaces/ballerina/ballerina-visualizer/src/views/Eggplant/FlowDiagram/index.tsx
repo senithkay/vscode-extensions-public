@@ -9,12 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import {
-    PanelContainer,
-    NodeList,
-    Category as PanelCategory,
-    FormField,
-} from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer, NodeList, Category as PanelCategory, FormField } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { Diagram } from "@wso2-enterprise/eggplant-diagram";
 import {
@@ -62,7 +57,7 @@ const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
-    FUNCTION_LIST = "FUNCTION_LIST"
+    FUNCTION_LIST = "FUNCTION_LIST",
 }
 
 export interface EggplantFlowDiagramProps {
@@ -357,7 +352,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
-        
+
         rpcClient
             .getEggplantDiagramRpcClient()
             .getNodeTemplate({
@@ -472,7 +467,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 </ViewContent>
             </View>
             <PanelContainer
-                title={getContainerTitle(sidePanelView, selectedNodeRef.current)}
+                title={getContainerTitle(sidePanelView, selectedNodeRef.current, selectedClientName.current)}
                 show={showSidePanel}
                 onClose={handleOnCloseSidePanel}
                 onBack={
@@ -493,8 +488,10 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                     <NodeList
                         categories={categories}
                         onSelect={handleOnSelectNode}
-                        onClose={handleOnCloseSidePanel}
                         onSearchTextChange={handleSearchFunction}
+                        onClose={handleOnCloseSidePanel}
+                        title={"Functions"}
+                        onBack={handleOnFormBack}
                     />
                 )}
                 {sidePanelView === SidePanelView.FORM && (
