@@ -437,7 +437,7 @@ function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[]
 	return source;
 }
 
-export async function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
+export async function modifySourceForMultipleMappings(link: DataMapperLinkModel, suffix: string = '') {
 	const targetPort = link.getTargetPort();
 	if (!targetPort) {
 		return;
@@ -448,7 +448,7 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 	const targetNode = targetPort.getNode();
 
 	if (sourcePort && sourcePort instanceof InputOutputPortModel) {
-		rhs = buildInputAccessExpr(sourcePort.fieldFQN);
+		rhs = buildInputAccessExpr(sourcePort.fieldFQN) + suffix;
 	}
 
 	if (targetNode instanceof LinkConnectorNode) {

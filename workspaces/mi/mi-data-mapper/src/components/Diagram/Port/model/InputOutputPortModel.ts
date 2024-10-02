@@ -12,7 +12,7 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
+import { genElementAccessSuffix, getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
@@ -71,12 +71,16 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
-
-				const connectingArrays = isConnectingArrays(getMappingType(sourcePort, targetPort));
-
-				if (connectingArrays) {
+				
+				const mappingType = getMappingType(sourcePort, targetPort);
+				if (mappingType === MappingType.ArrayToArray) {
 					// Source update behavior is determined by the user when connecting arrays.
 					return;
+				}
+
+				let elementAccessSuffix='';
+				if (mappingType === MappingType.ArrayToSingleton) {
+					elementAccessSuffix = genElementAccessSuffix(sourcePort, targetPort);
 				}
 
 				const targetPortHasLinks = Object.values(targetPort.links)
@@ -84,11 +88,11 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					await updateExistingValue(sourcePort, targetPort);
+					await updateExistingValue(sourcePort, targetPort, undefined, elementAccessSuffix);
 				} else if (targetPortHasLinks) {
-					await modifySourceForMultipleMappings(lm);
+					await modifySourceForMultipleMappings(lm, elementAccessSuffix);
 				} else {
-					await createSourceForMapping(lm);
+					await createSourceForMapping(lm, undefined, elementAccessSuffix);
 				}
 			})
 		});
