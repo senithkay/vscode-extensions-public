@@ -466,10 +466,16 @@ export type EggplantNodeTemplateResponse = {
     flowNode: FlowNode;
 };
 
+export type SearchQueryParams = {
+    q?: string;
+    limit?: number;
+    offset?: number;
+}
+
 export type EggplantGetFunctionsRequest = {
     position: LineRange;
     filePath: string;
-    queryMap: any;
+    queryMap: SearchQueryParams;
 }
 
 export type EggplantGetFunctionsResponse = {

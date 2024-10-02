@@ -189,11 +189,19 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
     };
 
     const handleSearchFunction = async (searchText: string) => {
-        // TODO: Fix incosistency in the search and re-nable search through LS
         const request: EggplantGetFunctionsRequest = {
-            position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
+            position: {
+                startLine: targetRef.current.startLine,
+                endLine: targetRef.current.endLine
+            },
             filePath: model.fileName,
-            queryMap: searchText.trim() ? searchText : undefined 
+            queryMap: searchText.trim() ?
+                {
+                    q: searchText,
+                    limit: 12,
+                    offset: 0
+                } :
+                undefined
         };
         console.log(">>> Search function request", request);
         rpcClient.getEggplantDiagramRpcClient().getFunctions(request).then((response) => {
@@ -208,9 +216,9 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         // node is function
         const nodeType: NodeKind = node.codedata.node;
-        if(nodeType === "FUNCTION") {
+        if (nodeType === "FUNCTION") {
             rpcClient.getEggplantDiagramRpcClient().getFunctions({
-                position: {startLine: targetRef.current.startLine, endLine: targetRef.current.endLine},
+                position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
                 filePath: model.fileName,
                 queryMap: undefined,
             }).then((response) => {
@@ -220,22 +228,22 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 setShowSidePanel(true);
             });
         } else {
-        // default node 
-        console.log(">>> on select panel node", { nodeId, metadata });
-        selectedClientName.current = category;
-        rpcClient
-            .getEggplantDiagramRpcClient()
-            .getNodeTemplate({
-                position: targetRef.current.startLine,
-                filePath: model.fileName,
-                id: node.codedata,
-            })
-            .then((response) => {
-                console.log(">>> FlowNode template", response);
-                selectedNodeRef.current = response.flowNode;
-                setSidePanelView(SidePanelView.FORM);
-                setShowSidePanel(true);
-            });
+            // default node 
+            console.log(">>> on select panel node", { nodeId, metadata });
+            selectedClientName.current = category;
+            rpcClient
+                .getEggplantDiagramRpcClient()
+                .getNodeTemplate({
+                    position: targetRef.current.startLine,
+                    filePath: model.fileName,
+                    id: node.codedata,
+                })
+                .then((response) => {
+                    console.log(">>> FlowNode template", response);
+                    selectedNodeRef.current = response.flowNode;
+                    setSidePanelView(SidePanelView.FORM);
+                    setShowSidePanel(true);
+                });
         }
     };
 
@@ -487,7 +495,6 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         onSelect={handleOnSelectNode}
                         onClose={handleOnCloseSidePanel}
                         onSearchTextChange={handleSearchFunction}
-                        isFunctionSearch={true}
                     />
                 )}
                 {sidePanelView === SidePanelView.FORM && (

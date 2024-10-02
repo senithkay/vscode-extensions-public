@@ -470,16 +470,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
 
     async getFunctions(params: EggplantGetFunctionsRequest): Promise<EggplantGetFunctionsResponse> {
         console.log(">>> requesting eggplant function list from ls", params);
-        let queryMap = {};
-        if (params?.queryMap) {
-            queryMap = {
-                q: params?.queryMap?.toString(),
-                limit: "10",
-                offset: "0"
-            };
-        }
-
-        params.queryMap = queryMap;
+        params.queryMap = params?.queryMap || {};
 
         return new Promise((resolve) => {
             StateMachine.langClient()
