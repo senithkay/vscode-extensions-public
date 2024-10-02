@@ -64,21 +64,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         setDeleteInProgress(false);
     };
 
-    const onClickMapArrayToSingletonIndirect = async () => {
-        const targetPort = node.targetPort;
-        if (targetPort instanceof InputOutputPortModel) {
-            const targetPortField = targetPort.field;
-            const sourcePort = node.sourcePorts?.[0];
-            if (targetPortField && sourcePort) {
-                const inputAccessExpr = buildInputAccessExpr(sourcePort.fieldFQN);
-                let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
-                const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField, isSourceOptional);
-                await updateExistingValue(sourcePort, targetPort, mapFnSrc, '[0]');
-            }
-
-        }
-    };
-
     const loadingScreen = (
         <div className={classnames(classes.element, classes.loadingContainer)}>
             <ProgressRing sx={{ height: '16px', width: '16px' }} />
@@ -90,18 +75,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 <div className={classes.header}>
                     {renderPortWidget(engine, node.inPort, `${node?.value}-input`)}
                     {hasCallExpr ? renderFunctionCallTooltip() :  renderExpressionTooltip()}
-                    {hasElementAccessExpr && (
-                         <CodeActionWidget
-                         key={`expression-label-code-action-${value}`}
-                         codeActions={[
-                            {
-                                title: "Map Array Elements Individually & Access Singleton",
-                                onClick: onClickMapArrayToSingletonIndirect
-                            }
-                         ]}
-                         btnSx={{ margin: "0 2px" }}
-                     />
-                    )}
                     {hasElementAccessExpr ? renderIndexingButton(onClickEdit, node) : renderEditButton(onClickEdit, node?.value)}
                     {deleteInProgress ? (
                         loadingScreen

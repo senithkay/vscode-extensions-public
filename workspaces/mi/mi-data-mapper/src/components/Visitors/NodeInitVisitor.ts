@@ -79,20 +79,6 @@ export class NodeInitVisitor implements Visitor {
             let exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
             let initializer = node.getInitializer();
 
-            if (Node.isElementAccessExpression(initializer)) {
-                initializer = initializer.getExpression();
-                exprType = {
-                    kind: TypeKind.Array,
-                    optional: false,
-                    memberType: {
-                        kind: exprType.kind,
-                        optional: false,
-                        typeName: exprType.typeName,
-                        fields: exprType.fields
-                    }
-                };
-            }
-
             const callExpr = initializer as CallExpression;
  
             const returnStatement = getCallExprReturnStmt(callExpr);

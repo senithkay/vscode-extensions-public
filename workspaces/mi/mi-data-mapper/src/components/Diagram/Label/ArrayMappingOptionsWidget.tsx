@@ -94,25 +94,6 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     }
 
-    const onClickMapIndividualElementsAccessSingleton = async () => {
-        if (targetPort instanceof InputOutputPortModel) {
-            const targetPortField = targetPort.field;
-
-            if (targetPortField) {
-                const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
-                let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
-                const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField, isSourceOptional);
-
-                if (isValueModifiable) {
-                    await updateExistingValue(sourcePort, targetPort, mapFnSrc, '[0]');
-                } else {
-                    await createSourceForMapping(link, mapFnSrc, '[0]');
-                }
-            }
-
-        }
-    };
-
     const getItemElement = (id: string, label: string) => {
         return (
             <div
@@ -143,11 +124,6 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
             id: "a2s-direct",
             label: getItemElement("a2s-direct", "Access Singleton"),
             onClick: onClickMapArraysAccessSingleton
-        },
-        {
-            id: "a2s-inner",
-            label: getItemElement("a2s-inner", "Map Array Elements Individually & Access Singleton"),
-            onClick: onClickMapIndividualElementsAccessSingleton
         }
     ];
 

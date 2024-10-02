@@ -14,6 +14,7 @@ import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { DataMapperPortWidget, IntermediatePortModel } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
 import { ElementAccessExpression, PropertyAssignment } from 'ts-morph';
+import { genElementAccessRepr } from '../../utils/common-utils';
 
 export const renderPortWidget = (engine: DiagramEngine, port: IntermediatePortModel, label: string) => (
     <DataMapperPortWidget
@@ -68,9 +69,7 @@ export const renderIndexingButton = (onClick: () => void, node: LinkConnectorNod
         data-testid={`link-connector-indexing-${node?.value}`}
         tooltip='indexing'
     >
-        {`[ ${((node.valueNode as PropertyAssignment)
-            .getInitializer() as ElementAccessExpression)
-            .getArgumentExpression().getText()} ]`}
+        {genElementAccessRepr((node.valueNode as PropertyAssignment).getInitializer())}
     </Button>
 );
 

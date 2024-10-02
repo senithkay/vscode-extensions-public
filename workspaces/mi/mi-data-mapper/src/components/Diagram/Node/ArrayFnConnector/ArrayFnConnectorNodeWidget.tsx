@@ -16,7 +16,7 @@ import classnames from 'classnames';
 import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
 import { DataMapperPortWidget, InputOutputPortModel } from '../../Port';
-import { getMapFnIndex, getMapFnViewLabel, hasElementAccessExpression } from '../../utils/common-utils';
+import { genElementAccessRepr, getMapFnIndex, getMapFnViewLabel, hasElementAccessExpression } from '../../utils/common-utils';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { getSourceNodeType } from '../../utils/node-utils';
 import { SubMappingInfo, View } from '../../../../components/DataMapper/Views/DataMapperView';
@@ -129,38 +129,36 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                         <Tooltip content={"Array Function"} position="bottom">
                             <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                         </Tooltip>
-                        <Button
-                            appearance="icon"
-                            tooltip="Map array elements"
-                            onClick={onClickOnExpand}
-                            data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
-                        >
-                            <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                        </Button>
                         {deleteInProgress ? (
                             <div className={classnames(classes.element, classes.loadingContainer)}>
                                 {loadingScreen}
                             </div>
                         ) : (
-                            <>
-                                {hasElementAccessExpr && (<Button
-                                    appearance="icon"
-                                    onClick={onClickEdit}
-                                    data-testid={`link-connector-indexing-${node?.value}`}
-                                    tooltip='indexing'
-                                >
-                                    {`[ ${((node.parentNode as PropertyAssignment)
-                                        .getInitializer() as ElementAccessExpression)
-                                        .getArgumentExpression().getText()} ]`}
-                                </Button>)}
-                                <Button
-                                    appearance="icon"
-                                    tooltip="Delete"
-                                    onClick={deleteLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
-                                >
-                                    <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                                </Button>
-                            </>
+                                <>
+                                    {hasElementAccessExpr ? (<Button
+                                        appearance="icon"
+                                        onClick={onClickEdit}
+                                        data-testid={`link-connector-indexing-${node?.value}`}
+                                        tooltip='indexing'
+                                    >
+                                        {genElementAccessRepr((node.parentNode as PropertyAssignment).getInitializer())}
+                                    </Button>) : (<Button
+                                        appearance="icon"
+                                        tooltip="Map array elements"
+                                        onClick={onClickOnExpand}
+                                        data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
+                                    >
+                                        <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                                    </Button>)
+                                    }
+                                    <Button
+                                        appearance="icon"
+                                        tooltip="Delete"
+                                        onClick={deleteLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
+                                    >
+                                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                                    </Button>
+                                </>
 
                         )}
                         <DataMapperPortWidget engine={engine} port={outPort} />
