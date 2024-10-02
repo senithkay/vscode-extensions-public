@@ -14,6 +14,7 @@ export { NodeIcon } from "./components/NodeIcon";
 export { ConnectorIcon } from "./components/ConnectorIcon";
 
 // traversing utils
-export { traverseFlow } from "./utils/ast";
+export { traverseFlow, traverseNode } from "./utils/ast";
 export { AddNodeVisitor } from "./visitors/AddNodeVisitor";
 export { RemoveNodeVisitor } from "./visitors/RemoveNodeVisitor";
+export { RemoveEmptyNodesVisitor } from "./visitors/RemoveEmptyNodesVisitor";

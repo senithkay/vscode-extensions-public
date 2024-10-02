@@ -86,6 +86,24 @@ export function fetchCompletions(filePath: string, fileContent: string, cursorPo
     return enrichedCompletions;
 }
 
+export function fetchDiagnostics(filePath: string) {
+    const project = DMProject.getInstance(filePath).getProject();
+    const languageService = project.getLanguageService().compilerObject;
+
+    const semanticDiagnostics = languageService.getSemanticDiagnostics(filePath);
+    const syntacticDiagnostics = languageService.getSyntacticDiagnostics(filePath);
+
+    // merge semanticDiagnostics and syntacticDiagnostics
+    const allDiagnostics = [...semanticDiagnostics, ...syntacticDiagnostics];
+
+    // remove duplicates
+    const uniqueDiagnostics = allDiagnostics.filter((diagnostic, index, self) =>
+        index === self.findIndex((t) => t.start === diagnostic.start && t.length === diagnostic.length)
+    );
+
+    return uniqueDiagnostics;
+}
+
 function getCompletions(filePath: string, fileContent: string, cursorPosition: number) {
     const project = DMProject.getInstance(filePath).getProject();
     project.getSourceFileOrThrow(filePath).replaceWithText(fileContent);

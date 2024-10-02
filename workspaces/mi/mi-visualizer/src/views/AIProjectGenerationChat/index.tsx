@@ -14,11 +14,12 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL, COPILOT_ERROR_MESSAGES } from "../../constants";
 import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VSCodeButton, VSCodeTextArea, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import styled from "@emotion/styled";
+import { handleFileAttach } from "../../utils/fileAttach";
 
 import {
     materialDark,
@@ -156,6 +157,7 @@ export function AIProjectGenerationChat() {
     const [files, setFiles] = useState([]);
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
+    const [initialPromptLoaded, setInitialPromptLoaded] = useState(false);
 
     async function fetchBackendUrl() {
         try {
@@ -166,9 +168,7 @@ export function AIProjectGenerationChat() {
         }
     }
     useEffect(() => {
-
         fetchBackendUrl();
-
     }, []);
 
     useEffect(() => {
@@ -199,15 +199,20 @@ export function AIProjectGenerationChat() {
                     }
                 }
 
-
-                if (machineView.initialPrompt) {
+                if (machineView.initialPrompt.aiPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
-                        { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
+                        { role: "User", content: machineView.initialPrompt.aiPrompt, type: "initial_prompt" },
                     ]);
-                    addChatEntry("user", machineView.initialPrompt);
-                    handleSend(false, true);
-                    rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+                    addChatEntry("user", machineView.initialPrompt.aiPrompt);
+
+                    const initialFiles = machineView.initialPrompt.files || [];
+                    const initialImages = machineView.initialPrompt.images || [];
+
+                    setFiles(initialFiles);
+                    setImages(initialImages);
+                    setInitialPromptLoaded(true);
+
                 } else {
                     if (storedChatArray) {
                         if (storedQuestion) {
@@ -266,6 +271,14 @@ export function AIProjectGenerationChat() {
         });
     }, []);
 
+    useEffect(() => {
+        if (initialPromptLoaded) {
+            handleSend(false, true);
+            setInitialPromptLoaded(false);
+            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
+        }
+    }, [initialPromptLoaded]);
+
     function addChatEntry(role: string, content: string): void {
         chatArray.push({
             role,
@@ -306,11 +319,11 @@ export function AIProjectGenerationChat() {
 
     function getStatusText(status: number) {
         switch (status) {
-            case 400: return 'Bad Request';
-            case 401: return 'Unauthorized';
-            case 403: return 'Forbidden';
-            case 404: return 'Not Found';
-            case 429: return 'Token Count Exceeded';
+            case 400: return COPILOT_ERROR_MESSAGES.BAD_REQUEST;
+            case 401: return COPILOT_ERROR_MESSAGES.UNAUTHORIZED;
+            case 403: return COPILOT_ERROR_MESSAGES.FORBIDDEN;
+            case 404: return COPILOT_ERROR_MESSAGES.NOT_FOUND;
+            case 429: return COPILOT_ERROR_MESSAGES.TOKEN_COUNT_EXCEEDED;
             // Add more status codes as needed
             default: return '';
         }
@@ -326,6 +339,8 @@ export function AIProjectGenerationChat() {
                 response.json().then(body => {
                     error += body.detail;
                 });
+            } else if (response.status == 422) {
+                error = COPILOT_ERROR_MESSAGES.ERROR_422;
             }
             newMessages[newMessages.length - 1].content += error;
             newMessages[newMessages.length - 1].type = 'Error';
@@ -457,7 +472,6 @@ export function AIProjectGenerationChat() {
             default:
                 backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
                 view = "Artifact";
-
         }
         if (view == "Overview") {
             await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
@@ -471,6 +485,8 @@ export function AIProjectGenerationChat() {
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const stringifiedUploadedFiles = files.map(file => JSON.stringify(file));
+        const imageBase64Array = images.map(image => image.imageBase64);
+
         let retryCount = 0;
         const maxRetries = 2;
 
@@ -481,7 +497,7 @@ export function AIProjectGenerationChat() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token.token}`,
                 },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: images }),
+                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: imageBase64Array }),
                 signal: signal,
             });
 
@@ -494,7 +510,7 @@ export function AIProjectGenerationChat() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: images }),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: imageBase64Array }),
                     signal: signal,
                 });
                 if (!response.ok) {
@@ -512,7 +528,6 @@ export function AIProjectGenerationChat() {
                 }
             } else if (!response.ok) {
                 handleFetchError(response);
-                throw new Error('Failed to fetch response');
             }
             return response;
         };
@@ -523,7 +538,7 @@ export function AIProjectGenerationChat() {
             // Remove the user uploaded files and images after sending them to the backend.
             removeAllFiles();
             removeAllImages();
-            
+
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let result = '';
@@ -673,6 +688,9 @@ export function AIProjectGenerationChat() {
     }
 
     function splitContent(content: string) {
+        if (!content) {
+            return [];
+        }
         const segments = [];
         let match;
         const regex = /```xml([\s\S]*?)```/g;
@@ -749,34 +767,6 @@ export function AIProjectGenerationChat() {
             handleSend(false, false);
             setUserInput("");
         }
-    };
-
-    const handleFileAttach = (e: any) => {
-        const file = e.target.files[0];
-        const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
-        const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
-
-        if (file && validFileTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const fileContents = event.target.result;
-                setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsText(file);
-        } else if (file && validImageTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const imageBase64 = event.target.result;
-                setImages(prevImages => [...prevImages, imageBase64]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsDataURL(file);
-
-        } else {
-            setFileUploadStatus({ type: 'error', text: 'File format not supported' });
-        }
-        e.target.value = '';
     };
 
     const handleRemoveFile = (index: number) => {
@@ -922,18 +912,18 @@ export function AIProjectGenerationChat() {
                             appearance="icon"
                             onClick={() => handleRemoveFile(index)}
                         >
-                            <span className="codicon codicon-close"></span>
+                            <Codicon name="close"/>
                         </Button>
                     </FlexRow>
                 ))}
                 {images.map((image, index) => (
                     <FlexRow style={{ alignItems: 'center' }} key={index}>
-                        <span>Image</span>
+                        <span>{image.imageName}</span>
                         <Button
                             appearance="icon"
                             onClick={() => handleRemoveImage(index)}
                         >
-                            <span className="codicon codicon-close"></span>
+                            <Codicon name="close"/>
                         </Button>
                     </FlexRow>
                 ))}
@@ -942,13 +932,14 @@ export function AIProjectGenerationChat() {
                         appearance="secondary"
                         onClick={() => document.getElementById('fileInput').click()}
                         style={{ width: "35px", marginBottom: "4px" }}>
-                        <span className={`codicon codicon-new-file`}></span>
+                        <Codicon name="new-file"/>
                     </VSCodeButton>
                     <input
                         id="fileInput"
                         type="file"
                         style={{ display: "none" }}
-                        onChange={(e: any) => handleFileAttach(e)}
+                        multiple
+                        onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
                     />
                     <VSCodeTextArea
                         value={userInput}
@@ -1056,7 +1047,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                {!loading && language === 'xml' &&
+                    {!loading && language === 'xml' &&
                         <Button
                             appearance="icon"
                             onClick={(e) => {

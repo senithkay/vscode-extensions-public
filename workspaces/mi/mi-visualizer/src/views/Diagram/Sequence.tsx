@@ -61,7 +61,7 @@ export const SequenceView = ({ model: SequenceModel, documentUri, diagnostics }:
                     documentUri={documentUri}
                 /> :
                 <>
-                    <ViewHeader title={`Sequence: ${model.name}`} codicon="globe" onEdit={handleEditSequence} />
+                    <ViewHeader title={`Sequence: ${model.name}`} icon="Sequence" onEdit={handleEditSequence} />
                     <ViewContent>
                         <Diagram
                             model={model}

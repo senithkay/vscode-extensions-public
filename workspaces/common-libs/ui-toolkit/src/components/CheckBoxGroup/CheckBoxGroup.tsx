@@ -42,15 +42,19 @@ const CheckBoxContainer = styled.div<CheckBoxGroupProps>`
     ${({ containerSx }: CheckBoxGroupProps) => containerSx};
 `;
 
+export const StyledCheckBox = styled(VSCodeCheckbox)`
+    --checkbox-border: var(--vscode-icon-foreground);
+`;
+
 export const CheckBox = ({ label, value, checked, onChange }: CheckBoxProps) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.checked);
     };
 
     return (
-        <VSCodeCheckbox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
+        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
             {label}
-        </VSCodeCheckbox>
+        </StyledCheckBox>
     );
 };
 

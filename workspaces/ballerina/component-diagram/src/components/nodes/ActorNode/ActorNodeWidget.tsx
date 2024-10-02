@@ -26,12 +26,12 @@ export namespace NodeStyles {
         align-items: center;
         width: ${ACTOR_NODE_WIDTH}px;
         height: ${ACTOR_NODE_WIDTH}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        /* border: ${NODE_BORDER_WIDTH}px solid
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)}; */
         border-radius: 50%;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
+        /* cursor: pointer; */
         & svg {
             fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
             opacity: ${(props: NodeStyleProp) => (props.hovered ? 1 : 0.7)};
@@ -132,7 +132,9 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Header>
-                    <PersonIcon />
+                    <NodeStyles.Icon>
+                        <PersonIcon />
+                    </NodeStyles.Icon>
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

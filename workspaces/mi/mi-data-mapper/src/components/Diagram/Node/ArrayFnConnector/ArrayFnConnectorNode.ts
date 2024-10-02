@@ -30,6 +30,7 @@ import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-util
 import { FocusedInputNode } from "../FocusedInput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { SubMappingNode } from "../SubMapping";
+import { useDMSearchStore } from "../../../../store/store";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
@@ -121,6 +122,11 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         const fieldNamePosition = fieldName && getPosition(fieldName);
         const returnStmt = getTnfFnReturnStatement(this.context.functionST);
         const isRerurnStmtMapFn = Node.isReturnStatement(this.parentNode);
+        const outputSearchValue = useDMSearchStore.getState().outputSearch;
+        const shouldFindTargetPort = outputSearchValue === ""
+            || fieldName?.getText().toLowerCase().includes(outputSearchValue.toLowerCase());
+
+        if (!shouldFindTargetPort) return;
 
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {

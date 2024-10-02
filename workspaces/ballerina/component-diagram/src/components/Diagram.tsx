@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, createNodesLink, generateEngine, registerListeners } from "../utils/diagram";
+import { autoDistribute, createNodesLink, generateEngine, getNodeId, registerListeners } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -19,7 +19,8 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
-import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY } from "../resources/constants";
+import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NEW_COMPONENT, NodeTypes } from "../resources/constants";
+import { ButtonNodeModel } from "./nodes/ButtonNode/ButtonNodeModel";
 
 export interface DiagramProps {
     project: Project;
@@ -36,7 +37,6 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            console.log(">>> diagram engine created");
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
             autoDistribute(diagramEngine);
@@ -53,7 +53,7 @@ export function Diagram(props: DiagramProps) {
             const node = new EntryNodeModel(entryPoint);
             nodes.push(node);
             // add actor node for each entry node
-            const actorNode = new ActorNodeModel({ ...entryPoint, id: entryPoint.id + ACTOR_SUFFIX });
+            const actorNode = new ActorNodeModel({ ...entryPoint, id: node.getID() + ACTOR_SUFFIX });
             nodes.push(actorNode);
             // create link between entry and actor nodes
             const link = createNodesLink(actorNode, node);
@@ -63,18 +63,18 @@ export function Diagram(props: DiagramProps) {
         });
 
         // if there are no entry nodes, create a new entry node
-        if (project.entryPoints.length === 0) {
-            const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry Point", type: "service" });
-            nodes.push(node);
-            // add actor node for new entry node
-            const actorNode = new ActorNodeModel({ ...node.node, id: NEW_ENTRY + ACTOR_SUFFIX });
-            nodes.push(actorNode);
-            // create link between entry and actor nodes
-            const link = createNodesLink(actorNode, node);
-            if (link) {
-                links.push(link);
-            }
-        }
+        // if (project.entryPoints.length === 0) {
+        //     const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry Point", type: "service" });
+        //     nodes.push(node);
+        //     // add actor node for new entry node
+        //     const actorNode = new ActorNodeModel({ ...node.node, id: NEW_ENTRY + ACTOR_SUFFIX });
+        //     nodes.push(actorNode);
+        //     // create link between entry and actor nodes
+        //     const link = createNodesLink(actorNode, node);
+        //     if (link) {
+        //         links.push(link);
+        //     }
+        // }
 
         // create connection nodes
         project.connections.forEach((connection) => {
@@ -83,12 +83,16 @@ export function Diagram(props: DiagramProps) {
         });
 
         // create new connection node
-        const node = new ConnectionNodeModel({ id: NEW_CONNECTION, name: "New Connection" });
+        // const node = new ConnectionNodeModel({ id: NEW_CONNECTION, name: "New Connection" });
+        // nodes.push(node);
+
+        // create new component add button node
+        const node = new ButtonNodeModel({ id: NEW_COMPONENT, name: "New Component" });
         nodes.push(node);
 
         // create links between entry and connection nodes
         project.entryPoints.forEach((entryPoint) => {
-            const entryNode = nodes.find((node) => node.getID() === entryPoint.id);
+            const entryNode = nodes.find((node) => node.getID() === getNodeId(NodeTypes.ENTRY_NODE, entryPoint.id));
             if (entryNode) {
                 nodes
                     .filter((node) => node instanceof ConnectionNodeModel && node.getID() !== NEW_CONNECTION)

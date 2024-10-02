@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { EVENT_TYPE, MACHINE_VIEW, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider } from "@wso2-enterprise/ui-toolkit";
@@ -16,6 +16,7 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
+import { handleFileAttach } from "../../utils/fileAttach";
 
 const Container = styled.div({
     display: "flex",
@@ -68,6 +69,18 @@ const AIPanel = styled.div({
     gap: "5px",
 });
 
+const FlexRow = styled.div({
+    display: "flex",
+    flexDirection: "row",
+});
+
+const ItemRow = styled.div({
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "5px",
+});
+
 const transitionEffect = {
     enter: css({
         transition: "opacity 75ms ease-out",
@@ -94,6 +107,9 @@ export function AddArtifactView() {
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [inputAiPrompt, setInputAiPrompt] = React.useState<string>("");
     const [viewMore, setViewMore] = React.useState<boolean>(false);
+    const [files, setFiles] = useState([]);
+    const [images, setImages] = useState([]);
+    const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
 
     const handleClick = async (key: string) => {
         const dir = path.join(activeWorkspaces.fsPath, "src", "main", "wso2mi", "artifacts", key);
@@ -147,6 +163,14 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-connection", entry] });
+        } else if (key === "dataServices") {
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-data-service", entry] });
+        } else if (key === "dataSources") {
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-data-source", entry] });
         }
     };
 
@@ -161,13 +185,31 @@ export function AddArtifactView() {
     }, []);
 
     const handleGenerateWithAI = async () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
-        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
+        const promptObject = {
+            aiPrompt: inputAiPrompt,
+            files,
+            images
+        };
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", promptObject] });
     };
 
     const handleAiPromptChange = (value: string) => {
         setInputAiPrompt(value);
     };
+
+    const handleRemoveFile = (index: number) => {
+        setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
+    };
+
+    const handleRemoveImage = (index: number) => {
+        setImages(prevImages => prevImages.filter((image, i) => i !== index));
+    };
+
+    const combinedItems = [
+        ...images.map((image, index) => ({ type: 'image', index, name: image.imageName })),
+        ...files.map((file, index) => ({ type: 'file', index, name: file.fileName }))
+    ];
 
     return (
         <View>
@@ -187,10 +229,53 @@ export function AddArtifactView() {
                                 cols={1000}
                                 placeholder="ie. I want to create an API that will route my request based on a header value."
                             ></TextArea>
-                            <Button appearance="primary" disabled={inputAiPrompt.length === 0} onClick={handleGenerateWithAI}>
-                                <Codicon name="wand" />
-                                &nbsp; Generate
-                            </Button>
+                            <ItemRow>
+                                {combinedItems.map((item, index) => (
+                                    <FlexRow key={index} style={{ alignItems: 'center' }}>
+                                        <span>{item.name}</span>
+                                        <Button
+                                            appearance="icon"
+                                            onClick={() => {
+                                                if (item.type === 'file') {
+                                                    handleRemoveFile(item.index);
+                                                } else {
+                                                    handleRemoveImage(item.index);
+                                                }
+                                            }}
+                                        >
+                                            <Codicon name="close"/>
+                                        </Button>
+                                    </FlexRow>
+                                ))}
+                            </ItemRow>
+                            {fileUploadStatus.type === 'error' && (
+                                <div style={{ color: 'red' }}>
+                                    {fileUploadStatus.text}
+                                </div>
+                            )}
+                            <ItemRow>
+                                <Button
+                                    appearance="primary"
+                                    onClick={() => document.getElementById('fileInput').click()}
+                                >
+                                    <Codicon name="new-file"/>
+                                </Button>
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    style={{ display: "none" }}
+                                    multiple
+                                    onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
+                                />
+                                <Button 
+                                    appearance="primary" 
+                                    disabled={inputAiPrompt.length === 0} 
+                                    onClick={handleGenerateWithAI}
+                                >
+                                    <Codicon name="wand" />
+                                    &nbsp; Generate
+                                </Button>
+                            </ItemRow>
                         </AIPanel>
                     </AddPanel>
                     <AddPanel>
@@ -282,6 +367,18 @@ export function AddArtifactView() {
                                         title="Proxy"
                                         description="Create a proxy service to process and route messages."
                                         onClick={() => handleClick("proxyServices")}
+                                    />
+                                    <Card
+                                        icon="data-service"
+                                        title="Data Service"
+                                        description="Create a data service and expose database resources via APIs."
+                                        onClick={() => handleClick("dataServices")}
+                                    />
+                                    <Card
+                                        icon="data-source"
+                                        title="Data Source"
+                                        description="Create a data source and connect with a database."
+                                        onClick={() => handleClick("dataSources")}
                                     />
                                 </HorizontalCardContainer>
                             </PanelViewMore>

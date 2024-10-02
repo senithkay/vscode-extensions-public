@@ -26,7 +26,7 @@ export class RuntimeServicesWebview {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         this._panel?.onDidChangeViewState(() => {
-            if (this._panel?.active) {
+            if (this._panel?.active || this._panel?.visible) {
                 RPCLayer._messenger.sendNotification(
                     miServerRunStateChanged,
                     { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' },

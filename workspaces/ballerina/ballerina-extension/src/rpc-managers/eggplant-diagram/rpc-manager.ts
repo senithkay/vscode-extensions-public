@@ -24,6 +24,8 @@ import {
     EggplantDiagramAPI,
     EggplantFlowModelRequest,
     EggplantFlowModelResponse,
+    EggplantGetFunctionsRequest,
+    EggplantGetFunctionsResponse,
     EggplantNodeTemplateRequest,
     EggplantNodeTemplateResponse,
     EggplantSourceCodeRequest,
@@ -287,6 +289,11 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
                 console.log(">>> ai suggestion", { response: data });
                 resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
             } else {
+                const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
+                if(!enableAiSuggestions) {
+                    resolve(undefined);
+                    return;
+                }
                 // check multi line AI completion setting
                 const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
                 console.log(">>> multi line AI completion setting", multiLineCompletion);
@@ -385,7 +392,7 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
     }
 
     async handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
-        console.log(">>> Save readme.md", params);
+        // console.log(">>> Savineadme.md", params);
         return new Promise((resolve) => {
             const projectUri = StateMachine.context().projectUri;
             const readmePath = path.join(projectUri, README_FILE);
@@ -463,6 +470,35 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
             } catch (error) {
                 resolve({ response: false });
             }
+        });
+    }
+
+    async getFunctions(params: EggplantGetFunctionsRequest): Promise<EggplantGetFunctionsResponse> {
+        console.log(">>> requesting eggplant function list from ls", params);
+        let queryMap = {};
+        if (params?.queryMap) {
+            queryMap = {
+                q: params?.queryMap?.toString(),
+                limit: "10",
+                offset: "0"
+            };
+        }
+
+        params.queryMap = queryMap;
+
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getFunctions(params)
+                .then((model) => {
+                    console.log(">>> eggplant function list from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching function list from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
         });
     }
 }

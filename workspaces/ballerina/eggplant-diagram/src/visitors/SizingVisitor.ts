@@ -53,14 +53,20 @@ export class SizingVisitor implements BaseVisitor {
 
     private createBaseNode(node: FlowNode): void {
         const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
-        const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        let height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        if (node.properties?.variable?.value || node.properties?.type?.value) {
+            height += LABEL_HEIGHT;
+        }
         this.setNodeSize(node, width, height);
     }
 
     private createApiCallNode(node: FlowNode): void {
         const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
         const containerWidth = width + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
-        const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        let height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        if (node.properties?.variable?.value || node.properties?.type?.value) {
+            height += LABEL_HEIGHT;
+        }
         this.setNodeSize(node, width, height, containerWidth);
     }
 

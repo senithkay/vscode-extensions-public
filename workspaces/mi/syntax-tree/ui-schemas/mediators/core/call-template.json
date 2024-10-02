@@ -11,9 +11,6 @@
         "displayName": "Target Template",
         "inputType": "comboOrKey",
         "keyType": "sequenceTemplate",
-        "comboValues": [
-          "{workspace.templates}"
-        ],
         "required": true,
         "helpTip": ""
       }

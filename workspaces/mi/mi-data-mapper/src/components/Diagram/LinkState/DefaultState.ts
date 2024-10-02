@@ -27,6 +27,7 @@ import { FocusedInputNode } from '../Node/FocusedInput';
 import { SubMappingNode } from '../Node/SubMapping';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
 import { useDMExpressionBarStore } from '../../../store/store';
+import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -56,6 +57,7 @@ export class DefaultState extends State<DiagramEngine> {
 							// Clicked on a link overlay item or a diagnostic tooltip,
 							// hence, do not propagate as a canvas drag
 						} else if (dmCanvasContainer) {
+							// deselect links when clicking on the canvas
 							this.deselectLinks();
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
@@ -121,6 +123,7 @@ export class DefaultState extends State<DiagramEngine> {
 			link.setSelected(false);
 			link.getSourcePort()?.fireEvent({}, "link-unselected");
 			link.getTargetPort()?.fireEvent({}, "link-unselected");
+			removeArrayToArrayTempLinkIfExists(link);
 		});
 		useDMExpressionBarStore.getState().resetFocus();
 	}

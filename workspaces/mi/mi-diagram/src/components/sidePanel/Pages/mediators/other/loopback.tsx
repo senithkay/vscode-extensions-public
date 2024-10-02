@@ -37,7 +37,7 @@ const Field = styled.div`
 `;
 
 const LoopbackForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -58,6 +58,7 @@ const LoopbackForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         const xml = getXML(MEDIATORS.LOOPBACK, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;

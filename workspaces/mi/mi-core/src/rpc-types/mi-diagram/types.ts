@@ -372,9 +372,19 @@ export interface CommandsResponse {
     data: string;
 }
 
-export interface getSTRequest {
+export interface GetSTFromUriRequest {
     documentUri: string;
 }
+
+export type ArtifactType = "api" | "data-services" | "data-sources" | "endpoints" | "inbound-endpoints" | "local-entries" | "message-processors" | "message-stores" | "proxy-services" | "sequences" | "tasks" | "templates";
+
+export type GetSTFromArtifactRequest = {
+    artifactType: ArtifactType;
+    artifactName: string;
+}
+
+export type getSTRequest = GetSTFromUriRequest | GetSTFromArtifactRequest;
+
 export interface getSTResponse {
     syntaxTree: any;
     defFilePath: string;
@@ -881,7 +891,7 @@ export interface CreateTaskRequest {
     implementation: string;
     pinnedServers: string;
     triggerType: "simple" | "cron";
-    triggerCount: number;
+    triggerCount: number | null;
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
@@ -908,7 +918,7 @@ export interface GetTaskResponse {
     implementation: string;
     pinnedServers: string;
     triggerType: "simple" | "cron";
-    triggerCount: number;
+    triggerCount: number | null;
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
@@ -1026,6 +1036,18 @@ export interface Datasource {
     dynamicUserAuthClass?: string;
     datasourceProperties: Property[];
     datasourceConfigurations: Configuration[];
+}
+
+export interface DriverPathResponse {
+    path: string;
+}
+
+export interface AddDriverToLibRequest {
+    url: string;
+}
+
+export interface AddDriverToLibResponse {
+    path: string;
 }
 
 export interface Property {
@@ -1293,7 +1315,7 @@ export interface BrowseFileRequest {
     openLabel?: string;
 }
 
-type ResourceType =
+export type ResourceType =
     | "sequence"
     | "endpoint"
     | "api"
@@ -1534,6 +1556,10 @@ export interface DeleteArtifactRequest {
     enableUndo?: boolean;
 }
 
+export interface APIContextsResponse {
+    contexts: string[]
+}
+
 export interface ExportProjectRequest {
     projectPath: string;
 }
@@ -1657,17 +1683,51 @@ export interface GetAllDependenciesResponse {
 
 export interface TestDbConnectionRequest {
     dbType: string;
-    version: string;
     username: string;
     password: string;
     host: string;
     port: string;
     dbName: string;
-    dbDriverFolder: string;
+    url: string;
+    className: string;
 }
 
 export interface TestDbConnectionResponse {
     success: boolean;
+}
+
+export interface AddDriverRequest {
+    className: string;
+    driverPath: string;
+}
+
+export interface DSSQueryGenRequest {
+    className: string;
+    username: string;
+    password: string;
+    url: string;
+    tableData: string;
+    datasourceName: string;
+}
+
+export interface ExtendedDSSQueryGenRequest extends DSSQueryGenRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface DSSQueryGenResponse {
+    [tableName: string]: boolean[];
+}
+
+export interface DSSFetchTablesRequest {
+    className: string;
+    username: string;
+    password: string;
+    url: string;
+}
+
+export interface DSSFetchTablesResponse {
+    [tableName: string]: boolean[];
 }
 
 export interface MarkAsDefaultSequenceRequest {

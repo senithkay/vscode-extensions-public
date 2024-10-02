@@ -28,7 +28,7 @@ After completing the steps above, follow the instructions below to set up the wo
 
 6. Click **Add MI server** to add a Micro Integrator server.
 
-7. Select the folder where `<MI_HOME>` is located. This wll be set as the **current server path**.
+7. Select the folder where `<MI_HOME>` is located. This will be set as the **current server path**.
 
 <img src="https://github.com/wso2/docs-mi/blob/4.3.0/en/docs/assets/img/develop/mi-for-vscode/qsg/current-server-path.png?raw=true" width="100%" />
 
@@ -38,9 +38,9 @@ When you open the extension for the first time, you'll see the Design View panel
 
 <img src="https://github.com/wso2/docs-mi/blob/4.3.0/en/docs/assets/img/develop/mi-for-vscode/getting-started.png?raw=true" width="100%" />
 
-To get started, you need to first create the required project directories. You can either open a folder containing a MI project or create a new project. Alternatively, you can use an integration sample provided under Explore Samples, which will generate the required projects and files for a specific use case.
+To get started, you need to first create the required project directories. You can either open a folder containing an MI project or create a new project. Alternatively, you can use an integration sample provided under **Explore Samples**, which will generate the required projects and files for a specific use case.
 
-To create a new project you can use the links on the MI Project Explorer or Design View.
+You can use the links in MI Project Explorer or Design View to create a new project.
 
 <img src="https://github.com/wso2/docs-mi/blob/4.3.0/en/docs/assets/img/develop/mi-for-vscode/create-new-project.png?raw=true" width="100%" />
 
@@ -52,12 +52,12 @@ The Design View lists a set of sample projects and integration artifacts that re
 
 <img src="https://github.com/wso2/docs-mi/blob/4.3.0/en/docs/assets/img/develop/mi-for-vscode/samples.png?raw=true" width="100%" />
 
-Once you create an integration project, you will see the Add Artifact panel where you can start the integration with one of the following options:
+Once you create an integration project, you will see the **Add Artifact** panel, where you can start the integration with one of the following options:
 
 - Describe your Integration to generate with AI
 - Start with Entry Points and Other Artifacts
 
-To start an integration, you need either API, Proxy, Task, or Inbound Endpoint as the entry points. You can add the other artifacts using the Add Artifacts panel or the Project Explorer.
+To start an integration, you need API, Proxy, Task, or Inbound Endpoint as the entry points. You can add the other artifacts using the **Add Artifact** panel or the Project Explorer.
 
 ## Micro Integrator Project Explorer
 
@@ -81,7 +81,7 @@ You can create any integration project by entering your integration scenario in 
 
 ## Reach Out
 
-Reach out to us for assistance by creating [GitHub issues](https://github.com/wso2/mi-vscode/issues).
+Reach out to us for assistance by creating [GitHub issues](https://github.com/wso2/mi-vscode/issues) or via [help-micro-integrator](https://discord.com/invite/Xa5VubmThw) channel in WSO2 Discord server.
 
 ## Documentation
 

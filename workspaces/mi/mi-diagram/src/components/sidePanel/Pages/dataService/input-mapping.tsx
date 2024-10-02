@@ -40,27 +40,31 @@ const InputMappingsForm = (props: AddMediatorProps) => {
             const queryParams: any[] = [];
             let isInResource = false;
             const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
-            st.syntaxTree.data.resources.forEach((resource: any) => {
-                if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
-                    if (resource.callQuery.withParam !== undefined) {
-                        resource.callQuery.withParam.forEach((param: any) => {
-                            queryParams.push({name: param.name, queryParam: param.queryParam});
-                        });
-                    }
-                    isInResource = true;
-                }
-            });
-            if (!isInResource) {
-                st.syntaxTree.data.operations.forEach((operation: any) => {
-                    if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
-                        if (operation.callQuery.withParam !== undefined) {
-                            operation.callQuery.withParam.forEach((param: any) => {
+            if (st.syntaxTree.data.resources !== undefined && st.syntaxTree.data.resources !== null && st.syntaxTree.data.resources.length > 0) {
+                st.syntaxTree.data.resources.forEach((resource: any) => {
+                    if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                        if (resource.callQuery.withParam !== undefined) {
+                            resource.callQuery.withParam.forEach((param: any) => {
                                 queryParams.push({name: param.name, queryParam: param.queryParam});
                             });
                         }
                         isInResource = true;
                     }
                 });
+            }
+            if (!isInResource) {
+                if (st.syntaxTree.data.operations !== undefined && st.syntaxTree.data.operations !== null && st.syntaxTree.data.operations.length > 0) {
+                    st.syntaxTree.data.operations.forEach((operation: any) => {
+                        if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                            if (operation.callQuery.withParam !== undefined) {
+                                operation.callQuery.withParam.forEach((param: any) => {
+                                    queryParams.push({name: param.name, queryParam: param.queryParam});
+                                });
+                            }
+                            isInResource = true;
+                        }
+                    });
+                }
             }
             sidePanelContext?.formValues?.inputMappings.forEach((element: any) => {
                 const matchingParam = queryParams.find(queryParam => queryParam.name === element[0]);
@@ -281,20 +285,24 @@ const InputMappingsForm = (props: AddMediatorProps) => {
         const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
         let isInResource = false;
         let resourceData: any = {};
-        st.syntaxTree.data.resources.forEach((resource: any) => {
-            if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
-                resourceData.resourceRange = resource.callQuery.range;
-                resourceData.selfClosed = resource.callQuery.selfClosed;
-                isInResource = true;
-            }
-        });
-        if (!isInResource) {
-            st.syntaxTree.data.operations.forEach((operation: any) => {
-                if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
-                    resourceData.resourceRange = operation.callQuery.range;
-                    resourceData.selfClosed = operation.callQuery.selfClosed;
+        if (st.syntaxTree.data.resources !== undefined && st.syntaxTree.data.resources !== null && st.syntaxTree.data.resources.length > 0) {
+            st.syntaxTree.data.resources.forEach((resource: any) => {
+                if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                    resourceData.resourceRange = resource.callQuery.range;
+                    resourceData.selfClosed = resource.callQuery.selfClosed;
+                    isInResource = true;
                 }
             });
+        }
+        if (!isInResource) {
+            if (st.syntaxTree.data.operations !== undefined && st.syntaxTree.data.operations !== null && st.syntaxTree.data.operations.length > 0) {
+                st.syntaxTree.data.operations.forEach((operation: any) => {
+                    if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                        resourceData.resourceRange = operation.callQuery.range;
+                        resourceData.selfClosed = operation.callQuery.selfClosed;
+                    }
+                });
+            }
         }
 
         if (Object.keys(resourceData).length !== 0) {

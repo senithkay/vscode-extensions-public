@@ -154,7 +154,7 @@
               "displayName": "Max Entry Count",
               "inputType": "string",
               "defaultValue": "1000",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           },

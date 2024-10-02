@@ -40,7 +40,7 @@ const Field = styled.div`
 `;
 
 const EnrichForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
@@ -72,6 +72,7 @@ const EnrichForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         const xml = getXML(MEDIATORS.ENRICH, values, dirtyFields, sidePanelContext.formValues);
         const trailingSpaces = props.trailingSpace;
@@ -210,7 +211,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
-                                    filterType='registry'
+                                    filterType={['registry','localEntry']}
                                     label="Inline Registry Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}

@@ -15,7 +15,7 @@ import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapp
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
-import { getInputAccessNodes } from '../../utils/common-utils';
+import { getInputAccessNodes, isConditionalExpression } from '../../utils/common-utils';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 export interface DataMapperNodeModelGenerics {
@@ -213,7 +213,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const valNode = Node.isPropertyAssignment(node) ? node.getInitializer() : node;
 		if (valNode) {
 			const inputNodes = getInputAccessNodes(valNode);
-			if (inputNodes.length === 1) {
+			const isCondtionalExpr = isConditionalExpression(valNode);
+			if (inputNodes.length === 1 && !isCondtionalExpr) {
 				return new MappingMetadata([...currentFields, node], inputNodes[0], valNode);
 			}
 			return new MappingMetadata([...currentFields, node], undefined, valNode);

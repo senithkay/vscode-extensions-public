@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
@@ -59,6 +59,9 @@ export function DataMapperView(props: DataMapperViewProps) {
         updateFileContent,
         configName
     } = props;
+
+    const [isLoading, setIsLoading] = useState(false); 
+    const [isMapping, setIsMapping] = useState(false);
 
     const { rpcClient } = useVisualizerContext();
 
@@ -112,7 +115,7 @@ export function DataMapperView(props: DataMapperViewProps) {
     };
 
     return (
-        <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
+        <ErrorBoundary errorMsg="An error occurred while rendering the MI Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
                 <MIDataMapper
@@ -123,6 +126,10 @@ export function DataMapperView(props: DataMapperViewProps) {
                     applyModifications={applyModifications}
                     filePath={filePath}
                     configName={configName}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                    isMapping={isMapping}
+                    setIsMapping={setIsMapping}
                 />
             </QueryClientProvider>
         </ErrorBoundary>

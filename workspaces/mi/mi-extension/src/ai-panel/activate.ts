@@ -14,9 +14,25 @@ import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-
 import { exchangeAuthCode } from './auth';
 import { extension } from '../MIExtensionContext';
 
+interface FileObject {
+    fileName: string;
+    fileContent: string;
+}
+
+interface ImageObject {
+    imageName: string;
+    imageBase64: string;
+}
+
+interface PromptObject {
+    aiPrompt: string;
+    files: FileObject[];
+    images: ImageObject[];
+}
+
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: PromptObject) => {
             openAIWebview(initialPrompt);
         })
     );

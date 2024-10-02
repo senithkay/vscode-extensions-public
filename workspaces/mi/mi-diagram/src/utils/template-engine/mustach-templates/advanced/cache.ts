@@ -81,7 +81,7 @@ export function getCacheMustacheTemplate() {
     {{/isEditProtocol}}
     {{#isEditImplementation}}
     {{^isCollector}}
-    <implementation maxSize="{{maxEntryCount}}" type="{{implementationType}}" />
+    <implementation maxSize="{{maxEntryCount}}"{{#is611Compatible}} type="{{implementationType}}"{{/is611Compatible}}/>
     {{/isCollector}}
     {{/isEditImplementation}}
     {{#isEditOnCacheHit}}
@@ -114,8 +114,12 @@ export function getCacheXml(data: { [key: string]: any }, dirtyFields?: any, def
     if (data.headersToIncludeInHash && data.headersToIncludeInHash.length > 0) {
         data.hasHeadersToIncludeInHash = true;
     }
-
-    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+    // Need to replace entire mediator if cacheType changes from "COLLECTOR" to "FINDER".
+    let collectorToFinder = false;
+    if (defaultValues && defaultValues.cacheType == "COLLECTOR" && data.cacheType == "FINDER") {
+        collectorToFinder = true;
+    }
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0 || collectorToFinder) {
         data.isNewMediator = true;
         const output = getXML(data);
         return output;
@@ -129,10 +133,10 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 
     let edits: { [key: string]: any }[] = [];
 
-    let cacheTagAttributes = ["cacheType", "cacheTimeout", "maxMessageSize", "scope", "hashGeneratorAttribute", "description"];
+    let cacheTagAttributes = ["cacheMediatorImplementation", "cacheType", "cacheTimeout", "maxMessageSize", "scope", "hashGeneratorAttribute", "description"];
     let protocolTagAttributes = ["cacheMediatorImplementation", "cacheProtocolType", "cacheProtocolMethods", "headersToIncludeInHash", "headersToExcludeInHash", "responseCodes", "enableCacheControl", "includeAgeHeader", "hashGenerator"];
     let onCacheHitTagAttributes = ["sequenceType", "sequenceKey"];
-    let implementationTagAttributes = ["maxEntryCount", "implementationType"];
+    let implementationTagAttributes = ["maxEntryCount", "implementationType", "cacheType"];
 
     let dirtyKeys = Object.keys(dirtyFields);
 
@@ -164,7 +168,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         }
     }
 
-    if (checkAttributesExist(dirtyKeys, protocolTagAttributes)) {
+    if (checkAttributesExist(dirtyKeys, protocolTagAttributes) && !data.isCollector) {
         let protocolData = { ...data };
         protocolData.isEditProtocol = true;
         const output = getXML(protocolData);
@@ -188,7 +192,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         edits.push(edit);
     }
 
-    if (checkAttributesExist(dirtyKeys, onCacheHitTagAttributes)) {
+    if (checkAttributesExist(dirtyKeys, onCacheHitTagAttributes) && data.isCollector) {
         let onCacheHitData = { ...data };
         onCacheHitData.isEditOnCacheHit = true;
         const output = getXML(onCacheHitData);
@@ -210,7 +214,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         edits.push(edit);
     }
 
-    if (checkAttributesExist(dirtyKeys, implementationTagAttributes)) {
+    if (checkAttributesExist(dirtyKeys, implementationTagAttributes) && !data.isCollector) {
         let implementationData = { ...data };
         implementationData.isEditImplementation = true;
         const output = getXML(implementationData);
@@ -252,8 +256,9 @@ export function getCacheFormDataFromSTNode(data: { [key: string]: any }, node: C
     data.enableCacheControl = node.protocol?.enableCacheControl?.textNode == "true";
     data.includeAgeHeader = node.protocol?.includeAgeHeader?.textNode == "true";
     data.maxEntryCount = node.implementation?.maxSize;
-    data.cacheMediatorImplementation = node.protocol ? "Default" : "611 Compatible";
     data.cacheType = node.collector ? "COLLECTOR" : "FINDER";
+    data.cacheMediatorImplementation = node.collector ?
+        (node.scope ? "611 Compatible" : "Default") : (node.protocol ? "Default" : "611 Compatible");
     data.sequenceType = node.onCacheHit?.sequence ? "REGISTRY_REFERENCE" : "ANONYMOUS";
     data.ranges = {
         cache: node.range,

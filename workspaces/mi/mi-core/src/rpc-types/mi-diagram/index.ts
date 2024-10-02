@@ -190,7 +190,15 @@ import {
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DriverPathResponse,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse,
+    APIContextsResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -242,6 +250,9 @@ export interface MiDiagramAPI {
     createDataService: (params: CreateDataServiceRequest) => Promise<CreateDataServiceResponse>;
     createDssDataSource: (params: CreateDssDataSourceRequest) => Promise<CreateDssDataSourceResponse>;
     getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
+    askDriverPath: () => Promise<DriverPathResponse>;
+    addDriverToLib: (params: AddDriverToLibRequest) => Promise<AddDriverToLibResponse>;
+    deleteDriverFromLib: (params: AddDriverToLibRequest) => Promise<void>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
@@ -260,8 +271,8 @@ export interface MiDiagramAPI {
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
     initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
-    undo: (params: UndoRedoParams) => void;
-    redo: (params: UndoRedoParams) => void;
+    undo: (params: UndoRedoParams) => Promise<boolean>;
+    redo: (params: UndoRedoParams) => Promise<boolean>;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
     getTextAtRange: (params: GetTextAtRangeRequest) => Promise<GetTextAtRangeResponse>;
     getDiagnostics: (params: GetDiagnosticsReqeust) => Promise<GetDiagnosticsResponse>;
@@ -295,6 +306,7 @@ export interface MiDiagramAPI {
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
+    getAllAPIcontexts: () => Promise<APIContextsResponse>;
     buildProject: () => void;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
@@ -315,6 +327,10 @@ export interface MiDiagramAPI {
     testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
     markAsDefaultSequence: (params: MarkAsDefaultSequenceRequest) => Promise<void>;
     getSubFolderNames: (path: GetSubFoldersRequest) => Promise<GetSubFoldersResponse>;
-    renameFile: (params: FileRenameRequest) => void;
+    renameFile: (params: FileRenameRequest) => Promise<void>;
     openUpdateExtensionPage: () => void;
+    checkDBDriver: (className: string) => Promise<boolean>;
+    addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
+    generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
+    fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
 }

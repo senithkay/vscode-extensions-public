@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { Button, TextField, SidePanel, SidePanelTitleContainer, SidePanelBody, Codicon, FormCheckBox, TextArea, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, SidePanel, SidePanelTitleContainer, SidePanelBody, Codicon, FormCheckBox, TextArea, Dropdown, Typography } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import styled from "@emotion/styled";
 import { SIDE_PANEL_WIDTH } from "../../../../constants";
@@ -136,13 +136,13 @@ export const ResourceForm = ({ isOpen, onCancel, onSave, formData }: ResourceFor
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
+                <Typography variant="h3" sx={{margin: 0}}>{`${formData ? "Edit" : "Add"} Resource`}</Typography>
                 <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody style={{ overflowY: "scroll" }}>
                 <SidePanelBodyWrapper>
-                    <h3>{`${formData ? "Edit" : "Add"} Resource`}</h3>
                     <TextField
                         label="Resource Path"
                         required

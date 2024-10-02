@@ -24,26 +24,23 @@ export const getExpressionInfo = (text: string, cursorPosition: number) => {
     return { isCursorInFunction, currentFnContent };
 };
 
-export const addClosingBracketIfNeeded = (inputRef: RefObject<HTMLInputElement>, text: string) => {
+export const addClosingBracketIfNeeded = (text: string) => {
     let updatedText = text;
-    let cursorPosition = inputRef.current!.shadowRoot.querySelector('input').selectionStart;
 
     const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
 
     // Add a closing bracket if the expression has an opening bracket but no closing bracket
     if (closingBracket) {
         updatedText += ')';
-        cursorPosition++;
     } else {
         const openBrackets = (updatedText.match(/\(/g) || []).length;
         const closeBrackets = (updatedText.match(/\)/g) || []).length;
         if (openBrackets > closeBrackets) {
             updatedText += ')';
-            cursorPosition++;
         }
     }
 
-    return { updatedText, cursorPosition };
+    return updatedText;
 };
 
 export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: number) => {

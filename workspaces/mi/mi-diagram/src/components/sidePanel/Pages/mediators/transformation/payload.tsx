@@ -40,20 +40,25 @@ const Field = styled.div`
 `;
 
 const PayloadForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
+    const payloadPlaceholders:{[key:string]:string} = {
+        "xml": "<inline/>",
+        "json": "{\"Inline\":\"json\"}",
+        "text": "Inline text"
+    };
 
     useEffect(() => {
         reset({
-            payloadFormat: sidePanelContext?.formValues?.payloadFormat || "",
+            payloadFormat: sidePanelContext?.formValues?.payloadFormat || "Inline",
             mediaType: sidePanelContext?.formValues?.mediaType || "json",
             templateType: sidePanelContext?.formValues?.templateType || "Default",
             payloadKey: sidePanelContext?.formValues?.payloadKey || "",
-            payload: sidePanelContext?.formValues?.payload || "{\"Sample\":\"Payload\"}",
+            payload: sidePanelContext?.formValues?.payload || "",
             args: {
                 paramValues: sidePanelContext?.formValues?.args ? getParamManagerFromValues(sidePanelContext?.formValues?.args, -1, 0) : [],
                 paramFields: [
@@ -75,6 +80,13 @@ const PayloadForm = (props: AddMediatorProps) => {
                         "values": [
                             "xml",
                             "json"
+                        ],
+                        "enableCondition": [
+                            {
+                                "0": {
+                                    "isExpression": true
+                                }
+                            }
                         ]
                     },
                     {
@@ -97,6 +109,7 @@ const PayloadForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
+        setDiagramLoading(true);
         
         values["args"] = getParamManagerValues(values.args);
         const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
@@ -195,8 +208,13 @@ const PayloadForm = (props: AddMediatorProps) => {
                     <Controller
                         name="payloadKey"
                         control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
+                        }
                         render={({ field }) => (
-                            <TextField {...field} label="Payload Key" size={50} placeholder="" required={false} errorMsg={errors?.payloadKey?.message?.toString()} />
+                            <TextField {...field} label="Payload Key" size={50} placeholder="" required={true} errorMsg={errors?.payloadKey?.message?.toString()} />
                         )}
                     />
                 </Field>
@@ -210,8 +228,13 @@ const PayloadForm = (props: AddMediatorProps) => {
                         <Controller
                             name="payload"
                             control={control}
+                            rules={
+                                {
+                                    required: "This field is required",
+                                }
+                            }
                             render={({ field }) => (
-                                <CodeTextArea {...field} label="Payload" placeholder="" required={false} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.payload?.message?.toString()} />
+                                <CodeTextArea {...field} label="Payload" placeholder={payloadPlaceholders[watch("mediaType")]} required={true} resize="vertical" growRange={{ start: 5, offset: 10 }} errorMsg={errors?.payload?.message?.toString()} />
                             )}
                         />
                     </Field>

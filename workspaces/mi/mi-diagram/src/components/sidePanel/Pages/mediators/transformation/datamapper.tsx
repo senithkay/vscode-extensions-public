@@ -36,7 +36,7 @@ const Field = styled.div`
 `;
 
 const DataMapperForm = (props: AddMediatorProps) => {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
@@ -85,6 +85,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
+            setDiagramLoading(true);
             const xml = getXML(MEDIATORS.DATAMAPPER, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
@@ -182,7 +183,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
             });
         });
     }
-    
+
     const createMapping = () => {
         submitFormValues();
         openDataMapperView();
@@ -314,11 +315,11 @@ const DataMapperForm = (props: AddMediatorProps) => {
                         />
                         {errors["description"] && <Error>{errors["description"]}</Error>}
                     </Field>
-                    
+
                 </ComponentCard>
 
                 <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                    {createOption === "new" &&  <Button
+                    {createOption === "new" && <Button
                         appearance="primary"
                         onClick={createMapping}
                     >

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { NodeModel } from "@projectstorm/react-diagrams";
+import { NodeModel, PortModel } from "@projectstorm/react-diagrams";
 import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
 import {
     ts,
@@ -21,14 +21,15 @@ import {
     ReturnStatement,
     FunctionDeclaration,
     SyntaxKind,
-    ElementAccessExpression
+    ElementAccessExpression,
+    SourceFile
 } from "ts-morph";
 
 import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
-import { InputOutputPortModel } from "../Port";
+import { InputOutputPortModel, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 import {
@@ -42,6 +43,7 @@ import {
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 import { View } from "../../../components/DataMapper/Views/DataMapperView";
+import { DataMapperLinkModel } from "../Link";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -402,12 +404,8 @@ export function getDefaultValue(typeKind: TypeKind): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
-		case TypeKind.Interface:
-		case TypeKind.Object:
-			draftParameter = `{}`;
-			break;
 		default:
-			draftParameter = `""`;
+			draftParameter = `{}`;
 			break;
 	}
 	return draftParameter;
@@ -721,6 +719,48 @@ export function getFilterExpressions(callExpr: CallExpression): CallExpression[]
     });
 
     return filterCalls.reverse();
+}
+
+export function isFunctionArgument(identifier: string, sourceFile: SourceFile): boolean {
+    const identifierNodes = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier);
+    
+    for (const idNode of identifierNodes) {
+        if (idNode.getText() === identifier) {
+            const parent = idNode.getParent();
+            if (parent && parent.getKind() === SyntaxKind.Parameter) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function isConnectingArrays(sourcePort: PortModel, targetPort: PortModel): boolean {
+    if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
+        return false;
+    }
+    const sourceKind = sourcePort.field.kind;
+    const targetKind = targetPort.field.kind;
+
+    return sourceKind === TypeKind.Array && targetKind === TypeKind.Array;
+}
+
+export function getValueType(lm: DataMapperLinkModel): ValueType {
+    const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
+
+    if (typeWithValue?.value) {
+        let expr = typeWithValue.value;
+
+        if (Node.isPropertyAssignment(expr)) {
+            expr = expr.getInitializer();
+        }
+        const value = expr?.getText();
+        if (value !== undefined) {
+            return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
+        }
+    }
+
+    return ValueType.Empty;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

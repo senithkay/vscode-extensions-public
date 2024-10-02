@@ -10,6 +10,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 export interface ProgressBarProps {
     id?: string;
+	barWidth?: number;
 	sx?: any;
 }	
 
@@ -30,7 +31,7 @@ const Container = styled.div<ProgressBarProps>`
 		display: none;
 		position: absolute;
 		left: 0;
-		width: 2%;
+		width: ${(props: ProgressBarProps) => props.barWidth ?? 2}%;
 		height: 2px;
 	}
 
@@ -71,9 +72,10 @@ const Container = styled.div<ProgressBarProps>`
 	${(props: ProgressBarProps) => props.sx};
 `;
 
-export const ProgressIndicator = ({ id, sx }: { id?: string, sx?: any }) => {
+export const ProgressIndicator = (props: ProgressBarProps) => {
+    const { sx, id, barWidth } = props;
     return (
-        <Container sx={sx} className="infinite active" role="progressbar" id={id}>
+        <Container className="infinite active" role="progressbar" id={id} barWidth={barWidth} sx={sx}>
             <div className="progress-bar"/>
         </Container>
     );

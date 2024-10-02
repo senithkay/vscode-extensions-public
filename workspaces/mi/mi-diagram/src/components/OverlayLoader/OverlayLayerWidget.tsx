@@ -15,28 +15,31 @@ import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../resources/constants";
 
 export interface NodeLayerWidgetProps {
-    layer: OverlayLayerModel;
-    engine: DiagramEngine;
 }
 
 const Container = styled.div`
-    align-items: center;
     display: flex;
-    flex-direction: row;
+    align-items: center;
     justify-content: center;
     height: 100%;
     width: 100%;
-    background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
-    background-size: 16px 16px;
-    background-color: ${Colors.SURFACE_BRIGHT};
+    position: fixed;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+    z-index: 1000;
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
     render() {
         return (
-            <Container>
-                <ProgressRing />
-            </Container>
+            <div data-testid={"loading-overlay"}>
+                <Container>
+                    <ProgressRing />
+                </Container>
+            </div>
         );
     }
 }
