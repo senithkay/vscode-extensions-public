@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, getIcon } from './utils';
+import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
@@ -335,7 +335,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
-    const isExpressionEditorFocused = useRef<boolean>(false);
+    const skipFocusCallback = useRef<boolean>(false);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
     const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
@@ -415,6 +415,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         await handleChange(newTextValue, newCursorPosition, item);
         onCompletionSelect && await onCompletionSelect(newTextValue);
+
+        return { newTextValue, newCursorPosition };
     };
 
     const handleExpressionSave = async (value: string) => {
@@ -425,6 +427,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     // Mutation functions
     const {
+        data: completionSelectResponse,
         isLoading: isSelectingCompletion,
         mutate: handleCompletionSelectMutation
     } = useTransaction(handleCompletionSelect);
@@ -432,6 +435,14 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         isLoading: isSavingExpression,
         mutate: handleExpressionSaveMutation
     } = useTransaction(handleExpressionSave);
+
+    useEffect(() => {
+        if (completionSelectResponse) {
+            // Post completion select actions
+            skipFocusCallback.current = true;
+            setCursor(inputRef, completionSelectResponse.newCursorPosition);
+        }
+    }, [completionSelectResponse]);
 
     const navigateUp = throttle((hoveredEl: Element) => {
         if (hoveredEl) {
@@ -529,34 +540,38 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
     };
 
-    const handleFocus = async (value?: string) => {
-        if (!isExpressionEditorFocused.current) {
-            await onFocus?.(value);
+    const handleRefFocus = () => {
+        if (document.activeElement !== elementRef.current) {
             inputRef.current?.focus();
-
-            // Set the expression editor as focused
-            isExpressionEditorFocused.current = true;
         }
     }
 
-    const handleBlur = async (value?: string) => {
-        if (isExpressionEditorFocused.current) {
+    const handleRefBlur = async (value?: string) => {
+        if (document.activeElement === elementRef.current) {
             // Trigger save event on blur
             if (value !== undefined) {
                 await handleExpressionSaveMutation(value);
             }
-            await onBlur?.(value);
             inputRef.current?.blur();
-
-            // Set the expression editor as blurred
-            isExpressionEditorFocused.current = false;
         }
+    }
+
+    const handleTextFieldFocus = async () => {
+        if (skipFocusCallback.current) {
+            skipFocusCallback.current = false;
+            return;
+        }
+        await onFocus?.();
+    }
+
+    const handleTextFieldBlur = async () => {
+        await onBlur?.();
     }
 
     useImperativeHandle(ref, () => ({
         shadowRoot: inputRef.current?.shadowRoot,
-        focus: handleFocus,
-        blur: handleBlur,
+        focus: handleRefFocus,
+        blur: handleRefBlur,
         saveExpression: async (value?: string) => {
             await handleExpressionSaveMutation(value);
         }
@@ -569,8 +584,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
-                onFocus={() => handleFocus()}
-                onBlur={() => handleBlur()}
+                onFocus={handleTextFieldFocus}
+                onBlur={handleTextFieldBlur}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || (shouldDisableOnSave && (isSelectingCompletion || isSavingExpression))}
                 {...rest}
