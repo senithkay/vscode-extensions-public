@@ -63,6 +63,8 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 });
             }
 
+            const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
+
             const params: BIFlowModelRequest = {
                 filePath: Uri.parse(context.documentUri!).fsPath,
                 startLine: {
@@ -73,6 +75,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     line: context.position.endLine ?? 0,
                     offset: context.position.endColumn ?? 0,
                 },
+                forceAssign: flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments",
             };
 
             StateMachine.langClient()
@@ -186,8 +189,8 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         console.log(">>> requesting bi node template from ls", params);
         const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
-        console.log(">>> flow node style", flowNodeStyle);
-        // TODO: improve request with flowNodeStyle
+        params.forceAssign = flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments";
+        
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
