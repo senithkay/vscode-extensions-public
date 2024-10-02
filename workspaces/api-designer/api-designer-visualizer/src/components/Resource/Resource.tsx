@@ -38,6 +38,7 @@ interface OverviewProps {
     resourceOperation: Operation;
     onPathChange: (pathObject: Path) => void;
     onDelete: (path: string, method: string) => void;
+    onViewSwagger?: () => void;
 }
 
 type InputsFields = {
@@ -53,7 +54,7 @@ type InputsFields = {
 const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
 
 export function Resource(props: OverviewProps) {
-    const { resourceOperation, method, path, onPathChange, onDelete } = props;
+    const { resourceOperation, method, path, onPathChange, onDelete, onViewSwagger } = props;
     const [ initailPath, setInitailPath ] = useState<string>(path);
     const [ initialMethod, setInitialMethod ] = useState<string>(method);
     const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
@@ -217,7 +218,7 @@ export function Resource(props: OverviewProps) {
         <>
             <TitleWrapper>
                 <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource}/>
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} onViewSwagger={onViewSwagger} />
             </TitleWrapper>
             <PanelBody>
                 <HorizontalFieldWrapper>

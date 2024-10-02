@@ -1,4 +1,4 @@
-import { Button, Dialog, CheckBoxGroup, CheckBox } from '@wso2-enterprise/ui-toolkit';
+import { Button, Dialog, CheckBoxGroup, CheckBox, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import React from 'react';
 
@@ -16,10 +16,11 @@ interface OptionPopupProps {
     hideDelete?: boolean;
     onOptionChange: (options: string[]) => void;
     onDeleteResource?: () => void;
+    onViewSwagger?: () => void;
 }
 
 export function OptionPopup(props: OptionPopupProps) {
-    const { options, selectedOptions, onOptionChange, hideDelete } = props;
+    const { options, selectedOptions, onOptionChange, hideDelete, onViewSwagger } = props;
     const [isOpen, setIsOpen] = React.useState(false);
 
     const handleOnClose = () => {
@@ -34,13 +35,20 @@ export function OptionPopup(props: OptionPopupProps) {
         if (props.onDeleteResource) {
             props.onDeleteResource();
         }
-    }
+    };
+
+    const handleViewSwagger = () => {
+        onViewSwagger();
+    };
 
     return (
         <>
             <ButtonWrapper> 
                 <Button appearance="primary" onClick={openDialog}> Add More Options </Button>
                 {!hideDelete && <Button buttonSx={{background: "var(--vscode-errorForeground)"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>}
+                <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleViewSwagger}> 
+                    <Codicon name="eye" />
+                </Button>
             </ButtonWrapper>
             <Dialog sx={{width: "fit-content", minWidth: 120}} isOpen={isOpen} onClose={handleOnClose}>
                 <CheckBoxGroup>

@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from "react";
 import { OpenAPI, Path } from "../../Definitions/ServiceDefinitions";
-import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathsComponent } from "../PathsComponent/PathsComponent";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,27 @@ const NavigationContainer = styled.div`
     overflow-y: auto;
 `;
 
+const TitleWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    padding: 16px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    font: inherit;
+    font-weight: bold;
+    color: var(--vscode-editor-foreground);
+`;
+
+const ServiceDesignerWrapper = styled.div`
+    padding: 0 10px;
+`;
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    flex-grow: 1;
+`;
+
 // const PanelContainer = styled.div`
 //     background-color: var(--vscode-editor-background);
 //     box-shadow: 5px 5px 10px 5px var(--vscode-badge-background);
@@ -51,7 +72,7 @@ const schema = yup.object({
     selectedPathID: yup.string()
 });
 
-const NvigationPanelContainer = styled.div`
+const NavigationPanelContainer = styled.div`
     padding: 10px;
 `;
 
@@ -221,26 +242,50 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     return (
         <NavigationContainer>
             <SplitView defaultWidths={[25, 75]}>
-                <NvigationPanelContainer>
+                <NavigationPanelContainer>
                     {openAPIDefinition?.paths &&
                         <PathsComponent
                             paths={openAPIDefinition.paths}
                             selectedPathID={selectedPathID}
+                            hideOverview={isViewMode}
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}
                             onAddResource={handleAddResource}
                             onDeletePath={onDeletePath} />
                     }
-                </NvigationPanelContainer>
+                </NavigationPanelContainer>
                 {isViewMode ? (
-                    <ServiceDesigner model={serviceDesModel} selectedResourceId={selectedPathID} disableTitle disableServiceHeader />
+                    <>
+                        <TitleWrapper>
+                            <Typography sx={{ margin: 0 }} variant="h1">Available Resource</Typography>
+                            <ButtonWrapper>
+                                <Button appearance="icon" sx={{ marginTop: 5 }} onClick={() => setIsViewMode(false)}>
+                                    <Codicon name="edit" />
+                                </Button>
+                            </ButtonWrapper>
+                        </TitleWrapper>
+                        <ServiceDesignerWrapper>
+                            <ServiceDesigner model={serviceDesModel} selectedResourceId={selectedPathID} disableTitle disableServiceHeader />
+                        </ServiceDesignerWrapper>
+                    </>
                 ) : (
                     <div>
                         {(selectedPathID === undefined || !operation) && (
-                            <Overview openAPIDefinition={openAPIDefinition} onOpenApiDefinitionChange={onOpenApiDefinitionChange} />
+                            <Overview 
+                                openAPIDefinition={openAPIDefinition} 
+                                onOpenApiDefinitionChange={onOpenApiDefinitionChange} 
+                                onViewSwagger={() => setIsViewMode(true)} 
+                            />
                         )}
                         {operation && selectedPathID !== undefined && (
-                            <Resource resourceOperation={operation} method={selectedMethod} path={selectedPath} onPathChange={handlePathChange} onDelete={onDeleteResource} />
+                            <Resource
+                                resourceOperation={operation}
+                                method={selectedMethod}
+                                path={selectedPath}
+                                onPathChange={handlePathChange}
+                                onDelete={onDeleteResource}
+                                onViewSwagger={() => setIsViewMode(true)}
+                            />
                         )}
                     </div>
                 )}

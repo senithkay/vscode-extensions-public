@@ -12,11 +12,13 @@ import styled from "@emotion/styled";
 import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
 import { TreeViewItem } from "../Treeview/TreeViewItem";
+import { useEffect, useRef, useState } from "react";
 
 interface OpenAPIDefinitionProps {
     paths: Paths;
     selectedPathID?: string;
     onAddPath: () => void;
+    hideOverview?: boolean;
     onAddResource?: (path: string, method: string) => void;
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
@@ -53,15 +55,23 @@ const OverviewTitle = styled.div`
 `;
 
 const LeftPathContainer = styled.div`
-    width: 90%;
+    /* width: 90%; */
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
 `;
 const RightPathContainer = styled.div`
-    width: 10%;
+    width: 10px;
 `;
 const PathContainer = styled.div`
     display: flex;
     flex-direction: row;
     flex-grow: 1;
+`;
+const PathWrapper = styled.div`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 export const contextMenuSx = {
@@ -94,7 +104,9 @@ const APIResources = [
 ];
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
-    const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
+    const { paths, hideOverview, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
+    const pathContinerRef = useRef<HTMLDivElement>(null);
+    const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
     const pathsArray = Object.keys(paths);
     // Get PathItems from paths
     const pathItems = Object.values(paths);
@@ -118,12 +130,39 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
         { id: "add", label: "Add Path", onClick: handleAddPath }
     ];
 
+    useEffect(() => {
+        if (!pathContinerRef.current) return;
+
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                if (entry.contentBoxSize) {
+                    const width = entry.contentBoxSize[0].inlineSize;
+                    setCurrentDivWidth(width);
+                } else {
+                    // Fallback for browsers that don't support contentBoxSize
+                    const width = entry.contentRect.width;
+                    setCurrentDivWidth(width);
+                }
+            }
+        });
+
+        resizeObserver.observe(pathContinerRef.current);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, []);
+
+    console.log("currentDivWidth", currentDivWidth);
+
     return (
-        <PathsContainer>
-            <OverviewTitle onClick={handleOverviewClick}>
-                <Codicon name="globe" />
-                <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
-            </OverviewTitle>
+        <PathsContainer ref={pathContinerRef}>
+            {!hideOverview && (
+                <OverviewTitle onClick={handleOverviewClick}>
+                    <Codicon name="globe" />
+                    <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
+                </OverviewTitle>
+            )}
             <TreeView rootTreeView id="Paths"
                 content={
                     <PathContainer>
@@ -166,7 +205,16 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                             content={
                                 <PathContainer>
                                     <LeftPathContainer>
-                                        <Typography sx={{ margin: "0 0 0 2px" }} variant="h3">{path}</Typography>
+                                        <Typography 
+                                            sx={{
+                                                whiteSpace: "nowrap",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                width: (currentDivWidth - 50),
+                                                margin: "0 0 0 2px" 
+                                            }} variant="h3">
+                                            {path}
+                                        </Typography>
                                     </LeftPathContainer>
                                     <RightPathContainer>
                                         <ContextMenu
@@ -188,7 +236,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                             selected={selectedPathID === getResourceID(path, operation)}
                                             onClick={() => onPathChange && onPathChange(selectedPathID)}
                                         >
-                                            <Typography variant="h5" sx={{ margin: 0, padding: 6 }}>{operation.toUpperCase()}</Typography>
+                                            <Typography variant="h4" sx={{ margin: 0, padding: 6, display: "flex", justifyContent: "center", minWidth: 60 }}>{operation}</Typography>
                                         </Operation>
                                     </TreeViewItem>
                                 );

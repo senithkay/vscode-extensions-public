@@ -31,6 +31,7 @@ export const PanelBody = styled.div`
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
     onOpenApiDefinitionChange: (openAPIDefinition: OpenAPI) => void;
+    onViewSwagger?: () => void;
 }
 
 const moreOptions = ["Summary", "Servers", "Security"];
@@ -64,7 +65,7 @@ type InputsFields = {
 };
 
 export function Overview(props: OverviewProps) {
-    const { openAPIDefinition } = props;
+    const { openAPIDefinition, onViewSwagger } = props;
     const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
 
     const handleOptionChange = (options: string[]) => {
@@ -126,7 +127,7 @@ export function Overview(props: OverviewProps) {
         <>
             <SidePanelTitleContainer>
                 <Typography sx={{ margin: 0 }} variant="h1">Overview</Typography>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} hideDelete />
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onViewSwagger={onViewSwagger} onOptionChange={handleOptionChange} hideDelete />
             </SidePanelTitleContainer>
             <PanelBody>
                 <HorizontalFieldWrapper>
