@@ -84,6 +84,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const originalFlowModel = useRef<Flow>();
     const suggestedText = useRef<string>();
     const selectedClientName = useRef<string>();
+    const initialCategoriesRef = useRef<PanelCategory[]>([]);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
@@ -161,7 +162,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                setCategories(convertBICategoriesToSidePanelCategories(response.categories as Category[]));
+                const convertedCategories = convertBICategoriesToSidePanelCategories(response.categories as Category[]);
+                setCategories(convertedCategories);
+                initialCategoriesRef.current = convertedCategories; // Store initial categories
                 // add draft node to model
                 const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
 
@@ -377,7 +380,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        setSidePanelView(SidePanelView.NODE_LIST);
+        if (sidePanelView === SidePanelView.FUNCTION_LIST) {
+            // Reset categories to the initial available nodes
+            setCategories(initialCategoriesRef.current);
+            setSidePanelView(SidePanelView.NODE_LIST);
+        } else {
+            setSidePanelView(SidePanelView.NODE_LIST);
+        }
         // clear memory
         selectedNodeRef.current = undefined;
     };

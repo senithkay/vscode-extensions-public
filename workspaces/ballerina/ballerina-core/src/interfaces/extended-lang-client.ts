@@ -486,7 +486,7 @@ export type BIGetFunctionsResponse = {
 
 
 export type BIConnectorsRequest = {
-    keyword: string;
+    queryMap: SearchQueryParams;
 }
 
 export type BIConnectorsResponse = {

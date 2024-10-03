@@ -155,7 +155,6 @@ namespace S {
 
     export const HighlightedButton = styled.div`
         margin-top: 10px;
-        margin-bottom: 10px;
         width: 100%;
         display: flex;
         flex-direction: row;
