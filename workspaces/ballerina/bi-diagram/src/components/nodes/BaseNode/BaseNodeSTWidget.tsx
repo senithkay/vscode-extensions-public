@@ -239,7 +239,7 @@ export function BaseNodeSTWidget(props: BaseNodeWidgetProps) {
                     )}
                     {!hasFullAssignment && (
                         <NodeStyles.Description>
-                            {model.node.properties?.expression?.value || model.node.properties?.expression?.value}
+                            {model.node.properties?.variable?.value || model.node.properties?.expression?.value}
                         </NodeStyles.Description>
                     )}
                 </NodeStyles.Header>
