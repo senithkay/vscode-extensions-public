@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, Platform } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ import { MI_UNIT_TEST_GENERATION_BACKEND_URL } from "../../../constants";
 interface TestSuiteFormProps {
     stNode?: UnitTest;
     filePath?: string;
+    isWindows: boolean;
 }
 
 interface MockServiceEntry {
@@ -86,14 +87,14 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     const syntaxTree = props.stNode;
     const filePath = props.filePath;
 
-    const isWindows = navigator.platform.toLowerCase().includes("win");
+    const isWindows = props.isWindows;
     const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : undefined;
 
     // Schema
     const schema = yup.object({
-        name: yup.string().required("Test suite name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in test suite name")
+        name: yup.string().required("Unit test name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in unit test name")
             .test('validateTestSuiteName',
-                'A test suite with same name already exists', value => {
+                'A unit test with same name already exists', value => {
                     let isDuplicate = false;
                     for (let i = 0; i < allTestSuites.length; i++) {
                         if (allTestSuites[i].name === value && allTestSuites[i].path !== filePath) {
@@ -331,9 +332,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             const assertions = testCase.assertions.assertions.map((assertion) => {
                 return [
                     assertion.tag,
-                    assertion.actual.textNode,
-                    assertion.expected.textNode,
-                    assertion.message.textNode,
+                    assertion?.actual?.textNode,
+                    assertion?.expected?.textNode,
+                    assertion?.message?.textNode,
                 ]
             });
             const input = {
@@ -466,15 +467,15 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         };
         const availableMockServices = mockServices.map((mockService) => mockService.name);
 
-        return <SelectMockService name={currentMockService?.name} availableMockServices={availableMockServices} onGoBack={goBack} onSubmit={onSubmit} />
+        return <SelectMockService name={currentMockService?.name} availableMockServices={availableMockServices} isWindows={isWindows} onGoBack={goBack} onSubmit={onSubmit}/>
     }
 
     return (
-        <FormView title={`${isUpdate ? "Update" : "Create New"} Test Suite`} onClose={handleBackButtonClick}>
+        <FormView title={`${isUpdate ? "Update" : "Create New"} Unit Test`} onClose={handleBackButtonClick}>
             < TextField
                 label="Name"
                 id="name"
-                placeholder="Test suite name"
+                placeholder="Unit test name"
                 required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}

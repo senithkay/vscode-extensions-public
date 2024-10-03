@@ -895,6 +895,7 @@ export interface CreateTaskRequest {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
+    customProperties: any[];
     sequence: CreateSequenceRequest | undefined;
 }
 
@@ -1387,7 +1388,7 @@ export interface RegistryArtifact {
 }
 export interface RangeFormatRequest {
     uri: string;
-    range: Range
+    range?: Range
 }
 
 export interface DownloadConnectorRequest {
@@ -1500,6 +1501,7 @@ export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
     directory: string;
+    filePath?: string;
 }
 
 export interface CreateConnectionResponse {

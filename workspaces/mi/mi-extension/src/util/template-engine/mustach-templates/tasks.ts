@@ -24,6 +24,7 @@ export interface GetTaskTemplatesArgs {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: Property[];
+    customProperties: any[];
 }
 
 export function getTaskMustacheTemplate() {
@@ -40,6 +41,9 @@ export function getTaskMustacheTemplate() {
     {{/isLiteral}}
     {{/key}}
     {{/taskProperties}}
+    {{#customProperties}}
+    <property xmlns:task="http://www.wso2.org/products/wso2commons/tasks" name="{{key}}" value="{{value}}"/>
+    {{/customProperties}}
 </task>`;
 }
 

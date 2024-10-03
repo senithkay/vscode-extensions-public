@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, NodeList, Category as PanelCategory, FormField } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { Diagram } from "@wso2-enterprise/bi-diagram";
+import { Diagram, FlowNodeStyle } from "@wso2-enterprise/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -75,6 +75,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
+    const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -86,12 +87,23 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
 
     useEffect(() => {
+        rpcClient.getVisualizerLocation().then((location) => {
+            if(location.metadata?.flowNodeStyle){
+                setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
+            }
+        });
+    }, [rpcClient]);
+
+    useEffect(() => {
         console.log(">>> Updating sequence model...", syntaxTree);
         getSequenceModel();
     }, [syntaxTree]);
 
     rpcClient.onParentPopupSubmitted(() => {
-        // TODO: Fetch the newly added data from the popup view
+        const parent = topNodeRef.current;
+        const target = targetRef.current;
+
+        fetchNodesAndAISuggestions(parent, target);
     });
 
     const getSequenceModel = () => {
@@ -123,19 +135,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
-    const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
-        // clear previous click if had
-        if (topNodeRef.current || targetRef.current) {
-            console.log(">>> Clearing previous click", {
-                topNodeRef: topNodeRef.current,
-                targetRef: targetRef.current,
-            });
-            handleOnCloseSidePanel();
-            return;
-        }
-        // handle add new node
-        topNodeRef.current = parent;
-        targetRef.current = target;
+    const fetchNodesAndAISuggestions = (parent: FlowNode | Branch, target: LineRange) => {
         const getNodeRequest: BIAvailableNodesRequest = {
             position: target,
             filePath: model.fileName,
@@ -184,6 +184,22 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 clearTimeout(suggestionFetchingTimeout);
                 setFetchingAiSuggestions(false);
             });
+    }
+
+    const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
+        // clear previous click if had
+        if (topNodeRef.current || targetRef.current) {
+            console.log(">>> Clearing previous click", {
+                topNodeRef: topNodeRef.current,
+                targetRef: targetRef.current,
+            });
+            handleOnCloseSidePanel();
+            return;
+        }
+        // handle add new node
+        topNodeRef.current = parent;
+        targetRef.current = target;
+        fetchNodesAndAISuggestions(parent, target);
     };
 
     const handleSearchFunction = async (searchText: string) => {
@@ -464,6 +480,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
+                                flowNodeStyle={flowNodeStyle}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,

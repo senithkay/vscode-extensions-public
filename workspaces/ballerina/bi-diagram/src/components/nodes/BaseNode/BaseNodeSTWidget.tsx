@@ -24,6 +24,7 @@ import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
+import { BaseNodeWidgetProps } from "./BaseNodeWidget";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -149,15 +150,7 @@ export namespace NodeStyles {
     `;
 }
 
-export interface BaseNodeWidgetProps {
-    model: BaseNodeModel;
-    engine: DiagramEngine;
-    onClick?: (node: FlowNode) => void;
-}
-
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
-
-export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+export function BaseNodeSTWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
@@ -222,6 +215,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
+    const hasFullAssignment = model.node.properties.variable?.value && model.node.properties?.expression?.value;
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -233,22 +228,20 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
                     <NodeIcon type={model.node.codedata.node} />
+                    {/* {model.node.properties.variable?.value && (
+                        <NodeStyles.Description>{model.node.properties.variable.value}</NodeStyles.Description>
+                    )} */}
                 </NodeStyles.Icon>
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        <Tooltip content={model.node.metadata.description}>
-                            {model.node.metadata.description || "..."}
-                        </Tooltip>
-                    </NodeStyles.Description>
-                    <NodeStyles.Footer>
-                        {model.node.properties.variable?.value && (
-                            <NodeStyles.Pill color={Colors.PURPLE}>
-                                <XIcon />
-                                {model.node.properties.variable.value}
-                            </NodeStyles.Pill>
-                        )}
-                    </NodeStyles.Footer>
+                    {hasFullAssignment && (
+                        <NodeStyles.Description>{`${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`}</NodeStyles.Description>
+                    )}
+                    {!hasFullAssignment && (
+                        <NodeStyles.Description>
+                            {model.node.properties?.variable?.value || model.node.properties?.expression?.value}
+                        </NodeStyles.Description>
+                    )}
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

@@ -27,6 +27,9 @@ export * from "./icons/nodes/TransformIcon";
 export * from "./icons/nodes/CommentIcon";
 export * from "./icons/nodes/XIcon";
 export * from "./icons/nodes/TIcon";
+export * from "./icons/nodes/ReturnIcon";
+export * from "./icons/nodes/FunctionIcon";
+export * from "./icons/nodes/EqualIcon";
 
 export * from "./icons/PlusIcon";
 export * from "./icons/SendIcon";

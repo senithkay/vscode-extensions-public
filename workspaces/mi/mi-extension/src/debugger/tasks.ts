@@ -14,7 +14,7 @@ import { createTempDebugBatchFile } from './debugHelper';
 import { ERROR_LOG, logDebug } from '../util/logger';
 
 export function getBuildTask(): vscode.Task {
-    const commandToExecute = "mvn clean install";
+    const commandToExecute = "mvn clean install -Dmaven.test.skip=true";
 
     const buildTask = new vscode.Task(
         { type: 'mi-build' },
@@ -28,11 +28,11 @@ export function getBuildTask(): vscode.Task {
 }
 
 export function getBuildCommand(): string {
-    return "mvn clean install -Dstyle.color=never";
+    return "mvn clean install -Dstyle.color=never -Dmaven.test.skip=true";
 }
 
 export function getDockerTask(): vscode.Task {
-    const commandToExecute = "mvn clean install -P docker";
+    const commandToExecute = "mvn clean install -Dmaven.test.skip=true -P docker";
 
     const dockerTask = new vscode.Task(
         { type: 'mi-docker' },

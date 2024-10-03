@@ -165,7 +165,7 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, flowNodeStyle } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -214,6 +214,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
+    const showReturnType = flowNodeStyle === "default";
 
     return (
         <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -227,21 +228,24 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         <NodeStyles.Title>
                             {model.node.codedata.module} : {model.node.metadata.label}
                         </NodeStyles.Title>
-                        <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description>
-                        <NodeStyles.Footer>
-                            {model.node.properties.variable?.value && (
-                                <NodeStyles.Pill color={Colors.PURPLE}>
-                                    <XIcon />
-                                    {model.node.properties.variable.value}
-                                </NodeStyles.Pill>
-                            )}
-                            {/* {model.node.properties.type?.value && (
+                        {/* <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description> */}
+                        <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
+                        {showReturnType && (
+                            <NodeStyles.Footer>
+                                {/* {model.node.properties.variable?.value && (
+                                    <NodeStyles.Pill color={Colors.PURPLE}>
+                                        <XIcon />
+                                        {model.node.properties.variable.value}
+                                    </NodeStyles.Pill>
+                                )} */}
+                                {/* {model.node.properties.type?.value && (
                                 <NodeStyles.Pill color={Colors.GREEN}>
                                     <TIcon />
                                     {model.node.properties.type.value}
                                 </NodeStyles.Pill>
                             )} */}
-                        </NodeStyles.Footer>
+                            </NodeStyles.Footer>
+                        )}
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />

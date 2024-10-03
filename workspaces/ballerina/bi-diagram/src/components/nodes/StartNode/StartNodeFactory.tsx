@@ -25,11 +25,6 @@ export class StartNodeFactory extends AbstractReactFactory<StartNodeModel, Diagr
     }
 
     generateReactWidget(event: GenerateWidgetEvent<StartNodeModel>) {
-        switch (event.model.node.codedata.node as NodeKind) {
-            default:
-                return (
-                    <StartNodeWidget engine={this.engine} model={event.model} />
-                );
-        }
+        return <StartNodeWidget engine={this.engine} model={event.model} />;
     }
 }

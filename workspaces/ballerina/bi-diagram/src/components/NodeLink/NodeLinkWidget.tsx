@@ -104,7 +104,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     x={addButtonPosition.x - NODE_WIDTH / 2}
                     y={addButtonPosition.y - 12}
                     width={NODE_WIDTH}
-                    height={NODE_GAP_Y / 2}
+                    height={24}
                 >
                     <div
                         css={css`
