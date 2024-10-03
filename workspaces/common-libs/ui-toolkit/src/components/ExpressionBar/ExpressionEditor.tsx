@@ -199,17 +199,12 @@ const DropdownItem = (props: DropdownItemProps) => {
         itemRef.current.classList.add('hovered');
     };
 
-    const handleClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onClick();
-    }
-
     return (
         <DropdownItemContainer
             ref={itemRef}
             {...(firstItem && { className: 'hovered' })}
             onMouseEnter={handleMouseEnter}
-            onClick={handleClick}
+            onClick={onClick}
         >
             <TitleContainer>
                 {getIcon(item.kind)}
@@ -575,8 +570,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         await onFocus?.();
     }
 
-    const handleTextFieldBlur = async () => {
-        await onBlur?.();
+    const handleTextFieldBlur = (e: React.FocusEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     useImperativeHandle(ref, () => ({
@@ -587,6 +583,20 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             await handleExpressionSaveMutation(value);
         }
     }));
+
+    useEffect(() => {
+        // Prevent blur event when clicking on the dropdown
+        const handleOutsideClick = async (e: any) => {
+            if (!inputRef.current?.contains(e.target) && !listBoxRef.current?.contains(e.target)) {
+                await onBlur?.();
+            }
+        }
+
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+        }
+    }, [onBlur]);
 
     return (
         <Container ref={elementRef}>
