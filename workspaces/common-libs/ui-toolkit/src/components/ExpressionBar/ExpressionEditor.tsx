@@ -340,8 +340,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
     const SUGGESTION_REGEX = {
-        prefix: /(\w*)$/,
-        suffix: /^(\w*)/,
+        prefix: /((?:\w|')*)$/,
+        suffix: /^((?:\w|')*)/,
     };
 
     const isDropdownOpen = completions.length > 0 || !!syntax?.item;
