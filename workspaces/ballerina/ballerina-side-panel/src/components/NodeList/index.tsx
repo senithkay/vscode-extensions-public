@@ -298,8 +298,6 @@ export function NodeList(props: NodeListProps) {
                                     {(isConnectionCategory || isProjectFunctionsCategory) && (
                                         <Button
                                             appearance="icon"
-                                            sx={{ background: `${ThemeColors.SURFACE}` }}
-                                            buttonSx={{ background: `${ThemeColors.SURFACE}` }}
                                             tooltip={isConnectionCategory ? "Add Connection" : "Create Function"}
                                             onClick={isConnectionCategory ? handleAddConnection : handleAddFunction}
                                         >
