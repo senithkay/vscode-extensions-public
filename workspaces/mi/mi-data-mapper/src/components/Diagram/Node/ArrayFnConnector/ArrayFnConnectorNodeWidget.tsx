@@ -16,7 +16,7 @@ import classnames from 'classnames';
 import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
 import { DataMapperPortWidget, InputOutputPortModel } from '../../Port';
-import { genElementAccessRepr, getMapFnIndex, getMapFnViewLabel, hasElementAccessExpression } from '../../utils/common-utils';
+import { genArrayElementAccessRepr, getMapFnIndex, getMapFnViewLabel, hasElementAccessExpression } from '../../utils/common-utils';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { getSourceNodeType } from '../../utils/node-utils';
 import { SubMappingInfo, View } from '../../../../components/DataMapper/Views/DataMapperView';
@@ -141,7 +141,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                                         data-testid={`link-connector-indexing-${node?.value}`}
                                         tooltip='indexing'
                                     >
-                                        {genElementAccessRepr((node.parentNode as PropertyAssignment).getInitializer())}
+                                        {genArrayElementAccessRepr((node.parentNode as PropertyAssignment).getInitializer())}
                                     </Button>) : (<Button
                                         appearance="icon"
                                         tooltip="Map array elements"

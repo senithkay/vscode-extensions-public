@@ -14,7 +14,7 @@ import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { InputOutputPortModel, MappingType, ValueType } from '../Port';
-import { genElementAccessSuffix, getValueType } from '../utils/common-utils';
+import { genArrayElementAccessSuffix, getValueType } from '../utils/common-utils';
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
@@ -88,9 +88,9 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     const onClickMapArraysAccessSingleton = async () => {
         if (isValueModifiable) {
-            await updateExistingValue(sourcePort, targetPort, undefined, genElementAccessSuffix(sourcePort, targetPort));
+            await updateExistingValue(sourcePort, targetPort, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
         } else {
-            await createSourceForMapping(link, undefined, genElementAccessSuffix(sourcePort, targetPort));
+            await createSourceForMapping(link, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
         }
     }
 

@@ -12,7 +12,7 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { genElementAccessSuffix, getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
+import { genArrayElementAccessSuffix, getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
@@ -80,7 +80,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 
 				let elementAccessSuffix='';
 				if (mappingType === MappingType.ArrayToSingleton) {
-					elementAccessSuffix = genElementAccessSuffix(sourcePort, targetPort);
+					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
 				}
 
 				const targetPortHasLinks = Object.values(targetPort.links)

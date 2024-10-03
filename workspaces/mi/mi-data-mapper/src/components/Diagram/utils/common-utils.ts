@@ -779,9 +779,9 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
     return ValueType.Empty;
 }
 
-export function genElementAccessRepr(initializer: Expression): string {
+export function genArrayElementAccessRepr(initializer: Expression): string {
     let accessors: string[] = [];
-    while (Node.isElementAccessExpression(initializer)) {
+    while (Node.isElementAccessExpression(initializer) && initializer.getExpression()?.getType().isArray()) {
         const argExpr = initializer.getArgumentExpression().getText();
         accessors.push(argExpr);
         initializer = initializer.getExpression();
@@ -790,7 +790,7 @@ export function genElementAccessRepr(initializer: Expression): string {
     return `[${accessors.join(",")}]`;
 }
 
-export function genElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
+export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
     if (sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel) {
         let suffix = '';
         const sourceDim = getDMTypeDim(sourcePort.field);
