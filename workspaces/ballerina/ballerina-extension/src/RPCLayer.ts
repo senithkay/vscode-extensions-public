@@ -28,6 +28,7 @@ import path from 'path';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
 import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
+import { ballerinaExtInstance } from './core';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -90,8 +91,12 @@ async function getContext(): Promise<VisualizerLocation> {
             syntaxTree: context.syntaxTree,
             isBI: context.isBI,
             projectUri: context.projectUri,
-            recordFilePath: path.join(context.projectUri, 'types.bal'),
-            haveServiceType: context.haveServiceType
+            haveServiceType: context.haveServiceType,
+            metadata: {
+                recordFilePath: path.join(context.projectUri, "types.bal"),
+                enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                flowNodeStyle: ballerinaExtInstance.flowNodeStyle(),
+            },
         });
     });
 }

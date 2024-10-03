@@ -162,6 +162,7 @@ export type NodePropertyKey =
     | "variable"
     | "type"
     | "expression"
+    | "statement"
     | "comment"
     | "connection";
 
@@ -181,6 +182,7 @@ export type NodeKind =
     | "EXPRESSION"
     | "ERROR_HANDLER"
     | "WHILE"
+    | "FOREACH"
     | "CONTINUE"
     | "BREAK"
     | "PANIC"
@@ -198,6 +200,8 @@ export type NodeKind =
     | "NEW_CONNECTION"
     | "COMMENT"
     | "FUNCTION"
+    | "FUNCTION_CALL"
+    | "ASSIGN"
     | "DATA_MAPPER";
 
 
