@@ -46,4 +46,4 @@ export type {
     NodePosition,
 } from "@wso2-enterprise/ballerina-core";
 
-export type FlowNodeStyle = "default" | "compact" | "ballerina-statements" | "only-assignments";
+export type FlowNodeStyle = "default" | "ballerina-statements";

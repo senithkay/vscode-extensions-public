@@ -215,6 +215,8 @@ export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
+    const hasFullAssignment = model.node.properties.variable?.value && model.node.properties?.expression?.value;
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -229,11 +231,14 @@ export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
                 </NodeStyles.Icon>
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        <Tooltip content={model.node.metadata.description}>
-                            {model.node.metadata.description || "..."}
-                        </Tooltip>
-                    </NodeStyles.Description>
+                    {hasFullAssignment && (
+                        <NodeStyles.Description>{`${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`}</NodeStyles.Description>
+                    )}
+                    {!hasFullAssignment && (
+                        <NodeStyles.Description>
+                            {model.node.properties?.expression?.value || model.node.properties?.expression?.value}
+                        </NodeStyles.Description>
+                    )}
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

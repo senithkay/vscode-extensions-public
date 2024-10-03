@@ -9,23 +9,19 @@
 
 import React from "react";
 import { useDiagramContext } from "../../DiagramContext";
-import { BaseNodeWidget, BaseNodeWidgetProps } from "./BaseNodeWidget";
+import { BaseNodeWidgetProps } from "./BaseNodeWidget";
 import { BaseNodeSTWidget } from "./BaseNodeSTWidget";
 import { BaseNodeCompactWidget } from "./BaseNodeCompactWidget";
-import { BaseNodeAssignWidget } from "./BaseNodeAssignWidget";
 
 export function BaseNodeWrapper(props: BaseNodeWidgetProps) {
     const { flowNodeStyle } = useDiagramContext();
 
     switch (flowNodeStyle) {
-        case "only-assignments":
-            return <BaseNodeAssignWidget {...props} />;
         case "ballerina-statements":
             return <BaseNodeSTWidget {...props} />;
-        case "compact":
-            return <BaseNodeCompactWidget {...props} />;
         case "default":
         default:
-            return <BaseNodeWidget {...props} />;
+            return <BaseNodeCompactWidget {...props} />;
+        // return <BaseNodeWidget {...props} />;
     }
 }

@@ -199,8 +199,7 @@
                         "default": "default",
                         "enum": [
                             "default",
-                            "ballerina-statements",
-                            "compact"
+                            "ballerina-statements"
                         ],
                         "description": "Select the style for flow diagram nodes."
                     }

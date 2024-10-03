@@ -228,7 +228,8 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         <NodeStyles.Title>
                             {model.node.codedata.module} : {model.node.metadata.label}
                         </NodeStyles.Title>
-                        <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description>
+                        {/* <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description> */}
+                        <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
                         {showReturnType && (
                             <NodeStyles.Footer>
                                 {/* {model.node.properties.variable?.value && (

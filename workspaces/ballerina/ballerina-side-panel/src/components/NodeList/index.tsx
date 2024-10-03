@@ -310,8 +310,8 @@ export function NodeList(props: NodeListProps) {
                                 </>
                             )}
                         </S.Row>
-                        {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>}
-                        {isConnectionCategory && group.items.length === 0 && (
+                        {/* {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>} */}
+                        {isConnectionCategory && (
                             <S.HighlightedButton onClick={handleAddConnection}>
                                 <Codicon name="add" iconSx={{ fontSize: 12 }} />
                                 Add Connection
