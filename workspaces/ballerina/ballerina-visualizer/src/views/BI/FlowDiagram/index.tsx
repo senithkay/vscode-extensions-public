@@ -93,6 +93,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const suggestedText = useRef<string>();
     const selectedClientName = useRef<string>();
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
+    const showEditForm = useRef<boolean>(false);
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
@@ -140,6 +141,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         topNodeRef.current = undefined;
         targetRef.current = undefined;
         selectedClientName.current = undefined;
+        showEditForm.current = false;
 
         // restore original model
         if (originalFlowModel.current) {
@@ -272,6 +274,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 .then((response) => {
                     console.log(">>> FlowNode template", response);
                     selectedNodeRef.current = response.flowNode;
+                    showEditForm.current = false;
                     setSidePanelView(SidePanelView.FORM);
                     setShowSidePanel(true);
                 });
@@ -398,6 +401,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             })
             .then((response) => {
                 nodeTemplateRef.current = response.flowNode;
+                showEditForm.current = true;
                 setSidePanelView(SidePanelView.FORM);
                 setShowSidePanel(true);
             });
@@ -658,6 +662,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         clientName={selectedClientName.current}
                         targetLineRange={targetRef.current}
                         projectPath={projectPath}
+                        editForm={showEditForm.current}
                         onSubmit={handleOnFormSubmit}
                         expressionEditor={{
                             completions: filteredCompletions,
