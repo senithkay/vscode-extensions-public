@@ -564,6 +564,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         handleExpressionEditorCancel();
     }
 
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    }
+
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -646,6 +650,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onRetrieveCompletions: handleGetCompletions,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
+                            onBlur: handleExpressionEditorBlur,
                         }}
                     />
                 )}

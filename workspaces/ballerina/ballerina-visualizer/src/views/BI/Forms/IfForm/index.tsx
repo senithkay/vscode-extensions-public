@@ -204,6 +204,10 @@ export function IfForm(props: IfFormProps) {
         setCompletions([]);
     };
 
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    }
+
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
@@ -239,6 +243,7 @@ export function IfForm(props: IfFormProps) {
                                 onCompletionSelect={handleCompletionSelect}
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}
+                                onBlur={handleExpressionEditorBlur}
                             />
                         </FormStyles.Row>
                     );
