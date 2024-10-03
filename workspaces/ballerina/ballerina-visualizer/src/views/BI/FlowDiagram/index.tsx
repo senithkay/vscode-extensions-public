@@ -651,6 +651,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 )}
                 {sidePanelView === SidePanelView.FORM && (
                     <FormGenerator
+                        fileName={model.fileName}
                         node={selectedNodeRef.current}
                         nodeFormTemplate={nodeTemplateRef.current}
                         connections={model.connections}

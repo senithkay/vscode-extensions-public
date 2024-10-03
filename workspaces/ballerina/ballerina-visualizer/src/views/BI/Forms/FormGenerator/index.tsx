@@ -23,6 +23,7 @@ import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
 interface FormProps {
+    fileName: string;
     node: FlowNode;
     nodeFormTemplate?: FlowNode; // used in edit forms
     connections?: FlowNode[];
@@ -40,7 +41,17 @@ interface FormProps {
 }
 
 export function FormGenerator(props: FormProps) {
-    const { node, nodeFormTemplate, connections, clientName, targetLineRange, projectPath, onSubmit, expressionEditor } = props;
+    const { 
+        fileName, 
+        node, 
+        nodeFormTemplate, 
+        connections, 
+        clientName, 
+        targetLineRange, 
+        projectPath, 
+        onSubmit, 
+        expressionEditor 
+    } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -143,7 +154,7 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+        return <IfForm fileName={fileName} node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
     }
 
     // default form

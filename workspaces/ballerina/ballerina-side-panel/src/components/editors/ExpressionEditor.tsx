@@ -9,17 +9,32 @@
 
 import React, { useRef } from 'react';
 import { FormField } from '../Form/types';
-import { Controller } from 'react-hook-form';
-import { ExpressionBar, ExpressionBarRef, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import { Control, Controller, FieldValues } from 'react-hook-form';
+import { CompletionItem, ExpressionBar, ExpressionBarRef, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { FormContext, useFormContext } from '../../context';
+import { useFormContext } from '../../context';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
 }
 
-type ExpressionEditorProps = ContextAwareExpressionEditorProps & FormContext;
+type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
+    control: Control<FieldValues, any>;
+    completions: CompletionItem[];
+    triggerCharacters: readonly string[];
+    onRetrieveCompletions: (
+        value: string,
+        offset: number,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => any;
+    onFocus?: () => void | Promise<void>;
+    onBlur?: () => void | Promise<void>;
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+    onSave?: (value: string) => void | Promise<void>;
+    onCancel: () => void;
+};
 
 namespace S {
     export const Container = styled.div({
@@ -48,13 +63,13 @@ export function ContextAwareExpressionEditor(props: ContextAwareExpressionEditor
     const { field } = props;
     const { form, expressionEditor } = useFormContext();
 
-    return <ExpressionEditor field={field} form={form} expressionEditor={expressionEditor} />;
+    return <ExpressionEditor field={field} {...form} {...expressionEditor} />;
 }
 
 export function ExpressionEditor(props: ExpressionEditorProps) {
-    const { field, form, expressionEditor } = props;
-    const { control } = form;
     const {
+        control,
+        field,
         completions,
         triggerCharacters,
         onRetrieveCompletions,
@@ -63,7 +78,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         onCompletionSelect,
         onSave,
         onCancel,
-    } = expressionEditor;
+    } = props;
     const exprRef = useRef<ExpressionBarRef>(null);
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
