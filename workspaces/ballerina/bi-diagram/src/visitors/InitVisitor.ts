@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { getBranchId } from "../utils/node";
 import { Flow, FlowNode, ViewState } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -61,7 +62,7 @@ export class InitVisitor implements BaseVisitor {
                 // empty branch
                 // add empty node as `add new node` button
                 const emptyNode: FlowNode = {
-                    id: `${node.id}-${branch.label}-branch-${index}`,
+                    id: getBranchId(node.id, branch.label, index),
                     codedata: {
                         node: "EMPTY",
                     },
