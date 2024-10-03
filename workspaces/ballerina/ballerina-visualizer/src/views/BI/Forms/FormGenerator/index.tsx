@@ -30,6 +30,7 @@ interface FormProps {
     clientName?: string;
     targetLineRange: LineRange;
     projectPath?: string;
+    editForm?: boolean;
     onSubmit: (node?: FlowNode) => void;
     expressionEditor?: {
         completions: CompletionItem[];
@@ -42,16 +43,17 @@ interface FormProps {
 }
 
 export function FormGenerator(props: FormProps) {
-    const { 
-        fileName, 
-        node, 
-        nodeFormTemplate, 
-        connections, 
-        clientName, 
-        targetLineRange, 
-        projectPath, 
-        onSubmit, 
-        expressionEditor 
+    const {
+        fileName,
+        node,
+        nodeFormTemplate,
+        connections,
+        clientName,
+        targetLineRange,
+        projectPath,
+        editForm,
+        onSubmit,
+        expressionEditor,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -107,6 +109,12 @@ export function FormGenerator(props: FormProps) {
                     },
                 },
             };
+
+            // assign to a existing variable
+            if ("update-variable" in data) {
+                data["variable"] = data["update-variable"];
+                data["type"] = "";
+            }
 
             if (node.branches?.at(0)?.properties) {
                 // branch properties
@@ -170,6 +178,7 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     canUpdateVariable={node.codedata.node !== "NEW_CONNECTION"}
+                    editForm={editForm}
                     expressionEditor={expressionEditor}
                 />
             )}
