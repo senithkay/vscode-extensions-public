@@ -186,7 +186,7 @@
                     },
                     "ballerina.enableCompleteProjectScaffolding": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable scaffolding for projects with complete implementations."
                     },
                     "ballerina.enableAiSuggestions": {

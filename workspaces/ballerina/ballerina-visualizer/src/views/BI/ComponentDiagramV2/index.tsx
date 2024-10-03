@@ -394,7 +394,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
             <ViewContent padding>
                 <BIHeader />
                 <Content>
-                    <Title variant="h2">Project Overview V2</Title>
+                    <Title variant="h2">Project Overview</Title>
                     <BodyText>
                         To create a tailored integration solution, please provide a brief description of your project.
                         What problem are you trying to solve? What systems or data sources will be involved?
