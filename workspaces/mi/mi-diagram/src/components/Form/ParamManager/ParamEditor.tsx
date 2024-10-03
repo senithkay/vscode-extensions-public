@@ -54,10 +54,17 @@ const isRequiredFieldsFilled = (p: Param[]) => {
     });
 }
 
+// If atlease one field is filled, the save button should be enabled
+const atLeaseOneFieldFilled = (p: Param[]) => {
+    return p.some(param => {
+        return (param.value !== '' && param.value !== undefined && param.value !== null);
+    });
+};
+
 export function ParamEditor(props: ParamProps) {
     const { parameters, paramFields, openInDrawer, onChange, onSave, onCancel } = props;
     const [isDrawerCancelInProgress, setIsDrawerCancelInProgress] = useState(false);
-    const [isSaveEnabled, setIsSaveEnabled] = useState(isRequiredFieldsFilled(parameters.parameters));
+    const [isSaveEnabled, setIsSaveEnabled] = useState(isRequiredFieldsFilled(parameters.parameters) && atLeaseOneFieldFilled(parameters.parameters));
     const [drawerTopOffset, setDrawerTopOffset] = useState(0);
 
     const getParamComponent = (p: Param) => {
@@ -78,7 +85,7 @@ export function ParamEditor(props: ParamProps) {
                 }
                 return param;
             });
-            setIsSaveEnabled(isRequiredFieldsFilled(paramEnabled));
+            setIsSaveEnabled(isRequiredFieldsFilled(paramEnabled) && atLeaseOneFieldFilled(paramEnabled));
             onChange({ ...parameters, parameters: paramEnabled });
         }
         return <TypeResolver param={p} onChange={handleTypeResolverChange} />;

@@ -26,6 +26,7 @@ export interface MockServiceFormProps {
     filePath?: string;
     stNode?: MockService;
     availableMockServices?: string[];
+    isWindows: boolean;
     onGoBack?: () => void;
     onSubmit?: (values: any) => void;
 }
@@ -79,7 +80,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
     const mockService = props.stNode;
     const filePath = props.filePath;
 
-    const isWindows = navigator.platform.toLowerCase().includes("win");
+    const isWindows = props.isWindows;
     const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : "";
 
     // Schema
@@ -158,14 +159,14 @@ export function MockServiceForm(props: MockServiceFormProps) {
             });
             setIsLoaded(true);
         })();
-    }, []);
+    }, [props.filePath, mockService]);
 
     const handleGoBack = () => {
         if (props.onGoBack) {
             props.onGoBack();
-            return;
+        } else {
+            openOverview();
         }
-        rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
     const openOverview = () => {
@@ -325,7 +326,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
                 >
                     {`${isUpdate ? "Update" : "Create"}`}
                 </Button>
-                <Button appearance="secondary" onClick={openOverview}>
+                <Button appearance="secondary" onClick={handleGoBack}>
                     Cancel
                 </Button>
             </FormActions>

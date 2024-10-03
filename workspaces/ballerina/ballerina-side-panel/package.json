@@ -25,7 +25,8 @@
         "@wso2-enterprise/ui-toolkit": "workspace:*",
         "@wso2-enterprise/ballerina-core": "workspace:*",
         "lodash": "~4.17.21",
-        "react-hook-form": "~7.52.1"
+        "react-hook-form": "~7.53.0",
+        "@tanstack/react-query": "4.0.10"
     },
     "devDependencies": {
         "@storybook/react": "^6.3.7",

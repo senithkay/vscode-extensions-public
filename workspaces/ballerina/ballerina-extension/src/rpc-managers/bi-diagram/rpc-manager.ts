@@ -32,6 +32,8 @@ import {
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     OverviewFlow,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -63,6 +65,8 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 });
             }
 
+            const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
+
             const params: BIFlowModelRequest = {
                 filePath: Uri.parse(context.documentUri!).fsPath,
                 startLine: {
@@ -73,6 +77,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     line: context.position.endLine ?? 0,
                     offset: context.position.endColumn ?? 0,
                 },
+                forceAssign: flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments",
             };
 
             StateMachine.langClient()
@@ -185,6 +190,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         console.log(">>> requesting bi node template from ls", params);
+        const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
+        params.forceAssign = flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments";
+        
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
@@ -296,9 +304,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                     return;
                 }
-                // check multi line AI completion setting
-                const multiLineCompletion = ballerinaExtInstance.multilineAiSuggestions();
-                console.log(">>> multi line AI completion setting", multiLineCompletion);
 
                 // get copilot context form ls
                 const copilotContextRequest: BICopilotContextRequest = {
@@ -312,7 +317,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 // get suggestions from ai
                 const requestBody = {
                     ...copilotContext,
-                    singleCompletion: !multiLineCompletion,
+                    singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
                 };
                 const requestOptions = {
                     method: "POST",
@@ -491,6 +496,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getExpressionCompletions(params)
+                .then((completions) => {
+                    resolve(completions);
+                })
+                .catch((error) => {
+                    reject("Error fetching expression completions from ls");
                 });
         });
     }

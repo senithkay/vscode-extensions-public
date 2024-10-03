@@ -425,6 +425,7 @@ export interface BIFlowModelRequest {
     filePath: string;
     startLine: LinePosition;
     endLine: LinePosition;
+    forceAssign?: boolean;
 }
 
 export interface BISuggestedFlowModelRequest extends BIFlowModelRequest {
@@ -460,6 +461,7 @@ export interface BINodeTemplateRequest {
     position: LinePosition;
     filePath: string;
     id: CodeData;
+    forceAssign?: boolean;
 }
 
 export type BINodeTemplateResponse = {
@@ -526,6 +528,43 @@ export type SequenceModelResponse = {
     sequenceDiagram: SqFlow;
 };
 
+export enum TriggerKind {
+    INVOKED = 1,
+    TRIGGER_CHARACTER = 2,
+    TRIGGER_FOR_INCOMPLETE_COMPLETIONS = 3,
+}
+
+export const TRIGGER_CHARACTERS = [':', '.', '>', '@', '/', '\\', '?'] as const;
+
+export type TriggerCharacter = typeof TRIGGER_CHARACTERS[number];
+
+export interface ExpressionCompletionsRequest {
+    description?: string;
+    filePath: string;
+    expression: string;
+    branch?: string;
+    property?: string;
+    startLine: LinePosition;
+    offset: number;
+    context: {
+        triggerKind: TriggerKind;
+        triggerCharacter?: TriggerCharacter;
+    };
+    node?: FlowNode;
+}
+
+export interface ExpressionCompletionItem {
+    label: string;
+    kind: number;
+    detail: string;
+    sortText: string;
+    filterText: string;
+    insertText: string;
+    insertTextFormat: number;
+}
+
+export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -546,6 +585,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
+    getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

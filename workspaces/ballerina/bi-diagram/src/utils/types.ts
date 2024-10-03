@@ -49,3 +49,5 @@ export type {
     ViewState,
     NodePosition,
 } from "@wso2-enterprise/ballerina-core";
+
+export type FlowNodeStyle = "default" | "ballerina-statements";

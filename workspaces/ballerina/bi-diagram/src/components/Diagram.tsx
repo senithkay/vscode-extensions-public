@@ -21,7 +21,7 @@ import {
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange, NodePosition } from "../utils/types";
+import { Flow, NodeModel, FlowNode, Branch, NodeKind, LineRange, NodePosition, FlowNodeStyle } from "../utils/types";
 import { traverseFlow } from "../utils/ast";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { NodeLinkModel } from "./NodeLink";
@@ -40,6 +40,8 @@ export interface DiagramProps {
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
+    // node customization
+    flowNodeStyle?: FlowNodeStyle;
     // ai suggestions callbacks
     suggestions?: {
         fetching: boolean;
@@ -58,6 +60,7 @@ export function Diagram(props: DiagramProps) {
         onNodeSelect,
         goToSource,
         openView,
+        flowNodeStyle,
         suggestions,
         projectPath,
     } = props;
@@ -173,6 +176,7 @@ export function Diagram(props: DiagramProps) {
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
         openView: openView,
+        flowNodeStyle: flowNodeStyle,
         suggestions: suggestions,
         projectPath: projectPath,
     };

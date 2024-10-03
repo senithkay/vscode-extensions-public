@@ -68,127 +68,144 @@
                 "path": "./grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage"
             }
         ],
-        "configuration": {
-            "type": "object",
-            "title": "Ballerina",
-            "properties": {
-                "ballerina.pluginDevMode": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable plugin development mode."
-                },
-                "ballerina.home": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Specify the Ballerina home directory path."
-                },
-                "ballerina.debugLog": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable printing debug messages on to the Ballerina output channel."
-                },
-                "ballerina.enableLiveReload": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable automatic re-run of Ballerina service projects upon file changes."
-                },
-                "ballerina.traceLog": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable printing trace messages on to the Ballerina output channel."
-                },
-                "ballerina.codeLens.all.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable all code lens features."
-                },
-                "ballerina.enableFileWatcher": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable watching file change events of the project."
-                },
-                "ballerina.enableTelemetry": {
-                    "type": "boolean",
-                    "default": true,
-                    "markdownDescription": "Enable Ballerina telemetry."
-                },
-                "ballerina.enableSemanticHighlighting": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable semantic highlighting for Ballerina source."
-                },
-                "ballerina.enablePerformanceForecast": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable real-time performance forecasting."
-                },
-                "ballerina.enableLanguageServerDebug": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable Language Server debug mode."
-                },
-                "ballerina.experimental": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable experimental features."
-                },
-                "ballerina.enableNotebookDebug": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable notebook debug mode."
-                },
-                "ballerina.enableRunFast": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
-                },
-                "ballerina.samplesDownloadDirectory": {
-                    "type": "string",
-                    "default": "",
-                    "description": "Specify the directory where you want to download the Ballerina samples. Leave it empty to use the default download directory."
-                },
-                "ballerina.enableInlayHints": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Experimental: Enable inlay hints for Ballerina."
-                },
-                "ballerina.rootUrl": {
-                    "type": "string",
-                    "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
-                    "description": "Ballerina AI Backend service"
-                },
-                "ballerina.authOrg": {
-                    "type": "string",
-                    "default": "ballerinacopilot",
-                    "description": "Asgardeo Organization for Auth Services\nDefault: ballerinacopilot"
-                },
-                "ballerina.authClientID": {
-                    "type": "string",
-                    "default": "9rKng8hSZd0VkeA45Lt4LOfCp9Aa",
-                    "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: 9rKng8hSZd0VkeA45Lt4LOfCp9Aa"
-                },
-                "ballerina.authRedirectURL": {
-                    "type": "string",
-                    "default": "vscode://wso2.ballerina/signin",
-                    "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
-                },
-                "ballerina.multilineAiCompletions": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable multiline AI completions."
-                },
-                "ballerina.biOverviewV2": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable BI overview version 2."
-                },
-                "ballerina.enableAiSuggestions": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Enable BI AI suggestions from Copilot."
+        "configuration": [
+            {
+                "type": "object",
+                "title": "Ballerina",
+                "properties": {
+                    "ballerina.pluginDevMode": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable plugin development mode."
+                    },
+                    "ballerina.home": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Specify the Ballerina home directory path."
+                    },
+                    "ballerina.debugLog": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable printing debug messages on to the Ballerina output channel."
+                    },
+                    "ballerina.enableLiveReload": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable automatic re-run of Ballerina service projects upon file changes."
+                    },
+                    "ballerina.traceLog": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable printing trace messages on to the Ballerina output channel."
+                    },
+                    "ballerina.codeLens.all.enabled": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable all code lens features."
+                    },
+                    "ballerina.enableFileWatcher": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable watching file change events of the project."
+                    },
+                    "ballerina.enableTelemetry": {
+                        "type": "boolean",
+                        "default": true,
+                        "markdownDescription": "Enable Ballerina telemetry."
+                    },
+                    "ballerina.enableSemanticHighlighting": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable semantic highlighting for Ballerina source."
+                    },
+                    "ballerina.enablePerformanceForecast": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable real-time performance forecasting."
+                    },
+                    "ballerina.enableLanguageServerDebug": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable Language Server debug mode."
+                    },
+                    "ballerina.experimental": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable experimental features."
+                    },
+                    "ballerina.enableNotebookDebug": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable notebook debug mode."
+                    },
+                    "ballerina.enableRunFast": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
+                    },
+                    "ballerina.samplesDownloadDirectory": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Specify the directory where you want to download the Ballerina samples. Leave it empty to use the default download directory."
+                    },
+                    "ballerina.enableInlayHints": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Experimental: Enable inlay hints for Ballerina."
+                    },
+                    "ballerina.rootUrl": {
+                        "type": "string",
+                        "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
+                        "description": "Ballerina AI Backend service"
+                    },
+                    "ballerina.authOrg": {
+                        "type": "string",
+                        "default": "ballerinacopilot",
+                        "description": "Asgardeo Organization for Auth Services\nDefault: ballerinacopilot"
+                    },
+                    "ballerina.authClientID": {
+                        "type": "string",
+                        "default": "9rKng8hSZd0VkeA45Lt4LOfCp9Aa",
+                        "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: 9rKng8hSZd0VkeA45Lt4LOfCp9Aa"
+                    },
+                    "ballerina.authRedirectURL": {
+                        "type": "string",
+                        "default": "vscode://wso2.ballerina/signin",
+                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "title": "WSO2 BI",
+                "properties": {
+                    "ballerina.enableSequenceDiagramView": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable the experimental Sequence Diagram View."
+                    },
+                    "ballerina.enableCompleteProjectScaffolding": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable scaffolding for projects with complete implementations."
+                    },
+                    "ballerina.enableAiSuggestions": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable AI suggestions from WSO2 BI Copilot."
+                    },
+                    "ballerina.flowNodeStyle": {
+                        "type": "string",
+                        "default": "default",
+                        "enum": [
+                            "default",
+                            "ballerina-statements"
+                        ],
+                        "description": "Select the style for flow diagram nodes."
+                    }
                 }
             }
-        },
+        ],
         "configurationDefaults": {
             "[ballerina]": {
                 "editor.wordBasedSuggestions": false,
