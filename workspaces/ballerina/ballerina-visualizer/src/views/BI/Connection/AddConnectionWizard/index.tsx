@@ -16,10 +16,19 @@ import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
+import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
 
 const Container = styled.div`
     width: 100%;
+`;
+
+const LoadingContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    flex-direction: column;
 `;
 
 enum WizardStep {
@@ -136,12 +145,11 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     return (
         <Container>
             {isPullingConnector && (
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-                    <ProgressRing />
-                    <div style={{paddingLeft: '10px'}}>
-                        Pulling Connector....
-                    </div>
-                </div>
+                <LoadingContainer>
+                    <PullingModuleLoader />
+                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Pulling packages</Typography>
+                    <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
+                </LoadingContainer>
             )}
             {!isPullingConnector && currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
             {!isPullingConnector && currentStep === WizardStep.CONNECTION_CONFIG && (
