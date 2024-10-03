@@ -440,6 +440,7 @@ export type BIFlowModelResponse = {
 export interface BISourceCodeRequest {
     filePath: string;
     flowNode: FlowNode;
+    isConnector?: boolean;
 }
 
 export type BISourceCodeResponse = {
