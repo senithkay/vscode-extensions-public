@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, NodeList, Category as PanelCategory, FormField } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { Diagram } from "@wso2-enterprise/bi-diagram";
+import { Diagram, FlowNodeStyle } from "@wso2-enterprise/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -75,6 +75,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
+    const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -83,6 +84,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const originalFlowModel = useRef<Flow>();
     const suggestedText = useRef<string>();
     const selectedClientName = useRef<string>();
+    const initialCategoriesRef = useRef<PanelCategory[]>([]);
+
+    useEffect(() => {
+        rpcClient.getVisualizerLocation().then((location) => {
+            if(location.metadata?.flowNodeStyle){
+                setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
+            }
+        });
+    }, [rpcClient]);
 
     useEffect(() => {
         console.log(">>> Updating sequence model...", syntaxTree);
@@ -152,7 +162,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error getting available nodes", response);
                     return;
                 }
-                setCategories(convertBICategoriesToSidePanelCategories(response.categories as Category[]));
+                const convertedCategories = convertBICategoriesToSidePanelCategories(response.categories as Category[]);
+                setCategories(convertedCategories);
+                initialCategoriesRef.current = convertedCategories; // Store initial categories
                 // add draft node to model
                 const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
 
@@ -368,7 +380,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        setSidePanelView(SidePanelView.NODE_LIST);
+        if (sidePanelView === SidePanelView.FUNCTION_LIST) {
+            // Reset categories to the initial available nodes
+            setCategories(initialCategoriesRef.current);
+            setSidePanelView(SidePanelView.NODE_LIST);
+        } else {
+            setSidePanelView(SidePanelView.NODE_LIST);
+        }
         // clear memory
         selectedNodeRef.current = undefined;
     };
@@ -455,6 +473,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
+                                flowNodeStyle={flowNodeStyle}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,

@@ -102,7 +102,7 @@ const MainPanel = () => {
         let filePath;
         let m: STModification[];
         if (isRecordModification) {
-            filePath = (await rpcClient.getVisualizerLocation()).recordFilePath;
+            filePath = (await rpcClient.getVisualizerLocation()).metadata?.recordFilePath;
             if (modifications.length === 1) {
                 // Change the start position of the modification to the beginning of the file
                 m = [

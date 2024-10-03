@@ -149,7 +149,7 @@ export namespace NodeStyles {
     `;
 }
 
-interface BaseNodeWidgetProps {
+export interface BaseNodeWidgetProps {
     model: BaseNodeModel;
     engine: DiagramEngine;
     onClick?: (node: FlowNode) => void;
@@ -248,12 +248,6 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                                 {model.node.properties.variable.value}
                             </NodeStyles.Pill>
                         )}
-                        {/* {model.node.properties.type?.value && (
-                            <NodeStyles.Pill color={Colors.GREEN}>
-                                <TIcon />
-                                {model.node.properties.type.value}
-                            </NodeStyles.Pill>
-                        )} */}
                     </NodeStyles.Footer>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>

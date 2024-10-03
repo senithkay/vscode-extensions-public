@@ -30,7 +30,7 @@ export class PositionVisitor implements BaseVisitor {
 
     beginVisitIf(node: FlowNode, parent?: FlowNode): void {
         node.viewState.y = this.lastNodeY;
-        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y + VSCODE_MARGIN;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.w / 2;

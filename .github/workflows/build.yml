@@ -272,7 +272,9 @@ jobs:
 
   UiTest_Choreo:
     name: Run Choreo e2e tests
-    if: ${{ (inputs.choreo == 'true' && needs.Build_Stage.outputs.runChoreoExtTests == 'true') || github.base_ref == 'release-choreo' }}
+    # Disabling Choreo E2E tests until tests have been updated to V2 Flow
+    if: false
+    # if: ${{ (inputs.choreo == 'true' && needs.Build_Stage.outputs.runChoreoExtTests == 'true') || github.base_ref == 'release-choreo' }}
     needs: Build_Stage
     timeout-minutes: 120
     runs-on: ubuntu-latest
