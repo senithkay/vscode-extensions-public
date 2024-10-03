@@ -277,6 +277,12 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     </KeyContainer>
                     <DropdownFooterText>{isSavable ? 'to select/save.' : 'to select.'}</DropdownFooterText>
                 </DropdownFooterSection>
+                <DropdownFooterSection>
+                    <KeyContainer>
+                        <DropdownFooterKey>ESC</DropdownFooterKey>
+                    </KeyContainer>
+                    <DropdownFooterText>to close.</DropdownFooterText>
+                </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
     );
@@ -532,6 +538,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         }
                     }
                     return;
+                case 'Esc':
+                    e.preventDefault();
+                    handleClose();
             }
         }
 
