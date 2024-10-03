@@ -62,6 +62,17 @@ export function getSources(filePath: string) {
     return [fileContent, interfacesSource];
 }
 
+export function getFunctionIOTypes(filePath: string, functionName: string) {
+    try {
+        const dmFunc = getDMFunction(filePath, functionName);
+        const parameterType = dmFunc.getParameters()[0].getType().getText();
+        const returnType = dmFunc.getReturnType().getText();
+        return `${parameterType}/${returnType}`;
+    } catch (error: any) {
+        throw new Error("[MI Data Mapper] Failed to fetch function input/output types. " + error.message);
+    }
+}
+
 export function deriveConfigName(filePath: string) {
     const parts = filePath.split(path.sep);
     const fileName = parts[parts.length - 1];

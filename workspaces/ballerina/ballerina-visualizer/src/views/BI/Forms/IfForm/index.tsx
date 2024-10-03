@@ -7,33 +7,51 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
-import { FlowNode, Branch, LineRange } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
-import { FormValues, EditorFactory } from "@wso2-enterprise/ballerina-side-panel";
+import { FormValues, ExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertNodePropertyToFormField } from "../../../../utils/bi";
-import { cloneDeep } from "lodash";
+import { convertBalCompletion, convertNodePropertyToFormField } from "../../../../utils/bi";
+import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 interface IfFormProps {
+    fileName: string;
     node: FlowNode;
     targetLineRange: LineRange;
     onSubmit: (node?: FlowNode) => void;
 }
 
 export function IfForm(props: IfFormProps) {
-    const { node, targetLineRange, onSubmit } = props;
-    const { getValues, register, setValue, handleSubmit, reset } = useForm<FormValues>();
+    const { fileName, node, targetLineRange, onSubmit } = props;
+    const { control, getValues, setValue, handleSubmit } = useForm<FormValues>();
+
+    const { rpcClient } = useRpcContext();
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const isChainedExpression = useRef<boolean>(false);
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const [activeEditor, setActiveEditor] = useState<number>(0);
 
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
 
     console.log(">>> form fields", { node, values: getValues(), branches });
 
+    const clearExpressionEditor = () => {
+        // clear memory for expression editor
+        setCompletions([]);
+        setFilteredCompletions([]);
+        isChainedExpression.current = false;
+        triggerCompletionOnNextRequest.current = false;
+    }
+
     const handleOnSave = (data: FormValues) => {
+        clearExpressionEditor();
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
@@ -71,6 +89,7 @@ export function IfForm(props: IfFormProps) {
     };
 
     const addNewCondition = () => {
+        clearExpressionEditor();
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
@@ -98,15 +117,148 @@ export function IfForm(props: IfFormProps) {
         setBranches([...branches.slice(0, -1), newBranch, branches[branches.length - 1]]);
     };
 
+    const debouncedGetCompletions = debounce(
+        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+            let expressionCompletions: CompletionItem[] = [];
+            const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]$`);
+            if (
+                offset > 0 &&
+                endOfChainRegex.test(value[offset - 1]) &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest
+            ) {
+                // Case 1: When a character unrelated to triggering completions is entered
+                isChainedExpression.current = false;
+                setCompletions([]);
+            } else if (
+                completions.length > 0 &&
+                !triggerCharacter &&
+                !isChainedExpression &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest
+            ) {
+                // Case 2: When completions have already been retrieved and only need to be filtered
+                expressionCompletions = completions
+                    .filter((completion) => {
+                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                        const lowerCaseText = text.toLowerCase();
+                        const lowerCaseLabel = completion.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    })
+                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
+            } else {
+                // Case 3: When completions need to be retrieved from the language server
+                if (triggerCharacter) {
+                    isChainedExpression.current = true;
+                } else {
+                    const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
+                    if (triggerRegex.test(value.slice(0, offset))) {
+                        isChainedExpression.current = true;
+                    } else {
+                        isChainedExpression.current = false;
+                    }
+                }
+
+                // Retrieve completions from the ls
+                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                    filePath: fileName,
+                    expression: value,
+                    startLine: targetLineRange.startLine,
+                    offset: offset,
+                    context: {
+                        triggerKind: triggerCharacter ? 2 : 1,
+                        triggerCharacter: triggerCharacter as TriggerCharacter,
+                    },
+                });
+
+                if (onlyVariables) {
+                    // If only variables are requested, filter out the completions based on the kind
+                    // 'kind' for variables = 6
+                    completions = completions?.filter((completion) => completion.kind === 6);
+                    triggerCompletionOnNextRequest.current = true;
+                } else {
+                    triggerCompletionOnNextRequest.current = false;
+                }
+
+                // Convert completions to the ExpressionBar format
+                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                setCompletions(convertedCompletions);
+
+                if (triggerCharacter) {
+                    expressionCompletions = convertedCompletions;
+                } else {
+                    expressionCompletions = convertedCompletions
+                        .filter((completion) => {
+                            const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                            const lowerCaseText = text.toLowerCase();
+                            const lowerCaseLabel = completion.label.toLowerCase();
+
+                            return lowerCaseLabel.includes(lowerCaseText);
+                        })
+                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                }
+            }
+
+            setFilteredCompletions(expressionCompletions);
+        },
+        250
+    );
+
+    const handleGetCompletions = async (
+        value: string,
+        offset: number,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => {
+        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
+
+        if (triggerCharacter) {
+            await debouncedGetCompletions.flush();
+        }
+    }
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredCompletions([]);
+        setCompletions([]);
+    };
+
+    const handleCompletionSelect = async () => {
+        debouncedGetCompletions.cancel();
+        handleExpressionEditorCancel();
+    }
+
+    const handleEditorFocus = (activeEditor: number) => {
+        setActiveEditor(activeEditor);
+    }
+
+    useEffect(() => {
+        branches.forEach((branch) => {
+            if (branch.properties?.condition) {
+                const field = convertNodePropertyToFormField(branch.label, branch.properties.condition);
+                setValue(field.key, field.value);
+            }
+        });
+    }, [branches]);
+
     // TODO: support multiple type fields
     return (
         <FormStyles.Container>
-            {branches.map((branch) => {
+            {branches.map((branch, index) => {
                 if (branch.properties?.condition) {
                     const field = convertNodePropertyToFormField(branch.label, branch.properties.condition);
                     return (
                         <FormStyles.Row key={branch.label}>
-                            <EditorFactory field={field} register={register} />
+                            <ExpressionEditor
+                                control={control}
+                                field={field}
+                                completions={activeEditor === index ? filteredCompletions : []}
+                                triggerCharacters={TRIGGER_CHARACTERS}
+                                onRetrieveCompletions={handleGetCompletions}
+                                onCompletionSelect={handleCompletionSelect}
+                                onCancel={handleExpressionEditorCancel}
+                                onFocus={() => handleEditorFocus(index)}
+                            />
                         </FormStyles.Row>
                     );
                 }

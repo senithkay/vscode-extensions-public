@@ -158,6 +158,8 @@ export function AIProjectGenerationChat() {
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
     const [initialPromptLoaded, setInitialPromptLoaded] = useState(false);
+    const [isAtBottom, setIsAtBottom] = useState(true);
+    const mainContainerRef = React.useRef(null);
 
     async function fetchBackendUrl() {
         try {
@@ -225,7 +227,6 @@ export function AIProjectGenerationChat() {
                             const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
                             codeBlocks.push(...codeBlocksFromStorage);
                         }
-                        console.log("Code Blocks: " + codeBlocks);
                         const chatArrayFromStorage = JSON.parse(storedChatArray);
                         chatArray = chatArrayFromStorage;
 
@@ -261,7 +262,6 @@ export function AIProjectGenerationChat() {
                                     { role: "", content: storedQuestion, type: "question" },
                                 ]);
                             } else {
-                                console.log("Fetching initial questions");
                                 generateSuggestions();
                             }
                         }
@@ -289,17 +289,35 @@ export function AIProjectGenerationChat() {
 
     }
 
-    useEffect(() => {
-        // This code will run after isCodeLoading updates
-        console.log(isCodeLoading);
-    }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
+    const handleScroll = () => {
+        const container = mainContainerRef.current;
+        if (container) {
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            if (scrollHeight - scrollTop <= clientHeight + 50) {
+                setIsAtBottom(true);
+            } else {
+                setIsAtBottom(false);
+            }
+        }
+    };
 
     useEffect(() => {
-        // Step 2: Scroll into view when messages state changes
-        if (messagesEndRef.current) {
+        if (isAtBottom && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
         }
-    }, [messages]);
+    }, [messages, isAtBottom]);
+
+    useEffect(() => {
+        const container = mainContainerRef.current;
+        if (container) {
+            container.addEventListener('scroll', handleScroll);
+        }
+        return () => {
+            if (container) {
+                container.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (rpcClient) {
@@ -308,14 +326,6 @@ export function AIProjectGenerationChat() {
             });
         }
     }, [rpcClient]);
-
-    useEffect(() => {
-        console.log("Suggestions: " + isSuggestionLoading);
-    }, [isSuggestionLoading]);
-
-    useEffect(() => {
-        console.log("is Loading: " + isLoading);
-    }, [isLoading]);
 
     function getStatusText(status: number) {
         switch (status) {
@@ -363,12 +373,10 @@ export function AIProjectGenerationChat() {
                     });
                     break;
                 default:
-                    console.log("Other");
                     await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
                         context = [response]; // Wrap the response in an array
                     });
             }
-            console.log(JSON.stringify({ messages: chatArray, context: context[0].context }));
             const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
             let retryCount = 0;
             const maxRetries = 2;
@@ -427,7 +435,7 @@ export function AIProjectGenerationChat() {
         if (userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
-        console.log(chatArray);
+        setIsAtBottom(true);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
@@ -464,7 +472,7 @@ export function AIProjectGenerationChat() {
         //Get machine view
         const machineView = await rpcClient.getVisualizerState();
         switch (machineView?.view) {
-            case MACHINE_VIEW.Overview:
+            case MACHINE_VIEW.Overview:      
             case MACHINE_VIEW.ADD_ARTIFACT:
                 backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
                 view = "Overview";
@@ -482,7 +490,6 @@ export function AIProjectGenerationChat() {
                 context = [response]; // Wrap the response in an array
             });
         }
-        console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const stringifiedUploadedFiles = files.map(file => JSON.stringify(file));
         const imageBase64Array = images.map(image => image.imageBase64);
@@ -824,9 +831,9 @@ export function AIProjectGenerationChat() {
                     </Button>
                 </HeaderButtons>
             </Header>
-            <main style={{ flex: 1, overflowY: "auto" }}>
+            <main style={{ flex: 1, overflowY: "auto" }} ref={mainContainerRef}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to MI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
+                    <h3>Welcome to MI Copilot</h3>
                     <p>
                         You may use this chat to generate new artifacts
                         or to make changes to existing artifacts simply using text-based prompts.
@@ -846,7 +853,6 @@ export function AIProjectGenerationChat() {
                                 :
                                 <>
                                     <h3 style={{ margin: 0 }}>{message.role}</h3>
-                                    <PreviewContainer>Preview</PreviewContainer>
                                 </>
                             }
                         </RoleContainer>
