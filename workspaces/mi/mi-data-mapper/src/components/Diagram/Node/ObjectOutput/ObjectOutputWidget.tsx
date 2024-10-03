@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -30,6 +30,9 @@ import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { IOType } from '@wso2-enterprise/mi-core';
 import FieldActionWrapper from '../commons/FieldActionWrapper';
+import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
+import { modifyChildFieldsOptionality } from '../../utils/modification-utils';
+import { set } from 'lodash';
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
@@ -164,6 +167,25 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		});
 	};
 
+	const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+		try {
+			await modifyChildFieldsOptionality(dmTypeWithValue, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const valConfigMenuItems: ValueConfigMenuItem[] = [
+		{
+			title: ValueConfigOption.MakeChildFieldsOptional,
+			onClick: () => handleModifyChildFieldsOptionality(true)
+		},
+		{
+			title: ValueConfigOption.MakeChildFieldsRequired,
+			onClick: () => handleModifyChildFieldsOptionality(false)
+		}
+	];
+
 	return (
 		<>
 			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
@@ -211,6 +233,15 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
 								/>
 							</Button>
+						</FieldActionWrapper>
+					)}
+					{(
+						<FieldActionWrapper>
+							<ValueConfigMenu
+								menuItems={valConfigMenuItems}
+								isDisabled={!typeName}
+								portName={portIn?.getName()}
+							/>
 						</FieldActionWrapper>
 					)}
 				</TreeHeader>
