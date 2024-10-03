@@ -204,10 +204,7 @@ const DropdownItem = (props: DropdownItemProps) => {
             ref={itemRef}
             {...(firstItem && { className: 'hovered' })}
             onMouseEnter={handleMouseEnter}
-            onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                onClick();
-            }}
+            onClick={onClick}
         >
             <TitleContainer>
                 {getIcon(item.kind)}
@@ -274,6 +271,12 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                         <DropdownFooterKey>ENTER</DropdownFooterKey>
                     </KeyContainer>
                     <DropdownFooterText>{isSavable ? 'to select/save.' : 'to select.'}</DropdownFooterText>
+                </DropdownFooterSection>
+                <DropdownFooterSection>
+                    <KeyContainer>
+                        <DropdownFooterKey>ESC</DropdownFooterKey>
+                    </KeyContainer>
+                    <DropdownFooterText>to close.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -530,6 +533,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         }
                     }
                     return;
+                case 'Esc':
+                    e.preventDefault();
+                    handleClose();
             }
         }
 
@@ -564,8 +570,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         await onFocus?.();
     }
 
-    const handleTextFieldBlur = async () => {
-        await onBlur?.();
+    const handleTextFieldBlur = (e: React.FocusEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     useImperativeHandle(ref, () => ({
@@ -576,6 +583,24 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             await handleExpressionSaveMutation(value);
         }
     }));
+
+    useEffect(() => {
+        // Prevent blur event when clicking on the dropdown
+        const handleOutsideClick = async (e: any) => {
+            if (
+                document.activeElement === inputRef.current &&
+                !inputRef.current?.contains(e.target) &&
+                !listBoxRef.current?.contains(e.target)
+            ) {
+                await onBlur?.();
+            }
+        }
+
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => {
+            document.removeEventListener('mousedown', handleOutsideClick);
+        }
+    }, [onBlur]);
 
     return (
         <Container ref={elementRef}>

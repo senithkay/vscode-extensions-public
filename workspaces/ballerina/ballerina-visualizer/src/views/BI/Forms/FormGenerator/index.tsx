@@ -38,6 +38,7 @@ interface FormProps {
         onRetrieveCompletions: (value: string, offset: number) => any;
         onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
+        onBlur: () => void;
     };
 }
 
