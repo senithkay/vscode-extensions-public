@@ -1,218 +1,129 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-core";
-import { ApiVersion, Component, ComponentYamlContent, ComponentYamlSchema } from "@wso2-enterprise/choreo-core";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
+import { join } from "path";
+import * as path from "path";
+import type { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
-import { ProjectRegistry } from "./registry/project-registry";
-import { dirname, join } from "path";
+import { Uri, commands, window, workspace } from "vscode";
+import { getLogger } from "./logger/logger";
 
-export async function enrichDeploymentData(
-    orgId: string,
-    componentId: string,
-    pkgServices: Map<string, Service>,
-    apiVersions: ApiVersion[],
-    componentLocation: string
-): Promise<boolean> {
-    const services = [...pkgServices.values()];
-    const componentServices = services.filter((service) =>
-        service.sourceLocation?.filePath.includes(componentLocation)
-    );
-    for (const service of componentServices) {
-        let isInternetExposed = false;
-        let isIntranetExposed = false;
-        if (apiVersions.length > 0) {
-            // Get the latest version of the API
-            const version = apiVersions.find((apiVersion) => apiVersion.latest);
-            if (version) {
-                const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
-                    componentId,
-                    version.id,
-                    parseInt(orgId)
-                );
-                // TODO: Handle multiple endpoints
-                if (epData?.componentEndpoints && epData.componentEndpoints.length === 1) {
-                    const endpoint = epData.componentEndpoints[0];
-                    const visibility = endpoint.visibility;
-                    if (visibility === "Organization") {
-                        isIntranetExposed = true;
-                    }
-                    if (visibility === "Public") {
-                        isInternetExposed = true;
-                    }
-                }
-            }
-        }
+export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
+	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
+	if (existsSync(endpointsYamlPath)) {
+		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
+		return { endpoints: endpointFileContent.endpoints, filePath: endpointsYamlPath };
+	}
 
-        service.deploymentMetadata = {
-            gateways: {
-                internet: {
-                    isExposed: isInternetExposed,
-                },
-                intranet: {
-                    isExposed: isIntranetExposed,
-                },
-            },
-        };
-    }
-    return componentServices.length > 0;
-}
-
-export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, apiVersion: ApiVersion): boolean {
-    const modelMap: Map<string, Service> = new Map(Object.entries(pkgServices));
-    const services = [...modelMap.values()];
-    for (const service of services) {
-        let isInternetExposed = false;
-        let isIntranetExposed = false;
-        if (apiVersion.accessibility === "internal") {
-            isIntranetExposed = true;
-        }
-        if (apiVersion.accessibility === "external") {
-            isInternetExposed = true;
-        }
-        service.deploymentMetadata = {
-            gateways: {
-                internet: {
-                    isExposed: isInternetExposed,
-                },
-                intranet: {
-                    isExposed: isIntranetExposed,
-                },
-            },
-        };
-    }
-    return services.length > 0;
-}
-
-export function mergeNonClonedProjectData(component: Component): ComponentModel {
-    const pkgServices: { [key: string]: Service } = {};
-    pkgServices[component.id] = {
-        id: component.displayName,
-        label: component.displayName,
-        type: component.displayType,
-        annotation: {
-            id: component.id,
-            label: component.displayName,
-        },
-        deploymentMetadata: {
-            gateways: {
-                internet: {
-                    isExposed: false,
-                },
-                intranet: {
-                    isExposed: false,
-                },
-            },
-        },
-        dependencies: [],
-        remoteFunctions: [],
-        resourceFunctions: [],
-        isNoData: true,
-    };
-    return {
-        id: component.name,
-        orgName: component.orgHandler,
-        modelVersion: "0.4.0",
-        version: component.version,
-        services: pkgServices as any,
-        entities: new Map(),
-        connections: [],
-        hasCompilationErrors: false,
-        hasModelErrors: false,
-    };
-}
-
-// sanitize the component display name to make it url friendly
-export function makeURLSafe(input: string): string {
-    return input.trim().replace(/\s+/g, "-").toLowerCase();
-}
-
-export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: string) => {
-    const resourceList: CMResourceFunction[] = [];
-    if (existsSync(openApiFilePath)) {
-        const apiSchema: any = yaml.load(readFileSync(openApiFilePath, "utf8"));
-        const paths = apiSchema.paths;
-        for (const pathKey of Object.keys(paths)) {
-            for (const pathMethod of Object.keys(paths[pathKey])) {
-                resourceList.push({
-                    id: `${serviceId}:${pathKey}:${pathMethod}`,
-                    label: "",
-                    path: pathKey,
-                    interactions: [],
-                    parameters: [],
-                    returns: [],
-                });
-            }
-        }
-    }
-    return resourceList;
+	const componentConfigYamlPath = join(componentPath, ".choreo", "component-config.yaml");
+	if (existsSync(componentConfigYamlPath)) {
+		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+		return { endpoints: endpointFileContent?.spec?.inbound ?? [], filePath: componentConfigYamlPath };
+	}
+	return { endpoints: [], filePath: "" };
 };
 
-export const getComponentDirPath = (component: Component, projectLocation: string) => {
-    const repository = component.repository;
-    if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
-        const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
-        if (appSubPath) {
-            return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
-        } else if (byocWebAppBuildConfig) {
-            if (byocWebAppBuildConfig?.dockerContext) {
-                return join(
-                    dirname(projectLocation),
-                    "repos",
-                    organizationApp,
-                    nameApp,
-                    byocWebAppBuildConfig?.dockerContext
-                );
-            } else if (byocWebAppBuildConfig?.outputDirectory) {
-                return join(
-                    dirname(projectLocation),
-                    "repos",
-                    organizationApp,
-                    nameApp,
-                    byocWebAppBuildConfig?.outputDirectory
-                );
-            }
-        } else if (byocBuildConfig) {
-            return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
-        }
-    }
+// TODO: move into ChoreoExtensionApi()
+export const goTosource = async (filePath: string, focusFileExplorer?: boolean) => {
+	if (existsSync(filePath)) {
+		const sourceFile = await workspace.openTextDocument(filePath);
+		await window.showTextDocument(sourceFile);
+		if (focusFileExplorer) {
+			await commands.executeCommand("workbench.explorer.fileView.focus");
+		}
+	}
 };
 
-export function regexFilePathChecker(path: string, regex: RegExp): boolean {
-    return regex.test(path);
+export const isSubpath = (parent: string, sub: string): boolean => {
+	const normalizedParent = path.normalize(parent).toLowerCase();
+	const normalizedSub = path.normalize(sub).toLowerCase();
+	if (normalizedParent === normalizedSub) {
+		return true;
+	}
+
+	const relative = path.relative(normalizedParent, normalizedSub);
+	return !!relative && !relative.startsWith("..") && !path.isAbsolute(relative);
+};
+
+export const getSubPath = (subPath: string, parentPath: string): string | null => {
+	const normalizedParent = path.normalize(parentPath);
+	const normalizedSub = path.normalize(subPath);
+	if (normalizedParent === normalizedSub) {
+		return ".";
+	}
+
+	const relative = path.relative(normalizedParent, normalizedSub);
+	// If the relative path starts with '..', it means subPath is outside of parentPath
+	if (!relative.startsWith("..")) {
+		// If subPath and parentPath are the same, return '.'
+		if (relative === "") {
+			return ".";
+		}
+		return relative;
+	}
+	return null;
+};
+
+export const createDirectory = (basePath: string, dirName: string) => {
+	let newDirName = dirName;
+	let counter = 1;
+
+	// Define the full path for the initial directory
+	let dirPath = path.join(basePath, newDirName);
+
+	// Check if the directory exists
+	while (existsSync(dirPath)) {
+		newDirName = `${dirName}-${counter}`;
+		dirPath = path.join(basePath, newDirName);
+		counter++;
+	}
+
+	// Create the directory
+	mkdirSync(dirPath);
+
+	return { dirName: newDirName, dirPath };
+};
+
+export async function openDirectory(openingPath: string, message: string) {
+	const openInCurrentWorkspace = await window.showInformationMessage(message, { modal: true }, "Current Window", "New Window");
+	if (openInCurrentWorkspace === "Current Window") {
+		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
+			forceNewWindow: false,
+		});
+		await commands.executeCommand("workbench.explorer.fileView.focus");
+	} else if (openInCurrentWorkspace === "New Window") {
+		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
+			forceNewWindow: true,
+		});
+	}
 }
 
-export function enrichComponentSchema(
-    schema: ComponentYamlSchema,
-    component: string, project: string,
-    componentConfigs: ComponentYamlContent[] | undefined
-): ComponentYamlSchema {
-    delete schema.definitions!.name.default;
-    delete schema.definitions!.projectName.default;
+export function withTimeout<T>(fn: () => Promise<T>, functionName: string, timeout: number): Promise<T> {
+	return Promise.race([fn(), new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`Function ${functionName} timed out`)), timeout))]);
+}
 
-    schema.definitions!.name.const = component;
-    schema.definitions!.projectName.const = project;
+export async function withRetries<T>(fn: () => Promise<T>, functionName: string, retries: number, timeout: number): Promise<T> {
+	for (let i = 0; i < retries; i++) {
+		try {
+			return await withTimeout(fn, functionName, timeout);
+		} catch (error: any) {
+			if (i === retries - 1) {
+				throw error;
+			}
+			getLogger().error(`Attempt to call ${functionName} failed(Attempt ${i + 1}): ${error?.message}. Retrying...`);
+			await delay(500);
+		}
+	}
+	throw new Error(`Max retries reached for function ${functionName}`);
+}
 
-    if (!componentConfigs) {
-        return schema;
-    }
-    const branches = new Set<string>();
-    componentConfigs.forEach((config) => {
-        branches.add(config.spec.build!.branch);
-    });
-
-    schema.definitions!.branch.enum = Array.from(branches);
-
-    return schema;
+export function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }
