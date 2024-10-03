@@ -14,6 +14,7 @@ import { Branch, FlowNode, LinePosition, NodeModel } from "../../utils/types";
 export const LINK_BOTTOM_OFFSET = 30;
 
 export interface NodeLinkModelOptions {
+    id?: string;
     label?: string;
     showAddButton?: boolean; // default true
     showArrow?: boolean; // default true
@@ -23,6 +24,7 @@ export interface NodeLinkModelOptions {
 }
 
 export class NodeLinkModel extends DefaultLinkModel {
+    linkId: string;
     label: string;
     sourceNode: NodeModel;
     targetNode: NodeModel;
@@ -51,6 +53,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 this.label = options;
                 this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
             } else {
+                if ((options as NodeLinkModelOptions).id) {
+                    this.linkId = (options as NodeLinkModelOptions).id;
+                }
                 if ((options as NodeLinkModelOptions).label) {
                     this.label = (options as NodeLinkModelOptions).label;
                 }
