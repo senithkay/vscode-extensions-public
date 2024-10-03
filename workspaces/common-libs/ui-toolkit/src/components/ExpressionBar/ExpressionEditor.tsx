@@ -199,15 +199,17 @@ const DropdownItem = (props: DropdownItemProps) => {
         itemRef.current.classList.add('hovered');
     };
 
+    const handleClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onClick();
+    }
+
     return (
         <DropdownItemContainer
             ref={itemRef}
             {...(firstItem && { className: 'hovered' })}
             onMouseEnter={handleMouseEnter}
-            onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                onClick();
-            }}
+            onClick={handleClick}
         >
             <TitleContainer>
                 {getIcon(item.kind)}
