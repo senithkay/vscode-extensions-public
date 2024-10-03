@@ -86,6 +86,7 @@ export class SizingVisitor implements BaseVisitor {
                 }
             });
         }
+        height = Math.max(height, NODE_HEIGHT * 2);
         this.setNodeSize(node, width, height);
     }
 
