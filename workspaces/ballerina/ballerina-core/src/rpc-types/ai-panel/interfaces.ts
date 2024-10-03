@@ -16,10 +16,31 @@ export type ErrorCode = {
     message: string;
 };
 
+export interface ProjectSource {
+    sourceFiles: SourceFile[];
+}
+
+export interface SourceFile {
+    filePath : string;
+    content : string;
+}
+
+export interface ProjectDiagnostics {
+    diagnostics: Diagnostic[];
+}
+
+export interface Diagnostic {
+    message : string;
+}
+export interface AIVisualizerState {
+    state: AIMachineStateValue;
+}
+
 export interface AIVisualizerState {
     state: AIMachineStateValue;
 }
 export interface AddToProjectRequest {
+    filePath: string;
     content: string;
 }
 

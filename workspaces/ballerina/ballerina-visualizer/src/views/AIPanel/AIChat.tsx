@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW, ProjectSource, SourceFile, ProjectDiagnostics } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
@@ -38,6 +38,10 @@ interface MarkdownRendererProps {
     markdownContent: string;
 }
 
+interface CodeBlock {
+    filePath: string;
+    content: string;
+}
 interface ChatEntry {
     actor: string;
     message: string;
@@ -173,7 +177,6 @@ export function AIChat() {
     useEffect(() => {
         rpcClient?.getAiPanelRpcClient().getProjectUuid().then((response) => {
             projectUuid = response;
-            // projectUuid = "123";
             const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
             const storedChatArray = localStorage.getItem(localStorageFile);
             rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
@@ -190,7 +193,7 @@ export function AIChat() {
                                 role = 'User';
                                 type = 'user_message';
                             } else if (entry.actor === 'assistant') {
-                                role = 'BI Copilot';
+                                role = 'Copilot';
                                 type = 'assistant_message';
                             }
                             return {
@@ -224,10 +227,10 @@ export function AIChat() {
 
     }
 
-    // useEffect(() => {
-    //     // This code will run after isCodeLoading updates
-    //     console.log(isCodeLoading);
-    // }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
+    useEffect(() => {
+        // This code will run after isCodeLoading updates
+        console.log(isCodeLoading);
+    }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
 
     useEffect(() => {
         // Step 2: Scroll into view when messages state changes
@@ -244,14 +247,6 @@ export function AIChat() {
         }
     }, [rpcClient]);
 
-    // useEffect(() => {
-    //     console.log("Suggestions: " + isSuggestionLoading);
-    // }, [isSuggestionLoading]);
-
-    // useEffect(() => {
-    //     console.log("is Loading: " + isLoading);
-    // }, [isLoading]);
-
     function getStatusText(status: number) {
         switch (status) {
             case 400: return 'Bad Request';
@@ -264,9 +259,23 @@ export function AIChat() {
         }
     }
 
-    async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
+    function getProjectFromResponse(req: string): ProjectSource {
+        const sourceFiles: SourceFile[] = [];
+        const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
+        let match;
+
+        while ((match = regex.exec(req)) !== null) {
+            const filePath = match[1];
+            const fileContent = match[2].trim();
+            sourceFiles.push({ filePath, content: fileContent });
+        }
+
+        return { sourceFiles };
+    }
+
+    async function handleSend() {
         // Step 1: Add the user input to the chat array
-        if (userInput === "" && !isQuestion && !isInitialPrompt) {
+        if (userInput === "") {
             return;
         }
         var context: GetWorkspaceContextResponse[] = [];
@@ -276,29 +285,21 @@ export function AIChat() {
         let assistant_response = "";
         setUserInput("");
         setMessages(prevMessages => prevMessages.filter((message, index) => index <= lastQuestionIndex || message.type !== 'question'));
-        if (isQuestion) {
-            setLastQuestionIndex(messages.length - 4);
+
+        if (userInput != "") {
+            setMessages(prevMessages => [
+                ...prevMessages,
+                { role: "User", content: userInput, type: "user_message" },
+                { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
+            ]);
+        } else {
             setMessages(prevMessages => [
                 ...prevMessages,
                 { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
             ]);
-        } else {
-            if (userInput != "") {
-                setMessages(prevMessages => [
-                    ...prevMessages,
-                    { role: "User", content: userInput, type: "user_message" },
-                    { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-                ]);
-            } else {
-                setMessages(prevMessages => [
-                    ...prevMessages,
-                    { role: "Copilot", content: "", type: "assistant_message" }, // Add a new message for the assistant
-                ]);
-            }
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        console.log("Used token : " + token);
         async function fetchWithToken(url: string, options: RequestInit) {
             let response = await fetch(url, options);
             if (response.status === 401) {
@@ -317,17 +318,19 @@ export function AIChat() {
             return response;
         }
 
-
-
+        backendRootUri = "http://localhost:9094/ai"
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const response = await fetchWithToken(backendRootUri + "/code", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray }),
+            body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray, sourceFiles: project.sourceFiles }),
             signal: signal,
         });
+
+        let functions : any;
 
         if (!response.ok) {
             setIsLoading(false);
@@ -351,12 +354,9 @@ export function AIChat() {
         }
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
-        let result = '';
         let buffer = '';
-        let codeBuffer = '';
-        let codeLoad = false;
         remainingTokenPercentage = "Unlimited";
-        let inCodeBlock = false;
+        setIsCodeLoading(true)
         while (true) {
             const { done, value } = await reader.read();
             if (done) {
@@ -370,64 +370,95 @@ export function AIChat() {
             while (boundary !== -1) {
                 const chunk = buffer.slice(0, boundary + 2);
                 buffer = buffer.slice(boundary + 2);
-
                 try {
-                    const event = parseSSEEvent(chunk);
-                    // console.log(`Event: ${event.event}`);
-                    if (event.event == "content_block_delta") {
-                        let textDelta = event.body.text;
-                        assistant_response += (textDelta);
-                        // console.log("Text Delta: " + textDelta);
-
-                        if (textDelta.includes("```ballerina")) {
-                            console.log("Here backticks" + textDelta);
-                            setIsCodeLoading(true);
-                            inCodeBlock = true;
-                        } else if (inCodeBlock) {
-                            codeBlocks.push(textDelta);
-                            console.log("Code block " + textDelta);
-                            inCodeBlock = false;
-                        } else if (textDelta.includes("```")) {
-                            console.log("Ending backtick" + textDelta);
-                            setIsCodeLoading(false);
-                        }
-
-                        setMessages(prevMessages => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content += textDelta;
-                            return newMessages;
-                        });
-                    } else if (event.event == "error") {
-                        console.log("Streaming Error: " + event.body);
-                        setIsLoading(false);
-                        setMessages(prevMessages => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content += 'Unknown error occurred while streaming. Please retry';
-                            newMessages[newMessages.length - 1].type = 'Error';
-                            return newMessages;
-                        });
-                        throw new Error('Streaming error');
-                    }
+                    await processSSEEvent(chunk);
                 } catch (error) {
                     console.error("Failed to parse SSE event:", error);
                 }
 
                 boundary = buffer.indexOf("\n\n");
             }
-            // console.log(assistant_response);
+        }
 
+        async function processSSEEvent(chunk: string) {
+            const event = parseSSEEvent(chunk);
+            if (event.event == "content_block_delta") {
+                let textDelta = event.body.text;
+                assistant_response += (textDelta);
+
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += textDelta;
+                    return newMessages;
+                });
+            } else if (event.event == "functions") {
+                functions = event.body
+            } else if (event.event == "message_stop") {
+                //extract new source files from resp
+                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response)
+                // Check diagnostics
+                const diags: ProjectDiagnostics = await rpcClient.getAiPanelRpcClient().getShadowDiagnostics(newSourceFiles);
+                if (diags.diagnostics.length > 0) {
+                    console.log("Diagnostics : ")
+                    console.log(diags.diagnostics)
+                    //TODO: fill
+                    const diagReq = {
+                        "response": assistant_response,
+                        "diagnostics": diags.diagnostics
+                    }
+                    const startTime = performance.now();
+                    const response = await fetchWithToken(backendRootUri + "/code/repair", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray, "sourceFiles": project.sourceFiles, diagnosticRequest: diagReq, functions: functions }),
+                        signal: signal,
+                    });
+                    if (!response.ok) {
+                        console.log("errr");
+                    } else {
+                        const jsonBody = await response.json();
+                        const repairResponse = jsonBody.repairResponse;
+                        // replace original response with new code blocks
+                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse)
+                        const endTime = performance.now();
+                        const executionTime = endTime - startTime;
+                        console.log(`Repair call time: ${executionTime} milliseconds`);
+                        setIsCodeLoading(false)
+                        assistant_response = fixedResponse;
+                        setMessages(prevMessages => {
+                            const newMessages = [...prevMessages];
+                            newMessages[newMessages.length - 1].content = fixedResponse;
+                            return newMessages;
+                        });
+                    }
+                } else {
+                    setIsCodeLoading(false)
+                }
+            } else if (event.event == "error") {
+                console.log("Streaming Error: " + event.body);
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += 'Unknown error occurred while streaming. Please retry';
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Streaming error');
+            }
         }
         addChatEntry("user", userInput);
         addChatEntry("assistant", assistant_response);
     }
 
-    const handleAddSelectiveCodetoWorkspace = async (codeSegment: string) => {
+    const handleAddSelectiveCodetoWorkspace = async (codeSegment: string, filePath: string) => {
 
         // var selectiveCodeBlocks: string[] = [];
         // selectiveCodeBlocks.push(codeSegment);
         // console.log("TODO: Write to file");
-        await rpcClient.getAiPanelRpcClient().addToProject({ content: codeSegment });
-
+        await rpcClient.getAiPanelRpcClient().addToProject({ filePath: filePath, content: codeSegment });
     }
 
     async function handleStop() {
@@ -442,7 +473,47 @@ export function AIChat() {
         setIsCodeLoading(false);
     }
 
-    
+    function splitHalfGeneratedCode(content: string) {
+        const segments = [];
+        // const regex = /```ballerina([\s\S]*?)$/g;
+        const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)$/g;
+        let match;
+        let lastIndex = 0;
+
+        while ((match = regex.exec(content)) !== null) {
+            if (match.index > lastIndex) {
+                segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
+            }
+            segments.push({ isCode: true, loading: true, text: match[2], fileName: match[1] });
+            lastIndex = regex.lastIndex;
+        }
+
+        if (lastIndex < content.length) {
+            segments.push({ isCode: false, loading: false, text: content });
+        }
+        return segments;
+    }
+
+    function splitContent(content: string) {
+        const segments = [];
+        let match;
+        // const regex = /```ballerina([\s\S]*?)```/g;
+        const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
+        let start = 0;
+
+        while ((match = regex.exec(content)) !== null) {
+            if (match.index > start) {
+                const segment = content.slice(start, match.index);
+                segments.push(...splitHalfGeneratedCode(segment));
+            }
+            segments.push({ isCode: true, loading: false, text: match[2], fileName: match[1] });
+            start = regex.lastIndex;
+        }
+        if (start < content.length) {
+            segments.push(...splitHalfGeneratedCode(content.slice(start)));
+        }
+        return segments;
+    }
 
     async function handleLogout() {
         await rpcClient.getAiPanelRpcClient().logout();
@@ -469,7 +540,7 @@ export function AIChat() {
     const handleTextKeydown = (event: any) => {
         if (event.key === "Enter" && !event.shiftKey && userInput !== "") {
             event.preventDefault();
-            handleSend(false, false);
+            handleSend();
             setUserInput("");
         }
     };
@@ -506,6 +577,14 @@ export function AIChat() {
                     <ResetsInBadge>
                         {`Resets in: 30 days`}
                     </ResetsInBadge>
+                    <Button
+                        appearance="icon"
+                        onClick={() => handleClearChat()}
+                        tooltip="Clear Chat"
+                        disabled={isLoading}
+                    >
+                        <Codicon name="clear-all" />&nbsp;&nbsp;Clear
+                    </Button>
                 </Badge>
                 <HeaderButtons>
                     <Button
@@ -554,7 +633,9 @@ export function AIChat() {
                                     key={i}
                                     segmentText={segment.text}
                                     loading={segment.loading}
+                                    fileName={segment.fileName}
                                     handleAddSelectiveCodetoWorkspace={handleAddSelectiveCodetoWorkspace}
+                                    isReady={!isCodeLoading}
                                 />
                             ) : (
                                 message.type == "Error" ? (
@@ -633,7 +714,7 @@ export function AIChat() {
                     </VSCodeTextArea>
                     <VSCodeButton
                         appearance="secondary"
-                        onClick={() => isLoading ? handleStop() : handleSend(false, false)}
+                        onClick={() => isLoading ? handleStop() : handleSend()}
                         style={{ width: "35px", marginBottom: "4px" }}>
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
@@ -651,7 +732,9 @@ export function AIChat() {
 interface CodeSegmentProps {
     segmentText: string;
     loading: boolean;
-    handleAddSelectiveCodetoWorkspace: (codeSegment: string) => void;
+    fileName?: string;
+    isReady : boolean;
+    handleAddSelectiveCodetoWorkspace: (codeSegment: string, filePath: string) => void;
 }
 
 interface EntryContainerProps {
@@ -671,6 +754,45 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
     },
 }));
 
+function replaceCodeBlocks(originalResp: string, newResp: string): string {
+    // Create a map to store new code blocks by filename
+    const newCodeBlocks = new Map<string, string>();
+
+    // Extract code blocks from newResp
+    const newCodeRegex = /<code filename="(.+?)">\s*```ballerina\s*([\s\S]*?)```\s*<\/code>/g;
+    let match;
+    while ((match = newCodeRegex.exec(newResp)) !== null) {
+        newCodeBlocks.set(match[1], match[2].trim());
+    }
+
+    // Replace code blocks in originalResp
+    const updatedResp = originalResp.replace(
+        /<code filename="(.+?)">\s*```ballerina\s*([\s\S]*?)```\s*<\/code>/g,
+        (match, filename, content) => {
+            const newContent = newCodeBlocks.get(filename);
+            if (newContent !== undefined) {
+                return `<code filename="${filename}">\n\`\`\`ballerina\n${newContent}\n\`\`\`\n</code>`;
+            }
+            return match; // If no new content, keep the original
+        }
+    );
+
+    // Remove replaced code blocks from newCodeBlocks
+    const originalCodeRegex = /<code filename="(.+?)">/g;
+    while ((match = originalCodeRegex.exec(originalResp)) !== null) {
+        newCodeBlocks.delete(match[1]);
+    }
+
+    // Append any remaining new code blocks
+    let finalResp = updatedResp;
+    newCodeBlocks.forEach((content, filename) => {
+        finalResp += `\n\n<code filename="${filename}">\n\`\`\`ballerina\n${content}\n\`\`\`\n</code>`;
+    });
+
+    return finalResp;
+
+}
+
 function identifyLanguage(segmentText: string): string {
     if (segmentText.includes('<') && segmentText.includes('>') && /(?:name|key)="([^"]+)"/.test(segmentText)) {
         return "xml";
@@ -688,13 +810,12 @@ function identifyLanguage(segmentText: string): string {
     }
 }
 
-
-const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleAddSelectiveCodetoWorkspace }) => {
+const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileName, handleAddSelectiveCodetoWorkspace, isReady }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     // const language = identifyLanguage(segmentText);
     const language = "ballerina";
-    let name = "Ballerina file";
+    let name = fileName || "Ballerina file";
 
     // switch (language) {
     //     case "xml":
@@ -726,16 +847,22 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                    {!loading && language === 'ballerina' &&
+                    {!loading && isReady &&language === 'ballerina' &&
                         <Button
                             appearance="icon"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleAddSelectiveCodetoWorkspace(segmentText);
+                                handleAddSelectiveCodetoWorkspace(segmentText, fileName);
                             }}>
                             <Codicon name="add" />&nbsp;&nbsp;Add to Project
                         </Button>
                     }
+                    {/* {!loading && !isReady &&language === 'ballerina' &&
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%" }}>
+                        <ProgressRing sx={{ position: "relative" }} />
+                        <Icon name="sync" sx={{ animation: "spin 2s linear infinite" }} />
+                    </div>
+                    } */}
                 </div>
             </EntryContainer>
             <Collapse isOpened={isOpen}>
@@ -791,6 +918,8 @@ export function parseSSEEvent(chunk: string): SSEEvent {
 
     if (event === "content_block_delta") {
         return { event, body: body as ContentBlockDeltaBody };
+    } else if (event === "functions") {
+        return { event, body: body};
     } else {
         return { event, body: body as OtherEventBody };
     }
