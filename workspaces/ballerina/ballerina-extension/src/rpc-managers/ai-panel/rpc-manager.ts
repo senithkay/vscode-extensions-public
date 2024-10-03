@@ -14,6 +14,7 @@ import {
     AI_EVENT_TYPE,
     AddToProjectRequest,
     Diagnostics,
+    DiagnosticEntry,
     ErrorCode,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
@@ -32,17 +33,13 @@ import path from "path";
 import { Uri, window, workspace } from 'vscode';
 
 import { extension } from "../../BalExtensionContext";
-import { ExtendedLangClient, NOT_SUPPORTED } from "../../core";
+import { NOT_SUPPORTED } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { modifyFileContent } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
-import { Diagnostic } from "@wso2-enterprise/ballerina-core/lib/rpc-types/ai-panel/interfaces";
 export let hasStopped: boolean = false;
-import { ballerinaExtInstance } from "../../core";
-
-
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
@@ -361,12 +358,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
         //add imports?
 
         // check project diagnostics
-        let projectDiags : Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
         let isDiagsRefreshed: boolean = await isModuleNotFoundDiagsExist(projectDiags, langClient);
         if (isDiagsRefreshed) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
-        const filteredDiags: Diagnostic[] = getErrorDiagnostics(projectDiags);
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
 
         return {
             diagnostics: filteredDiags
@@ -374,7 +371,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 }
 
-async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], langClient) : Promise<boolean> {
+async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], langClient): Promise<boolean> {
     for (const diagnostic of diagnosticsResult) {
         // if (diagnostic.uri !== Uri.file(tempFilePath).toString()) {
         //     continue;
@@ -393,7 +390,7 @@ async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], lang
 
             const response = dependenciesResponse as SyntaxTree;
             if (response.parseSuccess) {
-                // // Rebuild the file to update the LS.
+                // TODO: Need to see why this isnt working and why didOpen needed.
                 // await langClient.didChange({
                 //     contentChanges: [{ text: "" }],
                 //     textDocument: {
@@ -401,11 +398,11 @@ async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], lang
                 //         version: 1
                 //     }
                 // });
-                //Open Project
 
                 // Read and save content to a string
                 const sourceFile = await workspace.openTextDocument(Uri.parse(diagnostic.uri));
                 const content = sourceFile.getText();
+                
                 langClient.didOpen({
                     textDocument: {
                         uri: diagnostic.uri,
@@ -424,7 +421,7 @@ async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], lang
 }
 
 async function checkProjectDiagnostics(project: ProjectSource, langClient, tempDir: string): Promise<Diagnostics[]> {
-    const allDiags : Diagnostics[] = [];
+    const allDiags: Diagnostics[] = [];
     for (const sourceFile of project.sourceFiles) {
         if (sourceFile.filePath.endsWith('.bal')) {
             const tempFilePath = path.join(tempDir, sourceFile.filePath);
@@ -439,8 +436,8 @@ async function checkProjectDiagnostics(project: ProjectSource, langClient, tempD
     return allDiags;
 }
 
-function getErrorDiagnostics(diagnostics: Diagnostics[]): Diagnostic[] {
-    const errorDiagnostics: Diagnostic[] = [];
+function getErrorDiagnostics(diagnostics: Diagnostics[]): DiagnosticEntry[] {
+    const errorDiagnostics: DiagnosticEntry[] = [];
 
     for (const diagParam of diagnostics) {
         for (const diag of diagParam.diagnostics) {

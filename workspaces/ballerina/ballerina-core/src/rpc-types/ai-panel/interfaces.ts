@@ -26,10 +26,10 @@ export interface SourceFile {
 }
 
 export interface ProjectDiagnostics {
-    diagnostics: Diagnostic[];
+    diagnostics: DiagnosticEntry[];
 }
 
-export interface Diagnostic {
+export interface DiagnosticEntry {
     message : string;
 }
 export interface AIVisualizerState {
