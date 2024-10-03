@@ -25,18 +25,22 @@ import {
     MACHINE_VIEW,
     NodeKind,
     BIGetFunctionsRequest,
+    TRIGGER_CHARACTERS,
+    TriggerCharacter
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
+    convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { View, ViewContent, ViewHeader, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
+import { debounce } from "lodash";
 
 const Container = styled.div`
     width: 100%;
@@ -76,6 +80,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const isChainedExpression = useRef<boolean>(false);
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -115,9 +123,18 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
+    const clearExpressionEditor = () => {
+        // clear memory for expression editor
+        setCompletions([]);
+        setFilteredCompletions([]);
+        isChainedExpression.current = false;
+        triggerCompletionOnNextRequest.current = false;
+    }
+
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
+        clearExpressionEditor();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -395,6 +412,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
+        clearExpressionEditor();
         selectedNodeRef.current = undefined;
     };
 
@@ -453,6 +471,117 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         };
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
+
+    const debouncedGetCompletions = debounce(
+        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+            let expressionCompletions: CompletionItem[] = [];
+            const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]$`);
+            if (
+                offset > 0 &&
+                endOfChainRegex.test(value[offset - 1]) &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest
+            ) {
+                // Case 1: When a character unrelated to triggering completions is entered
+                isChainedExpression.current = false;
+                setCompletions([]);
+            } else if (
+                completions.length > 0 &&
+                !triggerCharacter &&
+                !isChainedExpression &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest
+            ) {
+                // Case 2: When completions have already been retrieved and only need to be filtered
+                expressionCompletions = completions
+                    .filter((completion) => {
+                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                        const lowerCaseText = text.toLowerCase();
+                        const lowerCaseLabel = completion.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    })
+                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
+            } else {
+                // Case 3: When completions need to be retrieved from the language server
+                if (triggerCharacter) {
+                    isChainedExpression.current = true;
+                } else {
+                    const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
+                    if (triggerRegex.test(value.slice(0, offset))) {
+                        isChainedExpression.current = true;
+                    } else {
+                        isChainedExpression.current = false;
+                    }
+                }
+
+                // Retrieve completions from the ls
+                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                    filePath: model.fileName,
+                    expression: value,
+                    startLine: targetRef.current.startLine,
+                    offset: offset,
+                    context: {
+                        triggerKind: triggerCharacter ? 2 : 1,
+                        triggerCharacter: triggerCharacter as TriggerCharacter,
+                    },
+                });
+
+                if (onlyVariables) {
+                    // If only variables are requested, filter out the completions based on the kind
+                    // 'kind' for variables = 6
+                    completions = completions?.filter((completion) => completion.kind === 6);
+                    triggerCompletionOnNextRequest.current = true;
+                } else {
+                    triggerCompletionOnNextRequest.current = false;
+                }
+
+                // Convert completions to the ExpressionBar format
+                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                setCompletions(convertedCompletions);
+
+                if (triggerCharacter) {
+                    expressionCompletions = convertedCompletions;
+                } else {
+                    expressionCompletions = convertedCompletions
+                        .filter((completion) => {
+                            const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                            const lowerCaseText = text.toLowerCase();
+                            const lowerCaseLabel = completion.label.toLowerCase();
+
+                            return lowerCaseLabel.includes(lowerCaseText);
+                        })
+                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                }
+            }
+
+            setFilteredCompletions(expressionCompletions);
+        },
+        250
+    );
+
+    const handleGetCompletions = async (
+        value: string,
+        offset: number,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => {
+        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
+
+        if (triggerCharacter) {
+            await debouncedGetCompletions.flush();
+        }
+    }
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredCompletions([]);
+        setCompletions([]);
+    };
+
+    const handleCompletionSelect = async () => {
+        debouncedGetCompletions.cancel();
+        handleExpressionEditorCancel();
+    }
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
@@ -522,6 +651,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 )}
                 {sidePanelView === SidePanelView.FORM && (
                     <FormGenerator
+                        fileName={model.fileName}
                         node={selectedNodeRef.current}
                         nodeFormTemplate={nodeTemplateRef.current}
                         connections={model.connections}
@@ -529,6 +659,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         targetLineRange={targetRef.current}
                         projectPath={projectPath}
                         onSubmit={handleOnFormSubmit}
+                        expressionEditor={{
+                            completions: filteredCompletions,
+                            triggerCharacters: TRIGGER_CHARACTERS,
+                            onRetrieveCompletions: handleGetCompletions,
+                            onCompletionSelect: handleCompletionSelect,
+                            onCancel: handleExpressionEditorCancel,
+                        }}
                     />
                 )}
             </PanelContainer>

@@ -96,6 +96,8 @@ import {
     ServiceFromOASResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -160,7 +162,8 @@ enum EXTENDED_APIS {
     BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
-    BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract'
+    BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
+    BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -584,6 +587,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL);
         return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
+    }
+
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this.sendRequest<ExpressionCompletionsResponse>(EXTENDED_APIS.BI_EXPRESSION_COMPLETIONS, params);
     }
 
     // <------------ BI APIS END --------------->

@@ -19,6 +19,7 @@ import {
     BISourceCodeRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    ExpressionCompletionsRequest,
     createComponent,
     createComponents,
     createProject,
@@ -26,6 +27,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getExpressionCompletions,
     getFlowModel,
     getFunctions,
     getNodeTemplate,
@@ -55,4 +57,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
+    messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }
