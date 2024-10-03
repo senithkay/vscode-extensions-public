@@ -351,7 +351,7 @@ export function Form(props: FormProps) {
                         )} */}
                         {variableField && createNewVariable && (
                             // <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
-                                <EditorFactory field={variableField} register={register} />
+                                <EditorFactory field={variableField} />
                             // </S.EditorContainer>
                         )}
                         {typeField && createNewVariable && (
