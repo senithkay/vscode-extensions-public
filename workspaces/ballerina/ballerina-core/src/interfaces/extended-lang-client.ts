@@ -14,9 +14,9 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range 
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData } from "./eggplant";
+import { Category, Flow, FlowNode, CodeData } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
-import { SqFlow, SqLocation, SqParticipant } from "../rpc-types/sequence-diagram/interfaces";
+import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -420,77 +420,98 @@ export interface BallerinaServerCapability {
 
 
 
-// <------------ EGGPLANT INTERFACES --------->
-export interface EggplantFlowModelRequest {
+// <------------ BI INTERFACES --------->
+export interface BIFlowModelRequest {
     filePath: string;
     startLine: LinePosition;
     endLine: LinePosition;
 }
 
-export interface EggplantSuggestedFlowModelRequest extends EggplantFlowModelRequest {
+export interface BISuggestedFlowModelRequest extends BIFlowModelRequest {
     text: string;
     position: LinePosition;
 }
 
-export type EggplantFlowModelResponse = {
+export type BIFlowModelResponse = {
     flowModel: Flow;
 };
 
-export interface EggplantSourceCodeRequest {
+export interface BISourceCodeRequest {
     filePath: string;
     flowNode: FlowNode;
 }
 
-export type EggplantSourceCodeResponse = {
-    textEdits:  {
+export type BISourceCodeResponse = {
+    textEdits: {
         [key: string]: TextEdit[];
     };
 };
 
-export interface EggplantAvailableNodesRequest {
+export interface BIAvailableNodesRequest {
     position: LineRange;
     filePath: string;
 }
 
-export type EggplantAvailableNodesResponse = {
+export type BIAvailableNodesResponse = {
     categories: Category[];
 };
 
-export interface EggplantNodeTemplateRequest {
+export interface BINodeTemplateRequest {
     position: LinePosition;
     filePath: string;
     id: CodeData;
 }
 
-export type EggplantNodeTemplateResponse = {
+export type BINodeTemplateResponse = {
     flowNode: FlowNode;
 };
 
-export type EggplantGetFunctionsRequest = {
+export type SearchQueryParams = {
+    q?: string;
+    limit?: number;
+    offset?: number;
+}
+
+export type BIGetFunctionsRequest = {
     position: LineRange;
     filePath: string;
-    queryMap: any;
+    queryMap: SearchQueryParams;
 }
 
-export type EggplantGetFunctionsResponse = {
+export type BIGetFunctionsResponse = {
     categories: Category[];
 }
 
 
-export type EggplantConnectorsRequest = {
-    keyword: string;
+export type BIConnectorsRequest = {
+    queryMap: SearchQueryParams;
 }
 
-export type EggplantConnectorsResponse = {
+export type BIConnectorsResponse = {
     categories: Category[];
 }
 
-export interface EggplantCopilotContextRequest {
+export type ServiceFromOASRequest = {
+    openApiContractPath: string;
+    projectPath: string;
+    port: number;
+}
+
+export type ServiceFromOASResponse = {
+    service: {
+        fileName: string,
+        startLine: LinePosition;
+        endLine: LinePosition;
+    },
+    errorMsg?: string;
+}
+
+export interface BICopilotContextRequest {
     position: LinePosition;
     filePath: string;
 }
 
-export interface EggplantCopilotContextResponse {
+export interface BICopilotContextResponse {
     prefix: string;
     suffix: string;
 }
@@ -505,7 +526,7 @@ export type SequenceModelResponse = {
     sequenceDiagram: SqFlow;
 };
 
-// <------------ EGGPLANT INTERFACES --------->
+// <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
     init?: (params: InitializeParams) => Promise<InitializeResult>;
@@ -516,17 +537,18 @@ export interface BaseLangClientInterface {
     close?: () => void;
 }
 
-export interface EggplantInterface extends BaseLangClientInterface {
+export interface BIInterface extends BaseLangClientInterface {
     getSTByRange: (params: BallerinaSTParams) => Promise<SyntaxTree | NOT_SUPPORTED_TYPE>;
-    getFlowModel: (params: EggplantFlowModelRequest) => Promise<EggplantFlowModelResponse>;
-    getSourceCode: (params: EggplantSourceCodeRequest) => Promise<EggplantSourceCodeResponse>;
-    getAvailableNodes: (params: EggplantAvailableNodesRequest) => Promise<EggplantAvailableNodesResponse>;
-    getNodeTemplate: (params: EggplantNodeTemplateRequest) => Promise<EggplantNodeTemplateResponse>;
-    getEggplantConnectors: (params: EggplantConnectorsRequest) => Promise<EggplantConnectorsResponse>;
+    getFlowModel: (params: BIFlowModelRequest) => Promise<BIFlowModelResponse>;
+    getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
+    getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
+    getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
+    getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
+    generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
 }
 
-export interface ExtendedLangClientInterface extends EggplantInterface {
+export interface ExtendedLangClientInterface extends BIInterface {
     rename(params: RenameParams): Promise<WorkspaceEdit | NOT_SUPPORTED_TYPE>;
     getDocumentSymbol(params: DocumentSymbolParams): Promise<DocumentSymbol[] | SymbolInformation[] | NOT_SUPPORTED_TYPE>;
     codeAction(params: CodeActionParams): Promise<CodeAction[]>;

@@ -34,7 +34,7 @@ import {
     ServiceForm,
     PopupMessage,
     ComponentDiagram,
-} from "./views/Eggplant";
+} from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
@@ -47,9 +47,9 @@ import PopupPanel from "./PopupPanel";
 import { ConnectorList } from "../../ballerina-visualizer/src/views/Connectors/ConnectorWizard";
 import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
-import DiagramWrapper from "./views/Eggplant/DiagramWrapper";
-import AddConnectionWizard from "./views/Eggplant/Connection/AddConnectionWizard";
-import ComponentDiagramV2 from "./views/Eggplant/ComponentDiagramV2";
+import DiagramWrapper from "./views/BI/DiagramWrapper";
+import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
+import ComponentDiagramV2 from "./views/BI/ComponentDiagramV2";
 
 const globalStyles = css`
     *,
@@ -146,7 +146,7 @@ const MainPanel = () => {
             } else {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
-                        if (value.isEggplant) {
+                        if (value.isBI) {
                             setViewComponent(<ComponentDiagram stateUpdated />);
                             break;
                         }
@@ -160,11 +160,12 @@ const MainPanel = () => {
                             <ServiceDesigner
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
-                                isEggplant={value.isEggplant}
+                                isBI={value.isBI}
+                                isEditingDisabled={value.haveServiceType}
                             />
                         );
                         break;
-                    case MACHINE_VIEW.EggplantDiagram:
+                    case MACHINE_VIEW.BIDiagram:
                         setViewComponent(
                             <DiagramWrapper syntaxTree={value?.syntaxTree} projectPath={value.projectUri} />
                         );
@@ -177,7 +178,7 @@ const MainPanel = () => {
                             <DataMapper
                                 filePath={value.documentUri}
                                 model={value?.syntaxTree as FunctionDefinition}
-                                isEggplant={value.isEggplant}
+                                isBI={value.isBI}
                                 applyModifications={applyModifications}
                             />
                         );
@@ -190,18 +191,18 @@ const MainPanel = () => {
                             <SequenceDiagram syntaxTree={value?.syntaxTree} applyModifications={applyModifications} />
                         );
                         break;
-                    case MACHINE_VIEW.EggplantWelcome:
+                    case MACHINE_VIEW.BIWelcome:
                         setNavActive(false);
                         setViewComponent(<WelcomeView />);
                         break;
-                    case MACHINE_VIEW.EggplantProjectForm:
+                    case MACHINE_VIEW.BIProjectForm:
                         setShowHome(false);
                         setViewComponent(<ProjectForm />);
                         break;
-                    case MACHINE_VIEW.EggplantComponentView:
+                    case MACHINE_VIEW.BIComponentView:
                         setViewComponent(<AddComponentView />);
                         break;
-                    case MACHINE_VIEW.EggplantServiceForm:
+                    case MACHINE_VIEW.BIServiceForm:
                         setViewComponent(<ServiceForm />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:

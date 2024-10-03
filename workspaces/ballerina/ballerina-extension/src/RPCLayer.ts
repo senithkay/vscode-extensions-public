@@ -20,7 +20,7 @@ import { registerCommonRpcHandlers } from './rpc-managers/common/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
-import { registerEggplantDiagramRpcHandlers } from './rpc-managers/eggplant-diagram/rpc-handler';
+import { registerBIDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
 import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
@@ -65,7 +65,7 @@ export class RPCLayer {
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
-        registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
+        registerBIDiagramRpcHandlers(RPCLayer._messenger);
         registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
         registerConnectorWizardRpcHandlers(RPCLayer._messenger);
 
@@ -73,8 +73,8 @@ export class RPCLayer {
         registerAiPanelRpcHandlers(RPCLayer._messenger);
         RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
 
-         // ----- Popup Views RPC Methods
-         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
+        // ----- Popup Views RPC Methods
+        RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 
 }
@@ -88,9 +88,10 @@ async function getContext(): Promise<VisualizerLocation> {
             identifier: context.identifier,
             position: context.position,
             syntaxTree: context.syntaxTree,
-            isEggplant: context.isEggplant,
+            isBI: context.isBI,
             projectUri: context.projectUri,
             recordFilePath: path.join(context.projectUri, 'types.bal'),
+            haveServiceType: context.haveServiceType
         });
     });
 }

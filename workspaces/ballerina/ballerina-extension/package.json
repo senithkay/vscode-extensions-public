@@ -177,10 +177,15 @@
                     "default": true,
                     "description": "Enable multiline AI completions."
                 },
-                "ballerina.eggplantOverviewV2": {
+                "ballerina.biOverviewV2": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Enable Eggplant overview version 2."
+                    "description": "Enable BI overview version 2."
+                },
+                "ballerina.enableAiSuggestions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable BI AI suggestions from Copilot."
                 }
             }
         },
@@ -485,49 +490,49 @@
                 "icon": "$(wand)"
             },
             {
-                "command": "ballerina.open.eggplant.welcome",
+                "command": "ballerina.open.bi.welcome",
                 "title": "Open Welcome",
-                "category": "Eggplant"
+                "category": "BI"
             },
             {
-                "command": "Eggplant.project-explorer.refresh",
-                "title": "Refresh Eggplant",
-                "category": "Eggplant"
+                "command": "BI.project-explorer.refresh",
+                "title": "Refresh BI",
+                "category": "BI"
             },
             {
-                "command": "Eggplant.project-explorer.add-connection",
+                "command": "BI.project-explorer.add-connection",
                 "title": "Add Connection",
                 "icon": "$(add)",
                 "group": "navigation",
-                "category": "Eggplant"
+                "category": "BI"
             },
             {
-                "command": "Eggplant.project-explorer.add-entry-point",
+                "command": "BI.project-explorer.add-entry-point",
                 "title": "Add Entry Point",
                 "icon": "$(add)",
                 "group": "navigation",
-                "category": "Eggplant"
+                "category": "BI"
             },
             {
-                "command": "Eggplant.project-explorer.add-schema",
+                "command": "BI.project-explorer.add-schema",
                 "title": "Add Schema",
                 "icon": "$(add)",
                 "group": "navigation",
-                "category": "Eggplant"
+                "category": "BI"
             },
             {
-                "command": "Eggplant.project-explorer.add-function",
+                "command": "BI.project-explorer.add-function",
                 "title": "Add Function",
                 "icon": "$(add)",
                 "group": "navigation",
-                "category": "Eggplant"
+                "category": "BI"
             },
             {
-                "command": "Eggplant.project-explorer.add-configuration",
+                "command": "BI.project-explorer.add-configuration",
                 "title": "Add Configuration",
                 "icon": "$(add)",
                 "group": "navigation",
-                "category": "Eggplant"
+                "category": "BI"
             }
         ],
         "views": {
@@ -600,7 +605,7 @@
                 {
                     "command": "ballerina.open.ai.panel",
                     "group": "navigation@1",
-                    "when": "resourceLangId == ballerina || isBallerinaDiagram || (isBalVisualizerActive && isEggplantProject)",
+                    "when": "resourceLangId == ballerina || isBallerinaDiagram || (isBalVisualizerActive && isBIProject)",
                     "title": "Open AI Panel"
                 }
             ],
@@ -877,7 +882,6 @@
         "@vscode/vsce": "^2.22.0",
         "@wso2-enterprise/ballerina-core": "workspace:*",
         "@wso2-enterprise/ballerina-visualizer": "workspace:*",
-        "@wso2-enterprise/choreo-client": "workspace:*",
         "@wso2-enterprise/choreo-core": "workspace:*",
         "@wso2-enterprise/font-wso2-vscode": "workspace:*",
         "@wso2-enterprise/syntax-tree": "workspace:*",

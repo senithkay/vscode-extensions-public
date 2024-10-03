@@ -190,7 +190,7 @@ export function AIChat() {
                                 role = 'User';
                                 type = 'user_message';
                             } else if (entry.actor === 'assistant') {
-                                role = 'Eggplant Copilot';
+                                role = 'BI Copilot';
                                 type = 'assistant_message';
                             }
                             return {
@@ -528,7 +528,7 @@ export function AIChat() {
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to Eggplant Copilot <PreviewContainer>Preview</PreviewContainer></h3>
+                    <h3>Welcome to BI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
                     <p>
                         What do you want to integrate today?
                     </p>

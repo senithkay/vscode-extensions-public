@@ -1,4 +1,16 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ * 
+ */
+
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Uri, window } from "vscode";
+import * as os from 'os';
 
 export function getUpdatedSource(
     statement: string,
@@ -37,4 +49,27 @@ export function addToTargetPosition(currentContent: string, position: NodePositi
     splitContent.splice(position.startLine, noOfLines, ...replacements);
 
     return splitContent.join('\n');
+}
+
+export async function askProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a folder"
+    });
+}
+
+export async function askFilePath() {
+    return await window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        filters: {
+            'Files': ['yaml', 'json']
+        },
+        title: "Select a file",
+    });
 }

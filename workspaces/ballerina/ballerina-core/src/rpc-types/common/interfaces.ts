@@ -67,6 +67,9 @@ export interface CommandsResponse {
     data: string;
 }
 
-export interface ProjectDirResponse {
+export interface FileOrDirResponse {
     path: string;
+}
+export interface FileOrDirRequest {
+    isFile?: boolean;
 }

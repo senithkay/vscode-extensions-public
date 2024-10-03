@@ -248,7 +248,7 @@
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/eggplant/eggplant-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
@@ -437,11 +437,6 @@
       "versionPolicyName": "service-designer"
     },
     {
-      "packageName": "@wso2-enterprise/choreo-client",
-      "projectFolder": "workspaces/choreo/choreo-client",
-      "versionPolicyName": "choreo-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/choreo-core",
       "projectFolder": "workspaces/choreo/choreo-core",
       "versionPolicyName": "choreo-extension"
@@ -581,11 +576,11 @@
     //   "projectFolder": "workspaces/ballerina/perf-forecast",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    {
-      "packageName": "@wso2-enterprise/cell-diagram",
-      "projectFolder": "workspaces/choreo/cell-diagram",
-      "versionPolicyName": "choreo-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/cell-diagram",
+    //   "projectFolder": "workspaces/choreo/cell-diagram",
+    //   "versionPolicyName": "choreo-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",
       "projectFolder": "workspaces/ballerina/persist-layer-diagram",
@@ -664,23 +659,23 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "eggplant-extension",
-      "projectFolder": "workspaces/eggplant/eggplant-extension",
-      "versionPolicyName": "eggplant-extension"
+      "packageName": "bi-extension",
+      "projectFolder": "workspaces/bi/bi-extension",
+      "versionPolicyName": "bi-extension"
     },
     // {
-    //   "packageName": "@wso2-enterprise/eggplant-diagram",
-    //   "projectFolder": "workspaces/eggplant/eggplant-diagram",
-    //   "versionPolicyName": "eggplant-extension"
+    //   "packageName": "@wso2-enterprise/bi-diagram",
+    //   "projectFolder": "workspaces/bi/bi-diagram",
+    //   "versionPolicyName": "bi-extension"
     // },
     // {
-    //   "packageName": "@wso2-enterprise/eggplant-diagram-2",
-    //   "projectFolder": "workspaces/eggplant/eggplant-diagram-2",
-    //   "versionPolicyName": "eggplant-extension"
+    //   "packageName": "@wso2-enterprise/bi-diagram-2",
+    //   "projectFolder": "workspaces/bi/bi-diagram-2",
+    //   "versionPolicyName": "bi-extension"
     // },
     {
-      "packageName": "@wso2-enterprise/eggplant-diagram",
-      "projectFolder": "workspaces/ballerina/eggplant-diagram",
+      "packageName": "@wso2-enterprise/bi-diagram",
+      "projectFolder": "workspaces/ballerina/bi-diagram",
       "versionPolicyName": "ballerina-extension"
     },
     {
@@ -694,9 +689,9 @@
       "versionPolicyName": "ballerina-extension"
     },
     // {
-    //   "packageName": "@wso2-enterprise/eggplant-overview",
-    //   "projectFolder": "workspaces/eggplant/eggplant-overview",
-    //   "versionPolicyName": "eggplant-extension"
+    //   "packageName": "@wso2-enterprise/bi-overview",
+    //   "projectFolder": "workspaces/bi/bi-overview",
+    //   "versionPolicyName": "bi-extension"
     // },
     {
       "packageName": "@wso2-enterprise/record-creator",

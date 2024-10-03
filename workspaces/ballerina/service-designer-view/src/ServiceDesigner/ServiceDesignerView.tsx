@@ -37,12 +37,14 @@ interface ServiceDesignerProps {
     applyModifications?: (modifications: STModification[]) => Promise<void>;
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) => void;
-    // If the service designer is for eggplant
-    isEggplant?: boolean;
+    // If the service designer is for bi
+    isBI?: boolean;
+    // If editing needs to be disabled
+    isEditingDisabled?: boolean;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, rpcClients, applyModifications, goToSource } = props;
+    const { model, rpcClients, applyModifications, goToSource, isEditingDisabled } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
@@ -114,7 +116,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isEggplant, handleResourceEdit, handleResourceDelete));
+            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isBI, handleResourceEdit, handleResourceDelete));
         };
         fetchService();
     }, [model]);
@@ -132,23 +134,33 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         }]);
     };
 
+    const handleExportOAS = () => {
+        serviceDesignerRpcClient.exportOASFile({});
+    };
+
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
             <div data-testid="service-design-view">
                 <View>
-                    <ViewHeader title={`Service ${serviceConfig?.path}`} codicon="globe" onEdit={handleServiceEdit}>
-                        <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
-                            <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                    <ViewHeader title={`Service ${serviceConfig?.path}`} codicon="globe" onEdit={!isEditingDisabled && handleServiceEdit}>
+                        {!isEditingDisabled &&
+                            <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
+                                <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                            </VSCodeButton>
+                        }
+                        <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
+                            <Codicon name="export" sx={{ marginRight: 5 }} /> Export OAS
                         </VSCodeButton>
                     </ViewHeader>
                     <ServiceHeader>
+                        {isEditingDisabled && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">This is generated from {serviceConfig?.path} contract</Typography>}
                         {serviceConfig?.port && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Listening on: {serviceConfig.port}</Typography>}
                     </ServiceHeader>
                     <ViewContent padding>
                         <ServiceDesigner
                             model={serviceConfig}
                             onResourceClick={handleGoToSource}
-                            disableServiceHeader={props.isEggplant}
+                            disableServiceHeader={props.isBI}
                         />
                     </ViewContent>
                 </View>
