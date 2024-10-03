@@ -122,8 +122,6 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async addToProject(req: AddToProjectRequest): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        console.log("Implementing addToProject");
 
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
@@ -138,13 +136,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
             throw new Error("Not a Ballerina project.");
         }
 
-        const mainBalPath = path.join(workspaceFolderPath, req.filePath);
-        if (fs.existsSync(mainBalPath)) {
-            // Replace the content with the new content from the req
-            fs.writeFileSync(mainBalPath, req.content.trim());
-        } else {
-            throw new Error("file not found " + req.filePath);
-        }
+        const balFilePath = path.join(workspaceFolderPath, req.filePath);
+        fs.writeFileSync(balFilePath, req.content.trim());
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
@@ -369,7 +362,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         // check project diagnostics
         let projectDiags : Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-        let isDiagsRefreshed: boolean = await isModuleNotFoundDiagsExist(projectDiags, langClient)
+        let isDiagsRefreshed: boolean = await isModuleNotFoundDiagsExist(projectDiags, langClient);
         if (isDiagsRefreshed) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }

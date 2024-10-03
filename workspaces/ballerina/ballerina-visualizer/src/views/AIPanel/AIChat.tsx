@@ -259,20 +259,6 @@ export function AIChat() {
         }
     }
 
-    function getProjectFromResponse(req: string): ProjectSource {
-        const sourceFiles: SourceFile[] = [];
-        const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
-        let match;
-
-        while ((match = regex.exec(req)) !== null) {
-            const filePath = match[1];
-            const fileContent = match[2].trim();
-            sourceFiles.push({ filePath, content: fileContent });
-        }
-
-        return { sourceFiles };
-    }
-
     async function handleSend() {
         // Step 1: Add the user input to the chat array
         if (userInput === "") {
@@ -318,7 +304,6 @@ export function AIChat() {
             return response;
         }
 
-        backendRootUri = "http://localhost:9094/ai"
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const response = await fetchWithToken(backendRootUri + "/code", {
             method: 'POST',
@@ -471,48 +456,6 @@ export function AIChat() {
 
         setIsLoading(false);
         setIsCodeLoading(false);
-    }
-
-    function splitHalfGeneratedCode(content: string) {
-        const segments = [];
-        // const regex = /```ballerina([\s\S]*?)$/g;
-        const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)$/g;
-        let match;
-        let lastIndex = 0;
-
-        while ((match = regex.exec(content)) !== null) {
-            if (match.index > lastIndex) {
-                segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
-            }
-            segments.push({ isCode: true, loading: true, text: match[2], fileName: match[1] });
-            lastIndex = regex.lastIndex;
-        }
-
-        if (lastIndex < content.length) {
-            segments.push({ isCode: false, loading: false, text: content });
-        }
-        return segments;
-    }
-
-    function splitContent(content: string) {
-        const segments = [];
-        let match;
-        // const regex = /```ballerina([\s\S]*?)```/g;
-        const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
-        let start = 0;
-
-        while ((match = regex.exec(content)) !== null) {
-            if (match.index > start) {
-                const segment = content.slice(start, match.index);
-                segments.push(...splitHalfGeneratedCode(segment));
-            }
-            segments.push({ isCode: true, loading: false, text: match[2], fileName: match[1] });
-            start = regex.lastIndex;
-        }
-        if (start < content.length) {
-            segments.push(...splitHalfGeneratedCode(content.slice(start)));
-        }
-        return segments;
     }
 
     async function handleLogout() {
@@ -754,7 +697,7 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
     },
 }));
 
-function replaceCodeBlocks(originalResp: string, newResp: string): string {
+export function replaceCodeBlocks(originalResp: string, newResp: string): string {
     // Create a map to store new code blocks by filename
     const newCodeBlocks = new Map<string, string>();
 
@@ -925,9 +868,24 @@ export function parseSSEEvent(chunk: string): SSEEvent {
     }
 }
 
-export function splitHalfGeneratedCode(content: string) {
+export function getProjectFromResponse(req: string): ProjectSource {
+    const sourceFiles: SourceFile[] = [];
+    const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
+    let match;
+
+    while ((match = regex.exec(req)) !== null) {
+        const filePath = match[1];
+        const fileContent = match[2].trim();
+        sourceFiles.push({ filePath, content: fileContent });
+    }
+
+    return { sourceFiles };
+}
+
+function splitHalfGeneratedCode(content: string) {
     const segments = [];
-    const regex = /```([\s\S]*?)$/g;
+    // const regex = /```ballerina([\s\S]*?)$/g;
+    const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
@@ -935,7 +893,7 @@ export function splitHalfGeneratedCode(content: string) {
         if (match.index > lastIndex) {
             segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
         }
-        segments.push({ isCode: true, loading: true, text: match[0] });
+        segments.push({ isCode: true, loading: true, text: match[2], fileName: match[1] });
         lastIndex = regex.lastIndex;
     }
 
@@ -948,7 +906,8 @@ export function splitHalfGeneratedCode(content: string) {
 export function splitContent(content: string) {
     const segments = [];
     let match;
-    const regex = /```ballerina([\s\S]*?)```/g;
+    // const regex = /```ballerina([\s\S]*?)```/g;
+    const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
     let start = 0;
 
     while ((match = regex.exec(content)) !== null) {
@@ -956,7 +915,7 @@ export function splitContent(content: string) {
             const segment = content.slice(start, match.index);
             segments.push(...splitHalfGeneratedCode(segment));
         }
-        segments.push({ isCode: true, loading: false, text: match[1] });
+        segments.push({ isCode: true, loading: false, text: match[2], fileName: match[1] });
         start = regex.lastIndex;
     }
     if (start < content.length) {
