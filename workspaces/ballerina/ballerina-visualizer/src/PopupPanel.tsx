@@ -57,7 +57,7 @@ const PopupPanel = (props: PopupPanelProps) => {
         rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
             switch (machineSate?.view) {
                 case MACHINE_VIEW.AddConnectionWizard:
-                    setViewComponent(<AddConnectionWizard onClose={() => {}} />);
+                    setViewComponent(<AddConnectionWizard onClose={onClose} />);
                     break;
                 default:
                     setViewComponent(null);
