@@ -57,7 +57,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                         "label": "Case Regex",
                         "defaultValue": "",
                         "placeholder": ".*+",
-                        "isRequired": false
+                        "isRequired": true
                     },
                     {
                         "type": "TextField",

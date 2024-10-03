@@ -67,8 +67,8 @@ export enum MACHINE_VIEW {
     ImportProject = "Import Project",
     ConnectorStore = "Connector Store Form",
     ConnectionForm = "Connection Creation Form",
-    TestSuite = "Test Suite",
-    TestCase = "Test Cases",
+    TestSuite = "Test Suite Form",
+    TestCase = "Test Case Form",
     AITestGen = "AI Test Generation",
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
@@ -117,6 +117,12 @@ export enum POPUP_EVENT_TYPE {
     CLOSE_VIEW = "CLOSE_VIEW"
 }
 
+export enum Platform {
+    WINDOWS,
+    MAC,
+    LINUX
+}
+
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export interface MachineEvent {
@@ -137,6 +143,7 @@ export interface ErrorType {
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
+    functionIOTypes?: string;
     fileContent?: string;
     interfacesSource?: string;
     configName: string;
@@ -150,6 +157,7 @@ export interface VisualizerLocation {
     errors?: ErrorType[];
     documentUri?: string;
     projectUri?: string;
+    platform?: Platform;
     pathSeparator?: string;
     identifier?: string;
     position?: any;
