@@ -9,7 +9,15 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, LinkButton, SidePanelBody, Switch } from "@wso2-enterprise/ui-toolkit";
+import {
+    Button,
+    Codicon,
+    CompletionItem,
+    LinkButton,
+    SidePanelBody,
+    Toggle,
+    Switch,
+} from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField, FormValues } from "./types";
@@ -44,6 +52,15 @@ namespace S {
         margin-top: 8px;
         padding-bottom: 14px;
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+    `;
+
+    export const CheckboxRow = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
     `;
 
     export const Footer = styled.div<{}>`
@@ -139,6 +156,7 @@ export interface FormProps {
     projectPath?: string;
     selectedNode?: NodeKind;
     canUpdateVariable?: boolean;
+    editForm?: boolean;
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
@@ -159,6 +177,7 @@ export function Form(props: FormProps) {
         projectPath,
         selectedNode,
         canUpdateVariable,
+        editForm,
         onSubmit,
         openRecordEditor,
         openView,
@@ -232,14 +251,17 @@ export function Form(props: FormProps) {
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
+    const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
+    const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
+
     //TODO: get assign variable field from model. need to fix from LS
     const updateVariableField = {
         key: "update-variable",
-        label: "Update variable",
+        label: "Variable",
         type: "IDENTIFIER",
         optional: false,
         editable: true,
-        documentation: "Select the variable to update",
+        documentation: "Select a variable to assign",
         value: "name",
     };
 
@@ -256,71 +278,39 @@ export function Form(props: FormProps) {
     return (
         <Provider {...contextValue}>
             <S.Container>
-            {variableField && (
+                {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {/* <S.TitleContainer>
-                            <S.Title>Variable</S.Title>
-                            <S.BodyText>Assign node output value to a variable</S.BodyText>
-                        </S.TitleContainer> */}
-                        {/* {canUpdateVariable && (
-                            <S.Row>
-                                <Switch
-                                    leftLabel="New Variable"
-                                    rightLabel="Update Variable"
-                                    checked={!createNewVariable}
-                                    checkedColor={Colors.PRIMARY}
-                                    enableTransition={true}
-                                    onChange={() => {
-                                        setCreateNewVariable(!createNewVariable);
-                                    }}
-                                    sx={{
-                                        margin: "auto",
-                                        zIndex: "2",
-                                        border: "unset",
-                                        width: "100%",
-                                    }}
-                                    disabled={false}
+                        {canUpdateVariable && !editForm && (
+                            <S.CheckboxRow>
+                                Assign to a new variable
+                                <Toggle
+                                    checked={createNewVariable}
+                                    onChange={() => setCreateNewVariable(!createNewVariable)}
                                 />
-                            </S.Row>
-                        )} */}
-                        {variableField && createNewVariable && (
-                            // <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
-                                <EditorFactory field={variableField} />
-                            // </S.EditorContainer>
+                            </S.CheckboxRow>
                         )}
+                        {variableField && createNewVariable && <EditorFactory field={variableField} />}
                         {typeField && createNewVariable && (
-                            // <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
-                                <EditorFactory
-                                    field={typeField}
-                                    openRecordEditor={handleOpenRecordEditor}
-                                />
-                            // </S.EditorContainer>
+                            <EditorFactory field={typeField} openRecordEditor={handleOpenRecordEditor} />
                         )}
-                        {/* {updateVariableField && !createNewVariable && (
-                            <S.EditorContainer key={updateVariableField.key} color={Colors.PURPLE}>
-                                <EditorFactory field={updateVariableField} register={register} />
-                            </S.EditorContainer>
-                        )} */}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
-                    {/* <S.TitleContainer>
-                        <S.Title>Input Parameters</S.Title>
-                        <S.BodyText>Lorem ipsum dolor sit amet, consectetur adipiscing</S.BodyText>
-                    </S.TitleContainer> */}
                     {formFields
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
-                            if (!field.optional && field.key !== "variable" && field.key !== "type") {
-                                return (
-                                    <S.Row key={field.key}>
-                                        <EditorFactory
-                                            field={field}
-                                            openRecordEditor={handleOpenRecordEditor}
-                                        />
-                                    </S.Row>
-                                );
+                            if (
+                                ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
+                                field.optional
+                            ) {
+                                return;
                             }
+                            return (
+                                <S.Row key={field.key}>
+                                    <EditorFactory field={field} openRecordEditor={handleOpenRecordEditor} />
+                                </S.Row>
+                            );
                         })}
                     {isExistingDataMapper && (
                         <S.DataMapperRow>
@@ -360,10 +350,7 @@ export function Form(props: FormProps) {
                             if (field.optional) {
                                 return (
                                     <S.Row key={field.key}>
-                                        <EditorFactory
-                                            field={field}
-                                            openRecordEditor={handleOpenRecordEditor}
-                                        />
+                                        <EditorFactory field={field} openRecordEditor={handleOpenRecordEditor} />
                                     </S.Row>
                                 );
                             }
