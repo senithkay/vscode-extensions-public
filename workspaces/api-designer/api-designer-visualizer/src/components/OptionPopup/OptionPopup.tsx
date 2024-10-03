@@ -45,7 +45,10 @@ export function OptionPopup(props: OptionPopupProps) {
         <>
             <ButtonWrapper>
                 <PullUpButton options={options} selectedOptions={selectedOptions} onOptionChange={onOptionChange}>
-                    <Button appearance="primary"> Add More Options </Button>
+                    <Button appearance="primary">
+                        More Options
+                        <Codicon sx={{marginLeft: 5, marginTop: 1}} name="chevron-down" />
+                    </Button>
                 </PullUpButton>
                 {!hideDelete && <Button buttonSx={{background: "var(--vscode-errorForeground)"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>}
                 <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleViewSwagger}> 

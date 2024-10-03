@@ -61,11 +61,19 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
     };
 
     useEffect(() => {
+        const hasSelectedChild = (children: ReactNode): boolean => {
+            return React.Children.toArray(children).some((child: any) => {
+                // Check if the child matches the selectedId
+                if (child?.props?.id === selectedId) {
+                    return true;
+                }
+                // Recursively check if the child has its own children
+                return child?.props?.children && hasSelectedChild(child.props.children);
+            });
+        };
+    
         // Expand if this TreeView is selected or contains the selected item
-        if (
-            selectedId === id || (children && React.Children.toArray(children).some((child: any) =>
-                 child.props.id === selectedId))
-        ) {
+        if (selectedId === id || (children && hasSelectedChild(children))) {
             setIsExpanded(true);
         }
     }, [selectedId, id, children]);

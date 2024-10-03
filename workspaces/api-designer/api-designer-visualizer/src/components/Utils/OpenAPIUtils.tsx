@@ -75,22 +75,24 @@ export function convertOpenAPItoService(openAPIDefinition: OpenAPI): Service {
         resources: [],
     };
     service.port = 0;
-    for (const [path, pathItem] of Object.entries(openAPIDefinition.paths)) {
-        const pathSegemnent = path.match(/\/\{.*?\}/g);
-        for (const [method, operation] of Object.entries(pathItem)) {
-            let resource: Resource = {
-                methods: [method],
-                path: path,
-                pathSegments: pathSegemnent ? pathSegemnent.map((segment, index) => ({
-                    id: index, name: segment.replace("/", "").replace("{", "").replace("}", ""),
-                })) : [],
-                params: getParametersFromOperation(operation),
-                responses: resolveResponseFromOperation(operation),
-
-            };
-            service.resources.push(resource);
+    if (openAPIDefinition.paths !== undefined) {
+        for (const [path, pathItem] of Object?.entries(openAPIDefinition.paths)) {
+            const pathSegemnent = path.match(/\/\{.*?\}/g);
+            for (const [method, operation] of Object.entries(pathItem)) {
+                let resource: Resource = {
+                    methods: [method],
+                    path: path,
+                    pathSegments: pathSegemnent ? pathSegemnent.map((segment, index) => ({
+                        id: index, name: segment.replace("/", "").replace("{", "").replace("}", ""),
+                    })) : [],
+                    params: getParametersFromOperation(operation),
+                    responses: resolveResponseFromOperation(operation),
+    
+                };
+                service.resources.push(resource);
+            }
+            
         }
-        
     }
     return service;
 }
@@ -187,7 +189,12 @@ export function getOperationFromPathItem(pathItem: PathItem, method: string): Op
 }
 
 export function getOperationFromOpenAPI(path: string, method: string, openAPI: OpenAPI): Operation {
-    return getOperationFromPathItem(openAPI.paths[path], method);
+    const pathItem = openAPI.paths[path];
+    if (pathItem) {
+        return getOperationFromPathItem(pathItem, method);
+    } else {
+        return undefined;
+    }
 }
 
 // Convert Param[] to Parameter[]

@@ -10,11 +10,11 @@
 import { useEffect, useState } from "react";
 import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { convertOpenAPIStringToObject, convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
+import { convertOpenAPIStringToObject, convertOpenAPIStringToOpenAPI, convertOpenAPItoService } from "../../components/Utils/OpenAPIUtils";
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 
 interface ServiceDesignerProps {
     fileUri: string;
@@ -32,12 +32,18 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const { rpcClient } = useVisualizerContext();
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
     const [ serviceDesModel, setServiceDesModel ] = useState<Service | undefined>(undefined);
+    const [ documentType, setDocumentType ] = useState<string | undefined>(undefined);
 
     const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
             filePath: fileUri,
             content: JSON.stringify(openApiDefinition),
         });
+        if (resp.success) {
+            setApiDefinition(openApiDefinition);
+            const serDesModel = convertOpenAPItoService(openApiDefinition);
+            setServiceDesModel(serDesModel);
+        }
     };
     const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 1000);
 
@@ -50,11 +56,22 @@ export function APIDesigner(props: ServiceDesignerProps) {
             const convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
             const serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
             setServiceDesModel(serDesModel);
+            // If openapi field is not present in the response, then set the openapi field to the convertedApiDefinition
+            if (!convertedApiDefinition.openapi) {
+                convertedApiDefinition.openapi = "3.0.1";
+            }
+            // If no Info field is present in the response, then set the Info field
+            if (!convertedApiDefinition.info) {
+                convertedApiDefinition.info = {
+                    title: "New API",
+                    version: "1.0.0",
+                };
+            }
             setApiDefinition(convertedApiDefinition);
+            setDocumentType(resp.type);
         };
         fetchData();
     }, [fileUri]);
-    console.log("Parent", apiDefinition);
     return (
         <APIDesignerWrapper>
             <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />

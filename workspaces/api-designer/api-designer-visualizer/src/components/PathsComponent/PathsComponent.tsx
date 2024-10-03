@@ -107,9 +107,10 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
     const { paths, hideOverview, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
-    const pathsArray = Object.keys(paths);
+    const [, setSelPathID] = useState<string | undefined>(selectedPathID);
+    const pathsArray = paths ? Object.keys(paths) : [];
     // Get PathItems from paths
-    const pathItems = Object.values(paths);
+    const pathItems = paths ? Object.values(paths) : [];
     const handleOverviewClick = () => {
         onPathChange && onPathChange(undefined);
     };
@@ -153,7 +154,13 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
         };
     }, []);
 
-    console.log("currentDivWidth", currentDivWidth);
+    useEffect(() => {
+        setSelPathID(selectedPathID);
+    }, [selectedPathID]);
+
+    // console.log("PathsComponent pathsArray: ", pathsArray);
+    // console.log("PathsComponent pathItems: ", pathItems);
+    // console.log("PathsComponent selectedPathID: ", selectedPathID);
 
     return (
         <PathsContainer ref={pathContinerRef}>
@@ -163,7 +170,9 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                     <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
                 </OverviewTitle>
             )}
-            <TreeView rootTreeView id="Paths"
+            <TreeView 
+                rootTreeView
+                id="Paths"
                 content={
                     <PathContainer>
                         <LeftPathContainer>

@@ -158,6 +158,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handleAddPath = () => {
+        if (openAPIDefinition.paths === undefined) {
+            openAPIDefinition.paths = {};
+        }
         // If Genetrate a new path with "path" prefix and 1,2,3 ... suffix if the path already exists
         const newPath = Object.keys(openAPIDefinition.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPIDefinition.paths).length + 1}` : "/path";
         const updatedOpenAPIDefinition: OpenAPI = {
@@ -166,14 +169,12 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 ...openAPIDefinition.paths,
                 [newPath]: {
                     get: {
-                        summary: "",
-                        description: "",
                         parameters: []
                     }
                 }
             }
         };
-        setSelectedPathID(getResourceID("/path", "get"));
+        setSelectedPathID(getResourceID(newPath, "get"));
         setOpenAPIDefinition(updatedOpenAPIDefinition);
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
@@ -218,6 +219,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         if (openAPIDefinition.paths[p]) {
             delete openAPIDefinition.paths[p];
             setOpenAPIDefinition({ ...openAPIDefinition });
+            onOpenApiDefinitionChange(openAPIDefinition);
         }
     };
 
@@ -243,7 +245,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         <NavigationContainer>
             <SplitView defaultWidths={[25, 75]}>
                 <NavigationPanelContainer>
-                    {openAPIDefinition?.paths &&
+                    {openAPIDefinition &&
                         <PathsComponent
                             paths={openAPIDefinition.paths}
                             selectedPathID={selectedPathID}
