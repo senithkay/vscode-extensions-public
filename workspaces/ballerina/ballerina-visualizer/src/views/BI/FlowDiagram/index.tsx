@@ -516,7 +516,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 }
 
                 // Retrieve completions from the ls
-                let completions = await rpcClient.getEggplantDiagramRpcClient().getExpressionCompletions({
+                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                     filePath: model.fileName,
                     expression: value,
                     startLine: targetRef.current.startLine,
