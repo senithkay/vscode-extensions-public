@@ -16,6 +16,7 @@ import { FindNodeByUidVisitor } from "./history/find-node-by-uid";
 import { FindConstructByNameVisitor } from "./history/find-construct-by-name-visitor";
 import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
 import { getConstructBodyString } from "./history/util";
+import { ballerinaExtInstance } from "../core";
 
 export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
 
@@ -80,7 +81,11 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                     location: {
                         view: MACHINE_VIEW.BIDiagram,
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        metadata: {
+                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                            flowNodeStyle: ballerinaExtInstance.flowNodeStyle()
+                        }
                     },
                     dataMapperDepth: 0
                 };
@@ -148,3 +153,4 @@ function getSTByRangeReq(documentUri: string, position: NodePosition) {
         }
     };
 }
+

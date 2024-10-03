@@ -11,11 +11,15 @@ import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
-import { BaseNodeWidget } from "./BaseNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
-import { NodeKind } from "../../../utils/types";
+// import { BaseNodeWidget } from "./BaseNodeWidget";
+// import { DiagramContext, DiagramContextState } from "../../DiagramContext";
+import { BaseNodeWrapper } from "./BaseNodeWrapper";
 
 export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, DiagramEngine> {
+    // static contextType = DiagramContext;
+    // context!: React.ContextType<typeof DiagramContext>;
+
     constructor() {
         super(NodeTypes.BASE_NODE);
     }
@@ -25,11 +29,18 @@ export class BaseNodeFactory extends AbstractReactFactory<BaseNodeModel, Diagram
     }
 
     generateReactWidget(event: GenerateWidgetEvent<BaseNodeModel>) {
-        switch (event.model.node.codedata.node as NodeKind) {
-            default:
-                return (
-                    <BaseNodeWidget engine={this.engine} model={event.model} />
-                );
-        }
+        // const flowNodeStyle = (this.context as DiagramContextState)?.flowNodeStyle;
+        // console.log("flowNodeStyle", { flowNodeStyle, context: this.context });
+
+        // switch (flowNodeStyle) {
+        //     case "ballerina-statements":
+        //         return <div>Ballerina Statement</div>;
+        //     case "compact":
+        //         return <div>Compact</div>;
+        //     case "default":
+        //     default:
+        //         return <BaseNodeWidget engine={this.engine} model={event.model} />;
+        //     }
+        return <BaseNodeWrapper engine={this.engine} model={event.model} />;
     }
 }
