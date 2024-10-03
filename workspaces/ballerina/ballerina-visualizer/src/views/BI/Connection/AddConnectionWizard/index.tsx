@@ -16,6 +16,7 @@ import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
 import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     width: 100%;
@@ -36,6 +37,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
     const [fields, setFields] = useState<FormField[]>([]);
+    const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
     const selectedConnectorRef = useRef<AvailableNode>();
     const selectedNodeRef = useRef<FlowNode>();
 
@@ -70,6 +72,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     };
 
     const handleOnFormSubmit = async (data: FormValues) => {
+        setIsPullingConnector(true);
         console.log(">>> on form submit", data);
         if (selectedNodeRef.current) {
             let updatedNode: FlowNode = cloneDeep(selectedNodeRef.current);
@@ -107,6 +110,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 .getSourceCode({
                     filePath: connectionsFilePath,
                     flowNode: updatedNode,
+                    isConnector: true,
                 })
                 .then((response) => {
                     console.log(">>> Updated source code", response);
@@ -114,6 +118,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         // clear memory
                         setFields([]);
                         selectedNodeRef.current = undefined;
+                        setIsPullingConnector(false);
                         onClose?.();
                     } else {
                         console.error(">>> Error updating source code", response);
@@ -130,8 +135,16 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
 
     return (
         <Container>
-            {currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
-            {currentStep === WizardStep.CONNECTION_CONFIG && (
+            {isPullingConnector && (
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                    <ProgressRing />
+                    <div style={{paddingLeft: '10px'}}>
+                        Pulling Connector....
+                    </div>
+                </div>
+            )}
+            {!isPullingConnector && currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
+            {!isPullingConnector && currentStep === WizardStep.CONNECTION_CONFIG && (
                 <ConnectionConfigView
                     name={selectedConnectorRef.current?.metadata.label}
                     fields={fields}

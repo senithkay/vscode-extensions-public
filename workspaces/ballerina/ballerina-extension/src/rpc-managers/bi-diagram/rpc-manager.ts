@@ -46,7 +46,7 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { Uri, workspace } from "vscode";
+import { commands, Uri, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
@@ -98,10 +98,16 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getSourceCode(params)
-                .then((model) => {
+                .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
-                    this.updateSource(model);
-                    resolve(model);
+                    if (params?.isConnector) {
+                        await this.updateSource(model, true);
+                        resolve(model);
+                        commands.executeCommand("BI.project-explorer.refresh");
+                    } else {
+                        this.updateSource(model);
+                        resolve(model);
+                    }
                 })
                 .catch((error) => {
                     console.log(">>> error fetching source code from ls", error);
@@ -112,7 +118,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async updateSource(params: BISourceCodeResponse): Promise<void> {
+    async updateSource(params: BISourceCodeResponse, isConnector?: boolean): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
@@ -163,9 +169,21 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         },
                     ],
                 });
+
+                if (isConnector) {
+                    await StateMachine.langClient().resolveMissingDependencies({
+                        documentIdentifier: { uri: fileUriString }
+                    });
+                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                    await StateMachine.langClient().didOpen({
+                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                    });
+                }
             }
         }
-        updateView();
+        if (!isConnector) {
+            updateView();
+        }
     }
 
     async getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
@@ -190,7 +208,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         console.log(">>> requesting bi node template from ls", params);
         const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
         params.forceAssign = flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments";
-        
+
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getNodeTemplate(params)
