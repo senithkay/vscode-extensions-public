@@ -25,11 +25,6 @@ export class IfNodeFactory extends AbstractReactFactory<IfNodeModel, DiagramEngi
     }
 
     generateReactWidget(event: GenerateWidgetEvent<IfNodeModel>) {
-        switch (event.model.node.codedata.node as NodeKind) {
-            default:
-                return (
-                    <IfNodeWidget engine={this.engine} model={event.model} />
-                );
-        }
+        return <IfNodeWidget engine={this.engine} model={event.model} />;
     }
 }

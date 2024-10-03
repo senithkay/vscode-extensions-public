@@ -25,11 +25,6 @@ export class CommentNodeFactory extends AbstractReactFactory<CommentNodeModel, D
     }
 
     generateReactWidget(event: GenerateWidgetEvent<CommentNodeModel>) {
-        switch (event.model.node.codedata.node as NodeKind) {
-            default:
-                return (
-                    <CommentNodeWidget engine={this.engine} model={event.model} />
-                );
-        }
+        return <CommentNodeWidget engine={this.engine} model={event.model} />;
     }
 }

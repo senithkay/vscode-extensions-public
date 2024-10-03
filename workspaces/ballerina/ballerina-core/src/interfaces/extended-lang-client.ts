@@ -425,6 +425,7 @@ export interface BIFlowModelRequest {
     filePath: string;
     startLine: LinePosition;
     endLine: LinePosition;
+    forceAssign?: boolean;
 }
 
 export interface BISuggestedFlowModelRequest extends BIFlowModelRequest {
@@ -460,6 +461,7 @@ export interface BINodeTemplateRequest {
     position: LinePosition;
     filePath: string;
     id: CodeData;
+    forceAssign?: boolean;
 }
 
 export type BINodeTemplateResponse = {

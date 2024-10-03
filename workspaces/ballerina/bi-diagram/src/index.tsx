@@ -13,6 +13,9 @@ export { Diagram } from "./components/Diagram";
 export { NodeIcon } from "./components/NodeIcon";
 export { ConnectorIcon } from "./components/ConnectorIcon";
 
+// types
+export type { FlowNodeStyle } from "./utils/types";
+
 // traversing utils
 export { traverseFlow, traverseNode } from "./utils/ast";
 export { AddNodeVisitor } from "./visitors/AddNodeVisitor";
