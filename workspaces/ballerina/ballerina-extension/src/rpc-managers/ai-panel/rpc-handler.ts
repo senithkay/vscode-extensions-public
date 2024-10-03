@@ -12,20 +12,23 @@ import {
     AddToProjectRequest,
     GenerateMappingsRequest,
     NotifyAIMappingsRequest,
+    ProjectSource,
     addToProject,
     generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getProjectSource,
     getProjectUuid,
     getRefreshToken,
+    getShadowDiagnostics,
     login,
     logout,
     notifyAIMappings,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
-    updateProject,
+    updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -46,4 +49,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
     messenger.onRequest(stopAIMappings, () => rpcManger.stopAIMappings());
     messenger.onRequest(promptLogin, () => rpcManger.promptLogin());
+    messenger.onRequest(getProjectSource, () => rpcManger.getProjectSource());
+    messenger.onRequest(getShadowDiagnostics, (args: ProjectSource) => rpcManger.getShadowDiagnostics(args));
 }

@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState, AddToProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -26,3 +26,5 @@ export const generateMappings: RequestType<GenerateMappingsRequest, GenerateMapp
 export const notifyAIMappings: RequestType<NotifyAIMappingsRequest, boolean> = { method: `${_preFix}/notifyAIMappings` };
 export const stopAIMappings: RequestType<void, GenerateMappingsResponse> = { method: `${_preFix}/stopAIMappings` };
 export const promptLogin: RequestType<void, boolean> = { method: `${_preFix}/promptLogin` };
+export const getProjectSource: RequestType<void, ProjectSource> = { method: `${_preFix}/getProjectSource` };
+export const getShadowDiagnostics: RequestType<ProjectSource, ProjectDiagnostics> = { method: `${_preFix}/getShadowDiagnostics` };

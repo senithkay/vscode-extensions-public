@@ -256,7 +256,54 @@ export function Form(props: FormProps) {
     return (
         <Provider {...contextValue}>
             <S.Container>
-                <S.CategoryRow showBorder={variableField !== undefined || typeField !== undefined}>
+            {variableField && (
+                    <S.CategoryRow showBorder={true}>
+                        {/* <S.TitleContainer>
+                            <S.Title>Variable</S.Title>
+                            <S.BodyText>Assign node output value to a variable</S.BodyText>
+                        </S.TitleContainer> */}
+                        {/* {canUpdateVariable && (
+                            <S.Row>
+                                <Switch
+                                    leftLabel="New Variable"
+                                    rightLabel="Update Variable"
+                                    checked={!createNewVariable}
+                                    checkedColor={Colors.PRIMARY}
+                                    enableTransition={true}
+                                    onChange={() => {
+                                        setCreateNewVariable(!createNewVariable);
+                                    }}
+                                    sx={{
+                                        margin: "auto",
+                                        zIndex: "2",
+                                        border: "unset",
+                                        width: "100%",
+                                    }}
+                                    disabled={false}
+                                />
+                            </S.Row>
+                        )} */}
+                        {variableField && createNewVariable && (
+                            // <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
+                                <EditorFactory field={variableField} />
+                            // </S.EditorContainer>
+                        )}
+                        {typeField && createNewVariable && (
+                            // <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
+                                <EditorFactory
+                                    field={typeField}
+                                    openRecordEditor={handleOpenRecordEditor}
+                                />
+                            // </S.EditorContainer>
+                        )}
+                        {/* {updateVariableField && !createNewVariable && (
+                            <S.EditorContainer key={updateVariableField.key} color={Colors.PURPLE}>
+                                <EditorFactory field={updateVariableField} register={register} />
+                            </S.EditorContainer>
+                        )} */}
+                    </S.CategoryRow>
+                )}
+                <S.CategoryRow showBorder={false}>
                     {/* <S.TitleContainer>
                         <S.Title>Input Parameters</S.Title>
                         <S.BodyText>Lorem ipsum dolor sit amet, consectetur adipiscing</S.BodyText>
@@ -322,53 +369,6 @@ export function Form(props: FormProps) {
                             }
                         })}
                 </S.CategoryRow>
-                {variableField && (
-                    <S.CategoryRow showBorder={false}>
-                        <S.TitleContainer>
-                            <S.Title>Variable</S.Title>
-                            <S.BodyText>Assign node output value to a variable</S.BodyText>
-                        </S.TitleContainer>
-                        {/* {canUpdateVariable && (
-                            <S.Row>
-                                <Switch
-                                    leftLabel="New Variable"
-                                    rightLabel="Update Variable"
-                                    checked={!createNewVariable}
-                                    checkedColor={Colors.PRIMARY}
-                                    enableTransition={true}
-                                    onChange={() => {
-                                        setCreateNewVariable(!createNewVariable);
-                                    }}
-                                    sx={{
-                                        margin: "auto",
-                                        zIndex: "2",
-                                        border: "unset",
-                                        width: "100%",
-                                    }}
-                                    disabled={false}
-                                />
-                            </S.Row>
-                        )} */}
-                        {variableField && createNewVariable && (
-                            // <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
-                                <EditorFactory field={variableField} />
-                            // </S.EditorContainer>
-                        )}
-                        {typeField && createNewVariable && (
-                            // <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
-                                <EditorFactory
-                                    field={typeField}
-                                    openRecordEditor={handleOpenRecordEditor}
-                                />
-                            // </S.EditorContainer>
-                        )}
-                        {/* {updateVariableField && !createNewVariable && (
-                            <S.EditorContainer key={updateVariableField.key} color={Colors.PURPLE}>
-                                <EditorFactory field={updateVariableField} register={register} />
-                            </S.EditorContainer>
-                        )} */}
-                    </S.CategoryRow>
-                )}
                 {onSubmit && (
                     <S.Footer>
                         <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>

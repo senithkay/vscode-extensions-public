@@ -26,7 +26,7 @@ import {
     VSCODE_MARGIN
 } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
-import { getBranchLabel } from "../utils/node";
+import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -140,7 +140,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
 
         // create branches IN links
-        node.branches?.forEach((branch) => {
+        node.branches?.forEach((branch, index) => {
             if (!branch.children || branch.children.length === 0) {
                 // this empty branch will be handled in OUT links
                 return;
@@ -148,16 +148,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
             if (!firstChildNodeModel) {
                 // check non empty children. empty branches will handel later in below logic
-                // console.log("Branch node model not found", {
-                //     branch,
-                //     node,
-                //     parent,
-                //     nodes: this.nodes,
-                // });
                 return;
             }
 
-            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: getBranchLabel(branch) });
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel, {
+                id: getBranchInLinkId(node.id, branch.label, index),
+                label: getBranchLabel(branch),
+            });
             if (link) {
                 this.links.push(link);
             }
@@ -173,7 +170,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         let endIfLinkCount = 0;
         let allBranchesReturn = true;
-        node.branches?.forEach((branch) => {
+        node.branches?.forEach((branch, index) => {
             if (!branch.children || branch.children.length === 0) {
                 console.error("Branch children not found", branch);
                 return;
@@ -202,6 +199,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
+                    id: getBranchInLinkId(node.id, branch.label, index),
                     label: getBranchLabel(branch),
                     brokenLine: true,
                     showAddButton: false,
