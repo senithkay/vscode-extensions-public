@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
@@ -157,6 +157,10 @@ export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+
+    useEffect(() => {
+        model.setAroundLinksDisabled(model.node.suggested);
+    }, [model.node.suggested]);
 
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
