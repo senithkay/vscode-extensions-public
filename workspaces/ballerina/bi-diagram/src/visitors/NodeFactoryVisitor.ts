@@ -125,7 +125,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
 
         // create branches IN links
-        node.branches?.forEach((branch) => {
+        node.branches?.forEach((branch, index) => {
             if (!branch.children || branch.children.length === 0) {
                 // this empty branch will be handled in OUT links
                 return;
@@ -136,7 +136,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 return;
             }
 
-            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: getBranchLabel(branch) });
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel, {
+                id: getBranchInLinkId(node.id, branch.label, index),
+                label: getBranchLabel(branch),
+            });
             if (link) {
                 this.links.push(link);
             }
