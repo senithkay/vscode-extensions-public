@@ -587,7 +587,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     useEffect(() => {
         // Prevent blur event when clicking on the dropdown
         const handleOutsideClick = async (e: any) => {
-            if (!inputRef.current?.contains(e.target) && !listBoxRef.current?.contains(e.target)) {
+            if (
+                document.activeElement === inputRef.current &&
+                !inputRef.current?.contains(e.target) &&
+                !listBoxRef.current?.contains(e.target)
+            ) {
                 await onBlur?.();
             }
         }
