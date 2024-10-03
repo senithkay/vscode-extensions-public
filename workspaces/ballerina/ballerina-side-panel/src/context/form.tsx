@@ -11,7 +11,7 @@ import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import React, { createContext, FC, useContext } from 'react';
 import { Control, FieldValues, UseFormWatch, UseFormRegister } from 'react-hook-form';
 
-interface FormContext {
+export interface FormContext {
     form: {
         control: Control<FieldValues, any>;
         watch: UseFormWatch<any>;

@@ -9,13 +9,11 @@
 
 import React from "react";
 
-import { Control, FieldValues, UseFormRegister, UseFormWatch } from "react-hook-form";
-
 import { FormField } from "../Form/types";
 import { DropdownEditor } from "./DropdownEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
-import { ExpressionEditor } from "./ExpressionEditor";
+import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 import { isDropdownField } from "./utils";
 
 interface FormFieldEditorProps {
@@ -34,7 +32,7 @@ export function EditorFactory(props: FormFieldEditorProps) {
         );
     } else if (!field.items && field.key === "expression") {
         return (
-            <ExpressionEditor field={field} />
+            <ContextAwareExpressionEditor field={field} />
         );
     } else if (!field.items && (field.key !== "type")) {
         return (

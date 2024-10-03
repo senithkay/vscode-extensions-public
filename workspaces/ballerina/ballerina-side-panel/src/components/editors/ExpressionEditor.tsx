@@ -13,11 +13,13 @@ import { Controller } from 'react-hook-form';
 import { ExpressionBar, ExpressionBarRef, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { useFormContext } from '../../context';
+import { FormContext, useFormContext } from '../../context';
 
-interface ExpressionEditorProps {
+type ContextAwareExpressionEditorProps = {
     field: FormField;
 }
+
+type ExpressionEditorProps = ContextAwareExpressionEditorProps & FormContext;
 
 namespace S {
     export const Container = styled.div({
@@ -42,9 +44,15 @@ namespace S {
     });
 }
 
-export function ExpressionEditor(props: ExpressionEditorProps) {
+export function ContextAwareExpressionEditor(props: ContextAwareExpressionEditorProps) {
     const { field } = props;
     const { form, expressionEditor } = useFormContext();
+
+    return <ExpressionEditor field={field} form={form} expressionEditor={expressionEditor} />;
+}
+
+export function ExpressionEditor(props: ExpressionEditorProps) {
+    const { field, form, expressionEditor } = props;
     const { control } = form;
     const {
         completions,
