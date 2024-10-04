@@ -219,7 +219,7 @@ export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
-    const hasFullAssignment = model.node.properties.variable?.value && model.node.properties?.expression?.value;
+    const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
 
     return (
         <NodeStyles.Node

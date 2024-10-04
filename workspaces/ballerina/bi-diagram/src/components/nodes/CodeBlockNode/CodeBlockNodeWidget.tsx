@@ -25,7 +25,7 @@ namespace S {
         align-items: center;
         width: ${(props: DottedBoxStyleProp) => (props.width)}px;
         height: ${(props: DottedBoxStyleProp) => (props.height)}px;
-        border: 2px dashed ${Colors.PRIMARY};
+        border: 2px dashed ${Colors.OUTLINE_VARIANT};
         pointer-events: none;
         border-radius: 20px;
     `;

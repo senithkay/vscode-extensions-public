@@ -45,8 +45,8 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        top: -6px;
-        left: 46px;
+        top: -8px;
+        left: 40px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -200,7 +200,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth="2.5"
-                                stroke={isHovered && !disabled ? Colors.PRIMARY : "currentColor"}
+                                stroke={Colors.ON_SURFACE}
                             >
                                 <path d="M12 3a9 9 0 1 1-5.657 2" />
                                 <path d="M3 4.5h4v4" />

@@ -31,6 +31,7 @@ import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
+import { NodeTypes } from "../resources/constants";
 
 export interface DiagramProps {
     model: Flow;
@@ -124,7 +125,16 @@ export function Diagram(props: DiagramProps) {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addLayer(new OverlayLayerModel());
         // add nodes and links to the diagram
-        newDiagramModel.addAll(...nodes, ...links);
+
+        // get code block nodes from nodes
+        const codeBlockNodes = nodes.filter((node) => node.getType() === NodeTypes.CODE_BLOCK_NODE);
+        // get all other nodes
+        const otherNodes = nodes.filter((node) => node.getType() !== NodeTypes.CODE_BLOCK_NODE);
+
+        newDiagramModel.addAll(...codeBlockNodes);
+        newDiagramModel.addAll(...otherNodes, ...links );
+
+        console.log(">>> diagram model", newDiagramModel);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
