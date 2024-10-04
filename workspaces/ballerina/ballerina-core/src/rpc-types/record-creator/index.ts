@@ -7,10 +7,9 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { NOT_SUPPORTED_TYPE } from "../../interfaces/common";
-import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "./interfaces";
+import { JsonToRecord, JsonToRecordParams, XMLToRecord, XMLToRecordParams } from "../../interfaces/extended-lang-client";
 
 export interface RecordCreatorAPI {
-    convertJsonToRecord: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
-    convertXMLToRecord: (params: XMLToRecordRequest) => Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE>;
+    convertJsonToRecord: (params: JsonToRecordParams) => Promise<JsonToRecord>;
+    convertXMLToRecord: (params: XMLToRecordParams) => Promise<XMLToRecord>;
 }

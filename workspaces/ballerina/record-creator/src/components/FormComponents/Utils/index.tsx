@@ -9,7 +9,7 @@
 import React from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { DiagnosticData, DiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
 import { Codicon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import * as monaco from "monaco-editor";
@@ -60,14 +60,14 @@ function addToTargetPosition(currentContent: string, position: NodePosition, cod
 export async function checkDiagnostics(
     path: string,
     updatedContent: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): Promise<DiagnosticData[]> {
     const fileURI = monaco.Uri.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     await sendDidChange(fileURI, updatedContent, langServerRpcClient);
     return handleDiagnostics(fileURI, langServerRpcClient);
 }
 
-async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpcClient): Promise<DiagnosticsResponse> {
+async function getDiagnostics(docUri: string, langServerRpcClient: LangClientRpcClient): Promise<DiagnosticsResponse> {
     const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
@@ -79,14 +79,14 @@ async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpc
 
 const handleDiagnostics = async (
     fileURI: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): Promise<DiagnosticData[]> => {
     const diagResp = await getDiagnostics(fileURI, langServerRpcClient);
     const diag = diagResp?.diagnostics ? diagResp.diagnostics : [];
     return diag;
 };
 
-async function sendDidChange(docUri: string, content: string, langServerRpcClient: LangServerRpcClient) {
+async function sendDidChange(docUri: string, content: string, langServerRpcClient: LangClientRpcClient) {
     langServerRpcClient.didChange({
         contentChanges: [
             {

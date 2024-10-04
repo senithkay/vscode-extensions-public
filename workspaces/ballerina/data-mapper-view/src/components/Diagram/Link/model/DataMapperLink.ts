@@ -4,6 +4,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { IntermediatePortModel } from "../../Port";
+import { calculateControlPointOffset } from "../../utils/dm-utils";
 
 export const LINK_TYPE_ID = "datamapper-link";
 
@@ -16,7 +17,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			width: 1,
 			curvyness: 0,
 			locked: true,
-			color: "#00c0ff"
+			color: "var(--vscode-debugIcon-breakpointDisabledForeground)"
 		});
 
 		if (isActualLink){
@@ -30,6 +31,8 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 	}
 
 	getSVGPath(): string {
+		const screenWidth = window.innerWidth;
+		let controlPointOffset = calculateControlPointOffset(screenWidth);
 		if (this.points.length === 2) {
 			const curve = new BezierCurve();
 			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 8,
@@ -44,19 +47,11 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 				curve.setTargetControl(targetPoint);
 			} else {
 				const srcControl = sourcePoint.clone();
-				srcControl.translate(220, 0);
+				srcControl.translate(controlPointOffset, 0);
 				const targetControl = targetPoint.clone();
-				targetControl.translate(-220, 0);
+				targetControl.translate(-controlPointOffset, 0);
 				curve.setSourceControl(srcControl);
 				curve.setTargetControl(targetControl);
-
-				if (this.sourcePort) {
-					curve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
-				}
-
-				if (this.targetPort) {
-					curve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
-				}
 			}
 			return curve.getSVGCurve();
 		}

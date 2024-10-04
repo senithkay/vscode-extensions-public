@@ -22,7 +22,7 @@ import { getTypeName } from "../../utils/dm-utils";
 import { InputSearchHighlight } from "../commons/Search";
 
 import { DMEnumTypeDecl, DMEnumTypeMember } from "./EnumTypeNode";
-import { useStyles } from "./styles";
+import { useIONodesStyles } from "../../../styles";
 
 export interface EnumTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -48,7 +48,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
         valueLabel,
         hasHoveredParent,
     } = props;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
 
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -70,7 +70,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
                 <InputSearchHighlight>{valueLabel}</InputSearchHighlight>
                 {typeName && ":"}
             </span>
-            {typeName && <span className={classes.typeLabel}>{typeName}</span>}
+            {typeName && <span className={classes.inputTypeLabel}>{typeName}</span>}
         </span>
     );
 
@@ -95,7 +95,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
             <div
                 id={"recordfield-" + id}
                 className={classNames(
-                    isType ? classes.headerTreeLabel : classes.treeLabel,
+                    isType ? classes.enumHeaderTreeLabel : classes.treeLabel,
                     portState !== PortState.Unselected
                         ? classes.treeLabelPortSelected
                         : "",
@@ -116,7 +116,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
                     )}
                     {label}
                 </span>
-                <span className={classes.treeLabelOutPort}>
+                <span className={classes.outPort}>
                     {portOut && (
                         <DataMapperPortWidget
                             engine={engine}

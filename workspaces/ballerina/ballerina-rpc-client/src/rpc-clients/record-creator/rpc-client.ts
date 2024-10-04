@@ -9,12 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    JsonToRecordRequest,
-    JsonToRecordResponse,
-    NOT_SUPPORTED_TYPE,
+    JsonToRecord,
+    JsonToRecordParams,
     RecordCreatorAPI,
-    XMLToRecordRequest,
-    XMLToRecordResponse,
+    XMLToRecord,
+    XMLToRecordParams,
     convertJsonToRecord,
     convertXMLToRecord
 } from "@wso2-enterprise/ballerina-core";
@@ -28,11 +27,11 @@ export class RecordCreatorRpcClient implements RecordCreatorAPI {
         this._messenger = messenger;
     }
 
-    convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE> {
+    convertJsonToRecord(params: JsonToRecordParams): Promise<JsonToRecord> {
         return this._messenger.sendRequest(convertJsonToRecord, HOST_EXTENSION, params);
     }
 
-    convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE> {
+    convertXMLToRecord(params: XMLToRecordParams): Promise<XMLToRecord> {
         return this._messenger.sendRequest(convertXMLToRecord, HOST_EXTENSION, params);
     }
 }

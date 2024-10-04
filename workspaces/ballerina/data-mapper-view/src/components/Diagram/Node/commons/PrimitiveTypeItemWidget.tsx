@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { css } from "@emotion/css";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { TypeField } from "@wso2-enterprise/ballerina-core";
 
@@ -19,48 +18,7 @@ import { getTypeName } from "../../utils/dm-utils";
 
 import { InputSearchHighlight } from './Search';
 import { TreeContainer, TreeHeader } from './Tree/Tree';
-
-const useStyles = () => ({
-    typeLabel: css({
-        marginLeft: "3px",
-        padding: "5px",
-        minWidth: "100px",
-        marginRight: "24px",
-    }),
-    valueLabel: css({
-        padding: "5px",
-    }),
-    treeLabelOutPort: css({
-        float: "right",
-        width: 'fit-content',
-        marginLeft: "auto",
-        display: "flex",
-        alignItems: "center",
-    }),
-    label: css({
-        width: "300px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        display: "inline-block",
-        textOverflow: "ellipsis",
-        "&:hover": {
-            overflow: "visible",
-        },
-    }),
-    queryPortWrap: css({
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        display: 'flex',
-        alignItems: 'center',
-    }),
-    nodeType: css({
-        float: 'right',
-        marginRight: 5,
-        color: "var(--vscode-pickerGroup-border)",
-    }),
-});
+import { useIONodesStyles } from "../../../styles";
 
 export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -73,7 +31,7 @@ export interface RecordTypeTreeWidgetProps {
 
 export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     const { engine, typeDesc, id, getPort, valueLabel, nodeHeaderSuffix } = props;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -94,7 +52,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classes.inputTypeLabel}>
                     {typeName}
                 </span>
             )}
@@ -119,7 +77,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
-                <span className={classes.treeLabelOutPort}>
+                <span className={classes.outPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }

@@ -49,10 +49,10 @@ export function EnumHeadWidget(props: EnumHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <FilterNodeAndGoToSourceMenu
+                {/* <FilterNodeAndGoToSourceMenu
                     location={node?.enumObject?.position}
                     nodeType={{ name: displayName, type: NodeCategory.ENUM }}
-                />
+                /> */}
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}

@@ -18,8 +18,7 @@ import { Icon, ProgressRing, Tooltip, Typography } from "@wso2-enterprise/ui-too
 
 import { IDataMapperContext} from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getModification } from "../../utils/modifications";
-
-import { useStyles } from "./style";
+import { useUnionTypeNodeStyles } from "../../../styles";
 
 export interface UnionTypeListItemProps {
     key: number;
@@ -33,7 +32,7 @@ export interface UnionTypeListItemProps {
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
     const { key, context, type, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
-    const classes = useStyles();
+    const classes = useUnionTypeNodeStyles();
 
     const onClickOnListItem = async () => {
         setIsAddingTypeCast(true)

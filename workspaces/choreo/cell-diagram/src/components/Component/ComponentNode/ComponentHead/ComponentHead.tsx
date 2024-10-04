@@ -35,13 +35,15 @@ interface ServiceHeadProps {
     isSelected: boolean;
     isFocused: boolean;
     menuItems: MoreVertMenuItem[];
+    onFocusOut?: () => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isFocused, menuItems } = props;
+    const { engine, node, isSelected, isFocused, menuItems, onFocusOut } = props;
 
     const { zoomLevel } = useContext(DiagramContext);
 
+    const isDisabled = node.component.disabled?.status;
     const getComponentTypeIcon = (type: ComponentType) => {
         switch (type) {
             case ComponentType.API_PROXY:
@@ -72,8 +74,12 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ComponentHead isSelected={isSelected || isFocused} borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}>
-            <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
+        <ComponentHead
+            isSelected={isSelected || isFocused}
+            borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
+            disabled={isDisabled}
+        >
+            <IconWrapper disabled={isDisabled}>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
             {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
@@ -84,6 +90,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                     component={node.component}
                     menuItems={menuItems}
                     hasComponentKind={node.component.buildPack && node.component.buildPack.toLowerCase() !== "other"}
+                    onClose={onFocusOut}
                 />
             )}
         </ComponentHead>

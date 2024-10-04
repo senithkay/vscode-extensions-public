@@ -65,7 +65,14 @@
         "authentication": {
             "type": "array",
             "items": {
-                "$ref": "#/schemas/Authentication"
+                "oneOf": [
+                    {
+                        "$ref": "#/schemas/OAuth2Authentication"
+                    },
+                    {
+                        "$ref": "#/schemas/MTLSAuthentication"
+                    }
+                ]
             }
         },
         "additionalProperties": {
@@ -90,12 +97,22 @@
     },
     "additionalProperties": false,
     "schemas": {
-        "Authentication": {
+        "OAuth2Authentication": {
             "type": "object",
             "properties": {
+                "required": {
+                    "type": "string",
+                    "default": "mandatory",
+                    "enum": [
+                        "mandatory",
+                        "optional"
+                    ]
+                },
                 "authType": {
                     "type": "string",
-                    "example": "OAuth2",
+                    "enum": [
+                        "OAuth2"
+                    ],
                     "description": "The type of authentication to be used, e.g., OAuth2, etc."
                 },
                 "sendTokenToUpstream": {
@@ -105,17 +122,14 @@
                 },
                 "enabled": {
                     "type": "boolean",
-                    "example": true,
                     "description": "Specifies whether authentication is enabled for the API."
                 },
                 "headerName": {
                     "type": "string",
-                    "example": "Authorization",
                     "description": "The name of the header field used to send the authentication token."
                 },
                 "queryParamName": {
                     "type": "string",
-                    "example": "apikey",
                     "description": "The name of the query parameter used to send the authentication token."
                 },
                 "headerEnable": {
@@ -125,6 +139,50 @@
                 "queryParamEnable": {
                     "type": "boolean",
                     "description": "Specifies whether the authentication token can be sent as a query parameter."
+                }
+            },
+            "additionalProperties": false
+        },
+        "MTLSAuthentication": {
+            "type": "object",
+            "properties": {
+                "authType": {
+                    "type": "string",
+                    "enum": [
+                        "mTLS"
+                    ],
+                    "description": "The type of authentication to be used, e.g., mTLS, etc."
+                },
+                "required": {
+                    "type": "string",
+                    "default": "optional",
+                    "enum": [
+                        "mandatory",
+                        "optional"
+                    ],
+                    "description": "Specifies whether mTLS is mandatory or optional"
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Specifies whether mTLS authentication is enabled for the API."
+                },
+                "certificates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the config map containing the certificate"
+                            },
+                            "key": {
+                                "type": "string",
+                                "description": "The key of the certificate value"
+                            }
+                        }
+                    },
+                    "description": "The list of certificates used for mTLS"
                 }
             },
             "additionalProperties": false
