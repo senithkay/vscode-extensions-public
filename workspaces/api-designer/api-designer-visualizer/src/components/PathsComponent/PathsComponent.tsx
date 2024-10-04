@@ -231,22 +231,14 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                             content={
                                 <PathContainer>
                                     <LeftPathContainer>
-                                        {/* <Typography 
-                                            sx={{
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                                width: (currentDivWidth - 50),
-                                                margin: "0 0 0 2px" 
-                                            }} variant="h3">
-                                            {path}
-                                        </Typography> */}
                                         {pathEditIndex === index ? (
                                             <TextField
                                                 value={path}
                                                 onKeyDown={(evt: any) => 
                                                     handlePathEditKeyDown(evt, index)
                                                 }
+                                                autoFocus
+                                                onBlur={() => setPathEditIndex(-1)}
                                             />
                                         ) : (
                                             <Typography 
@@ -262,11 +254,9 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                         )}
                                     </LeftPathContainer>
                                     <RightPathContainer>
-                                        <ContextMenu
-                                            iconSx={contextMenuSx}
-                                            sx={subMenuverticalIconWrapper}
-                                            menuItems={resourceMenuItems}
-                                        />
+                                        {pathEditIndex === -1 && (
+                                            <ContextMenu iconSx={contextMenuSx} sx={subMenuverticalIconWrapper} menuItems={resourceMenuItems} />
+                                        )}
                                     </RightPathContainer>
                                 </PathContainer>
                             }
