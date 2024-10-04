@@ -100,10 +100,7 @@ export class Form {
                         break;
                     }
                     case 'expression': {
-                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
-                        await parentDiv.waitFor();
-                        const input = parentDiv.locator('input[aria-label="EX"]');
-                        await input.click();
+                        const input = await getWebviewInput(this.container, `EX${key}`);
                         await input.fill(values[key].value);
                         break;
                     }
