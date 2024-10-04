@@ -20,19 +20,41 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
+import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
 interface FormProps {
+    fileName: string;
     node: FlowNode;
     nodeFormTemplate?: FlowNode; // used in edit forms
     connections?: FlowNode[];
     clientName?: string;
     targetLineRange: LineRange;
     projectPath?: string;
+    editForm?: boolean;
     onSubmit: (node?: FlowNode) => void;
+    expressionEditor?: {
+        completions: CompletionItem[];
+        triggerCharacters: readonly string[];
+        onRetrieveCompletions: (value: string, offset: number) => any;
+        onCompletionSelect: (value: string) => Promise<void>;
+        onCancel: () => void;
+        onBlur: () => void;
+    };
 }
 
 export function FormGenerator(props: FormProps) {
-    const { node, nodeFormTemplate, connections, clientName, targetLineRange, projectPath, onSubmit } = props;
+    const {
+        fileName,
+        node,
+        nodeFormTemplate,
+        connections,
+        clientName,
+        targetLineRange,
+        projectPath,
+        editForm,
+        onSubmit,
+        expressionEditor,
+    } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -88,6 +110,12 @@ export function FormGenerator(props: FormProps) {
                 },
             };
 
+            // assign to a existing variable
+            if ("update-variable" in data) {
+                data["variable"] = data["update-variable"];
+                data["type"] = "";
+            }
+
             if (node.branches?.at(0)?.properties) {
                 // branch properties
                 // TODO: Handle multiple branches
@@ -135,7 +163,7 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+        return <IfForm fileName={fileName} node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
     }
 
     // default form
@@ -150,6 +178,8 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     canUpdateVariable={node.codedata.node !== "NEW_CONNECTION"}
+                    editForm={editForm}
+                    expressionEditor={expressionEditor}
                 />
             )}
             {showRecordEditor && (

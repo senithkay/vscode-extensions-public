@@ -96,11 +96,13 @@ import {
     ServiceFromOASResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
-import { CancellationToken, DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -160,7 +162,8 @@ enum EXTENDED_APIS {
     BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
-    BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract'
+    BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
+    BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -526,11 +529,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_MEMBER, params);
     }
 
-    async resolveMissingDependencies(req: SyntaxTreeParams, cancellationToken?: CancellationToken): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
-        if (cancellationToken?.isCancellationRequested) {
-            return Promise.resolve(NOT_SUPPORTED);
-        }
-        return this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req, cancellationToken);
+    async resolveMissingDependencies(req: SyntaxTreeParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req);
     }
 
     async convertToOpenAPI(params: OpenAPIConverterParams): Promise<OpenAPISpec | NOT_SUPPORTED_TYPE> {
@@ -584,6 +584,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL);
         return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
+    }
+
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this.sendRequest<ExpressionCompletionsResponse>(EXTENDED_APIS.BI_EXPRESSION_COMPLETIONS, params);
     }
 
     // <------------ BI APIS END --------------->

@@ -9,8 +9,6 @@
 
 import {
     COMMENT_NODE_WIDTH,
-    DRAFT_NODE_HEIGHT,
-    DRAFT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     EMPTY_NODE_WIDTH,
     IF_NODE_WIDTH,
@@ -22,6 +20,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
     VSCODE_MARGIN,
+    WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -86,6 +85,7 @@ export class SizingVisitor implements BaseVisitor {
                 }
             });
         }
+        height = Math.max(height, NODE_HEIGHT * 2);
         this.setNodeSize(node, width, height);
     }
 
@@ -144,6 +144,23 @@ export class SizingVisitor implements BaseVisitor {
         const height = NODE_HEIGHT;
         const containerWidth = width + NODE_WIDTH / 2;
         this.setNodeSize(node, width, height, containerWidth);
+    }
+
+    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        let width = 0;
+        let height = 0;
+        if (node.branches && node.branches.length == 1) {
+            const mainBranch: Branch = node.branches.at(0);
+            if (mainBranch.viewState) {
+                width = Math.max(width, Math.max(mainBranch.viewState.cw, NODE_GAP_X));
+                height = mainBranch.viewState.ch;
+            }
+        }
+        // add while node width and height
+        height += WHILE_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
+
+        const whileNodeWidth = WHILE_NODE_WIDTH + VSCODE_MARGIN;
+        this.setNodeSize(node, whileNodeWidth, whileNodeWidth, width, height);
     }
 
     skipChildren(): boolean {

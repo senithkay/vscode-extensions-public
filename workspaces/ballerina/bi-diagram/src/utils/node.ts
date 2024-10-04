@@ -22,3 +22,11 @@ export function getNodeIdFromModel(node: FlowNode, prefix?: string) {
 export function getBranchLabel(branch: Branch): string {
     return branch.properties?.condition?.value?.toString().trim() || branch.label;
 }
+
+export function getBranchId(nodeId: string, branchLabel: string, branchIndex: number) {
+    return `${nodeId}-${branchLabel}-branch-${branchIndex}`;
+}
+
+export function getBranchInLinkId(nodeId: string, branchLabel: string, branchIndex: number) {
+    return `${nodeId}-${branchLabel}-branch-${branchIndex}-in-link`;
+}

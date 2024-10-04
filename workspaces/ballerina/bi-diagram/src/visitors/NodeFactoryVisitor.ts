@@ -10,15 +10,23 @@
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
+import { CodeBlockNodeModel } from "../components/nodes/CodeBlockNode";
 import { ButtonNodeModel } from "../components/nodes/ButtonNode";
 import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_WIDTH, VSCODE_MARGIN } from "../resources/constants";
+import { WhileNodeModel } from "../components/nodes/WhileNode";
+import {
+    BUTTON_NODE_HEIGHT,
+    EMPTY_NODE_WIDTH,
+    NODE_HEIGHT,
+    NODE_WIDTH,
+    VSCODE_MARGIN
+} from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
-import { getBranchLabel } from "../utils/node";
+import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -67,6 +75,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createEmptyNode(id: string, x: number, y: number, visible = true, showButton = false): EmptyNodeModel {
         const nodeModel = new EmptyNodeModel(id, visible, showButton);
+        nodeModel.setPosition(x, y);
+        this.nodes.push(nodeModel);
+        return nodeModel;
+    }
+
+    private createCodeBlockNode(id: string, x: number, y: number, width: number, height: number): CodeBlockNodeModel {
+        const nodeModel = new CodeBlockNodeModel(id, width, height);
         nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
@@ -125,7 +140,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
 
         // create branches IN links
-        node.branches?.forEach((branch) => {
+        node.branches?.forEach((branch, index) => {
             if (!branch.children || branch.children.length === 0) {
                 // this empty branch will be handled in OUT links
                 return;
@@ -133,16 +148,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
             const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
             if (!firstChildNodeModel) {
                 // check non empty children. empty branches will handel later in below logic
-                // console.log("Branch node model not found", {
-                //     branch,
-                //     node,
-                //     parent,
-                //     nodes: this.nodes,
-                // });
                 return;
             }
 
-            const link = createNodesLink(ifNodeModel, firstChildNodeModel, { label: getBranchLabel(branch) });
+            const link = createNodesLink(ifNodeModel, firstChildNodeModel, {
+                id: getBranchInLinkId(node.id, branch.label, index),
+                label: getBranchLabel(branch),
+            });
             if (link) {
                 this.links.push(link);
             }
@@ -158,7 +170,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         let endIfLinkCount = 0;
         let allBranchesReturn = true;
-        node.branches?.forEach((branch) => {
+        node.branches?.forEach((branch, index) => {
             if (!branch.children || branch.children.length === 0) {
                 console.error("Branch children not found", branch);
                 return;
@@ -187,6 +199,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
+                    id: getBranchInLinkId(node.id, branch.label, index),
                     label: getBranchLabel(branch),
                     brokenLine: true,
                     showAddButton: false,
@@ -247,6 +260,103 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     endVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeModel = undefined;
+    }
+
+    beginVisitWhile(node: FlowNode): void {
+        const nodeModel = new WhileNodeModel(node);
+
+        // TODO: Fix and enable code-block node
+        // const codeBlockNode = this.createCodeBlockNode(
+        //     `${node.id}-codeBlock`,
+        //     node.viewState.x + NODE_HEIGHT / 2 - node.viewState.cw / 2 - NODE_GAP_X / 2,
+        //     node.viewState.y + node.viewState.h + NODE_GAP_Y / 2 + NODE_BORDER_WIDTH / 2,
+        //     node.viewState.cw + NODE_GAP_X,
+        //     node.viewState.ch - node.viewState.h - NODE_GAP_Y / 2
+        // );
+
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        this.lastNodeModel = undefined;
+    }
+
+    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        const whileNodeModel = this.nodes.find((n) => n.getID() === node.id);
+        if (!whileNodeModel) {
+            console.error("While node model not found", node);
+            return;
+        }
+
+        // assume that only the body branch exist
+        const branch = node.branches.at(0);
+
+        // Create branch's IN link
+        if (branch.children && branch.children.length > 0) {
+            const firstChildNodeModel = this.nodes.find((n) => n.getID() === branch.children.at(0).id);
+            if (firstChildNodeModel) {
+                const link = createNodesLink(whileNodeModel, firstChildNodeModel);
+                if (link) {
+                    this.links.push(link);
+                }
+            }
+        }
+
+        // create branch's OUT link
+        const endWhileEmptyNode = this.createEmptyNode(
+            `${node.id}-endwhile`,
+            node.viewState.x + NODE_HEIGHT / 2 - EMPTY_NODE_WIDTH / 2,
+            node.viewState.y - EMPTY_NODE_WIDTH / 2 + node.viewState.ch
+        );
+        endWhileEmptyNode.setParentFlowNode(node);
+        this.lastNodeModel = endWhileEmptyNode;
+
+        if (
+            branch.children &&
+            branch.children.length === 1 &&
+            branch.children.find((n) => n.codedata.node === "EMPTY")
+        ) {
+            const branchEmptyNodeModel = branch.children.at(0);
+            
+            let branchEmptyNode = this.createEmptyNode(
+                branchEmptyNodeModel.id,
+                node.viewState.x + NODE_HEIGHT / 2 - EMPTY_NODE_WIDTH / 2,
+                branchEmptyNodeModel.viewState.y,
+                true,
+                true
+            );
+            const linkIn = createNodesLink(whileNodeModel, branchEmptyNode, {
+                showAddButton: false,
+            });
+            const linkOut = createNodesLink(branchEmptyNode, endWhileEmptyNode, {
+                showAddButton: false,
+                alignBottom: true,
+            });
+            if (linkIn && linkOut) {
+                this.links.push(linkIn, linkOut);
+            }
+            return;
+        }
+
+        const lastNode = branch.children.at(-1);
+        let lastChildNodeModel;
+        if (branch.children.at(-1).codedata.node === "IF") {
+            // if last child is IF, find endIf node
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
+        } else {
+            // if last child is not IF, find last child node
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
+        }
+        if (!lastChildNodeModel) {
+            console.error("Last child node model not found", lastNode.id);
+            return;
+        }
+
+        const endLink = createNodesLink(lastChildNodeModel, endWhileEmptyNode, {
+            alignBottom: true,
+            showAddButton: !lastNode.returning,
+        });
+        if (endLink) {
+            this.links.push(endLink);
+        }
     }
 
     beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {

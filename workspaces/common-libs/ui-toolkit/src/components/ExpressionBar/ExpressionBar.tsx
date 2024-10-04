@@ -15,10 +15,44 @@ import { InputProps } from '../TextField/TextField';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
+    Array: 'array',
+    Boolean: 'boolean',
+    Class: 'class',
+    Color: 'color',
+    Constant: 'constant',
+    Constructor: 'constructor',
+    Enum: 'enum',
+    EnumMember: 'enum-member',
+    Event: 'event',
+    Field: 'field',
+    File: 'file',
+    Folder: 'folder',
     Function: 'function',
+    Interface: 'interface',
+    Key: 'key',
+    Keyword: 'keyword',
     Method: 'method',
+    Misc: 'misc',
+    Module: 'module',
+    Namespace: 'namespace',
+    Null: 'null',
+    Number: 'number',
+    Object: 'object',
+    Operator: 'operator',
+    Package: 'package',
     Parameter: 'parameter',
     Property: 'property',
+    Reference: 'reference',
+    Ruler: 'ruler',
+    Snippet: 'snippet',
+    String: 'string',
+    Struct: 'struct',
+    Structure: 'structure',
+    Text: 'text',
+    TypeParameter: 'type-parameter',
+    Unit: 'unit',
+    Value: 'value',
+    Variable: 'variable',
 } as const;
 
 export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMPLETION_ITEM_KIND];
@@ -31,6 +65,7 @@ export type CompletionItem = {
     kind: CompletionItemKind;
     args?: string[];
     replacementSpan?: number;
+    sortText?: string;
 };
 
 export type ExpressionBarBaseProps = {
@@ -41,24 +76,26 @@ export type ExpressionBarBaseProps = {
     sx?: React.CSSProperties;
     completions: CompletionItem[];
     inputProps?: InputProps;
-    onChange: (value: string) => Promise<void>;
-    onFocus?: () => Promise<void>;
-    onBlur?: () => Promise<void>;
-    onCompletionSelect: (value: string) => Promise<void>;
-    onSave: (value: string) => Promise<void>;
+    onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
+    onFocus?: () => void | Promise<void>;
+    onBlur?: () => void | Promise<void>;
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+    onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
-    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
+    useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
+    shouldDisableOnSave?: boolean;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
     id?: string;
+    name?: string;
 };
 
 export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
-    focus: (text?: string) => Promise<void>;
-    blur: (text?: string) => Promise<void>;
-    saveExpression: (text?: string) => Promise<void>;
+    focus: () => void;
+    blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
+    saveExpression: (value?: string) => Promise<void>; // Saves the expression with the provided value
 };
 
 // Styled Components
@@ -69,7 +106,6 @@ namespace Ex {
         color: var(--vscode-foreground);
         align-items: center;
         height: 32px;
-        padding-inline: 8px;
         gap: 8px;
         box-sizing: border-box;
 

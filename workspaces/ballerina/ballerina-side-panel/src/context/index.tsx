@@ -7,8 +7,4 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./EditorFactory";
-export * from "./TypeEditor";
-export * from "./TextEditor";
-export * from "./DropdownEditor";
-export * from "./ExpressionEditor";
+export * from './form';
