@@ -16,6 +16,7 @@ export interface TreeViewProps {
     children?: ReactNode;
     rootTreeView?: boolean;
     selectedId?: string;
+    disableClick?: boolean;
     onSelect?: (id: string) => void;
 }
 
@@ -44,14 +45,16 @@ const IconContainer = styled.div<IconContainerProps>`
 `;
 
 export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
-    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId } = props
+    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false } = props
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleExpand = (sId: string) => {
-        if (onSelect) {
-            onSelect(sId);
+        if (!disableClick) {
+            if (onSelect) {
+                onSelect(sId);
+            }
+            setIsExpanded(!isExpanded);
         }
-        setIsExpanded(!isExpanded);
     };
 
     const handleSelect = (sId: string) => {
@@ -91,6 +94,7 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
                     {React.Children.map(children, (child) =>
                         React.cloneElement(child as React.ReactElement<any>, {
                             selectedId: selectedId,
+                            disableClick: disableClick,
                             onSelect: handleSelect,
                         })
                     )}

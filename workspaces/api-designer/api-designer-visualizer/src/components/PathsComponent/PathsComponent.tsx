@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Paths } from "../../Definitions/ServiceDefinitions";
-import { Codicon, ContextMenu, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ContextMenu, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
@@ -22,6 +22,7 @@ interface OpenAPIDefinitionProps {
     onAddResource?: (path: string, method: string) => void;
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
+    onPathRename?: (path: string, index: number) => void;
 }
 
 const PathsContainer = styled.div`
@@ -104,10 +105,11 @@ const APIResources = [
 ];
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
-    const { paths, hideOverview, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange } = props;
+    const { paths, hideOverview, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange, onPathRename } = props;
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
     const [, setSelPathID] = useState<string | undefined>(selectedPathID);
+    const [pathEditIndex, setPathEditIndex] = useState<number>(-1);
     const pathsArray = paths ? Object.keys(paths) : [];
     // Get PathItems from paths
     const pathItems = paths ? Object.values(paths) : [];
@@ -130,6 +132,17 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
     const menuItems = [
         { id: "add", label: "Add Path", onClick: handleAddPath }
     ];
+
+    const handlePathEdit = (index: number) => {
+        setPathEditIndex(index);
+    };
+
+    const handlePathEditKeyDown = (evt: any, index: number) => {
+        if (evt.key === "Enter") {
+            setPathEditIndex(-1);
+            onPathRename && onPathRename(evt.target.value, index);
+        }
+    };
 
     useEffect(() => {
         if (!pathContinerRef.current) return;
@@ -169,6 +182,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
             <TreeView 
                 rootTreeView
                 id="Paths"
+                disableClick={pathEditIndex !== -1}
                 content={
                     <PathContainer>
                         <LeftPathContainer>
@@ -200,8 +214,15 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                             onClick: () => {},
                             sunMenuItems: subMenuItems
                         },
-                        { id: "delete path", label: "Delete Path",
-                             onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => handleDeletePath(evt, path) 
+                        { 
+                            id: "delete path",
+                            label: "Delete Path",
+                            onClick: (evt?: React.MouseEvent<HTMLElement, MouseEvent>) => handleDeletePath(evt, path) 
+                        },
+                        {
+                            id: "rename path",
+                            label: "Rename Path",
+                            onClick: () => handlePathEdit(index)
                         }
                     ];
                     return (
@@ -210,7 +231,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                             content={
                                 <PathContainer>
                                     <LeftPathContainer>
-                                        <Typography 
+                                        {/* <Typography 
                                             sx={{
                                                 whiteSpace: "nowrap",
                                                 overflow: "hidden",
@@ -219,7 +240,26 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                                 margin: "0 0 0 2px" 
                                             }} variant="h3">
                                             {path}
-                                        </Typography>
+                                        </Typography> */}
+                                        {pathEditIndex === index ? (
+                                            <TextField
+                                                value={path}
+                                                onKeyDown={(evt: any) => 
+                                                    handlePathEditKeyDown(evt, index)
+                                                }
+                                            />
+                                        ) : (
+                                            <Typography 
+                                                sx={{
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    width: (currentDivWidth - 50),
+                                                    margin: "0 0 0 2px" 
+                                                }} variant="h3">
+                                                {path}
+                                            </Typography>
+                                        )}
                                     </LeftPathContainer>
                                     <RightPathContainer>
                                         <ContextMenu

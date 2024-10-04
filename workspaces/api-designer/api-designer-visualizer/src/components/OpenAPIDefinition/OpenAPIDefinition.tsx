@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { OpenAPI, Path } from "../../Definitions/ServiceDefinitions";
+import { OpenAPI, Path, PathItem } from "../../Definitions/ServiceDefinitions";
 import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathsComponent } from "../PathsComponent/PathsComponent";
@@ -225,6 +225,24 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         }
     };
 
+    const handleRenamePath = (path: string, pathIndex: number) => {
+        // Get path by index
+        const pathKey = Object.keys(openAPIDefinition.paths)[pathIndex];
+        // Store the existing path item
+        const pathItem = openAPIDefinition.paths[pathKey];
+        // Delete the old path
+        delete openAPIDefinition.paths[pathKey];
+        // Insert the renamed path at the same index
+        const updatedPaths = Object.keys(openAPIDefinition.paths);
+        updatedPaths.splice(pathIndex, 0, path); // Insert at the specified index
+        const newPaths: { [key: string]: PathItem } = {}; // Define the type for newPaths
+        updatedPaths.forEach(key => {
+            newPaths[key] = openAPIDefinition.paths[key] || (key === path ? pathItem : undefined);
+        });
+        setOpenAPIDefinition({ ...openAPIDefinition, paths: newPaths });
+        onOpenApiDefinitionChange({ ...openAPIDefinition, paths: newPaths });
+    }
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -255,7 +273,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}
                             onAddResource={handleAddResource}
-                            onDeletePath={onDeletePath} />
+                            onDeletePath={onDeletePath}
+                            onPathRename={handleRenamePath}
+                        />
                     }
                 </NavigationPanelContainer>
                 {isViewMode ? (

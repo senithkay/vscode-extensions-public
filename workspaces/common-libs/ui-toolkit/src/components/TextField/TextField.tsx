@@ -37,6 +37,8 @@ export interface TextFieldProps extends ComponentProps<"input"> {
     description?: string | ReactNode;
     validationMessage?: string;
     sx?: any;
+    textFieldSx?: any;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     onTextChange?: (text: string) => void;
     inputProps?: InputProps;
 }
@@ -63,8 +65,8 @@ const Description = styled.div<ContainerProps>`
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
-        placeholder, description, validationMessage, errorMsg, sx, inputProps, onTextChange,
-        labelAdornment, ...rest
+        placeholder, description, validationMessage, errorMsg, sx, textFieldSx, inputProps, onTextChange,
+        labelAdornment, onKeyDown, ...rest
     } = props;
 
     const [, setIsFocused] = React.useState(false);
@@ -106,7 +108,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
         <Container sx={sx}>
             <VSCodeTextField
                 ref={textFieldRef}
-                style={{ width: "100%" }}
+                style={{ width: "100%", ...textFieldSx }}
                 autoFocus={autoFocus}
                 type={type}
                 size={size}
@@ -118,6 +120,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 {...rest}
                 {...!props.name ? { value: props.value ? props.value : "" } : {}} // If name is not provided, then value should be empty (for react-hook-form)
                 onInput={handleInput}
+                onKeyDown={onKeyDown}
             >
                 {startAdornment && <div slot="start">{startAdornment}</div>}
                 {iconComponent && <div onClick={iconClick} slot={position} style={{ display: "flex", alignItems: "center" }}>{iconComponent}</div>}
