@@ -233,6 +233,8 @@ export function Resource(props: OverviewProps) {
                             { value: "delete", content: "DELETE" },
                             { value: "patch", content: "PATCH" },
                             { value: "options", content: "OPTIONS" },
+                            { value: "head", content: "HEAD" },
+                            { value: "trace", content: "TRACE" }
                         ]}
                         value={values?.method.toLowerCase()}
                         onValueChange={handleMethodChange}
@@ -240,6 +242,7 @@ export function Resource(props: OverviewProps) {
                     <TextField
                         id="path"
                         sx={{ width: "80%" }}
+                        autoFocus
                         onTextChange={handlePathChange}
                         value={values?.path}
                     />

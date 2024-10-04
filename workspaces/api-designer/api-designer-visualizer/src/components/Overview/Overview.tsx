@@ -185,6 +185,7 @@ export function Overview(props: OverviewProps) {
                         label="Title"
                         id="title"
                         sx={{ width: "50%" }}
+                        autoFocus
                         value={openAPIDefinition?.info?.title}
                         onTextChange={handleTitleChange}
                     />

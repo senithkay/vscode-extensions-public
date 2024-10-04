@@ -96,7 +96,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
     ) : undefined;
 
     useEffect(() => {
-        if (autoFocus && textFieldRef.current && !props.value) {
+        if (autoFocus && textFieldRef.current) {
             setIsFocused(true);
             textFieldRef.current?.focus()
         }
