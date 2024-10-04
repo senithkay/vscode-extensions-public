@@ -155,7 +155,7 @@ export function Resource(props: OverviewProps) {
             }
         };
         onPathChange(newPath);
-    }, 500);
+    }, 300);
 
     const handlePathChange = (value: string) => {
          debouncedHandlePathChange(value);

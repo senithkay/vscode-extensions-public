@@ -106,7 +106,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         const initialPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
         const initialPathItems = initialPath && openAPIDefinition.paths[initialPath];
         let updatedOpenAPIDefinition = { ...openAPIDefinition };
-        const initialPathParamaters = getPathParametersFromParameters(openAPIDefinition.paths[path?.initialPath][path?.initialMethod].parameters);
+        const initialPathParamaters = path?.initialPath && path?.initialMethod && 
+            openAPIDefinition.paths[path?.initialPath] && openAPIDefinition.paths[path?.initialPath][path?.initialMethod] &&
+            getPathParametersFromParameters(openAPIDefinition.paths[path?.initialPath][path?.initialMethod].parameters);
         const newPathParameters = getPathParametersFromParameters(path.initialOperation.parameters);
         if (initialPathParamaters?.length === newPathParameters?.length) {
             // Update the existing path
@@ -118,12 +120,15 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     updatedOpenAPIDefinition.paths[path.path] = {
                         ...updatedOpenAPIDefinition.paths[path.initialPath]
                     };
-                    delete updatedOpenAPIDefinition.paths[path.initialPath];
                 }
                 updatedOpenAPIDefinition.paths[path.path][path.method] = {
                     ...path.initialOperation // Update with new operation details
                 };
+                delete updatedOpenAPIDefinition.paths[path.initialPath];
             } else {
+                updatedOpenAPIDefinition.paths[path.path][path.method] = {
+                    ...path.initialOperation
+                };
                 if (updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) {
                     delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
                     // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
@@ -131,13 +136,10 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         delete updatedOpenAPIDefinition.paths[path.initialPath];
                     }
                 }
-                updatedOpenAPIDefinition.paths[path.path][path.method] = {
-                    ...path.initialOperation
-                };
             }
         } else {
             // If the method does not exist, add it
-            if (updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) {
+            if (updatedOpenAPIDefinition.paths[path.initialPath] && [path.initialMethod]) {
                 delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
                 // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
                 if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {

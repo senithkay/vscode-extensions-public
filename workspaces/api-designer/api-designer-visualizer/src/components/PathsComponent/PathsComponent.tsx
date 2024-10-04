@@ -158,10 +158,6 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
         setSelPathID(selectedPathID);
     }, [selectedPathID]);
 
-    // console.log("PathsComponent pathsArray: ", pathsArray);
-    // console.log("PathsComponent pathItems: ", pathItems);
-    // console.log("PathsComponent selectedPathID: ", selectedPathID);
-
     return (
         <PathsContainer ref={pathContinerRef}>
             {!hideOverview && (
