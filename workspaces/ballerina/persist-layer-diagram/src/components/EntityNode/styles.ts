@@ -8,11 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors } from '../../resources';
-
-const ANON_RECORD_PRIMARY: string = '#0d6fbf';
-const ANON_RECORD_SECONDARY: string = '#e8f5ff';
-const PRIMARY_HOVER: string = '#2c09ed';
+import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 interface StyleProps {
     isAnonymous: boolean;
@@ -23,12 +19,12 @@ interface StyleProps {
 }
 
 export const EntityNode: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.NODE_BACKGROUND};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
+    background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.SURFACE_DIM_2 :
+        props.isAnonymous ? ThemeColors.SURFACE_BRIGHT : ThemeColors.SURFACE_DIM};
+    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? ThemeColors.SECONDARY :
+        props.isAnonymous ? ThemeColors.PRIMARY : props.isFocused ? ThemeColors.ON_PRIMARY : ThemeColors.PRIMARY}`};
     border-radius: 6px !important;
-    color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
+    color: ${(props: StyleProps) => props.isAnonymous ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE};
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -50,7 +46,7 @@ export const EntityHead: React.FC<any> = styled.div`
 export const EntityName: React.FC<any> = styled.span`
     cursor: pointer;
     &:hover {
-        color: ${(props: StyleProps) => props.isClickable ? PRIMARY_HOVER : ``};
+        color: ${(props: StyleProps) => props.isClickable ? ThemeColors.ON_SURFACE : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
         text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
@@ -58,8 +54,8 @@ export const EntityName: React.FC<any> = styled.span`
 
 export const AttributeContainer: React.FC<any> = styled.div`
     align-items: center;
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border: 0.5px solid ${Colors.NODE_BORDER};
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_DIM};
+    border: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
     display: flex;
     flex-direction: row;
     font-size: 12px;
@@ -72,7 +68,7 @@ export const AttributeContainer: React.FC<any> = styled.div`
 
 export const AttributeName = styled.span`
     align-items: center;
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${ThemeColors.ON_SURFACE};
     display: flex;
     flex: 1;
     font-family: GilmerRegular;
@@ -82,10 +78,9 @@ export const AttributeName = styled.span`
 `;
 
 export const AttributeType: React.FC<any> = styled.span`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
+    background-color: ${ThemeColors.SURFACE_CONTAINER};
     border-radius: 3px;
-    color: #000000;
+    color: ${ThemeColors.ON_SURFACE};
     font-family: GilmerRegular;
     font-size: 12px;
     height: 20px;

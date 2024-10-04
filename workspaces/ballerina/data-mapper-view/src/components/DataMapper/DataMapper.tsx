@@ -7,12 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
-    ComponentViewInfo,
-    FileListEntry
+    FileListEntry,
+    GenerateMappingsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -32,18 +32,24 @@ import { StatementEditorComponent } from "../StatementEditorComponent/StatementE
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./ConfigPanel/InputParamsPanel/types";
 import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
-import { DataMapperError, ErrorNodeKind } from "./Error/DataMapperError";
+import { ErrorNodeKind } from "./Error/RenderingError";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
-import { isArraysSupported, isDMSupported } from "./utils";
+import { isArraysSupported } from "./utils";
 import { useFileContent, useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { QueryExprMappingType } from "../Diagram/Node/QueryExpression";
+import { AutoMapError } from "./Error/AutoMapError";
+import { AUTO_MAP_IN_PROGRESS_MSG, AUTO_MAP_TIMEOUT_MS } from "../Diagram/utils/constants";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { AutoMapErrorComponent, IOErrorComponent } from "./Error/DataMapperError";
 
 const classes = {
     root: css({
@@ -92,6 +98,30 @@ const classes = {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
+    }),
+    overlayWithLoader: css({
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        zIndex: 1,
+        position: 'fixed',
+        backdropFilter: "blur(3px)",
+        backgroundColor: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
+    }),
+    autoMapInProgressMsg: css({
+        marginTop: '10px'
+    }),
+    autoMapStopButton: css({
+        "& > vscode-button": {
+            textTransform: 'none',
+            marginTop: '15px',
+            border: '1px solid var(--vscode-welcomePage-tileBorder)',
+            width: '100px',
+            justifyContent: 'center'
+        }
     })
 }
 
@@ -116,8 +146,16 @@ export interface ExpressionInfo {
 }
 
 export interface DMNode {
+    // the parent node of the selected node
     stNode: STNode;
+    // fqn for identifying the query expression view
     fieldPath: string;
+    // position of the query expression (use to identify query expressions comes under select clauses)
+    position?: NodePosition;
+    // index of the select clause of chanined query expression
+    index?: number;
+    // nature of the query expression
+    mappingType?: QueryExprMappingType;
 }
 
 enum DMState {
@@ -161,11 +199,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         applyModifications,
         onClose,
         goToFunction: updateSelectedComponent,
-        renderRecordPanel
+        renderRecordPanel,
+        isBI,
+        experimentalEnabled
     } = props;
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
-    const onSave: (fnName: string) => void = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
 
     const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
@@ -213,10 +252,14 @@ export function DataMapperC(props: DataMapperViewProps) {
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
+    const [autoMapInProgress, setAutoMapInProgress] = useState(false);
+    const [autoMapError, setAutoMapError] = useState<AutoMapError>();
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
+
+    const isOverlay = (!isFetchingDMMetaData && !isErrorDMMetaData) && (showDMOverlay || showLocalVarConfigPanel || autoMapInProgress);
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
@@ -334,6 +377,56 @@ export function DataMapperC(props: DataMapperViewProps) {
             enumDecls: enums,
         };
     }, [projectComponents, isFetchingComponents]);
+
+    const autoMapWithAI = async () => {
+        const ai = rpcClient.getAiPanelRpcClient();
+        setAutoMapInProgress(true);
+        try {
+            const newFnPositionPromise = ai.generateMappings({position: fnST.position, filePath});
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Reached timeout.'));
+                }, AUTO_MAP_TIMEOUT_MS);
+            });
+            const resolvedPromise = await Promise.race([newFnPositionPromise, timeoutPromise]);
+            setAutoMapInProgress(false);
+
+            if (!(resolvedPromise instanceof Error)) {
+                const autogen = (resolvedPromise as GenerateMappingsResponse);
+                if (autogen.error) {
+                    if (autogen.error.code === 1) {
+                        // As unauthorized is handled by the extension
+                        await ai.promptLogin();
+                        return;
+                    }
+                    setAutoMapError({ code: autogen.error.code, onClose: closeAutoMapError, message: autogen.error.message});
+                    return;
+                }
+                const newFnPosition = autogen.newFnPosition;
+                const _ = await newFnPosition && ai.notifyAIMappings({newFnPosition, prevFnSource: fnST.source, filePath});
+            }
+        } catch (error) {
+            setAutoMapInProgress(false);
+
+            if (error.message === 'Reached timeout.') {
+                setAutoMapError({ code: 500, onClose: closeAutoMapError });
+            } else {
+                // tslint:disable-next-line:no-console
+                console.error("Error in automapping. ", error);
+            }
+        }
+    };
+
+    const stopAutoMap = async (): Promise<boolean> => {
+        const ai = rpcClient.getAiPanelRpcClient();
+        setAutoMapInProgress(false);
+        await ai.stopAIMappings();
+        return true;
+    }
+
+    const closeAutoMapError = () => {
+        setAutoMapError(undefined);
+    };
 
     useEffect(() => {
         if (fnST) {
@@ -524,16 +617,37 @@ export function DataMapperC(props: DataMapperViewProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {(!isFetchingDMMetaData && !isErrorDMMetaData) && (!!showDMOverlay || showLocalVarConfigPanel) &&
-                            <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                        {isOverlay &&
+                            <>
+                                <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                            </>
                         }
+                        {autoMapInProgress && (
+                            <div className={classes.overlayWithLoader}>
+                                <VSCodeProgressRing />
+                                <div className={classes.autoMapInProgressMsg}>
+                                    { AUTO_MAP_IN_PROGRESS_MSG }
+                                </div>
+                                <Button
+                                    onClick={stopAutoMap}
+                                    appearance="secondary"
+                                    className={classes.autoMapStopButton}
+                                >
+                                    <Codicon sx={{ marginRight: 5 }} name="stop-circle" />
+                                    {"Stop"}
+                                </Button>
+                        </div>
+                        )}
                         {fnST && (
                             <DataMapperHeader
                                 selection={selection}
                                 hasEditDisabled={!dMSupported || !!errorKind}
+                                experimentalEnabled={experimentalEnabled}
+                                isBI={isBI}
                                 changeSelection={handleSelectedST}
                                 onConfigOpen={onConfigOpen}
                                 onClose={onClose}
+                                autoMapWithAI={autoMapWithAI}
                             />
                         )}
                         {(!isFetchingDMMetaData && !isErrorDMMetaData) && !dMSupported && (
@@ -544,17 +658,8 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 </div>
                             </>
                         )}
-                        {errorKind && (
-                            <>
-                                <div className={classes.overlay} />
-                                <div className={classes.errorMessage}>
-                                    <WarningBanner
-                                        message={<DataMapperError errorNodeKind={errorKind} />}
-                                        className={classes.errorBanner}
-                                    />
-                                </div>
-                            </>
-                        )}
+                        {errorKind && <IOErrorComponent errorKind={errorKind} classes={classes} />}
+                        {autoMapError && <AutoMapErrorComponent autoMapError={autoMapError} classes={classes} />}
                         {dmNodes.length > 0 && (
                             <DataMapperDiagram
                                 nodes={dmNodes}

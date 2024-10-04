@@ -17,6 +17,6 @@ export const FormContainer = styled.div<FormContainerProps>`
     display: flex;
     flex-direction: column;
     margin: auto; /* Center vertically and horizontally */
-    max-width: ${(props: FormContainerProps) => `${props.width}px}`};
+    min-width: 600px;
     ${(props: FormContainerProps) => props.sx};
 `;

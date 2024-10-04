@@ -7,15 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getDiagramDataFromOrg, animateOrgDiagram } from "../utils";
-import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
+import { DiagramControls, OverlayLayerModel, CellDiagramContext, ConnectionModel } from "../components";
 import { CONNECTION_NODE, Colors, PROJECT_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Organization } from "../types";
+import { CustomTooltips, DiagramLayer, MoreVertMenuItem, Organization } from "../types";
 import { DagreEngine } from "../resources/Dagre/DagreEngine";
 
 export { DiagramLayer } from "../types";
@@ -38,7 +38,6 @@ export function OrgDiagram(props: OrgDiagramProps) {
         showControls = true,
         animation = true,
         defaultDiagramLayer = DiagramLayer.ARCHITECTURE,
-        customTooltips,
         onComponentDoubleClick,
     } = props;
 
@@ -46,12 +45,8 @@ export function OrgDiagram(props: OrgDiagramProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
-    const [userMessage, setUserMessage] = useState<string>("");
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isDiagramLoaded, setIsDiagramLoaded] = useState(false);
-
-    const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
-    const observationSummary = useRef<ObservationSummary>(null);
 
     const styles = useStyles();
 
@@ -59,14 +54,6 @@ export function OrgDiagram(props: OrgDiagramProps) {
         if (diagramEngine) {
             drawDiagram();
         }
-    }, [props]);
-
-    useEffect(() => {
-        if (diagramEngine && animation && isDiagramLoaded) {
-            animateOrgDiagram();
-            diagramEngine.repaintCanvas();
-        }
-
         return () => {
             diagramEngine
                 .getModel()
@@ -75,6 +62,13 @@ export function OrgDiagram(props: OrgDiagramProps) {
                     node.clearListeners();
                 });
         };
+    }, [props]);
+
+    useEffect(() => {
+        if (diagramEngine && animation && isDiagramLoaded) {
+            animateOrgDiagram();
+            diagramEngine.repaintCanvas();
+        }
     }, [isDiagramLoaded, diagramEngine]);
 
     useEffect(() => {
@@ -127,8 +121,8 @@ export function OrgDiagram(props: OrgDiagramProps) {
                 graph: {
                     rankdir: "LR",
                     ranksep: 110,
-                    edgesep: 22,
-                    nodesep: 10,
+                    edgesep: 44,
+                    nodesep: 20,
                     // acyclicer: 'greedy',
                     ranker: "network-simplex",
                 },
@@ -151,7 +145,7 @@ export function OrgDiagram(props: OrgDiagramProps) {
             const nodes = model.getNodes();
             nodes.forEach((node) => {
                 if (node.getType() === PROJECT_NODE) {
-                    const y = node.getY() + 120.
+                    const y = node.getY() + 120;
                     if (y > maxY) {
                         maxY = y;
                     }
@@ -161,7 +155,6 @@ export function OrgDiagram(props: OrgDiagramProps) {
             // update connection nodes position to the bottom of the diagram
             models.forEach((node) => {
                 if (node.getType() === CONNECTION_NODE) {
-                    const conNode = node as ConnectionModel;
                     (node as ConnectionModel).setPosition(0, maxY + 40);
                 }
             });
@@ -209,15 +202,12 @@ export function OrgDiagram(props: OrgDiagramProps) {
                 <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine}
+                            <CanvasWidget
+                                engine={diagramEngine}
                                 className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
                         </>
-                    ) : userMessage ? (
-                        <PromptScreen userMessage={userMessage} />
                     ) : (
                         <CircularProgress sx={{ color: Colors.PRIMARY }} />
                     )}

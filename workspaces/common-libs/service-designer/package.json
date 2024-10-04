@@ -11,6 +11,7 @@
   "typings": "lib/index",
   "scripts": {
     "prebuild": "pnpm run lint",
+    "watch": "tsc --pretty --watch",
     "copy-font": "copyfiles -u 1 node_modules/@wso2-enterprise/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
     "build": "tsc --pretty && npm run copy-font",
     "storybook": "sb dev --port 6008",

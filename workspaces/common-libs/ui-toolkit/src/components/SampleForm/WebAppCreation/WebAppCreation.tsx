@@ -14,8 +14,6 @@ import { Button, FormContainer, TextField } from '../../..';
 import { Header } from '../Header/Header';
 import { VerticleIcons } from '../VerticleIcons/VerticleIcons';
 
-const FORM_WIDTH = 600;
-
 export interface WebAppCreationProps {
     id?: string;
     className?: string;
@@ -49,12 +47,12 @@ export const WebAppCreation = (props: WebAppCreationProps) => {
     };
 
     return (
-        <FormContainer id={id} className={className} width={FORM_WIDTH} sx={sx}>
+        <FormContainer id={id} className={className} sx={sx}>
             <Header/>
             <Typography variant="h1">New Web App</Typography>
             <Typography variant="h4" sx={{ marginTop: 0 }}>Build a web app using simple HTML/JS/CSS or the framework of your choice</Typography>
             <BottomMarginTextWrapper>Choose a tramework</BottomMarginTextWrapper>
-            <VerticleIcons sx={{width: `${FORM_WIDTH}px`}} />
+            <VerticleIcons sx={{width: `100%`}} />
             <TopMarginTextWrapper>Language</TopMarginTextWrapper>
             <VSCodeRadioGroup value="typescript">
                 <VSCodeRadio value="javascript" onClick={handleRadioButtonChange}>Javascript</VSCodeRadio>

@@ -27,6 +27,7 @@ import { TypeDescriptorStore } from "../../utils/type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_JOIN_NODE_TYPE = "datamapper-node-record-type-desc-join";
+const NODE_ID = "query-expr-join-node";
 
 export class JoinClauseNode extends DataMapperNodeModel {
 
@@ -41,6 +42,7 @@ export class JoinClauseNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: JoinClause) {
         super(
+            `${NODE_ID}-${value.typedBindingPattern.bindingPattern.source.trim()}`,
             context,
             QUERY_EXPR_JOIN_NODE_TYPE
         );

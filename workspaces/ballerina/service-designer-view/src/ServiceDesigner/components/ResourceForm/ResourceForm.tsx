@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,8 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
-import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect, useState } from 'react';
+import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
@@ -19,6 +20,9 @@ import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { debounce } from "lodash";
+import { useServiceDesignerContext } from '../../Context';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -32,14 +36,13 @@ export interface ResourceFormProps {
 	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
-	serviceEndPosition?: NodePosition;
 	commonRpcClient?: CommonRPCAPI;
 	onClose: () => void;
 	applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, serviceEndPosition, commonRpcClient, applyModifications } = props;
+	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, commonRpcClient, applyModifications } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.methods[0].toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -47,8 +50,25 @@ export function ResourceForm(props: ResourceFormProps) {
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(resourceConfig?.advancedParams || new Map<string, ParameterConfig>());
 	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams?.size > 0);
-	const [payload, setPayload] = useState<ParameterConfig>(resourceConfig?.payloadConfig);
+	const [payload, setPayload] = useState<ParameterConfig | undefined>(resourceConfig?.payloadConfig);
 	const [response, setResponse] = useState<ResponseConfig[]>(resourceConfig?.responses || []);
+
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+
+	const { setDiagnostics, setDPosition, serviceEndPosition } = useServiceDesignerContext();
+
+	const { rpcClient } = useRpcContext();
+
+	useEffect(() => {
+		setDPosition(resourceConfig?.updatePosition || serviceEndPosition); // Setting the position of the resource into the context so that we can use it in filtering diagnostic msgs.
+	}, []);
+
+	useEffect(() => {
+		debouncedHandleDiagnostics();
+		return () => {
+			debouncedHandleDiagnostics.cancel();
+		};
+	}, [method, path, parameters, advancedParams, payload, response]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
@@ -75,7 +95,32 @@ export function ResourceForm(props: ResourceFormProps) {
 		setPath(path);
 	}
 
-	const handleSave = () => {
+	const handleDiagnostics = async () => {
+		setIsLoading(true);
+		const source = generateSource();
+		let position = { ...serviceEndPosition };
+		position.endColumn = 0;
+		if (resourceConfig?.updatePosition) {
+			position = resourceConfig?.updatePosition
+		}
+		const diag = await rpcClient.getCommonRpcClient().getBallerinaDiagnostics(
+			{
+				ballerinaSource: source,
+				targetPosition: position,
+				skipSemiColon: true,
+				checkSeverity: 1
+			});
+		if (diag?.diagnostics.length > 0) {
+			setDiagnostics(diag.diagnostics);
+		} else {
+			setDiagnostics([]);
+		}
+		setIsLoading(false);
+	}
+	const debouncedHandleDiagnostics = debounce(handleDiagnostics, 500);
+
+	const generateSource = () => {
+		// Generate the ballerina resource source
 		let paramString = "";
 
 		let advancedParamIndex = 0;
@@ -104,14 +149,15 @@ export function ResourceForm(props: ResourceFormProps) {
 			}
 		});
 
-		// Check if "error" is already present in responseString
-		if (responseString !== "" && !responseString.includes("error")) {
-			responseString += " | error?";
-		} else if (responseString === "") {
-			responseString = "error?";
+		if (!resourceConfig?.updatePosition) {
+			return generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
+		} else {
+			return updateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 		}
+	}
 
-		let genSource = "";
+	const handleSave = () => {
+		const genSource = generateSource();
 		const config = {
 			methods: [method],
 			path: path,
@@ -123,11 +169,9 @@ export function ResourceForm(props: ResourceFormProps) {
 		// Insert scenario
 		if (!resourceConfig?.updatePosition) {
 			// Insert scenario
-			genSource = generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 			onSave && onSave(genSource, config);
 		} else {
 			// Edit scenario
-			genSource = updateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 			onSave && onSave(genSource, config, resourceConfig?.updatePosition);
 		}
 		onClose();
@@ -140,6 +184,7 @@ export function ResourceForm(props: ResourceFormProps) {
 				alignment="right"
 				sx={{ width: 600 }}
 			>
+				{isLoading && <ProgressIndicator id="resource-loading-bar" />}
 				<SidePanelTitleContainer>
 					<Typography sx={{ margin: 0 }} variant="h3">Configure Resource</Typography>
 					<Button onClick={onClose} appearance="icon">X</Button>
@@ -152,17 +197,17 @@ export function ResourceForm(props: ResourceFormProps) {
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange} />
-					{method !== HTTP_METHOD.GET && <Payload parameter={payload} onChange={handlePayloadChange} />}
+					{method !== HTTP_METHOD.GET && <Payload parameter={payload!} onChange={handlePayloadChange} />}
 					<AdvancedParamTitleWrapper>
 						<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
 						<LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
 					</AdvancedParamTitleWrapper>
 					{showAdvanced && <AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange} />}
-					
+
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}

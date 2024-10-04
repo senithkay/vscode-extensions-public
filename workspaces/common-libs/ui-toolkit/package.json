@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ui-toolkit",
-  "version": "2.0.23120609",
+  "version": "2.0.24050215",
   "description": "Common ui-toolkit for other components",
   "homepage": "http://wso2-enterprise.github.io/vscode-extensions.git",
   "files": [

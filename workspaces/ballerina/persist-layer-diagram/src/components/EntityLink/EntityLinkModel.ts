@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CMCardinality as Cardinality } from '@wso2-enterprise/ballerina-languageclient';
+import { CMCardinality as Cardinality } from '@wso2-enterprise/ballerina-core';
 import { SharedLinkModel } from '../shared-link/shared-link';
 
 interface LinkOrigins {

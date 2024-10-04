@@ -10,6 +10,7 @@
 import React from 'react';
 import { Codicon, Dropdown, LinkButton, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
+import { useServiceDesignerContext } from '../../Context';
 
 const verbs = [
 	{
@@ -58,6 +59,7 @@ export interface ResourcePathProps {
 
 export function ResourcePath(props: ResourcePathProps) {
 	const { method, path, onChange } = props;
+	const { diagnostics, dPosition } = useServiceDesignerContext();
 
 	const handlePathChange = (input: string) => {
 		onChange && onChange(method, input);
@@ -94,12 +96,13 @@ export function ResourcePath(props: ResourcePathProps) {
 				<TextField
 					sx={{ marginLeft: 15, flexGrow: 1 }}
 					autoFocus
-					errorMsg=""
+					errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(path))?.message}
 					label="Resource Path"
 					size={70}
 					onTextChange={handlePathChange}
 					placeholder="path/foo"
 					value={path}
+					onFocus={(e) => e.target.select()}
 				/>
 			</PathContainer>
 			<AddButtonWrapper>

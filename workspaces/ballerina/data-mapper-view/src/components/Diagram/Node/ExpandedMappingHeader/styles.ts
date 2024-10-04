@@ -24,8 +24,8 @@ export const useStyles = () => ({
     clauseItemBody: css({
         display: "flex",
         alignItems: "center",
-        background: "var(--vscode-sideBar-background)",
-        marginLeft: "25px",
+        background: "var(--vscode-editorWidget-background)",
+        marginLeft: "25px"
     }),
     lineWrap: css({
         width: "80px",
@@ -57,7 +57,7 @@ export const useStyles = () => ({
         border: "1px solid var(--vscode-pickergroup-border)"
     }),
     clauseWrap: css({
-        background: "var(--vscode-sideBar-background)",
+        background: "var(--vscode-editorWidget-background)",
         height: "40px",
         display: "flex",
         alignItems: "center",
@@ -90,16 +90,17 @@ export const useStyles = () => ({
         }
     }),
     clauseExpression: css({
-        background: "var(--vscode-editorHoverWidget-background)",
         cursor: "pointer",
         padding: "5px",
         marginLeft: "5px",
         marginRight: "5px",
         transition: "border 0.2s",
-        border: "1px solid transparent",
         width: "max-content",
+        border: "1px solid var(--vscode-pickerGroup-border)",
         '&:hover': {
-            border: "1px solid var(--vscode-pickerGroup-border)"
+            border: "1px solid var(--vscode-welcomePage-tileBorder)",
+            background: "var(--vscode-input-background)",
+            color: "var(--vscode-input-foreground)"
         }
     }),
     clauseDiagnostics: css({

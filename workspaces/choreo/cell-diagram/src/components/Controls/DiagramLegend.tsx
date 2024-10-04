@@ -80,7 +80,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
             {(hasObservabilityLayer || hasDiffLayer) && (
                 <LegendRow>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width={50} height={10}>
-                        <g stroke-width="10" stroke="hsl(0, 0%, 30%)" fill="none">
+                        <g strokeWidth="10" stroke="hsl(0, 0%, 30%)" fill="none">
                             <line
                                 x1="0"
                                 y1="25"
@@ -113,7 +113,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
             {hasArchitectureLayer && !hasDiffLayer && (
                 <LegendRow>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width={50} height={10}>
-                        <g stroke-width="10" stroke="hsl(0, 0%, 30%)" fill="none">
+                        <g strokeWidth="10" stroke="hsl(0, 0%, 30%)" fill="none">
                             <line
                                 x1="0"
                                 y1="25"
@@ -144,7 +144,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
             {hasDiffLayer && (
                 <LegendRow>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width={50} height={10}>
-                        <g stroke-width={10} stroke="hsl(0, 0%, 30%)" fill="none">
+                        <g strokeWidth={10} stroke="hsl(0, 0%, 30%)" fill="none">
                             <line x1={0} y1={25} x2={200} y2={25} markerEnd={hasObservabilityLayer ? "" : "url(#redLinkArrow)"} stroke={Colors.ERROR}></line>
                         </g>
                         <defs>
@@ -168,7 +168,7 @@ export function DiagramLegend(props: DiagramLegendProps) {
             {hasDiffLayer && (
                 <LegendRow>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width={50} height={10}>
-                        <g stroke-width="10" stroke="hsl(0, 0%, 30%)" fill="none">
+                        <g strokeWidth="10" stroke="hsl(0, 0%, 30%)" fill="none">
                             <line
                                 x1="0"
                                 y1="25"

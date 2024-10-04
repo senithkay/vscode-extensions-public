@@ -12,11 +12,9 @@ import styled from '@emotion/styled';
 import { Codicon } from '../../Codicon/Codicon';
 import { Icon } from '../../Icon/Icon';
 
-const FORM_WIDTH = 600;
-
 const ComponentIconWrapper = styled.div`
     display: flex;
-    width: ${FORM_WIDTH / 10}px;
+    width: 10%;
     height: 60px;
     flex-direction: column;
     align-items: center;
@@ -25,7 +23,7 @@ const ComponentIconWrapper = styled.div`
 
 const PlusIconWrapper = styled.div`
     display: flex;
-    width: ${FORM_WIDTH / 10}px;
+    width: 10%;
     height: 60px;
     flex-direction: column;
     align-items: center;
@@ -47,12 +45,13 @@ export interface HorizontalIconProps {
 
 const CardContent = styled.div`
     display: flex;
+    flex-grow: 1;
 `;
 
 const TextContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: ${(FORM_WIDTH / 10) * 8}px;
+    width: 80%;
     padding-top: 10px;
     padding-left: 4px;
 `;
@@ -86,7 +85,7 @@ export const HorizontalIcons = (props: HorizontalIconProps) => {
     const { id, className, title, leftIconName, isLeftIconCodicon = false, rightIconName, isRightIconCodicon = false,  description, sx, onClick } = props;
     return (
         <Container id={id} className={className} sx={sx} onClick={onClick}>
-            <ComponentCard sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, padding: "10px 0" }}>
+            <ComponentCard sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", width: "unset", minWidth: 600, padding: "10px 0" }}>
                 <CardContent>
                     <ComponentIconWrapper>
                         {isLeftIconCodicon ?

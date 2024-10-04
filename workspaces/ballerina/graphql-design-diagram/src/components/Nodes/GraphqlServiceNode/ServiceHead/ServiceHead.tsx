@@ -50,7 +50,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <ServiceHeaderMenu location={node.serviceObject.position} nodeName={displayName} />
+                {/* <ServiceHeaderMenu location={node.serviceObject.position} nodeName={displayName} /> */}
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}

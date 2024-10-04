@@ -136,7 +136,8 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
         let paths = [];
         this.refPaths = [];
 
-        if (points.length === 2) {
+        // draw curve line if the link is not a reverse link
+        if (points.length === 2 || this.props.link.getFirstPoint().getX() < this.props.link.getLastPoint().getX()) {
             paths.push(
                 this.generateLink(
                     this.props.link.getSVGPath(),
@@ -145,7 +146,8 @@ export class AdvancedLinkWidget extends React.Component<AdvancedLinkProps, Advan
                             this.props.selected?.(event);
                         },
                     },
-                    "0"
+                    "0",
+                    true
                 )
             );
 

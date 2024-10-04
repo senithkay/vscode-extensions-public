@@ -9,8 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo, useState } from "react";
 
-import { ClickAwayListener } from "@material-ui/core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
 import debounce from "lodash.debounce";
 
 import { CALL_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, FUNCTION_CALL, PARAM_CONSTRUCTOR } from "../../constants";
@@ -147,7 +147,7 @@ export function InputEditor(props: InputEditorProps) {
     };
 
     const clickAwayHandler = (event: any) => {
-        const path = event.path || (event.composedPath && event.composedPath());
+        const path = event?.path || (event?.composedPath && event?.composedPath());
         if (path && !path[0].className.includes("suggestion")){
             handleEditEnd();
         }
@@ -212,7 +212,7 @@ export function InputEditor(props: InputEditorProps) {
 
     return isEditing ?
         (
-            <ClickAwayListener  mouseEvent="onMouseDown" onClickAway={clickAwayHandler}>
+            <ClickAwayListener onClickAway={clickAwayHandler}>
                 <input
                     data-testid="input-editor"
                     value={INPUT_EDITOR_PLACEHOLDERS.has(userInput) || userInput.substring(0, 10) === PARAM_CONSTRUCTOR ? "" : userInput}

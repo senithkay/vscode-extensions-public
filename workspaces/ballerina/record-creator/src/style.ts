@@ -13,7 +13,6 @@ import { ComponentPropsWithoutRef } from "react";
 export const FormContainer: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 600px;
 `;
 
@@ -39,6 +38,7 @@ export const FormControlLabel: React.FC<ComponentPropsWithoutRef<"div">> = style
 
 export const InputWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     display: flex;
+    flex-direction: column;
     width: 100%;
 `;
 
@@ -49,19 +49,23 @@ export const InputContainer: React.FC<ComponentPropsWithoutRef<"div">> = styled.
 `
 
 export const InputLabel: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
-    color: #1d2028;
+    display: flex;
+    flex-direction: row;
+    color: var(--vscode-editor-foreground);
     font-size: 15;
     text-transform: capitalize;
     line-height: 35px;
     font-weight: 400;
     margin: 0;
+    padding-left: 20px;
 `;
 
 export const InputLabelDetail: React.FC<ComponentPropsWithoutRef<"p">> = styled.p`
-    color: #4a4d55;
+    color: var(--vscode-input-foreground);
     font-size: 13;
     text-transform: capitalize;
     font-weight: 300;
+    padding-left: 20px;
 `;
 
 export const LabelWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
@@ -74,6 +78,13 @@ export const RecordFormWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styl
     display: flex;
     flex-direction: row;
     padding: 15px 20px;
+`;
+
+export const RecordList: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
+    width: 100%;
+    max-height: 540px;
+    display: flex;
+    flex-direction: column;
 `;
 
 export const FileSelect: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
@@ -100,7 +111,7 @@ export const useStyles = () => ({
     }),
     optionalLabel: css({
         paddingRight: "5px",
-        color: "#CBCEDB",
+        color: "var(--vscode-editorWidget-border)",
         fontSize: "12px",
         textTransform: "capitalize",
         display: "inline-block",
@@ -111,7 +122,7 @@ export const useStyles = () => ({
     }),
     starLabelForRequired: css({
         padding: 0,
-        color: "#DC143C",
+        color: "var(--vscode-errorForeground)",
         fontSize: "13px",
         textTransform: "capitalize",
         display: "inline-block",
@@ -119,7 +130,7 @@ export const useStyles = () => ({
     readOnlyEditor: css({
         width: 130,
         padding: 0,
-        color: "#000209",
+        color: "var(--vscode-editor-foreground)",
         fontSize: 13,
         textTransform: "capitalize",
         display: "inline-block",
@@ -127,16 +138,17 @@ export const useStyles = () => ({
         fontWeight: 300,
     }),
     inputSuccessTick: css({
-        color: "#08d608",
+        color: "var(--vscode-debugIcon-restartForeground)",
         marginBottom: -5,
     }),
     recordOptions: css({
-        padding: 10,
+        paddingTop: 15,
+        paddingLeft: 5,
         display: "inline-flex",
         alignItems: "center",
         "& a": {
             cursor: "pointer",
-            color: "#5567D5",
+            color: "var(--vscode-gitDecoration-conflictingResourceForeground)",
         },
         "& a:hover": {
             textDecoration: "none",
@@ -145,7 +157,7 @@ export const useStyles = () => ({
     deleteRecord: css({
         display: "flex",
         alignItems: "center",
-        color: "#FE523C",
+        color: "var(--vscode-debugTokenExpression-error)",
         cursor: "pointer",
         "& svg": {
             marginRight: 8,
@@ -165,14 +177,14 @@ export const useStyles = () => ({
         marginTop: 16,
     }),
     headerWrapper: css({
-        background: "white",
+        background: "var(--vscode-editor-background)",
         padding: 10,
         borderRadius: 5,
         cursor: "pointer",
-        border: "1px solid #dee0e7",
+        border: "1px solid var(--vscode-editorRuler-foreground)",	
         marginTop: 15,
         marginLeft: 20,
-        marginRight: 10,
+        marginRight: 20,
         justifyContent: "space-between",
         display: "flex",
         flexDirection: "row",

@@ -8,11 +8,10 @@
  */
 import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 
 import { OverlayLayerModel } from './OverlayLayerModel';
-import { Colors } from '../../resources';
 
 export interface NodeLayerWidgetProps {
 	layer: OverlayLayerModel;
@@ -33,7 +32,7 @@ export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
 	render() {
 		return (
 			<Container>
-				<ProgressRing sx={{ color: Colors.PRIMARY }} />
+				<ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
 			</Container>
 		);
 	}
