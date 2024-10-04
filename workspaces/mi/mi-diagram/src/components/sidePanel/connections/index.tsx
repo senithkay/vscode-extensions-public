@@ -426,6 +426,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                         marginBottom: '15px'
                                                     }}>
                                                         <ComponentCard
+                                                            id={connection.name}
                                                             key={connection.name}
                                                             onClick={() => selectConnection(key, connection)}
                                                             sx={{
@@ -490,6 +491,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
                                                                             return (
                                                                                 <ComponentCard
+                                                                                    id={operation.name}
                                                                                     key={operation.name}
                                                                                     onClick={() => generateForm(
                                                                                         connection,
