@@ -26,7 +26,7 @@ import {
     NodeKind,
     BIGetFunctionsRequest,
     TRIGGER_CHARACTERS,
-    TriggerCharacter
+    TriggerCharacter,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
@@ -97,7 +97,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
-            if(location.metadata?.flowNodeStyle){
+            if (location.metadata?.flowNodeStyle) {
                 setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
             }
         });
@@ -130,7 +130,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setFilteredCompletions([]);
         isChainedExpression.current = false;
         triggerCompletionOnNextRequest.current = false;
-    }
+    };
 
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
@@ -203,7 +203,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 clearTimeout(suggestionFetchingTimeout);
                 setFetchingAiSuggestions(false);
             });
-    }
+    };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
         // clear previous click if had
@@ -225,43 +225,49 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         const request: BIGetFunctionsRequest = {
             position: {
                 startLine: targetRef.current.startLine,
-                endLine: targetRef.current.endLine
+                endLine: targetRef.current.endLine,
             },
             filePath: model.fileName,
-            queryMap: searchText.trim() ?
-                {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0
-                } :
-                undefined
+            queryMap: searchText.trim()
+                ? {
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                  }
+                : undefined,
         };
         console.log(">>> Search function request", request);
-        rpcClient.getBIDiagramRpcClient().getFunctions(request).then((response) => {
-            console.log(">>> Searched List of functions", response);
-            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-            setSidePanelView(SidePanelView.FUNCTION_LIST);
-            setShowSidePanel(true);
-        });
-    }
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getFunctions(request)
+            .then((response) => {
+                console.log(">>> Searched List of functions", response);
+                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setSidePanelView(SidePanelView.FUNCTION_LIST);
+                setShowSidePanel(true);
+            });
+    };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         // node is function
         const nodeType: NodeKind = node.codedata.node;
         if (nodeType === "FUNCTION") {
-            rpcClient.getBIDiagramRpcClient().getFunctions({
-                position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                filePath: model.fileName,
-                queryMap: undefined,
-            }).then((response) => {
-                console.log(">>> List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-                setSidePanelView(SidePanelView.FUNCTION_LIST);
-                setShowSidePanel(true);
-            });
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFunctions({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                })
+                .then((response) => {
+                    console.log(">>> List of functions", response);
+                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                    setSidePanelView(SidePanelView.FUNCTION_LIST);
+                    setShowSidePanel(true);
+                });
         } else {
-            // default node 
+            // default node
             console.log(">>> on select panel node", { nodeId, metadata });
             selectedClientName.current = category;
             rpcClient
@@ -479,7 +485,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const debouncedGetCompletions = debounce(
         async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
-            const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]$`);
+            const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join("")}]$`);
             if (
                 offset > 0 &&
                 endOfChainRegex.test(value[offset - 1]) &&
@@ -499,7 +505,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 // Case 2: When completions have already been retrieved and only need to be filtered
                 expressionCompletions = completions
                     .filter((completion) => {
-                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
                         const lowerCaseText = text.toLowerCase();
                         const lowerCaseLabel = completion.label.toLowerCase();
 
@@ -511,7 +517,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 if (triggerCharacter) {
                     isChainedExpression.current = true;
                 } else {
-                    const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join('')}]\\w*`);
+                    const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join("")}]\\w*`);
                     if (triggerRegex.test(value.slice(0, offset))) {
                         isChainedExpression.current = true;
                     } else {
@@ -549,7 +555,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 } else {
                     expressionCompletions = convertedCompletions
                         .filter((completion) => {
-                            const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+                            const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
                             const lowerCaseText = text.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
@@ -575,7 +581,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (triggerCharacter) {
             await debouncedGetCompletions.flush();
         }
-    }
+    };
 
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
@@ -585,7 +591,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
-    }
+    };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
@@ -636,12 +642,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 }
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <NodeList
-                        categories={categories}
-                        onSelect={handleOnSelectNode}
-                        onAddConnection={handleOnAddConnection}
-                        onClose={handleOnCloseSidePanel}
-                    />
+                    <div onClick={onDiscardSuggestions}>
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onAddConnection={handleOnAddConnection}
+                            onClose={handleOnCloseSidePanel}
+                        />
+                    </div>
                 )}
                 {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
                     <NodeList
