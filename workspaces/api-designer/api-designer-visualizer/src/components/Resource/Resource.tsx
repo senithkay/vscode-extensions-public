@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Dropdown, SidePanelBody, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation, Param, Parameter, Path } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
@@ -15,6 +15,7 @@ import { convertParamsToParameters, getHeaderParametersFromParameters, getPathPa
 import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
+import { ReadOnlyResource } from './ReadOnlyResource';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -38,7 +39,6 @@ interface OverviewProps {
     resourceOperation: Operation;
     onPathChange: (pathObject: Path) => void;
     onDelete: (path: string, method: string) => void;
-    onViewSwagger?: () => void;
 }
 
 type InputsFields = {
@@ -54,10 +54,11 @@ type InputsFields = {
 const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
 
 export function Resource(props: OverviewProps) {
-    const { resourceOperation, method, path, onPathChange, onDelete, onViewSwagger } = props;
-    const [ initailPath, setInitailPath ] = useState<string>(path);
-    const [ initialMethod, setInitialMethod ] = useState<string>(method);
-    const [ selectedOptions, setSelectedOptions ] = useState<string[]>([]);
+    const { resourceOperation, method, path, onPathChange, onDelete } = props;
+    const [initailPath, setInitailPath] = useState<string>(path);
+    const [initialMethod, setInitialMethod] = useState<string>(method);
+    const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+    const [isReadOnly, setIsReadOnly] = useState<boolean>(true);
 
     const values: InputsFields = {
         method: method.toUpperCase(),
@@ -94,7 +95,7 @@ export function Resource(props: OverviewProps) {
         }).join("/");
         const path = values.path;
         let containsInitialSlash = path.startsWith("/");
-        const initialSlashRemovedPath = 
+        const initialSlashRemovedPath =
             path.startsWith("/") ? path.substring(1) : path;
         const pathParamSanitizedPath = initialSlashRemovedPath.split("/")[0];
         let p: Parameter[] = convertParamsToParameters(params, "path");
@@ -158,7 +159,7 @@ export function Resource(props: OverviewProps) {
     }, 300);
 
     const handlePathChange = (value: string) => {
-         debouncedHandlePathChange(value);
+        debouncedHandlePathChange(value);
     };
 
     const handleMethodChange = (value: string) => {
@@ -175,19 +176,19 @@ export function Resource(props: OverviewProps) {
     };
 
     // Method to get Form values
-    const getPath = () : Path => {
+    const getPath = (): Path => {
         const { method, path, summary, description, queryParams, pathParams, headerParams } = values;
         let params: Parameter[] = [];
         if (queryParams) {
             params = convertParamsToParameters(queryParams, "query");
-        } 
+        }
         if (pathParams) {
             params = params.concat(convertParamsToParameters(pathParams, "path"));
-        } 
+        }
         if (headerParams) {
             params = params.concat(convertParamsToParameters(headerParams, "header"));
         }
-        const operation : Operation = {
+        const operation: Operation = {
             summary: summary,
             description: description,
             parameters: params
@@ -216,55 +217,63 @@ export function Resource(props: OverviewProps) {
 
     return (
         <>
-            <TitleWrapper>
-                <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} onViewSwagger={onViewSwagger} />
-            </TitleWrapper>
-            <PanelBody>
-                <HorizontalFieldWrapper>
-                    <Dropdown
-                        id="method"
-                        containerSx={{ width: "20%", gap: 0 }}
-                        dropdownContainerSx={{ gap: 0 }}
-                        items={[
-                            { value: "get", content: "GET" },
-                            { value: "post", content: "POST" },
-                            { value: "put", content: "PUT" },
-                            { value: "delete", content: "DELETE" },
-                            { value: "patch", content: "PATCH" },
-                            { value: "options", content: "OPTIONS" },
-                            { value: "head", content: "HEAD" },
-                            { value: "trace", content: "TRACE" }
-                        ]}
-                        value={values?.method.toLowerCase()}
-                        onValueChange={handleMethodChange}
-                    />
-                    <TextField
-                        id="path"
-                        sx={{ width: "80%" }}
-                        autoFocus
-                        onTextChange={handlePathChange}
-                        value={values?.path}
-                    />
-                </HorizontalFieldWrapper>
-                { selectedOptions.includes("Summary") && (
-                    <TextField
-                        id="summary"
-                        label="Summary"
-                        value={values?.summary}
-                    />
-                )}
-                <TextArea
-                    id="description"
-                    label="Description"
-                    resize="vertical"
-                    rows={4}
-                    value={values?.description}
-                />
-                <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
-                <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
-            </PanelBody>
+            {isReadOnly ? (
+                <>
+                    <ReadOnlyResource resourceOperation={resourceOperation} method={method} path={path} onEdit={() => setIsReadOnly(false)} />
+                </>
+            ) : (
+                <>
+                    <TitleWrapper>
+                        <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
+                        <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} onSwiychToReadOnly={() => setIsReadOnly(true)} />
+                    </TitleWrapper>
+                    <PanelBody>
+                        <HorizontalFieldWrapper>
+                            <Dropdown
+                                id="method"
+                                containerSx={{ width: "20%", gap: 0 }}
+                                dropdownContainerSx={{ gap: 0 }}
+                                items={[
+                                    { value: "get", content: "GET" },
+                                    { value: "post", content: "POST" },
+                                    { value: "put", content: "PUT" },
+                                    { value: "delete", content: "DELETE" },
+                                    { value: "patch", content: "PATCH" },
+                                    { value: "options", content: "OPTIONS" },
+                                    { value: "head", content: "HEAD" },
+                                    { value: "trace", content: "TRACE" }
+                                ]}
+                                value={values?.method.toLowerCase()}
+                                onValueChange={handleMethodChange}
+                            />
+                            <TextField
+                                id="path"
+                                sx={{ width: "80%" }}
+                                autoFocus
+                                onTextChange={handlePathChange}
+                                value={values?.path}
+                            />
+                        </HorizontalFieldWrapper>
+                        {selectedOptions.includes("Summary") && (
+                            <TextField
+                                id="summary"
+                                label="Summary"
+                                value={values?.summary}
+                            />
+                        )}
+                        <TextArea
+                            id="description"
+                            label="Description"
+                            resize="vertical"
+                            rows={4}
+                            value={values?.description}
+                        />
+                        <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
+                        <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
+                        <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                    </PanelBody>
+                </>
+            )}
         </>
     )
 }

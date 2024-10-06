@@ -25,11 +25,11 @@ interface OptionPopupProps {
     hideDelete?: boolean;
     onOptionChange: (options: string[]) => void;
     onDeleteResource?: () => void;
-    onViewSwagger?: () => void;
+    onSwiychToReadOnly?: () => void;
 }
 
 export function OptionPopup(props: OptionPopupProps) {
-    const { options, selectedOptions, onOptionChange, hideDelete, onViewSwagger } = props;
+    const { options, selectedOptions, onOptionChange, hideDelete, onSwiychToReadOnly } = props;
 
     const handleOnDelete = () => {
         if (props.onDeleteResource) {
@@ -37,8 +37,8 @@ export function OptionPopup(props: OptionPopupProps) {
         }
     };
 
-    const handleViewSwagger = () => {
-        onViewSwagger();
+    const handleSwitchToView = () => {
+        onSwiychToReadOnly();
     };
 
     return (
@@ -51,7 +51,7 @@ export function OptionPopup(props: OptionPopupProps) {
                     </Button>
                 </PullUpButton>
                 {!hideDelete && <Button buttonSx={{background: "var(--vscode-errorForeground)"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>}
-                <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleViewSwagger}> 
+                <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleSwitchToView}> 
                     <Codicon name="eye" />
                 </Button>
             </ButtonWrapper>

@@ -18,7 +18,6 @@ interface OpenAPIDefinitionProps {
     paths: Paths;
     selectedPathID?: string;
     onAddPath: () => void;
-    hideOverview?: boolean;
     onAddResource?: (path: string, method: string) => void;
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
@@ -105,7 +104,7 @@ const APIResources = [
 ];
 
 export function PathsComponent(props: OpenAPIDefinitionProps) {
-    const { paths, hideOverview, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange, onPathRename } = props;
+    const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange, onPathRename } = props;
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
     const [, setSelPathID] = useState<string | undefined>(selectedPathID);
@@ -173,12 +172,10 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
 
     return (
         <PathsContainer ref={pathContinerRef}>
-            {!hideOverview && (
-                <OverviewTitle onClick={handleOverviewClick}>
-                    <Codicon name="globe" />
-                    <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
-                </OverviewTitle>
-            )}
+            <OverviewTitle onClick={handleOverviewClick}>
+                <Codicon name="globe" />
+                <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
+            </OverviewTitle>
             <TreeView 
                 rootTreeView
                 id="Paths"

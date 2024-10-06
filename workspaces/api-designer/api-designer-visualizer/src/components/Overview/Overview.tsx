@@ -11,6 +11,8 @@ import styled from "@emotion/styled";
 import * as yup from "yup";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
+import { useState } from 'react';
+import { ReadOnlyOverview } from './ReadOnlyOverview';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -30,7 +32,6 @@ export const PanelBody = styled.div`
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
     onOpenApiDefinitionChange: (openAPIDefinition: OpenAPI) => void;
-    onViewSwagger?: () => void;
 }
 
 const moreOptions = ["Summary", "Description", "Contact", "License"];
@@ -65,7 +66,8 @@ type InputsFields = {
 
 // Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
-    const { openAPIDefinition, onViewSwagger } = props;
+    const { openAPIDefinition } = props;
+    const [isReadOnly, setIsReadOnly] = useState(true);
     let selectedOptions: string[] = [];
     if (openAPIDefinition?.info?.summary) {
         selectedOptions.push("Summary");
@@ -172,160 +174,172 @@ export function Overview(props: OverviewProps) {
         openAPIDefinition.info.version = version;
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
+    const hadleSwitchToReadOnly = () => {
+        setIsReadOnly(true);
+    };
 
     return (
         <>
-            <SidePanelTitleContainer>
-                <Typography sx={{ margin: 0 }} variant="h1">Overview</Typography>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onViewSwagger={onViewSwagger} onOptionChange={handleOptionChange} hideDelete />
-            </SidePanelTitleContainer>
-            <PanelBody>
-                <HorizontalFieldWrapper>
-                    <TextField
-                        label="Title"
-                        id="title"
-                        sx={{ width: "50%" }}
-                        autoFocus
-                        value={openAPIDefinition?.info?.title}
-                        onTextChange={handleTitleChange}
-                    />
-                    <TextField
-                        label="API Version"
-                        id="API Version"
-                        sx={{ width: "50%" }}
-                        value={openAPIDefinition?.info?.version}
-                        onTextChange={handleApiVersionChange}
-                    />
-                </HorizontalFieldWrapper>
-                { selectedOptions.includes("Summary") && (
-                    <TextField
-                        label="Summary"
-                        id="summary"
-                        sx={{ width: "100%" }}
-                        value={openAPIDefinition?.info?.summary}
-                        onTextChange={handleSummaryChange}
-                    />
-                )}
-                { selectedOptions.includes("Description") && (
-                    <TextArea
-                        label="Description"
-                        id="description"
-                        rows={4}
-                        value={openAPIDefinition?.info?.description}
-                        onTextChange={handleDescriptionChange}
-                    />
-                )}
-                {openAPIDefinition?.info?.contact && (
-                    <FormGroup title="Contact" isCollapsed={false}>
+            {isReadOnly ? (
+                <>
+                    <ReadOnlyOverview openAPIDefinition={openAPIDefinition} onSwitchToEdit={() => setIsReadOnly(false)} />
+                </>
+            ) : (
+                <>
+                    <SidePanelTitleContainer>
+                        <Typography sx={{ margin: 0 }} variant="h1">Overview</Typography>
+                        <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onSwiychToReadOnly={hadleSwitchToReadOnly} onOptionChange={handleOptionChange} hideDelete />
+                    </SidePanelTitleContainer>
+                    <PanelBody>
                         <HorizontalFieldWrapper>
                             <TextField
-                                placeholder="Name"
-                                id="contactName"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.contact.name}
-                                onTextChange={handleContactNameChange}
+                                label="Title"
+                                id="title"
+                                sx={{ width: "50%" }}
+                                autoFocus
+                                value={openAPIDefinition?.info?.title}
+                                onTextChange={handleTitleChange}
                             />
                             <TextField
-                                placeholder='URL'
-                                id="contactURL"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.contact.url}
-                                onTextChange={handleContactURLChange}
-                            />
-                            <TextField
-                                placeholder='Email'
-                                id="contactEmail"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.contact.email}
-                                onTextChange={handleContactEmailChange}
+                                label="API Version"
+                                id="API Version"
+                                sx={{ width: "50%" }}
+                                value={openAPIDefinition?.info?.version}
+                                onTextChange={handleApiVersionChange}
                             />
                         </HorizontalFieldWrapper>
-                    </FormGroup>
-                )}
+                        {selectedOptions.includes("Summary") && (
+                            <TextField
+                                label="Summary"
+                                id="summary"
+                                sx={{ width: "100%" }}
+                                value={openAPIDefinition?.info?.summary}
+                                onTextChange={handleSummaryChange}
+                            />
+                        )}
+                        {selectedOptions.includes("Description") && (
+                            <TextArea
+                                label="Description"
+                                id="description"
+                                rows={4}
+                                value={openAPIDefinition?.info?.description}
+                                onTextChange={handleDescriptionChange}
+                            />
+                        )}
+                        {openAPIDefinition?.info?.contact && (
+                            <FormGroup title="Contact" isCollapsed={false}>
+                                <HorizontalFieldWrapper>
+                                    <TextField
+                                        placeholder="Name"
+                                        id="contactName"
+                                        sx={{ width: "33%" }}
+                                        value={openAPIDefinition?.info?.contact.name}
+                                        onTextChange={handleContactNameChange}
+                                    />
+                                    <TextField
+                                        placeholder='URL'
+                                        id="contactURL"
+                                        sx={{ width: "33%" }}
+                                        value={openAPIDefinition?.info?.contact.url}
+                                        onTextChange={handleContactURLChange}
+                                    />
+                                    <TextField
+                                        placeholder='Email'
+                                        id="contactEmail"
+                                        sx={{ width: "33%" }}
+                                        value={openAPIDefinition?.info?.contact.email}
+                                        onTextChange={handleContactEmailChange}
+                                    />
+                                </HorizontalFieldWrapper>
+                            </FormGroup>
+                        )}
 
-                {openAPIDefinition?.info?.license && (
-                    <FormGroup title="License" isCollapsed={false}>
-                        <HorizontalFieldWrapper>
-                            <TextField
-                                placeholder="Name"
-                                id="licenceName"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.license.name}
-                                onTextChange={handleLicenceNameChange}
-                            />
-                            <Dropdown
-                                id="licenceType"
-                                containerSx={{ width: "33%", gap: 0 }}
-                                dropdownContainerSx={{ gap: 0 }}
-                                items={[
-                                    { value: "URL", content: "URL" },
-                                    { value: "Identifier", content: "Identifier" }
-                                ]}
-                                value={openAPIDefinition?.info?.license.url ? "URL" : "Identifier"}
-                                onValueChange={handleLicenceTypeChange}
-                            />
-                            {openAPIDefinition?.info.license.url ? (
-                                <TextField
-                                    placeholder='URL'
-                                    id="licenceURL"
-                                    sx={{ width: "33%" }}
-                                    value={openAPIDefinition?.info?.license.url}
-                                    onTextChange={handleLicenceURLChange}
-                                />
-                            ) : (
-                                <TextField
-                                    placeholder='Identifier'
-                                    id="licenceIdentifier"
-                                    sx={{ width: "33%" }}
-                                    value={openAPIDefinition?.info?.license.identifier}
-                                    onTextChange={handleLicenceIdentifierChange}
-                                />
-                            )}
-                        </HorizontalFieldWrapper>
-                    </FormGroup>
-                )}
-                {openAPIDefinition?.info?.license && (
-                    <FormGroup title="License" isCollapsed={false}>
-                        <HorizontalFieldWrapper>
-                            <TextField
-                                placeholder="Name"
-                                id="licenceName"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.license.name}
-                                onTextChange={handleLicenceNameChange}
-                            />
-                            <Dropdown
-                                id="licenceType"
-                                containerSx={{ width: "33%", gap: 0 }}
-                                dropdownContainerSx={{ gap: 0 }}
-                                items={[
-                                    { value: "URL", content: "URL" },
-                                    { value: "Identifier", content: "Identifier" }
-                                ]}
-                                value={openAPIDefinition?.info?.license.url ? "URL" : "Identifier"}
-                                onValueChange={handleLicenceTypeChange}
-                            />
-                            {openAPIDefinition?.info?.license.url ? (
-                                <TextField
-                                    placeholder='URL'
-                                    id="licenceURL"
-                                    sx={{ width: "33%" }}
-                                    value={openAPIDefinition?.info.license.url}
-                                    onTextChange={handleLicenceURLChange}
-                                />
-                            ) : (
-                                <TextField
-                                    placeholder='Identifier'
-                                    id="licenceIdentifier"
-                                    sx={{ width: "33%" }}
-                                    value={openAPIDefinition?.info?.license.identifier}
-                                    onTextChange={handleLicenceIdentifierChange}
-                                />
-                            )}
-                        </HorizontalFieldWrapper>
-                    </FormGroup>
-                )}
-            </PanelBody>
+                        {openAPIDefinition?.info?.license && (
+                            <FormGroup title="License" isCollapsed={false}>
+                                <HorizontalFieldWrapper>
+                                    <TextField
+                                        placeholder="Name"
+                                        id="licenceName"
+                                        sx={{ width: "33%" }}
+                                        value={openAPIDefinition?.info?.license.name}
+                                        onTextChange={handleLicenceNameChange}
+                                    />
+                                    <Dropdown
+                                        id="licenceType"
+                                        containerSx={{ width: "33%", gap: 0 }}
+                                        dropdownContainerSx={{ gap: 0 }}
+                                        items={[
+                                            { value: "URL", content: "URL" },
+                                            { value: "Identifier", content: "Identifier" }
+                                        ]}
+                                        value={openAPIDefinition?.info?.license.url ? "URL" : "Identifier"}
+                                        onValueChange={handleLicenceTypeChange}
+                                    />
+                                    {openAPIDefinition?.info.license.url ? (
+                                        <TextField
+                                            placeholder='URL'
+                                            id="licenceURL"
+                                            sx={{ width: "33%" }}
+                                            value={openAPIDefinition?.info?.license.url}
+                                            onTextChange={handleLicenceURLChange}
+                                        />
+                                    ) : (
+                                        <TextField
+                                            placeholder='Identifier'
+                                            id="licenceIdentifier"
+                                            sx={{ width: "33%" }}
+                                            value={openAPIDefinition?.info?.license.identifier}
+                                            onTextChange={handleLicenceIdentifierChange}
+                                        />
+                                    )}
+                                </HorizontalFieldWrapper>
+                            </FormGroup>
+                        )}
+                        {openAPIDefinition?.info?.license && (
+                            <FormGroup title="License" isCollapsed={false}>
+                                <HorizontalFieldWrapper>
+                                    <TextField
+                                        placeholder="Name"
+                                        id="licenceName"
+                                        sx={{ width: "33%" }}
+                                        value={openAPIDefinition?.info?.license.name}
+                                        onTextChange={handleLicenceNameChange}
+                                    />
+                                    <Dropdown
+                                        id="licenceType"
+                                        containerSx={{ width: "33%", gap: 0 }}
+                                        dropdownContainerSx={{ gap: 0 }}
+                                        items={[
+                                            { value: "URL", content: "URL" },
+                                            { value: "Identifier", content: "Identifier" }
+                                        ]}
+                                        value={openAPIDefinition?.info?.license.url ? "URL" : "Identifier"}
+                                        onValueChange={handleLicenceTypeChange}
+                                    />
+                                    {openAPIDefinition?.info?.license.url ? (
+                                        <TextField
+                                            placeholder='URL'
+                                            id="licenceURL"
+                                            sx={{ width: "33%" }}
+                                            value={openAPIDefinition?.info.license.url}
+                                            onTextChange={handleLicenceURLChange}
+                                        />
+                                    ) : (
+                                        <TextField
+                                            placeholder='Identifier'
+                                            id="licenceIdentifier"
+                                            sx={{ width: "33%" }}
+                                            value={openAPIDefinition?.info?.license.identifier}
+                                            onTextChange={handleLicenceIdentifierChange}
+                                        />
+                                    )}
+                                </HorizontalFieldWrapper>
+                            </FormGroup>
+                        )}
+                    </PanelBody>
+
+                </>
+            )}
         </>
     )
 }

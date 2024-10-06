@@ -53,19 +53,6 @@ const ButtonWrapper = styled.div`
     flex-grow: 1;
 `;
 
-// const PanelContainer = styled.div`
-//     background-color: var(--vscode-editor-background);
-//     box-shadow: 5px 5px 10px 5px var(--vscode-badge-background);
-//     width: 900px; // Adjust width as needed
-//     padding: 10px;
-//     position: absolute; // Position it absolutely
-//     right: 0; // Align to the right
-//     top: 25px; // Align to the top
-//     height: 100%; // Full height
-//     overflow-y: auto; // Enable scrolling if content overflows
-//     z-index: 1;
-// `;
-
 const schema = yup.object({
     title: yup.string(),
     version: yup.string(),
@@ -80,7 +67,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const { openAPIDefinition: initialOpenAPIDefinition, serviceDesModel, onOpenApiDefinitionChange } = props;
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
-    const [isViewMode, setIsViewMode] = useState<boolean>(true);
 
     const {
         reset,
@@ -106,7 +92,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         const initialPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
         const initialPathItems = initialPath && openAPIDefinition.paths[initialPath];
         let updatedOpenAPIDefinition = { ...openAPIDefinition };
-        const initialPathParamaters = path?.initialPath && path?.initialMethod && 
+        const initialPathParamaters = path?.initialPath && path?.initialMethod &&
             openAPIDefinition.paths[path?.initialPath] && openAPIDefinition.paths[path?.initialPath][path?.initialMethod] &&
             getPathParametersFromParameters(openAPIDefinition.paths[path?.initialPath][path?.initialMethod].parameters);
         const newPathParameters = getPathParametersFromParameters(path.initialOperation.parameters);
@@ -269,7 +255,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         <PathsComponent
                             paths={openAPIDefinition.paths}
                             selectedPathID={selectedPathID}
-                            hideOverview={isViewMode}
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}
                             onAddResource={handleAddResource}
@@ -278,41 +263,24 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         />
                     }
                 </NavigationPanelContainer>
-                {isViewMode ? (
-                    <>
-                        <TitleWrapper>
-                            <Typography sx={{ margin: 0 }} variant="h1">Available Resource</Typography>
-                            <ButtonWrapper>
-                                <Button appearance="icon" sx={{ marginTop: 5 }} onClick={() => setIsViewMode(false)}>
-                                    <Codicon name="edit" />
-                                </Button>
-                            </ButtonWrapper>
-                        </TitleWrapper>
-                        <ServiceDesignerWrapper>
-                            <ServiceDesigner model={serviceDesModel} selectedResourceId={selectedPathID} disableTitle disableServiceHeader />
-                        </ServiceDesignerWrapper>
-                    </>
-                ) : (
-                    <div>
-                        {(selectedPathID === undefined || !operation) && (
-                            <Overview 
-                                openAPIDefinition={openAPIDefinition} 
-                                onOpenApiDefinitionChange={onOpenApiDefinitionChange} 
-                                onViewSwagger={() => setIsViewMode(true)} 
-                            />
-                        )}
-                        {operation && selectedPathID !== undefined && (
-                            <Resource
-                                resourceOperation={operation}
-                                method={selectedMethod}
-                                path={selectedPath}
-                                onPathChange={handlePathChange}
-                                onDelete={onDeleteResource}
-                                onViewSwagger={() => setIsViewMode(true)}
-                            />
-                        )}
-                    </div>
-                )}
+
+                <div>
+                    {(selectedPathID === undefined || !operation) && (
+                        <Overview
+                            openAPIDefinition={openAPIDefinition}
+                            onOpenApiDefinitionChange={onOpenApiDefinitionChange}
+                        />
+                    )}
+                    {operation && selectedPathID !== undefined && (
+                        <Resource
+                            resourceOperation={operation}
+                            method={selectedMethod}
+                            path={selectedPath}
+                            onPathChange={handlePathChange}
+                            onDelete={onDeleteResource}
+                        />
+                    )}
+                </div>
             </SplitView>
         </NavigationContainer>
     )
