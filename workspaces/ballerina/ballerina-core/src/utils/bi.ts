@@ -19,7 +19,7 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.TASKS]: [],
             [DIRECTORY_MAP.TRIGGERS]: [],
             [DIRECTORY_MAP.CONNECTIONS]: [],
-            [DIRECTORY_MAP.SCHEMAS]: [],
+            [DIRECTORY_MAP.TYPES]: [],
             [DIRECTORY_MAP.CONFIGURATIONS]: []
         }
     };
@@ -36,7 +36,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, module.services, pkg.filePath, "APIResource", DIRECTORY_MAP.SERVICES));
             response.directoryMap[DIRECTORY_MAP.TASKS].push(...await getComponents(langClient, module.functions, pkg.filePath, "task"));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "arrow-swap", DIRECTORY_MAP.CONNECTIONS));
-            response.directoryMap[DIRECTORY_MAP.SCHEMAS].push(...await getComponents(langClient, module.records, pkg.filePath, "template"));
+            response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.records, pkg.filePath, "template"));
         }
     }
 }

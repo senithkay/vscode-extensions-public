@@ -252,24 +252,24 @@ export function Overview(props: OverviewProps) {
                         </SectionContainer>
                         {/*  Second Content with Two Columns */}
                         <InnerGridContainer>
-                            {/* Schemas Section*/}
+                            {/* Types Section*/}
                             <SectionContainer>
                                 <SectionTitle>
-                                    <h2 className="text-base">Schemas</h2>
-                                    {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].length > 0 && (
+                                    <h2 className="text-base">Types</h2>
+                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TYPES].length > 0 && (
                                         <Button appearance="icon" onClick={handleAddShema} tooltip="Add Artifact">
                                             <Codicon name="add" />
                                         </Button>
                                     )}
                                 </SectionTitle>
                                 <div className="p-4max-h-64 overflow-y-auto">
-                                    {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].length > 0 ? (
+                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TYPES].length > 0 ? (
                                         <>
                                             <CardContainer>
                                                 <span>Name</span>
                                                 <span>Action</span>
                                             </CardContainer>
-                                            {projectStructure?.directoryMap[DIRECTORY_MAP.SCHEMAS].map((res, index) => (
+                                            {projectStructure?.directoryMap[DIRECTORY_MAP.TYPES].map((res, index) => (
                                                 <SchemaItem key={index} onClick={() => goToView(res)}>
                                                     <span>{res.name}</span>
                                                     <span>...</span>
@@ -279,7 +279,7 @@ export function Overview(props: OverviewProps) {
                                     ) : (
                                         <EmptyCard
                                             description="Create and manage data types using JSON schema. Generate reusable types for your integration."
-                                            actionText="Add Schema"
+                                            actionText="Add Type"
                                             onClick={handleAddShema}
                                         />
                                     )}
