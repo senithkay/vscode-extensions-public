@@ -21,6 +21,7 @@ interface FormFieldEditorProps {
     field: FormField;
     register: UseFormRegister<FieldValues>;
     openRecordEditor?: (open: boolean) => void;
+    openSubPanel?: () => void;
 }
 
 export function EditorFactory(props: FormFieldEditorProps) {

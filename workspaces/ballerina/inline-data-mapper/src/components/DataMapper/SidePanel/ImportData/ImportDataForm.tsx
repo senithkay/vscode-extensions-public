@@ -76,16 +76,16 @@ export function ImportDataForm(props: ImportDataWizardProps) {
             schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
         }
-        await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
-            setSidePanelOpen(false);
-            if (response.success) {
-                console.log("Schema imported successfully");
-            } else {
-                console.error("Error while importing schema");
-            }
-        }).catch(e => {
-            console.error("Error while importing schema", e);
-        });
+        // await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
+        //     setSidePanelOpen(false);
+        //     if (response.success) {
+        //         console.log("Schema imported successfully");
+        //     } else {
+        //         console.error("Error while importing schema");
+        //     }
+        // }).catch(e => {
+        //     console.error("Error while importing schema", e);
+        // });
     };
 
     const handleFileUpload = (text: string) => {

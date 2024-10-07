@@ -18,11 +18,47 @@ export interface PanelContainerProps {
     title?: string;
     width?: string;
     show: boolean;
+    showSubPanel?: boolean;
     onClose: () => void;
     onBack?: () => void;
+    handleSubPanel?: (show: boolean) => void;
+}
+
+interface SidePanelProps {
+    width: string;
+}
+
+interface AdvancedPanelProps {
+    isOpen: boolean;
 }
 
 namespace S {
+
+    export const SidePanels = styled.div`
+        display: flex;
+        position: fixed;
+        right: 0;
+    `;
+
+    export const SidePanel = styled.div<SidePanelProps>`
+        width: ${(props: SidePanelProps) => (props.width ? `${props.width}` : "400px")};
+        z-index: 7000;
+    `;
+
+    export const AdvancedPanel = styled.div<AdvancedPanelProps>`
+        width: 400px;
+        height: 100vh;
+        background-color: var(--vscode-editor-background);
+        box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
+        color: var(--vscode-editor-foreground);
+        position: relative;
+        top: 0;
+        transform: translateX(${(props: AdvancedPanelProps) => (props.isOpen ? '0%' : '100%')});
+        transition: transform 0.4s ease, opacity 0.4s ease;
+        z-index: 6000;
+        opacity: ${(props: AdvancedPanelProps) => (props.isOpen ? 1 : 0)};
+    `;
+
     export const Row = styled.div`
         display: flex;
         flex-direction: row;
@@ -39,37 +75,59 @@ namespace S {
 }
 
 export function PanelContainer(props: PanelContainerProps) {
-    const { children, title, show, onClose, onBack, width } = props;
+    const { children, title, show, showSubPanel, onClose, onBack, width } = props;
 
     return (
-        <SidePanel
-            isOpen={show}
-            alignment="right"
-            overlay={false}
-            sx={{
-                width: width ? width : "400px",
-                fontFamily: "GilmerRegular",
-                backgroundColor: Colors.SURFACE_DIM,
-                boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
-            }}
-        >
-            {title && (
-                <SidePanelTitleContainer>
-                    <S.Row>
-                        {onBack && (
-                            <S.StyledButton appearance="icon" onClick={onBack}>
-                                <BackIcon />
+        <S.SidePanels>
+            <S.AdvancedPanel isOpen={showSubPanel}>
+                {title && (
+                    <SidePanelTitleContainer>
+                        <S.Row>
+                            {onBack && (
+                                <S.StyledButton appearance="icon" onClick={onBack}>
+                                    <BackIcon />
+                                </S.StyledButton>
+                            )}
+                            {title}
+                        </S.Row>
+                        <S.StyledButton appearance="icon" onClick={onClose}>
+                            <CloseIcon />
+                        </S.StyledButton>
+                    </SidePanelTitleContainer>
+                )}
+                {children}
+            </S.AdvancedPanel>
+            <S.SidePanel width={width}>
+                <SidePanel
+                    isOpen={show}
+                    alignment="right"
+                    overlay={false}
+                    sx={{
+                        width: width ? width : "400px",
+                        fontFamily: "GilmerRegular",
+                        backgroundColor: Colors.SURFACE_DIM,
+                        boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+                    }}
+                >
+                    {title && (
+                        <SidePanelTitleContainer>
+                            <S.Row>
+                                {onBack && (
+                                    <S.StyledButton appearance="icon" onClick={onBack}>
+                                        <BackIcon />
+                                    </S.StyledButton>
+                                )}
+                                {title}
+                            </S.Row>
+                            <S.StyledButton appearance="icon" onClick={onClose}>
+                                <CloseIcon />
                             </S.StyledButton>
-                        )}
-                        {title}
-                    </S.Row>
-                    <S.StyledButton appearance="icon" onClick={onClose}>
-                        <CloseIcon />
-                    </S.StyledButton>
-                </SidePanelTitleContainer>
-            )}
-            {children}
-        </SidePanel>
+                        </SidePanelTitleContainer>
+                    )}
+                    {children}
+                </SidePanel>
+            </S.SidePanel>
+        </S.SidePanels>
     );
 }
 

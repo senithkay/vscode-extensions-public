@@ -294,7 +294,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     return (
         <div className={classes.exprBarContainer}>
-            <ExpressionBar
+            {/* <ExpressionBar
                 id='expression-bar'
                 ref={textFieldRef}
                 disabled={disabled ?? false}
@@ -305,7 +305,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onSave={handleExpressionSave}
                 getCompletions={getCompletions}
                 sx={{ display: 'flex', alignItems: 'center' }}
-            />
+            /> */}
         </div>
     );
 }

@@ -74,6 +74,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
+    const [showSubPanel, setShowSubPanel] = useState(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -424,6 +425,10 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
+    const handleSubPanel = (showSubPanel: boolean) => {
+        setShowSubPanel(showSubPanel);
+    };
+
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -470,6 +475,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         ? handleOnFormBack
                         : undefined
                 }
+                showSubPanel={showSubPanel}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                     <NodeList
@@ -498,6 +504,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         targetLineRange={targetRef.current}
                         projectPath={projectPath}
                         onSubmit={handleOnFormSubmit}
+                        openSubPanel={() => handleSubPanel(!showSubPanel)}
                     />
                 )}
             </PanelContainer>

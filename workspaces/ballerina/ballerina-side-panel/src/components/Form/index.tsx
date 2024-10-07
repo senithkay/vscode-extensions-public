@@ -142,10 +142,20 @@ interface FormProps {
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
+    openSubPanel?: () => void;
 }
 
 export function Form(props: FormProps) {
-    const { formFields, projectPath, selectedNode, canUpdateVariable, onSubmit, openRecordEditor, openView } = props;
+    const {
+        formFields,
+        projectPath,
+        selectedNode,
+        canUpdateVariable,
+        onSubmit,
+        openRecordEditor,
+        openView,
+        openSubPanel
+    } = props;
     const { getValues, register, setValue, handleSubmit, reset } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -243,6 +253,7 @@ export function Form(props: FormProps) {
                                         field={field}
                                         register={register}
                                         openRecordEditor={handleOpenRecordEditor}
+                                        openSubPanel={openSubPanel}
                                     />
                                 </S.Row>
                             );
@@ -290,6 +301,7 @@ export function Form(props: FormProps) {
                                         field={field}
                                         register={register}
                                         openRecordEditor={handleOpenRecordEditor}
+                                        openSubPanel={openSubPanel}
                                     />
                                 </S.Row>
                             );
@@ -334,6 +346,7 @@ export function Form(props: FormProps) {
                                 field={typeField}
                                 register={register}
                                 openRecordEditor={handleOpenRecordEditor}
+                                openSubPanel={openSubPanel}
                             />
                         // </S.EditorContainer>
                     )}

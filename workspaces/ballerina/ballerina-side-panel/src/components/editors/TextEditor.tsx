@@ -9,7 +9,7 @@
 
 import React from "react";
 import { FormField } from "../Form/types";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, InputProps, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FieldValues, UseFormRegister } from "react-hook-form";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
@@ -42,13 +42,26 @@ const Pill = styled.div`
     }
 `;
 
+const InlineDataMapper = styled(Button)`
+    & > vscode-button {
+        color: var(--vscode-button-secondaryForeground);
+        font-size: 10px;
+    }
+`;
+
+const InlineDataMapperText = styled.p`
+    font-size: 10px;
+    margin: 0;
+`;
+
 interface TextEditorProps {
     field: FormField;
     register: UseFormRegister<FieldValues>;
+    openSubPanel?: () => void;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { field, register } = props;
+    const { field, register, openSubPanel } = props;
 
     const typeLabel = (type: string) => (
         <AddTypeContainer>
@@ -59,6 +72,19 @@ export function TextEditor(props: TextEditorProps) {
         </AddTypeContainer>
     );
 
+    const handleOpenSubPanel = () => {
+        openSubPanel();
+    }
+
+
+    const inlineDMButton: InputProps = {
+        endAdornment: (
+            <InlineDataMapper appearance="icon" tooltip="Create using Data Mapper" onClick={handleOpenSubPanel}>
+                <InlineDataMapperText>DM</InlineDataMapperText>
+            </InlineDataMapper>
+        )
+    };
+
     return (
         <TextField
             id={field.key}
@@ -67,8 +93,9 @@ export function TextEditor(props: TextEditorProps) {
             label={field.label}
             required={!field.optional}
             description={field.documentation}
-            // labelAdornment={typeLabel(field.type)}
+            labelAdornment={typeLabel(field.type)}
             sx={{ width: "100%" }}
+            inputProps={field.key === "expression" ? inlineDMButton : undefined}
         />
     );
 }

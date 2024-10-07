@@ -29,10 +29,20 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     onSubmit: (node?: FlowNode) => void;
+    openSubPanel: () => void;
 }
 
 export function FormGenerator(props: FormProps) {
-    const { node, nodeFormTemplate, connections, clientName, targetLineRange, projectPath, onSubmit } = props;
+    const {
+        node,
+        nodeFormTemplate,
+        connections,
+        clientName,
+        targetLineRange,
+        projectPath,
+        onSubmit,
+        openSubPanel
+    } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -149,6 +159,7 @@ export function FormGenerator(props: FormProps) {
                     openRecordEditor={handleOpenRecordEditor}
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
+                    openSubPanel={openSubPanel}
                     canUpdateVariable={node.codedata.node !== "NEW_CONNECTION"}
                 />
             )}
