@@ -8,13 +8,13 @@
  */
 
 import { Locator, Page, expect } from "@playwright/test";
-import { getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
+import { getVsCodeButton, getWebviewInput, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export interface FormFillProps {
     values: {
         [key: string]: {
             value: string,
-            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression'
+            type: 'input' | 'dropdown' | 'checkbox' | 'combo' | 'expression' | 'file'
         }
     }
 }
@@ -68,22 +68,23 @@ export class Form {
             const keys = Object.keys(values);
             for (let i = 0; i < keys.length; i++) {
                 const key = keys[i];
-                switch (values[key].type) {
+                const data = values[key];
+                switch (data.type) {
                     case 'input': {
                         const input = await getWebviewInput(this.container, key);
-                        await input.fill(values[key].value);
+                        await input.fill(data.value);
                         break;
                     }
                     case 'dropdown': {
                         const dropdown = this.container.locator(`vscode-select[aria-label="${key}"]`);
                         await dropdown.waitFor();
-                        await dropdown.selectOption({ label: values[key].value });
+                        await dropdown.selectOption({ label: data.value });
                         break;
                     }
                     case 'checkbox': {
                         const checkbox = this.container.locator(`vscode-checkbox[aria-label="${key}"]`);
                         await checkbox.waitFor();
-                        if (values[key].value === 'checked') {
+                        if (data.value === 'checked') {
                             await checkbox.check();
                         } else {
                             await checkbox.uncheck();
@@ -95,17 +96,23 @@ export class Form {
                         await parentDiv.waitFor();
                         const input = parentDiv.locator('input[role="combobox"]');
                         await input.click();
-                        const option = parentDiv.locator(`li:has-text("${values[key].value}")`);
+                        const option = parentDiv.locator(`li:has-text("${data.value}")`);
                         await option.click();
                         break;
                     }
                     case 'expression': {
-                        const parentDiv = this.container.locator(`label:text("${key}")`).locator('../..');
-                        await parentDiv.waitFor();
-                        const input = parentDiv.locator('input[aria-label="EX"]');
-                        await input.click();
-                        await input.fill(values[key].value);
+                        const input = await getWebviewInput(this.container, `EX${key}`);
+                        await input.fill(data.value);
                         break;
+                    }
+                    case 'file': {
+                        const btn = await getVsCodeButton(this.container, `${key}`, 'secondary');
+                        await btn.click();
+                        const fileInput = await this._page?.waitForSelector('.quick-input-header');
+                        const textInput = await fileInput?.waitForSelector('input[type="text"]');
+                        await textInput?.fill(data.value);
+                        const okBtn = await fileInput?.waitForSelector('a.monaco-button:has-text("OK")');
+                        await okBtn?.click();
                     }
                 }
             }
@@ -122,7 +129,7 @@ export class Form {
             const addParamaterBtn = this.container.locator(`div:text("Add Parameter")`).locator('..');
             await addParamaterBtn.waitFor();
             await addParamaterBtn.click();
-            
+
             const value = props[key];
             const keyInput = await getWebviewInput(this.container, "Key*");
             await keyInput.fill(key);
