@@ -23,14 +23,6 @@ export interface PanelContainerProps {
 }
 
 namespace S {
-    export const Row = styled.div`
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 8px;
-    `;
-
     export const StyledButton = styled(Button)`
         border-radius: 5px;
     `;
@@ -53,14 +45,12 @@ export function PanelContainer(props: PanelContainerProps) {
         >
             {title && (
                 <SidePanelTitleContainer>
-                    <S.Row>
-                        {onBack && (
-                            <S.StyledButton appearance="icon" onClick={onBack}>
-                                <BackIcon />
-                            </S.StyledButton>
-                        )}
-                        {title}
-                    </S.Row>
+                    {onBack && (
+                        <S.StyledButton appearance="icon" onClick={onBack}>
+                            <BackIcon />
+                        </S.StyledButton>
+                    )}
+                    {title}
                     <S.StyledButton appearance="icon" onClick={onClose}>
                         <CloseIcon />
                     </S.StyledButton>

@@ -209,7 +209,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                 <FormContainer data-testid="xml-record-config-form">
                         {!isHeaderHidden && (
                             <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
-                                <Typography variant="h3" sx={{ margin: 0 }}>Import Sample XML</Typography>
+                                <Typography variant="h3" sx={{margin: 0, fontSize: "13px"}}>Import Sample XML</Typography>
                                 <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
                             </SidePanelTitleContainer>
                         )}
