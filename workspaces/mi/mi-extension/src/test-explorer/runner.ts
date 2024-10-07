@@ -334,19 +334,34 @@ export function runCommand(command, pathToRun?: string,
             cp.stdout.setEncoding('utf8');
 
             let foundError = false;
+            let backlog = '';
             cp.stdout.on('data', (data) => {
-                data.split('\n').forEach((line) => {
-                    if (line.includes("] ERROR " || line.includes("[error]"))) {
+                const lines = (backlog + data.toString()).split('\n');
+                backlog = lines.pop() || '';
+                lines.forEach((line) => {
+                    if (line.includes("] ERROR ") || line.includes("[error]")) {
                         foundError = true;
                     } else if (line.includes("]  INFO ") || line.includes("[INFO]")) {
                         foundError = false;
                     }
-
                     if (printToOutput) {
                         printToOutput(line, foundError);
                     }
                     onData(line);
                 });
+            });
+            cp.stdout.on('end', () => {
+                if (backlog) {
+                    if (backlog.includes("] ERROR ") || backlog.includes("[error]")) {
+                        foundError = true;
+                    } else if (backlog.includes("]  INFO ") || backlog.includes("[INFO]")) {
+                        foundError = false;
+                    }
+                    if (printToOutput) {
+                        printToOutput(backlog, foundError);
+                    }
+                    onData(backlog);
+                }
             });
         }
 
