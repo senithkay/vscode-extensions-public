@@ -18,6 +18,7 @@ import * as unzipper from 'unzipper';
 import { ListRegistryArtifactsResponse, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
+import { spawn } from "child_process";
 
 interface ProgressMessage {
     message: string;
@@ -33,12 +34,13 @@ async function selectFileDownloadPath(): Promise<string> {
     return "";
 }
 
-async function downloadFile(url, filePath, progressCallback) {
+async function downloadFile(url: string, filePath: string, progressCallback?: (progress: number) => void) {
     const writer = fs.createWriteStream(filePath);
     let totalBytes = 0;
     try {
         const response = await axios.get(url, {
             responseType: 'stream',
+            timeout: 60000,
             onDownloadProgress: (progressEvent) => {
                 totalBytes = progressEvent.total!;
                 const progress = (progressEvent.loaded / totalBytes) * 100;
@@ -885,5 +887,97 @@ export function goToSource(filePath: string, position?: Range) {
     function updateEditor(textEditor: TextEditor, range: VSCodeRange) {
         textEditor.revealRange(range, TextEditorRevealType.InCenter);
         textEditor.selection = new Selection(range.start, range.start);
+    }
+}
+
+export async function downloadWithProgress(url: string, downloadPath: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async (progress) => {
+        const handleProgress = (progressPercentage) => {
+            progress.report({ message: 'Downloading...', increment: progressPercentage });
+        };
+        await downloadFile(url, downloadPath, handleProgress).catch((error) => {
+            if (fs.existsSync(downloadPath)) {
+                fs.unlinkSync(downloadPath);
+            }
+        });
+    });
+}
+
+export async function extractWithProgress(filePath: string, destination: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async () => {
+        await extractArchive(filePath, destination);
+    });
+}
+export async function performTaskWithProgress(
+    task: () => Promise<void>,
+    title: string,
+    cancellable = false
+) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: cancellable,
+    }, async (progress, cancellationToken) => {
+
+        let cancelled = false;
+        cancellationToken.onCancellationRequested(() => {
+            cancelled = true;
+        });
+
+        try {
+            await task();
+        } catch (error) {
+            window.showErrorMessage(`Error while performing the task: ${error}`);
+        }
+    });
+}
+
+async function extractArchive(filePath: string, destination: string) {
+    const platform = process.platform;
+
+    function runCommand(command: string, args: string[] = [], options = {}) {
+        return new Promise<void>((resolve, reject) => {
+            const child = spawn(command, args, options);
+
+            child.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            child.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            child.on('error', (error) => {
+                reject(error);
+            });
+
+            child.on('close', (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`${command} exited with code ${code}`));
+                }
+            });
+        });
+    }
+
+    if (filePath.endsWith('.zip')) {
+        if (platform === 'win32') {
+            await runCommand('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path '${filePath}' -DestinationPath '${destination}' -Force`]);
+        } else {
+            await runCommand('unzip', ['-o', filePath, '-d', destination]);
+        }
+    } else if (filePath.endsWith('.tar') || filePath.endsWith('.tar.gz') || filePath.endsWith('.tgz')) {
+        await runCommand('tar', ['-xf', filePath, '-C', destination]);
+    } else {
+        throw new Error('Unsupported file type');
     }
 }

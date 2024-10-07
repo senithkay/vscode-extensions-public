@@ -53,4 +53,13 @@ export interface MIVisualizerAPI {
     getAvailableRuntimeServices:() => Promise<RuntimeServicesResponse>;
     sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
+    downloadJava: (params:string) => Promise<string>;
+    downloadMI: (params:string) => Promise<string>;
+    getSupportedMIVersions: () => Promise<string[]>;
+    getMIVersionFromPom: () => Promise<string>;
+    setJavaHomeForMIVersion: (params: string) => Promise<boolean>;
+    setMIHomeForMIVersion: (params: string) => Promise<boolean>;
+
+    isJavaHomeSet: () => Promise<boolean>;
+    isMISet: () => Promise<boolean>;
 }

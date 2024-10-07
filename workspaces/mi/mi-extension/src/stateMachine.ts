@@ -30,6 +30,7 @@ import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
+import { setupEnvironment } from './util/onboardingUtils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -51,6 +52,10 @@ const stateMachine = createMachine<MachineContext>({
                 id: 'checkProject',
                 src: checkIfMiProject,
                 onDone: [
+                    {
+                        target: 'environmentSetup',
+                        cond: (context, event) => event.data.isProject === true && event.data.isEnvironmentSetUp === false,
+                    },
                     {
                         target: 'oldProjectDetected',
                         cond: (context, event) =>
@@ -282,6 +287,26 @@ const stateMachine = createMachine<MachineContext>({
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view
                             })
+                        }
+                    }
+                }
+            }
+        },
+        environmentSetup: {
+            initial: "viewLoading",
+            states: {
+                viewLoading: {
+                    invoke: {
+                        src: 'openWebPanel',
+                        onDone: {
+                            target: 'viewReady'
+                        }
+                    }
+                },
+                viewReady: {
+                    on: {
+                        REFRESH_ENVIRONMENT: {
+                            target: '#mi.initialize'
                         }
                     }
                 }
@@ -572,7 +597,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 async function checkIfMiProject() {
     log('Detecting project ' + new Date().toLocaleTimeString());
 
-    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
+    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false, isEnvironmentSetUp = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -624,23 +649,27 @@ async function checkIfMiProject() {
     }
 
     if (projectUri) {
+        isEnvironmentSetUp = await setupEnvironment(projectUri);
         // Log project path
         log(`Current workspace path: ${projectUri}`);
     }
 
     // Register Project Creation command in any of the above cases
-    vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-        log('Create New Project');
-    });
-
+    if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
+        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
+            log('Create New Project');
+        });
+    }
+    
     log('Project detection completed ' + new Date().toLocaleTimeString());
     return {
         isProject,
         isOldProject,
         displayOverview,
         projectUri, // Return the path of the detected project
-        emptyProject
+        emptyProject,
+        isEnvironmentSetUp
     };
 }
 

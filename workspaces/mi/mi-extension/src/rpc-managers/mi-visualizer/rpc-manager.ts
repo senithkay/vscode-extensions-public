@@ -58,6 +58,8 @@ import { DebuggerConfig } from "../../debugger/config";
 import { SwaggerServer } from "../../swagger/server";
 import Mustache from "mustache";
 import { escapeXml } from '../../util/templates';
+import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
+import { COMMANDS } from '../../constants';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -263,7 +265,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise(async (resolve) => {
             const username = DebuggerConfig.getManagementUserName();
             const password = DebuggerConfig.getManagementPassword();
-            
+
             const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
             const authHeader = `Basic ${token}`;
             // Create an HTTPS agent that ignores SSL certificate verification
@@ -372,5 +374,44 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const isSuccess = await env.openExternal(Uri.parse(uri));
             resolve({ success: isSuccess });
         });
+    }
+    async downloadJava(miVersion: string): Promise<string> {
+        const javaPath = await downloadJava(miVersion);
+        return javaPath;
+    }
+    async downloadMI(miVersion: string): Promise<string> {
+        const miPath = await downloadMI(miVersion);
+        return miPath;
+    }
+    async getSupportedMIVersions(): Promise<string[]> {
+        return getSupportedMIVersions();
+    }
+
+    async isJavaHomeSet(): Promise<boolean> {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            return await ensureJavaSetup(miVersion);
+        } catch (error) {
+            return false;
+        }
+    }
+    async isMISet(): Promise<boolean> {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+            return ensureMISetup(projectUri, miVersion);
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async getMIVersionFromPom(): Promise<string> {
+        return getMIVersionFromPom();
+    }
+    async setJavaHomeForMIVersion(miVersion: string): Promise<boolean> {
+        return await vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
+    }
+    async setMIHomeForMIVersion(miVersion: string): Promise<boolean> {
+        return await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
     }
 }

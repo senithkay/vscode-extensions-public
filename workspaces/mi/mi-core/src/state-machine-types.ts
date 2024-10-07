@@ -73,6 +73,7 @@ export enum MACHINE_VIEW {
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
     UpdateExtension = "Update Extension",
+    MI_NOT_SETUP = "MI not Setup",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -84,7 +85,7 @@ export enum AI_MACHINE_VIEW {
 export type MachineStateValue =
     | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
-    | { newProject: 'viewReady' };
+    | { newProject: 'viewReady' }| { environmentSetup: 'viewReady' };
 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'updateExtension' | 'disabled';
 
@@ -110,6 +111,7 @@ export enum EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
+    REFRESH_ENVIRONMENT = "REFRESH_ENVIRONMENT",
 }
 
 export enum POPUP_EVENT_TYPE {

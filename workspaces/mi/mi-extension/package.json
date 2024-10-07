@@ -123,6 +123,16 @@
             "type": "number",
             "default": 8290,
             "description": "Port to check the readiness of the MI server"
+          },
+          "MI.serverPath": {
+            "type": "string",
+            "default": "",
+            "description": "Location to store MI archives, considering the user's home directory"
+          },
+          "MI.javaHome": {
+            "type": "string",
+            "default": "",
+            "description": "Java Home path"
           }
         }
       }
@@ -406,6 +416,11 @@
       {
         "command": "MI.change.server",
         "title": "Add MI server",
+        "category": "MI"
+      },
+      {
+        "command": "MI.change.java",
+        "title": "Set Java Home",
         "category": "MI"
       },
       {
