@@ -24,7 +24,8 @@ export class Overview {
         this.webView = webview;
     }
     public async createNewProject() {
-        (await getVsCodeButton(this.webView, 'Create New Project', 'primary')).click();
+        const container = this.webView.locator('div#root');
+        (await getVsCodeButton(container, 'Create New Project', 'primary')).click();
     }
 
     public async checkForArtifact(artifactType: string, artifactName: string) {
