@@ -532,7 +532,7 @@
             },
             {
                 "command": "BI.project-explorer.add-schema",
-                "title": "Add Schema",
+                "title": "Add Types",
                 "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"
