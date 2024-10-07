@@ -25,12 +25,12 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
     triggerCharacters: readonly string[];
-    onRetrieveCompletions: (
+    retrieveCompletions: (
         value: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
-    ) => any;
+    ) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
@@ -85,7 +85,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         field,
         completions,
         triggerCharacters,
-        onRetrieveCompletions,
+        retrieveCompletions,
         onFocus,
         onBlur,
         onCompletionSelect,
@@ -113,7 +113,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
 
         // Trigger actions on focus
         await onFocus?.();
-        await onRetrieveCompletions(value, cursorPosition, undefined, true);
+        await retrieveCompletions(value, cursorPosition, undefined, true);
     };
 
     const handleBlur = async () => {
@@ -189,9 +189,9 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                                     ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
                                     : undefined;
                             if (triggerCharacter) {
-                                await onRetrieveCompletions(value, updatedCursorPosition, triggerCharacter);
+                                await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
                             } else {
-                                await onRetrieveCompletions(value, updatedCursorPosition);
+                                await retrieveCompletions(value, updatedCursorPosition);
                             }
                         }}
                         onCompletionSelect={handleCompletionSelect}

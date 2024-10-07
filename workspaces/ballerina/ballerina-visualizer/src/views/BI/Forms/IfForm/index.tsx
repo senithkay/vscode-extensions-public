@@ -239,7 +239,7 @@ export function IfForm(props: IfFormProps) {
                                 field={field}
                                 completions={activeEditor === index ? filteredCompletions : []}
                                 triggerCharacters={TRIGGER_CHARACTERS}
-                                onRetrieveCompletions={handleGetCompletions}
+                                retrieveCompletions={handleGetCompletions}
                                 onCompletionSelect={handleCompletionSelect}
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}

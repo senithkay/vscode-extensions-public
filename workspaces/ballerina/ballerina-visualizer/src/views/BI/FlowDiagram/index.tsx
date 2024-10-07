@@ -728,7 +728,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         expressionEditor={{
                             completions: filteredCompletions,
                             triggerCharacters: TRIGGER_CHARACTERS,
-                            onRetrieveCompletions: handleGetCompletions,
+                            retrieveCompletions: handleGetCompletions,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
                             onBlur: handleExpressionEditorBlur,
