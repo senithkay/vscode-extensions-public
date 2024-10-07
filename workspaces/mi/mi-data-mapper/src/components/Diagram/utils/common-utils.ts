@@ -749,13 +749,15 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
         return MappingType.Undefined;
     }
 
-    const sourceDim = getDMTypeDim(sourcePort.field);
-    const targetDim = getDMTypeDim(targetPort.field);
+    if (targetPort.field && sourcePort.field) {
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
 
-    if (sourceDim > 0) {
-        const dimDelta = sourceDim - targetDim;
-        if (dimDelta == 0) return MappingType.ArrayToArray;
-        if (dimDelta > 0) return MappingType.ArrayToSingleton;
+        if (sourceDim > 0) {
+            const dimDelta = sourceDim - targetDim;
+            if (dimDelta == 0) return MappingType.ArrayToArray;
+            if (dimDelta > 0) return MappingType.ArrayToSingleton;
+        }
     }
 
     return MappingType.Undefined;
