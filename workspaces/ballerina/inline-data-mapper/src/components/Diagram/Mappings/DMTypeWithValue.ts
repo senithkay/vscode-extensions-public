@@ -7,17 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { IDMType } from "@wso2-enterprise/ballerina-core";
-import { Node } from "ts-morph";
 
 export interface ArrayElement {
 	member: DMTypeWithValue;
-	elementNode: Node;
+	elementNode: any;
 }
 
 export class DMTypeWithValue {
 	constructor(
 		public type: IDMType,
-		public value?: Node,
+		public value?: any,
 		public parentType?: DMTypeWithValue,
 		public originalType?: IDMType,
 		public childrenTypes?: DMTypeWithValue[],
@@ -28,7 +27,7 @@ export class DMTypeWithValue {
 		return !!this.value;
 	}
 
-	public setValue(value: Node) {
+	public setValue(value: any) {
 		this.value = value;
 	}
 }

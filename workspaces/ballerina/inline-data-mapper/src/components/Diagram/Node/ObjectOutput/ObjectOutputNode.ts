@@ -8,32 +8,19 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
-import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
+import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import {
-    findInputNode,
-    getDefaultValue,
-    getInputPort,
-    getOutputPort,
-    getTypeName,
-    getTypeOfValue,
-    isMapFnAtPropAssignment,
-    isMapFnAtRootReturn
-} from "../../utils/common-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { getPosition, traversNode } from "../../utils/st-utils";
-import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
@@ -51,7 +38,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: Expression | undefined,
+        public value: any | undefined,
         public originalType: IDMType,
         public isSubMapping: boolean = false
     ) {
@@ -70,14 +57,17 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const { focusedST, functionST, views } = this.context;
             const focusedView = views[views.length - 1];
 
-            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
-            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            // const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtPropAsmt = false;
+            // const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && false;
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
-            this.typeName = getTypeName(valueEnrichedType.type);
+            // this.typeName = getTypeName(valueEnrichedType.type);
+            this.typeName = "TYPE_NAME";
 
             this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
     
@@ -113,7 +103,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
         }
         const searchValue = useDMSearchStore.getState().outputSearch;
         const mappings = this.genMappings(this.value);
-        this.mappings = getFilteredMappings(mappings, searchValue);
+        // this.mappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(this.mappings);
     }
 
@@ -122,102 +112,102 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
     
-            if (!value || !value.getText() || (otherVal && Node.isCallExpression(otherVal))) {
+            if (!value || !value.getText()) {
                 // Unsupported mapping
                 return;
             }
 
-            const inputNode = findInputNode(value, this);
-            let inPort: InputOutputPortModel;
+            // const inputNode = findInputNode(value, this);
+            // let inPort: InputOutputPortModel;
 
-            if (inputNode) {
-                inPort = getInputPort(inputNode, value);
-            }
-            const [outPort, mappedOutPort] = getOutputPort(
-                fields, this.dmTypeWithValue, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                (portId: string) =>  this.getPort(portId) as InputOutputPortModel
-            );
+            // if (inputNode) {
+            //     inPort = getInputPort(inputNode, value);
+            // }
+            // const [outPort, mappedOutPort] = getOutputPort(
+            //     fields, this.dmTypeWithValue, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+            //     (portId: string) =>  this.getPort(portId) as InputOutputPortModel
+            // );
 
-            if (inPort && mappedOutPort) {
-                const diagnostics = getDiagnostics(otherVal || value);
-                const lm = new DataMapperLinkModel(value, diagnostics, true, undefined);
-                const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
-                const keepDefault = ((
-                        mappedField
-                        && !mappedField?.fieldName
-                        && mappedField.kind !== TypeKind.Array
-                        && mappedField.kind !== TypeKind.Record
-                    ) || !Node.isObjectLiteralExpression(this.value)
-                    || Node.isVariableStatement(this.context.focusedST)
-                );
+            // if (inPort && mappedOutPort) {
+            //     const diagnostics = getDiagnostics(otherVal || value);
+            //     const lm = new DataMapperLinkModel(value, diagnostics, true, undefined);
+            //     const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
+            //     const keepDefault = ((
+            //             mappedField
+            //             && !mappedField?.fieldName
+            //             && mappedField.kind !== TypeKind.Array
+            //             && mappedField.kind !== TypeKind.Record
+            //         ) || !Node.isObjectLiteralExpression(this.value)
+            //         || Node.isVariableStatement(this.context.focusedST)
+            //     );
 
-                lm.setTargetPort(mappedOutPort);
-                lm.setSourcePort(inPort);
-                inPort.addLinkedPort(mappedOutPort);
+            //     lm.setTargetPort(mappedOutPort);
+            //     lm.setSourcePort(inPort);
+            //     inPort.addLinkedPort(mappedOutPort);
 
-                lm.addLabel(
-                    new ExpressionLabelModel({
-                        value: otherVal?.getText(),
-                        valueNode: otherVal || value,
-                        context: this.context,
-                        link: lm,
-                        field: Node.isPropertyAssignment(field)
-                            ? field.getInitializer()
-                            : field,
-                        editorLabel: Node.isPropertyAssignment(field)
-                            ? field.getName()
-                            : outPort.fieldFQN && `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-                        deleteLink: () => this.deleteField(field, keepDefault),
-                    }
-                ));
+            //     lm.addLabel(
+            //         new ExpressionLabelModel({
+            //             value: otherVal?.getText(),
+            //             valueNode: otherVal || value,
+            //             context: this.context,
+            //             link: lm,
+            //             field: Node.isPropertyAssignment(field)
+            //                 ? field.getInitializer()
+            //                 : field,
+            //             editorLabel: Node.isPropertyAssignment(field)
+            //                 ? field.getName()
+            //                 : outPort.fieldFQN && `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+            //             deleteLink: () => this.deleteField(field, keepDefault),
+            //         }
+            //     ));
 
-                lm.registerListener({
-                    selectionChanged(event) {
-                        if (event.isSelected) {
-                            inPort.fireEvent({}, "link-selected");
-                            mappedOutPort.fireEvent({}, "link-selected");
-                        } else {
-                            inPort.fireEvent({}, "link-unselected");
-                            mappedOutPort.fireEvent({}, "link-unselected");
-                        }
-                    },
-                });
+            //     lm.registerListener({
+            //         selectionChanged(event) {
+            //             if (event.isSelected) {
+            //                 inPort.fireEvent({}, "link-selected");
+            //                 mappedOutPort.fireEvent({}, "link-selected");
+            //             } else {
+            //                 inPort.fireEvent({}, "link-unselected");
+            //                 mappedOutPort.fireEvent({}, "link-unselected");
+            //             }
+            //         },
+            //     });
 
-                this.getModel().addAll(lm);
-            }
+            //     this.getModel().addAll(lm);
+            // }
         });
     }
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
-        const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
-        const defaultValue = getDefaultValue(typeOfValue.kind);
+        // const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
+        // const defaultValue = getDefaultValue(typeOfValue.kind);
 
-        if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
-            field.replaceWithText(defaultValue);
-        } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);
-            traversNode(this.value, linkDeleteVisitor);
-            const targetNodes = linkDeleteVisitor.getNodesToDelete();
+        // if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
+        //     field.replaceWithText(defaultValue);
+        // } else {
+        //     const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);
+        //     traversNode(this.value, linkDeleteVisitor);
+        //     const targetNodes = linkDeleteVisitor.getNodesToDelete();
 
-            targetNodes.forEach(node => {
-                const parentNode = node.getParent();
+        //     targetNodes.forEach(node => {
+        //         const parentNode = node.getParent();
 
-                if (Node.isPropertyAssignment(node)) {
-                    if (Node.isVariableStatement(this.context.focusedST)) {
-                        node.getInitializer().replaceWithText(defaultValue);
-                    } else {
-                        node.remove();
-                    }
-                } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
-                    const elementIndex = parentNode.getElements().find(e => e === node);
-                    parentNode.removeElement(elementIndex);
-                } else {
-                    node.replaceWithText('');
-                }
-            });
-        }
+        //         if (Node.isPropertyAssignment(node)) {
+        //             if (Node.isVariableStatement(this.context.focusedST)) {
+        //                 node.getInitializer().replaceWithText(defaultValue);
+        //             } else {
+        //                 node.remove();
+        //             }
+        //         } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
+        //             const elementIndex = parentNode.getElements().find(e => e === node);
+        //             parentNode.removeElement(elementIndex);
+        //         } else {
+        //             node.replaceWithText('');
+        //         }
+        //     });
+        // }
 
-        await this.context.applyModifications(field.getSourceFile().getFullText());
+        // await this.context.applyModifications(field.getSourceFile().getFullText());
     }
 
     public updatePosition() {

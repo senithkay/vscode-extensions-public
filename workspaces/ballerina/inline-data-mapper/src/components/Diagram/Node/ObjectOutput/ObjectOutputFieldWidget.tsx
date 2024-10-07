@@ -10,24 +10,18 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/ballerina-core";
-import { Block, Node } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
-import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
+import { ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
-import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
-import { createSourceForUserInput } from "../../utils/modification-utils";
-import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
-import { getDiagnostics } from "../../utils/diagnostics-utils";
-import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -67,7 +61,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     let indentation = treeDepth * 16;
     let expanded = true;
 
-    const typeName = getTypeName(field.type);
+    const typeName = "TYPE_NAME";
     const typeKind = field.type.kind;
     const isArray = typeKind === TypeKind.Array;
     const isInterface = typeKind === TypeKind.Record;
@@ -78,48 +72,48 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const portIn = getPort(fieldId + ".IN");
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
-    const propertyAssignment = field.hasValue()
-        && !field.value.wasForgotten()
-        && Node.isPropertyAssignment(field.value)
-        && field.value;
-    const objectLiteralExpr = parentObjectLiteralExpr
-        && !parentObjectLiteralExpr.wasForgotten()
-        && Node.isObjectLiteralExpression(parentObjectLiteralExpr)
-        && parentObjectLiteralExpr;
-    const initializer = propertyAssignment
-        && !propertyAssignment.wasForgotten()
-        && propertyAssignment.getInitializer();
-    const hasValue = initializer
-        && !!initializer.getText()
-        && initializer.getText() !== getDefaultValue(field.type.kind)
-        && initializer.getText() !== "null";
-    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type.kind);
+    // const propertyAssignment = field.hasValue()
+    //     && !field.value.wasForgotten()
+    //     && Node.isPropertyAssignment(field.value)
+    //     && field.value;
+    // const objectLiteralExpr = parentObjectLiteralExpr
+    //     && !parentObjectLiteralExpr.wasForgotten()
+    //     && Node.isObjectLiteralExpression(parentObjectLiteralExpr)
+    //     && parentObjectLiteralExpr;
+    // const initializer = propertyAssignment
+    //     && !propertyAssignment.wasForgotten()
+    //     && propertyAssignment.getInitializer();
+    // const hasValue = initializer
+    //     && !!initializer.getText()
+    //     && initializer.getText() !== getDefaultValue(field.type.kind)
+    //     && initializer.getText() !== "null";
+    // const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type.kind);
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const diagnostic = propertyAssignment && getDiagnostics(propertyAssignment)[0];
+    // const diagnostic = propertyAssignment && getDiagnostics(propertyAssignment)[0];
 
     const connectedViaLink = useMemo(() => {
-        return hasValue && isConnectedViaLink(initializer);
+        // return hasValue && isConnectedViaLink(initializer);
     }, [field]);
 
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValue(field.type.kind);
-            const fnBody = context.functionST.getBody() as Block;
-            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
+            // const defaultValue = getDefaultValue(field.type.kind);
+            // const fnBody = context.functionST.getBody() as Block;
+            // await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleEditValue = () => {
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            const initializer = field.value.getInitializer();
-            const range = getEditorLineAndColumn(initializer);
-            context.goToSource(range);
-        }
+        // if (field.value && Node.isPropertyAssignment(field.value)) {
+        //     const initializer = field.value.getInitializer();
+        //     const range = getEditorLineAndColumn(initializer);
+        //     context.goToSource(range);
+        // }
     };
 
     const handleDeleteValue = async () => {
@@ -197,7 +191,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     {typeName || ''}
                 </span>
             )}
-            {(hasValue || hasDefaultValue) && !connectedViaLink && !portIn.descendantHasValue && (
+            {/* {(hasValue || hasDefaultValue) && !connectedViaLink && !portIn.descendantHasValue && (
                 <span className={classes.outputNodeValueBase}>
                     {diagnostic ? (
                         <DiagnosticTooltip
@@ -228,23 +222,23 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         </span>
                     )}
                 </span>
-            )}
+            )} */}
         </span>
     );
 
-    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue || hasDefaultValue
-        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+    // const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue || hasDefaultValue
+    //     ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
+    //     : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
         onClick: handleDeleteValue
     };
 
-    const valConfigMenuItems = [
-        !isWithinArray && addOrEditValueMenuItem,
-        (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
-    ];
+    // const valConfigMenuItems = [
+    //     !isWithinArray && addOrEditValueMenuItem,
+    //     (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
+    // ];
 
     return (
         <>
@@ -285,7 +279,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         )}
                         {label}
                     </span>
-                    {(!isDisabled || hasValue) && (
+                    {/* {(!isDisabled || hasValue) && (
                         <>
                             {(isLoading) ? (
                                 <ProgressRing sx={{ height: '16px', width: '16px' }} />
@@ -293,10 +287,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
                             )}
                         </>
-                    )}
+                    )} */}
                 </div>
             )}
-            {isArray && (
+            {/* {isArray && (
                 <ArrayOutputFieldWidget
                     key={fieldId}
                     engine={engine}
@@ -310,7 +304,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     deleteField={deleteField}
                     hasHoveredParent={isHovered || hasHoveredParent}
                 />
-            )}
+            )} */}
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
@@ -320,7 +314,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             field={subField}
                             getPort={getPort}
                             parentId={fieldId}
-                            parentObjectLiteralExpr={objectLiteralExpr}
+                            parentObjectLiteralExpr={undefined}
                             context={context}
                             treeDepth={treeDepth + 1}
                             deleteField={deleteField}

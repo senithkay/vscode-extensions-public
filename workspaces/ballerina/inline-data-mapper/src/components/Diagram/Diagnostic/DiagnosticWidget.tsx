@@ -9,12 +9,11 @@
 import React from "react";
 
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
-import { ts } from "ts-morph";
 
 import { DiagnosticTooltip } from "./DiagnosticTooltip";
 
 export interface DiagnosticWidgetProps {
-    diagnostic: ts.Diagnostic,
+    diagnostic: any,
     value?: string,
     onClick?: () => void,
     isLabelElement? : boolean,

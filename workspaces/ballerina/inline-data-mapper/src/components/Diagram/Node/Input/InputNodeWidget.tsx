@@ -19,7 +19,6 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
-import { getTypeName } from "../../utils/common-utils";
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
 
 export interface InputNodeWidgetProps {
@@ -45,7 +44,8 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 	}));
 
     const classes = useIONodesStyles();
-    const typeName = getTypeName(dmType);
+    // const typeName = getTypeName(dmType);
+    const typeName = "getTypeName(dmType)";
 
     const portOut = getPort(`${id}.OUT`);
 

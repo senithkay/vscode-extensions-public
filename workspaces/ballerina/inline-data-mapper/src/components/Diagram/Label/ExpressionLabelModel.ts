@@ -8,7 +8,6 @@
  */
 import { BaseModelOptions, DeserializeEvent } from '@projectstorm/react-canvas-core';
 import { LabelModel } from '@projectstorm/react-diagrams';
-import { Node } from "ts-morph";
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';

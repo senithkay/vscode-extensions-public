@@ -12,23 +12,19 @@ import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { css } from "@emotion/css";
 import { IDMType, Range } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
-import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
+import { traversNode } from "../Diagram/utils/st-utils";
 import { ImportDataForm } from "./SidePanel/ImportData/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { useDMExpressionBarStore, useDMSearchStore } from "../../store/store";
-import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes } from "../Diagram/utils/type-utils";
-import { SubMappingConfigForm } from "./SidePanel/SubMappingConfig/SubMappingConfigForm";
 import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
-import { buildNodeListForSubMappings, initializeSubMappingContext } from "../Diagram/utils/sub-mapping-utils";
 
 const classes = {
     root: css({
@@ -38,7 +34,7 @@ const classes = {
     })
 }
 export interface MIDataMapperProps {
-    fnST: FunctionDeclaration;
+    fnST: any;
     inputTrees: IDMType[];
     outputTree: IDMType;
     fileContent: string;
@@ -83,7 +79,7 @@ export function InlineDataMapper(props: MIDataMapperProps) {
         targetFieldFQN: "",
         sourceFieldFQN: "",
         sourceNodeType: SourceNodeType.InputNode,
-        label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
+        label: "TYPE_NAME"
     }];
 
     const [views, dispatch] = useReducer(viewsReducer, initialView);
@@ -131,7 +127,7 @@ export function InlineDataMapper(props: MIDataMapperProps) {
         const nodeInitVisitor = new NodeInitVisitor(context);
     
         if (lastView.subMappingInfo !== undefined) {
-            await handleSubMapping(lastView, context, nodeInitVisitor, subMappingTypes);
+            // await handleSubMapping(lastView, context, nodeInitVisitor, subMappingTypes);
         } else {
             handleDefaultMapping(lastView, context, nodeInitVisitor);
         }
@@ -142,26 +138,16 @@ export function InlineDataMapper(props: MIDataMapperProps) {
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleVersionChange('dmUndo'));
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleVersionChange('dmRedo'));
     };
-
-    const handleSubMapping = async (
-        lastView: View,
-        context: DataMapperContext,
-        nodeInitVisitor: NodeInitVisitor,
-        subMappingTypes: Record<string, IDMType>
-    ) => {
-        const subMappingDetails = initializeSubMappingContext(lastView, context, subMappingTypes, fnST);
-        const nodeList = buildNodeListForSubMappings(context, nodeInitVisitor, subMappingDetails);
-        setNodes(nodeList);
-    };
     
     const handleDefaultMapping = (
         lastView: View,
         context: DataMapperContext,
         nodeInitVisitor: NodeInitVisitor
     ) => {
-        let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
+        let focusedST: any = fnST;
         if (views.length > 1) {
-            focusedST = getFocusedST(lastView, fnST);
+            // focusedST = getFocusedST(lastView, fnST);
+            focusedST = undefined;
         }
         context.focusedST = focusedST;
         traversNode(focusedST, nodeInitVisitor);
@@ -205,15 +191,6 @@ export function InlineDataMapper(props: MIDataMapperProps) {
                 configName={configName}
                 documentUri={filePath}
             />
-            {nodes.length > 0 && (
-                <SubMappingConfigForm
-                    functionST={fnST}
-                    inputNode={inputNode}
-                    addView={addView}
-                    updateView={editView}
-                    applyModifications={applyModifications}
-                />
-            )}
         </div>
     )
 }

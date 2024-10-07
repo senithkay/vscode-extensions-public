@@ -13,7 +13,6 @@ import React, { useMemo } from "react";
 import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IDMType } from "@wso2-enterprise/ballerina-core";
-// import { Project, SyntaxKind } from "ts-morph";
 
 import { InlineDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";

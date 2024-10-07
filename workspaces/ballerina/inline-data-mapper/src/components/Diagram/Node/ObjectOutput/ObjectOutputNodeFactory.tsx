@@ -11,7 +11,6 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { Node } from 'ts-morph';
 
 import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
@@ -29,7 +28,8 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 		let valueLabel: string;
 		const { isMapFn, isSubMapping, context } = event.model;
 		const { views, focusedST } = context;
-		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
+		// const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
+		const isMapFnAtFnReturn = views.length === 1 && false;
 		if ((isMapFn && !isMapFnAtFnReturn) || isSubMapping) {
 			valueLabel = views[views.length - 1].label.replace(/\[\]/g, '');
 		}
@@ -48,7 +48,7 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 						context={event.model.context}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}
-						deleteField={(node: Node) => event.model.deleteField(node)}
+						deleteField={undefined}
 						originalTypeName={event.model.dmType?.fieldName}
 					/>
 				)}

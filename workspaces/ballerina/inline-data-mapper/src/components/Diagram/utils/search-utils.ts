@@ -9,8 +9,6 @@
 import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../Mappings/MappingMetadata";
-import { Node } from "ts-morph";
 
 export const getSearchFilteredInput = (dmType: IDMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
@@ -134,18 +132,6 @@ function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): 
 		} else if (element.member.value) {
 			const value = element.member.value?.getText() || element.member.value.getText();
 			return !value.toLowerCase().includes(searchValue.toLowerCase());
-		}
-	});
-}
-
-export function getFilteredMappings(mappings: MappingMetadata[], searchValue: string) {
-	return mappings.filter(mapping => {
-		if (mapping) {
-			const lastField = mapping.fields[mapping.fields.length - 1];
-			const fieldName = Node.isPropertyAssignment(lastField)
-				? lastField.getName()
-				: lastField.getText();
-			return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
 		}
 	});
 }

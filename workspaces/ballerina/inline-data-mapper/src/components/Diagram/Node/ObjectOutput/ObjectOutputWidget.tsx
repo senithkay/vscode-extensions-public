@@ -11,7 +11,6 @@ import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { Node } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -33,13 +32,13 @@ export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	dmTypeWithValue: DMTypeWithValue;
 	typeName: string;
-	value: Node;
+	value: any;
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	mappings?: MappingMetadata[];
 	valueLabel?: string;
-	deleteField?: (node: Node) => Promise<void>;
+	deleteField?: (node: any) => Promise<void>;
 	originalTypeName?: string;
 }
 

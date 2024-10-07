@@ -12,7 +12,6 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
-import { LinkConnectorNode } from '../Node';
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
@@ -93,14 +92,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 							}
 						}
 					} else if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {
-						if ((element instanceof InputOutputPortModel)
-							|| (element instanceof IntermediatePortModel
-								&& element.getParent() instanceof LinkConnectorNode)
-						) {
+						if ((element instanceof InputOutputPortModel)) {
 							if (element.portType === "IN") {
 								let isDisabled = false;
 								if (element instanceof InputOutputPortModel) {
-									isDisabled = element.isDisabled();
+								isDisabled = element.isDisabled();
 								}
 								if (!isDisabled) {
 									element.fireEvent({}, "mappingFinishedTo");

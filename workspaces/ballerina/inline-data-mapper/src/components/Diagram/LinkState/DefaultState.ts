@@ -19,13 +19,10 @@ import {
 import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
-import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Node';
+import { InputNode, ObjectOutputNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 import { CreateLinkState } from './CreateLinkState';
-import { FocusedInputNode } from '../Node/FocusedInput';
-import { SubMappingNode } from '../Node/SubMapping';
-import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
 import { useDMExpressionBarStore } from '../../../store/store';
 
 export class DefaultState extends State<DiagramEngine> {
@@ -88,12 +85,8 @@ export class DefaultState extends State<DiagramEngine> {
 
 					if (!isExpandOrCollapse && !isAddElement && !isAddLocalVariable && !isEditLocalVariables
 						&& (element instanceof PortModel
-							|| element instanceof ArrayOutputNode
 							|| element instanceof ObjectOutputNode
-							|| element instanceof PrimitiveOutputNode
 							|| element instanceof InputNode
-							|| element instanceof FocusedInputNode
-							|| element instanceof SubMappingNode
 						)
 					) {
 						this.transitionWithEvent(this.createLink, actionEvent);

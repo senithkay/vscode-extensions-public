@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrayLiteralExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
 import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
@@ -87,34 +86,6 @@ export function getDMTypeForRootChaninedMapFunction(
     return currentType;
 }
 
-export function getDMTypeOfSubMappingItem(
-    functionST:FunctionDeclaration,
-    subMappingName: string,
-    subMappingTypes: Record<string, IDMType>
-) {
-    const varStmt = (functionST.getBody() as Block).getVariableStatement(subMappingName);
-
-    if (!varStmt) return;
-
-    const varDecl = varStmt.getDeclarations()[0];
-    return getTypeForVariable(subMappingTypes, varDecl);
-}
-
-export function getTypeForVariable(
-    varTypes: Record<string, IDMType | undefined>,
-    varDecl: VariableDeclaration,
-    subMappingMapFnIndex?: number
-): IDMType {
-    const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
-    let varType = varTypes[key];
-
-    if (subMappingMapFnIndex !== undefined && varType.kind === TypeKind.Array) {
-        for (let i = 0; i < subMappingMapFnIndex + 1; i++) {
-            varType = varType.memberType;
-        }
-    }
-    return varType;
-}
 
 export function getEnrichedDMType(
     type: IDMType,
@@ -129,19 +100,19 @@ export function getEnrichedDMType(
     let originalType: IDMType = type;
 
     if (parentType) {
-        [valueNode, nextNode] = getValueNodeAndNextNodeForParentType(node, parentType, originalType);
+        // [valueNode, nextNode] = getValueNodeAndNextNodeForParentType(node, parentType, originalType);
     } else {
         valueNode = node;
         nextNode = node;
     }
 
-    dmTypeWithValue = new DMTypeWithValue(type, valueNode, parentType, originalType);
+    dmTypeWithValue = new DMTypeWithValue(type, undefined, parentType, originalType);
 
     if (type.kind === TypeKind.Record) {
         addChildrenTypes(type, childrenTypes, nextNode, dmTypeWithValue);
     } else if (type.kind === TypeKind.Array && type?.memberType) {
         if (nextNode) {
-            addEnrichedArrayElements(nextNode, type, dmTypeWithValue, childrenTypes);
+            // addEnrichedArrayElements(nextNode, type, dmTypeWithValue, childrenTypes);
         } else {
             addArrayElements(type, parentType, dmTypeWithValue, childrenTypes);
         }
@@ -176,80 +147,11 @@ function getEnrichedPrimitiveType(
     if (childType) {
         members.push({
             member: childType,
-            elementNode: node
+            elementNode: undefined
         });
     }
 
     return members;
-}
-
-function getEnrichedArrayType(
-    field: IDMType,
-    node: ArrayLiteralExpression,
-    parentType?: DMTypeWithValue,
-    childrenTypes?: DMTypeWithValue[]
-) {
-    const members: ArrayElement[] = [];
-
-    const elements = node.getElements();
-    const fields = new Array(elements.length).fill(field);
-
-    elements.forEach((expr, index) => {
-        const type = fields[index];
-        if (type) {
-            const childType = getEnrichedDMType(type, expr, parentType, childrenTypes);
-
-            if (childType) {
-                members.push({
-                    member: childType,
-                    elementNode: expr
-                });
-            }
-        }
-    });
-
-    return members;
-}
-
-function getValueNodeAndNextNodeForParentType(
-    node: Node | undefined,
-    parentType: DMTypeWithValue,
-    originalType: IDMType
-): [Node?, Node?] {
-
-    if (node && Node.isObjectLiteralExpression(node)) {
-        const propertyAssignment = node.getProperties().find((val) =>
-            Node.isPropertyAssignment(val)
-            && originalType?.fieldName
-            && val.getName() === originalType?.fieldName
-        ) as PropertyAssignment;
-
-        if (parentType.type.kind === TypeKind.Array) {
-            return [node, node];
-        } else if (propertyAssignment) {
-            return [propertyAssignment, propertyAssignment?.getInitializer()];
-        }
-    } else if (node && Node.isArrayLiteralExpression(node)) {
-        const objLitExprs = node.getElements().filter(element =>
-            Node.isObjectLiteralExpression(element)
-        ) as ObjectLiteralExpression[];
-
-        if (objLitExprs.length > 0) {
-            let propertyAssignment: Node;
-            for (const expr of objLitExprs) {
-                propertyAssignment = expr.getProperties().find(property =>
-                    Node.isPropertyAssignment(property)
-                    && property.getName() === originalType?.fieldName
-                );
-            }
-            return [propertyAssignment || node, !propertyAssignment && node];
-        } else {
-            return [node, node];
-        }
-    } else {
-        return [node, undefined];
-    }
-    return [undefined, undefined];
 }
 
 function addChildrenTypes(
@@ -267,29 +169,6 @@ function addChildrenTypes(
         });
     }
     dmTypeWithValue.childrenTypes = children;
-}
-
-function addEnrichedArrayElements(
-    nextNode: Node,
-    type: IDMType,
-    dmTypeWithValue: DMTypeWithValue,
-    childrenTypes?: DMTypeWithValue[]
-) {
-    if (Node.isObjectLiteralExpression(nextNode)) {
-        if (type.memberType.kind === TypeKind.Record) {
-            const childType = getEnrichedDMType(type.memberType, nextNode, dmTypeWithValue, childrenTypes);
-            dmTypeWithValue.elements = [{
-                member: childType,
-                elementNode: nextNode
-            }];
-        } else {
-            dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, dmTypeWithValue);
-        }
-    } else if (Node.isArrayLiteralExpression(nextNode)) {
-        dmTypeWithValue.elements = getEnrichedArrayType(type.memberType, nextNode, dmTypeWithValue);
-    } else {
-        dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, dmTypeWithValue);
-    }
 }
 
 function addArrayElements(

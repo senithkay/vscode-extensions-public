@@ -7,14 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { ParameterDeclaration } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { getSearchFilteredInput } from "../../utils/search-utils";
-import { getTypeName } from "../../utils/common-utils";
 
 export const INPUT_NODE_TYPE = "datamapper-node-input";
 const NODE_ID = "input-node";
@@ -28,7 +26,7 @@ export class InputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ParameterDeclaration,
+        public value: any,
         public hasNoMatchingFields?: boolean
     ) {
         super(
@@ -38,8 +36,8 @@ export class InputNode extends DataMapperNodeModel {
         );
         this.numberOfFields = 1;
         if (!hasNoMatchingFields) {
-            this._originalType = this.context.inputTrees
-                .find(inputTree => getTypeName(inputTree) === this.value.getType().getText());
+            // this._originalType = this.context.inputTrees
+            //     .find(inputTree => getTypeName(inputTree) === this.value.getType().getText());
             this.dmType = this._originalType;
             this._paramName = this.value.getName();
         }

@@ -9,13 +9,11 @@
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
-import { Node } from 'ts-morph';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
-import { getInputAccessNodes } from '../../utils/common-utils';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 export interface DataMapperNodeModelGenerics {
@@ -185,38 +183,38 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		let foundMappings: MappingMetadata[] = [];
 		const currentFields = [...(parentFields ? parentFields : [])];
 		if (val) {
-			if (Node.isObjectLiteralExpression(val)) {
-				val.getProperties().forEach((field) => {
-					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
-				});
-			} else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
-				const initializer = val.getInitializer();
-				const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
-				const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
-				if (isObjectLiteralExpr || isArrayLiteralExpr) {
-					foundMappings = [...foundMappings, ...this.genMappings(initializer, [...currentFields, val])];
-				} else {
-					foundMappings.push(this.getOtherMappings(val, currentFields));
-				}
-			} else if (Node.isArrayLiteralExpression(val)) {
-				val.getElements().forEach((expr) => {
-					foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
-				})
-			} else {
+			// if (Node.isObjectLiteralExpression(val)) {
+			// 	val.getProperties().forEach((field) => {
+			// 		foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
+			// 	});
+			// } else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
+			// 	const initializer = val.getInitializer();
+			// 	const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
+			// 	const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
+			// 	if (isObjectLiteralExpr || isArrayLiteralExpr) {
+			// 		foundMappings = [...foundMappings, ...this.genMappings(initializer, [...currentFields, val])];
+			// 	} else {
+			// 		foundMappings.push(this.getOtherMappings(val, currentFields));
+			// 	}
+			// } else if (Node.isArrayLiteralExpression(val)) {
+			// 	val.getElements().forEach((expr) => {
+			// 		foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
+			// 	})
+			// } else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
-			}
+			// }
 		}
 		return foundMappings;
 	}
 
 	protected getOtherMappings(node: Node, currentFields: Node[]) {
-		const valNode = Node.isPropertyAssignment(node) ? node.getInitializer() : node;
-		if (valNode) {
-			const inputNodes = getInputAccessNodes(valNode);
-			if (inputNodes.length === 1) {
-				return new MappingMetadata([...currentFields, node], inputNodes[0], valNode);
-			}
-			return new MappingMetadata([...currentFields, node], undefined, valNode);
-		}
+		// const valNode = Node.isPropertyAssignment(node) ? node.getInitializer() : node;
+		// if (valNode) {
+		// 	const inputNodes = getInputAccessNodes(valNode);
+		// 	if (inputNodes.length === 1) {
+		// 		return new MappingMetadata([...currentFields, node], inputNodes[0], valNode);
+		// 	}
+			return new MappingMetadata([...currentFields, node], undefined, undefined);
+		// }
 	}
 }

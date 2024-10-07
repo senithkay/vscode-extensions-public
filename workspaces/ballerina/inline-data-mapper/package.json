@@ -62,7 +62,6 @@
     "eslint": "^8.52.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
-    "ts-morph": "^22.0.0",
     "react-hook-form": "~7.51.2"
   },
   "author": "wso2",

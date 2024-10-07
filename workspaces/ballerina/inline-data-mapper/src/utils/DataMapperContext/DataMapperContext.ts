@@ -7,14 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { IDMType, Range } from "@wso2-enterprise/ballerina-core";
-import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableStatement } from "ts-morph";
 
 import { View } from "../../components/DataMapper/Views/DataMapperView";
 
-type FocusedST = FunctionDeclaration | PropertyAssignment | ReturnStatement | VariableStatement;
+type FocusedST = any;
 
 export interface IDataMapperContext {
-    functionST: FunctionDeclaration;
+    functionST: any;
     focusedST: FocusedST;
     inputTrees: IDMType[];
     outputTree: IDMType;
@@ -28,7 +27,7 @@ export interface IDataMapperContext {
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
-        public functionST: FunctionDeclaration,
+        public functionST: any,
         public focusedST: FocusedST,
         public inputTrees: IDMType[],
         public outputTree: IDMType,

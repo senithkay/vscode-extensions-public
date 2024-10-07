@@ -13,13 +13,11 @@ import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import classNames from "classnames";
-import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
-import { getEditorLineAndColumn, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayToArrayMappingWithFn, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
+import { isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -145,8 +143,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: MouseEvent<HTMLDivElement>) => {
-        const range = getEditorLineAndColumn(field);
-        context.goToSource(range);
+        // const range = getEditorLineAndColumn(field);
+        // context.goToSource(range);
     };
 
     const loadingScreen = (
@@ -195,31 +193,6 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     };
 
     const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: IDMType) => {
-        if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
-
-            let isSourceOptional = false;
-            const linkModelValue = linkModel.value;
-            const sourcePort = linkModel.getSourcePort();
-            const targetPort = linkModel.getTargetPort();
-
-            let targetExpr: Node = linkModelValue;
-            if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
-                isSourceOptional = true;
-            }
-            if (targetPort instanceof InputOutputPortModel) {
-                const expr = targetPort.typeWithValue?.value;
-                if (Node.isPropertyAssignment(expr)) {
-                    targetExpr = expr.getInitializer();
-                } else {
-                    targetExpr = expr;
-                }
-            }
-
-            const mapFnSrc = generateArrayToArrayMappingWithFn(linkModelValue.getText(), targetType, isSourceOptional);
-
-                const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
-                await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
-        }
     };
 
     const codeActions = [];

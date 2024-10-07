@@ -27,8 +27,6 @@ import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContai
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
-import { LinkConnectorNode } from './Node/LinkConnector';
-import { ArrayFnConnectorNode } from './Node/ArrayFnConnector';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
@@ -61,35 +59,27 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
 	engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
 
-	engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
-	engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
-	engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
-	engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
-	engine.getPortFactories().registerFactory(new DefaultPortFactory());
+	// engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
+	// engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
+	// engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
+	// engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
+	// engine.getPortFactories().registerFactory(new DefaultPortFactory());
 
 	// register the default interaction behaviours
 	engine.getStateMachine().pushState(new DefaultDiagramState());
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
 	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.FocusedInputNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.PrimitiveOutputNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.ArrayFnConnectorNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.ArrayFilterNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.SubMappingNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.UnsupportedIONodeFactory());
 
 	engine.getPortFactories().registerFactory(new Ports.InputOutputPortFactory());
 	engine.getPortFactories().registerFactory(new Ports.IntermediatePortFactory());
 
 	engine.getLabelFactories().registerFactory(new Labels.ExpressionLabelFactory());
 
-	engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
-	engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory());
+	// engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
+	// engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory());
 
 	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
@@ -140,21 +130,21 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
 			const modelNodes = engine.getModel().getNodes();
-			const nodesToUpdate = modelNodes.filter(node => 
-				node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode
-			);
+			// const nodesToUpdate = modelNodes.filter(node => 
+			// 	node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode
+			// );
 
-			nodesToUpdate.forEach((node: LinkConnectorNode | ArrayFnConnectorNode) => {
-				node.initLinks();
-				const targetPortPosition = node.targetPort?.getPosition();
-				if (targetPortPosition) {
-					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
-				}
-			});
+			// nodesToUpdate.forEach((node: LinkConnectorNode | ArrayFnConnectorNode) => {
+			// 	node.initLinks();
+			// 	const targetPortPosition = node.targetPort?.getPosition();
+			// 	if (targetPortPosition) {
+			// 		node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
+			// 	}
+			// });
 	
-			if (nodesToUpdate.length > 0) {
-				forceUpdate({});
-			}
+			// if (nodesToUpdate.length > 0) {
+			// 	forceUpdate({});
+			// }
 
 			// Update the expression bar focused output port if any
 			const focusedPort = useDMExpressionBarStore.getState().focusedPort;

@@ -6,14 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { useDMArrayFilterStore } from "../../../store/store";
-import { ArrayFilterNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
-    ADD_ARRAY_FILTER_BUTTON_HEIGHT,
-    ARRAY_FILTER_NODE_ELEMENT_HEIGHT,
-    ARRAY_FILTER_NODE_HEADER_HEIGHT,
-    ARRAY_FILTER_SEPARATOR_HEIGHT,
     GAP_BETWEEN_FIELDS,
     GAP_BETWEEN_NODE_HEADER_AND_BODY,
     IO_NODE_FIELD_HEIGHT,
@@ -41,21 +35,6 @@ export function getIONodeHeight(noOfFields: number) {
 		+ GAP_BETWEEN_NODE_HEADER_AND_BODY;
 }
 
-export function getArrayFilterNodeHeight(arrayFilterNode: ArrayFilterNode) {
-    const { noOfFilters } = arrayFilterNode;
-    const { isCollapsed }  = useDMArrayFilterStore.getState();
-
-    const collapsedHeight = ARRAY_FILTER_NODE_HEADER_HEIGHT
-        + ADD_ARRAY_FILTER_BUTTON_HEIGHT
-        + ARRAY_FILTER_SEPARATOR_HEIGHT;
-	const expandedHeight =  collapsedHeight
-        + noOfFilters * ARRAY_FILTER_NODE_ELEMENT_HEIGHT
-		+ noOfFilters * GAP_BETWEEN_FIELDS
-		+ ARRAY_FILTER_SEPARATOR_HEIGHT;
-
-    return isCollapsed ? collapsedHeight : expandedHeight;
-}
-
 export function calculateControlPointOffset(screenWidth: number) {
     const minWidth = 850;
     const maxWidth = 1500;
@@ -75,19 +54,4 @@ export function isSameView(newNode: DataMapperNodeModel, existingNode?: DataMapp
     const newFocusedView = newNode.context.views[newNode.context.views.length - 1];
 
     return prevFocusedView.label === newFocusedView.label;
-}
-
-export function hasSameFilters(newNodes: DataMapperNodeModel[], existingNodes?: DataMapperNodeModel[]) {
-    if (!existingNodes) return;
-
-    const newArrayFilterNode = newNodes.find(node => node instanceof ArrayFilterNode) as ArrayFilterNode;
-    const existingArrayFilterNode = existingNodes.find(node => node instanceof ArrayFilterNode) as ArrayFilterNode;
-
-    if (!newArrayFilterNode && !existingArrayFilterNode) return true;
-
-    if (newArrayFilterNode && existingArrayFilterNode) {
-        return newArrayFilterNode.noOfFilters === existingArrayFilterNode.noOfFilters;
-    }
-
-    return true;
 }

@@ -6,12 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, ObjectLiteralExpression, PropertyAssignment } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 
 export class FocusedSTFindingVisitor implements Visitor {
     private targetFieldFqn: string;
-    private resolvedNode: PropertyAssignment;
+    private resolvedNode: any;
     private index: number;
     private stack: string[];
 
@@ -22,31 +21,7 @@ export class FocusedSTFindingVisitor implements Visitor {
         this.stack = [];
     }
 
-    public beginVisitPropertyAssignment(node: PropertyAssignment) {
-        const propertyName = node.getName();
-        this.stack.push(propertyName);
-        const fieldFqn = this.getFieldFqn();
-
-        if (fieldFqn === this.targetFieldFqn) {
-            this.resolvedNode = node;
-        }
-    }
-
-    public beginVisitObjectLiteralExpression(node: ObjectLiteralExpression, parent: Node) {
-        if (Node.isArrayLiteralExpression(parent)) {
-            const elementIndex = parent.getElements().indexOf(node);
-            this.stack.push(elementIndex.toString());
-        }
-    }
-
-    public endVisitPropertyAssignment(_node: PropertyAssignment): void {
-        this.stack.pop();
-    }
-
-    public endVisitObjectLiteralExpression(_node: ObjectLiteralExpression, parent: Node) {
-        if (Node.isArrayLiteralExpression(parent)) {
-            this.stack.pop();
-        }
+    public beginVisit(node: any) {
     }
 
     private getFieldFqn(): string {
@@ -54,7 +29,7 @@ export class FocusedSTFindingVisitor implements Visitor {
             prev.length === 0 ? current : `${prev}.${current}`, '');
     }
 
-    public getResolvedNode(): PropertyAssignment {
+    public getResolvedNode(): any {
         return this.resolvedNode;
     }
 }

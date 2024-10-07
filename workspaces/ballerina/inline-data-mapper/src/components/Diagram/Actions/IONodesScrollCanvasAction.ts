@@ -10,7 +10,6 @@
 import { Action, ActionEvent, InputType } from "@projectstorm/react-canvas-core";
 import { InputOutputPortModel } from "../Port";
 import { DataMapperLinkModel } from "../Link";
-import { LinkConnectorNode } from "../Node/LinkConnector";
 import { DiagramEngine, NodeModel } from "@projectstorm/react-diagrams-core";
 import {
     INPUT_NODE_DEFAULT_RIGHT_X,
@@ -19,7 +18,6 @@ import {
     isOutputNode
 } from "./utils";
 import { IO_NODE_DEFAULT_WIDTH, VISUALIZER_PADDING, defaultModelOptions } from "../utils/constants";
-import { ArrayFnConnectorNode } from "../Node/ArrayFnConnector";
 
 export interface PanAndZoomCanvasActionOptions {
     inverseZoom?: boolean;
@@ -147,9 +145,9 @@ function repositionIntermediateNodes(outputNode: NodeModel) {
             if (link instanceof DataMapperLinkModel) {
                 const sourceNode = link.getSourcePort().getNode();
                 const targetPortPosition = link.getTargetPort().getPosition();
-                if (sourceNode instanceof LinkConnectorNode || sourceNode instanceof ArrayFnConnectorNode) {
-                    sourceNode.setPosition(sourceNode.getX(), targetPortPosition.y - 4.5);
-                }
+                // if (sourceNode instanceof LinkConnectorNode || sourceNode instanceof ArrayFnConnectorNode) {
+                //     sourceNode.setPosition(sourceNode.getX(), targetPortPosition.y - 4.5);
+                // }
             }
         }
     }
