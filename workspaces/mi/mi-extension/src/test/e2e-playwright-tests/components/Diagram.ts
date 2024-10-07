@@ -14,7 +14,7 @@ import { Form, FormFillProps } from "./Form";
 export class Diagram {
     private diagramWebView!: Frame;
 
-    constructor(private _page: Page, private type: 'Resource' | 'Sequence') {
+    constructor(private _page: Page, private type: 'Resource' | 'Sequence' | 'Inbound EP') {
     }
 
     public async init() {
@@ -23,6 +23,17 @@ export class Diagram {
             throw new Error("Failed to switch to Diagram View iframe");
         }
         this.diagramWebView = webview;
+    }
+
+    public async edit() {
+        const editButton = await this.diagramWebView.waitForSelector('vscode-button[title="Edit"]');
+        await editButton.click();
+    }
+
+    public async getDiagramTitle() {
+        const titleElement = await this.diagramWebView.waitForSelector('[data-testit="diagram-title"] h3');
+        const title = await titleElement.innerText();
+        return title;
     }
 
     public async getMediator(mediatorName: string, index: number = 0) {
