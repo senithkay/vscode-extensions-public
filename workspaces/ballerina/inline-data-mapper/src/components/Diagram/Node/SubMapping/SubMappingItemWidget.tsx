@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { Block } from "ts-morph";
 import classnames from "classnames";
 
@@ -30,7 +30,7 @@ import { SubMappingSeparator } from "./SubMappingSeparator";
 export interface SubMappingItemProps {
     index: number;
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    type: DMType;
+    type: IDMType;
     engine: DiagramEngine;
     context: IDataMapperContext;
     subMappings: DMSubMapping[];
@@ -54,7 +54,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const typeName = getTypeName(type);
     const portOut = getPort(`${id}.OUT`);
     const expanded = !(portOut && portOut.collapsed);
-    const isRecord = type.kind === TypeKind.Interface;
+    const isRecord = type.kind === TypeKind.Record;
     const hasFields = !!type?.fields?.length;
     const isFirstItem = index === 0;
     const isLastItem = index === subMappings.length - 1;

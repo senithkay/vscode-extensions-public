@@ -10,7 +10,7 @@ import React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { TypeKind } from '@wso2-enterprise/mi-core';
+import { TypeKind } from '@wso2-enterprise/ballerina-core';
 
 import { InputOutputPortModel } from '../../Port';
 import { InputNodeWidget } from "./InputNodeWidget";
@@ -29,7 +29,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
             return (
                 <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
             );
-        } else if (event.model.dmType && event.model.dmType.kind === TypeKind.Interface) {
+        } else if (event.model.dmType && event.model.dmType.kind === TypeKind.Record) {
             return (
                 <InputNodeWidget
                     engine={this.engine}

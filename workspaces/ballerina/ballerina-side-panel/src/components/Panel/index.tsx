@@ -19,9 +19,9 @@ export interface PanelContainerProps {
     width?: string;
     show: boolean;
     showSubPanel?: boolean;
+    subPanel?: React.ReactNode;
     onClose: () => void;
     onBack?: () => void;
-    handleSubPanel?: (show: boolean) => void;
 }
 
 interface SidePanelProps {
@@ -75,7 +75,7 @@ namespace S {
 }
 
 export function PanelContainer(props: PanelContainerProps) {
-    const { children, title, show, showSubPanel, onClose, onBack, width } = props;
+    const { children, title, show, showSubPanel, onClose, onBack, width, subPanel } = props;
 
     return (
         <S.SidePanels>
@@ -95,7 +95,7 @@ export function PanelContainer(props: PanelContainerProps) {
                         </S.StyledButton>
                     </SidePanelTitleContainer>
                 )}
-                {children}
+                {subPanel}
             </S.AdvancedPanel>
             <S.SidePanel width={width}>
                 <SidePanel

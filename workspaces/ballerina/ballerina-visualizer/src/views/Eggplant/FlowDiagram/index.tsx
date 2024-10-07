@@ -36,6 +36,7 @@ import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
+import { InlineDataMapper } from "../../InlineDataMapper";
 
 const Container = styled.div`
     width: 100%;
@@ -476,6 +477,23 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         : undefined
                 }
                 showSubPanel={showSubPanel}
+                subPanel={(
+                    <>
+                        <InlineDataMapper filePath="/Users/madusha/play/eggplant/ep0913/svc1.bal" />
+                        {/* {sidePanelView === SidePanelView.FORM && (
+                            <FormGenerator
+                                node={selectedNodeRef.current}
+                                nodeFormTemplate={nodeTemplateRef.current}
+                                connections={model.connections}
+                                clientName={selectedClientName.current}
+                                targetLineRange={targetRef.current}
+                                projectPath={projectPath}
+                                onSubmit={handleOnFormSubmit}
+                                openSubPanel={() => handleSubPanel(!showSubPanel)}
+                            />
+                        )} */}
+                    </>
+                )}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                     <NodeList

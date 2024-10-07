@@ -7,15 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ArrayLiteralExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function enrichAndProcessType(
-    typeToBeProcessed: DMType,
+    typeToBeProcessed: IDMType,
     node: Node
-): [DMTypeWithValue, DMType] {
+): [DMTypeWithValue, IDMType] {
     let type = { ...typeToBeProcessed };
     let valueEnrichedType = getEnrichedDMType(type, node);
     return [valueEnrichedType, type];
@@ -23,14 +23,14 @@ export function enrichAndProcessType(
 
 export function getDMType(
     propertiesExpr: string,
-    parentType: DMType,
+    parentType: IDMType,
     mapFnIndex?: number,
     isPropeAccessExpr?: boolean
-): DMType {
+): IDMType {
     /*
-        Extract the DMType from the parent type, corresponding to the given properties expression.
-        If the mapFnIndex is undefined, the DMType of the last property in the properties expression is returned.
-        Otherwise, from the already found DMType, the DMType of the map function at the given index is returned.
+        Extract the IDMType from the parent type, corresponding to the given properties expression.
+        If the mapFnIndex is undefined, the IDMType of the last property in the properties expression is returned.
+        Otherwise, from the already found IDMType, the IDMType of the map function at the given index is returned.
     */
     const properties = getProperties(propertiesExpr, isPropeAccessExpr);
 
@@ -59,8 +59,8 @@ export function getDMType(
         return isPropeAccessExpr ? propertyList.slice(1) : propertyList;
     }
 
-    function findField(currentType: DMType, property: string): DMType | undefined {
-        if (currentType.kind === TypeKind.Interface && currentType.fields) {
+    function findField(currentType: IDMType, property: string): IDMType | undefined {
+        if (currentType.kind === TypeKind.Record && currentType.fields) {
             return currentType.fields.find(field => field.fieldName === property);
         } else if (currentType.kind === TypeKind.Array && currentType.memberType) {
             return findField(currentType.memberType, property);
@@ -70,11 +70,11 @@ export function getDMType(
 }
 
 export function getDMTypeForRootChaninedMapFunction(
-    dmType: DMType,
+    dmType: IDMType,
     mapFnIndex: number
-): DMType {
+): IDMType {
     /*
-        Find the DMType corresponding to the the given index.
+        Find the IDMType corresponding to the the given index.
         The focused map function is a decsendant of the map function defined at the
         return statement of the transformation function
     */
@@ -90,7 +90,7 @@ export function getDMTypeForRootChaninedMapFunction(
 export function getDMTypeOfSubMappingItem(
     functionST:FunctionDeclaration,
     subMappingName: string,
-    subMappingTypes: Record<string, DMType>
+    subMappingTypes: Record<string, IDMType>
 ) {
     const varStmt = (functionST.getBody() as Block).getVariableStatement(subMappingName);
 
@@ -101,10 +101,10 @@ export function getDMTypeOfSubMappingItem(
 }
 
 export function getTypeForVariable(
-    varTypes: Record<string, DMType | undefined>,
+    varTypes: Record<string, IDMType | undefined>,
     varDecl: VariableDeclaration,
     subMappingMapFnIndex?: number
-): DMType {
+): IDMType {
     const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
     let varType = varTypes[key];
 
@@ -117,7 +117,7 @@ export function getTypeForVariable(
 }
 
 export function getEnrichedDMType(
-    type: DMType,
+    type: IDMType,
     node: Node | undefined,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
@@ -126,7 +126,7 @@ export function getEnrichedDMType(
     let dmTypeWithValue: DMTypeWithValue;
     let valueNode: Node | undefined;
     let nextNode: Node | undefined;
-    let originalType: DMType = type;
+    let originalType: IDMType = type;
 
     if (parentType) {
         [valueNode, nextNode] = getValueNodeAndNextNodeForParentType(node, parentType, originalType);
@@ -137,7 +137,7 @@ export function getEnrichedDMType(
 
     dmTypeWithValue = new DMTypeWithValue(type, valueNode, parentType, originalType);
 
-    if (type.kind === TypeKind.Interface) {
+    if (type.kind === TypeKind.Record) {
         addChildrenTypes(type, childrenTypes, nextNode, dmTypeWithValue);
     } else if (type.kind === TypeKind.Array && type?.memberType) {
         if (nextNode) {
@@ -151,19 +151,20 @@ export function getEnrichedDMType(
 }
 
 export async function getSubMappingTypes(
-    rpcClient: RpcClient,
+    rpcClient: BallerinaRpcClient,
     filePath: string,
     functionName: string
-): Promise<Record<string, DMType>> {
-    const smTypesResp = await rpcClient
-    .getMiDataMapperRpcClient()
-    .getSubMappingTypes({ filePath, functionName: functionName });
+): Promise<Record<string, IDMType>> {
+    // const smTypesResp = await rpcClient
+    // .getMiDataMapperRpcClient()
+    // .getSubMappingTypes({ filePath, functionName: functionName });
 
-    return smTypesResp.variableTypes;
+    // return smTypesResp.variableTypes;
+    return undefined;
 }
 
 function getEnrichedPrimitiveType(
-    field: DMType,
+    field: IDMType,
     node: Node,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
@@ -183,7 +184,7 @@ function getEnrichedPrimitiveType(
 }
 
 function getEnrichedArrayType(
-    field: DMType,
+    field: IDMType,
     node: ArrayLiteralExpression,
     parentType?: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
@@ -213,7 +214,7 @@ function getEnrichedArrayType(
 function getValueNodeAndNextNodeForParentType(
     node: Node | undefined,
     parentType: DMTypeWithValue,
-    originalType: DMType
+    originalType: IDMType
 ): [Node?, Node?] {
 
     if (node && Node.isObjectLiteralExpression(node)) {
@@ -252,7 +253,7 @@ function getValueNodeAndNextNodeForParentType(
 }
 
 function addChildrenTypes(
-    type: DMType,
+    type: IDMType,
     childrenTypes: DMTypeWithValue[] | undefined,
     nextNode: Node | undefined,
     dmTypeWithValue: DMTypeWithValue
@@ -270,12 +271,12 @@ function addChildrenTypes(
 
 function addEnrichedArrayElements(
     nextNode: Node,
-    type: DMType,
+    type: IDMType,
     dmTypeWithValue: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
 ) {
     if (Node.isObjectLiteralExpression(nextNode)) {
-        if (type.memberType.kind === TypeKind.Interface) {
+        if (type.memberType.kind === TypeKind.Record) {
             const childType = getEnrichedDMType(type.memberType, nextNode, dmTypeWithValue, childrenTypes);
             dmTypeWithValue.elements = [{
                 member: childType,
@@ -292,12 +293,12 @@ function addEnrichedArrayElements(
 }
 
 function addArrayElements(
-    type: DMType,
+    type: IDMType,
     parentType: DMTypeWithValue,
     dmTypeWithValue: DMTypeWithValue,
     childrenTypes?: DMTypeWithValue[]
 ) {
-    if (type.memberType.kind === TypeKind.Interface) {
+    if (type.memberType.kind === TypeKind.Record) {
         const members: ArrayElement[] = [];
         const childType = getEnrichedDMType(type.memberType, undefined, parentType, childrenTypes);
         members.push({

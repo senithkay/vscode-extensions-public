@@ -18,7 +18,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/ballerina-core";
 import { Controller, useForm } from 'react-hook-form';
 
 import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
@@ -85,7 +85,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const onAdd = async (data: SMConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
 
-        const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
+        const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Record;
         const defaultValue = getDefaultValue(typeKind);
         const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType !== "object" && mappingType);
         const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}`: ''} = ${defaultValue};`;
@@ -113,7 +113,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
 
         let updatedNode: Node;
         if (mappingType !== prevMappingType && mappingType !== "object" && varDecl) {
-            const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
+            const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Record;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);
             if (typeNode) {

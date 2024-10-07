@@ -17,7 +17,7 @@ import {
 } from 'ts-morph';
 import { BaseModel } from '@projectstorm/react-canvas-core';
 import { DefaultPortModel } from '@projectstorm/react-diagrams';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
 
 import {
     ArrayFilterNode,
@@ -110,10 +110,11 @@ export function createLinkConnectorNode(
 export function getOutputNode(
     context: DataMapperContext,
     expression: Expression,
-    outputType: DMType,
+    outputType: IDMType,
     isSubMapping: boolean = false
 ): SubMappingOutputNode {
-    if (outputType.kind === TypeKind.Interface || outputType.kind === TypeKind.Object) {
+    // if (outputType.kind === TypeKind.Interface || outputType.kind === TypeKind.Object) {
+    if (outputType.kind === TypeKind.Record) {
         return new ObjectOutputNode(context, expression, outputType, isSubMapping);
     } else if (outputType.kind === TypeKind.Array) {
         return new ArrayOutputNode(context, expression, outputType, isSubMapping);
@@ -127,7 +128,8 @@ export function getSubMappingNode(context: DataMapperContext) {
 
 export function getArrayFilterNode(focusedInputNode: FocusedInputNode) {
     const focusedInputPort = new DefaultPortModel(true, `${ARRAY_FILTER_NODE_PREFIX}`);
-    focusedInputNode.addPort(focusedInputPort);
+    // focusedInputNode.addPort(focusedInputPort);
+    focusedInputNode.addPort(undefined);
 
     const arrayFilterNode = new ArrayFilterNode(focusedInputNode);
     arrayFilterNode.setLocked(true)
@@ -157,8 +159,8 @@ export function isObjectOrArrayLiteralExpression(node: Node): boolean {
         || Node.isArrayLiteralExpression(node);
 }
 
-export function hasFields(type: DMType): boolean {
-    if (type.kind === TypeKind.Interface) {
+export function hasFields(type: IDMType): boolean {
+    if (type.kind === TypeKind.Record) {
         return type.fields && type.fields.length > 0;
     } else if (type.kind === TypeKind.Array) {
         return hasFields(type.memberType);

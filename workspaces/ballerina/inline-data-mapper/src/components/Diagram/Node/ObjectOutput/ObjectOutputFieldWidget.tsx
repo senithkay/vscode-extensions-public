@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/ballerina-core";
 import { Block, Node } from "ts-morph";
 import classnames from "classnames";
 
@@ -70,7 +70,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const typeName = getTypeName(field.type);
     const typeKind = field.type.kind;
     const isArray = typeKind === TypeKind.Array;
-    const isInterface = typeKind === TypeKind.Interface;
+    const isInterface = typeKind === TypeKind.Record;
 
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`

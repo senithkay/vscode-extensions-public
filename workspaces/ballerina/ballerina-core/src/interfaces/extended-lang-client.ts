@@ -11,7 +11,7 @@
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
 import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
-import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic } from "./ballerina";
+import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData } from "./eggplant";
@@ -242,6 +242,23 @@ export interface TypesFromFnDefinitionParams {
     };
     fnPosition: LinePosition;
     returnTypeDescPosition: LinePosition;
+}
+
+export interface VisibleVariableTypesParams {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface VisibleVariableTypes {
+    description: string;
+    source: string;
+    position: LinePosition;
+    visibleTypes: VisibleType[];
+}
+
+export interface VisibleType {
+    name: string;
+    types: TypeField[];
 }
 
 export interface GraphqlDesignServiceParams {

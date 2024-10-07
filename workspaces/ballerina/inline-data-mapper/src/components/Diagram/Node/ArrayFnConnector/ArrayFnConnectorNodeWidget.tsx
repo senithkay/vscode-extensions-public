@@ -10,7 +10,7 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { TypeKind } from '@wso2-enterprise/mi-core';
+import { TypeKind } from '@wso2-enterprise/ballerina-core';
 import classnames from 'classnames';
 
 import { useIntermediateNodeStyles } from '../../../../components/styles';

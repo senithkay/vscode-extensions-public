@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
@@ -39,7 +39,7 @@ export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
 
 export class ObjectOutputNode extends DataMapperNodeModel {
-    public dmType: DMType;
+    public dmType: IDMType;
     public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
     public rootName: string;
@@ -52,7 +52,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: Expression | undefined,
-        public originalType: DMType,
+        public originalType: IDMType,
         public isSubMapping: boolean = false
     ) {
         super(
@@ -86,7 +86,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 collapsedFields, valueEnrichedType, this.isMapFn
             );
     
-            if (valueEnrichedType.type.kind === TypeKind.Interface) {
+            if (valueEnrichedType.type.kind === TypeKind.Record) {
                 this.dmTypeWithValue = valueEnrichedType;
 
                 if (this.dmTypeWithValue.childrenTypes.length) {
@@ -146,7 +146,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                         mappedField
                         && !mappedField?.fieldName
                         && mappedField.kind !== TypeKind.Array
-                        && mappedField.kind !== TypeKind.Interface
+                        && mappedField.kind !== TypeKind.Record
                     ) || !Node.isObjectLiteralExpression(this.value)
                     || Node.isVariableStatement(this.context.focusedST)
                 );

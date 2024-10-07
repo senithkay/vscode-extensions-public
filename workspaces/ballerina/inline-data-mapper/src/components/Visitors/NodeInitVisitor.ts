@@ -18,7 +18,7 @@ import {
     SyntaxKind,
     Expression
 } from "ts-morph";
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode } from "../Diagram/Node";
@@ -98,7 +98,7 @@ export class NodeInitVisitor implements Visitor {
                 const { memberType } = exprType;
                 this.outputNode = getOutputNode(this.context, innerExpr, memberType);
             } else {
-                if (exprType?.kind === TypeKind.Interface) {
+                if (exprType?.kind === TypeKind.Record) {
                     this.outputNode = new ObjectOutputNode(this.context, innerExpr, exprType);
                 } else {
                     // Constraint: The return type of the transformation function should be an interface or an array
@@ -161,7 +161,7 @@ export class NodeInitVisitor implements Visitor {
             if (outputType.kind === TypeKind.Array) {
                 const { memberType } = outputType;
                 this.outputNode = getOutputNode(this.context, mapFnReturnExpr, memberType);
-            } else if (outputTree?.kind === TypeKind.Interface) {
+            } else if (outputTree?.kind === TypeKind.Record) {
                 this.outputNode = new ObjectOutputNode(this.context, mapFnReturnExpr, outputTree);
             } else {
                 // Constraint: The return type of the transformation function should be an interface or an array

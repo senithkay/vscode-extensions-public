@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/ballerina-core";
 import {
 	ArrayLiteralExpression,
 	Block,
@@ -88,7 +88,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	while (parent != null && parent.parentModel) {
 		const parentFieldName = getFieldNameFromOutputPort(parent, sourcePort);
 		if (parentFieldName
-			&& !(parent.field.kind === TypeKind.Interface && parent.parentModel.field.kind === TypeKind.Array)
+			&& !(parent.field.kind === TypeKind.Record && parent.parentModel.field.kind === TypeKind.Array)
 		) {
 			parentFieldNames.push(parentFieldName);
 		}
@@ -425,7 +425,7 @@ function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boole
 function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): boolean {
 	const targetExpr = targetPort?.typeWithValue?.value; // targetExpr is undefined when the body is missing the return statement
 	return !targetPort.parentModel
-		&& targetPort.field.kind === TypeKind.Interface
+		&& targetPort.field.kind === TypeKind.Record
 		&& (
 			!targetExpr || (targetExpr && Node.isObjectLiteralExpression(targetExpr)
 		));
@@ -433,7 +433,7 @@ function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): bool
 
 function isMappedToObjectLitExprWithinArray(targetPort: InputOutputPortModel): boolean {
 	return targetPort.index !== undefined
-		&& targetPort.field.kind === TypeKind.Interface
+		&& targetPort.field.kind === TypeKind.Record
 		&& targetPort.typeWithValue?.value
 		&& Node.isObjectLiteralExpression(targetPort.typeWithValue.value);
 }

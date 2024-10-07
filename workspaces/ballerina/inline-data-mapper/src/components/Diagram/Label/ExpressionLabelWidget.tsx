@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
 
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import classNames from "classnames";
@@ -194,7 +194,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         }
     };
 
-    const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: DMType) => {
+    const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: IDMType) => {
         if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
 
             let isSourceOptional = false;

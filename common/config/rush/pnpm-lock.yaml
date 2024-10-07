@@ -632,6 +632,7 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-graphql-design-diagram': workspace:*
+      '@wso2-enterprise/ballerina-inline-data-mapper': workspace:*
       '@wso2-enterprise/ballerina-low-code-diagram': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ballerina-side-panel': workspace:*
@@ -680,6 +681,7 @@ importers:
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-graphql-design-diagram': link:../graphql-design-diagram
+      '@wso2-enterprise/ballerina-inline-data-mapper': link:../inline-data-mapper
       '@wso2-enterprise/ballerina-low-code-diagram': link:../ballerina-low-code-diagram
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
@@ -1096,8 +1098,8 @@ importers:
       '@typescript-eslint/eslint-plugin': ~7.8.0
       '@typescript-eslint/parser': ~7.8.0
       '@vscode/webview-ui-toolkit': ^1.2.0
-      '@wso2-enterprise/mi-core': workspace:*
-      '@wso2-enterprise/mi-rpc-client': workspace:*
+      '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       ajv: ~8.16.0
       ajv-formats: ~3.0.1
@@ -1137,8 +1139,8 @@ importers:
       '@tanstack/react-query': 4.0.10_sfoxds7t5ydpegc3knd667wn6m
       '@types/mousetrap': 1.6.15
       '@vscode/webview-ui-toolkit': 1.4.0_react@17.0.2
-      '@wso2-enterprise/mi-core': link:../../mi/mi-core
-      '@wso2-enterprise/mi-rpc-client': link:../../mi/mi-rpc-client
+      '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       ajv: 8.16.0
       ajv-formats: 3.0.1_ajv@8.16.0
@@ -8319,6 +8321,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -25407,7 +25420,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ExpressionBar, CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr, createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
@@ -45,7 +45,7 @@ export interface ExpressionBarProps {
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { views, filePath, applyModifications } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const classes = useStyles();
     const textFieldRef = useRef<HTMLInputElement>(null);
     const savedTextFieldValue = useRef<string>("");
@@ -75,17 +75,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
             const fileContent = nodeForSuggestions.getSourceFile().getText();
             const cursorPosition = nodeForSuggestions.getEnd();
-            const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
-                filePath,
-                fileContent,
-                cursorPosition
-            });
+            // const response = await rpcClient.getInlineDataMapperRpcClient().getCompletions({
+            //     filePath,
+            //     fileContent,
+            //     cursorPosition
+            // });
 
-            if (!response.completions) {
-                return [];
-            }
+            // if (!response.completions) {
+            //     return [];
+            // }
 
-            const completions = response.completions as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
+            // const completions = response.completions as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
 
             const localFunctionNames = nodeForSuggestions
                 .getSourceFile()
@@ -94,12 +94,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 .filter(name => name !== READONLY_MAPPING_FUNCTION_NAME);
 
             const filteredCompletions: CompletionItem[] = [];
-            for (const completion of completions) {
-                const details = filterCompletions(completion.entry, completion.details, localFunctionNames);
-                if (details) {
-                    filteredCompletions.push(details);
-                }
-            }
+            // for (const completion of completions) {
+            //     const details = filterCompletions(completion.entry, completion.details, localFunctionNames);
+            //     if (details) {
+            //         filteredCompletions.push(details);
+            //     }
+            // }
             
             return filteredCompletions;
         }

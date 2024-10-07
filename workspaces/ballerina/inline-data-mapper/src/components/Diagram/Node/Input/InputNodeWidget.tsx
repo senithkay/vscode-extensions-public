@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { DMType } from "@wso2-enterprise/mi-core";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';
@@ -24,7 +24,7 @@ import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
 
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    dmType: DMType;
+    dmType: IDMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     valueLabel?: string;

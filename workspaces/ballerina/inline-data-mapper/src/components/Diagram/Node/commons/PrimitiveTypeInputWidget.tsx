@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { DMType } from "@wso2-enterprise/mi-core";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from './Search';
@@ -19,7 +19,7 @@ import { getTypeName } from "../../utils/common-utils";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    dmType: DMType;
+    dmType: IDMType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     valueLabel?: string;

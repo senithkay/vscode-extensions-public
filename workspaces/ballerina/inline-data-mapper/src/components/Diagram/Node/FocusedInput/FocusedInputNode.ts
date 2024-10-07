@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { CallExpression, Node, ParameterDeclaration } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -20,7 +20,7 @@ export const FOCUSED_INPUT_NODE_TYPE = "datamapper-node-focused-input";
 const NODE_ID = "focused-input-node";
 
 export class FocusedInputNode extends DataMapperNodeModel {
-    public dmType: DMType;
+    public dmType: IDMType;
     public numberOfFields:  number;
     public x: number;
     public y: number;
@@ -31,7 +31,7 @@ export class FocusedInputNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: CallExpression,
-        public originalType: DMType
+        public originalType: IDMType
     ) {
         super(
             NODE_ID,
@@ -60,7 +60,7 @@ export class FocusedInputNode extends DataMapperNodeModel {
                 this.dmType, this.nodeLabel, "OUT", FOCUSED_INPUT_SOURCE_PORT_PREFIX, collapsedFields
             );
 
-            if (this.dmType.kind === TypeKind.Interface) {
+            if (this.dmType.kind === TypeKind.Record) {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(

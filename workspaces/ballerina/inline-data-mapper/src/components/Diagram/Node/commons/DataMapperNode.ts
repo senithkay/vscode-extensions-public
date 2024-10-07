@@ -8,7 +8,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
 import { Node } from 'ts-morph';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
@@ -49,7 +49,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 
 	protected addPortsForInputField(
-		dmType: DMType,
+		dmType: IDMType,
 		portType: "IN" | "OUT",
 		parentId: string,
 		unsafeParentId: string,
@@ -81,7 +81,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		this.addPort(fieldPort);
 
 		let numberOfFields = 1;
-		if (dmType.kind === TypeKind.Interface) {
+		if (dmType.kind === TypeKind.Record) {
 			const fields = dmType?.fields;
 
 			if (fields && !!fields.length) {
@@ -121,7 +121,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		);
 		this.addPort(fieldPort);
 
-		if (field.type.kind === TypeKind.Interface) {
+		if (field.type.kind === TypeKind.Record) {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
@@ -141,7 +141,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeader(
-		dmType: DMType,
+		dmType: IDMType,
 		name: string,
 		portType: "IN" | "OUT",
 		portPrefix: string,

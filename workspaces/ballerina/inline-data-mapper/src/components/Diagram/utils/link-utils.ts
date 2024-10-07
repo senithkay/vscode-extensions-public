@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { PortModel } from "@projectstorm/react-diagrams-core";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { InputOutputPortModel } from "../Port";
 import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
@@ -26,7 +26,7 @@ export function isTargetPortArray(port: PortModel): boolean {
     return false;
 }
 
-export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: DMType, isSourceOptional: boolean) {
+export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: IDMType, isSourceOptional: boolean) {
 
     const parts = splitSrcExprWithRegex(srcExpr) // Split by dot or square brackets
     let item = parts[parts.length - 1];
@@ -34,7 +34,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
     const refinedVarName = varName.replace(/[ .]/g, '_'); // Replace spaces and dots with underscores
     let returnExpr = '';
 
-    if (targetType.kind === TypeKind.Interface) {
+    if (targetType.kind === TypeKind.Record) {
         const srcFields = targetType.fields;
 
         returnExpr = `return {
@@ -49,11 +49,11 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
     return `${srcExpr.trim()}\n${isSourceOptional ? '?.' : '.'}map((${refinedVarName}) => {${returnExpr}})`;
 }
 
-function fillWithDefaults(type: DMType): string {
+function fillWithDefaults(type: IDMType): string {
 
-    if (type.kind === TypeKind.Interface) {
+    if (type.kind === TypeKind.Record) {
         const src = type.fields.map(field => {
-            if (field.kind === TypeKind.Interface) {
+            if (field.kind === TypeKind.Record) {
                 return `${field.fieldName}: ${fillWithDefaults(field)}`;
             }
             return `${field.fieldName}: ${getDefaultValue(field.kind)}`;

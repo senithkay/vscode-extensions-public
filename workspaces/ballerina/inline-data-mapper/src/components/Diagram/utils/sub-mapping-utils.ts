@@ -7,7 +7,7 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-import { DMType } from "@wso2-enterprise/mi-core";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
 import { Expression, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration, ts } from "ts-morph";
 
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
@@ -20,7 +20,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FocusedInputNode } from "../Node";
 
 interface SubMappingDetails {
-    subMappingType: DMType;
+    subMappingType: IDMType;
     varDecl: VariableDeclaration;
     mapFnIndex: number;
     sourceFieldFQN: string;
@@ -85,7 +85,7 @@ export function getFocusedSubMappingExpr(
 export function initializeSubMappingContext(
     lastView: View,
     context: DataMapperContext,
-    subMappingTypes: Record<string, DMType>,
+    subMappingTypes: Record<string, IDMType>,
     fnST: FunctionDeclaration
 ) {
     const { subMappingInfo, sourceFieldFQN, targetFieldFQN } = lastView;

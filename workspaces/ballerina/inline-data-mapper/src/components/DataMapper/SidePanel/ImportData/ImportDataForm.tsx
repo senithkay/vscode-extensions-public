@@ -15,7 +15,7 @@ import {
     SidePanelBody,
     Codicon
 } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
@@ -39,7 +39,7 @@ export type ImportDataWizardProps = {
 
 export function ImportDataForm(props: ImportDataWizardProps) {
     const { configName, documentUri } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 

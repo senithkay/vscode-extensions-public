@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/ballerina-core";
 import md5 from "blueimp-md5";
 import { ElementAccessExpression, Identifier, Node, PropertyAccessExpression, ts } from "ts-morph";
 
@@ -260,7 +260,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array
-            && targetField?.kind !== TypeKind.Interface)
+            && targetField?.kind !== TypeKind.Record)
                 || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
         {
             let targetNode = this.valueNode;

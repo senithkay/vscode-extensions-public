@@ -12,7 +12,7 @@ import { ParameterDeclaration } from "ts-morph";
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { getSearchFilteredInput } from "../../utils/search-utils";
 import { getTypeName } from "../../utils/common-utils";
 
@@ -20,11 +20,11 @@ export const INPUT_NODE_TYPE = "datamapper-node-input";
 const NODE_ID = "input-node";
 
 export class InputNode extends DataMapperNodeModel {
-    public dmType: DMType;
+    public dmType: IDMType;
     public numberOfFields:  number;
     public x: number;
     private _paramName: string;
-    private _originalType: DMType;
+    private _originalType: IDMType;
 
     constructor(
         public context: IDataMapperContext,
@@ -54,7 +54,7 @@ export class InputNode extends DataMapperNodeModel {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, collapsedFields);
 
-            if (this.dmType.kind === TypeKind.Interface) {
+            if (this.dmType.kind === TypeKind.Record) {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(

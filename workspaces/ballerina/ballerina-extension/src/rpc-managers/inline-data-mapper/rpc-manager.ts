@@ -11,12 +11,29 @@
 import {
     IOTypeRequest,
     IOTypeResponse,
-    InlineDataMapperAPI
+    InlineDataMapperAPI,
+    VisibleVariableTypes,
+    VisibleVariableTypesParams
 } from "@wso2-enterprise/ballerina-core";
+
+import { StateMachine } from "../../stateMachine";
 
 export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const request: VisibleVariableTypesParams = {
+                filePath: params.filePath,
+                position: params.position
+            };
+            const type = await StateMachine.langClient().getVisibleVariableTypes(request) as VisibleVariableTypes;
+
+            console.log("VisibleVariableTypes: ", type);
+            
+            const response: IOTypeResponse = {
+                inputTypes: [],
+                outputType: undefined
+            };
+            resolve(response);
+        });
     }
 }

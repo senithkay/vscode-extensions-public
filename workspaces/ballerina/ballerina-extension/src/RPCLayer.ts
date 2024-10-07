@@ -28,6 +28,7 @@ import path from 'path';
 import { StateMachinePopup } from './stateMachinePopup';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
 import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
+import { registerInlineDataMapperRpcHandlers } from './rpc-managers/inline-data-mapper/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -72,6 +73,9 @@ export class RPCLayer {
         // ----- AI Webview RPC Methods
         registerAiPanelRpcHandlers(RPCLayer._messenger);
         RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
+
+        // ----- Inline Data Mapper Webview RPC Methods
+        registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
 
          // ----- Popup Views RPC Methods
          RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());

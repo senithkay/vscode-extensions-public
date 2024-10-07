@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind, Range } from "@wso2-enterprise/ballerina-core";
 import {
     ts,
     Identifier,
@@ -78,7 +78,7 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
 				const inputNode = dmNodes.find(node => {
 					if (node instanceof SubMappingNode) {
 						return node.subMappings.some(mapping => {
-							if (mapping.type.kind === TypeKind.Interface) {
+							if (mapping.type.kind === TypeKind.Record) {
 								return mapping.name === expr.getText().trim().split(".")[0]
 							}
 							return mapping.name === expr.getText().trim()
@@ -107,7 +107,7 @@ export function getInputPort(
     node: InputNode | FocusedInputNode | SubMappingNode,
     expr: Node
 ): InputOutputPortModel {
-    let inputNodeDMType: DMType;
+    let inputNodeDMType: IDMType;
     let portIdBuffer;
     
     if (node instanceof InputNode) {
@@ -118,7 +118,7 @@ export function getInputPort(
         portIdBuffer = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + node.innerParam.getName();
     } else if (node instanceof SubMappingNode) {
         const varDecl = node.subMappings.find(mapping => {
-			if (mapping.type.kind === TypeKind.Interface) {
+			if (mapping.type.kind === TypeKind.Record) {
 				return mapping.name === expr.getText().trim().split(".")[0];
 			}
 			return mapping.name === expr.getText().trim()
@@ -127,7 +127,7 @@ export function getInputPort(
 		portIdBuffer = varDecl && SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX + "." + varDecl.name;
     }
 
-    if (inputNodeDMType && inputNodeDMType.kind === TypeKind.Interface) {
+    if (inputNodeDMType && inputNodeDMType.kind === TypeKind.Record) {
 
         if (isInputAccessExpr(expr)) {
             const fieldNames = getFieldNames(expr as ElementAccessExpression | PropertyAccessExpression);
@@ -137,11 +137,11 @@ export function getInputPort(
                 const fieldName = fieldNames[i];
                 portIdBuffer += `.${fieldName.name}`;
                 const optionalField = getOptionalField(nextTypeNode);
-                let fieldType: DMType;
+                let fieldType: IDMType;
 
                 if (optionalField) {
                     fieldType = optionalField?.fields.find(field => field.fieldName === fieldName.name);
-                } else if (nextTypeNode.kind === TypeKind.Interface) {
+                } else if (nextTypeNode.kind === TypeKind.Record) {
                     fieldType = nextTypeNode.fields.find(field => field.fieldName === fieldName.name);
                 }
 
@@ -154,7 +154,7 @@ export function getInputPort(
                             port = port.parentModel;
                         }
                         return port;
-                    } else if (fieldType.kind === TypeKind.Interface) {
+                    } else if (fieldType.kind === TypeKind.Record) {
                         nextTypeNode = fieldType;
                     }
                 }
@@ -312,7 +312,7 @@ export function getFieldNames(expr: ElementAccessExpression | PropertyAccessExpr
     return processedFieldNames;
 }
 
-export function getTypeName(field: DMType): string {
+export function getTypeName(field: IDMType): string {
 	if (!field) {
 		return '';
 	}
@@ -359,7 +359,7 @@ export function getMapFnViewLabel(targetPort: InputOutputPortModel, views: View[
     return label;
 }
 
-export function getSubMappingViewLabel(subMappingName: string, subMappingType: DMType): string {
+export function getSubMappingViewLabel(subMappingName: string, subMappingType: IDMType): string {
     let label = subMappingName;
     if (subMappingType.kind === TypeKind.Array) {
         const typeName = getTypeName(subMappingType);
@@ -370,8 +370,8 @@ export function getSubMappingViewLabel(subMappingName: string, subMappingType: D
     return label;
 }
 
-export const getOptionalField = (field: DMType): DMType | undefined => {
-    if (field.typeName === TypeKind.Interface && field.optional) {
+export const getOptionalField = (field: IDMType): IDMType | undefined => {
+    if (field.typeName === TypeKind.Record && field.optional) {
         return field;
     }
 }
@@ -393,7 +393,7 @@ export function getDefaultValue(typeKind: TypeKind): string {
 		case TypeKind.String:
 			draftParameter = `""`;
 			break;
-		case TypeKind.Number:
+		case TypeKind.Int:
 			draftParameter = `0`;
 			break;
 		case TypeKind.Boolean:
@@ -402,8 +402,7 @@ export function getDefaultValue(typeKind: TypeKind): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
-		case TypeKind.Interface:
-		case TypeKind.Object:
+		case TypeKind.Record:
 			draftParameter = `{}`;
 			break;
 		default:
@@ -417,7 +416,7 @@ export function isEmptyValue(position: NodePosition): boolean {
 	return position.start === position.end;
 }
 
-export function isDefaultValue(fieldType: DMType, value: string): boolean {
+export function isDefaultValue(fieldType: IDMType, value: string): boolean {
 	const defaultValue = getDefaultValue(fieldType.kind);
     const targetValue =  value?.trim().replace(/(\r\n|\n|\r|\s)/g, "")
 	return targetValue === "null" ||  defaultValue === targetValue;
@@ -494,11 +493,11 @@ export function getEditorLineAndColumn(node: Node): Range {
     return {
         start: {
             line: startLine - 1,
-            column: startColumn - 1
+            character: startColumn - 1
         },
         end: {
             line: endLine - 1,
-            column: endColumn - 1
+            character: endColumn - 1
         }
     };
 }
@@ -550,7 +549,7 @@ export function isFilterFunction(callExpr: CallExpression): boolean {
     return isSpecificMethodCall(callExpr, "filter");
 }
 
-export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: NodePosition): DMType {
+export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: NodePosition): IDMType {
 	if (typeWithValue.hasValue()) {
 		if (isPositionsEquals(getPosition(typeWithValue.value), targetPosition)) {
 			return typeWithValue.type;
@@ -595,8 +594,8 @@ export function representsTnfFnReturnStmt(mapFnParentNode: Node, returnStmt: Ret
         && isPositionsEquals(getPosition(mapFnParentNode), getPosition(returnStmt));
 }
 
-export function isArrayOrInterface(dmType: DMType) {
-	return dmType.kind === TypeKind.Array || dmType.kind === TypeKind.Interface;
+export function isArrayOrInterface(dmType: IDMType) {
+	return dmType.kind === TypeKind.Array || dmType.kind === TypeKind.Record;
 }
 
 export function getMapFnIndex(views: View[], prevFieldFQN: string): number {

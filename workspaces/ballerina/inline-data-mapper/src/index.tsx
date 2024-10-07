@@ -10,14 +10,14 @@
 import React, { useMemo } from "react";
 
 /** @jsx jsx */
-import { Global, css } from '@emotion/react';
+import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType } from "@wso2-enterprise/mi-core";
-import { Project, SyntaxKind } from "ts-morph";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
+// import { Project, SyntaxKind } from "ts-morph";
 
 import { InlineDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+// import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { hasFields } from "./components/Diagram/utils/node-utils";
 
 const queryClient = new QueryClient({
@@ -43,8 +43,8 @@ export interface DataMapperViewProps {
     filePath: string;
     fileContent: string;
     functionName: string;
-    inputTrees: DMType[];
-    outputTree: DMType;
+    inputTrees: IDMType[];
+    outputTree: IDMType;
     configName: string;
     updateFileContent: (fileContent: string) => Promise<void>;
 }
@@ -60,67 +60,69 @@ export function DataMapperView(props: DataMapperViewProps) {
         configName
     } = props;
 
-    const { rpcClient } = useVisualizerContext();
+    // const { rpcClient } = useVisualizerContext();
 
-    const functionST = useMemo(() => {
+    // const functionST = useMemo(() => {
 
-        const project = new Project({
-            useInMemoryFileSystem: true,
-            compilerOptions: { target: 2 }
-        });
-        const sourceFile = project.createSourceFile(filePath, fileContent);
-        const fnST = sourceFile.getFunction(functionName);
+    //     const project = new Project({
+    //         useInMemoryFileSystem: true,
+    //         compilerOptions: { target: 2 }
+    //     });
+    //     const sourceFile = project.createSourceFile(filePath, fileContent);
+    //     const fnST = sourceFile.getFunction(functionName);
 
-        const hasNonEmptyIOTrees = inputTrees.every(tree => hasFields(tree)) && hasFields(outputTree);
+    //     const hasNonEmptyIOTrees = inputTrees.every(tree => hasFields(tree)) && hasFields(outputTree);
 
-        // Check if the return statement is empty
-        const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
-        const isEmptyReturnStatement =
-            // If return type is an object
-            returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
-            // If return type is an array
-            || returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
-        if (hasNonEmptyIOTrees && isEmptyReturnStatement) {
-            rpcClient.getMiVisualizerRpcClient().retrieveContext({
-                key: "showDmLandingMessage",
-                contextType: "workspace"
-            }).then((response) => {
-                if (response.value ?? true) {
-                    rpcClient.getMiVisualizerRpcClient().showNotification({
-                        message: "Begin mapping by selecting a field from the Input section and then selecting a corresponding field in the Output section.",
-                        options: ["Don't show this again"],
-                        type: "info",
-                    }).then((response) => {
-                        if (response.selection) {
-                            rpcClient.getMiVisualizerRpcClient().updateContext({
-                                key: "showDmLandingMessage",
-                                value: false,
-                                contextType: "workspace"
-                            });
-                        }
-                    });
-                }
-            });
-        }
+    //     // Check if the return statement is empty
+    //     const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+    //     const isEmptyReturnStatement =
+    //         // If return type is an object
+    //         returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
+    //         // If return type is an array
+    //         || returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
+    //     if (hasNonEmptyIOTrees && isEmptyReturnStatement) {
+    //         rpcClient.getMiVisualizerRpcClient().retrieveContext({
+    //             key: "showDmLandingMessage",
+    //             contextType: "workspace"
+    //         }).then((response) => {
+    //             if (response.value ?? true) {
+    //                 rpcClient.getMiVisualizerRpcClient().showNotification({
+    //                     message: "Begin mapping by selecting a field from the Input section and then selecting a corresponding field in the Output section.",
+    //                     options: ["Don't show this again"],
+    //                     type: "info",
+    //                 }).then((response) => {
+    //                     if (response.selection) {
+    //                         rpcClient.getMiVisualizerRpcClient().updateContext({
+    //                             key: "showDmLandingMessage",
+    //                             value: false,
+    //                             contextType: "workspace"
+    //                         });
+    //                     }
+    //                 });
+    //             }
+    //         });
+    //     }
 
-        return fnST;
+    //     return fnST;
 
-    }, [rpcClient, filePath, fileContent, functionName]);
+    // }, [rpcClient, filePath, fileContent, functionName]);
 
-    const applyModifications = async (fileContent: string) => {
-        await updateFileContent(fileContent);
-    };
+    // const applyModifications = async (fileContent: string) => {
+    //     await updateFileContent(fileContent);
+    // };
+
+    // return (<div>INLINE DATA MAPPWR</div>);
 
     return (
         <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
                 <InlineDataMapper
-                    fnST={functionST}
+                    fnST={undefined}
                     inputTrees={inputTrees}
                     outputTree={outputTree}
                     fileContent={fileContent}
-                    applyModifications={applyModifications}
+                    applyModifications={undefined}
                     filePath={filePath}
                     configName={configName}
                 />

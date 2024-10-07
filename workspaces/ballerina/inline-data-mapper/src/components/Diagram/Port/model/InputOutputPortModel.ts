@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { DMType } from "@wso2-enterprise/mi-core";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
 import { Node } from "ts-morph";
 
 import { DataMapperLinkModel } from "../../Link";
@@ -34,7 +34,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: DMType,
+		public field: IDMType,
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,
@@ -62,8 +62,9 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
-				const targetPortHasLinks = Object.values(targetPort.links)
-					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+				// const targetPortHasLinks = Object.values(targetPort.links)
+				// 	?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+				const targetPortHasLinks = false;
 
 				const targetNode = targetPort.getNode() as DataMapperNodeModel;
 				const valueType = this.getValueType(lm);
@@ -92,7 +93,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				}
 			})
 		});
-		return lm;
+		// return lm;
+		return undefined;
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {

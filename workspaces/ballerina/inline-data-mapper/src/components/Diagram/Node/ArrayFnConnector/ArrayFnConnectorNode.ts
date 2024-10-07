@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType } from "@wso2-enterprise/mi-core";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
 import md5 from "blueimp-md5";
 import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
@@ -37,8 +37,8 @@ type SourceExprType = ElementAccessExpression | PropertyAccessExpression | Ident
 
 export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
-    public sourceType: DMType;
-    public targetType: DMType;
+    public sourceType: IDMType;
+    public targetType: IDMType;
     public sourcePort: InputOutputPortModel;
     public targetPort: InputOutputPortModel;
 

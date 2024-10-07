@@ -27,3 +27,27 @@ export const useExperimentalEnabled = () => {
 
     return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
 };
+
+export const useIOTypes = (filePath: string) => {
+    const { rpcClient } = useRpcContext();
+    const getIOTypes = async () => {
+        try {
+            const res = await rpcClient
+                .getInlineDataMapperRpcClient()
+                .getIOTypes({ filePath, position: { line: 29, offset: 43 } });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const {
+        data: dmIOTypes,
+        isFetching: isFetchingIOTypes,
+        isError: isIOTypeError,
+        refetch
+    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), {});
+
+    return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
+};

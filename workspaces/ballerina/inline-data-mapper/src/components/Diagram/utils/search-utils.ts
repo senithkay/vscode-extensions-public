@@ -6,13 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../Mappings/MappingMetadata";
 import { Node } from "ts-morph";
 
-export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
+export const getSearchFilteredInput = (dmType: IDMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
 	if (!searchValue) {
 		return dmType;
@@ -20,7 +20,7 @@ export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 
 	if (varName?.toLowerCase()?.includes(searchValue.toLowerCase())) {
 		return dmType
-	} else if (dmType.kind === TypeKind.Interface || dmType.kind === TypeKind.Array) {
+	} else if (dmType.kind === TypeKind.Record || dmType.kind === TypeKind.Array) {
 		const filteredType = getFilteredSubFields(dmType, searchValue);
 		if (filteredType) {
 			return filteredType
@@ -28,7 +28,7 @@ export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 	}
 }
 
-export const getSearchFilteredOutput = (dmType: DMType) => {
+export const getSearchFilteredOutput = (dmType: IDMType) => {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 	if (!dmType) {
 		return null
@@ -37,7 +37,7 @@ export const getSearchFilteredOutput = (dmType: DMType) => {
 		return dmType;
 	}
 
-	let searchType: DMType = dmType;
+	let searchType: IDMType = dmType;
 
 	if (searchType.kind === TypeKind.Array) {
 		const subFields = searchType.memberType?.fields
@@ -51,7 +51,7 @@ export const getSearchFilteredOutput = (dmType: DMType) => {
 				fields: subFields || []
 			}
 		}
-	} else if (searchType.kind === TypeKind.Interface) {
+	} else if (searchType.kind === TypeKind.Record) {
 		const subFields = searchType.fields
 			?.map(item => getFilteredSubFields(item, searchValue))
 			.filter(item => item);
@@ -64,7 +64,7 @@ export const getSearchFilteredOutput = (dmType: DMType) => {
 	return  null;
 }
 
-export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
+export const getFilteredSubFields = (dmType: IDMType, searchValue: string) => {
 	if (!dmType) {
 		return null;
 	}
@@ -73,8 +73,8 @@ export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
 		return dmType;
 	}
 
-	if (dmType.kind === TypeKind.Interface) {
-		const matchedSubFields: DMType[] = dmType?.fields
+	if (dmType.kind === TypeKind.Record) {
+		const matchedSubFields: IDMType[] = dmType?.fields
             ?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue))
             .filter(fieldItem => fieldItem);
 
@@ -86,7 +86,7 @@ export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
 			}
 		}
 	} else if (dmType.kind === TypeKind.Array) {
-		const matchedSubFields: DMType[] = dmType?.memberType
+		const matchedSubFields: IDMType[] = dmType?.memberType
             ?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue))
             .filter(fieldItem => fieldItem);
 
@@ -107,12 +107,12 @@ export const getFilteredSubFields = (dmType: DMType, searchValue: string) => {
 	return null;
 }
 
-export function hasNoOutputMatchFound(dmType: DMType, valueEnrichedType: DMTypeWithValue): boolean {
+export function hasNoOutputMatchFound(dmType: IDMType, valueEnrichedType: DMTypeWithValue): boolean {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 	const filteredTypeDef = valueEnrichedType.type;
 	if (!searchValue) {
 		return false;
-	} else if (dmType.kind === TypeKind.Interface && filteredTypeDef.kind === TypeKind.Interface) {
+	} else if (dmType.kind === TypeKind.Record && filteredTypeDef.kind === TypeKind.Record) {
 		return valueEnrichedType?.childrenTypes.length === 0;
 	} else if (dmType.kind === TypeKind.Array && filteredTypeDef.kind === TypeKind.Array) {
 		return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
@@ -127,7 +127,7 @@ function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): 
 		return true;
 	}
 	return elements.every(element => {
-		if (element.member.type.kind === TypeKind.Interface) {
+		if (element.member.type.kind === TypeKind.Record) {
 			return element.member?.childrenTypes.length === 0;
 		} else if (element.member.type.kind === TypeKind.Array) {
 			return element.member.elements && element.member.elements.length === 0

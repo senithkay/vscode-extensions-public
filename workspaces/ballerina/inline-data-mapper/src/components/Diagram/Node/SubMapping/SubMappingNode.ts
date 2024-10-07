@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { Block, VariableStatement } from "ts-morph";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -22,7 +22,7 @@ const NODE_ID = "sub-mapping-node";
 
 export interface DMSubMapping {
     name: string;
-    type: DMType;
+    type: IDMType;
     variableStmt: VariableStatement;
 }
 
@@ -65,9 +65,9 @@ export class SubMappingNode extends DataMapperNodeModel {
             const varDecl = stmt.getDeclarations()[0];
             const varName = varDecl.getName();
 
-            const typeWithoutFilter: DMType = getTypeForVariable(subMappingTypes, varDecl);
+            const typeWithoutFilter: IDMType = getTypeForVariable(subMappingTypes, varDecl);
 
-            const type: DMType = getSearchFilteredInput(typeWithoutFilter, varName);
+            const type: IDMType = getSearchFilteredInput(typeWithoutFilter, varName);
 
             if (type) {
                 const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
@@ -75,7 +75,7 @@ export class SubMappingNode extends DataMapperNodeModel {
                     type, varName, "OUT", SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX, collapsedFields
                 );
 
-                if (type.kind === TypeKind.Interface) {
+                if (type.kind === TypeKind.Record) {
                     const fields = type.fields;
                     fields.forEach(subField => {
                         this.numberOfFields += 1 + this.addPortsForInputField(

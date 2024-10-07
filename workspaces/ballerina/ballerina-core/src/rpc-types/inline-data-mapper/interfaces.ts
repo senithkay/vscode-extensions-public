@@ -8,6 +8,7 @@
  */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { LinePosition } from "../../interfaces/common";
 
 export interface IDMType {
     kind: TypeKind;
@@ -32,7 +33,7 @@ export enum TypeKind {
 
 export interface IOTypeRequest {
     filePath: string;
-    targetPosition: NodePosition;
+    position: LinePosition;
 }
 
 export interface IOTypeResponse {

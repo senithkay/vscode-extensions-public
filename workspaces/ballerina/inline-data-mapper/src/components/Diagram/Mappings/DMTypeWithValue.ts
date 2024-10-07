@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType } from "@wso2-enterprise/mi-core";
+import { IDMType } from "@wso2-enterprise/ballerina-core";
 import { Node } from "ts-morph";
 
 export interface ArrayElement {
@@ -16,10 +16,10 @@ export interface ArrayElement {
 
 export class DMTypeWithValue {
 	constructor(
-		public type: DMType,
+		public type: IDMType,
 		public value?: Node,
 		public parentType?: DMTypeWithValue,
-		public originalType?: DMType,
+		public originalType?: IDMType,
 		public childrenTypes?: DMTypeWithValue[],
 		public elements?: ArrayElement[]
 	){}

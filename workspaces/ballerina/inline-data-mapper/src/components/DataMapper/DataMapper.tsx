@@ -10,8 +10,8 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { IDMType, Range } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -39,8 +39,8 @@ const classes = {
 }
 export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
-    inputTrees: DMType[];
-    outputTree: DMType;
+    inputTrees: IDMType[];
+    outputTree: IDMType;
     fileContent: string;
     filePath: string;
     configName: string;
@@ -89,7 +89,7 @@ export function InlineDataMapper(props: MIDataMapperProps) {
     const [views, dispatch] = useReducer(viewsReducer, initialView);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const { resetSearchStore } = useDMSearchStore();
     const { resetFocus: resetExprBarFocus } = useDMExpressionBarStore();
 
@@ -147,7 +147,7 @@ export function InlineDataMapper(props: MIDataMapperProps) {
         lastView: View,
         context: DataMapperContext,
         nodeInitVisitor: NodeInitVisitor,
-        subMappingTypes: Record<string, DMType>
+        subMappingTypes: Record<string, IDMType>
     ) => {
         const subMappingDetails = initializeSubMappingContext(lastView, context, subMappingTypes, fnST);
         const nodeList = buildNodeListForSubMappings(context, nodeInitVisitor, subMappingDetails);
@@ -169,18 +169,18 @@ export function InlineDataMapper(props: MIDataMapperProps) {
     };
 
     const goToSource = (range: Range) => {
-        rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });
+        // rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });
     };
 
     const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
-        const lastSource = await rpcClient.getMiDataMapperRpcClient()[action]();
-        if (lastSource) {
-            await updateFileContent(lastSource);
-        }
+        // const lastSource = await rpcClient.getMiDataMapperRpcClient()[action]();
+        // if (lastSource) {
+        //     await updateFileContent(lastSource);
+        // }
     };
 
     const updateFileContent = async (content: string) => {
-        await rpcClient.getMiDataMapperRpcClient().updateFileContent({ filePath, fileContent: content });
+        // await rpcClient.getMiDataMapperRpcClient().updateFileContent({ filePath, fileContent: content });
     };
 
     return (

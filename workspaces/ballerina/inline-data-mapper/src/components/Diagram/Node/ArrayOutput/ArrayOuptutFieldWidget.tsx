@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/ballerina-core";
 import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement } from "ts-morph";
 import classnames from "classnames";
 
@@ -199,7 +199,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 const { elementNode } = element;
                 if (elementNode) {
                     if (Node.isObjectLiteralExpression(elementNode)
-                        || element.member?.type.kind === TypeKind.Interface) {
+                        || element.member?.type.kind === TypeKind.Record) {
                         return (
                             <>
                                 <TreeBody>

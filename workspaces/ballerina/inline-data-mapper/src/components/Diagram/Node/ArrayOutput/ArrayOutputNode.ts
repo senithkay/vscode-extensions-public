@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
@@ -39,7 +39,7 @@ export const ARRAY_OUTPUT_NODE_TYPE = "data-mapper-node-array-output";
 const NODE_ID = "array-output-node";
 
 export class ArrayOutputNode extends DataMapperNodeModel {
-    public dmType: DMType;
+    public dmType: IDMType;
     public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
     public rootName: string;
@@ -52,7 +52,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: Expression | undefined,
-        public originalType: DMType,
+        public originalType: IDMType,
         public isSubMapping: boolean = false
     ) {
         super(
