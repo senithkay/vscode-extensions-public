@@ -49,15 +49,10 @@ export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: numbe
 };
 
 export const getIcon = (kind: CompletionItemKind) => {
-    switch (kind) {
-        case COMPLETION_ITEM_KIND.Function:
-            return <Codicon name="symbol-constructor" />;
-        case COMPLETION_ITEM_KIND.Method:
-            return <Codicon name="symbol-constructor" />;
-        case COMPLETION_ITEM_KIND.Parameter:
-            return <Codicon name="symbol-variable" />;
-        case COMPLETION_ITEM_KIND.Property:
-            return <Codicon name="symbol-field" />;
+    if (Object.values(COMPLETION_ITEM_KIND).includes(kind)) {
+        return <Codicon name={`symbol-${kind}`} />;
     }
+
+    return <Codicon name="symbol-variable" />;
 };
 

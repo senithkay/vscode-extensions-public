@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ballerina & Eggplant Extensions",
+            "name": "Ballerina & BI Extensions",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/workspaces/ballerina/ballerina-extension",
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/eggplant/eggplant-extension"
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/bi/bi-extension"
             ],
             "env": {
                 "LS_EXTENSIONS_PATH": "",
@@ -22,17 +22,17 @@
             },
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js",
-                "${workspaceFolder}/workspaces/eggplant/eggplant-extension/out/**/*.js"
+                "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
             "preLaunchTask": "watch-all"
         },
         {
-            "name": "Eggplant Extension",
+            "name": "BI Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/eggplant/eggplant-extension"
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/bi/bi-extension"
             ],
             "env": {
                 "LS_EXTENSIONS_PATH": "",
@@ -42,9 +42,9 @@
                 "BALLERINA_STAGE_CENTRAL": "false"
             },
             "outFiles": [
-                "${workspaceFolder}/workspaces/eggplant/eggplant-extension/out/**/*.js"
+                "${workspaceFolder}/workspaces/bi/bi-extension/out/**/*.js"
             ],
-            "preLaunchTask": "watch-eggplant"
+            "preLaunchTask": "watch-bi"
         },
         {
             "name": "Ballerina Extension",
@@ -64,7 +64,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-ballerina"
+            "preLaunchTask": "watch-ballerina"
         },
         {
             "name": "Ballerina Extension Tests",

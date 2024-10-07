@@ -8,7 +8,7 @@
  */
 import { DMType } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, PropertyAssignment, SyntaxKind } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -118,7 +118,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
     private findTargetPort(): void {
         const innerMostExpr = this.parentNode;
-        const fieldName = Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode();
+        const fieldName = (Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode()) || (Node.isElementAccessExpression(innerMostExpr) && (innerMostExpr.getParentWhile((parent,child) => !child.isKind(SyntaxKind.PropertyAssignment)) as PropertyAssignment)?.getNameNode());
         const fieldNamePosition = fieldName && getPosition(fieldName);
         const returnStmt = getTnfFnReturnStatement(this.context.functionST);
         const isRerurnStmtMapFn = Node.isReturnStatement(this.parentNode);

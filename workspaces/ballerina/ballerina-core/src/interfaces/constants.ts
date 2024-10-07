@@ -9,20 +9,20 @@
 
 export enum SHARED_COMMANDS {
     SHOW_VISUALIZER = 'ballerina.show.visualizer',
-    OPEN_EGGPLANT_WELCOME = 'ballerina.open.eggplant.welcome',
+    OPEN_BI_WELCOME = 'ballerina.open.bi.welcome',
     OPEN_SERVICE_FORM = 'ballerina.open.service.form',
     OPEN_AI_PANEL = 'ballerina.open.ai.panel',
     CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
 }
 
 
-export const EGGPLANT_COMMANDS = {
-    REFRESH_COMMAND: 'Eggplant.project-explorer.refresh',
-    FOCUS_PROJECT_EXPLORER: 'Eggplant.project-explorer.focus',
-    PROJECT_EXPLORER: 'Eggplant.project-explorer',
-    ADD_CONNECTIONS: 'Eggplant.project-explorer.add-connection',
-    ADD_ENTRY_POINT: 'Eggplant.project-explorer.add-entry-point',
-    ADD_SCHEMA: 'Eggplant.project-explorer.add-schema',
-    ADD_FUNCTION: 'Eggplant.project-explorer.add-function',
-    ADD_CONFIGURATION: 'Eggplant.project-explorer.add-configuration'
+export const BI_COMMANDS = {
+    REFRESH_COMMAND: 'BI.project-explorer.refresh',
+    FOCUS_PROJECT_EXPLORER: 'BI.project-explorer.focus',
+    PROJECT_EXPLORER: 'BI.project-explorer',
+    ADD_CONNECTIONS: 'BI.project-explorer.add-connection',
+    ADD_ENTRY_POINT: 'BI.project-explorer.add-entry-point',
+    ADD_SCHEMA: 'BI.project-explorer.add-schema',
+    ADD_FUNCTION: 'BI.project-explorer.add-function',
+    ADD_CONFIGURATION: 'BI.project-explorer.add-configuration'
 };

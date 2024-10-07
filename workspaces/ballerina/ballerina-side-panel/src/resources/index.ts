@@ -17,3 +17,6 @@ export * from "./icons/nodes/MoreVertIcon";
 export * from "./icons/nodes/PlusIcon";
 export * from "./icons/nodes/CloseIcon";
 export * from "./icons/nodes/BackIcon";
+
+export * from "./icons/XIcon";
+export * from "./icons/TIcon";

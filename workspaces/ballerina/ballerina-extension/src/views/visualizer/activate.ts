@@ -41,8 +41,8 @@ export function activateSubscriptions() {
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_EGGPLANT_WELCOME, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EggplantWelcome });
+        vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_WELCOME, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });
         })
     );
 

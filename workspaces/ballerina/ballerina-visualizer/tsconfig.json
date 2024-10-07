@@ -21,12 +21,6 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-      "lib": [
-        "dom",
-        "dom.iterable",
-        "esnext"
-      ],
-
     "noFallthroughCasesInSwitch": true,
     "allowJs": false,
     "allowSyntheticDefaultImports": true,

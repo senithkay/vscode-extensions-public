@@ -15,12 +15,13 @@ import {
     CommandsResponse,
     GoToSourceRequest,
     OpenExternalUrlRequest,
-    ProjectDirResponse,
+    FileOrDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
-    WorkspacesFileResponse
+    WorkspacesFileResponse,
+    FileOrDirRequest
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -32,5 +33,5 @@ export const getBallerinaDiagnostics: RequestType<BallerinaDiagnosticsRequest, B
 export const executeCommand: RequestType<CommandsRequest, CommandsResponse> = { method: `${_preFix}/executeCommand` };
 export const runBackgroundTerminalCommand: RequestType<RunExternalCommandRequest, RunExternalCommandResponse> = { method: `${_preFix}/runBackgroundTerminalCommand` };
 export const openExternalUrl: NotificationType<OpenExternalUrlRequest> = { method: `${_preFix}/openExternalUrl` };
-export const askProjectDirPath: RequestType<void, ProjectDirResponse> = { method: `${_preFix}/askProjectDirPath` };
+export const selectFileOrDirPath: RequestType<FileOrDirRequest, FileOrDirResponse> = { method: `${_preFix}/selectFileOrDirPath` };
 export const experimentalEnabled: RequestType<void, boolean> = { method: `${_preFix}/experimentalEnabled` };

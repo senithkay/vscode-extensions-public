@@ -18,9 +18,10 @@ import {
     Completion,
     CompletionParams,
     DiagnosticData,
+    FileOrDirRequest,
+    FileOrDirResponse,
     GoToSourceRequest,
     OpenExternalUrlRequest,
-    ProjectDirResponse,
     RunExternalCommandRequest,
     RunExternalCommandResponse,
     SyntaxTree,
@@ -29,13 +30,12 @@ import {
     WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
 import child_process from 'child_process';
-import * as os from 'os';
 import { Uri, commands, env, window, workspace } from "vscode";
 import { URI } from "vscode-uri";
+import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
-import { getUpdatedSource } from "./utils";
-import { ballerinaExtInstance } from "../../core";
+import { askFilePath, askProjectPath, getUpdatedSource } from "./utils";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {
@@ -147,15 +147,26 @@ export class CommonRpcManager implements CommonRPCAPI {
         });
     }
 
-    async askProjectDirPath(): Promise<ProjectDirResponse> {
+    async selectFileOrDirPath(params: FileOrDirRequest): Promise<FileOrDirResponse> {
         return new Promise(async (resolve) => {
-            const selectedDir = await askProjectPath();
-            if (!selectedDir || selectedDir.length === 0) {
-                window.showErrorMessage('A folder must be selected to create project');
-                resolve({ path: "" });
+            if (params.isFile) {
+                const selectedFile = await askFilePath();
+                if (!selectedFile || selectedFile.length === 0) {
+                    window.showErrorMessage('A file must be selected');
+                    resolve({ path: "" });
+                } else {
+                    const filePath = selectedFile[0].fsPath;
+                    resolve({ path: filePath });
+                }
             } else {
-                const parentDir = selectedDir[0].fsPath;
-                resolve({ path: parentDir });
+                const selectedDir = await askProjectPath();
+                if (!selectedDir || selectedDir.length === 0) {
+                    window.showErrorMessage('A folder must be selected');
+                    resolve({ path: "" });
+                } else {
+                    const dirPath = selectedDir[0].fsPath;
+                    resolve({ path: dirPath });
+                }
             }
         });
     }
@@ -185,14 +196,4 @@ export class CommonRpcManager implements CommonRPCAPI {
     async openExternalUrl(params: OpenExternalUrlRequest): Promise<void> {
         env.openExternal(Uri.parse(params.url));
     }
-}
-
-async function askProjectPath() {
-    return await window.showOpenDialog({
-        canSelectFiles: false,
-        canSelectFolders: true,
-        canSelectMany: false,
-        defaultUri: Uri.file(os.homedir()),
-        title: "Select a folder to create the Project"
-    });
 }

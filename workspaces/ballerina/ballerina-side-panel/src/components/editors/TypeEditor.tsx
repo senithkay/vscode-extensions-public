@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { Colors } from "../../resources/constants";
+import { useFormContext } from "../../context";
 
 const AddTypeContainer = styled.div<{}>`
     display: flex;
@@ -24,7 +25,6 @@ const AddTypeContainer = styled.div<{}>`
 
 interface TypeEditorProps {
     field: FormField;
-    register: UseFormRegister<FieldValues>;
     openRecordEditor: (open: boolean) => void;
 }
 
@@ -38,7 +38,9 @@ const addType = (name: string, onClick?: () => void) => (
 );
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, register, openRecordEditor } = props;
+    const { field, openRecordEditor } = props;
+    const { form } = useFormContext();
+    const { register } = form;
 
     const handleOpenRecordEditor = () => {
         openRecordEditor(true);
@@ -47,8 +49,8 @@ export function TypeEditor(props: TypeEditorProps) {
     return (
         <TextField
             id={field.key}
-            {...register(field.key, { required: !field.optional, value: field.value })}
-            value={field.value}
+            name={field.key}
+            {...register(field.key, { required: !field.optional })}
             label={field.label}
             required={!field.optional}
             description={field.documentation}

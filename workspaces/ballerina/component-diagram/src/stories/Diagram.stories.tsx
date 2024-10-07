@@ -9,7 +9,7 @@ import model4 from "./4-sample.json";
 import model5 from "./5-sample.json";
 
 export default {
-    title: "Eggplant/Component Diagram",
+    title: "BI/Component Diagram",
     component: Diagram,
 } as Meta;
 

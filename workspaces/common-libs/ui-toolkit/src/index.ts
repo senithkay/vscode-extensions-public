@@ -50,6 +50,8 @@ export * from './components/Drawer/Drawer';
 export * from './components/Alert/Alert';
 export * from './components/ExpressionBar/ExpressionBar';
 export * from './components/MultiSelect/MultiSelect';
+export * from './components/ExpressionBar/ExpressionBar';
+export * from './components/Toggle/Toggle';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
