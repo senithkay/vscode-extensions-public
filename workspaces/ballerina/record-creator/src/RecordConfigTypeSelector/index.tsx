@@ -10,8 +10,7 @@
 import React from "react";
 import { useIntl } from "react-intl";
 import styled from "@emotion/styled";
-import { Button, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
+import { Button, Codicon, Icon, SidePanelTitleContainer, Typography } from "@wso2-enterprise/ui-toolkit";
 import { RecordFormWrapper } from "../style";
 
 export interface RecordConfigTypeProps {
@@ -21,8 +20,22 @@ export interface RecordConfigTypeProps {
     onCancel: () => void;
 }
 
+namespace S {
+    export const Row = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+    `;
+
+    export const StyledButton = styled(Button)`
+        border-radius: 5px;
+    `;
+}
+
 export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
-    const { isDataMapper, onImportFromJson, onImportFromXml } = props;
+    const { isDataMapper, onImportFromJson, onImportFromXml, onCancel } = props;
     const intl = useIntl();
     const importJsonButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.option.importJson",
@@ -36,22 +49,25 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
     return (
         <>
             {!isDataMapper && (
-                <FormHeaderSection
-                    formTitle="lowcode.develop.configForms.recordEditor.codePanel.title"
-                    defaultMessage="Record"
-                />
+                <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
+                    <Typography variant="h3" sx={{margin: 0, fontSize: "13px"}}>Create Record</Typography>
+                    <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
+                </SidePanelTitleContainer>
             )}
             <RecordFormWrapper>
                 <CreateButtonWrapper>
                     <LinePrimaryButton
                         appearance="icon"
-                        sx={{ backgroundColor: "var(--vscode-button-hoverBackground)" }}
+                        sx={{
+                            backgroundColor: "var(--vscode-button-hoverBackground)",
+                            width: "100%",
+                        }}
                         onClick={onImportFromJson}
                         data-test-id="import-json"
                     >
                         <Icon
                             sx={{ height: "18px", width: "18px", marginRight: "4px" }}
-                            iconSx={{ fontSize: "18px" }}
+                            iconSx={{ fontSize: "18px", color: "var(--vscode-button-foreground)" }}
                             name="file-upload"
                         />
                         <LineButtonTitle variant="h4">{importJsonButtonText}</LineButtonTitle>
@@ -59,14 +75,17 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
 
                     <LinePrimaryButton
                         appearance="icon"
-                        sx={{ backgroundColor: "var(--vscode-button-hoverBackground)" }}
+                        sx={{
+                            backgroundColor: "var(--vscode-button-hoverBackground)",
+                            width: "100%"
+                        }}
                         onClick={onImportFromXml}
                         data-test-id="import-xml"
                         disabled={onImportFromXml === null}
                     >
                         <Icon
                             sx={{ height: "18px", width: "18px", marginRight: "4px" }}
-                            iconSx={{ fontSize: "18px" }}
+                            iconSx={{ fontSize: "18px", color: "var(--vscode-button-foreground)" }}
                             name="file-upload"
                         />
                         <LineButtonTitle variant="h4">{importXmlButtonText}</LineButtonTitle>
@@ -114,4 +133,5 @@ const LinePrimaryButton = styled(Button)`
 
 const LineButtonTitle = styled(Typography)`
     margin: 0;
+    color: var(--vscode-button-foreground);
 `;

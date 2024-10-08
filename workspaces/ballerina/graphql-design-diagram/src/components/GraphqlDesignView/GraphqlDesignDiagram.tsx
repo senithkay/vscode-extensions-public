@@ -9,11 +9,9 @@
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { TextPreLoader } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+    ExtendedLangClientInterface, GraphqlDesignService
+} from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Container } from "../Canvas/CanvasWidgetContainer";
@@ -28,9 +26,9 @@ import { GraphqlUnsupportedOverlay } from "./GraphqlUnsupportedOverlay";
 export interface GraphqlDesignDiagramProps {
     model?: STNode;
     targetPosition?: NodePosition;
-    langClientPromise?: Promise<IBallerinaLangClient>;
+    langClientPromise?: Promise<ExtendedLangClientInterface>;
     filePath: string;
-    graphqlModelResponse: GraphqlDesignServiceResponse;
+    graphqlModelResponse: GraphqlDesignService;
     currentFile?: {
         content: string,
         path: string,
@@ -115,7 +113,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
             {!modelData?.designModel &&
                 <Container className="dotted-background">
-                    <TextPreLoader position="absolute" text="Fetching data..." />
+                    <p>Fetching data...</p>
                 </Container>
             }
         </>

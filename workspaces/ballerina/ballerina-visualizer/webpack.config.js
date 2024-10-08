@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require('webpack');
 
 module.exports = {
   entry: "./src/index.tsx",
@@ -15,11 +16,16 @@ module.exports = {
       'react': path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
       'vscode': path.resolve(__dirname, 'node_modules/vscode-uri'),
-    },
+      "crypto": false,
+      "net": false,
+      "os": false,
+      "path": false,
+      "fs": false,
+      "child_process": false,
+    }
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.(ts|tsx)$/,
         loader: "ts-loader",
         exclude: '/node_modules/',
@@ -70,7 +76,18 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
     },
     devMiddleware: {
-      mimeTypes: { 'text/css': ['css'] },
+      mimeTypes: {
+        'text/css': ['css']
+      },
     },
-  }
+    static: path.join(__dirname, "build"),
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1
+    })
+  ]
 };

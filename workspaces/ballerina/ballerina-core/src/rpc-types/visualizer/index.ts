@@ -8,11 +8,10 @@
  */
 
 import { HistoryEntry } from "../../history";
-import { VisualizerLocation } from "../../state-machine-types";
-import { UpdateUndoRedoMangerRequest } from "./interfaces";
+import { OpenViewRequest, UpdateUndoRedoMangerRequest } from "./interfaces";
 
 export interface VisualizerAPI {
-    openView: (params: VisualizerLocation) => void;
+    openView: (params: OpenViewRequest) => void;
     getHistory: () => Promise<HistoryEntry[]>;
     addToHistory: (entry: HistoryEntry) => void;
     goBack: () => void;

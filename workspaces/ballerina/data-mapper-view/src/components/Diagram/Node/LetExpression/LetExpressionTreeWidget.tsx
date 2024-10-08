@@ -22,7 +22,7 @@ import { TreeContainer } from '../commons/Tree/Tree';
 
 import { DMLetVarDecl } from "./index";
 import { LetVarDeclItemWidget } from "./LetVarDeclItemWidget";
-import { useStyles } from "./style";
+import { useIONodesStyles } from '../../../styles';
 
 export interface LetExpressionTreeWidgetProps {
     letVarDecls: DMLetVarDecl[];
@@ -36,7 +36,7 @@ export interface LetExpressionTreeWidgetProps {
 export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
     const { engine, letVarDecls, context, isWithinQuery, getPort, handleCollapse } = props;
     const searchValue = useDMSearchStore.getState().inputSearch;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
     const selectedST = context.selection.selectedST.stNode;
 
     const onClick = () => {
@@ -90,14 +90,14 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                 </TreeContainer>
             ) : !isWithinQuery && !searchValue && (
                 <Button
-                    className={classes.addIcon}
+                    className={classes.addLocalVariableButton}
                     appearance='icon'
                     aria-label="add"
                     onClick={onClick}
                     data-testid={"add-local-variable-btn"}
                 >
-                    <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />
-                    <div>Add Local Variable</div>
+                    <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />
+                    <div>Add Sub Mapping</div>
                 </Button>
             )}
         </>

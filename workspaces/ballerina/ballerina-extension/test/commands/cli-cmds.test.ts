@@ -12,8 +12,8 @@ import * as rimraf from "rimraf";
 import * as path from 'path';
 import axios from "axios";
 import { expect } from "chai";
-import { BallerinaProject } from "src/core";
-import { runCommand, BALLERINA_COMMANDS } from '../../src/project/cmds/cmd-runner';
+import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import { runCommand, BALLERINA_COMMANDS } from '../../src/features/project/cmds/cmd-runner';
 import { getBallerinaHome, killPort } from '../test-util';
 import { wait } from "../../ui-test/util";
 import { PROJECT_RUN_TIME } from "../../ui-test/constants";
@@ -109,6 +109,31 @@ suite("Ballerina Extension CLI Command Tests", () => {
     test("Test Run - Single file", async () => {
         const filePath = path.join(PROJECT_ROOT, 'hello_world_service_9092.bal');
         runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.RUN, filePath);
+        await wait(PROJECT_RUN_TIME)
+        const response = await axios.get('http://0.0.0.0:9092/hello/sayHello');
+        expect(response.data).to.eql("Hello, World!");
+        killPort(9092);
+    });
+
+    test("Test Run - Ballerina project", async () => {
+        const projectPath = path.join(PROJECT_ROOT, 'helloService9093Package');
+        const balProject: BallerinaProject = {
+            path: projectPath,
+            version: '0.0.1',
+            packageName: 'helloservice9093project',
+            kind: 'BUILD_PROJECT'
+        };
+
+        runCommand(balProject, BALLERINA_CMD, BALLERINA_COMMANDS.RUN_WITH_WATCH, projectPath);
+        await wait(PROJECT_RUN_TIME)
+        const response = await axios.get('http://0.0.0.0:9093/hello/sayHello')
+        expect(response.data).to.eql("Hello, World!");
+        killPort(9093);
+    });
+
+    test("Test Run - Single file", async () => {
+        const filePath = path.join(PROJECT_ROOT, 'hello_world_service_9092.bal');
+        runCommand(PROJECT_ROOT, BALLERINA_CMD, BALLERINA_COMMANDS.RUN_WITH_WATCH, filePath);
         await wait(PROJECT_RUN_TIME)
         const response = await axios.get('http://0.0.0.0:9092/hello/sayHello');
         expect(response.data).to.eql("Hello, World!");

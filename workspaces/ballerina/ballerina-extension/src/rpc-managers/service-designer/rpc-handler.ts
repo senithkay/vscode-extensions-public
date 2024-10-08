@@ -9,7 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ExportOASRequest,
     RecordSTRequest,
+    exportOASFile,
     getRecordST
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
@@ -18,4 +20,5 @@ import { ServiceDesignerRpcManager } from "./rpc-manager";
 export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     const rpcManger = new ServiceDesignerRpcManager();
     messenger.onRequest(getRecordST, (args: RecordSTRequest) => rpcManger.getRecordST(args));
+    messenger.onRequest(exportOASFile, (args: ExportOASRequest) => rpcManger.exportOASFile(args));
 }

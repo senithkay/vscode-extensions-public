@@ -2,6 +2,11 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "watch-all",
+            "dependsOn": ["watch-ballerina", "watch-bi"]
+        },
+        {
+            "label": "watch-ballerina",
             "type": "npm",
             "script": "watch-ballerina",
             "path": "workspaces/ballerina/ballerina-extension",
@@ -43,9 +48,10 @@
             }
         },
         {
+            "label": "watch-bi",
             "type": "npm",
-            "script": "watch-eggplant",
-            "path": "workspaces/eggplant/eggplant-extension",
+            "script": "watch-bi",
+            "path": "workspaces/bi/bi-extension",
             "problemMatcher": {
                 "owner": "typescript",
                 "source": "ts",

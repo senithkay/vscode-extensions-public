@@ -10,7 +10,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from 'react';
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client"
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client"
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
@@ -49,7 +49,7 @@ export function Overview(props: { visualizerLocation: VisualizerLocation }) {
     const [loading, setLoading] = useState(true);
     const [workspaceInfo, setWorkspaceInfo] = useState<WorkspacesFileResponse>();
     const [selectedFile, setSelectedFile] = useState<string>(SELECT_ALL_FILES);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
 
     const [isPanelOpen, setPanelOpen] = useState(false);
 
@@ -64,8 +64,8 @@ export function Overview(props: { visualizerLocation: VisualizerLocation }) {
     const handleFileChange = async (value: string) => {
         setSelectedFile(value);
         const componentResponse = (value === SELECT_ALL_FILES) ?
-            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined) :
-            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents({
+            await rpcClient.getLangClientRpcClient().getBallerinaProjectComponents(undefined) :
+            await rpcClient.getLangClientRpcClient().getBallerinaProjectComponents({
                 documentIdentifiers: [{ uri: URI.file(value).toString() }]
             });
         setComponents(componentResponse as Data);
@@ -75,7 +75,7 @@ export function Overview(props: { visualizerLocation: VisualizerLocation }) {
         try {
             const workspaceResponse = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
             setWorkspaceInfo(workspaceResponse);
-            const componentResponse = await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined);
+            const componentResponse = await rpcClient.getLangClientRpcClient().getBallerinaProjectComponents(undefined);
             setComponents(componentResponse as Data);
         } catch (error) {
             console.error('Error fetching data:', error);

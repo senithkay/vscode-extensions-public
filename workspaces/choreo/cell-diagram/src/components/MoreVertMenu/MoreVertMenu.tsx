@@ -9,42 +9,21 @@
 
 import React from "react";
 import styled from "@emotion/styled";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import { Colors } from "../../resources";
 import { Component } from "../../types";
-import { Codicon, MenuItem, Item, Popover } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertMenuItem } from "../../types";
 
-const ItemContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    line-height: 1.5;
-    font-weight: 800;
-    color: ${Colors.ON_SURFACE_VARIANT};
-    font-family: GilmerRegular;
-    @keyframes fade-in-out {
-        0% {
-            opacity: 0;
-            transform: translate(50%, -50%) scale(0.5);
-        }
-        100% {
-            opacity: 1;
-            transform: translate(50%, -50%) scale(1);
-        }
-    }
-`;
-
-const IconStyles = styled.div`
+const IconStyles = styled.button`
     position: absolute;
     background-color: ${Colors.SURFACE};
     margin-left: 68px;
     margin-bottom: 58px;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    transform: rotate(90deg);
-    border: 1px solid var(--vscode-dropdown-border);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -52,49 +31,63 @@ const IconStyles = styled.div`
     line-height: 0;
     border: 3px solid ${Colors.SURFACE_DIM};
     transition: "transform 0.3s ease-in-out";
+    cursor: pointer;
 `;
 
 interface MoreVertMenuProps {
     component: Component;
     menuItems: MoreVertMenuItem[];
     hasComponentKind?: boolean;
+    onClose?: () => void;
 }
 
 export function MoreVertMenu(props: MoreVertMenuProps) {
-    const { component, menuItems } = props;
+    const { component, menuItems, onClose } = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const menuId = "menu-" + component.id;
 
-    const handleClick = (event?: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event?.stopPropagation();
         setAnchorEl(event.currentTarget);
     };
 
-    const contextMenuItems: Item[] = menuItems.map((item) => {
-        return {
-            id: item.label,
-            label: <ItemContainer>{item.label}</ItemContainer>,
-            onClick: () => {
-                item.callback(component.id, component.version);
-                setAnchorEl(null);
-            },
-        };
-    });
+    const handleClose = () => {
+        setAnchorEl(null);
+        onClose && onClose();
+    };
 
     return (
         <>
-            <IconStyles>
-                <Codicon
-                    sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-                    iconSx={{ fontSize: 20, fontWeight: "bold" }}
-                    onClick={handleClick}
-                    name="ellipsis"
-                />
+            <IconStyles
+                aria-controls={open ? menuId : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}>
+                <MoreVertIcon />
             </IconStyles>
-            <Popover id={"contextMenu"} open={Boolean(anchorEl)} anchorEl={anchorEl} sx={{ padding: 0, cursor: "pointer", borderRadius: 4 }}>
-                {contextMenuItems.map((item) => (
-                    <MenuItem key={`item ${item.id}`} item={item} onClick={item?.onClick} />
+
+            <Menu
+                id={menuId}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+            >
+                {menuItems.map((item) => (
+                    <MenuItem key={`menu-item ${item.label}`} onClick={() => {
+                        item.callback(component.id, component.version);
+                        handleClose();
+                    }}>{item.label}</MenuItem>
                 ))}
-            </Popover>
+            </Menu>
         </>
     );
 }

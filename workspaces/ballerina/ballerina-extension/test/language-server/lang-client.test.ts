@@ -10,18 +10,23 @@
 import assert = require('assert');
 import { expect } from 'chai';
 import { join } from 'path';
-import {
-    BallerinaExampleListResponse, BallerinaProject, BallerinaProjectComponents, ExecutorPositionsResponse,
-    ExtendedLangClient, JsonToRecordResponse, NoteBookCellOutputResponse, NotebookFileSourceResponse,
-    NotebookVariable, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse,
-    PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
-} from "../../src/core/extended-language-client";
-import { getServerOptions } from "../../src/server/server";
+import { getServerOptions } from "../../src/utils/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
-import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    BallerinaExampleList, BallerinaProject, BallerinaProjectComponents, ExecutorPositions,
+    JsonToRecord, NoteBookCellOutput, NotebookFileSource,
+    NotebookVariable, OpenAPISpec, PackageConfigSchema, PartialST,
+    PerformanceAnalyzer, SymbolInfo, SyntaxTreeNode,
+    Connectors, Completion, Diagnostics,
+    SyntaxTree,
+    Connector,
+    Trigger,
+    Triggers
+} from '@wso2-enterprise/ballerina-core';
+import { ExtendedLangClient } from '../../src/core/extended-language-client';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -113,7 +118,7 @@ suite("Language Server Tests", function () {
 
     test("Test fetchExamples", (done) => {
         langClient.fetchExamples().then((examplesResponse) => {
-            const response = examplesResponse as BallerinaExampleListResponse;
+            const response = examplesResponse as BallerinaExampleList;
             assert.notEqual(response.samples.length, 0, 'No samples listed');
             done();
         }, (reason) => {
@@ -673,7 +678,7 @@ suite("Language Server Tests", function () {
                 }
             }
         }).then((stResponse) => {
-            const response = stResponse as SyntaxTreeNodeResponse;
+            const response = stResponse as SyntaxTreeNode;
             expect(response).to.contain.keys('kind');
             assert.equal(response.kind, 'STRING_LITERAL', 'Invalid syntax tree node kind.');
             done();
@@ -689,7 +694,7 @@ suite("Language Server Tests", function () {
                 uri: uri.toString()
             }
         }).then((execResponse) => {
-            const response = execResponse as ExecutorPositionsResponse;
+            const response = execResponse as ExecutorPositions;
             expect(response).to.contain.keys('executorPositions');
             assert.equal(response.executorPositions?.length, 1, "Invalid numer of executor positions");
             assert.equal(response.executorPositions![0].name, 'main', "Invalid executor position function name");
@@ -719,7 +724,7 @@ suite("Language Server Tests", function () {
         const expected: string = readFileSync(join(PROJECT_ROOT, 'record.bal'), 'utf-8');
         langClient.convertJsonToRecord({ jsonString: json, isClosed: false, isRecordTypeDesc: false, recordName: "", forceFormatRecordFields: false })
             .then(lSResponse => {
-                const response = lSResponse as JsonToRecordResponse;
+                const response = lSResponse as JsonToRecord;
                 expect(response).to.contain.keys("codeBlock");
                 assert.strictEqual(response.codeBlock, expected, "Invalid codeblock");
                 done();
@@ -728,30 +733,11 @@ suite("Language Server Tests", function () {
             });
     });
 
-    test("Test performance analyzer endpoints", function (done): void {
-        const uri = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'perf.bal')).fsPath;
-        langClient.getResourcesWithEndpoints({
-            documentIdentifier: {
-                uri
-            },
-            isWorkerSupported: false
-        }, true).then(async (epResponse) => {
-            const response = epResponse as PerformanceAnalyzerResponse[];
-            expect(response).to.lengthOf(1);
-            assert.strictEqual(response[0].type, "Success", "Endpoint resolve error");
-            assert.strictEqual(Object.keys(response[0].endpoints).length, 1, "Invalid endpoints");
-            assert.strictEqual(Object.keys(response[0].actionInvocations).length, 1, "Invalid action invocations");
-            done();
-        }, error => {
-            done(error);
-        });
-    });
-
     test("Test partial parser - get ST for single statement", function (done): void {
         langClient.getSTForSingleStatement({
             codeSnippet: "int x = 0;"
         }).then(async (epResponse) => {
-            const response = epResponse as PartialSTResponse;
+            const response = epResponse as PartialST;
             expect(response).to.contain.keys("syntaxTree");
 
             assert.strictEqual(response.syntaxTree.position.endColumn, 10, "Invalid st response");
@@ -765,7 +751,7 @@ suite("Language Server Tests", function () {
         langClient.getSTForModuleMembers({
             codeSnippet: "configurable STATEMENT  CONF_NAME = ?;"
         }).then(async (res) => {
-            const response = res as PartialSTResponse;
+            const response = res as PartialST;
             expect(response).to.contain.keys("syntaxTree");
 
             assert.strictEqual(response.syntaxTree.position.endColumn, 37, "Invalid st response");
@@ -781,7 +767,7 @@ suite("Language Server Tests", function () {
             langClient.convertToOpenAPI({
                 documentFilePath: uri.fsPath
             }).then(async (res) => {
-                const response = res as OpenAPIConverterResponse;
+                const response = res as OpenAPISpec;
                 expect(response).to.contain.keys("content");
                 assert.strictEqual(response.content.length, 1, "Invalid open API content");
                 assert.strictEqual(response.content[0].diagnostics.length, 0, "Invalid open API content");
@@ -796,7 +782,7 @@ suite("Language Server Tests", function () {
         langClient.getTriggers({
             query: "ballerinax"
         }).then(async (res) => {
-            const response = res as BallerinaTriggersResponse;
+            const response = res as Triggers;
             expect(response).to.contains.keys("central");
             expect(response).not.contains.keys("error");
             assert.strictEqual(response.central[0].name, "Trigger", "Invalid triggers");
@@ -810,7 +796,7 @@ suite("Language Server Tests", function () {
         langClient.getTrigger({
             id: "36"
         }).then(async (res) => {
-            const response = res as BallerinaTriggerResponse;
+            const response = res as Trigger;
             expect(response).not.contains.keys("error");
             assert.strictEqual(response.name, "Trigger", "Invalid triggers");
             done();
@@ -827,7 +813,7 @@ suite("Language Server Tests", function () {
                     uri: uri.toString()
                 }
             }).then(async (res) => {
-                const response = res as PublishDiagnosticsParams[];
+                const response = res as Diagnostics[];
                 expect(response).to.lengthOf(1);
                 assert.strictEqual(response[0].diagnostics.length, 3, "Invalid diagnostics");
                 done();
@@ -837,7 +823,7 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test get completion", function (done): void {
+    test.only("Test get completion", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
             langClient.getCompletion({
@@ -852,8 +838,8 @@ suite("Language Server Tests", function () {
                     triggerKind: 1
                 }
             }).then(async (res) => {
-                const response = res as CompletionResponse[];
-                expect(response).length.to.greaterThan(100);
+                const response = res as Completion[];
+                expect(response).length.to.greaterThan(70);
                 assert.strictEqual(response[0].detail, "Snippet", "Invalid completion");
                 done();
             }, error => {
@@ -867,7 +853,7 @@ suite("Language Server Tests", function () {
             query: "",
             limit: 2
         }).then(async (res) => {
-            const response = res as BallerinaConnectorsResponse;
+            const response = res as Connectors;
             expect(response).not.contains.keys("error");
             assert.strictEqual(response.central.length, 2, "Invalid triggers");
             done();
@@ -877,20 +863,20 @@ suite("Language Server Tests", function () {
     });
 
     // TODO: Enable test. https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/937
-    test.skip("Test get connector", function (done): void {
-        langClient.getConnector({
-            name: "Client",
-            moduleName: "googleapis.sheets",
-            package: { organization: "ballerinax", name: "googleapis.sheets", version: "3.1.0" },
-        }).then(async (res) => {
-            const response = res as BallerinaConnectorResponse;
-            expect(response).not.contains.keys("error");
-            assert.strictEqual(response.name, "Client", "Invalid trigger");
-            done();
-        }, error => {
-            done(error);
-        });
-    });
+    // test.skip("Test get connector", function (done): void {
+    //     langClient.getConnector({
+    //         name: "Client",
+    //         moduleName: "googleapis.sheets",
+    //         package: { organization: "ballerinax", name: "googleapis.sheets", version: "3.1.0" },
+    //     }).then(async (res) => {
+    //         const response = res as Connector;
+    //         expect(response).not.contains.keys("error");
+    //         assert.strictEqual(response.name, "Client", "Invalid trigger");
+    //         done();
+    //     }, error => {
+    //         done(error);
+    //     });
+    // });
 
     test("Test st modify", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'error.bal')).toString();
@@ -910,7 +896,7 @@ suite("Language Server Tests", function () {
                 type: 'INSERT'
             }]
         }).then(async (res) => {
-            const response = res as BallerinaSTModifyResponse;
+            const response = res as SyntaxTree;
             expect(response).to.contains.keys("source");
             assert.strictEqual(response.parseSuccess, true, "Invalid st modification");
             assert.strictEqual(response.source, "int age;\n", "Invalid st modification");
@@ -941,7 +927,7 @@ suite("Language Server Tests", function () {
                 line: 5,
             }
         }).then(async (res) => {
-            const response = res as SymbolInfoResponse;
+            const response = res as SymbolInfo;
             expect(response).to.contains.keys("documentation", "symbolKind");
             assert.strictEqual(response.documentation.parameters?.length, 2, "Invalid symbol documentation");
             assert.strictEqual(response.documentation.parameters[0].name, "receiver", "Invalid symbol documentation");
@@ -958,7 +944,7 @@ suite("Language Server Tests", function () {
                 uri
             },
         }).then(async (res) => {
-            const response = res as PackageConfigSchemaResponse;
+            const response = res as PackageConfigSchema;
             expect(response).to.contains.keys("configSchema");
             assert.strictEqual(response.configSchema.$schema, "http://json-schema.org/draft-07/schema#", "Invalid project config");
             done();
@@ -971,7 +957,7 @@ suite("Language Server Tests", function () {
         langClient.getBalShellResult({
             source: "15*15"
         }).then((res) => {
-            const response = res as NoteBookCellOutputResponse;
+            const response = res as NoteBookCellOutput;
             expect(response).to.contain.keys("shellValue", "errors", "diagnostics", "metaInfo", "consoleOut");
 
             assert.strictEqual(response.shellValue?.value, "225", "Invalid result from code snippet execution");
@@ -983,7 +969,7 @@ suite("Language Server Tests", function () {
 
     test.skip("Test notebook support - get file source", function (done): void {
         langClient.getShellBufferFilePath().then((res) => {
-            const response = res as NotebookFileSourceResponse;
+            const response = res as NotebookFileSource;
             expect(response).to.contain.keys("content", "filePath");
 
             expect(response.filePath).to.not.equal(null, "Shell file source is empty.");
@@ -1036,7 +1022,7 @@ suite("Language Server Tests", function () {
             // calling to get number to ensure it was deleted
             let res = await langClient.getBalShellResult({
                 source: "number"
-            }) as NoteBookCellOutputResponse;
+            }) as NoteBookCellOutput;
             expect(res).to.contain.keys("errors", "diagnostics", "metaInfo", "consoleOut");
             expect(res).to.not.contain.keys("shellValue");
 

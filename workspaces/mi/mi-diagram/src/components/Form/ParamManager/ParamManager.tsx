@@ -18,6 +18,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
+import { ResourceType } from "@wso2-enterprise/mi-core";
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue | ParamConfig;
@@ -62,7 +63,7 @@ export interface ParamField {
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     filter?: (value: string) => boolean; // For KeyLookup
-    filterType?: FilterType; // For KeyLookup
+    filterType?: FilterType | ResourceType[]; // For KeyLookup
     paramManager?: ParamManagerProps; // For nested ParamManager
 }
 

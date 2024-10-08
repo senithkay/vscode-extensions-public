@@ -8,20 +8,20 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { ComponentModel, PersistERModel } from '@wso2-enterprise/ballerina-core';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
+import { ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
 import { modelMapper, generateEngine } from './utils';
 import { DiagramControls, HeaderWidget, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
-import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './resources';
+import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine } from './resources';
 import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 import { NavigationWrapperCanvasWidget } from "./components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget";
 
 interface PersistDiagramProps {
-    getPersistModel: () => Promise<GetPersistERModelResponse>;
+    getPersistModel: () => Promise<PersistERModel>;
     selectedRecordName: string;
     showProblemPanel: () => void;
 }
@@ -134,7 +134,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
                                 userMessage={userMessage}
                                 showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
                             /> :
-                            <ProgressRing sx={{ color: Colors.PRIMARY }} />
+                            <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
                     }
                 </DiagramContainer>
             </PersistDiagramContext>

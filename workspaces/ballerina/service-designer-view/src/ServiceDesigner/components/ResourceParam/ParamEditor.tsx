@@ -14,6 +14,8 @@ import { ActionButtons, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit'
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../styles';
 import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
+import { RESOURCE_CHECK, useServiceDesignerContext } from '../../Context';
+import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
 
 const options = [{ id: "0", value: PARAM_TYPES.DEFAULT }, { id: "1", value: PARAM_TYPES.HEADER }];
 
@@ -31,8 +33,10 @@ export interface ParamProps {
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, option, optionList, hideType = false, hideDefaultValue = false,
+    const { param, option, isEdit, optionList, hideType = false, hideDefaultValue = false,
         onChange, onSave, onCancel } = props;
+
+    const { diagnostics, dPosition, commonRpcClient, applyModifications, serviceEndPosition } = useServiceDesignerContext();
 
     const handleOnSelect = (value: string) => {
         onChange({ ...param, option: value as PARAM_TYPES });
@@ -67,9 +71,8 @@ export function ParamEditor(props: ParamProps) {
             {optionList && (
                 <Dropdown
                     id="param-type-selector"
-                    sx={{ width: 172 }}
+                    sx={{ zIndex: 2, width: 172 }}
                     isRequired
-                    errorMsg=""
                     items={options}
                     label="Param Type"
                     onValueChange={handleOnSelect}
@@ -78,28 +81,35 @@ export function ParamEditor(props: ParamProps) {
             )}
             <EditorContent>
                 {!hideType && (
-                    <TextField
-                        size={21}
-                        label='Type'
-                        required
-                        placeholder='Enter type'
-                        value={param.type}
-                        onTextChange={handleTypeChange}
+                    <TypeBrowser
+                        commonRpcClient={commonRpcClient}
+                        serviceEndPosition={serviceEndPosition}
+                        sx={{ zIndex: 1, position: "relative", width: "175px" }}
+                        borderBox={true}
+                        label="Type"
+                        selectedItem={param.type}
+                        onChange={handleTypeChange}
+                        applyModifications={applyModifications}
                     />
                 )}
                 <TextField
                     label='Name'
                     size={21}
                     required
+                    sx={{ width: "175px" }}
                     placeholder='Enter name'
                     value={param.name}
+                    errorMsg={param.name && diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(param.name))?.message}
                     onTextChange={handleChange}
+                    onFocus={(e) => e.target.select()}
                 />
                 {!hideDefaultValue && (
                     <TextField
                         label='Default Value'
                         size={21}
+                        sx={{ width: "175px" }}
                         placeholder='Enter default value'
+                        errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && (diag.message.includes(RESOURCE_CHECK.INCOMPATIBLE) || diag.message.includes(RESOURCE_CHECK.UNDEFINED)))?.message}
                         value={param.defaultValue}
                         onTextChange={handleValueChange}
                     />
@@ -111,7 +121,7 @@ export function ParamEditor(props: ParamProps) {
                 </VSCodeCheckbox>
             )}
             <ActionButtons
-                primaryButton={{ text: "Save", onClick: handleOnSave }}
+                primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}
                 secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
                 sx={{ justifyContent: "flex-end" }}
             />

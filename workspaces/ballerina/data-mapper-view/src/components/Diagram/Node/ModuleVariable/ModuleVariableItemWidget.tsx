@@ -17,8 +17,7 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Por
 import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
 import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
-
-import { useStyles } from "./style";
+import { useIONodesStyles } from "../../../styles";
 
 export interface ModuleVariableItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -31,7 +30,7 @@ export interface ModuleVariableItemProps {
 
 export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const { engine, typeDesc, id, getPort, handleCollapse, valueLabel } = props;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -49,7 +48,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classes.inputTypeLabel}>
                     {typeName}
                 </span>
             )}
@@ -94,7 +93,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                 )}
                     {label}
                 </span>
-                <span className={classes.treeLabelOutPort}>
+                <span className={classes.outPort}>
                     {portOut && (
                         <DataMapperPortWidget
                             engine={engine}
