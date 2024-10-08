@@ -20,7 +20,7 @@ const FormContainer = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 600px;
-    gap: 10px;
+    gap: 20px;
 `;
 
 const Container = styled.div`
