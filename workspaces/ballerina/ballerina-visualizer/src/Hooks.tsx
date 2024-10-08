@@ -10,6 +10,8 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { Range } from '@wso2-enterprise/ballerina-core';
+import { URI } from 'vscode-uri';
 
 export const useExperimentalEnabled = () => {
     const { rpcClient } = useRpcContext();
@@ -50,4 +52,31 @@ export const useIOTypes = (filePath: string) => {
     } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), {});
 
     return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
+};
+
+export const useSTNodeByRange = (filePath: string, range: Range) => {
+    const { rpcClient } = useRpcContext();
+    const getSTNode = async () => {
+        try {
+            const res = await rpcClient
+                .getLangClientRpcClient()
+                .getSTByRange({
+                    documentIdentifier: { uri: URI.file(filePath).toString() },
+                    lineRange: range
+                });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const {
+        data: stNode,
+        isFetching: isFetchingSTNode,
+        isError: isSTNodeError,
+        refetch
+    } = useQuery(['getSTNode', { filePath }], () => getSTNode(), {});
+
+    return {stNode, isFetchingSTNode, isSTNodeError, refetch};
 };

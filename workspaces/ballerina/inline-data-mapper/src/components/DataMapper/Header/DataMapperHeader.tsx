@@ -9,34 +9,24 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 import styled from "@emotion/styled";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
+
 import HeaderSearchBox from "./HeaderSearchBox";
-import HeaderBreadcrumb from "./HeaderBreadcrumb";
-import ExpressionBarWrapper from "./ExpressionBar";
-import { View } from "../Views/DataMapperView";
 
 export interface DataMapperHeaderProps {
-    filePath: string;
-    views: View[];
-    switchView: (index: number) => void;
     hasEditDisabled: boolean;
     onClose?: () => void;
-    applyModifications: (fileContent: string) => Promise<void>;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
+    const { hasEditDisabled, onClose } = props;
 
     return (
         <HeaderContainer>
             <HeaderContent>
                 <BreadCrumb>
                     <Title> DATA MAPPER </Title>
-                    {!hasEditDisabled && (
-                        <HeaderBreadcrumb
-                            views={views}
-                            switchView={switchView}
-                        />
-                    )}
                 </BreadCrumb>
                 {!hasEditDisabled && !onClose && (
                     <>
@@ -45,10 +35,16 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                         </IOFilterBar>
                     </>
                 )}
+                {onClose && (
+                    <VSCodeButton 
+                        appearance="icon"
+                        onClick={onClose}
+                        style={{ marginLeft: "15px" }}
+                    >
+                        <Codicon name="chrome-close" />
+                    </VSCodeButton>
+                )}
             </HeaderContent>
-            <ExpressionContainer>
-                <ExpressionBarWrapper views={views} filePath={filePath} applyModifications={applyModifications} />
-            </ExpressionContainer>
         </HeaderContainer>
     );
 }
@@ -66,12 +62,6 @@ const HeaderContent = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 5px 15px;
-`;
-
-const ExpressionContainer = styled.div`
-    width: 100%;
-    display: flex;
-    border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;
 
 const Title = styled.h3`

@@ -18,6 +18,7 @@ import { InlineDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 // import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { hasFields } from "./components/Diagram/utils/node-utils";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -40,23 +41,16 @@ const globalStyles = css`
 
 export interface DataMapperViewProps {
     filePath: string;
-    fileContent: string;
-    functionName: string;
+    stNode: STNode;
     inputTrees: IDMType[];
     outputTree: IDMType;
-    configName: string;
-    updateFileContent: (fileContent: string) => Promise<void>;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
     const {
-        filePath,
-        fileContent,
-        functionName,
+        stNode,
         inputTrees,
-        outputTree,
-        updateFileContent,
-        configName
+        outputTree
     } = props;
 
     // const { rpcClient } = useVisualizerContext();
@@ -117,13 +111,9 @@ export function DataMapperView(props: DataMapperViewProps) {
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
                 <InlineDataMapper
-                    fnST={undefined}
+                    stNode={stNode}
                     inputTrees={inputTrees}
                     outputTree={outputTree}
-                    fileContent={fileContent}
-                    applyModifications={undefined}
-                    filePath={filePath}
-                    configName={configName}
                 />
             </QueryClientProvider>
         </ErrorBoundary>

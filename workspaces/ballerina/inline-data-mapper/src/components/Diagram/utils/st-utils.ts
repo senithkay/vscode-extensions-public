@@ -15,10 +15,6 @@ export interface NodePosition {
     end: number;
 }
 
-export function traversNode(node: Node, visitor: Visitor, parent?: Node) {
-    
-}
-
 export function getPosition(node: Node): NodePosition {
     return {
         start: 0,

@@ -10,9 +10,11 @@
 import * as React from 'react';
 
 import { css, Global } from '@emotion/react';
-import styled from '@emotion/styled';
+import styled, {StyledComponent} from '@emotion/styled';
 
-export const Container = styled.div`
+export const Container: StyledComponent<{
+	hidden: boolean;
+  }, {}, {}> = styled.div`
 	// should take up full height minus the height of the header
 	height: calc(100% - 50px);
 	background-image: radial-gradient(circle at 0.5px 0.5px, var(--vscode-textBlockQuote-border) 1px, transparent 0);

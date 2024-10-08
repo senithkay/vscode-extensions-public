@@ -39,7 +39,7 @@ export class InputNode extends DataMapperNodeModel {
             // this._originalType = this.context.inputTrees
             //     .find(inputTree => getTypeName(inputTree) === this.value.getType().getText());
             this.dmType = this._originalType;
-            this._paramName = this.value.getName();
+            this._paramName = "this.value.getName()";
         }
     }
 
@@ -73,7 +73,7 @@ export class InputNode extends DataMapperNodeModel {
         if (this.value) {
             const searchValue = useDMSearchStore.getState().inputSearch;
 
-            const matchesParamName = this.value.getName().toLowerCase().includes(searchValue?.toLowerCase());
+            const matchesParamName = "this.value.getName()".toLowerCase().includes(searchValue?.toLowerCase());
             const type = matchesParamName
                 ? this._originalType
                 : getSearchFilteredInput(this._originalType, this._paramName);

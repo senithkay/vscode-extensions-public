@@ -16,7 +16,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
-import { ObjectFieldAdder, TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
+import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
 import {
@@ -54,9 +54,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		valueLabel,
 		deleteField
 	} = props;
-	const { views } = context;
-	const focusedView = views[views.length - 1];
-	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+	// const { views } = context;
+	// const focusedView = views[views.length - 1];
+	// const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
 
 	const classes = useIONodesStyles();
 
@@ -93,21 +93,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const isDisabled = portIn?.descendantHasValue;
 
 	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
-
-	useEffect(() => {
-		if (focuesOnSubMappingRoot) {
-			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
-			
-			dynamicOutputPort.registerListener({
-				eventDidFire(event) {
-					if (event.function === "firstClickedOnDynamicOutput") {
-						setHasFirstClickOnOutput(true);
-						setTimeout(() => setHasFirstClickOnOutput(false), 3000);
-					}
-				},
-			})
-		}
-	}, []);
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -146,13 +131,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		if (focuesOnSubMappingRoot) {
-			onSubMappingEditBtnClick();
-		} else {
-			setIOConfigPanelType("Output");
-			setIsSchemaOverridden(true);
-			setIsIOConfigPanelOpen(true);
-		}
+		setIOConfigPanelType("Output");
+		setIsSchemaOverridden(true);
+		setIsIOConfigPanelOpen(true);
     };
 
 	const onSubMappingEditBtnClick = () => {
@@ -194,19 +175,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
-					{focuesOnSubMappingRoot && (
-						<Button
-							appearance="icon"
-							data-testid={"edit-sub-mapping-btn"}
-							tooltip="Edit name and type of the sub mapping "
-							onClick={onSubMappingEditBtnClick}
-						>
-							<Codicon
-								name="settings-gear"
-								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</Button>
-					)}
 				</TreeHeader>
 				{(expanded && fields) && (
 					<TreeBody>
@@ -227,18 +195,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 							);
 						})}
 					</TreeBody>
-				)}
-				{focuesOnSubMappingRoot && (
-					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
-						<span className={classes.objectFieldAdderLabel}>
-							Dynamically add inputs to output
-						</span>
-						{hasFirstClickOnOutput && (
-							<div className={classes.dynamicOutputNotification}>
-								Click on input field first to add a dynamic output
-							</div>
-						)}
-					</ObjectFieldAdder>
 				)}
 			</TreeContainer>
 		</>

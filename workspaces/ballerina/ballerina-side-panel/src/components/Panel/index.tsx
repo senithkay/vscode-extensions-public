@@ -46,7 +46,7 @@ namespace S {
     `;
 
     export const AdvancedPanel = styled.div<AdvancedPanelProps>`
-        width: 400px;
+        width: 800px;
         height: 100vh;
         background-color: var(--vscode-editor-background);
         box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
@@ -80,21 +80,6 @@ export function PanelContainer(props: PanelContainerProps) {
     return (
         <S.SidePanels>
             <S.AdvancedPanel isOpen={showSubPanel}>
-                {title && (
-                    <SidePanelTitleContainer>
-                        <S.Row>
-                            {onBack && (
-                                <S.StyledButton appearance="icon" onClick={onBack}>
-                                    <BackIcon />
-                                </S.StyledButton>
-                            )}
-                            {title}
-                        </S.Row>
-                        <S.StyledButton appearance="icon" onClick={onClose}>
-                            <CloseIcon />
-                        </S.StyledButton>
-                    </SidePanelTitleContainer>
-                )}
                 {subPanel}
             </S.AdvancedPanel>
             <S.SidePanel width={width}>

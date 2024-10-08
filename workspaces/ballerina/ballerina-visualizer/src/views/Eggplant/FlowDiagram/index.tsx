@@ -479,7 +479,13 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 showSubPanel={showSubPanel}
                 subPanel={(
                     <>
-                        <InlineDataMapper filePath="/Users/madusha/play/eggplant/ep0913/svc1.bal" />
+                        <InlineDataMapper
+                            filePath="/Users/madusha/play/eggplant/ep0913/svc1.bal"
+                            range={{
+                                start: { line: 28, character: 12 },
+                                end: { line: 28, character: 44 },
+                            }}
+                        />
                         {/* {sidePanelView === SidePanelView.FORM && (
                             <FormGenerator
                                 node={selectedNodeRef.current}

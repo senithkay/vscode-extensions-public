@@ -82,7 +82,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 							updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
 						// }
 
-						await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
+						// await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
 					}
 				} else if (targetPortHasLinks) {
 					await modifySourceForMultipleMappings(lm);

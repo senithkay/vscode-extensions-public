@@ -11,6 +11,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { STNode } from '@wso2-enterprise/syntax-tree';
 
 import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
@@ -26,13 +27,6 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 
 	generateReactWidget(event: { model: ObjectOutputNode; }): JSX.Element {
 		let valueLabel: string;
-		const { isMapFn, isSubMapping, context } = event.model;
-		const { views, focusedST } = context;
-		// const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
-		const isMapFnAtFnReturn = views.length === 1 && false;
-		if ((isMapFn && !isMapFnAtFnReturn) || isSubMapping) {
-			valueLabel = views[views.length - 1].label.replace(/\[\]/g, '');
-		}
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -48,7 +42,7 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 						context={event.model.context}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}
-						deleteField={undefined}
+						deleteField={(node: STNode) => event.model.deleteField(node)}
 						originalTypeName={event.model.dmType?.fieldName}
 					/>
 				)}

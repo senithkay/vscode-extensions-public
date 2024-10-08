@@ -46,12 +46,3 @@ export function calculateControlPointOffset(screenWidth: number) {
     const interpolatedOffset = minOffset + interpolationFactor * (maxOffset - minOffset);
     return interpolatedOffset;
 }
-
-export function isSameView(newNode: DataMapperNodeModel, existingNode?: DataMapperNodeModel) {
-    if (!existingNode || !existingNode?.context || !newNode?.context) return;
-
-    const prevFocusedView = existingNode.context.views[existingNode.context.views.length - 1];
-    const newFocusedView = newNode.context.views[newNode.context.views.length - 1];
-
-    return prevFocusedView.label === newFocusedView.label;
-}

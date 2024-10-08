@@ -10,22 +10,23 @@
 import React, { useEffect, useState } from "react";
 
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Range } from "@wso2-enterprise/ballerina-core";
 import { DataMapperView } from "@wso2-enterprise/ballerina-inline-data-mapper";
 
-import { useIOTypes } from "../../Hooks";
+import { useIOTypes, useSTNodeByRange } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
+    range: Range;
 }
 
 export function InlineDataMapper(props: DataMapperProps) {
-    const { rpcClient } = useRpcContext();
-    const { filePath } = props;
+    const { filePath, range } = props;
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath);
+    const { stNode, isFetchingSTNode, isSTNodeError } = useSTNodeByRange(filePath, range);
 
     // const applyRecordModifications = async (modifications: STModification[]) => {
     //     await props.applyModifications(modifications, true);
@@ -35,6 +36,8 @@ export function InlineDataMapper(props: DataMapperProps) {
         // Hack to hit the error boundary
         if (isIOTypeError) {
             throw new Error("Error while fetching input/output types");
+        } else if (isSTNodeError) {
+            throw new Error("Error while fetching STNode");
         } else if (isFileUpdateError) {
             throw new Error("Error while updating file content");
         } 
@@ -42,17 +45,14 @@ export function InlineDataMapper(props: DataMapperProps) {
 
     return (
         <>
-            {isFetchingIOTypes
+            {isFetchingIOTypes || isFetchingSTNode
                 ? <ProgressIndicator />
                 : (
                     <DataMapperView
                         filePath={filePath}
-                        fileContent={undefined}
-                        functionName={undefined}
+                        stNode={stNode.syntaxTree}
                         inputTrees={dmIOTypes?.inputTypes}
                         outputTree={dmIOTypes?.outputType}
-                        updateFileContent={undefined}
-                        configName={undefined}
                     />
                 )
             }
