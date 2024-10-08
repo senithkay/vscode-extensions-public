@@ -76,8 +76,7 @@ export function ParamEditor(props: OverviewProps) {
         const paramsCopy: Param[] = [...params];
         paramsCopy[index] = {
             ...paramsCopy[index],
-            isArray: value,
-            type: ""
+            isArray: value
         };
         onParamsChange(paramsCopy);
     }
@@ -108,8 +107,8 @@ export function ParamEditor(props: OverviewProps) {
                         onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
                     />
                     <ButtonWrapper>
-                        <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateRequired(index, !param.isRequired)} />
-                        <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateArray(index, !param.isArray)} />
+                        <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
+                        <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
                         <Codicon name="trash" onClick={() => removeParam(index)} />
                     </ButtonWrapper>
                 </HorizontalFieldWrapper>

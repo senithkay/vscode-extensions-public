@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react';
 import { Dropdown, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Operation, Param, Parameter, Path } from '../../Definitions/ServiceDefinitions';
+import { Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
 import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters, getResourceID } from '../Utils/OpenAPIUtils';
 import { debounce } from 'lodash';
@@ -49,6 +49,7 @@ type InputsFields = {
     queryParams: Param[];
     pathParams: Param[];
     headerParams: Param[];
+    responses: Responses;
 };
 
 const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
@@ -67,7 +68,8 @@ export function Resource(props: OverviewProps) {
         description: resourceOperation.description,
         queryParams: getQueryParametersFromParameters(resourceOperation.parameters),
         pathParams: getPathParametersFromParameters(resourceOperation.parameters),
-        headerParams: getHeaderParametersFromParameters(resourceOperation.parameters)
+        headerParams: getHeaderParametersFromParameters(resourceOperation.parameters),
+        responses: resourceOperation.responses
     };
 
     const handleOnQueryParamsChange = (params: Param[]) => {
@@ -111,7 +113,7 @@ export function Resource(props: OverviewProps) {
             path: `${containsInitialSlash ? "/" : ""}${pathParamSanitizedPath}/${pathParams}`,
             initialOperation: {
                 ...currentPath.initialOperation,
-                parameters: p
+                parameters: p,
             }
         };
         onPathChange(newPath);
@@ -177,7 +179,7 @@ export function Resource(props: OverviewProps) {
 
     // Method to get Form values
     const getPath = (): Path => {
-        const { method, path, summary, description, queryParams, pathParams, headerParams } = values;
+        const { method, path, summary, description, queryParams, pathParams, headerParams, responses } = values;
         let params: Parameter[] = [];
         if (queryParams) {
             params = convertParamsToParameters(queryParams, "query");
@@ -191,7 +193,8 @@ export function Resource(props: OverviewProps) {
         const operation: Operation = {
             summary: summary,
             description: description,
-            parameters: params
+            parameters: params,
+            responses: responses
         };
         const pathObject: Path = {
             method: method.toLowerCase(),

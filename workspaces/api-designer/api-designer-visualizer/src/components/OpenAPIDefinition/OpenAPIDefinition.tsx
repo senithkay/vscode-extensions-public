@@ -107,10 +107,20 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         ...updatedOpenAPIDefinition.paths[path.initialPath]
                     };
                 }
+                // Delete path.path with path.method
+                if ((path.initialPath !== path.path) &&
+                    updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) 
+                {
+                    delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
+                    // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
+                    if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {
+                        delete updatedOpenAPIDefinition.paths[path.initialPath];
+                    }
+                }
                 updatedOpenAPIDefinition.paths[path.path][path.method] = {
                     ...path.initialOperation // Update with new operation details
                 };
-                delete updatedOpenAPIDefinition.paths[path.initialPath];
+                // delete updatedOpenAPIDefinition.paths[path.initialPath];
             } else {
                 updatedOpenAPIDefinition.paths[path.path][path.method] = {
                     ...path.initialOperation

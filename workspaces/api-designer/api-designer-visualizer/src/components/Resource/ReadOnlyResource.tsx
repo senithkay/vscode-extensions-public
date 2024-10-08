@@ -53,14 +53,14 @@ const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
 export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path, onEdit } = props;
 
-    const parameters = resourceOperation.parameters;
-    const parameterContent = parameters.map((parameter) => {
+    const parameters = resourceOperation?.parameters;
+    const parameterContent = parameters?.map((parameter) => {
         return [parameter.name, parameter.in, resolveTypeFormSchema(parameter.schema)];
     });
-    const responses = resourceOperation.responses;
-    const responseContent = Object.entries(responses).map(([status, response]) => {
+    const responses = resourceOperation?.responses;
+    const responseContent = resourceOperation?.responses ? Object.entries(responses).map(([status, response]) => {
         return [status, resolveResponseType(response)];
-    });
+    }) : [];
 
     return (
         <>
