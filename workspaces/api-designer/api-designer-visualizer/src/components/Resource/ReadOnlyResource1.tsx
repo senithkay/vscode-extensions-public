@@ -87,8 +87,6 @@ interface ReadOnlyResourceProps {
     onEdit: (method: string, path: string) => void;
 }
 
-const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
-
 export function ReadOnlyResource2(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path, onEdit } = props;
     const [ selectedStatus, setSelectedStatus ] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
@@ -144,8 +142,17 @@ export function ReadOnlyResource2(props: ReadOnlyResourceProps) {
                         headers={["Status", "Type"]}
                     />
                 )} */}
+                {resourceOperation.summary && ( <Typography sx={{ margin: 0 }} variant='h3'> Summary </Typography> )}
                 {resourceOperation.summary && (
-                    <Typography sx={{ margin: 0 }} variant='h1'> {resourceOperation.summary} </Typography>
+                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {resourceOperation.summary} </Typography>
+                )}
+                 {resourceOperation.description && ( <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography> )}
+                {resourceOperation.description && (
+                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {resourceOperation.description} </Typography>
+                )}
+                 {resourceOperation.operationId && (<Typography sx={{ margin: 0 }} variant='h3'> Operation ID </Typography> )}
+                {resourceOperation.operationId && (
+                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {resourceOperation.operationId} </Typography>
                 )}
 
                 <FormGroup key="Request" title='Request' isCollapsed={pathParamaters?.length === 0 && queryParamaters?.length === 0 && headerParamaters?.length === 0}>

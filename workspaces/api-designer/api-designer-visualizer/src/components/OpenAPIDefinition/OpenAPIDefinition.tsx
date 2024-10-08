@@ -28,7 +28,7 @@ interface OpenAPIDefinitionProps {
 
 const NavigationContainer = styled.div`
     padding: 10px;
-    max-height: 90vh;
+    height: 97vh;
     overflow-y: auto;
 `;
 

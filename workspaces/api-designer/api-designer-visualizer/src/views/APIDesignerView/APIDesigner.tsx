@@ -22,9 +22,9 @@ interface ServiceDesignerProps {
 
 // Add emotional styling to the component
 const APIDesignerWrapper = styled.div`
-    padding: 20px;
+    /* padding: 20px;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow-y: auto; */
 `;
 
 export function APIDesigner(props: ServiceDesignerProps) {

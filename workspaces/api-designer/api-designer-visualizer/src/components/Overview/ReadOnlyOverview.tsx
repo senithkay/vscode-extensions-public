@@ -37,18 +37,6 @@ export function ReadOnlyOverview(props: OverviewProps) {
     const { openAPIDefinition, onSwitchToEdit } = props;
 
     // Define 2D string array for the accordion table
-    const content = [
-        [
-            "Title",
-            openAPIDefinition.info.title,
-        ],
-        [
-            "Version",
-            openAPIDefinition.info.version,
-        ],
-        openAPIDefinition.info.summary ? ["Summary", openAPIDefinition.info.summary] : [],
-        openAPIDefinition.info.description ? ["Description", openAPIDefinition.info.description] : [],
-    ];
     return (
         <>
             <SidePanelTitleContainer>
@@ -60,39 +48,55 @@ export function ReadOnlyOverview(props: OverviewProps) {
                 </ButtonWrapper>
             </SidePanelTitleContainer>
             <PanelBody>
-                <FormGroup 
-                    title="General Information" 
-                    isCollapsed={!openAPIDefinition.info.title && !openAPIDefinition.info.version && !openAPIDefinition.info.summary && !openAPIDefinition.info.description}>
-                    <DataGrid
-                        headers={["Property", "Value"]}
-                        content={content}
-                    />
-                </FormGroup>
-                {openAPIDefinition.info.contact && (
-                    <FormGroup title="Contact" isCollapsed={!openAPIDefinition.info.contact}>
+                {openAPIDefinition?.info?.title && (
+                    <>
+                        <Typography sx={{ margin: 0 }} variant="h3">Title</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.title}</Typography>
+                    </>
+                )}
+                {openAPIDefinition?.info?.version && (
+                    <>
+                        <Typography sx={{ margin: 0 }} variant="h3">Version</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.version}</Typography>
+                    </>
+                )}
+                {openAPIDefinition?.info?.summary && (
+                    <>
+                        <Typography sx={{ margin: 0 }} variant="h3">Summary</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.summary}</Typography>
+                    </>
+                )}
+                {openAPIDefinition?.info?.description && (
+                    <>
+                        <Typography sx={{ margin: 0 }} variant="h3">Description</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.description}</Typography>
+                    </>
+                )}
+                {openAPIDefinition?.info?.contact && (
+                    <FormGroup title="Contact" isCollapsed={!openAPIDefinition?.info?.contact}>
                         <DataGrid
                             headers={["Property", "Value"]}
                             content={[
-                                ["Name", openAPIDefinition.info.contact.name],
-                                ["URL", openAPIDefinition.info.contact.url],
-                                ["Email", openAPIDefinition.info.contact.email],
+                                ["Name", openAPIDefinition.info?.contact?.name],
+                                ["URL", openAPIDefinition.info?.contact?.url],
+                                ["Email", openAPIDefinition.info?.contact?.email],
                             ]}
                         />
                     </FormGroup>
                 )}
-                {openAPIDefinition.info.license && (
-                    <FormGroup title="License" isCollapsed={!openAPIDefinition.info.license}>
+                {openAPIDefinition?.info?.license && (
+                    <FormGroup title="License" isCollapsed={!openAPIDefinition?.info?.license}>
                         <DataGrid
                             headers={["Property", "Value"]}
                             content={[
-                                ["Name", openAPIDefinition.info.license.name],
-                                openAPIDefinition.info.license.url ? 
+                                ["Name", openAPIDefinition.info?.license?.name],
+                                openAPIDefinition.info?.license?.url ? 
                                 [   "URL",
-                                    openAPIDefinition.info.license.url
+                                    openAPIDefinition.info?.license?.url
                                 ] : 
                                 [
                                     "Identifier",
-                                    openAPIDefinition.info.license.identifier,
+                                    openAPIDefinition.info?.license?.identifier,
                                 ],
                             ]}
                         /> 

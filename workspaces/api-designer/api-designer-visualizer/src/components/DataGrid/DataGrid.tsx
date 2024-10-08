@@ -10,7 +10,7 @@
 import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
 
 export interface AccordionTableProps {
-	headers: string[];
+	headers?: string[];
 	content: string[][];
 }
 

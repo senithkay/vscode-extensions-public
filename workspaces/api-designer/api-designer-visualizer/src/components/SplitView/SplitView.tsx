@@ -19,7 +19,6 @@ const Container = styled.div<SplitViewProps>`
 `;
 
 const DynamicDiv = styled.div<{ width: number }>`
-    height: 100vh;
     width: ${(props: { width: number; }) => props.width}%;
     overflow: auto;
     border: 1px solid var(--vscode-editorWidget-border);
@@ -27,7 +26,6 @@ const DynamicDiv = styled.div<{ width: number }>`
 
 const Resizer = styled.div`
     cursor: ew-resize;
-    /* background-color: var(--vscode-editorWidget-border); */
     width: 2px;
     &:hover {
         background-color: var(--vscode-button-hoverBackground);
