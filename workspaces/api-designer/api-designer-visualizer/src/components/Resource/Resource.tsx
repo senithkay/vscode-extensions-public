@@ -15,7 +15,7 @@ import { convertParamsToParameters, getHeaderParametersFromParameters, getPathPa
 import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
-import { ReadOnlyResource } from './ReadOnlyResource';
+import { ReadOnlyResource2 } from './ReadOnlyResource1';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -222,7 +222,7 @@ export function Resource(props: OverviewProps) {
         <>
             {isReadOnly ? (
                 <>
-                    <ReadOnlyResource resourceOperation={resourceOperation} method={method} path={path} onEdit={() => setIsReadOnly(false)} />
+                    <ReadOnlyResource2 resourceOperation={resourceOperation} method={method} path={path} onEdit={() => setIsReadOnly(false)} />
                 </>
             ) : (
                 <>

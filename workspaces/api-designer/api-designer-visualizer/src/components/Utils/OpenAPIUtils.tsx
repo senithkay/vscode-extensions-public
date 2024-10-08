@@ -228,3 +228,23 @@ export function convertParamsToParameters(params: Param[], type: "path" | "query
     });
     return parameters;
 }
+
+export function resolveResonseColor(responseCode: string): string {
+    if (responseCode.startsWith("2")) {
+        return 'var(--vscode-statusBarItem-remoteBackground)';
+    } else if (responseCode.startsWith("4")) {
+        return 'var(--vscode-debugExceptionWidget-border)';
+    } else {
+        return 'var(--vscode-symbolIcon-variableForeground)';
+    }
+}
+
+export function resolveResonseHoverColor(responseCode: string): string {
+    if (responseCode.startsWith("2")) {
+        return 'var(--vscode-editorGutter-addedBackground)';
+    } else if (responseCode.startsWith("4")) {
+        return 'var(--vscode-errorForeground)';
+    } else {
+        return 'var(--vscode-minimap-selectionHighlight)';
+    }
+}

@@ -91,7 +91,7 @@ export interface Responses {
 
 export interface Response {
     description: string;
-    headersDef?: Headers;
+    headers?: Headers;
     content?: Content;
     links?: Links;
 }

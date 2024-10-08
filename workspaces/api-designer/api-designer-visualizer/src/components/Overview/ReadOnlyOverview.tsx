@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
-import { AccordionTable } from '@wso2-enterprise/service-designer';
+import { Button, Codicon, FormGroup, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
+import { DataGrid } from '../DataGrid/DataGrid';
 
 export const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -60,38 +60,43 @@ export function ReadOnlyOverview(props: OverviewProps) {
                 </ButtonWrapper>
             </SidePanelTitleContainer>
             <PanelBody>
-                <AccordionTable
-                    titile='General Information'
-                    content={content}
-                    headers={["Property", "Value"]}
-                />
-                {openAPIDefinition.info.contact && (
-                    <AccordionTable
-                        titile='Contact'
-                        content={[
-                            ["Name", openAPIDefinition.info.contact.name],
-                            ["URL", openAPIDefinition.info.contact.url],
-                            ["Email", openAPIDefinition.info.contact.email],
-                        ]}
+                <FormGroup 
+                    title="General Information" 
+                    isCollapsed={!openAPIDefinition.info.title && !openAPIDefinition.info.version && !openAPIDefinition.info.summary && !openAPIDefinition.info.description}>
+                    <DataGrid
                         headers={["Property", "Value"]}
+                        content={content}
                     />
+                </FormGroup>
+                {openAPIDefinition.info.contact && (
+                    <FormGroup title="Contact" isCollapsed={!openAPIDefinition.info.contact}>
+                        <DataGrid
+                            headers={["Property", "Value"]}
+                            content={[
+                                ["Name", openAPIDefinition.info.contact.name],
+                                ["URL", openAPIDefinition.info.contact.url],
+                                ["Email", openAPIDefinition.info.contact.email],
+                            ]}
+                        />
+                    </FormGroup>
                 )}
                 {openAPIDefinition.info.license && (
-                    <AccordionTable
-                        titile='License'
-                        content={[
-                            ["Name", openAPIDefinition.info.license.name],
-                            openAPIDefinition.info.license.url ? 
-                            [   "URL",
-                                openAPIDefinition.info.license.url
-                            ] : 
-                            [
-                                "Identifier",
-                                openAPIDefinition.info.license.identifier,
-                            ],
-                        ]}
-                        headers={["Property", "Value"]}
-                    />
+                    <FormGroup title="License" isCollapsed={!openAPIDefinition.info.license}>
+                        <DataGrid
+                            headers={["Property", "Value"]}
+                            content={[
+                                ["Name", openAPIDefinition.info.license.name],
+                                openAPIDefinition.info.license.url ? 
+                                [   "URL",
+                                    openAPIDefinition.info.license.url
+                                ] : 
+                                [
+                                    "Identifier",
+                                    openAPIDefinition.info.license.identifier,
+                                ],
+                            ]}
+                        /> 
+                    </FormGroup>
                 )}        
             </PanelBody>
         </>
