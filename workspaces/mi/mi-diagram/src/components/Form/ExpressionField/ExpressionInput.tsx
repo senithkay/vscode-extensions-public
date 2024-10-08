@@ -107,8 +107,6 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
 
     return <>
         <FlexLabelContainer>
-            <Label>{label}</Label>
-            {(required && label) && (<RequiredFormInput />)}
             {isExActive && (
                 <Link onClick={() => openExpressionEditor(value, setValue)}>
                     <Tooltip content="Open Expression editor" position="left">
@@ -119,6 +117,8 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
         </FlexLabelContainer>
         <TextField
             placeholder={placeholder}
+            label={label}
+            required={required}
             disabled={disabled}
             icon={{
                 iconComponent: <ExButton isActive={isExActive} onClick={() => {

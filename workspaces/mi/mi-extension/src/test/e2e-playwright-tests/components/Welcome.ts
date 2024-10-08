@@ -7,23 +7,24 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Frame, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { getVsCodeButton, switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
 export class Welcome {
-    private webView!: Frame;
+    private container!: Locator;
 
     constructor(private _page: Page) {
     }
 
     public async init() {
-        const webview = await switchToIFrame("Design View", this._page)
+        const webview = await switchToIFrame("Design View", this._page, 240000)
         if (!webview) {
             throw new Error("Failed to switch to Design View iframe");
         }
-        this.webView = webview;
+        this.container = webview.locator('div#root');
     }
     public async createNewProject() {
-        (await getVsCodeButton(this.webView, 'Create New Project', 'primary')).click();
+        const btn = await getVsCodeButton(this.container, 'Create New Project', 'primary');
+        await btn.click();
     }
 }

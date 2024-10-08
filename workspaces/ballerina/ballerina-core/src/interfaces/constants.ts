@@ -22,7 +22,7 @@ export const BI_COMMANDS = {
     PROJECT_EXPLORER: 'BI.project-explorer',
     ADD_CONNECTIONS: 'BI.project-explorer.add-connection',
     ADD_ENTRY_POINT: 'BI.project-explorer.add-entry-point',
-    ADD_SCHEMA: 'BI.project-explorer.add-schema',
+    ADD_TYPE: 'BI.project-explorer.add-type',
     ADD_FUNCTION: 'BI.project-explorer.add-function',
     ADD_CONFIGURATION: 'BI.project-explorer.add-configuration'
 };
