@@ -745,11 +745,11 @@ export function isConnectingArrays(mappingType: MappingType): boolean {
 }
 
 export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
-    if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
-        return MappingType.Default;
-    }
 
-    if (targetPort.field && sourcePort.field) {
+    if (sourcePort instanceof InputOutputPortModel
+        && targetPort instanceof InputOutputPortModel
+        && targetPort.field && sourcePort.field) {
+            
         const sourceDim = getDMTypeDim(sourcePort.field);
         const targetDim = getDMTypeDim(targetPort.field);
 
