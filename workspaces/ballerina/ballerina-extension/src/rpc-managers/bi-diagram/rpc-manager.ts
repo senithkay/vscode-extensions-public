@@ -51,7 +51,7 @@ import * as path from 'path';
 import { commands, Uri, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -250,6 +250,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 case DIRECTORY_MAP.SERVICES:
                     res = await createBIService(params);
                     break;
+                case DIRECTORY_MAP.TASKS:
+                    res = await createBITask(params);
+                    break;
                 default:
                     break;
             }
@@ -318,7 +321,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
             } else {
                 const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
-                if(!enableAiSuggestions) {
+                if (!enableAiSuggestions) {
                     resolve(undefined);
                     return;
                 }
@@ -450,9 +453,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         switch (entry.type) {
                             case "service":
                                 const req: CreateComponentRequest = {
-                                    name: sanitizeName(entry.name),
-                                    path: "/",
-                                    port: "9090",
+                                    serviceType: {
+                                        name: sanitizeName(entry.name),
+                                        path: "/",
+                                        port: "9090",
+                                    },
                                     type: DIRECTORY_MAP.SERVICES
                                 };
                                 await handleServiceCreation(req);

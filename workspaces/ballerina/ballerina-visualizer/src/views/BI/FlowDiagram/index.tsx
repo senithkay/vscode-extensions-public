@@ -51,7 +51,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -96,7 +96,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((location) => {
-            if(location.metadata?.flowNodeStyle){
+            if (location.metadata?.flowNodeStyle) {
                 setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
             }
         });

@@ -106,14 +106,14 @@ bi = true
 
 export async function createBIService(params: CreateComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
-        if (params.specPath) {
+        if (params.serviceType.specPath) {
             // Call LS to create the service and get the serviceFile URI and the position of the serviceDeclaration.
             const projectDir = path.join(StateMachine.context().projectUri);
             try {
                 const response = await StateMachine.langClient().generateServiceFromOAS({
-                    openApiContractPath: params.specPath,
+                    openApiContractPath: params.serviceType.specPath,
                     projectPath: projectDir,
-                    port: Number(params.port)
+                    port: Number(params.serviceType.port)
                 });
                 if (response.service) {
                     const serviceFile = path.join(projectDir, response.service.fileName);
@@ -146,13 +146,23 @@ export async function createBIService(params: CreateComponentRequest): Promise<C
     });
 }
 
-export async function handleServiceCreation(params: CreateComponentRequest) {
-    if (!params.path.startsWith('/')) {
-        params.path = `/${params.path}`;
-    }
-    const fooBalContent = `import ballerina/http;
+export async function createBITask(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        const taskFile = await handleTaskCreation(params);
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: taskFile, position: { startLine: 4, startColumn: 0, endLine: 6, endColumn: 1 } });
+        history.clear();
+        commands.executeCommand("BI.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
+}
 
-service ${params.path} on new http:Listener(${params.port}) {
+export async function handleServiceCreation(params: CreateComponentRequest) {
+    if (!params.serviceType.path.startsWith('/')) {
+        params.serviceType.path = `/${params.serviceType.path}`;
+    }
+    const balContent = `import ballerina/http;
+
+service ${params.serviceType.path} on new http:Listener(${params.serviceType.port}) {
 
     function init() returns error? {}
 
@@ -165,14 +175,43 @@ service ${params.path} on new http:Listener(${params.port}) {
     }
 }
 `;
-    const servicesDir = path.join(StateMachine.context().projectUri);
+    const projectDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
-    const serviceFile = path.join(servicesDir, `${params.name}.bal`);
-    fs.writeFileSync(serviceFile, fooBalContent.trim());
-    console.log('Service Created.', `${params.name}.bal`);
+    const serviceFile = path.join(projectDir, `${params.serviceType.name}.bal`);
+    fs.writeFileSync(serviceFile, balContent.trim());
+    console.log('Service Created.', `${params.serviceType.name}.bal`);
     await new Promise(resolve => setTimeout(resolve, 1000));
     return serviceFile;
 }
+
+// <---------- Task Source Generation START-------->
+export async function handleTaskCreation(params: CreateComponentRequest) {
+    const displayAnnotation = `@display {
+    label: "${params.taskType.name}",
+    triggerType: "${params.taskType.triggerType}"
+}`;
+    let funcSignature = "public function main() returns error? {";
+    if (params.taskType.argName) {
+        funcSignature = `public function main(${params.taskType.argType} ${params.taskType.argName}) returns error? {`;
+    }
+    const balContent = `${displayAnnotation}
+${funcSignature}
+    do {
+
+    } on fail error e {
+        return e;
+    }
+}
+`;
+    const projectDir = path.join(StateMachine.context().projectUri);
+    // Create foo.bal file within services directory
+    const taskFile = path.join(projectDir, `main.bal`);
+    fs.writeFileSync(taskFile, balContent.trim());
+    console.log('Task Created.', `main.bal`);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return taskFile;
+}
+// <---------- Task Source Generation END-------->
 
 export function sanitizeName(name: string): string {
     return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); // Replace invalid characters with underscores
