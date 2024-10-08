@@ -78,7 +78,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 					return;
 				}
 
-				let elementAccessSuffix='';
+				let elementAccessSuffix = '';
 				if (mappingType === MappingType.ArrayToSingleton) {
 					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
 				}
