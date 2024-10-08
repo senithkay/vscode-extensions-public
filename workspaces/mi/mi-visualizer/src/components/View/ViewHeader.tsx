@@ -58,7 +58,7 @@ const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon,
     return (
         <Header>
             <HeaderContentWrapper>
-                <TitleContainer data-testit="diagram-title">
+                <TitleContainer data-testid="diagram-title">
                     {codicon && <Codicon name={codicon} />}
                     {icon && <Icon iconSx={iconSx} name={icon} />}
                     {typeof title === 'string' ? <Title>{title}</Title> : title}
