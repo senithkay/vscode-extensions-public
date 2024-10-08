@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Dropdown, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
@@ -16,6 +16,8 @@ import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
 import { ReadOnlyResource2 } from './ReadOnlyResource1';
+import "@mdxeditor/editor/style.css";
+import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -51,7 +53,6 @@ type InputsFields = {
     headerParams: Param[];
     responses: Responses;
 };
-
 const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
 
 export function Resource(props: OverviewProps) {
@@ -215,9 +216,6 @@ export function Resource(props: OverviewProps) {
         setInitialMethod(method);
     }, [path, method]);
 
-    console.log("Path", resourceOperation.parameters);
-    console.log("PathParams", values?.pathParams);
-
     return (
         <>
             {isReadOnly ? (
@@ -264,12 +262,17 @@ export function Resource(props: OverviewProps) {
                                 value={values?.summary}
                             />
                         )}
-                        <TextArea
+                        {/* <TextArea
                             id="description"
                             label="Description"
                             resize="vertical"
                             rows={4}
                             value={values?.description}
+                        /> */}
+                        <Typography sx={{margin: 0}} variant="h3">Description</Typography>
+                        <MarkDownEditor
+                            value={values?.description}
+                            onChange={(markdown: string) => console.log(markdown)}
                         />
                         <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
                         <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />

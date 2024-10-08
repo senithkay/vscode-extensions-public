@@ -54,7 +54,8 @@
     "@types/swagger-ui-react": "^4.18.3",
     "swagger-ui-react": "5.17.4",
     "uuid": "~9.0.1",
-    "@types/uuid": "~9.0.1"
+    "@types/uuid": "~9.0.1",
+    "@mdxeditor/editor": "~3.14.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",

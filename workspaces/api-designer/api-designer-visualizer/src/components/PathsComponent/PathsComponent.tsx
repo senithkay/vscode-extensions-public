@@ -13,6 +13,7 @@ import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
 import { TreeViewItem } from "../Treeview/TreeViewItem";
 import { useEffect, useRef, useState } from "react";
+import { pad } from "lodash";
 
 interface OpenAPIDefinitionProps {
     paths: Paths;
@@ -41,6 +42,10 @@ const Operation = styled.div<OperationProps>`
     width: fit-content;
     color: white;
     cursor: pointer;
+    &:hover { // Added hover style
+        background-color: rgba(255, 255, 255, 0.1); // Example hover background color
+        border: 2px solid var(--vscode-inputOption-activeForeground); // Example hover border
+    }
 `;
 
 const OverviewTitle = styled.div`
@@ -86,7 +91,8 @@ export const subMenuverticalIconWrapper = {
     },
     borderRadius: "3px",
     width: "10px",
-    height: "15px"
+    height: "15px",
+    padding: "2px"
 }
 
 export const menuVerticalIconWrapper = {
@@ -96,7 +102,8 @@ export const menuVerticalIconWrapper = {
     borderRadius: "3px",
     width: "10px",
     height: "15px",
-    marginLeft: "1px"
+    marginLeft: "1px",
+    padding: "2px"
 }
 
 const APIResources = [
@@ -268,7 +275,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                             selected={selectedPathID === getResourceID(path, operation)}
                                             onClick={() => onPathChange && onPathChange(selectedPathID)}
                                         >
-                                            <Typography variant="h4" sx={{ margin: 0, padding: 6, display: "flex", justifyContent: "center", minWidth: 60 }}>{operation}</Typography>
+                                            <Typography variant="h4" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 50 }}>{operation}</Typography>
                                         </Operation>
                                     </TreeViewItem>
                                 );
