@@ -31,7 +31,7 @@ export class Diagram {
     }
 
     public async getDiagramTitle() {
-        const titleElement = await this.diagramWebView.waitForSelector('[data-testit="diagram-title"] h3');
+        const titleElement = await this.diagramWebView.waitForSelector('[data-testid="diagram-title"] h3');
         const title = await titleElement.innerText();
         return title;
     }
