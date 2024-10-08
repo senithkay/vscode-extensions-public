@@ -149,7 +149,7 @@ export async function createBIService(params: CreateComponentRequest): Promise<C
 export async function createBITask(params: CreateComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const taskFile = await handleTaskCreation(params);
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: taskFile, position: { startLine: 4, startColumn: 0, endLine: 6, endColumn: 1 } });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: taskFile, position: { startLine: 5, startColumn: 0, endLine: 11, endColumn: 1 } });
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
@@ -188,7 +188,8 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
 export async function handleTaskCreation(params: CreateComponentRequest) {
     const displayAnnotation = `@display {
     label: "${params.taskType.name}",
-    triggerType: "${params.taskType.triggerType}"
+    triggerType: "${params.taskType.triggerType}",
+    cron: "${params.taskType.cron}"
 }`;
     let funcSignature = "public function main() returns error? {";
     if (params.taskType.argName) {

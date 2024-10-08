@@ -29,19 +29,22 @@ export interface WorkspaceFolder {
 
 export interface CreateComponentRequest {
     type: DIRECTORY_MAP;
-    serviceType?: ServiceType;
-    taskType?: TaskType;
+    serviceType?: ComponentServiceType;
+    taskType?: ComponentTaskType;
 }
 
-export interface ServiceType {
+export interface ComponentServiceType {
     name: string;
     path: string;
     port: string;
     specPath?: string;
 }
-export interface TaskType {
+export interface ComponentTaskType {
     name: string;
     triggerType: "SCHEDULED" | "MANUAL";
+    argType?: string;
+    argName?: string;
+    cron?: string;
 }
 
 export interface CreateComponentResponse {

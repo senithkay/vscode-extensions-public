@@ -52,19 +52,24 @@ export function MainForm() {
     const [triggerType, setType] = useState<TriggerType>("MANUAL");
     const [argType, setArgType] = useState("");
     const [argName, setArgName] = useState("");
+    const [cron, setCron] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
     const handleFunctionCreate = async () => {
         setIsLoading(true);
         console.log(triggerType);
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.TASKS, taskType: { name, triggerType, argType, argName } });
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.TASKS, taskType: { name, triggerType, argType, argName, cron } });
         setIsLoading(res.response);
         setError(res.error);
     };
 
     const validate = () => {
-        return !name || isLoading;
+        if (triggerType === "SCHEDULED") {
+            return !name || !cron || isLoading;
+        } else {
+            return !name || isLoading;
+        }
     }
 
     return (
@@ -86,10 +91,18 @@ export function MainForm() {
                         <RadioButtonGroup
                             id="triggerType"
                             label="Trigger Type"
-                            options={[{ content: "One Time", value: "MANUAL" }, { content: "Scheduled", value: "SCHEDULED" }]}
+                            options={[{ content: "Manual", value: "MANUAL" }, { content: "Scheduled", value: "SCHEDULED" }]}
                             onChange={(value) => setType(value.target.value as TriggerType)}
                             value={triggerType}
                         />
+                        {triggerType === "SCHEDULED" &&
+                            <TextField
+                                onTextChange={setCron}
+                                value={cron}
+                                label="Cron Expression"
+                                placeholder="Enter Cron expression"
+                            />
+                        }
                         <FormGroup title="Command-line Argument" isCollapsed={true}>
                             <Dropdown
                                 id="injectTo"
