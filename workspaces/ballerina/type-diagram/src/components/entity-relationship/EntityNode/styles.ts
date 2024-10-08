@@ -8,12 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors } from '../../../resources';
-
-const ANON_RECORD_PRIMARY: string = '#0d6fbf';
-const ANON_RECORD_SECONDARY: string = '#e8f5ff';
-const ANON_RECORD_HOVER: string = '#0289e3';
-const PRIMARY_HOVER: string = '#2c09ed';
+import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 interface StyleProps {
     isAnonymous: boolean;
@@ -25,12 +20,12 @@ interface StyleProps {
 }
 
 export const EntityNode: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY_LIGHT}`};
-    border-radius: 5px !important;
-    color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
+    background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.SURFACE_DIM_2 :
+        props.isAnonymous ? ThemeColors.SURFACE_BRIGHT : ThemeColors.SURFACE_DIM};
+    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? ThemeColors.SECONDARY :
+        props.isAnonymous ? ThemeColors.PRIMARY : props.isFocused ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}`};
+    border-radius: 6px !important;
+    color: ${(props: StyleProps) => props.isAnonymous ? ThemeColors.PRIMARY : ThemeColors.ON_SURFACE};
     cursor: ${(props: StyleProps) => props.isEditMode ? `pointer` : `auto`};
     display: flex;
     flex-direction: column;
@@ -40,8 +35,8 @@ export const EntityNode: React.FC<any> = styled.div`
 
 export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
-    border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
+     border-bottom: ${(props: StyleProps) =>
+          `1px solid ${props.isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}`};
     display: flex;
     font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
@@ -55,7 +50,7 @@ export const EntityHead: React.FC<any> = styled.div`
 
 export const EntityName: React.FC<any> = styled.span`
     &:hover {
-        color: ${(props: StyleProps) => props.isClickable ? (props.isAnonymous ? ANON_RECORD_HOVER : PRIMARY_HOVER) : ``};
+        color: ${(props: StyleProps) => props.isClickable ? ThemeColors.ON_SURFACE : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
         text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
@@ -63,8 +58,8 @@ export const EntityName: React.FC<any> = styled.span`
 
 export const AttributeContainer: React.FC<any>  = styled.div`
     align-items: center;
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border-bottom: 0.5px solid #cccde3;
+    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? ThemeColors.SURFACE_DIM_2 : ThemeColors.SURFACE_DIM};
+    border: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     display: flex;
@@ -78,7 +73,7 @@ export const AttributeContainer: React.FC<any>  = styled.div`
 
 export const AttributeName: React.FC<any> = styled.span`
     align-items: center;
-    color: #000000;
+    color: ${ThemeColors.ON_SURFACE};
     display: flex;
     flex: 1;
     font-family: GilmerRegular;
@@ -89,10 +84,9 @@ export const AttributeName: React.FC<any> = styled.span`
 `;
 
 export const AttributeType: React.FC<any>  = styled.span`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
+    background-color: ${ThemeColors.SURFACE_CONTAINER};
     border-radius: 3px;
-    color: #000000;
+    color: ${ThemeColors.ON_SURFACE};
     font-family: GilmerRegular;
     font-size: 12px;
     height: 24px;
