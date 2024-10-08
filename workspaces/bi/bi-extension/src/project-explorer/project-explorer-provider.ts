@@ -179,16 +179,16 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     entries.push(connections);
 
     // Connections
-    const schemas = new ProjectExplorerEntry(
-        "Schemas",
+    const types = new ProjectExplorerEntry(
+        "Types",
         vscode.TreeItemCollapsibleState.Collapsed,
         null,
         'folder',
         true
     );
-    schemas.contextValue = "schemas";
-    schemas.children = getComponents(components.directoryMap[DIRECTORY_MAP.SCHEMAS]);
-    entries.push(schemas);
+    types.contextValue = "types";
+    types.children = getComponents(components.directoryMap[DIRECTORY_MAP.TYPES]);
+    entries.push(types);
 
     // Functions
     const functions = new ProjectExplorerEntry(
