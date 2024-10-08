@@ -11,6 +11,7 @@ import {
     COMMENT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     EMPTY_NODE_WIDTH,
+    FOREACH_NODE_WIDTH,
     IF_NODE_WIDTH,
     LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
@@ -161,6 +162,23 @@ export class SizingVisitor implements BaseVisitor {
 
         const whileNodeWidth = WHILE_NODE_WIDTH + VSCODE_MARGIN;
         this.setNodeSize(node, whileNodeWidth, whileNodeWidth, width, height);
+    }
+
+    endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        let width = 0;
+        let height = 0;
+        if (node.branches && node.branches.length == 1) {
+            const mainBranch: Branch = node.branches.at(0);
+            if (mainBranch.viewState) {
+                width = Math.max(width, Math.max(mainBranch.viewState.cw, NODE_GAP_X));
+                height = mainBranch.viewState.ch;
+            }
+        }
+        // add while node width and height
+        height += FOREACH_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
+
+        const foreachNodeWidth = FOREACH_NODE_WIDTH + VSCODE_MARGIN;
+        this.setNodeSize(node, foreachNodeWidth, foreachNodeWidth, width, height);
     }
 
     skipChildren(): boolean {
