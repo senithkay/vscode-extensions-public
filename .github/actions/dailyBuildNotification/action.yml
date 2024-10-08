@@ -30,7 +30,7 @@ runs:
       id: artifact-upload
       with:
         path: ${{ steps.vsix.outputs.fileName }}
-        name: Vsix-Artifact
+        name: Vsix-Artifact-${{ inputs.fileName }}
 
     - name: "Release Notification"
       shell: bash

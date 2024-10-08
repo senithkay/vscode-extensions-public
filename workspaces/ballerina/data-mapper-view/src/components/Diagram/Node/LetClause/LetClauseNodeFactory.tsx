@@ -23,14 +23,14 @@ import { RecordTypeTreeWidget } from '../commons/RecordTypeTreeWidget/RecordType
 
 import {
     LetClauseNode,
-    QUERY_EXPR_SOURCE_NODE_TYPE
+    QUERY_EXPR_LET_NODE_TYPE
 } from './LetClauseNode';
 
 @injectable()
 @singleton()
 export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, DiagramEngine> implements IDataMapperNodeFactory {
     constructor() {
-        super(QUERY_EXPR_SOURCE_NODE_TYPE);
+        super(QUERY_EXPR_LET_NODE_TYPE);
     }
 
     generateReactWidget(event: { model: LetClauseNode; }): JSX.Element {

@@ -15,6 +15,8 @@ import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { Tooltip } from "@mui/material";
+
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -29,6 +31,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.component.label || node.component.id;
+    const isDisabled = node.component.disabled?.status;
 
     useEffect(() => {
         const listener = node.registerListener({
@@ -76,8 +79,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     return (
         <ComponentNode
-            isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-            isFocused={node.getID() === focusedNodeId}
             onMouseOver={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onDoubleClick={handleOnWidgetDoubleClick}
@@ -89,8 +90,11 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isFocused={node.getID() === focusedNodeId || isHovered}
                 menuItems={componentMenu}
+                onFocusOut={handleMouseLeave}
             />
-            <ComponentName>{displayName}</ComponentName>
+            <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
+                <ComponentName disabled={isDisabled}>{displayName}</ComponentName>
+            </Tooltip>
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
                 <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />

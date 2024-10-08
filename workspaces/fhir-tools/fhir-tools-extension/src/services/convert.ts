@@ -13,6 +13,8 @@ import { ERROR_MESSAGES } from '../constants/messages';
 import { HL7v2_API, CDA_API } from '../constants/config';
 import { CCDAErrorResponse } from "@wso2-enterprise/fhir-tools-core";
 
+let CurConvType: string = "";
+
 const instance = axios.create({
     headers:{
         'Content-Security-Policy': "script-src-attr 'self';"
@@ -21,8 +23,9 @@ const instance = axios.create({
 
 const API = {
     ready: (convType: string): Promise<AxiosInstance> => {
+        CurConvType = convType;
         return new Promise<AxiosInstance>((resolve, reject) => {
-            getToken()
+            getToken(convType)
                 .then((token) => {
                     const conv_instance = convType === 'HL7v2' ? setHL7v2API() : setCDAAPI();
                     conv_instance.defaults.headers['Authorization'] = `Bearer ${token}`;
@@ -67,7 +70,7 @@ instance.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             try{
                 // Refresh token
-                const token = await getToken(true);
+                const token = await getToken(CurConvType, true);
                 if (token instanceof Error) {
                     return Promise.reject(token);
                 }
@@ -102,7 +105,7 @@ export function handleError(errResponse: AxiosResponse, convType: string): strin
     else{
         const body = errResponse.data;
         const messages = body.split(' Error: ');
-        return messages[1] + "::LOG::" + messages[0];
+        return messages[1] + "::LOG::" + body;
     }
 }
 

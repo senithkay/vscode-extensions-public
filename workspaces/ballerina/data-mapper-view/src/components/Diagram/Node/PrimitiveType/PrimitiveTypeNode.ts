@@ -42,6 +42,7 @@ import { getEnrichedRecordType } from "../../utils/type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
+const NODE_ID = "primitive-type-node";
 
 export class PrimitiveTypeNode extends DataMapperNodeModel {
 
@@ -59,6 +60,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         public typeDef: TypeField,
         public queryExpr?: QueryExpression) {
         super(
+            NODE_ID,
             context,
             PRIMITIVE_TYPE_NODE_TYPE
         );

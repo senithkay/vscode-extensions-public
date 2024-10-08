@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { SequenceModelResponse } from "../../interfaces/extended-lang-client";
+
 export interface SequenceDiagramAPI {
-   
+    getSequenceModel: () => Promise<SequenceModelResponse>;
 }

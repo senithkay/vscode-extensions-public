@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { css } from "@emotion/css";
-import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const syntaxHighlightingRules = {
     '& .type-descriptor, &.type-descriptor': {
@@ -87,6 +86,12 @@ export const useStatementEditorToolbarStyles = () => ({
         borderRadius: '5px',
         margin: '5px 0'
     }),
+    toolbarStatementQualifier: css({
+        padding: '8px',
+        borderRadius: '5px',
+        margin: '5px 0',
+        display: 'flex',
+    }),
     toolbarOperatorsIcons: css({
         color: 'var(--foreground)',
         padding: '0px 8px',
@@ -98,17 +103,6 @@ export const useStatementEditorToolbarStyles = () => ({
         fontFamily: 'monospace',
         fontSize: '12px',
         marginTop: '2px',
-    }),
-    qualifierListItem: css({
-        "& .MuiListItem-root": {
-            padding: '0px',
-            display: "inline-block"
-        },
-        "& .MuiListItemText-root": {
-            minWidth: 'auto',
-            margin: '0 0 0 12px'
-        },
-        ...removePadding
     }),
     QualifierCheckbox: css({
         float: 'right',
@@ -141,13 +135,6 @@ export const useStatementEditorToolbarStyles = () => ({
         },
     }),
     checked: css({}),
-    QualifierDropdownBase: css({
-        '& .MuiMenu-list': {
-            width: "110px",
-            border: "1px solid #DEE0E7",
-            borderRadius: '5px'
-        },
-    }),
     toolbarDivider: css({
         borderLeft: '1px solid var(--vscode-panel-border)',
         height: "70%",
@@ -448,8 +435,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     checked: css({}),
     docParamSuggestions: css({
         height: '100%',
-        overflowY: 'scroll',
-        ...stmtEditorPadding
+        overflowY: 'scroll'
     }),
     returnSeparator: css({
         height: '1px',
@@ -555,7 +541,6 @@ export const useStmtEditorHelperPanelStyles = () => ({
         flex: "inherit",
         whiteSpace: 'pre-wrap',
         marginLeft: '24px',
-        color: theme.palette.text.secondary,
         ...removePadding
     }),
     listItemMultiLine: css({
@@ -566,7 +551,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     }),
     listItemHeader: css({
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         height: '28px'
     }),
     listItemBody: css({
@@ -587,11 +572,11 @@ export const useStmtEditorHelperPanelStyles = () => ({
     listOptionalBtn: css({
         textTransform: 'none',
         minWidth: '32px',
-        color: theme.palette.primary.main
+        marginLeft: '8px'
     }),
     listOptionalHeader: css({
         fontSize: '13px',
-        color: theme.palette.text.secondary,
+        color: "gray",
         fontWeight: 500,
         letterSpacing: '0',
         lineHeight: '14px',
@@ -713,14 +698,14 @@ export const useStatementEditorStyles = () => ({
     editorsBreadcrumb: css({
         width: '90%',
         '& > * + *': {
-            marginTop: theme.spacing(2),
+            marginTop: 16,
         },
     }),
     statementEditorHeader: css({
         minHeight: '5vh',
         display: 'flex',
         borderBottom: 'solid 1px #d8d8d8',
-        padding: theme.spacing(1.5),
+        padding: 12,
         ...stmtEditorPadding
     }),
     closeButton: css({

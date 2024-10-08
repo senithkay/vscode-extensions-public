@@ -19,7 +19,7 @@ import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
@@ -43,7 +43,7 @@ interface LetVarDeclItemProps {
     handleOnCheck: (index: number) => void;
     onEditClick: (letVarDecl: LetVarDecl) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     filePath: string;
 }
 

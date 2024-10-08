@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -78,9 +78,9 @@ export function ParameterSuggestions() {
         if (currentModel.model && documentation && documentation.documentation?.parameters) {
             const model = isDocumentationSupportedModel(currentModel.model) ? currentModel.model :
                 getParentFunctionModel((currentModel.model.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                statementModel);
+                    statementModel);
             const paramsInModel: STNode[] = getCurrentModelParams(model);
-            let paramDocumentation : SymbolDocumentation  = documentation.documentation;
+            let paramDocumentation: SymbolDocumentation = documentation.documentation;
             // Filter from FE if the Ballerina version is update 1
             if (STKindChecker.isMethodCall(model) && isBalVersionUpdateOne(ballerinaVersion)) {
                 paramDocumentation = updateParamListFordMethodCallDoc(paramsInModel, paramDocumentation);
@@ -93,7 +93,7 @@ export function ParameterSuggestions() {
     useEffect(() => {
         if ((config.type === ACTION || config.type === HTTP_ACTION) && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
             const statementMethod = retrieveUsedAction(statementModel, connectorInfo);
-            if (activeMethod?.name !== statementMethod?.name){
+            if (statementMethod && activeMethod?.name !== statementMethod?.name) {
                 setActiveMethod(statementMethod);
             }
         }
@@ -110,7 +110,7 @@ export function ParameterSuggestions() {
                     <Typography variant="body3">{des[0]}</Typography>
                     <Typography
                         variant="h5"
-                        sx={{margin: '8px 0px'}}
+                        sx={{ margin: '8px 0px' }}
                     >
                         Example
                     </Typography>
@@ -132,7 +132,7 @@ export function ParameterSuggestions() {
         if (documentation && !(documentation.documentation === undefined)) {
             return (
                 <>
-                    {paramDoc && <ParameterList paramDocumentation={paramDoc}/>}
+                    {paramDoc && <ParameterList paramDocumentation={paramDoc} />}
                     {documentation.documentation.description && (
                         <>
                             {paramDoc?.parameters?.length > 0 && (
@@ -174,7 +174,7 @@ export function ParameterSuggestions() {
     const getConnectorFlowDocumentation = () => {
         return (
             <div className={stmtEditorHelperClasses.docParamSuggestions}>
-                {activeMethod.parameters && <ParameterTree parameters={activeMethod.parameters} connectorInfo={connectorInfo}/>}
+                {activeMethod.parameters && <ParameterTree parameters={activeMethod.parameters} connectorInfo={connectorInfo} />}
                 {activeMethod.parameters?.length > 0 && <div className={stmtEditorHelperClasses.returnSeparator} />}
                 {(connectorInfo?.documentation || activeMethod.documentation) && (
                     <>
@@ -193,8 +193,8 @@ export function ParameterSuggestions() {
                     <>
                         <div className={stmtEditorHelperClasses.returnSeparator} />
                         <Typography
-                                variant="h4"
-                                className={stmtEditorHelperClasses.paramHeader}
+                            variant="h4"
+                            className={stmtEditorHelperClasses.paramHeader}
                         >
                             Return
                         </Typography>
@@ -210,13 +210,13 @@ export function ParameterSuggestions() {
     };
 
     return (
-        <div>
+        <div style={{ maxHeight: `calc(100vh - 305px)`, width: "100%", overflowY: "scroll" }}>
             {!isConnectorFlow && getFnDocumentation()}
             {isConnectorFlow && insideParamList && getConnectorFlowDocumentation()}
             {isConnectorFlow && !insideParamList && (
                 <Typography
                     variant="body3"
-                    sx={{marginTop: '10px'}}
+                    sx={{ marginTop: '10px' }}
                 >
                     Please select a method or parameter to see the parameter information
                 </Typography>

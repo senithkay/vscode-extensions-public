@@ -13,8 +13,8 @@ import { ComponentView } from "./ComponentView";
 import { ProjectComponentProcessor } from "./util/project-component-processor";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { EVENT_TYPE, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 
 
@@ -47,7 +47,7 @@ export type ComponentCollection = {
 // when you select a symbol, it will show the symbol's visualization in the diagram view
 export function ComponentListView(props: { currentComponents: ComponentCollection | any }) {
 
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const categories: React.ReactElement[] = [];
 
     let currentComponents: ComponentCollection | any;
@@ -80,7 +80,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
             documentUri: info.filePath,
             position: info.position
         }
-        await rpcClient.getVisualizerRpcClient().openView(context);
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     }
 
     if (currentComponents) {

@@ -48,7 +48,7 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <ClassHeaderMenu location={node.classObject.position} nodeName={displayName} />
+                {/* <ClassHeaderMenu location={node.classObject.position} nodeName={displayName} /> */}
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}

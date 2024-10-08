@@ -1822,7 +1822,7 @@ export interface UnitTest extends STNode {
 
 export interface UnitTestArtifacts {
     testArtifact: TestArtifact;
-    supportiveArtifacts: STNode;
+    supportiveArtifacts: any;
     registryResources: STNode;
     connectorResources: STNode;
 }

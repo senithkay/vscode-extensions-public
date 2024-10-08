@@ -18,21 +18,24 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const DEFAULT_APIKEY = process.env.CLIENT_SECRET;
 const DEFAULT_TOKEN_ENDPOINT =
-    'https://api.asgardeo.io/t/joelsathi/oauth2/token';
+    'https://api.asgardeo.io/t/wso2healthtools/oauth2/token';
 const DEFAULT_HL7v2_API =
-    'https://7d0b44d3-c19e-443a-8984-bef909cae08e-dev.e1-us-east-azure.choreoapis.dev/pyvm/v2tofhir/endpoint-9090-803/v1.0/transform';
+    'https://880ea8ae-f125-4d0d-9346-c403f9c106db-prod.e1-us-east-azure.choreoapis.dev/kifl/v2-to-fhirr4-service/endpoint-9090-803/v1.0/transform';
 const DEFAULT_CDA_API =
-    'https://7d0b44d3-c19e-443a-8984-bef909cae08e-dev.e1-us-east-azure.choreoapis.dev/pyvm/ccda-to-fhir/endpoint-9090-803/v1.0/transform';
+    'https://880ea8ae-f125-4d0d-9346-c403f9c106db-prod.e1-us-east-azure.choreoapis.dev/kifl/ccda-to-fhirr4-service/endpoint-9090-803/v1.0/transform';
 
-export let APIKEY = DEFAULT_APIKEY;
-export let TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
 export let HL7v2_API = DEFAULT_HL7v2_API;
-export let CDA_API = DEFAULT_CDA_API;
-export let ENABLE_AUTHORIZATION = vscode.workspace
-    .getConfiguration()
-    .get('fhir-tools.enableAuthorization') as boolean;
+export let HL7v2_TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
+export let HL7v2_API_KEY = DEFAULT_APIKEY;
+export let HL7v2_ENABLE_AUTHORIZATION = true;
 
-let user_settings = false;
+export let CDA_API = DEFAULT_CDA_API;
+export let CDA_TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
+export let CDA_API_KEY = DEFAULT_APIKEY;
+export let CDA_ENABLE_AUTHORIZATION = true;
+
+let user_settings_hl7v2 = false;
+let user_settings_cda = false;
 
 /**
  * @description - Listen to configuration changes
@@ -42,12 +45,12 @@ export function listenToConfigurationChanges() {
     updateConfigs();
     vscode.workspace.onDidChangeConfiguration((event) => {
         if (
-            event.affectsConfiguration('fhir-tools.HL7v2_Api') ||
-            event.affectsConfiguration('fhir-tools.CCDA_Api') ||
-            event.affectsConfiguration('fhir-tools.tokenEndpoint') ||
-            event.affectsConfiguration('fhir-tools.consumerKey') ||
-            event.affectsConfiguration('fhir-tools.consumerSecret') ||
-            event. affectsConfiguration('fhir-tools.enableAuthorization')
+            event.affectsConfiguration('fhir-tools › HL7v2ToFHIR.ServiceURL') ||
+            event.affectsConfiguration('fhir-tools › C-CDA ToFHIR.ServiceURL') ||
+            event.affectsConfiguration('fhir-tools.authorization.tokenEndpoint') ||
+            event.affectsConfiguration('fhir-tools.authorization.consumerKey') ||
+            event.affectsConfiguration('fhir-tools.authorization.consumerSecret') ||
+            event. affectsConfiguration('fhir-tools.authorization.enableAuthorization')
         ) {
             updateConfigs();
         }
@@ -61,47 +64,56 @@ export function listenToConfigurationChanges() {
 function updateConfigs() {
     let HL7v2_API_USER = vscode.workspace
         .getConfiguration()
-        .get('fhir-tools.HL7v2_Api') as string;
+        .get('fhir-tools › HL7v2ToFHIR.ServiceURL') as string;
     let CDA_API_USER = vscode.workspace
         .getConfiguration()
-        .get('fhir-tools.CCDA_Api') as string;
+        .get('fhir-tools › C-CDA ToFHIR.ServiceURL') as string;
     let TOKEN_ENDPOINT_USER = vscode.workspace
         .getConfiguration()
-        .get('fhir-tools.tokenEndpoint') as string;
+        .get('fhir-tools.authorization.tokenEndpoint') as string;
     let CONSUMER_KEY = vscode.workspace
         .getConfiguration()
-        .get('fhir-tools.consumerKey') as string;
+        .get('fhir-tools.authorization.consumerKey') as string;
     let CONSUMER_SECRET = vscode.workspace
         .getConfiguration()
-        .get('fhir-tools.consumerSecret') as string;
+        .get('fhir-tools.authorization.consumerSecret') as string;
     let APIKEY_USER = `${CONSUMER_KEY}:${CONSUMER_SECRET}`;
     let ENABLE_AUTHORIZATION_USER = vscode.workspace
         .getConfiguration()
-        .get('fhir-tools.enableAuthorization') as boolean;
+        .get('fhir-tools.authorization.enableAuthorization') as boolean;
 
-    if (
-        (HL7v2_API_USER === '' || HL7v2_API_USER === undefined) &&
-        (CDA_API_USER === '' || CDA_API_USER === undefined) &&
-        (TOKEN_ENDPOINT_USER === '' || TOKEN_ENDPOINT_USER === undefined) &&
-        (CONSUMER_KEY === '' || CONSUMER_KEY === undefined) &&
-        (CONSUMER_SECRET === '' || CONSUMER_SECRET === undefined) &&
-        (ENABLE_AUTHORIZATION === true)
-    ) {
-        APIKEY = DEFAULT_APIKEY;
-        TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
+    if (HL7v2_API_USER === '' || HL7v2_API_USER === undefined) {
         HL7v2_API = DEFAULT_HL7v2_API;
-        CDA_API = DEFAULT_CDA_API;
-        user_settings = false;
+        HL7v2_TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
+        HL7v2_API_KEY = DEFAULT_APIKEY;
+        HL7v2_ENABLE_AUTHORIZATION = true;
+        user_settings_hl7v2 = false;
     } else {
-        APIKEY = APIKEY_USER;
-        TOKEN_ENDPOINT = TOKEN_ENDPOINT_USER;
         HL7v2_API = HL7v2_API_USER;
-        CDA_API = CDA_API_USER;
-        ENABLE_AUTHORIZATION = ENABLE_AUTHORIZATION_USER;
-        
-        if (!user_settings){
-            clearCachedToken();
+        HL7v2_TOKEN_ENDPOINT = TOKEN_ENDPOINT_USER;
+        HL7v2_API_KEY = APIKEY_USER;
+        HL7v2_ENABLE_AUTHORIZATION = ENABLE_AUTHORIZATION_USER;
+        if (!user_settings_hl7v2){
+            clearCachedToken("hl7v2");
         }
-        user_settings = true;
+        user_settings_hl7v2 = true;
     }
+
+    if (CDA_API_USER === '' || CDA_API_USER === undefined) {
+        CDA_API = DEFAULT_CDA_API;
+        CDA_TOKEN_ENDPOINT = DEFAULT_TOKEN_ENDPOINT;
+        CDA_API_KEY = DEFAULT_APIKEY;
+        CDA_ENABLE_AUTHORIZATION = true;
+        user_settings_cda = false;
+    } else {
+        CDA_API = CDA_API_USER;
+        CDA_TOKEN_ENDPOINT = TOKEN_ENDPOINT_USER;
+        CDA_API_KEY = APIKEY_USER;
+        CDA_ENABLE_AUTHORIZATION = ENABLE_AUTHORIZATION_USER;
+        if (!user_settings_cda){
+            clearCachedToken("cda");
+        }
+        user_settings_cda = true;
+    }
+
 }

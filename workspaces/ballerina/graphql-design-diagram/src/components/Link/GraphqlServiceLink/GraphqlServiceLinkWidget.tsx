@@ -11,9 +11,11 @@
 import React, { useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
+
 
 import { GRAPHQL_SERVICE_NODE } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
-import { Colors, RemoteFunction, ResourceFunction } from "../../resources/model";
+import { RemoteFunction, ResourceFunction } from "../../resources/model";
 
 import { GraphqlServiceLinkModel } from "./GraphqlServiceLinkModel";
 import { findCallingFunction } from "./link-utils";
@@ -74,7 +76,7 @@ export function GraphqlServiceLinkWidget(props: WidgetProps) {
         <g>
             <polygon
                 points={link.getArrowHeadPoints()}
-                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+                fill={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
             />
 
             <path
@@ -87,7 +89,7 @@ export function GraphqlServiceLinkWidget(props: WidgetProps) {
                 onMouseLeave={onMouseLeave}
                 onMouseMove={e => callingFunction ? setPosition({ x: e.pageX, y: e.pageY }) : {}}
                 onMouseOver={onMouseOver}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+                stroke={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
                 strokeWidth={1}
             />
         </g>

@@ -9,7 +9,6 @@
 import React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { TextPreLoader } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { Container } from "../Canvas/CanvasWidgetContainer";
 
@@ -24,7 +23,7 @@ export class GraphqlOverlayLayerWidget extends React.Component<NodeLayerWidgetPr
     render() {
         return (
             <Container className="dotted-background">
-                <TextPreLoader position="absolute" text="Rendering the Diagram..." />
+                <p>Rendering the Diagram...</p>
             </Container>
         );
     }

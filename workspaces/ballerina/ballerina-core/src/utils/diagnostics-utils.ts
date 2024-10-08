@@ -37,3 +37,19 @@ export function getSelectedDiagnostics(
 
     return filteredDiagnostics;
 }
+
+/** Messages to be ignored when displaying diagnostics in expression editor */
+export const IGNORED_DIAGNOSTIC_MESSAGES: string[] = [`invalid token ';'`];
+
+export function getFilteredDiagnostics(diagnostics: Diagnostic[], isCustomStatement: boolean, isStartWithSlash?: boolean) {
+    const selectedDiagnostics =  diagnostics
+        .filter(diagnostic =>
+            !IGNORED_DIAGNOSTIC_MESSAGES.includes(diagnostic.message.toString()) && diagnostic.severity === 1);
+
+    if (selectedDiagnostics.length && isStartWithSlash) {
+        if (selectedDiagnostics[0]?.code === "BCE0400") {
+            selectedDiagnostics[0].message = "resource path cannot begin with a slash"
+        }
+    }
+    return selectedDiagnostics;
+}

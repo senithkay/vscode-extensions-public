@@ -12,16 +12,29 @@ import {
     HistoryEntry,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
-    VisualizerLocation
+    OpenViewRequest,
+    MACHINE_VIEW,
+    PopupVisualizerLocation,
+    VisualizerLocation,
+    EVENT_TYPE
 } from "@wso2-enterprise/ballerina-core";
-import { history, updateView, openView, undoRedoManager } from "../../stateMachine";
+import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
+import { openPopupView } from "../../stateMachinePopup";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
-    openView(params: VisualizerLocation): Promise<void> {
+    openView(params: OpenViewRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            openView("OPEN_VIEW", params);
-            resolve();
+            if (params.isPopup) {
+                const view = params.location.view;
+                if (view && view === MACHINE_VIEW.Overview) {
+                    openPopupView(EVENT_TYPE.CLOSE_VIEW, params.location as PopupVisualizerLocation);
+                } else {
+                    openPopupView(params.type, params.location as PopupVisualizerLocation);
+                }
+            } else {
+                openView(params.type, params.location as VisualizerLocation);
+            }
         });
     }
 

@@ -94,7 +94,7 @@ export function FunctionCard(props: FunctionCardProps) {
                     )
                 }
                 <div style={{width: '10px'}}>
-                    {isHovered && addFunctionMenu()}
+                    {/* {isHovered && addFunctionMenu()} */}
                 </div>
 
             </FunctionContainer>

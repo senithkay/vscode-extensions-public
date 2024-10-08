@@ -12,7 +12,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { HistoryEntry, STModification } from "@wso2-enterprise/ballerina-core";
 import { DataMapper } from "./components/DataMapper/DataMapper";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client/lib/rpc-clients/library-browser/rpc-client";
 import { StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
 
@@ -30,15 +30,17 @@ const queryClient = new QueryClient({
 export interface DataMapperViewProps {
     fnST: FunctionDefinition;
     filePath: string;
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     libraryBrowserRpcClient?: LibraryBrowserRpcClient;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
+    applyModifications: (modifications: STModification[], isRecordModification?: boolean) => Promise<void>;
     goToFunction?: (componentInfo: HistoryEntry) => Promise<void>;
     onClose?: () => void;
     renderRecordPanel?: (props: {
         closeAddNewRecord: (createdNewRecord?: string) => void,
         onUpdate: (update: boolean) => void
     } & StatementEditorComponentProps) => React.ReactElement;
+    isBI?: boolean;
+    experimentalEnabled?: boolean;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {

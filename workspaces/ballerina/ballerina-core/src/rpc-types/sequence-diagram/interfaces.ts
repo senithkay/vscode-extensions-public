@@ -9,104 +9,73 @@
 
 import { LinePosition } from "../../interfaces/common";
 
-export interface DNode {
-    kind: string;
-    isHidden: boolean;
-    location: Location;
-}
+export type SqFlow = {
+    participants: SqParticipant[];
+    location: SqLocation;
+};
 
-export interface Location {
+export type SqLocation = {
     fileName: string;
     startLine: LinePosition;
     endLine: LinePosition;
+};
+
+export enum SqParticipantType {
+    FUNCTION = "FUNCTION",
+    WORKER = "WORKER",
+    ENDPOINT = "ENDPOINT",
 }
 
-export interface DElement extends DNode {
-    elementBody?: DElementBody;
-}
-
-export interface DElementBody extends DNode {
-    childElements: DNode[];
-}
-
-export interface Participant extends DElement {
+export type SqParticipant = {
     id: string;
     name: string;
-    participantKind: PariticipantKind;
-    packageName: string;
-    type?: string;
-    hasInteractions: boolean;
+    kind: SqParticipantType;
+    moduleName: string;
+    nodes: SqNode[];
+    location: SqLocation;
+};
+
+export enum SqNodeKind {
+    INTERACTION = "INTERACTION",
+    IF = "IF",
+    WHILE = "WHILE",
+    FOREACH = "FOREACH",
+    MATCH = "MATCH",
+    RETURN = "RETURN",
 }
 
-export type PariticipantKind = 'WORKER' | 'ENDPOINT';
-
-export type InteractionType = 'ENDPOINT_INTERACTION' | 'FUNCTION_INTERACTION' | 'METHOD_INTERACTION' | 'RETURN_ACTION';
-
-export interface SequenceModel extends DNode {
-    participants: Participant[];
+export enum InteractionType {
+    ENDPOINT_CALL = "ENDPOINT_CALL",
+    FUNCTION_CALL = "FUNCTION_CALL",
+    RETURN = "RETURN",
+    METHOD_CALL = "METHOD_CALL",
+    WORKER_CALL = "WORKER_CALL",
 }
 
-export interface Interaction extends DNode {
-    sourceId: string;
-    targetId: string;
-    interactionType: InteractionType;
-}
+export type SqNode = {
+    interactionType?: InteractionType;
+    properties: SqNodeProperties;
+    targetId?: string;
+    kind: SqNodeKind;
+    location: SqLocation;
+    branches?: SqNodeBranch[];
+};
 
-export interface FunctionActionStatement extends Interaction {
-    functionName: string;
-}
+export type SqNodeBranch = {
+    label: string;
+    children: SqNode[];
+};
 
-export interface MethodActionStatement extends Interaction {
-    methodName: string;
-    expression: string;
-}
-
-export interface ReturnAction extends Interaction {
-    name: string;
+export type SqExpression = {
     type: string;
-}
+    value?: string;
+};
 
-export interface EndpointActionStatement extends Interaction {
-    actionName: string;
-    actionPath: string;
-    methodName: string;
-    actionType: ActionType;
-}
-
-export type ActionType = "RESOURCE_ACTION" | "REMOTE_ACTION"
-
-export interface DoStatement extends DElement {
-    onFailClause?: OnFailClause;
-}
-
-export interface OnFailClause extends DElement {
-    type: string;
-    name: string;
-}
-
-export interface WhileStatement extends DElement {
-    condition: string;
-    onFailClause?: OnFailClause;
-}
-
-export interface IfStatement extends DElement {
-    condition: string;
-    elseStatement: DElement;
-}
-
-export interface LockStatement extends DElement {
-    onFailClause: OnFailClause;
-}
-
-export interface ForeachStatement extends DElement {
-    collection: string;
-    onFailClause: OnFailClause;
-}
-
-export interface StatementBlock extends DElement {
-    statementBlockText: string;
-}
-
-export interface ElseStatement extends DElement {
-    
-}
+export type SqNodeProperties = {
+    params?: SqExpression[];
+    expr?: SqExpression;
+    method?: SqExpression;
+    value?: SqExpression;
+    name?: SqExpression;
+    condition?: SqExpression;
+};

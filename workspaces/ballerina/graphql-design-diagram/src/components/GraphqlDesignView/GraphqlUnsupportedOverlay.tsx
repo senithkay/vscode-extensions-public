@@ -9,8 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
 import { GraphqlUnsupportedStyles } from "./styles";
 
 export function GraphqlUnsupportedOverlay() {
@@ -18,7 +16,6 @@ export function GraphqlUnsupportedOverlay() {
 
     return (
         <div className={graphqlUnsupportedClasses.overlayWrapper}>
-            <ServiceInvalidImg />
             <p className={graphqlUnsupportedClasses.title}>Unable to load the GraphQL visualizer</p>
             <p className={graphqlUnsupportedClasses.subtitle}>Please check for compilation errors within the code</p>
         </div>

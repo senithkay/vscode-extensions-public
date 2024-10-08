@@ -68,20 +68,19 @@ export function ComponentView(props: ComponentViewProps) {
                     '.icon svg g': {
                         fill: 'var(--vscode-editor-foreground)'
                     },
-                    backgroundColor: 'var(--vscode-pickerGroup-border)',
-                    border: '1px solid var(--vscode-focusBorder)'
+                    backgroundColor: 'var(--vscode-editor-hoverHighlightBackground)',
+                    borderColor: 'var(--vscode-focusBorder)'
                 },
                 alignItems: 'center',
                 border: '1px solid var(--vscode-editor-foreground)',
-                borderRadius: 5,
+                borderRadius: 1,
                 cursor: isComponentAllowed() ? 'cursor' : 'not-allowed',
                 display: 'flex',
-                height: 50,
+                height: 40,
                 justifyContent: 'space-between',
                 marginBottom: 16,
                 marginRight: 16,
                 padding: 10,
-                transition: '0.3s',
                 width: 200
             }}
         >
