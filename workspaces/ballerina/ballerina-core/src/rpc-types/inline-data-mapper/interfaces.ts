@@ -11,6 +11,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "../../interfaces/common";
 
 export interface IDMType {
+    category: string;
     kind: TypeKind;
     typeName?: string;
     fieldName?: string;

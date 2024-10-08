@@ -34,7 +34,7 @@ export const useIOTypes = (filePath: string) => {
         try {
             const res = await rpcClient
                 .getInlineDataMapperRpcClient()
-                .getIOTypes({ filePath, position: { line: 29, offset: 43 } });
+                .getIOTypes({ filePath, position: { line: 28, offset: 12 } });
             return res;
         } catch (error) {
             console.error(error);

@@ -250,15 +250,17 @@ export interface VisibleVariableTypesParams {
 }
 
 export interface VisibleVariableTypes {
-    description: string;
-    source: string;
-    position: LinePosition;
-    visibleTypes: VisibleType[];
+    categories: VisibleType[];
 }
 
 export interface VisibleType {
     name: string;
-    types: TypeField[];
+    types: TypeWithIdentifier[];
+}
+
+export interface TypeWithIdentifier {
+    name: string;
+    type: TypeField;
 }
 
 export interface GraphqlDesignServiceParams {

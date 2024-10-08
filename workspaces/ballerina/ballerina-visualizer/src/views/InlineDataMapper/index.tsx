@@ -49,8 +49,8 @@ export function InlineDataMapper(props: DataMapperProps) {
                         filePath={filePath}
                         fileContent={undefined}
                         functionName={undefined}
-                        inputTrees={[]}
-                        outputTree={undefined}
+                        inputTrees={dmIOTypes?.inputTypes}
+                        outputTree={dmIOTypes?.outputType}
                         updateFileContent={undefined}
                         configName={undefined}
                     />
