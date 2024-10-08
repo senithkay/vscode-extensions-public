@@ -21,6 +21,7 @@ const FormContainer = styled.div`
     flex-direction: column;
     max-width: 600px;
     gap: 20px;
+    margin-top: 20px;
 `;
 
 const Container = styled.div`
@@ -71,11 +72,11 @@ export function MainForm() {
             <ViewContent padding>
                 <BIHeader />
                 <Container>
+                    <Typography variant="h2">Create Automation Task</Typography>
+                    <BodyText>
+                        Implement a task for either scheduled or one-time jobs.
+                    </BodyText>
                     <FormContainer>
-                        <Typography variant="h2">Create Automation Task</Typography>
-                        <BodyText>
-                            Implement a task for either scheduled or one-time jobs.
-                        </BodyText>
                         <TextField
                             onTextChange={setName}
                             value={name}
