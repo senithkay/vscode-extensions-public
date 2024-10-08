@@ -17,7 +17,7 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
-import { isInputAccessExpr } from '../utils/common-utils';
+import { getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
@@ -106,9 +106,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            const isSourceArray = isSourcePortArray(source);
-            const isTargetArray = isTargetPortArray(target);
-            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
+            
+            const mappingType = getMappingType(source, target);
             setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
@@ -290,15 +289,4 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             {elements}
         </div>
     );
-}
-
-export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): MappingType {
-    let mappingType: MappingType = MappingType.Undefined;
-    if (isSourceArray && isTargetArray) {
-        mappingType = MappingType.ArrayToArray;
-    } else if (isSourceArray && !isTargetArray) {
-        mappingType = MappingType.ArrayToSingleton;
-    }
-
-    return mappingType;
 }
