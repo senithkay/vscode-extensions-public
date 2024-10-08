@@ -34,7 +34,7 @@ export enum ValueType {
 export enum MappingType {
 	ArrayToArray = "array-array",
 	ArrayToSingleton = "array-singleton",
-	Undefined = undefined // This is for non-array mappings currently
+	Default = undefined // This is for non-array mappings currently
 }
 
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {

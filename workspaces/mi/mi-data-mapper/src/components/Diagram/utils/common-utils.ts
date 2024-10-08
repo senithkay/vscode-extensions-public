@@ -746,7 +746,7 @@ export function isConnectingArrays(mappingType: MappingType): boolean {
 
 export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
     if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
-        return MappingType.Undefined;
+        return MappingType.Default;
     }
 
     if (targetPort.field && sourcePort.field) {
@@ -760,7 +760,7 @@ export function getMappingType(sourcePort: PortModel, targetPort: PortModel): Ma
         }
     }
 
-    return MappingType.Undefined;
+    return MappingType.Default;
 }
 
 export function getValueType(lm: DataMapperLinkModel): ValueType {

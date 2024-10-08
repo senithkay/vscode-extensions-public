@@ -61,8 +61,8 @@ export function removePendingMappingTempLinkIfExists(link: LinkModel) {
 	if (pendingMappingType) {
 		sourcePort?.fireEvent({}, "link-removed");
 		targetPort?.fireEvent({}, "link-removed");
-		sourcePort.setPendingMappingType(MappingType.Undefined);
-		targetPort.setPendingMappingType(MappingType.Undefined);
+		sourcePort.setPendingMappingType(MappingType.Default);
+		targetPort.setPendingMappingType(MappingType.Default);
 		link.remove();
 	}
 }

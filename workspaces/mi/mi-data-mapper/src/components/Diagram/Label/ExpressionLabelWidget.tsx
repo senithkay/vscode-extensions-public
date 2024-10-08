@@ -87,7 +87,7 @@ export interface ExpressionLabelWidgetProps {
 // now we can render all what we want in the label
 export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
-    const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Undefined);
+    const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Default);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
