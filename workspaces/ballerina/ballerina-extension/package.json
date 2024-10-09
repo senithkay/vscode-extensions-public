@@ -503,7 +503,7 @@
                 "category": "BI"
             },
             {
-                "command": "BI.open-runtime-service-view",
+                "command": "BI.open.runtime.service.view",
                 "title": "Open Runtime Services Panel",
                 "category": "BI",
                 "icon": "$(server)",
@@ -629,7 +629,7 @@
                     "title": "Open AI Panel"
                 },
                 {
-                    "command": "BI.open-runtime-service-view",
+                    "command": "BI.open.runtime.service.view",
                     "group": "navigation@2",
                     "when": "isBalVisualizerActive && isBIProject && biRunning",
                     "title": "Open Runtime Services Panel"
