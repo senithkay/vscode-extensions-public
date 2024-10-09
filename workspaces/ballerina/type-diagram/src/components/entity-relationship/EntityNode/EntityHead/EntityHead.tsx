@@ -12,8 +12,8 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
 import { EntityHead, EntityName } from '../styles';
-import { DiagramContext } from '../../../common/DiagramContext/DiagramContext';
 import { CtrlClickGo2Source } from '../../../common/CtrlClickHandler/CtrlClickGo2Source';
+import { DiagramContext } from '../../../common';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -25,7 +25,7 @@ const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { setFocusedNodeId } = useContext(DiagramContext);
+    const { setFocusedNodeId, selectedNodeId, setSelectedNodeId } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     // const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -41,13 +41,12 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
         node.handleHover(headPorts.current, task);
     }
 
-    // const isClickable = currentView === Views.TYPE;
-    const isClickable = false; // TODO: allow clickable for composition diagram
+        const isClickable = selectedNodeId ? false: true;
 
 
     const handleOnClickOnEntityName = () => {
         if (isClickable) {
-            // getTypeComposition(node.getID());
+            setSelectedNodeId(node.getID());
             setFocusedNodeId(undefined);
         }
     }

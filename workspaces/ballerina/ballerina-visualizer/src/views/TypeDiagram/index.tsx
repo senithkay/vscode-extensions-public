@@ -12,7 +12,12 @@ import { VisualizerLocation, ComponentModels } from "@wso2-enterprise/ballerina-
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 
-export function TypeDiagram() {
+interface TypeDiagramProps {
+    selectedRecordId?: string;
+}
+
+export function TypeDiagram(props: TypeDiagramProps) {
+    const { selectedRecordId } = props;
     const { rpcClient } = useRpcContext();
     const langRpcClient = rpcClient.getLangClientRpcClient();
     const commonRpcClient = rpcClient.getCommonRpcClient();
@@ -45,7 +50,7 @@ export function TypeDiagram() {
     return (
         <TypeDesignDiagram
             getComponentModel={getComponentModel}
-            // selectedRecordName={visualizerLocation?.identifier}
+            selectedRecordId={selectedRecordId}
             showProblemPanel={showProblemPanel}
         />
     );

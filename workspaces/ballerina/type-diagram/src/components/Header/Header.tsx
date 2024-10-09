@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from '@emotion/styled';
-import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Button, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { DiagramContext } from '../common';
 
 
 const HeaderContainer = styled.div`
@@ -31,10 +32,23 @@ export const Title: React.FC<any> = styled.div`
 `;
 
 export function HeaderWidget() {
+    const { selectedNodeId, setSelectedNodeId } = useContext(DiagramContext);
 
     return (
         <HeaderContainer>
-            <Title>Type Diagram</Title>
+            {selectedNodeId ?
+                <Title>Composition Diagram</Title> :
+                <Title>Type Diagram</Title>
+            }
+            {selectedNodeId && (
+                <Button
+                    appearance="primary"
+                    onClick={() => setSelectedNodeId(undefined)}
+                    tooltip="Open Type Diagram"
+                >
+                    Switch to Type Diagram
+                </Button>
+            )}
         </HeaderContainer>
     );
 }

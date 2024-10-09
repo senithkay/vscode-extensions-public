@@ -10,7 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { NavigationWrapperCanvasWidget, ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
-import { createEntitiesEngine, createRenderPackageObject, entityModeller } from './utils';
+import { createEntitiesEngine, createRenderPackageObject, entityModeller, generateCompositionModel } from './utils';
 
 import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
@@ -27,16 +27,16 @@ import { isVersionBelow, transformToV4Models } from './utils/utils';
 
 interface TypeDiagramProps {
     getComponentModel: () => Promise<ComponentModels>;
-    // selectedRecordName: string;
+    selectedRecordId?: string;
     showProblemPanel: () => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { getComponentModel, showProblemPanel } = props;
+    const { getComponentModel, showProblemPanel, selectedRecordId } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
-    const [selectedNodeId, setSelectedNodeId] = useState<string>(undefined);
+    const [selectedNodeId, setSelectedNodeId] = useState<string>(selectedRecordId);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>(undefined);
     const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
@@ -46,13 +46,17 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const styles = useStyles();
 
     useEffect(() => {
-        refreshDiagram();
-        // const nodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
-        // if (nodeId !== selectedNodeId) {
-        //     setSelectedNodeId(nodeId);
-        // }
+        if (selectedRecordId !== selectedNodeId) {
+            setSelectedNodeId(selectedRecordId);
+        }
         setFocusedNodeId(undefined);
+        refreshDiagram();
+
     }, [props]);
+
+    useEffect(() => {
+        refreshDiagram();
+    }, [selectedNodeId]);
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
@@ -93,7 +97,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
             }
             const workspaceComponents = projectComponents;
             setFocusedNodeId(undefined);
-            const typeModel = entityModeller(workspaceComponents, workspacePackages);
+            let typeModel;
+            if (selectedNodeId) {
+                typeModel = generateCompositionModel(workspaceComponents, selectedNodeId);
+            } else {
+                typeModel = entityModeller(workspaceComponents, workspacePackages);
+            }
             if (typeModel) {
                 typeModel.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(typeModel);
@@ -113,7 +122,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }, 30);
     };
 
-    // TODO: Check on the value of the context
     let ctx = {
         selectedNodeId,
         setSelectedNodeId,

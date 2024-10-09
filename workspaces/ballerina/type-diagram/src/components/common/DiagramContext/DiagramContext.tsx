@@ -15,6 +15,8 @@ interface DiagramContextProps {
     hasDiagnostics: boolean;
     focusedNodeId?: string;
     setFocusedNodeId?: (id: string) => void;
+    selectedNodeId?: string;
+    setSelectedNodeId?: (id: string) => void;
     goToSource?: (filePath: string, position: NodePosition) => void;
 }
 
@@ -22,6 +24,8 @@ interface IDiagramContext {
     hasDiagnostics: boolean;
     focusedNodeId?: string;
     setFocusedNodeId?: (id: string) => void;
+    selectedNodeId?: string;
+    setSelectedNodeId?: (id: string) => void;
     goToSource?: (filePath: string, position: NodePosition) => void;
 }
 
@@ -34,6 +38,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         hasDiagnostics,
         focusedNodeId,
         setFocusedNodeId,
+        selectedNodeId,
+        setSelectedNodeId,
         goToSource
     } = props;
 
@@ -41,6 +47,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         hasDiagnostics,
         focusedNodeId,
         setFocusedNodeId,
+        selectedNodeId,
+        setSelectedNodeId,
         goToSource
     }
 

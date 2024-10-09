@@ -175,7 +175,7 @@ const MainPanel = () => {
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.TypeDiagram:
-                        setViewComponent(<TypeDiagram />);
+                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier}/>);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
