@@ -14,6 +14,7 @@ import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/Expres
 import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FilterType, Keylookup } from "../Keylookup/Keylookup";
 import styled from "@emotion/styled";
+import { ResourceType } from "@wso2-enterprise/mi-core";
 
 const ParamManagerContainer = styled.div`
     display: flex;
@@ -39,7 +40,7 @@ export interface Param {
     noItemsFoundMessage?: string;
     enableCondition?: EnableCondition;
     filter?: (value: string) => boolean; // For KeyLookup
-    filterType?: FilterType; // For KeyLookup
+    filterType?: FilterType | ResourceType[]; // For KeyLookup
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField

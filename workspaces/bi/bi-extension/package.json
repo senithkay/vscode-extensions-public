@@ -66,8 +66,8 @@
                     "group": "inline"
                 },
                 {
-                    "command": "BI.project-explorer.add-schema",
-                    "when": "view == BI.project-explorer && viewItem == schemas",
+                    "command": "BI.project-explorer.add-type",
+                    "when": "view == BI.project-explorer && viewItem == types",
                     "group": "inline"
                 },
                 {

@@ -24,6 +24,27 @@ export class Overview {
         this.webView = webview;
     }
     public async createNewProject() {
-        (await getVsCodeButton(this.webView, 'Create New Project', 'primary')).click();
+        const container = this.webView.locator('div#root');
+        (await getVsCodeButton(container, 'Create New Project', 'primary')).click();
+    }
+
+    public async checkForArtifact(artifactType: string, artifactName: string) {
+        const artifactTypeSection = await this.webView.waitForSelector(`h3:text("${artifactType}") >> ..`);
+        const artifact = await artifactTypeSection.waitForSelector(`div:text("${artifactName}") >> ..`);
+        if (await artifact.isVisible()) {
+            return true;
+        }
+        return false;
+    }
+
+    public async selectArtifact(artifactType: string, artifactName: string) {
+        const artifactTypeSection = await this.webView.waitForSelector(`h3:text("${artifactType}") >> ..`);
+        const artifact = await artifactTypeSection.waitForSelector(`div:text("${artifactName}") >> ..`);
+        await artifact.click();
+    }
+
+    public async goToAddArtifact() {
+        const addArtifactBtn = await this.webView.waitForSelector(`vscode-button:text("Add Artifact)`);
+        await addArtifactBtn.click();
     }
 }
