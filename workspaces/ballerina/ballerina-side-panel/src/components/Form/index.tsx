@@ -166,11 +166,11 @@ export interface FormProps {
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        extractArgsFromFunction: (cursorPosition: number) => {
+        extractArgsFromFunction: (cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;
-        };
+        }>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;

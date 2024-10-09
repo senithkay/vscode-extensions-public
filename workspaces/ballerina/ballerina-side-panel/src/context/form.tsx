@@ -26,11 +26,11 @@ export interface FormContext {
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        extractArgsFromFunction: (cursorPosition: number) => {
+        extractArgsFromFunction: (cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;
-        };
+        }>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
         onCompletionSelect?: (value: string) => void | Promise<void>;
