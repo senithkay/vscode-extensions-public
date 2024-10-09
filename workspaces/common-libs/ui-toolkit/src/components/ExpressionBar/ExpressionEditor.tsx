@@ -39,7 +39,8 @@ type DropdownItemProps = {
 };
 
 type FnSignatureProps = {
-    item: CompletionItem;
+    label: string;
+    args: string[];
     currentArgIndex: number;
 };
 
@@ -285,18 +286,18 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
 Dropdown.displayName = 'Dropdown';
 
 const FnSignatureEl = (props: FnSignatureElProps) => {
-    const { item, currentArgIndex, sx } = props;
+    const { label, args, currentArgIndex, sx } = props;
 
     return (
         <>
-            {item && (
+            {label && (
                 <DropdownBody sx={sx}>
                     <SyntaxBody>
                         <Typography variant="body3" sx={{ fontWeight: 600 }}>
-                            {`${item.label}(`}
+                            {`${label}(`}
                         </Typography>
-                        {item.args?.map((arg, index) => {
-                            const lastArg = index === item.args.length - 1;
+                        {args?.map((arg, index) => {
+                            const lastArg = index === args.length - 1;
                             if (index === currentArgIndex) {
                                 return (
                                     <Fragment key={`arg-${index}`}>
@@ -347,7 +348,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         suffix: /^((?:\w|')*)/,
     };
 
-    const isDropdownOpen = completions?.length > 0 || !!fnSignature?.item;
+    const isDropdownOpen = completions?.length > 0 || !!fnSignature;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
@@ -374,12 +375,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     // This allows us to update the Function Signature UI
-    const updateFnSignature = (functionName: string, args: string, cursorPosition: number) => {
-        const item = completions.find(item => item.value === functionName);
-        if (item?.args) {
-            const currentArgIndex = extractArgsFromFunction(item, args, cursorPosition);
-            setFnSignature({ item, currentArgIndex });
-        }
+    const updateFnSignature = (cursorPosition: number) => {
+        const { label, args, currentArgIndex } = extractArgsFromFunction(cursorPosition);
+        setFnSignature({ label, args, currentArgIndex });
     };
 
     const handleChange = async (text: string, cursorPosition?: number) => {
@@ -389,9 +387,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         await onChange(text, updatedCursorPosition);
 
         // Update selected argument if the cursor is inside a function
-        const { isCursorInFunction, functionName, args } = getFunctionInfo(text, cursorPosition);
+        const { isCursorInFunction } = getFunctionInfo(text, cursorPosition);
         if (isCursorInFunction) {
-            updateFnSignature(functionName, args, cursorPosition);
+            updateFnSignature(cursorPosition);
         }
     };
 
@@ -630,7 +628,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 items={completions}
                                 onCompletionSelect={handleCompletionSelectMutation}
                             />
-                            <FnSignatureEl item={fnSignature?.item} currentArgIndex={fnSignature?.currentArgIndex ?? 0} />
+                            <FnSignatureEl
+                                label={fnSignature?.label}
+                                args={fnSignature?.args}
+                                currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                            />
                         </Transition>
                     </DropdownContainer>,
                     document.body

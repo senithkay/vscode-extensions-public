@@ -90,9 +90,12 @@ export type ExpressionBarBaseProps = {
     onCompletionSelect?: (value: string) => void | Promise<void>;
 
     // Function signature props
-    // - Returns the index of the argument that is currently being edited
-    extractArgsFromFunction:
-        (selectedItem: CompletionItem, argText: string, cursorPosition: number) => number;
+    // - Returns information about the function that is currently being edited
+    extractArgsFromFunction: (cursorPosition: number) => {
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    };
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {

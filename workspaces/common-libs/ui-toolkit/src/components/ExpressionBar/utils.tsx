@@ -11,22 +11,13 @@ import React, { RefObject } from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
 
-const FUNCTION_NAME_REGEX = /[a-zA-Z0-9_']+$/;
-
 export const getFunctionInfo = (text: string, cursorPosition: number) => {
     const effectiveText = text.substring(0, cursorPosition);
     const lastOpenBracketIndex = effectiveText.lastIndexOf('(');
     const lastCloseBracketIndex = effectiveText.lastIndexOf(')') ?? 0;
     const isCursorInFunction = lastOpenBracketIndex && (lastOpenBracketIndex > lastCloseBracketIndex);
 
-    let functionName: string;
-    let args: string;
-    if (isCursorInFunction) {
-        functionName = effectiveText.substring(lastCloseBracketIndex + 1, lastOpenBracketIndex).match(FUNCTION_NAME_REGEX)[0];
-        args = effectiveText.substring(lastOpenBracketIndex + 1, cursorPosition);
-    }
-
-    return { isCursorInFunction, functionName, args };
+    return { isCursorInFunction };
 };
 
 export const addClosingBracketIfNeeded = (text: string) => {
