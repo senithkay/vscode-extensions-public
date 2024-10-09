@@ -503,6 +503,13 @@
                 "category": "BI"
             },
             {
+                "command": "BI.open-runtime-service-view",
+                "title": "Open Runtime Services Panel",
+                "category": "BI",
+                "icon": "$(server)",
+                "when": "BI.biRunning== 'true'"
+            },
+            {
                 "command": "BI.project-explorer.refresh",
                 "title": "Refresh BI",
                 "category": "BI"
@@ -620,6 +627,12 @@
                     "group": "navigation@1",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram || (isBalVisualizerActive && isBIProject)",
                     "title": "Open AI Panel"
+                },
+                {
+                    "command": "BI.open-runtime-service-view",
+                    "group": "navigation@2",
+                    "when": "isBalVisualizerActive && isBIProject && biRunning",
+                    "title": "Open Runtime Services Panel"
                 }
             ],
             "notebook/toolbar": [

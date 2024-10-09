@@ -30,6 +30,7 @@ export async function stopRunningBiProject() {
         .then((didStop) => {
         if (didStop) {
             StateMachine.context().biRunning = false;
+            commands.executeCommand('setContext', 'biRunning', false);
         }
     });
 }
@@ -41,6 +42,7 @@ async function run() {
         if (params.verbose === "stopped") { 
             // even if a single channel (stderr,stdout) stopped, we stop the debug session
             StateMachine.context().biRunning = false;
+            commands.executeCommand('setContext', 'biRunning', false);
         } else {
             outputChannel.append(params.message);
         }
@@ -48,9 +50,11 @@ async function run() {
     runFast(StateMachine.context().projectUri).then((didRan) => {
         if (didRan) {
             outputChannel.show();
+            commands.executeCommand('setContext', 'biRunning', true);
         } else {
             window.showErrorMessage("Project running failed!");
             StateMachine.context().biRunning = false;
+            commands.executeCommand('setContext', 'biRunning', false);
         }
     });
 }
