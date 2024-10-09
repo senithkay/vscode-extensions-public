@@ -175,6 +175,9 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     );
     entryPoints.contextValue = "entryPoint";
     entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES]);
+    if (components.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
+        entryPoints.children.push(...getComponents(components.directoryMap[DIRECTORY_MAP.AUTOMATION]));
+    }
     entries.push(entryPoints);
 
     // Connections
