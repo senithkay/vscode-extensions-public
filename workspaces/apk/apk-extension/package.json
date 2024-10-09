@@ -4,7 +4,7 @@
     "description": "APK config language support ",
     "author": "WSO2",
     "license": "Apache 2.0",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "publisher": "WSO2",
     "bugs": "https://github.com/wso2/apk/issues",
     "repository": {
@@ -51,7 +51,8 @@
       "pretest": "npm run compile && npm run lint",
       "lint": "eslint src --ext ts",
       "test": "node ./out/test/runTest.js",
-      "build": "vsce package"
+      "build": "vsce package",
+      "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
     },
     "devDependencies": {
       "@types/glob": "^8.0.0",

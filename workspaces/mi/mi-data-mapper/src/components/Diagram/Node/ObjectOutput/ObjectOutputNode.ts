@@ -148,7 +148,6 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                         && mappedField.kind !== TypeKind.Array
                         && mappedField.kind !== TypeKind.Interface
                     ) || !Node.isObjectLiteralExpression(this.value)
-                    || Node.isVariableStatement(this.context.focusedST)
                 );
 
                 lm.setTargetPort(mappedOutPort);
@@ -203,11 +202,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 const parentNode = node.getParent();
 
                 if (Node.isPropertyAssignment(node)) {
-                    if (Node.isVariableStatement(this.context.focusedST)) {
-                        node.getInitializer().replaceWithText(defaultValue);
-                    } else {
-                        node.remove();
-                    }
+                    node.remove();
                 } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
                     const elementIndex = parentNode.getElements().find(e => e === node);
                     parentNode.removeElement(elementIndex);
