@@ -164,11 +164,14 @@ importers:
       '@typescript-eslint/eslint-plugin': ~5.48.2
       '@typescript-eslint/parser': ~5.48.2
       '@vscode/test-electron': ^2.3.2
+      copyfiles: ^2.4.1
       eslint: ^8.32.0
       glob: ^8.1.0
       mocha: ^10.2.0
       typescript: ^4.9.4
       vsce: ^2.15.0
+    dependencies:
+      copyfiles: 2.4.1
     devDependencies:
       '@types/glob': 8.1.0
       '@types/mocha': 10.0.6
@@ -51459,18 +51462,18 @@ packages:
       react: 18.2.0
     dev: false
 
+  /use-sync-external-store/1.2.2:
+    resolution: {integrity: sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dev: false
+
   /use-sync-external-store/1.2.2_react@17.0.2:
     resolution: {integrity: sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 17.0.2
-    dev: false
-
-  /use-sync-external-store/1.2.2:
-    resolution: {integrity: sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dev: false
 
   /use-sync-external-store/1.2.2_react@18.2.0:

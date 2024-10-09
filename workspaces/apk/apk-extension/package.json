@@ -67,6 +67,9 @@
       "mocha": "^10.2.0",
       "typescript": "^4.9.4",
       "vsce": "^2.15.0"
+    },
+    "dependencies": {
+      "copyfiles": "^2.4.1"
     }
   }
   
