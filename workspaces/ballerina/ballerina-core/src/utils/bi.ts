@@ -12,10 +12,13 @@ import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureRespon
 import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
 import { URI, Utils } from "vscode-uri";
 
+let automation: ProjectStructureArtifactResponse = null;
+
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
         directoryMap: {
             [DIRECTORY_MAP.SERVICES]: [],
+            [DIRECTORY_MAP.AUTOMATION]: [],
             [DIRECTORY_MAP.TASKS]: [],
             [DIRECTORY_MAP.TRIGGERS]: [],
             [DIRECTORY_MAP.CONNECTIONS]: [],
@@ -27,6 +30,9 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
     await traverseComponents(components, result, langClient);
+    if (automation) {
+        result.directoryMap[DIRECTORY_MAP.AUTOMATION].push(automation);
+    }
     return result;
 }
 
@@ -83,7 +89,12 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
                 entries.push(fileEntry);
             }
         } else {
-            entries.push(fileEntry);
+            if (comp.name === "main") {
+                automation = fileEntry;
+                automation.name = "automation"
+            } else {
+                entries.push(fileEntry);
+            }
         }
 
     }
