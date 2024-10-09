@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
+import { addClosingBracketIfNeeded, getFunctionInfo, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
@@ -38,12 +38,12 @@ type DropdownItemProps = {
     onClick: () => void;
 };
 
-type SyntaxProps = {
+type FnSignatureProps = {
     item: CompletionItem;
     currentArgIndex: number;
 };
 
-type SyntaxElProps = StyleBase & SyntaxProps;
+type FnSignatureElProps = StyleBase & FnSignatureProps;
 
 // Styles
 const Container = styled.div`
@@ -284,7 +284,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
 });
 Dropdown.displayName = 'Dropdown';
 
-const SyntaxEl = (props: SyntaxElProps) => {
+const FnSignatureEl = (props: FnSignatureElProps) => {
     const { item, currentArgIndex, sx } = props;
 
     return (
@@ -329,6 +329,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onSave,
         onCancel,
         onCompletionSelect,
+        extractArgsFromFunction,
         useTransaction,
         onFocus,
         onBlur,
@@ -340,14 +341,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const listBoxRef = useRef<HTMLDivElement>(null);
     const skipFocusCallback = useRef<boolean>(false);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
-    const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
-    const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
+    const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
     };
 
-    const isDropdownOpen = completions?.length > 0 || !!syntax?.item;
+    const isDropdownOpen = completions?.length > 0 || !!fnSignature?.item;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
@@ -370,39 +370,28 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleClose = () => {
         onCancel();
-        setSyntax(undefined);
+        setFnSignature(undefined);
     };
 
-    const updateSyntax = (currentFnContent: string, newSelectedItem?: CompletionItem) => {
-        if (newSelectedItem) {
-            setSelectedCompletion(newSelectedItem);
-        }
-        const item = newSelectedItem ?? selectedCompletion;
-        const inputArgsCount = currentFnContent.trim().split(',').length;
+    // This allows us to update the Function Signature UI
+    const updateFnSignature = (functionName: string, args: string, cursorPosition: number) => {
+        const item = completions.find(item => item.value === functionName);
         if (item?.args) {
-            if (inputArgsCount <= item.args.length) {
-                setSyntax({ item: item, currentArgIndex: inputArgsCount - 1 });
-                return;
-            }
-            // Multiple arguments (ex: ...numbers)
-            const isMultiArgFn = item.args[item.args.length - 1].match(/^\.{3}\w+$/);
-            if (isMultiArgFn) {
-                setSyntax({ item: item, currentArgIndex: item.args.length - 1 });
-                return;
-            }
+            const currentArgIndex = extractArgsFromFunction(item, args, cursorPosition);
+            setFnSignature({ item, currentArgIndex });
         }
     };
 
-    const handleChange = async (text: string, cursorPosition?: number, selectedItem?: CompletionItem) => {
+    const handleChange = async (text: string, cursorPosition?: number) => {
         const updatedCursorPosition =
             cursorPosition ?? inputRef.current.shadowRoot.querySelector('input').selectionStart;
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
         // Update selected argument if the cursor is inside a function
-        const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
+        const { isCursorInFunction, functionName, args } = getFunctionInfo(text, cursorPosition);
         if (isCursorInFunction) {
-            updateSyntax(currentFnContent, selectedItem);
+            updateFnSignature(functionName, args, cursorPosition);
         }
     };
 
@@ -416,7 +405,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         const newCursorPosition = prefix.length + item.value.length;
         const newTextValue = prefix + item.value + suffix;
 
-        await handleChange(newTextValue, newCursorPosition, item);
+        await handleChange(newTextValue, newCursorPosition);
         onCompletionSelect && await onCompletionSelect(newTextValue);
 
         return { newTextValue, newCursorPosition };
@@ -641,7 +630,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 items={completions}
                                 onCompletionSelect={handleCompletionSelectMutation}
                             />
-                            <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
+                            <FnSignatureEl item={fnSignature?.item} currentArgIndex={fnSignature?.currentArgIndex ?? 0} />
                         </Transition>
                     </DropdownContainer>,
                     document.body

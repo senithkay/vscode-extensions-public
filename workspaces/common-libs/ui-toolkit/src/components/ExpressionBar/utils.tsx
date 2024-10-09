@@ -11,17 +11,22 @@ import React, { RefObject } from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
 
-export const getExpressionInfo = (text: string, cursorPosition: number) => {
-    const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
-    const closeBrackets = text.substring(0, cursorPosition).match(/\)/g);
-    const isCursorInFunction = !!(openBrackets && openBrackets.length > (closeBrackets?.length ?? 0));
-    let currentFnContent;
+const FUNCTION_NAME_REGEX = /[a-zA-Z0-9_']+$/;
+
+export const getFunctionInfo = (text: string, cursorPosition: number) => {
+    const effectiveText = text.substring(0, cursorPosition);
+    const lastOpenBracketIndex = effectiveText.lastIndexOf('(');
+    const lastCloseBracketIndex = effectiveText.lastIndexOf(')') ?? 0;
+    const isCursorInFunction = lastOpenBracketIndex && (lastOpenBracketIndex > lastCloseBracketIndex);
+
+    let functionName: string;
+    let args: string;
     if (isCursorInFunction) {
-        const openBracketIndex = text.substring(0, cursorPosition).lastIndexOf('(');
-        currentFnContent = text.substring(openBracketIndex + 1, cursorPosition);
+        functionName = effectiveText.substring(lastCloseBracketIndex + 1, lastOpenBracketIndex).match(FUNCTION_NAME_REGEX)[0];
+        args = effectiveText.substring(lastOpenBracketIndex + 1, cursorPosition);
     }
 
-    return { isCursorInFunction, currentFnContent };
+    return { isCursorInFunction, functionName, args };
 };
 
 export const addClosingBracketIfNeeded = (text: string) => {
