@@ -101,6 +101,8 @@ import {
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
     ComponentsFromContent,
+    SignatureHelpRequest,
+    SignatureHelpResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -206,7 +208,8 @@ enum VSCODE_APIS {
     DOC_SYMBOL = 'textDocument/documentSymbol',
     CODE_ACTION = 'textDocument/codeAction',
     EXECUTE_CMD = 'workspace/executeCommand',
-    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics',
+    SIGNATURE_HELP = 'textDocument/signatureHelp'
 }
 
 export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
@@ -272,6 +275,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async executeCommand(params: ExecuteCommandParams): Promise<any> {
         return this.sendRequest(VSCODE_APIS.EXECUTE_CMD, params);
+    }
+
+    async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return this.sendRequest(VSCODE_APIS.SIGNATURE_HELP, params);
     }
     // <------------ VS CODE RELATED APIS END --------------->
 

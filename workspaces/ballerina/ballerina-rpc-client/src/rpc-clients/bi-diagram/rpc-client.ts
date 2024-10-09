@@ -35,6 +35,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    SignatureHelpRequest,
+    SignatureHelpResponse,
     WorkspacesResponse,
     createComponent,
     createComponents,
@@ -51,6 +53,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getSignatureHelp,
     getSourceCode,
     getWorkspaces,
     handleReadmeContent,
@@ -145,5 +148,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         return this._messenger.sendNotification(openAIChat, HOST_EXTENSION, params);
+    }
+
+    getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return this._messenger.sendRequest(getSignatureHelp, HOST_EXTENSION, params);
     }
 }

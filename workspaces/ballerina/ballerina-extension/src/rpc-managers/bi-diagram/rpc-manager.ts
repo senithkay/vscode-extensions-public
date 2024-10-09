@@ -41,6 +41,8 @@ import {
     ReadmeContentRequest,
     ReadmeContentResponse,
     STModification,
+    SignatureHelpRequest,
+    SignatureHelpResponse,
     SyntaxTree,
     WorkspaceFolder,
     WorkspacesResponse,
@@ -644,5 +646,18 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         commands.executeCommand('ballerina.open.ai.panel');
+    }
+
+    async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getSignatureHelp(params)
+                .then((signatureHelp) => {
+                    resolve(signatureHelp);
+                })
+                .catch((error) => {
+                    reject("Error fetching signature help from ls");
+                });
+        });
     }
 }
