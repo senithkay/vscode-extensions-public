@@ -10,7 +10,7 @@
 import { commands } from 'vscode';
 import { BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
 import { BallerinaExtension } from '../../core';
-
+import { RuntimeServicesWebview } from './webview';
 
 export function activateRuntimeServicePanel(ballerinaExtInstance: BallerinaExtension) {
     ballerinaExtInstance.context.subscriptions.push(
@@ -21,4 +21,9 @@ export function activateRuntimeServicePanel(ballerinaExtInstance: BallerinaExten
 }
 
 export function openRuntimeServicesWebview() {
+    if (!RuntimeServicesWebview.currentPanel) {
+        RuntimeServicesWebview.currentPanel = new RuntimeServicesWebview();
+    } else {
+        RuntimeServicesWebview.currentPanel!.getWebview()?.reveal();
+    }
 }

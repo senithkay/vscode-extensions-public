@@ -11,7 +11,7 @@ import { window, Uri, commands } from "vscode";
 import { existsSync, readFileSync } from "fs";
 import { StateMachine } from "../..//stateMachine";
 import { ballerinaExtInstance } from "../../core";
-import { BallerinaProject, PackageConfigSchema } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema, BI_COMMANDS } from "@wso2-enterprise/ballerina-core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
 import { ConfigProperty, Property } from "./../config-generator/model";
@@ -51,6 +51,7 @@ async function run() {
         if (didRan) {
             outputChannel.show();
             commands.executeCommand('setContext', 'biRunning', true);
+            commands.executeCommand(BI_COMMANDS.BI_OPEN_RUNTIME_VIEW);
         } else {
             window.showErrorMessage("Project running failed!");
             StateMachine.context().biRunning = false;
