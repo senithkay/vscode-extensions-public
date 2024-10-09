@@ -103,7 +103,7 @@ export function MainForm() {
                                 placeholder="Enter Cron expression"
                             />
                         }
-                        <FormGroup title="Command-line Argument" isCollapsed={true}>
+                        <FormGroup title="Arguments" isCollapsed={true}>
                             <Dropdown
                                 id="injectTo"
                                 label="Argument Type"
