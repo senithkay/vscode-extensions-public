@@ -54,7 +54,8 @@
     "uuid": "~9.0.1",
     "@types/uuid": "~9.0.1",
     "react-hot-loader": "~4.13.1",
-    "@pmmmwh/react-refresh-webpack-plugin": "~0.5.15"
+    "@pmmmwh/react-refresh-webpack-plugin": "~0.5.15",
+    "upath": "~2.0.1"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",

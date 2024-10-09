@@ -48,7 +48,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             window.showErrorMessage("No tests found.");
             return;
         }
-        const projectRoot = getProjectRoot(Uri.parse(queue[0].test.id));
+        const projectRoot = getProjectRoot(Uri.file(queue[0].test.id));
         let stopTestServer: () => void;
 
         if (!projectRoot) {

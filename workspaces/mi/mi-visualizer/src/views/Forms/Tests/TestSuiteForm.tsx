@@ -22,6 +22,7 @@ import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templat
 import { SelectMockService } from "./MockServices/SelectMockService";
 import { MI_UNIT_TEST_GENERATION_BACKEND_URL } from "../../../constants";
 import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { normalize } from "upath";
 
 interface TestSuiteFormProps {
     stNode?: UnitTest;
@@ -284,8 +285,11 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 }
 
                 if (syntaxTree.unitTestArtifacts.testArtifact.artifact) {
-                    artifactPath = syntaxTree.unitTestArtifacts.testArtifact.artifact.content;
-                    artifactType = allArtifacts.find(artifact => path.relative(artifact.path, artifactPath) === "")?.type;
+                    artifactPath = normalize(syntaxTree.unitTestArtifacts.testArtifact.artifact.content);
+                    artifactType = allArtifacts.find(artifact => {
+                        const aPath = normalize(artifact.path).substring(1);
+                        return path.relative(aPath, artifactPath) === ""
+                    })?.type;
                 }
 
                 // get test cases
@@ -323,7 +327,13 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             return;
         }
 
-        const filteredArtifacts = artifacts.filter(artifact => artifact.type === getValues("artifactType")).map((artifact) => { return { id: artifact.name, value: artifact.path, content: artifact.name } });
+        const filteredArtifacts = artifacts.filter(artifact => artifact.type === getValues("artifactType")).map((artifact) => {
+            return {
+                id: artifact.name,
+                value: normalize(artifact.path).substring(1),
+                content: artifact.name
+            }
+        });
         setFilteredArtifacts(filteredArtifacts);
 
         if (!filteredArtifacts || filteredArtifacts.length === 0) {
