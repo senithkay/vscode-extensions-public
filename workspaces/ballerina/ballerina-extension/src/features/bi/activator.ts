@@ -12,7 +12,6 @@ import { BallerinaExtension } from '../../core';
 import { openView } from '../../stateMachine';
 
 export function activate(context: BallerinaExtension) {
-
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {
         // Trigger to open the connections popup view
     });

@@ -155,11 +155,11 @@ export async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance
             currentProject = await getCurrentBallerinaProject(document.fsPath);
         }
     }
-
+    
     return currentProject;
-}
+}       
 
-async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
+export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
     let result;
     let btnTitle = 'Add to config';
     let message = 'There are missing mandatory configurables that are required to run the program.';

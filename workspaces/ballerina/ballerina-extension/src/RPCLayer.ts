@@ -92,6 +92,7 @@ async function getContext(): Promise<VisualizerLocation> {
             isBI: context.isBI,
             projectUri: context.projectUri,
             haveServiceType: context.haveServiceType,
+            biRunning: context.biRunning,
             metadata: {
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
