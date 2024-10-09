@@ -118,9 +118,9 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                         if (test.id.endsWith(".xml")) {
                             const id = normalize(test.id);
 
-                            const json = Object.entries(testsJson).find(([key]) => normalize(key) === id);
-                            if (json) {
-                                testResults = json[1];
+                            const key = Object.entries(testsJson).find(([key]) => normalize(key) === id)?.[0];
+                            if (key) {
+                                testResults = testsJson[testResults];
                                 testCases = test.children;
                             }
                         } else {
