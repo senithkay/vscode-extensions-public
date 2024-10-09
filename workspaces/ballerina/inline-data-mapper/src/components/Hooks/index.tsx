@@ -19,7 +19,7 @@ import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
 import { InputNode, ObjectOutputNode } from '../Diagram/Node';
-import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_INPUT_NODES, OFFSETS } from '../Diagram/utils/constants';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
 
 export const useRepositionedNodes = (
@@ -41,7 +41,7 @@ export const useRepositionedNodes = (
         if (node instanceof ObjectOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {
-            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const x = OFFSETS.TARGET_NODE.X;
             const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }

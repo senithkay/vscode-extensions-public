@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
     GAP_BETWEEN_FIELDS,
     GAP_BETWEEN_NODE_HEADER_AND_BODY,
