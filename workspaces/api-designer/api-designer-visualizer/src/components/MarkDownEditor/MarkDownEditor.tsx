@@ -27,17 +27,10 @@ import {
     UndoRedo
 } from '@mdxeditor/editor';
 
-const ButtonWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    justify-content: flex-end;
-    flex-grow: 1;
-`;
-
 interface MakrDownEditorProps {
     value: string;
     onChange: (value: string) => void;
+    sx?: any;
 }
 
 function Separator() {
@@ -50,27 +43,34 @@ function Separator() {
     );
 }
 
-const StyledMDXEditor = styled(MDXEditor)`
-    --baseBg: var(--vscode-list-deemphasizedForeground);
-    color: var(--vscode-editor-foreground);
+const StyledMDXEditor = styled(MDXEditor)<{ sx?: any }>`
+    --baseBg: var(--vscode-editorSuggestWidget-border);
     --basePageBg: var(--vscode-editorRuler-foreground);
     --baseBorderHover: var(--vscode-editor-inactiveSelectionBackground);
-    --baseTextContrast: var(--vscode-editorWidget-foreground);
+    --baseTextContrast: var(--vscode-editor-foreground);
     --baseBgActive: var(--vscode-breadcrumbPicker-background);
     --radius-medium: 0;
     --baseBorder: var(--vscode-list-hoverBackground);
-    --baseBase: var(--vscode-list-hoverBackground);
-    background-color: var(--vscode-list-hoverBackground);
+    --baseBase: var(--vscode-editorWidget-foreground);
+    --baseText: var(--vscode-editor-background);
+    --spacing-1_5: 2px;
+    --spacing-3: 0 15px;
+    --radius-medium: none;
+    color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editor-background);
+    border: 1px solid var(--vscode-list-hoverBackground);
+    ${(props: MakrDownEditorProps) => props.sx};
 `;
 const ToolbarUR = styled(UndoRedo)`
     display: flex;
 `;
 
 export function MarkDownEditor(props: MakrDownEditorProps) {
-    const { value, onChange } = props;
+    const { value, sx, onChange } = props;
 
     return (
         <StyledMDXEditor
+            sx={sx}
             markdown={value}
             onChange={(markdown) => console.log(markdown)}
             plugins={[

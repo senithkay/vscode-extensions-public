@@ -35,6 +35,12 @@ const TitleWrapper = styled.div`
     color: var(--vscode-editor-foreground);
 `;
 
+const DescriptionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+`;
+
 interface OverviewProps {
     method: string;
     path: string;
@@ -269,11 +275,14 @@ export function Resource(props: OverviewProps) {
                             rows={4}
                             value={values?.description}
                         /> */}
-                        <Typography sx={{margin: 0}} variant="h3">Description</Typography>
-                        <MarkDownEditor
-                            value={values?.description}
-                            onChange={(markdown: string) => console.log(markdown)}
-                        />
+                        <DescriptionWrapper>
+                            <Typography sx={{margin: 0}} variant="h3">Description</Typography>
+                            <MarkDownEditor
+                                value={values?.description}
+                                onChange={(markdown: string) => console.log(markdown)}
+                                sx={{ maxHeight: "200px", overflowY: "auto" }}
+                            />
+                        </DescriptionWrapper>
                         <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
                         <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
                         <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />

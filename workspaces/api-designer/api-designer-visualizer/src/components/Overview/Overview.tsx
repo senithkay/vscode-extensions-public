@@ -24,7 +24,7 @@ export const PanelBody = styled.div`
     height: calc(100% - 87px);
     overflow-y: auto;
     padding: 16px;
-    gap: 15px;
+    gap: 20px;
     display: flex;
     flex-direction: column;
 `;
