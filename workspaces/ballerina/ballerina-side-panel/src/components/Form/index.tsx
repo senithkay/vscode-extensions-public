@@ -160,7 +160,17 @@ export interface FormProps {
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
-        retrieveCompletions: (value: string, offset: number) => Promise<void>;
+        retrieveCompletions: (
+            value: string,
+            offset: number,
+            triggerCharacter?: string,
+            onlyVariables?: boolean
+        ) => Promise<void>;
+        extractArgsFromFunction: (cursorPosition: number) => {
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        };
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;

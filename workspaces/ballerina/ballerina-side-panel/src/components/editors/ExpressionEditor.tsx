@@ -31,6 +31,11 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
+    extractArgsFromFunction: (cursorPosition: number) => {
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    };
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
@@ -86,6 +91,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         completions,
         triggerCharacters,
         retrieveCompletions,
+        extractArgsFromFunction,
         onFocus,
         onBlur,
         onCompletionSelect,
@@ -194,6 +200,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                                 await retrieveCompletions(value, updatedCursorPosition);
                             }
                         }}
+                        extractArgsFromFunction={extractArgsFromFunction}
                         onCompletionSelect={handleCompletionSelect}
                         onFocus={() => handleFocus(value)}
                         onBlur={handleBlur}
