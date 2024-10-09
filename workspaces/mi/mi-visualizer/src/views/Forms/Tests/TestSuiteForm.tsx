@@ -377,8 +377,8 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         const mockServicesDirs = ["src", "test", "resources", "mock-services"];
         for (let i = 0; i < mockServices.length; i++) {
             const fileName = mockServices[i].name + ".xml";
-            const mockService = isWindows ? path.win32.join(...mockServicesDirs, fileName) : path.join(...mockServicesDirs, fileName);
-            mockServicePaths.push(`${isWindows ? path.win32.sep : path.sep}` + mockService);
+            const mockService = path.posix.join(...mockServicesDirs, fileName);
+            mockServicePaths.push(mockService);
         }
         values.mockServices = mockServicePaths;
 
