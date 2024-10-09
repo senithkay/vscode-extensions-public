@@ -21,6 +21,7 @@ import { getServerPath } from "../debugger/debugHelper";
 import { TestRunnerConfig } from "./config";
 import { ChildProcess } from "child_process";
 import treeKill = require("tree-kill");
+import { normalize } from "upath";
 const fs = require('fs');
 const child_process = require('child_process');
 const readline = require('readline');
@@ -115,8 +116,13 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                         let testResults;
                         let testCases;
                         if (test.id.endsWith(".xml")) {
-                            testResults = testsJson[test.id];
-                            testCases = test.children;
+                            const id = normalize(test.id);
+
+                            const json = Object.entries(testsJson).find(([key]) => normalize(key) === id);
+                            if (json) {
+                                testResults = json[1];
+                                testCases = test.children;
+                            }
                         } else {
                             const strs = test.id.split("/");
                             strs.pop();
