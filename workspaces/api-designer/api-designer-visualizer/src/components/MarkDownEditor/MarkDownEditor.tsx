@@ -72,7 +72,7 @@ export function MarkDownEditor(props: MakrDownEditorProps) {
         <StyledMDXEditor
             sx={sx}
             markdown={value}
-            onChange={(markdown) => console.log(markdown)}
+            onChange={onChange}
             plugins={[
                 headingsPlugin(),
                 listsPlugin(),

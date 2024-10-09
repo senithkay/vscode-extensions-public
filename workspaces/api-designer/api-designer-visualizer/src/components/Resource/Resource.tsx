@@ -11,7 +11,12 @@ import { Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
-import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters, getResourceID } from '../Utils/OpenAPIUtils';
+import { 
+    convertParamsToParameters,
+    getHeaderParametersFromParameters,
+    getPathParametersFromParameters,
+    getQueryParametersFromParameters 
+} from '../Utils/OpenAPIUtils';
 import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
@@ -46,6 +51,7 @@ interface OverviewProps {
     path: string;
     resourceOperation: Operation;
     onPathChange: (pathObject: Path) => void;
+    onOperationChange: (path: string, method: string, operation: Operation) => void;
     onDelete: (path: string, method: string) => void;
 }
 
@@ -59,13 +65,23 @@ type InputsFields = {
     headerParams: Param[];
     responses: Responses;
 };
-const moreOptions = ["Summary", "Tags", "Security", "Deprecated"];
+const moreOptions = ["Summary", "Description", "OperationId"];
 
 export function Resource(props: OverviewProps) {
-    const { resourceOperation, method, path, onPathChange, onDelete } = props;
+    const { resourceOperation, method, path, onPathChange, onOperationChange, onDelete } = props;
     const [initailPath, setInitailPath] = useState<string>(path);
     const [initialMethod, setInitialMethod] = useState<string>(method);
-    const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+    let selOpt: string[] = [];
+    if (resourceOperation.summary) {
+        selOpt.push("Summary");
+    }
+    if (resourceOperation.description) {
+        selOpt.push("Description");
+    }
+    if (resourceOperation.operationId) {
+        selOpt.push("OperationId");
+    }
+    const [defaultOptions, setDefaultOptions] = useState<string[]>(selOpt);
     const [isReadOnly, setIsReadOnly] = useState<boolean>(true);
 
     const values: InputsFields = {
@@ -181,7 +197,18 @@ export function Resource(props: OverviewProps) {
     };
 
     const handleOptionChange = (options: string[]) => {
-        setSelectedOptions(options);
+        let operation = resourceOperation;
+        if (!options.includes("Summary") && defaultOptions.includes("Summary")) {
+            operation = { ...operation, summary: "" };
+        }
+        if (!options.includes("Description") && defaultOptions.includes("Description")) {
+            operation = { ...operation, description: "" };
+        }
+        if (!options.includes("OperationId") && defaultOptions.includes("OperationId")) {
+            operation = { ...operation, operationId: "" };
+        }
+        onOperationChange(path, method, operation);
+        setDefaultOptions(options);
     };
 
     // Method to get Form values
@@ -213,6 +240,30 @@ export function Resource(props: OverviewProps) {
         return pathObject;
     };
 
+    const handleSummaryChange = (value: string) => {
+        const newOperation = {
+            ...resourceOperation,
+            summary: value
+        };
+        onOperationChange(path, method, newOperation);
+    };
+
+    const handleDescriptionChange = (value: string) => {
+        const newOperation = {
+            ...resourceOperation,
+            description: value
+        };
+        onOperationChange(path, method, newOperation);
+    };
+
+    const handleOperationIdChange = (value: string) => {
+        const newOperation = {
+            ...resourceOperation,
+            operationId: value
+        };
+        onOperationChange(path, method, newOperation);
+    };
+
     const handleDeleteResource = () => {
         onDelete(path, method);
     };
@@ -226,13 +277,13 @@ export function Resource(props: OverviewProps) {
         <>
             {isReadOnly ? (
                 <>
-                    <ReadOnlyResource2 resourceOperation={resourceOperation} method={method} path={path} onEdit={() => setIsReadOnly(false)} />
+                    <ReadOnlyResource2 resourceOperation={resourceOperation} method={method} path={path} onEdit={() =>      setIsReadOnly(false)} />
                 </>
             ) : (
                 <>
                     <TitleWrapper>
                         <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
-                        <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} onSwiychToReadOnly={() => setIsReadOnly(true)} />
+                        <OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} onSwiychToReadOnly={() => setIsReadOnly(true)} />
                     </TitleWrapper>
                     <PanelBody>
                         <HorizontalFieldWrapper>
@@ -261,11 +312,12 @@ export function Resource(props: OverviewProps) {
                                 value={values?.path}
                             />
                         </HorizontalFieldWrapper>
-                        {selectedOptions.includes("Summary") && (
+                        {defaultOptions.includes("Summary") && (
                             <TextField
                                 id="summary"
                                 label="Summary"
                                 value={values?.summary}
+                                onTextChange={handleSummaryChange}
                             />
                         )}
                         {/* <TextArea
@@ -275,17 +327,27 @@ export function Resource(props: OverviewProps) {
                             rows={4}
                             value={values?.description}
                         /> */}
-                        <DescriptionWrapper>
-                            <Typography sx={{margin: 0}} variant="h3">Description</Typography>
-                            <MarkDownEditor
-                                value={values?.description}
-                                onChange={(markdown: string) => console.log(markdown)}
-                                sx={{ maxHeight: "200px", overflowY: "auto" }}
+                        {defaultOptions.includes("Description") && (
+                            <DescriptionWrapper>
+                                <Typography sx={{margin: 0}} variant="h3">Description</Typography>
+                                <MarkDownEditor
+                                    value={values?.description}
+                                    onChange={(markdown: string) => handleDescriptionChange(markdown)}
+                                    sx={{ maxHeight: "200px", overflowY: "auto", zIndex: 0 }}
+                                />
+                            </DescriptionWrapper>
+                        )}
+                        {defaultOptions.includes("OperationId") && (
+                            <TextField
+                                id="operationId"
+                                label="Operation ID"
+                                value={resourceOperation.operationId}
+                                onTextChange={handleOperationIdChange}
                             />
-                        </DescriptionWrapper>
+                        )}
                         <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
                         <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                        <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                        <ParamEditor params={values?.headerParams} type="Header" onParamsChange=        {handleOnHeaderParamsChange} />
                     </PanelBody>
                 </>
             )}

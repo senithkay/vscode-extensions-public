@@ -253,48 +253,6 @@ export function Overview(props: OverviewProps) {
                                 </HorizontalFieldWrapper>
                             </FormGroup>
                         )}
-
-                        {openAPIDefinition?.info?.license && (
-                            <FormGroup title="License" isCollapsed={false}>
-                                <HorizontalFieldWrapper>
-                                    <TextField
-                                        placeholder="Name"
-                                        id="licenceName"
-                                        sx={{ width: "33%" }}
-                                        value={openAPIDefinition?.info?.license.name}
-                                        onTextChange={handleLicenceNameChange}
-                                    />
-                                    <Dropdown
-                                        id="licenceType"
-                                        containerSx={{ width: "33%", gap: 0 }}
-                                        dropdownContainerSx={{ gap: 0 }}
-                                        items={[
-                                            { value: "URL", content: "URL" },
-                                            { value: "Identifier", content: "Identifier" }
-                                        ]}
-                                        value={openAPIDefinition?.info?.license.url ? "URL" : "Identifier"}
-                                        onValueChange={handleLicenceTypeChange}
-                                    />
-                                    {openAPIDefinition?.info.license.url ? (
-                                        <TextField
-                                            placeholder='URL'
-                                            id="licenceURL"
-                                            sx={{ width: "33%" }}
-                                            value={openAPIDefinition?.info?.license.url}
-                                            onTextChange={handleLicenceURLChange}
-                                        />
-                                    ) : (
-                                        <TextField
-                                            placeholder='Identifier'
-                                            id="licenceIdentifier"
-                                            sx={{ width: "33%" }}
-                                            value={openAPIDefinition?.info?.license.identifier}
-                                            onTextChange={handleLicenceIdentifierChange}
-                                        />
-                                    )}
-                                </HorizontalFieldWrapper>
-                            </FormGroup>
-                        )}
                         {openAPIDefinition?.info?.license && (
                             <FormGroup title="License" isCollapsed={false}>
                                 <HorizontalFieldWrapper>

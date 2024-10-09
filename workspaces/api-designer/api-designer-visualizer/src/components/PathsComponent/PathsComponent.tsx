@@ -111,7 +111,7 @@ export const PathItemWrapper = styled.div`
 export const PathSummary = styled.div`
     display: flex;
     width: 100%;
-    padding-top: 6px;
+    padding-top: 4px;
     overflow: hidden;
 `;
 

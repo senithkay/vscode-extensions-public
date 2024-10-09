@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { OpenAPI, Path, PathItem } from "../../Definitions/ServiceDefinitions";
-import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { OpenAPI, Operation, Path, PathItem } from "../../Definitions/ServiceDefinitions";
 import styled from "@emotion/styled";
 import { PathsComponent } from "../PathsComponent/PathsComponent";
 import { useForm } from "react-hook-form";
@@ -18,7 +17,7 @@ import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
 import { SplitView } from "../SplitView/SplitView";
-import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
+import { Service } from "@wso2-enterprise/service-designer";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -239,6 +238,23 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         onOpenApiDefinitionChange({ ...openAPIDefinition, paths: newPaths });
     }
 
+    const handleOperationChange = (path: string, method: string, operation: Operation) => {
+        // Get current path
+        const currentPath = openAPIDefinition.paths[path];
+        // Add a new method to the current path
+        currentPath[method] = operation;
+        const updatedOpenAPIDefinition: OpenAPI = {
+            ...openAPIDefinition,
+            paths: {
+                ...openAPIDefinition.paths,
+                [path]: currentPath
+            }
+        };
+        setSelectedPathID(getResourceID(path, method));
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+    }
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -287,6 +303,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             method={selectedMethod}
                             path={selectedPath}
                             onPathChange={handlePathChange}
+                            onOperationChange={handleOperationChange}
                             onDelete={onDeleteResource}
                         />
                     )}
