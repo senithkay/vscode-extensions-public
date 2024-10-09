@@ -13,21 +13,21 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 
 import { ExpressionLabelModel } from "../Label";
 import { LinkConnectorNode } from '../Node';
-import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
+import { InputOutputPortModel, MappingType } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
-import { isConnectingArrays } from '../utils/common-utils';
+import { getMappingType, isConnectingArrays } from '../utils/common-utils';
 import { DataMapperLinkModel } from '../Link/DataMapperLink';
-import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
+import { removePendingMappingTempLinkIfExists } from '../utils/link-utils';
 /**
  * This state is controlling the creation of a link.
  */
 export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
-	a2aTemporayLink: LinkModel;
+	temporaryLink: LinkModel;
 
 	constructor() {
 		super({ name: 'create-new-link' });
@@ -69,9 +69,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 					}
 
-					if (this.a2aTemporayLink) {
-						removeArrayToArrayTempLinkIfExists(this.a2aTemporayLink);
-						this.a2aTemporayLink = undefined;
+					if (this.temporaryLink) {
+						removePendingMappingTempLinkIfExists(this.temporaryLink);
+						this.temporaryLink = undefined;
 					}
 
 					if (isExprBarFocused && element instanceof InputOutputPortModel && element.portType === "OUT") {
@@ -120,12 +120,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 										this.link?.setTargetPort(element);
 
-										const connectingArrays = isConnectingArrays(this.sourcePort, element);
-										if (connectingArrays) {
+										const connectingMappingType = getMappingType(this.sourcePort, element);
+										if (isConnectingArrays(connectingMappingType)) {
 											const label = this.link.getLabels()
 												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
-											label.setIsPendingArrayToArray(true);
-											this.a2aTemporayLink = this.link;
+											label.setPendingMappingType(connectingMappingType);
+											this.temporaryLink = this.link;
 										}
 
 										this.engine.getModel().addAll(this.link)
