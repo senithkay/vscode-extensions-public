@@ -206,9 +206,9 @@ ${funcSignature}
 `;
     const projectDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
-    const taskFile = path.join(projectDir, `main.bal`);
+    const taskFile = path.join(projectDir, `automation.bal`);
     fs.writeFileSync(taskFile, balContent.trim());
-    console.log('Task Created.', `main.bal`);
+    console.log('Task Created.', `automation.bal`);
     await new Promise(resolve => setTimeout(resolve, 1000));
     return taskFile;
 }
