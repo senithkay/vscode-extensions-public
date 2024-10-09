@@ -38,7 +38,7 @@ export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
             visibleTypes?.categories?.map((visibleType) => {
                 visibleType.types.map((type) => {
                     const transformedType = transformTypeFieldToIDMType(type, visibleType.name);
-                    inputTypes.push(transformedType);
+                    transformedType && inputTypes.push(transformedType);
                 });
             });
 

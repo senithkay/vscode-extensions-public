@@ -27,7 +27,7 @@ const useStyles = () => ({
 
 function SearchHighlight({ children, searchText }: SearchHighlightRootProps) {
     const classes = useStyles();
-    const parts = children.split(new RegExp(`(${escapeRegExp(searchText)})`, 'gi'));
+    const parts = children?.split(new RegExp(`(${escapeRegExp(searchText)})`, 'gi')) || [];
     return (
         <>
             {parts.map((part, index) => (

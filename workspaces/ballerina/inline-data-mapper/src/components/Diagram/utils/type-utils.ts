@@ -187,3 +187,17 @@ function addArrayElements(
         dmTypeWithValue.elements = members;
     }
 }
+
+export function getTypeName(field: IDMType): string {
+	if (!field) {
+		return '';
+	}
+
+	let typeName = field?.typeName || field.kind;
+
+    if (field.kind === TypeKind.Array && field?.memberType) {
+		typeName = `${getTypeName(field.memberType)}[]`;
+	}
+
+	return typeName;
+}

@@ -25,7 +25,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
     }
 
     generateReactWidget(event: { model: InputNode; }): JSX.Element {
-        if (event.model.hasNoMatchingFields && !event.model.dmType) {
+        if (!event.model.dmType) {
             return (
                 <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
             );
@@ -33,7 +33,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
             return (
                 <InputNodeWidget
                     engine={this.engine}
-                    id={event.model.value && event.model.value.getName()}
+                    id={event.model.dmType?.fieldName}
                     dmType={event.model.dmType}
                     getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
                 />
@@ -42,10 +42,10 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
         return (
             <PrimitiveTypeInputWidget
                 engine={this.engine}
-                id={event.model.value.getName()}
+                id={event.model.dmType?.fieldName}
                 dmType={event.model.dmType}
                 getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
-                valueLabel={event.model.value.getName()}
+                valueLabel={event.model.dmType?.fieldName}
             />
         )
     }

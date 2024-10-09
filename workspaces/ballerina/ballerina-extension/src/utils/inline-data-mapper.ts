@@ -10,6 +10,10 @@
 import { IDMType, TypeWithIdentifier, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 export function transformTypeFieldToIDMType(typeField: TypeWithIdentifier, category?: string): IDMType {
+    // Hack to ignore self variable in module level
+    if (category === "Module Variables" && typeField.name === "self") {
+        return;
+    }
     const kind = typeField.type?.typeName as TypeKind;
     return {
         category: category,

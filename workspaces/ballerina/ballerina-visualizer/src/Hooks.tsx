@@ -10,7 +10,7 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { Range } from '@wso2-enterprise/ballerina-core';
+import { LinePosition, Range } from '@wso2-enterprise/ballerina-core';
 import { URI } from 'vscode-uri';
 
 export const useExperimentalEnabled = () => {
@@ -30,13 +30,13 @@ export const useExperimentalEnabled = () => {
     return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
 };
 
-export const useIOTypes = (filePath: string) => {
+export const useIOTypes = (filePath: string, position: LinePosition) => {
     const { rpcClient } = useRpcContext();
     const getIOTypes = async () => {
         try {
             const res = await rpcClient
                 .getInlineDataMapperRpcClient()
-                .getIOTypes({ filePath, position: { line: 28, offset: 12 } });
+                .getIOTypes({ filePath, position });
             return res;
         } catch (error) {
             console.error(error);

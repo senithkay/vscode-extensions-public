@@ -106,6 +106,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
+        setShowSubPanel(false);
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -479,25 +480,15 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                 showSubPanel={showSubPanel}
                 subPanel={(
                     <>
-                        <InlineDataMapper
-                            filePath="/Users/madusha/play/eggplant/ep0913/svc1.bal"
-                            range={{
-                                start: { line: 28, character: 12 },
-                                end: { line: 28, character: 44 },
-                            }}
-                        />
-                        {/* {sidePanelView === SidePanelView.FORM && (
-                            <FormGenerator
-                                node={selectedNodeRef.current}
-                                nodeFormTemplate={nodeTemplateRef.current}
-                                connections={model.connections}
-                                clientName={selectedClientName.current}
-                                targetLineRange={targetRef.current}
-                                projectPath={projectPath}
-                                onSubmit={handleOnFormSubmit}
-                                openSubPanel={() => handleSubPanel(!showSubPanel)}
+                        {sidePanelView === SidePanelView.FORM && (
+                            <InlineDataMapper
+                                filePath="/Users/madusha/play/eggplant/ep0913/svc1.bal"
+                                range={{
+                                    start: { line: 30, character: 12 },
+                                    end: { line: 30, character: 44 },
+                                }}
                             />
-                        )} */}
+                        )}
                     </>
                 )}
             >

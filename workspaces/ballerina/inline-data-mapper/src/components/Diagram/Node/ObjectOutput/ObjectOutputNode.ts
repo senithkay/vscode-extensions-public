@@ -15,7 +15,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
-import { enrichAndProcessType } from "../../utils/type-utils";
+import { enrichAndProcessType, getTypeName } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -55,8 +55,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
-            // this.typeName = getTypeName(valueEnrichedType.type);
-            this.typeName = "TYPE_NAME";
+            this.typeName = getTypeName(valueEnrichedType.type);
 
             this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
     

@@ -91,29 +91,13 @@ export const useDiagramModel = (
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
-        const showInputFilterEmpty = !nodes.some(
-            node => (node instanceof InputNode && node.getSearchFilteredType())
-        );
-        if (showInputFilterEmpty) {
-            const inputSearchNotFoundNode = new InputNode(undefined, undefined, true);
-            inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
-            newModel.addNode(inputSearchNotFoundNode);
-        }
         newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
-                if (node instanceof InputNode && !node.getSearchFilteredType()) {
-                    newModel.removeNode(node);
-                    continue;
-                }
                 node.setModel(newModel);
                 await node.initPorts();
-                // if (node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode) {
-                //     continue;
-                // }
                 node.initLinks();
             } catch (e) {
-                // onError(ErrorNodeKind.GENERIC);
                 console.error(e);
             }
         }

@@ -12,22 +12,18 @@ import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/s
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
-import { getSearchFilteredInput } from "../../utils/search-utils";
 
 export const INPUT_NODE_TYPE = "datamapper-node-input";
 const NODE_ID = "input-node";
 
 export class InputNode extends DataMapperNodeModel {
-    public dmType: IDMType;
     public numberOfFields:  number;
     public x: number;
     private _paramName: string;
-    private _originalType: IDMType;
 
     constructor(
         public context: IDataMapperContext,
-        public value: any,
-        public hasNoMatchingFields?: boolean
+        public dmType: IDMType,
     ) {
         super(
             NODE_ID,
@@ -35,18 +31,11 @@ export class InputNode extends DataMapperNodeModel {
             INPUT_NODE_TYPE
         );
         this.numberOfFields = 1;
-        if (!hasNoMatchingFields) {
-            // this._originalType = this.context.inputTrees
-            //     .find(inputTree => getTypeName(inputTree) === this.value.getType().getText());
-            this.dmType = this._originalType;
-            this._paramName = "this.value.getName()";
-        }
+        this._paramName = this.dmType?.fieldName;
     }
 
     async initPorts() {
         this.numberOfFields = 1;
-        this.dmType = this.getSearchFilteredType();
-        this.hasNoMatchingFields = !this.dmType;
 
         if (this.dmType) {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
@@ -66,18 +55,6 @@ export class InputNode extends DataMapperNodeModel {
                     parentPort, collapsedFields, parentPort.collapsed, this.dmType.optional
                 );
             }
-        }
-    }
-
-    public getSearchFilteredType() {
-        if (this.value) {
-            const searchValue = useDMSearchStore.getState().inputSearch;
-
-            const matchesParamName = "this.value.getName()".toLowerCase().includes(searchValue?.toLowerCase());
-            const type = matchesParamName
-                ? this._originalType
-                : getSearchFilteredInput(this._originalType, this._paramName);
-            return type;
         }
     }
 

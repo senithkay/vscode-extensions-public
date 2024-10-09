@@ -20,6 +20,7 @@ import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
+import { getTypeName } from "../../utils/type-utils";
 
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -44,8 +45,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 	}));
 
     const classes = useIONodesStyles();
-    // const typeName = getTypeName(dmType);
-    const typeName = "getTypeName(dmType)";
+    const typeName = getTypeName(dmType);
 
     const portOut = getPort(`${id}.OUT`);
 
