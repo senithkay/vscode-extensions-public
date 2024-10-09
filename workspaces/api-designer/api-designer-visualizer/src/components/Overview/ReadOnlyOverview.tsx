@@ -10,6 +10,7 @@ import { Button, Codicon, FormGroup, SidePanelTitleContainer, Typography } from 
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { DataGrid } from '../DataGrid/DataGrid';
+import { MarkdownRenderer } from '../Resource/ReadOnlyResource1';
 
 export const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -25,6 +26,10 @@ const ButtonWrapper = styled.div`
     gap: 10px;
     justify-content: flex-end;
     flex-grow: 1;
+`;
+const DescriptionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 interface OverviewProps {
@@ -67,10 +72,12 @@ export function ReadOnlyOverview(props: OverviewProps) {
                     </>
                 )}
                 {openAPIDefinition?.info?.description && (
-                    <>
-                        <Typography sx={{ margin: 0 }} variant="h3">Description</Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.description}</Typography>
-                    </>
+                    <DescriptionWrapper>
+                        <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>
+                            <MarkdownRenderer key="description" markdownContent={openAPIDefinition?.info?.description} /> 
+                        </Typography>
+                    </DescriptionWrapper>
                 )}
                 {openAPIDefinition?.info?.contact && (
                     <FormGroup title="Contact" isCollapsed={!openAPIDefinition?.info?.contact}>

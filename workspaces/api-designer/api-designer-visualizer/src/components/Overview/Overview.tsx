@@ -13,6 +13,7 @@ import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { useState } from 'react';
 import { ReadOnlyOverview } from './ReadOnlyOverview';
+import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -28,6 +29,11 @@ export const PanelBody = styled.div`
     display: flex;
     flex-direction: column;
 `;
+const DescriptionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;
 
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
@@ -35,34 +41,6 @@ interface OverviewProps {
 }
 
 const moreOptions = ["Summary", "Description", "Contact", "License"];
-
-const schema = yup.object({
-    title: yup.string(),
-    version: yup.string(),
-    summary: yup.string(),
-    description: yup.string(),
-    contactName: yup.string(),
-    contactURL: yup.string(),
-    contactEmail: yup.string(),
-    licenceName: yup.string(),
-    licenceType: yup.string(),
-    licenceURL: yup.string(),
-    licenceIdentifier: yup.string(),
-});
-
-type InputsFields = {
-    title: string;
-    version: string;
-    summary: string;
-    description: string;
-    contactName: string;
-    contactURL: string;
-    contactEmail: string;
-    licenceName: string;
-    licenceType: string;
-    licenceURL: string;
-    licenceIdentifier: string;
-};
 
 // Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
@@ -218,13 +196,14 @@ export function Overview(props: OverviewProps) {
                             />
                         )}
                         {selectedOptions.includes("Description") && (
-                            <TextArea
-                                label="Description"
-                                id="description"
-                                rows={4}
-                                value={openAPIDefinition?.info?.description}
-                                onTextChange={handleDescriptionChange}
-                            />
+                            <DescriptionWrapper>
+                                <label htmlFor="description">Description</label>
+                                <MarkDownEditor
+                                    value={openAPIDefinition?.info?.description}
+                                    onChange={(markdown: string) => handleDescriptionChange(markdown)}
+                                    sx={{ maxHeight: "200px", overflowY: "auto", zIndex: 0 }}
+                                />
+                            </DescriptionWrapper>
                         )}
                         {openAPIDefinition?.info?.contact && (
                             <FormGroup title="Contact" isCollapsed={false}>

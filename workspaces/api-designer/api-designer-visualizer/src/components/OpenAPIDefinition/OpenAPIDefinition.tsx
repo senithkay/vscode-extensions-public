@@ -102,8 +102,11 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
             if (initialPathItem) {
                 // If updatedOpenAPIDefinition.paths[path.path] does not exist, create it delete the initial path
                 if (!updatedOpenAPIDefinition.paths[path.path]) {
+                    // Add new path with path.method
                     updatedOpenAPIDefinition.paths[path.path] = {
-                        ...updatedOpenAPIDefinition.paths[path.initialPath]
+                        [path.method]: {
+                            ...path.initialOperation // Update with new operation details
+                        }
                     };
                 }
                 // Delete path.path with path.method
@@ -299,6 +302,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     )}
                     {operation && selectedPathID !== undefined && (
                         <Resource
+                            openAPI={openAPIDefinition}
                             resourceOperation={operation}
                             method={selectedMethod}
                             path={selectedPath}

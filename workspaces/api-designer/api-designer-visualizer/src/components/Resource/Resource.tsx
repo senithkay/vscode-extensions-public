@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, OptionProps, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
+import { OpenAPI, Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
 import { 
     convertParamsToParameters,
@@ -43,13 +43,14 @@ const TitleWrapper = styled.div`
 const DescriptionWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 2px;
 `;
 
-interface OverviewProps {
+interface ResourceProps {
     method: string;
     path: string;
     resourceOperation: Operation;
+    openAPI: OpenAPI;
     onPathChange: (pathObject: Path) => void;
     onOperationChange: (path: string, method: string, operation: Operation) => void;
     onDelete: (path: string, method: string) => void;
@@ -67,8 +68,8 @@ type InputsFields = {
 };
 const moreOptions = ["Summary", "Description", "OperationId"];
 
-export function Resource(props: OverviewProps) {
-    const { resourceOperation, method, path, onPathChange, onOperationChange, onDelete } = props;
+export function Resource(props: ResourceProps) {
+    const { resourceOperation, openAPI, method, path, onPathChange, onOperationChange, onDelete } = props;
     const [initailPath, setInitailPath] = useState<string>(path);
     const [initialMethod, setInitialMethod] = useState<string>(method);
     let selOpt: string[] = [];
@@ -181,7 +182,7 @@ export function Resource(props: OverviewProps) {
             }
         };
         onPathChange(newPath);
-    }, 300);
+    }, 400);
 
     const handlePathChange = (value: string) => {
         debouncedHandlePathChange(value);
@@ -268,6 +269,23 @@ export function Resource(props: OverviewProps) {
         onDelete(path, method);
     };
 
+    // Dropdown items which are not in openAPI
+    const availableItems: OptionProps[] = [];
+    openAPI.paths[path] && Object.keys(openAPI.paths[path]).forEach((m) => {
+        if (m !== method) {
+            availableItems.push({ value: m, content: m.toUpperCase() });
+        }
+    });
+    const dropDownItems: OptionProps[] = [
+        { value: "get", content: "GET" },
+        { value: "post", content: "POST" },
+        { value: "put", content: "PUT" },
+        { value: "delete", content: "DELETE" },
+        { value: "patch", content: "PATCH" },
+        { value: "options", content: "OPTIONS" },
+        { value: "head", content: "HEAD" }
+    ].filter((item) => !availableItems.find((availableItem) => availableItem.value === item.value));
+
     useEffect(() => {
         setInitailPath(path);
         setInitialMethod(method);
@@ -291,16 +309,7 @@ export function Resource(props: OverviewProps) {
                                 id="method"
                                 containerSx={{ width: "20%", gap: 0 }}
                                 dropdownContainerSx={{ gap: 0 }}
-                                items={[
-                                    { value: "get", content: "GET" },
-                                    { value: "post", content: "POST" },
-                                    { value: "put", content: "PUT" },
-                                    { value: "delete", content: "DELETE" },
-                                    { value: "patch", content: "PATCH" },
-                                    { value: "options", content: "OPTIONS" },
-                                    { value: "head", content: "HEAD" },
-                                    { value: "trace", content: "TRACE" }
-                                ]}
+                                items={dropDownItems}
                                 value={values?.method.toLowerCase()}
                                 onValueChange={handleMethodChange}
                             />
@@ -320,16 +329,9 @@ export function Resource(props: OverviewProps) {
                                 onTextChange={handleSummaryChange}
                             />
                         )}
-                        {/* <TextArea
-                            id="description"
-                            label="Description"
-                            resize="vertical"
-                            rows={4}
-                            value={values?.description}
-                        /> */}
                         {defaultOptions.includes("Description") && (
                             <DescriptionWrapper>
-                                <Typography sx={{margin: 0}} variant="h3">Description</Typography>
+                                <label htmlFor="description">Description</label>
                                 <MarkDownEditor
                                     value={values?.description}
                                     onChange={(markdown: string) => handleDescriptionChange(markdown)}

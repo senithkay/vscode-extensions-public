@@ -84,7 +84,7 @@ const ButtonWrapper = styled.div`
 interface MarkdownRendererProps {
     markdownContent: string;
 }
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
+export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
     return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
 };
 
@@ -213,7 +213,7 @@ export function ReadOnlyResource2(props: ReadOnlyResourceProps) {
                     )}
                 </FormGroup>
 
-                <FormGroup key="Response" title='Response' isCollapsed={Object.keys(responses).length === 0}>
+                <FormGroup key="Response" title='Response' isCollapsed={responseContent.length === 0}>
                     <ResponseCodeWrapper>
                         {responseContent.map(([status, response]) => (
                             <ResponseCode

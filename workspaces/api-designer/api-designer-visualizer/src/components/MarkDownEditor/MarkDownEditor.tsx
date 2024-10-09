@@ -11,8 +11,7 @@ import {
     BlockTypeSelect,
     BoldItalicUnderlineToggles,
     codeBlockPlugin, CodeToggle,
-    CreateLink, diffSourcePlugin,
-    DiffSourceToggleWrapper,
+    CreateLink,
     headingsPlugin,
     InsertTable,
     linkDialogPlugin,
@@ -39,12 +38,12 @@ function Separator() {
         data-orientation="vertical"
         aria-orientation="vertical"
         role="separator"
-      ></div>
+      />
     );
 }
 
 const StyledMDXEditor = styled(MDXEditor)<{ sx?: any }>`
-    --baseBg: var(--vscode-editorSuggestWidget-border);
+    --baseBg: var(--vscode-editorGroup-border);
     --basePageBg: var(--vscode-editorRuler-foreground);
     --baseBorderHover: var(--vscode-editor-inactiveSelectionBackground);
     --baseTextContrast: var(--vscode-editor-foreground);
@@ -82,12 +81,12 @@ export function MarkDownEditor(props: MakrDownEditorProps) {
                 codeBlockPlugin(),
                 tablePlugin(),
                 quotePlugin(),
-                diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "" }),
+                // diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "" }),
                 linkDialogPlugin({}),
                 tablePlugin(),
                 toolbarPlugin({
                     toolbarContents: () => (
-                        <DiffSourceToggleWrapper>
+                        <>
                             <ToolbarUR />
                             <Separator />
                             <BoldItalicUnderlineToggles />
@@ -99,7 +98,7 @@ export function MarkDownEditor(props: MakrDownEditorProps) {
                             <Separator />
                             <CreateLink />
                             <InsertTable />
-                        </DiffSourceToggleWrapper>
+                        </>
                     )
                 })
             ]}
