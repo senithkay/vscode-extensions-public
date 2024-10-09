@@ -13,26 +13,33 @@ import { AIMachineStateValue, MachineStateValue } from "@wso2-enterprise/balleri
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 import AIPanel from "./views/AIPanel/AIPanel";
+import { RuntimeServicesPanel } from "./views/RuntimeServicesPanel/RuntimeServicesPanel";
+
+const MODES = {
+    VISUALIZER: "visualizer",
+    AI: "ai",
+    RUNTIME_SERVICES: "runtime-services"
+};
 
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useRpcContext();
     const [state, setState] = React.useState<MachineStateValue>('initialize');
     const [aiState, setAIState] = React.useState<AIMachineStateValue>('Initialize');
 
-    if (mode === "visualizer") {
+    if (mode === MODES.VISUALIZER) {
         rpcClient?.onStateChanged((newState: MachineStateValue) => {
             setState(newState);
         });
     }
 
-    if (mode === "ai") {
+    if (mode === MODES.AI) {
         rpcClient?.onAIPanelStateChanged((newState: AIMachineStateValue) => {
             setAIState(newState);
         });
     }
 
     useEffect(() => {
-        if (mode === "visualizer") {
+        if (mode === MODES.VISUALIZER) {
             rpcClient.webviewReady();
         }
     }, []);
@@ -41,10 +48,12 @@ export function Visualizer({ mode }: { mode: string }) {
         <>
             {(() => {
                 switch (mode) {
-                    case "visualizer":
+                    case MODES.VISUALIZER:
                         return <VisualizerComponent state={state} />
-                    case "ai":
+                    case MODES.AI:
                         return <AIPanel state={aiState} />
+                    case MODES.RUNTIME_SERVICES:
+                        return <RuntimeServicesPanel />    
                 }
             })()}
         </>

@@ -108,7 +108,7 @@ export class RuntimeServicesWebview {
         const scripts = `
             function loadedScript() {
                 function renderDiagrams() {
-                    visualizerWebview.renderWebview("ai", document.getElementById("webview-container"));
+                    visualizerWebview.renderWebview("runtime-services", document.getElementById("webview-container"));
                 }
                 renderDiagrams();
             }
