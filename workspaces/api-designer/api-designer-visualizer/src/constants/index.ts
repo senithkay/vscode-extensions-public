@@ -16,3 +16,14 @@ export const colors = {
     "OPTIONS": '#0d5aa7',
     "HEAD": '#9012fe'
 };
+
+// Slighly darker shades of the above colors
+export const darkerColors = {
+    "GET": '#2b5aa6',
+    "PUT": '#d08e0f',
+    "POST": '#3c9e6f',
+    "DELETE": '#d12d2d',
+    "PATCH": '#7d4dbb',
+    "OPTIONS": '#0b3f7d',
+    "HEAD": '#6d0fcb'
+};

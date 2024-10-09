@@ -9,7 +9,7 @@
 import { Paths } from "../../Definitions/ServiceDefinitions";
 import { Codicon, ContextMenu, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
+import { getBackgroundColorByMethod, getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
 import { TreeViewItem } from "../Treeview/TreeViewItem";
 import { useEffect, useRef, useState } from "react";
@@ -31,20 +31,19 @@ const PathsContainer = styled.div`
 
 interface OperationProps {
     backgroundColor: string;
+    hoverBackgroundColor?: string;
     selected: boolean;
 }
 
 const Operation = styled.div<OperationProps>`
-    background-color: ${(props: OperationProps) => props.backgroundColor};
-    border: ${(props: OperationProps) => props.selected ? "2px solid var(--vscode-inputOption-activeForeground)" : "2px solid transparent"};
-    border-radius: 4px;
-    margin-bottom: 3px;
+    background-color: ${(props: OperationProps) => props.selected ? props.hoverBackgroundColor : props.backgroundColor};
+    /* border: ${(props: OperationProps) => props.selected ? "2px solid var(--vscode-inputOption-activeForeground)" : "2px solid transparent"};
+    border-radius: 4px; */
     width: fit-content;
     color: white;
     cursor: pointer;
     &:hover { // Added hover style
-        background-color: rgba(255, 255, 255, 0.1); // Example hover background color
-        border: 2px solid var(--vscode-inputOption-activeForeground); // Example hover border
+        background-color: ${(props: OperationProps) => props.hoverBackgroundColor || props.backgroundColor};
     }
 `;
 
@@ -73,11 +72,6 @@ const PathContainer = styled.div`
     flex-direction: row;
     flex-grow: 1;
 `;
-const PathWrapper = styled.div`
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-`;
 
 export const contextMenuSx = {
     transform: "rotate(90deg)",
@@ -105,6 +99,21 @@ export const menuVerticalIconWrapper = {
     marginLeft: "1px",
     padding: "2px"
 }
+
+export const PathItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    width: 100%;
+    padding: 2px 0;
+    cursor: pointer;
+`;
+export const PathSummary = styled.div`
+    display: flex;
+    width: 100%;
+    padding-top: 6px;
+    overflow: hidden;
+`;
 
 const APIResources = [
     "get","post","put","delete","patch","head","options","trace"
@@ -270,13 +279,19 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                             {operations.map((operation) => {
                                 return (
                                     <TreeViewItem id={getResourceID(path, operation)}>
-                                        <Operation
-                                            backgroundColor={getColorByMethod(operation.toUpperCase())}
-                                            selected={selectedPathID === getResourceID(path, operation)}
-                                            onClick={() => onPathChange && onPathChange(selectedPathID)}
-                                        >
-                                            <Typography variant="h4" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 50 }}>{operation}</Typography>
-                                        </Operation>
+                                        <PathItemWrapper>
+                                            <Operation
+                                                backgroundColor={getColorByMethod(operation.toUpperCase())}
+                                                hoverBackgroundColor={getBackgroundColorByMethod(operation.toUpperCase())}
+                                                selected={selectedPathID === getResourceID(path, operation)}
+                                                onClick={() => onPathChange && onPathChange(selectedPathID)}
+                                            >
+                                                <Typography variant="h4" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 50 }}>{operation}</Typography>
+                                            </Operation>
+                                            <PathSummary>
+                                                <Typography sx={{ margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}} variant='body2'>{pathItem[operation].summary}</Typography>
+                                            </PathSummary>
+                                        </PathItemWrapper>
                                     </TreeViewItem>
                                 );
                             })}

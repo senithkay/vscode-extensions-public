@@ -11,7 +11,7 @@ import yaml from 'js-yaml';
 
 import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
 import { OpenAPI, Operation, Param, Parameter, PathItem, Schema, Response } from '../../Definitions/ServiceDefinitions';
-import { colors } from '../../constants';
+import { colors, darkerColors } from '../../constants';
 
 export function resolveResponseType(response: Response): string {
     if (!response.content || Object.keys(response.content).length === 0) {
@@ -137,6 +137,27 @@ export function getColorByMethod(method: string) {
             return colors.OPTIONS;
         case "HEAD":
             return colors.HEAD;
+        default:
+            return '#876036'; // Default color
+    }
+}
+
+export function getBackgroundColorByMethod(method: string) {
+    switch (method.toUpperCase()) {
+        case "GET":
+            return darkerColors.GET;
+        case "PUT":
+            return darkerColors.PUT;
+        case "POST":
+            return darkerColors.POST;
+        case "DELETE":
+            return darkerColors.DELETE;
+        case "PATCH":
+            return darkerColors.PATCH;
+        case "OPTIONS":
+            return darkerColors.OPTIONS;
+        case "HEAD":
+            return darkerColors.HEAD;
         default:
             return '#876036'; // Default color
     }
