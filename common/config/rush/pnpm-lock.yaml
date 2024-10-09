@@ -164,6 +164,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ~5.48.2
       '@typescript-eslint/parser': ~5.48.2
       '@vscode/test-electron': ^2.3.2
+      copyfiles: ^2.4.1
       eslint: ^8.32.0
       glob: ^8.1.0
       mocha: ^10.2.0
@@ -177,6 +178,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.48.2_272e7o3s2e3z2ffyedar6ii3ra
       '@typescript-eslint/parser': 5.48.2_7sjm5uif3lrlodkmlzqsvrpzla
       '@vscode/test-electron': 2.3.9
+      copyfiles: 2.4.1
       eslint: 8.56.0
       glob: 8.1.0
       mocha: 10.2.0

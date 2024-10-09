@@ -248,7 +248,8 @@
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
