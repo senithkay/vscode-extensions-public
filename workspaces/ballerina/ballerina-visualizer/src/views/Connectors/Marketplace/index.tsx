@@ -244,7 +244,7 @@ export function Marketplace(props: MarketplaceProps) {
     const searchBar = <SearchBar searchQuery={searchQuery} onSearch={onSearchButtonClick} type={shortName} />;
 
     return (
-        <PanelContainer title="Connectors" show={true} width={'600px'} onClose={onClose}>
+        <PanelContainer title="Connectors" show={true} width={600} onClose={onClose}>
             {searchBar}
             <div
                 id="module-list-container"

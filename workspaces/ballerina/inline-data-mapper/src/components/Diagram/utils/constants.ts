@@ -15,7 +15,7 @@ export const OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX = "objectOutputFieldAd
 export const ARRAY_FILTER_NODE_PREFIX = "arrayFilter";
 
 export const defaultModelOptions = { zoom: 90 };
-export const VISUALIZER_PADDING = 900;
+export const VISUALIZER_PADDING = 400;
 export const IO_NODE_DEFAULT_WIDTH = 350;
 export const IO_NODE_HEADER_HEIGHT = 40;
 export const IO_NODE_FIELD_HEIGHT = 35;
