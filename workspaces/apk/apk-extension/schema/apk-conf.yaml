@@ -46,6 +46,8 @@ properties:
   endpointConfigurations:
     "$ref": "#/schemas/EndpointConfigurations"
     description: Configuration for different endpoints of the API.
+  aiProvider:
+    $ref: "#/schemas/AIProvider"
   operations:
     type: array
     items:
@@ -182,7 +184,6 @@ schemas:
         type: boolean
         default: true
         description: Specifies whether the API key can be sent as a query parameter.
-
     additionalProperties: false
   MTLSAuthentication:
     type: object
@@ -390,6 +391,14 @@ schemas:
           - Day
         example: Minute
     additionalProperties: false
+  AIProvider:
+    title: AI Provider
+    properties:
+      name:
+        type: string
+      apiVersion:
+        type: string
+    additionalProperties: false
   EndpointConfigurations:
     title: Endpoint Configurations
     properties:
@@ -417,6 +426,8 @@ schemas:
       resiliency:
         $ref: "#/schemas/Resiliency"
         description: Resiliency configuration for the API endpoint.
+      aiRatelimit:
+        $ref: "#/schemas/AIRatelimit"
     additionalProperties: false
   Certificate:
     type: object
@@ -438,6 +449,7 @@ schemas:
       securityType:
         oneOf:
           - $ref: "#/schemas/BasicEndpointSecurity"
+          - $ref: "#/schemas/APIKeyEndpointSecurity"
         description: The type of security to be applied to the API endpoint.
     additionalProperties: false
   BasicEndpointSecurity:
@@ -458,6 +470,22 @@ schemas:
         description: |
           The key within the secret that holds the password for basic
           authentication.
+    additionalProperties: false
+  APIKeyEndpointSecurity:
+    type: object
+    properties:
+      secretName:
+        type: string
+      in:
+        type: string
+        enum:
+          - Header
+          - Query
+        default: Header
+      apiKeyNameKey:
+        type: string
+      apiKeyValueKey:
+        type: string
     additionalProperties: false
   Resiliency:
     type: object
@@ -513,6 +541,60 @@ schemas:
         items:
           type: integer
     additionalProperties: false
+  AIRatelimit:
+    type: object
+    required:
+      - enabled
+      - token
+      - request
+    properties:
+      enabled:
+        type: boolean
+        default: true
+      token:
+        $ref: "#/schemas/TokenAIRL"
+      request:
+        $ref: "#/schemas/RequestAIRL"
+  TokenAIRL:
+    type: object
+    required:
+      - promptLimit
+      - completionLimit
+      - totalLimit
+      - unit
+    properties:
+      promptLimit:
+        type: integer
+        default: 0
+      completionLimit:
+        type: integer
+        default: 0
+      totalLimit:
+        type: integer
+        default": 0
+      unit:
+        type: string
+        default: Minute
+        enum:
+          - Minute
+          - Hour
+          - Day
+  RequestAIRL:
+    type: object
+    required:
+      - requestLimit
+      - unit
+    properties:
+      requestLimit:
+        type: integer
+        default: 0
+      unit:
+        type: string
+        default: Minute
+        enum:
+          - Minute
+          - Hour
+          - Day
   APKOperations:
     title: Operation
     type: object
