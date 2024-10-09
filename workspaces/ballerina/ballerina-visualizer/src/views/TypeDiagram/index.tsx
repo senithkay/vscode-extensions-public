@@ -28,10 +28,10 @@ export function TypeDiagram() {
 
 
     const getComponentModel = async () => {
-        if (!rpcClient || !visualizerLocation?.documentUri) {
+        if (!rpcClient || !visualizerLocation?.metadata?.recordFilePath) {
             return;
         }
-        const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation?.documentUri] });
+        const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
         return response;
     };
 
