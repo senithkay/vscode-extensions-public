@@ -51,7 +51,9 @@
       "pretest": "npm run compile && npm run lint",
       "lint": "eslint src --ext ts",
       "test": "node ./out/test/runTest.js",
-      "build": "vsce package",
+      "build": "vsce package && pnpm run postbuild",
+      "postbuild": "pnpm run copyVSIX",
+      "copyVSIX": "copyfiles *.vsix ./vsix",
       "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
     },
     "devDependencies": {
