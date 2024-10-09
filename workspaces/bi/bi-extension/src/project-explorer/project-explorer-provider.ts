@@ -8,11 +8,20 @@
  */
 
 import * as vscode from 'vscode';
-import { window } from 'vscode';
+import { window, Uri } from 'vscode';
 import path = require('path');
-import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
 
+interface Property {
+    name?: string;
+    type: string;
+    additionalProperties?: { type: string };
+    properties?: {};
+    required?: string[];
+    description?: string;
+    items?: Property;
+}
 export class ProjectExplorerEntry extends vscode.TreeItem {
     children: ProjectExplorerEntry[] | undefined;
     info: string | undefined;
@@ -121,6 +130,8 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
             for (const workspace of workspaceFolders) {
                 const rootPath = workspace.uri.fsPath;
                 const resp = await buildProjectStructure(rootPath, extension.langClient);
+                // Add all the configurations to the project tree
+                await addConfigurations(rootPath, resp);
                 const projectTree = generateTreeData(workspace, resp);
                 if (projectTree) {
                     data.push(projectTree);
@@ -181,7 +192,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // Connections
     const types = new ProjectExplorerEntry(
         "Types",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
@@ -193,7 +204,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // Functions
     const functions = new ProjectExplorerEntry(
         "Functions",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
@@ -205,7 +216,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     // Configurations
     const configs = new ProjectExplorerEntry(
         "Configurations",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
@@ -234,4 +245,38 @@ function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplor
         entries.push(fileEntry);
     }
     return entries;
+}
+
+async function addConfigurations(rootPath, resp) {
+    const filePath = `${rootPath}/Ballerina.toml`;
+    const response = await extension.langClient?.getBallerinaProjectConfigSchema({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString()
+        }
+    });
+    const project = await extension.langClient.getBallerinaProject({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString()
+        }
+    }) as BallerinaProject;
+    const packageName = project.packageName!;
+    const resData = response as PackageConfigSchema;
+    const configSchema = resData.configSchema;
+    const props: object = configSchema.properties;
+    let orgName;
+    for (const key of Object.keys(props)) {
+        if (props[key].properties[packageName]) {
+            orgName = props[key].properties;
+        }
+    }
+    if (orgName) {
+        const configs: Property = orgName[packageName];
+        const properties = configs.properties;
+        for (let propertyKey in properties) {
+            if (properties.hasOwnProperty(propertyKey)) {
+                const property: Property = properties[propertyKey];
+                resp.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push({ name: propertyKey, path: "", type: property.type, icon: "local-entry" });
+            }
+        }
+    }
 }
