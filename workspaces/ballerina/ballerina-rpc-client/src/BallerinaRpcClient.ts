@@ -155,4 +155,7 @@ export class BallerinaRpcClient {
         return this.messenger.sendRequest(getPopupVisualizerState, HOST_EXTENSION);
     }
 
+    onBiRunningStateChanged(callback: () => void) {
+    }
+
 }
