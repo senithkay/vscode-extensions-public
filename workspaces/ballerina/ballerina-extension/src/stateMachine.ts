@@ -188,7 +188,7 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            webview.title = "BI";
+                            webview.title = "WSO2 BI";
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
                                 dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
