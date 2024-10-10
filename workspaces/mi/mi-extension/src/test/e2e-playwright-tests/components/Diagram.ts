@@ -145,18 +145,24 @@ export class Diagram {
 
 class Mediator {
 
-    constructor(private container: Frame, private mediatotNode: Locator) {
+    constructor(private container: Frame, private mediatorNode: Locator) {
     }
 
     public async edit(props: FormFillProps) {
-        await this.mediatotNode.click();
+        await this.mediatorNode.click();
         const form = new SidePanel(this.container);
         await form.init();
         await form.updateMediator(props);
     }
 
+    public async open(text: string) {
+        const link = this.mediatorNode.locator(`div:text("${text}")`);
+        await link.waitFor();
+        await link.click();
+    }
+
     public async getDescription() {
-        const description = this.mediatotNode.getByTestId("mediator-description");
+        const description = this.mediatorNode.getByTestId("mediator-description");
         await description.waitFor();
         return await description.textContent();
     }
