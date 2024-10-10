@@ -88,7 +88,7 @@ function getTestSuiteMustacheTemplate() {
         </test-artifact>
         <supportive-artifacts>
             {{#supportiveArtifacts}}
-                <artifact>{{{.}}}</artifact>
+            <artifact>{{{.}}}</artifact>
             {{/supportiveArtifacts}}
         </supportive-artifacts>
     </artifacts>

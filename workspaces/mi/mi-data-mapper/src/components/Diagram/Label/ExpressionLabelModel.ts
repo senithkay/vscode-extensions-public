@@ -12,7 +12,7 @@ import { Node } from "ts-morph";
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
-import { InputOutputPortModel } from '../Port';
+import { InputOutputPortModel, MappingType } from '../Port';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
 	value?: string;
@@ -31,7 +31,7 @@ export class ExpressionLabelModel extends LabelModel {
 	link?: DataMapperLinkModel;
 	field?: Node;
 	editorLabel?: string;
-	pendingArrayToArray?: boolean;
+	pendingMappingType?: MappingType;
 	deleteLink?: () => void;
 
 	constructor(options: ExpressionLabelOptions = {}) {
@@ -65,15 +65,15 @@ export class ExpressionLabelModel extends LabelModel {
 		// TODO: Implement update source logic
 	}
 
-	setIsPendingArrayToArray(pendingA2A: boolean): void {
+	setPendingMappingType(mappingType: MappingType): void {
 		const sourcePort = this.link?.getSourcePort();
 		const targetPort = this.link?.getTargetPort();
 
-		this.pendingArrayToArray = pendingA2A;
+		this.pendingMappingType = mappingType;
 
 		if (sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel) {
-			sourcePort.setIsPendingArrayToArray(pendingA2A);
-			targetPort.setIsPendingArrayToArray(pendingA2A);
+			sourcePort.setPendingMappingType(mappingType);
+			targetPort.setPendingMappingType(mappingType);
 		}
 	}
 }

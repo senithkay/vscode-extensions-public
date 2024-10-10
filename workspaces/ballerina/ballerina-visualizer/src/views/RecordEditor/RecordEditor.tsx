@@ -16,15 +16,17 @@ import styled from "@emotion/styled";
 import { URI } from "vscode-uri";
 import { FormField } from "@wso2-enterprise/ballerina-side-panel";
 import { RecordEditor as BalRecordEditor } from '@wso2-enterprise/record-creator';
+import { Colors } from "../../resources/constants";
 
 const DrawerContainer = styled.div`
-    width: 600px;
+    fontFamily: GilmerRegular;
 `;
 
 export interface RecordEditorProps {
     isRecordEditorOpen: boolean;
     fields?: FormField[];
     rpcClient: BallerinaRpcClient;
+    width?: string;
     onClose: () => void;
     updateFields?: (fields: FormField[]) => void;
 }
@@ -98,6 +100,11 @@ export function RecordEditor(props: RecordEditorProps) {
             isOpen={isRecordEditorOpen}
             id="record-editor-drawer"
             isSelected={true}
+            sx={{
+                backgroundColor: Colors.SURFACE_DIM,
+                boxShadow: "none",
+                width: "inherit"
+            }}
         >
             <DrawerContainer>
                 <BalRecordEditor

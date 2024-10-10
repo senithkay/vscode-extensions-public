@@ -398,7 +398,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const useDisableOnChange = (fn: (...args: any[]) => Promise<any>) => {
         return useMutation({
-            mutationFn: fn
+            mutationFn: fn,
+            networkMode: 'always'
         });
     };
 
