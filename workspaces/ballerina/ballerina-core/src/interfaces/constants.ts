@@ -24,5 +24,6 @@ export const BI_COMMANDS = {
     ADD_ENTRY_POINT: 'BI.project-explorer.add-entry-point',
     ADD_TYPE: 'BI.project-explorer.add-type',
     ADD_FUNCTION: 'BI.project-explorer.add-function',
+    OPEN_TYPE_DIAGRAM: 'BI.view.typeDiagram',
     ADD_CONFIGURATION: 'BI.project-explorer.add-configuration'
 };
