@@ -112,10 +112,11 @@ export type TargetMetadata = {
 export enum DIRECTORY_MAP {
     SERVICES = "services",
     AUTOMATION = "automation",
-    TASKS = "tasks",
+    FUNCTIONS = "functions",
     TRIGGERS = "triggers",
     CONNECTIONS = "connections",
     TYPES = "types",
+    RECORDS = "records",
     CONFIGURATIONS = "configurations",
 }
 
@@ -123,10 +124,11 @@ export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
     };
 }

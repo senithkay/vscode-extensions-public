@@ -131,7 +131,7 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
                 const rootPath = workspace.uri.fsPath;
                 const resp = await buildProjectStructure(rootPath, extension.langClient);
                 // Add all the configurations to the project tree
-                await addConfigurations(rootPath, resp);
+                // await addConfigurations(rootPath, resp);
                 const projectTree = generateTreeData(workspace, resp);
                 if (projectTree) {
                     data.push(projectTree);
@@ -213,7 +213,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         true
     );
     functions.contextValue = "functions";
-    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.TASKS]);
+    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.FUNCTIONS]);
     entries.push(functions);
 
     // Configurations

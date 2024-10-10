@@ -250,7 +250,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 case DIRECTORY_MAP.SERVICES:
                     res = await createBIService(params);
                     break;
-                case DIRECTORY_MAP.TASKS:
+                case DIRECTORY_MAP.AUTOMATION:
                     res = await createBITask(params);
                     break;
                 default:

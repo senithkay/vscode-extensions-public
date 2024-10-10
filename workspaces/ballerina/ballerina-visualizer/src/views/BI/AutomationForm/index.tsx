@@ -59,7 +59,7 @@ export function MainForm() {
     const handleFunctionCreate = async () => {
         setIsLoading(true);
         console.log(triggerType);
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.TASKS, taskType: { name, triggerType, argType, argName, cron } });
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.AUTOMATION, taskType: { name, triggerType, argType, argName, cron } });
         setIsLoading(res.response);
         setError(res.error);
     };

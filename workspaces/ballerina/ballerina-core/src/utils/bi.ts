@@ -12,37 +12,36 @@ import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureRespon
 import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
 import { URI, Utils } from "vscode-uri";
 
-let automation: ProjectStructureArtifactResponse = null;
-
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
     const result: ProjectStructureResponse = {
         directoryMap: {
             [DIRECTORY_MAP.SERVICES]: [],
             [DIRECTORY_MAP.AUTOMATION]: [],
-            [DIRECTORY_MAP.TASKS]: [],
+            [DIRECTORY_MAP.FUNCTIONS]: [],
             [DIRECTORY_MAP.TRIGGERS]: [],
             [DIRECTORY_MAP.CONNECTIONS]: [],
             [DIRECTORY_MAP.TYPES]: [],
-            [DIRECTORY_MAP.CONFIGURATIONS]: []
+            [DIRECTORY_MAP.CONFIGURATIONS]: [],
+            [DIRECTORY_MAP.RECORDS]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
         documentIdentifiers: [{ uri: URI.file(projectDir).toString() }]
     });
     await traverseComponents(components, result, langClient);
-    if (automation) {
-        result.directoryMap[DIRECTORY_MAP.AUTOMATION].push(automation);
-    }
     return result;
 }
 
 async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface) {
     for (const pkg of components.packages) {
         for (const module of pkg.modules) {
+            response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "schedule", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, module.services, pkg.filePath, "APIResource", DIRECTORY_MAP.SERVICES));
-            response.directoryMap[DIRECTORY_MAP.TASKS].push(...await getComponents(langClient, module.functions, pkg.filePath, "task"));
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function-icon"));
             response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "arrow-swap", DIRECTORY_MAP.CONNECTIONS));
-            response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.records, pkg.filePath, "template"));
+            response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "APIResource"));
+            response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "Angular"));
+            response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "Angular"));
         }
     }
 }
@@ -84,17 +83,15 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
                 startLine: comp.startLine
             }
         };
+        if (dtype === DIRECTORY_MAP.AUTOMATION) {
+            fileEntry.name = "automation"
+        }
         if (dtype === DIRECTORY_MAP.CONNECTIONS) {
             if (stNode.syntaxTree.typeData?.isEndpoint) {
                 entries.push(fileEntry);
             }
         } else {
-            if (comp.name === "main") {
-                automation = fileEntry;
-                automation.name = "automation"
-            } else {
-                entries.push(fileEntry);
-            }
+            entries.push(fileEntry);
         }
 
     }
