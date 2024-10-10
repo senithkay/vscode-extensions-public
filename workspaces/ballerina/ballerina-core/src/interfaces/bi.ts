@@ -199,6 +199,7 @@ export type NodeKind =
     | "ELSE"
     | "ON_FAILURE"
     | "BODY"
+    | "VARIABLE"
     | "NEW_DATA"
     | "UPDATE_DATA"
     | "NEW_CONNECTION"
