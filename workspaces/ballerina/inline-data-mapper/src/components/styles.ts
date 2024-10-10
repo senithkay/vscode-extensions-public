@@ -18,16 +18,6 @@ const typeLabel = {
     verticalAlign: "middle",
 };
 
-const addElementButton = {
-    color: "var(--vscode-inputOption-activeForeground)",
-    display: "flex",
-    justifyContent: "space-between",
-    fontStyle: "normal",
-    fontWeight: 400,
-    fontSize: "13px",
-    lineHeight: "24px",
-};
-
 const treeLabel = {
     verticalAlign: "middle",
     padding: "5px",
@@ -81,10 +71,6 @@ export const useIONodesStyles = () => ({
         "&:hover": {
             overflow: "visible"
         },
-    }),
-    filterPortWrap: css({
-        width: IO_NODE_DEFAULT_WIDTH,
-        position: "absolute"
     }),
     nodeType: css({
         float: 'right',
@@ -166,34 +152,6 @@ export const useIONodesStyles = () => ({
             border: "1px solid var(--vscode-pickerGroup-border)"
         }
     }),
-    addArrayElementButton: css({
-        "& > vscode-button": {
-            padding: "5px",
-            textTransform: "none",
-            ...addElementButton
-        },
-        "& > vscode-button > *": {
-            margin: "0px 6px"
-        }
-    }),
-    addSubMappingButton: css({
-        "& > vscode-button": {
-            ...addElementButton,
-            width: `${IO_NODE_DEFAULT_WIDTH}px`,
-            height: "40px",
-            border: "1px solid var(--vscode-welcomePage-tileBorder)",
-            color: "var(--button-primary-foreground)",
-            backgroundColor: "var(--vscode-button-secondaryBackground)",
-            borderRadius: "0px",
-            textTransform: "none",
-            "&:hover": {
-                backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
-            },
-        },
-        "& > vscode-button > *": {
-            margin: "0px 6px"
-        }
-    }),
     requiredMark: css({
         color: "var(--vscode-errorForeground)",
         margin: '0 2px',
@@ -207,10 +165,6 @@ export const useIONodesStyles = () => ({
         height: 'fit-content',
         flexDirection: "column"
     }),
-    subMappingItemLabel: css({
-        ...treeLabel,
-        cursor: "pointer"
-    }),
     enumHeaderTreeLabel: css({
         verticalAlign: "middle",
         padding: "5px",
@@ -219,40 +173,11 @@ export const useIONodesStyles = () => ({
         minHeight: "24px",
         backgroundColor: "var(--vscode-sideBar-background)"
     }),
-    addAnotherSubMappingButton: css({
-        width: "auto",
-        margin: 0,
-        "& > vscode-button": {
-            backgroundColor: "var(--vscode-extensionButton-background)", padding: '2px',
-            "&:hover": {
-                backgroundColor: "var(--vscode-button-hoverBackground)"
-            },
-        }
-    }),
-    subMappingItemSeparator: css({
-        height: "8px",
-        width: "100%",
-        backgroundColor: "var(--vscode-titleBar-border)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-    }),
     objectFieldAdderLabel: css({
         display: "flex",
         justifyContent: "center",
         color: "var(--button-primary-foreground)",
         opacity: 0.7
-    }),
-    dynamicOutputNotification: css({
-        position: "absolute",
-        bottom: "-40px",
-        left: "0",
-        backgroundColor: "var(--vscode-notifications-background)",
-        color: "var(--vscode-notifications-foreground)",
-        fontSize: "12px",
-        border: "1px solid var(--vscode-notifications-border)",
-        padding: "5px 10px",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
     }),
 });
 
@@ -295,53 +220,4 @@ export const useIntermediateNodeStyles = () => ({
     loadingContainer: css({
         padding: "10px"
     })
-});
-
-export const useUnionTypeNodeStyles = () => ({
-    selectTypeWrap: css({
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        width: "inherit",
-        padding: "10px",
-        background: "var(--vscode-sideBar-background)",
-        borderRadius: "4px"
-    }),
-    unionTypesList: css({
-        columnGap: '5%',
-        display: 'grid',
-        gridTemplateColumns: '100%',
-        width: 'inherit',
-        "& .MuiListItem-root": {
-            marginBottom: '8px',
-            padding: '0 10px'
-        }
-    }),
-    unionTypeListItem: css({
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%',
-        '&:hover': {
-            backgroundColor: 'var(--vscode-list-hoverBackground)',
-        },
-        '&:active': {
-            backgroundColor: 'rgba(204,209,242,0.61)'
-        }
-    }),
-    unionTypeValue: css({
-        color: "var(--vscode-foreground)",
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-    }),
-    warningContainer: css({
-        display: 'flex',
-        alignItems: 'center'
-    }),
-    warningText: css({
-        color:  'var(--vscode-errorForeground)',
-        fontSize: '15px',
-        fontFamily: 'Droid Sans Mono',
-        fontWeight: 'normal'
-    }),
 });

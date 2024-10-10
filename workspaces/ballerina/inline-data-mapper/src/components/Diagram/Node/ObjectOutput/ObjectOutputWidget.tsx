@@ -22,8 +22,7 @@ import { useIONodesStyles } from '../../../styles';
 import {
 	useDMCollapsedFieldsStore,
 	useDMExpressionBarStore,
-	useDMIOConfigPanelStore,
-	useDMSubMappingConfigPanelStore
+	useDMIOConfigPanelStore
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
@@ -70,11 +69,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
 		setIOConfigPanelType: state.setIOConfigPanelType,
 		setIsSchemaOverridden: state.setIsSchemaOverridden
-	}));
-
-	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
-		subMappingConfig: state.subMappingConfig,
-		setSubMappingConfig: state.setSubMappingConfig
 	}));
 
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
@@ -135,13 +129,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setIsSchemaOverridden(true);
 		setIsIOConfigPanelOpen(true);
     };
-
-	const onSubMappingEditBtnClick = () => {
-		setSubMappingConfig({
-			...subMappingConfig,
-			isSMConfigPanelOpen: true
-		});
-	};
 
 	return (
 		<>

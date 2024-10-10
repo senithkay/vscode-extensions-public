@@ -34,7 +34,7 @@ import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { useDMArrayFilterStore, useDMExpressionBarStore } from '../../store/store';
+import { useDMExpressionBarStore } from '../../store/store';
 import { isOutputNode } from './Actions/utils';
 import { InputOutputPortModel } from './Port';
 import * as Nodes from "./Node";
@@ -98,18 +98,11 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-	const [filtersCollapsedChanged, setFiltersCollapsedChanged] = useState(false);
 	const [, forceUpdate] = useState({});
-
-	const filtersCollapsed = useDMArrayFilterStore(state => state.isCollapsed);
-
-	useEffect(() => {
-		setFiltersCollapsedChanged(prev => !prev); // Toggle the state to trigger repositioning
-	}, [filtersCollapsed]);
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
-	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel, filtersCollapsedChanged);
+	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
 
 	engine.setModel(diagramModel);

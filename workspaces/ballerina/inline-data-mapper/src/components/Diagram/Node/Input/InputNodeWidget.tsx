@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { IDMType } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
@@ -19,7 +19,6 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
-import { ARRAY_FILTER_NODE_PREFIX } from "../../utils/constants";
 import { getTypeName } from "../../utils/type-utils";
 
 export interface InputNodeWidgetProps {
@@ -55,9 +54,6 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     if (portOut && portOut.collapsed) {
         expanded = false;
     }
-
-    /** Invisible port to which the arrow headed link from the filter node is connected to */
-    const invisiblePort = getPort(`${ARRAY_FILTER_NODE_PREFIX}`);
 
     const label = (
         <span style={{ marginRight: "auto" }}>
@@ -103,9 +99,6 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 
     return (
         <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
-            <div className={classes.filterPortWrap}>
-                {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
-            </div>
             <TreeHeader
                 id={"recordfield-" + id}
                 isSelected={portState !== PortState.Unselected}

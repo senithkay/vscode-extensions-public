@@ -7,9 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Visitor } from '../../../ts/base-visitor';
-
-
 export interface NodePosition {
     start: number;
     end: number;

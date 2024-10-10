@@ -25,12 +25,10 @@ import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/
 export const useRepositionedNodes = (
     nodes: DataMapperNodeModel[],
     zoomLevel: number,
-    diagramModel: DiagramModel,
-    filtersCollapsedChanged: boolean
+    diagramModel: DiagramModel
 ) => {
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
-    // const filtersUnchanged = hasSameFilters(nodesClone, prevNodes) && !filtersCollapsedChanged;
     const filtersUnchanged = false;
 
     let prevBottomY = 0;

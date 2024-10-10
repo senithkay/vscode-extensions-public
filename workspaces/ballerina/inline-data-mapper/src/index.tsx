@@ -52,7 +52,7 @@ export function DataMapperView(props: DataMapperViewProps) {
     } = props;
 
     return (
-        <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
+        <ErrorBoundary errorMsg="An error occurred while redering the Inline Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
                 <InlineDataMapper
