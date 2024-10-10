@@ -32,6 +32,7 @@ import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 import { NodeTypes } from "../resources/constants";
+import Controls from "./Controls";
 
 export interface DiagramProps {
     model: Flow;
@@ -208,6 +209,7 @@ export function Diagram(props: DiagramProps) {
                     disabled={false}
                 />
             )}
+            <Controls engine={diagramEngine}/>
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
