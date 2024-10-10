@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
-import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
+import React, { useEffect, useState } from "react";
+import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
 import { Button, TextField, Typography, View, ViewContent, ErrorBanner, RadioButtonGroup, FormGroup, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
@@ -44,6 +44,15 @@ const CardGrid = styled.div`
     width: 100%;
 `;
 
+const Link = styled.a`
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: auto;
+    margin-right: 15px;
+    margin-bottom: -5px;
+    color: var(--button-primary-background);
+`;
+
 type TriggerType = "SCHEDULED" | "MANUAL";
 
 export function MainForm() {
@@ -54,6 +63,7 @@ export function MainForm() {
     const [argName, setArgName] = useState("");
     const [cron, setCron] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [automation, setAutomation] = useState<ProjectStructureArtifactResponse>(null);
     const [error, setError] = useState("");
 
     const handleFunctionCreate = async () => {
@@ -66,17 +76,38 @@ export function MainForm() {
 
     const validate = () => {
         if (triggerType === "SCHEDULED") {
-            return !name || !cron || isLoading;
+            return !name || !cron || isLoading || automation !== null;
         } else {
-            return !name || isLoading;
+            return !name || isLoading || automation !== null;
         }
     }
+
+    const openAutomation = () => {
+        rpcClient
+            .getVisualizerRpcClient()
+            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: automation.path, position: automation.position } });
+    }
+
+    useEffect(() => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getProjectStructure()
+            .then((res) => {
+                if (res.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
+                    setAutomation(res.directoryMap[DIRECTORY_MAP.AUTOMATION][0]);
+                }
+            });
+    }, []);
+
 
     return (
         <View>
             <ViewContent padding>
                 <BIHeader />
                 <Container>
+                    {automation &&
+                        <Typography variant="h4">You have already created an automation task. <Link onClick={openAutomation}>View Now</Link></Typography>
+                    }
                     <Typography variant="h2">Create Automation Task</Typography>
                     <BodyText>
                         Implement a task for either scheduled or one-time jobs.

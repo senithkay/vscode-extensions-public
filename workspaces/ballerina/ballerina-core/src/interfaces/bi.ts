@@ -141,6 +141,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
 
@@ -168,7 +169,8 @@ export type NodePropertyKey =
     | "expression"
     | "statement"
     | "comment"
-    | "connection";
+    | "connection"
+    | "collection";
 
 export type BranchKind = "block" | "worker";
 

@@ -35,13 +35,13 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
 async function traverseComponents(components: BallerinaProjectComponents, response: ProjectStructureResponse, langClient: ExtendedLangClientInterface) {
     for (const pkg of components.packages) {
         for (const module of pkg.modules) {
-            response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "schedule", DIRECTORY_MAP.AUTOMATION));
+            response.directoryMap[DIRECTORY_MAP.AUTOMATION].push(...await getComponents(langClient, module.automations, pkg.filePath, "scheduled-message-forwarding-processor", DIRECTORY_MAP.AUTOMATION));
             response.directoryMap[DIRECTORY_MAP.SERVICES].push(...await getComponents(langClient, module.services, pkg.filePath, "APIResource", DIRECTORY_MAP.SERVICES));
-            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "function-icon"));
-            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "arrow-swap", DIRECTORY_MAP.CONNECTIONS));
-            response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "APIResource"));
-            response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "Angular"));
-            response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "Angular"));
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(...await getComponents(langClient, module.functions, pkg.filePath, "message-processor"));
+            response.directoryMap[DIRECTORY_MAP.CONNECTIONS].push(...await getComponents(langClient, module.moduleVariables, pkg.filePath, "address-endpoint", DIRECTORY_MAP.CONNECTIONS));
+            response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type-hierarchy"));
+            response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type-hierarchy"));
+            response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "list-ordered"));
         }
     }
 }
@@ -69,13 +69,16 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             console.log(error);
         }
 
+        const iconValue = comp.name.includes('-') ? `${comp.name.split('-')[0]}-api` : icon;
+
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.filePath.replace(".bal", "") : comp.name,
             path: componentFile,
             type: 'HTTP',
-            icon: icon,
+            icon: iconValue,
             context: comp.name,
             st: stNode.syntaxTree,
+            resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: {
                 endColumn: comp.endColumn,
                 endLine: comp.endLine,
