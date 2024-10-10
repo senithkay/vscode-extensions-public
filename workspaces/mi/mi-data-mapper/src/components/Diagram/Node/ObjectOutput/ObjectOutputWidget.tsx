@@ -87,6 +87,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const { childrenTypes } = dmTypeWithValue;
 	const fields = childrenTypes || [];
 	const hasFields = fields.length > 0;
+	const isObjectType = dmTypeWithValue.type.typeName === 'Object';
 
 	const portIn = getPort(`${id}.IN`);
 	const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
@@ -265,7 +266,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						})}
 					</TreeBody>
 				)}
-				{focusOnSubMappingRoot && (
+				{focusOnSubMappingRoot && isObjectType && (
 					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
 						<span className={classes.objectFieldAdderLabel}>
 							Dynamically add inputs to output

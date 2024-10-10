@@ -23,6 +23,7 @@ import { getTypesForExpressions } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const MODULE_VAR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-module-variable";
+const NODE_ID = "module-variable-node";
 
 export enum ModuleVarKind {
     Variable,
@@ -54,6 +55,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: Map<string, ModuleVariable>) {
         super(
+            NODE_ID,
             context,
             MODULE_VAR_SOURCE_NODE_TYPE
         );

@@ -79,13 +79,13 @@ export function ServiceField(props: ServiceFieldProps) {
                 <FieldType data-testid={`service-field-type-${functionElement.returnType}`}>{functionElement.returnType}</FieldType>
             </div>
             <div style={{width: '10px'}}>
-                {isHovered &&
+                {/* {isHovered &&
                     <ChildActionMenu
                         functionType={FunctionType.CLASS_RESOURCE}
                         location={node.classObject.position}
                         path={functionElement.identifier}
                     />
-                }
+                } */}
             </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}

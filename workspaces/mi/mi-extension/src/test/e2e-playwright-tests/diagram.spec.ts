@@ -7,38 +7,25 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { test, ElectronApplication, expect } from '@playwright/test';
-import { ExtendedPage, startVSCode } from "@wso2-enterprise/playwright-vscode-tester";
+import { test, expect } from '@playwright/test';
 import * as path from 'path';
-import { Welcome } from './components/Welcome';
 import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { closeNotification, createProject } from './Utils';
+import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
 import { ConnectorStore } from './components/ConnectorStore';
-import { Overview } from './components/Overview';
 const fs = require('fs');
-
-const resourcesFolder = path.join(__dirname, '..', 'test-resources');
-const dataFolder = path.join(__dirname, 'data');
-const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
-const vscodeVersion = '1.92.0';
-
-let vscode: ElectronApplication | undefined;
-let page: ExtendedPage;
-
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-  const newProjectPath = path.join(dataFolder, 'new-project', 'testProject');
+  console.log('Starting diagram tests')
   // delete and recreate folder
   if (fs.existsSync(newProjectPath)) {
     fs.rmSync(newProjectPath, { recursive: true });
   }
   fs.mkdirSync(newProjectPath, { recursive: true });
-  vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, newProjectPath);
-  page = new ExtendedPage(await vscode!.firstWindow());
+  await initVSCode();
 });
 
 test('Create new project', async () => {
@@ -146,11 +133,11 @@ test('Add new connection', async () => {
         type: 'combo',
         value: 'true',
       },
-      'TrustStore Path': {
+      'TrustStore Path*': {
         type: 'expression',
         value: 'exampletruststore.com',
       },
-      'TrustStore Password': {
+      'TrustStore Password*': {
         type: 'expression',
         value: 'examplePassword@123',
       }
@@ -168,7 +155,7 @@ test('Add Connector Operation', async () => {
   await diagram.init();
   await diagram.addConnector('file_connection', "createDirectory", 1, {
     values: {
-      'Directory Path': {
+      'Directory Path*': {
         type: 'expression',
         value: '/Users/exampleUser/Documents/createdDirectories',
       }
@@ -183,7 +170,7 @@ test('Edit Connector Operation', async () => {
   const connectorNode = await diagram.getConnector('file', 'createDirectory');
   await connectorNode.edit({
     values: {
-      'Directory Path': {
+      'Directory Path*': {
         type: 'expression',
         value: '/Users/exampleUser/Documents/newCreatedDirectories',
       }
@@ -217,12 +204,12 @@ test('Add connector operation from connector tab', async () => {
     }
   });
   await connectionForm.fillParamManager({
-    'Format' : 'exampleFormat',
-    'Type' : 'exampleType'
+    'Format': 'exampleFormat',
+    'Type': 'exampleType'
   });
   await connectionForm.submit('Add');
 
-  
+
   await operationForm.submit("Submit");
 })
 
@@ -244,12 +231,18 @@ test('Edit Connector Operation Generated From Templates', async () => {
 test.afterAll(async () => {
   await vscode?.close();
 
-  const videoTitle = new Date().toLocaleString().replace(/,|:|\/| /g, '_');
+  const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
   const video = page.page.video()
   const videoDir = path.resolve(resourcesFolder, 'videos')
   const videoPath = await video?.path()
 
   if (video && videoPath) {
-    await fs.renameSync(videoPath, `${videoDir}/${videoTitle}.webm`)
+    video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
   }
+
+  // cleanup
+  if (fs.existsSync(newProjectPath)) {
+    fs.rmSync(newProjectPath, { recursive: true });
+  }
+  console.log('Diagram tests completed')
 });

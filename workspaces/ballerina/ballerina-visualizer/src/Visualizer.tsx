@@ -8,21 +8,33 @@
  */
 
 import React, { useEffect } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { MachineStateValue } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { AIMachineStateValue, MachineStateValue } from "@wso2-enterprise/ballerina-core";
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
+import AIPanel from "./views/AIPanel/AIPanel";
 
 export function Visualizer({ mode }: { mode: string }) {
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [state, setState] = React.useState<MachineStateValue>('initialize');
+    const [aiState, setAIState] = React.useState<AIMachineStateValue>('Initialize');
 
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setState(newState);
-    });
+    if (mode === "visualizer") {
+        rpcClient?.onStateChanged((newState: MachineStateValue) => {
+            setState(newState);
+        });
+    }
+
+    if (mode === "ai") {
+        rpcClient?.onAIPanelStateChanged((newState: AIMachineStateValue) => {
+            setAIState(newState);
+        });
+    }
 
     useEffect(() => {
-        rpcClient.webviewReady();
+        if (mode === "visualizer") {
+            rpcClient.webviewReady();
+        }
     }, []);
 
     return (
@@ -30,10 +42,9 @@ export function Visualizer({ mode }: { mode: string }) {
             {(() => {
                 switch (mode) {
                     case "visualizer":
-                        return <VisualizerComponent state={state}/>
-                    // TODO: Below is to render another webview in the activity panel
-                    // case "activityPanel":
-                    //     return <ActivityPanelComponent state={state}/>
+                        return <VisualizerComponent state={state} />
+                    case "ai":
+                        return <AIPanel state={aiState} />
                 }
             })()}
         </>
@@ -48,17 +59,3 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
             return <LoadingRing />;
     }
 });
-
-
-// TODO: Remove below code if we don't need to have a webview for the activity panel
-// const ActivityPanelComponent = ({ state }: { state: MachineStateValue }) => {
-//     switch (true) {
-//         case typeof state === 'object' && 'ready' in state:
-//             return <GettingStartedPanel state={state} />;
-//             // return <MainPanel state={state} />;
-//         case typeof state === 'object' && 'newProject' in state:
-//             return <GettingStartedPanel state={state} />;
-//         default:
-//             return <h1>LOADING</h1>;
-//     }
-// };

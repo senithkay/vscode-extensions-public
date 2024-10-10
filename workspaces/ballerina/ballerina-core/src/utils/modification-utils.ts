@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,10 +8,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { STModification } from "..";
+import { ListenerConfigFormState, STModification, ServiceConfigState, getComponentSource } from "..";
 import { getInsertComponentSource } from "./template-utils";
-import { compile } from "handlebars";
-import { templates } from "..";
 
 export const keywords = [
     "if", "else", "fork", "join", "while", "foreach",
@@ -125,12 +124,189 @@ export function updateFunctionSignature(
     return functionStatement;
 }
 
-export function getComponentSource(insertTempName: string, config: { [key: string]: any }) {
-    const hbTemplate = compile(templates[insertTempName]);
-    return hbTemplate(config);
-}
-
 export function getSource(modification: STModification): string {
     const source = getComponentSource(modification.type, modification.config);
     return source;
+}
+
+export function getFormattedModuleName(moduleName: string): string {
+    let formattedModuleName = moduleName.includes('.') ? moduleName.split('.').pop() : moduleName;
+    if (keywords.includes(formattedModuleName)) {
+        formattedModuleName = `${formattedModuleName}0`;
+    }
+    return formattedModuleName;
+}
+
+export function createResource(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
+    const resource: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "RESOURCE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "PARAMETERS": parameters,
+            // "PAYLOAD": payload,
+            // "ADD_CALLER": isCaller,
+            // "ADD_REQUEST": isRequest,
+            "ADD_RETURN": addReturn
+        }
+    };
+    return resource;
+}
+
+export function createRemoteFunction(path: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+    const remoteFunction: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "REMOTE_FUNCTION",
+        config: {
+            "PATH": path,
+            "PARAMETERS": parameters,
+            "ADD_RETURN": returnTypes
+        }
+    };
+    return remoteFunction;
+}
+
+export function updateResourceSignature(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
+    const resourceSignature: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "RESOURCE_SIGNATURE",
+        config: {
+            "METHOD": method,
+            "PATH": path,
+            "PARAMETERS": parameters,
+            "ADD_RETURN": addReturn
+        }
+    };
+
+    return resourceSignature;
+}
+
+export function updateRemoteFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+    const remoteFunctionSignature: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "REMOTE_FUNCTION_SIGNATURE",
+        config: {
+            "PATH": name,
+            "PARAMETERS": parameters,
+            "ADD_RETURN": returnTypes
+        }
+    };
+    return remoteFunctionSignature;
+}
+
+export function createImportStatement(org: string, module: string): STModification {
+    const moduleName = module;
+    const formattedName = getFormattedModuleName(module);
+    let moduleNameStr = org + "/" + module;
+
+    const subModuleName = moduleName.split('.').pop();
+    if (moduleName.includes('.') && subModuleName !== formattedName) {
+        if (keywords.includes(subModuleName)){
+            module = module.replace(subModuleName, "'" + subModuleName);
+        }
+        // add alias if module name is different with formatted name
+        moduleNameStr = org + "/" + module + " as " + formattedName
+    }
+
+    const importStatement: STModification = {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 0,
+        type: "IMPORT",
+        config: {
+            "TYPE": moduleNameStr
+        }
+    };
+
+    return importStatement;
+}
+
+export function createServiceDeclartion(
+    config: ServiceConfigState, targetPosition: NodePosition, isLastMember?: boolean): STModification {
+    const { serviceBasePath, listenerConfig: { listenerName, listenerPort, createNewListener }, serviceType } = config;
+
+    const modification: STModification = {
+        startLine: targetPosition.startLine,
+        endLine: targetPosition.startLine,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
+        type: ''
+    };
+
+    if (createNewListener) {
+        return {
+            ...modification,
+            type: 'SERVICE_AND_LISTENER_DECLARATION',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+                'SERVICE_TYPE': serviceType ? serviceType : 'http'
+            }
+        }
+    } else if (listenerPort) {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER',
+            config: {
+                'PORT': listenerPort,
+                'BASE_PATH': serviceBasePath,
+                'SERVICE_TYPE': serviceType ? serviceType : 'http'
+            }
+        }
+
+    } else {
+        return {
+            ...modification,
+            type: 'SERVICE_DECLARATION_WITH_SHARED_LISTENER',
+            config: {
+                'LISTENER_NAME': listenerName,
+                'BASE_PATH': serviceBasePath,
+            }
+        }
+    }
+}
+
+export function createListenerDeclartion(config: ListenerConfigFormState, targetPosition: NodePosition, isNew: boolean,
+                                         serviceType: string, isLastMember?: boolean): STModification {
+    const { listenerName, listenerPort } = config;
+    let modification: STModification;
+    if (isNew) {
+        modification = {
+            startLine: targetPosition.startLine,
+            endLine: targetPosition.startLine,
+            startColumn: isLastMember ? targetPosition.endColumn : 0,
+            endColumn: isLastMember ? targetPosition.endColumn : 0,
+            type: ''
+        };
+    } else {
+        modification = {
+            ...targetPosition,
+            type: ''
+        };
+    }
+
+    return {
+        ...modification,
+        type: 'LISTENER_DECLARATION',
+        config: {
+            'LISTENER_NAME': listenerName,
+            'PORT': listenerPort,
+            'SERVICE_TYPE': serviceType
+        }
+    }
 }

@@ -7,27 +7,42 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import React, { useEffect, useState } from "react";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { Resource, ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
+import { EVENT_TYPE, STModification } from "@wso2-enterprise/ballerina-core";
+import { ViewWrapper } from "../styles";
 
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    isBI?: boolean;
+    isEditingDisabled?: boolean;
 }
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
     const { model, applyModifications } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
+
+    const handleOpenDiagram = (resource: Resource) => {
+        rpcClient.getVisualizerLocation().then(res => {
+            rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: resource.position, documentUri: res.documentUri } })
+        })
+    }
 
     return (
         <>
             <ServiceDesignerView
                 model={model}
-                rpcClients={{serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(), commonRpcClient: rpcClient.getCommonRpcClient()}}
+                rpcClients={{
+                    serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
+                    commonRpcClient: rpcClient.getCommonRpcClient(),
+                }}
                 applyModifications={applyModifications}
+                goToSource={handleOpenDiagram}
+                isBI={props.isBI}
+                isEditingDisabled={props.isEditingDisabled}
             />
         </>
     );

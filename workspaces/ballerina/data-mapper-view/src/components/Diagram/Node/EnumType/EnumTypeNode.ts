@@ -27,6 +27,7 @@ import { ModuleVariable, ModuleVarKind } from "../ModuleVariable";
 import { URI } from "vscode-uri";
 
 export const ENUM_TYPE_SOURCE_NODE_TYPE = "datamapper-node-type-desc-enum-type";
+const NODE_ID = "enum-type-node";
 
 export interface EnumType {
     enumName: string;
@@ -59,7 +60,11 @@ export class EnumTypeNode extends DataMapperNodeModel {
     private enums: EnumInfo[];
 
     constructor(public context: IDataMapperContext, public value: Map<string, ModuleVariable>) {
-        super(context, ENUM_TYPE_SOURCE_NODE_TYPE);
+        super(
+            NODE_ID,
+            context,
+            ENUM_TYPE_SOURCE_NODE_TYPE
+        );
         this.numberOfFields = 1;
         this.enumTypeDecls = [];
         this.enums = context.moduleVariables ? context.moduleVariables.enumDecls : [];

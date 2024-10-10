@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,11 +8,19 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { VisualizerLocation, ComponentModels } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 
-export function TypeDiagram() {
-    const { rpcClient } = useVisualizerContext();
+interface TypeDiagramProps {
+    selectedRecordId?: string;
+}
+
+export function TypeDiagram(props: TypeDiagramProps) {
+    const { selectedRecordId } = props;
+    const { rpcClient } = useRpcContext();
+    const langRpcClient = rpcClient.getLangClientRpcClient();
+    const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
 
     useEffect(() => {
@@ -24,15 +32,26 @@ export function TypeDiagram() {
     }, [rpcClient]);
 
 
+    const getComponentModel = async () => {
+        if (!rpcClient || !visualizerLocation?.metadata?.recordFilePath) {
+            return;
+        }
+        const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
+        return response;
+    };
+
+    const showProblemPanel = async () => {
+        if (!rpcClient) {
+            return;
+        }
+        await commonRpcClient.executeCommand({ commands: ['workbench.action.problems.focus'] });
+    }
+
     return (
-        <>
-            <h1>Hello Type Diagram</h1>
-            <ul>
-                <li>{visualizerLocation?.view}</li>
-                <li>{visualizerLocation?.documentUri}</li>
-                <li>{visualizerLocation?.position?.startLine}</li>
-                <li>{visualizerLocation?.identifier}</li>
-            </ul>
-        </>
+        <TypeDesignDiagram
+            getComponentModel={getComponentModel}
+            selectedRecordId={selectedRecordId}
+            showProblemPanel={showProblemPanel}
+        />
     );
 }

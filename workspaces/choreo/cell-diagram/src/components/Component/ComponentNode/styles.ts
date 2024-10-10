@@ -10,24 +10,13 @@
 import styled from "@emotion/styled";
 import { COMPONENT_CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 
-const PRIMARY_HOVER: string = "#2c09ed";
-
-interface StyleProps {
-    isAnonymous: boolean;
-    isSelected?: boolean;
-    isClickable?: boolean;
-    isCollapsed?: boolean;
-    isFocused?: boolean;
-    borderWidth?: number;
-    hasComponentKind?: boolean;
-}
-
-export const ComponentNode: React.FC<any> = styled.div`
+export const ComponentNode = styled.div`
     color: ${Colors.ON_SURFACE_VARIANT};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: ${COMPONENT_CIRCLE_WIDTH * 2}px;
     gap: 10px;
     padding: 2px;
     pointer-events: all;
@@ -37,10 +26,18 @@ export const ComponentNode: React.FC<any> = styled.div`
     }
 `;
 
-export const ComponentHead: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
-    border: ${(props: StyleProps) =>
-        `${props.borderWidth}px solid ${props.isSelected ? Colors.SECONDARY : props.isFocused ? Colors.SECONDARY : Colors.PRIMARY}`};
+interface ComponentHeadStyleProps {
+    isSelected: boolean;
+    borderWidth: number;
+    disabled: boolean;
+}
+export const ComponentHead: React.FC<ComponentHeadStyleProps> = styled.div`
+    background-color: ${(props: ComponentHeadStyleProps) =>
+        !props.disabled && props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE};
+    border: ${(props: ComponentHeadStyleProps) =>
+        `${props.borderWidth}px solid ${
+            props.disabled ? Colors.SURFACE_DIM : props.isSelected ? Colors.SECONDARY : Colors.PRIMARY
+        }`};
     border-radius: 50%;
     height: ${COMPONENT_CIRCLE_WIDTH}px;
     width: ${COMPONENT_CIRCLE_WIDTH}px;
@@ -54,7 +51,7 @@ export const ComponentHead: React.FC<any> = styled.div`
     position: relative;
 `;
 
-export const ComponentKind: React.FC<any> = styled.div`
+export const ComponentKind = styled.div`
     background-color: ${Colors.SURFACE};
     border-radius: 50%;
 
@@ -73,32 +70,34 @@ export const ComponentKind: React.FC<any> = styled.div`
     padding: 4px;
 `;
 
-export const ComponentName: React.FC<any> = styled.span`
+interface ComponentNameStyleProps {
+    disabled: boolean;
+}
+export const ComponentName: React.FC<ComponentNameStyleProps> = styled.span`
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
     max-width: ${LABEL_MAX_WIDTH}px;
-    &:hover {
-        color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
-        cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
-        text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
-    }
+    color: ${(props: IconWrapperStyleProps) => (props.disabled ? Colors.SURFACE_DIM : Colors.OUTLINE)};
 `;
 
-export const IconWrapper: React.FC<any> = styled.div`
+interface IconWrapperStyleProps {
+    disabled: boolean;
+}
+export const IconWrapper: React.FC<IconWrapperStyleProps> = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
     width: 100%;
 
-    color: ${(props: StyleProps) => (props.isFocused ? Colors.SECONDARY : Colors.PRIMARY)};
+    color: ${(props: IconWrapperStyleProps) => (props.disabled ? Colors.SURFACE_DIM : Colors.PRIMARY)};
     font-size: 32px;
 
     svg {
-        fill: ${(props: StyleProps) => (props.isFocused ? Colors.SECONDARY : Colors.PRIMARY)};
+        fill: ${(props: IconWrapperStyleProps) => (props.disabled ? Colors.SURFACE_DIM : Colors.PRIMARY)};
         height: 32px;
         width: 32px;
     }

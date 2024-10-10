@@ -8,10 +8,13 @@
  */
 
 import {
+    ExportOASRequest,
+    ExportOASResponse,
     RecordSTRequest,
     RecordSTResponse,
 } from "./interfaces";
 
 export interface ServiceDesignerAPI {
     getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
+    exportOASFile: (params: ExportOASRequest) => Promise<ExportOASResponse>;
 }

@@ -472,7 +472,7 @@ export function AIProjectGenerationChat() {
         //Get machine view
         const machineView = await rpcClient.getVisualizerState();
         switch (machineView?.view) {
-            case MACHINE_VIEW.Overview:
+            case MACHINE_VIEW.Overview:      
             case MACHINE_VIEW.ADD_ARTIFACT:
                 backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
                 view = "Overview";

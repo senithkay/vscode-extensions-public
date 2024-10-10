@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { GraphqlMutationIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { GraphqlMutationIcon } from "@wso2-enterprise/ballerina-core";
 import { Popover } from '@wso2-enterprise/ui-toolkit';
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";

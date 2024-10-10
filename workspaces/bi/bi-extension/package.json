@@ -1,0 +1,127 @@
+{
+    "name": "bi-extension",
+    "displayName": "BI",
+    "description": "A comprehensive integration solution that simplifies your digital transformation journey.",
+    "version": "0.0.5",
+    "publisher": "wso2",
+    "repository": {
+        "url": "http://repo.url"
+    },
+    "engines": {
+        "vscode": "^1.84.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "workspaceContains:**/Ballerina.toml"
+    ],
+    "main": "./out/extension",
+    "extensionDependencies": [ "WSO2.ballerina" ],
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "ballerina-integrator",
+                    "title": "Ballerina Integrator",
+                    "icon": "$(circuit-board)"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Ballerina Integrator. You can open a folder containing a BI project or create a new project.\n[Open BI Project](command:vscode.openFolder)\n[Create New Project](command:ballerina.open.bi.welcome)\nTo learn more about how to use Ballerina Integrator in VS Code [read our docs](https://ei.docs.wso2.com).",
+                "when": "BI.status == 'unknownProject'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Loading your workspace, please wait...",
+                "when": "BI.status == 'loading'"
+            }
+        ],
+        "views": {
+            "ballerina-integrator": [
+                {
+                    "id": "BI.project-explorer",
+                    "name": "Overview"
+                }
+            ]
+        },
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "ballerina.show.visualizer",
+                    "when": "view == BI.project-explorer && viewItem == bi-project",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-connection",
+                    "when": "view == BI.project-explorer && viewItem == connections",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-entry-point",
+                    "when": "view == BI.project-explorer && viewItem == entryPoint",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-type",
+                    "when": "view == BI.project-explorer && viewItem == types",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-function",
+                    "when": "view == BI.project-explorer && viewItem == functions",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-configuration",
+                    "when": "view == BI.project-explorer && viewItem == configurations",
+                    "group": "inline"
+                }
+            ]
+        },
+        "commands": []
+    },
+    "scripts": {
+        "vscode:prepublish": "pnpm run compile",
+        "compile": "webpack --mode production --stats-error-details",
+        "watch-bi": "webpack --mode none --watch",
+        "pretest": "pnpm run compile && pnpm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js",
+        "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
+        "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; fi",
+        "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
+        "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
+        "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
+        "copyVSIX": "copyfiles *.vsix ./vsix",
+        "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
+    },
+    "dependencies": {
+        "@wso2-enterprise/ballerina-core": "workspace:*",
+        "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+        "xstate": "^4.38.3"
+    },
+    "devDependencies": {
+        "@vscode/vsce": "^2.22.0",
+        "@types/vscode": "^1.84.0",
+        "@types/mocha": "^10.0.3",
+        "@types/node": "18.x",
+        "@typescript-eslint/eslint-plugin": "^6.9.0",
+        "@typescript-eslint/parser": "^6.9.0",
+        "@vscode/test-electron": "^2.3.6",
+        "eslint": "^8.52.0",
+        "glob": "^10.3.10",
+        "mocha": "^10.2.0",
+        "typescript": "^5.2.2",
+        "copyfiles": "^2.4.1",
+        "copy-webpack-plugin": "^11.0.0",
+        "source-map-support": "^0.5.21",
+        "ts-loader": "^9.4.1",
+        "webpack": "^5.56.0",
+        "webpack-cli": "^4.10.0",
+        "webpack-permissions-plugin": "^1.0.9"
+    }
+}

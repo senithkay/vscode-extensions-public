@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PALETTE_COMMANDS } from 'src/project';
+import { PALETTE_COMMANDS } from 'src/features/project';
 import * as vscode from 'vscode';
 import child_process from 'child_process';
-import { CommandResponse } from 'src/diagram/model';
+import { CommandResponse } from '@wso2-enterprise/ballerina-core';
 
 export function runCommand(command: PALETTE_COMMANDS, args: any[]) {
     vscode.commands.executeCommand(command, ...args);

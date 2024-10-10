@@ -7,21 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { ProjectDiagram } from './diagrams/ProjectDiagram';
-import { Project } from './types';
+import React from "react";
+import { render } from "react-dom";
+import { CellDiagram } from "./Diagram";
+import { Project } from "./types";
 
-export { ProjectDiagram as CellDiagram } from "./diagrams/ProjectDiagram";
+export { CellDiagram } from "./Diagram";
 export * from "./types";
 
-export function renderDiagram(
-    projectModel: string,
-    target: HTMLDivElement
-) {
+export function renderDiagram(projectModel: string, target: HTMLDivElement) {
     const project: Project = JSON.parse(JSON.stringify(projectModel));
-    render(
-        <ProjectDiagram project={project}/>,
-        target
-    );
+    render(<CellDiagram project={project} />, target);
 }

@@ -15,6 +15,7 @@ import { RightAnglePortModel } from "../../Port/RightAnglePort/RightAnglePortMod
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const EXPANDED_MAPPING_HEADER_NODE_TYPE = "datamapper-node-expanded-mapping-header";
+const NODE_ID = "expanded-mapping-header-node";
 
 export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
 
@@ -28,6 +29,7 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
         public queryExpr: QueryExpression
     ) {
         super(
+            NODE_ID,
             context,
             EXPANDED_MAPPING_HEADER_NODE_TYPE
         );

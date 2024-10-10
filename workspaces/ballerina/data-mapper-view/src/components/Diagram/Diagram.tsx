@@ -10,7 +10,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
@@ -29,7 +29,7 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
-import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
+import { ErrorNodeKind } from "../DataMapper/Error/RenderingError";
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
@@ -44,9 +44,12 @@ import { QueryExpressionNode } from './Node/QueryExpression';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
-import { OFFSETS } from './utils/constants';
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
+import { throttle } from 'lodash';
+import { defaultModelOptions } from './utils/constants';
+import { calculateZoomLevel } from './utils/dm-utils';
+import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
 
 const classes = {
 	buttonWrap: css({
@@ -76,8 +79,6 @@ interface DataMapperDiagramProps {
 	onError?: (kind: ErrorNodeKind) => void;
 }
 
-const defaultModelOptions = { zoom: 90 }
-
 function initDiagramEngine() {
 	// START TODO: clear this up
 	// this is a hack to load all modules for DI to work properly
@@ -90,8 +91,8 @@ function initDiagramEngine() {
 	const diContext = container.resolve(DataMapperDIContext);
 
 	const engine = new DiagramEngine({
-		registerDefaultPanAndZoomCanvasAction: true,
-		registerDefaultZoomCanvasAction: false
+		registerDefaultPanAndZoomCanvasAction: false,
+		registerDefaultZoomCanvasAction: false,
 	});
 
 	// register model factories
@@ -108,6 +109,8 @@ function initDiagramEngine() {
 	// register the default interaction behaviours
 	engine.getStateMachine().pushState(new DefaultDiagramState());
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
 	diContext.nodeFactories.forEach((nf) =>
 		engine.getNodeFactories().registerFactory(nf));
@@ -129,13 +132,25 @@ function initDiagramEngine() {
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const { nodes, hideCanvas, onError } = props;
+
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
-	const repositionedNodes = useRepositionedNodes(nodes);
-	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError);
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const [, forceUpdate] = useState({});
 
+	const zoomLevel = calculateZoomLevel(screenWidth);
+
+	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel, screenWidth);
+
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
 	useEffect(() => {
         if (!isFetching) {
@@ -150,20 +165,32 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					node.initLinks();
 					const targetPortPosition = node.targetPort?.getPosition();
 					if (targetPortPosition) {
-						node.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, targetPortPosition.y - 4.5);
+						node.setPosition(targetPortPosition.x-150, targetPortPosition.y - 4.5);
 						forceUpdate({} as any);
 					}
 				}
 			});
 		}
-	}, [diagramModel, isFetching]);
+	}, [diagramModel, isFetching, screenWidth]);
 
 	const resetZoomAndOffset = () => {
 		const currentModel = engine.getModel();
 		currentModel.setZoomLevel(defaultModelOptions.zoom);
 		currentModel.setOffset(0, 0);
 		engine.setModel(currentModel);
-	}
+	};
+
+	const handleResize = useCallback(
+		throttle(() => {
+		  setScreenWidth((prevWidth) => {
+			const newScreenWidth = window.innerWidth;
+			if (newScreenWidth !== prevWidth) {
+			  return newScreenWidth;
+			}
+			return prevWidth;
+		  });
+		}, 100), []
+	);
 
 	return (
 		<>
@@ -186,7 +213,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 						</div>
 						<div
 							className={classes.iconWrap}
-							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
+							onClick={() => void engine.zoomToFitNodes({ margin: 0 })}
 							data-testid={"fit-to-screen"}
 						>
 							
