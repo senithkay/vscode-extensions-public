@@ -97,7 +97,7 @@ export class LinkTargetVisitor implements BaseVisitor {
         });
     }
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // out links
         const outLinks = this.getOutLinksFromNode(node);
         // find top level do block

@@ -13,6 +13,7 @@ import model8 from "./8-comment.json";
 import model9 from "./9-suggested.json";
 import model10 from "./10-suggested-action.json";
 import model11 from "./11-suggested-if.json";
+import model11_2 from "./11-2-multi-suggesting.json";
 import model12 from "./12-if-else-if-empty-4-branch.json";
 import model13 from "./13-if-else-if-empty-3-branch.json";
 import model14 from "./14-while-basic-body.json";
@@ -90,6 +91,11 @@ SuggestedAction.args = {
 export const SuggestedIf = Template.bind({});
 SuggestedIf.args = {
     model: model11,
+};
+
+export const SuggestedIfMulti = Template.bind({});
+SuggestedIfMulti.args = {
+    model: model11_2,
 };
 
 export const IfElseIfEmpty4Branch = Template.bind({});

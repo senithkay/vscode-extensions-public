@@ -20,7 +20,7 @@ export class PositionVisitor implements BaseVisitor {
         console.log(">>> position visitor started");
     }
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
@@ -178,6 +178,10 @@ export class PositionVisitor implements BaseVisitor {
 
 // get top node center. base node is centered. base node center is the width/2. comment node is left aligned. so, center is x.
 function getTopNodeCenter(node: FlowNode, parent: FlowNode, branchCenterX: number) {
+    if(!parent){
+        console.error("Parent is not defined");
+        return;
+    }
     if (parent.codedata.node === "COMMENT") {
         return parent.viewState.x + (NODE_PADDING + VSCODE_MARGIN) / 2;
     }

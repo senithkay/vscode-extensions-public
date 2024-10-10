@@ -12,11 +12,7 @@ import { css, keyframes } from "@emotion/react";
 import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
-import {
-    Colors,
-    NODE_GAP_Y,
-    NODE_WIDTH,
-} from "../../resources/constants";
+import { Colors, NODE_WIDTH } from "../../resources/constants";
 import { useDiagramContext } from "../DiagramContext";
 import AddCommentPopup from "../AddCommentPopup";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
@@ -44,7 +40,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isCommentBoxOpen = Boolean(anchorEl);
 
-    const linkColor = isHovered ? Colors.SECONDARY : Colors.PRIMARY;
+    const linkColor = link.disabled ? Colors.OUTLINE_VARIANT : isHovered ? Colors.SECONDARY : Colors.PRIMARY;
 
     const addButtonPosition = link.getAddButtonPosition();
 
@@ -81,6 +77,8 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         setIsHovered(false);
     };
 
+    const showAddButton = link.showAddButton && !link.disabled;
+
     return (
         <g pointerEvents={"stroke"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <path
@@ -108,7 +106,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 >
                     <div
                         css={css`
-                            display: ${isHovered && link.showAddButton ? "none" : "flex"};
+                            display: ${isHovered && showAddButton ? "none" : "flex"};
                             justify-content: center;
                             align-items: center;
                             animation: ${fadeInZoomIn} 0.5s ease-out forwards;
@@ -145,7 +143,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     </div>
                 </foreignObject>
             )}
-            {link.showAddButton && (
+            {showAddButton && (
                 <foreignObject x={addButtonPosition.x - 35} y={addButtonPosition.y - 10} width="70" height="20">
                     <div
                         css={css`
@@ -235,7 +233,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     orient="auto"
                     id={`${link.getID()}-arrow-head`}
                 >
-                    <polygon points="0,4 0,0 4,2" fill={link.showAddButton && linkColor}></polygon>
+                    <polygon points="0,4 0,0 4,2" fill={linkColor}></polygon>
                 </marker>
             </defs>
         </g>

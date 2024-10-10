@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { BallerinaPackagesParams, BallerinaProjectComponents, BallerinaSTParams, ExecutorPositions, PartialST, PartialSTParams, STModifyParams, SymbolInfo, SymbolInfoParams, SyntaxTree, SyntaxTreeParams, TypeFromExpressionParams, TypeFromSymbolParams, TypesFromFnDefinitionParams } from "../../interfaces/extended-lang-client";
+import { BallerinaPackagesParams, BallerinaProjectComponents, BallerinaSTParams, ComponentModels, ComponentModelsParams, ExecutorPositions, PartialST, PartialSTParams, STModifyParams, SymbolInfo, SymbolInfoParams, SyntaxTree, SyntaxTreeParams, TypeFromExpressionParams, TypeFromSymbolParams, TypesFromFnDefinitionParams } from "../../interfaces/extended-lang-client";
 import { BallerinaVersionResponse, CompletionRequest, CompletionResponse, DiagnosticsResponse, CodeActionRequest, CodeActionResponse, RenameRequest, RenameResponse, DefinitionPositionRequest, UpdateFileContentRequest, UpdateFileContentResponse, DefinitionResponse, ExecutorPositionsRequest, DidCloseRequest, TypesFromExpressionResponse, TypesFromSymbolResponse, DidOpenRequest, DidChangeRequest } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -40,3 +40,4 @@ export const getSymbolDocumentation: RequestType<SymbolInfoParams, SymbolInfo> =
 export const didOpen: NotificationType<DidOpenRequest> = { method: `${_preFix}/didOpen` };
 export const didChange: NotificationType<DidChangeRequest> = { method: `${_preFix}/didChange` };
 export const didClose: NotificationType<DidCloseRequest> = { method: `${_preFix}/didClose` };
+export const getPackageComponentModels: RequestType<ComponentModelsParams, ComponentModels> = { method: `${_preFix}/getPackageComponentModels` };

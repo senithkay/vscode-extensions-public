@@ -26,7 +26,7 @@ import {
     NodeKind,
     BIGetFunctionsRequest,
     TRIGGER_CHARACTERS,
-    TriggerCharacter
+    TriggerCharacter,
 } from "@wso2-enterprise/ballerina-core";
 import {
     addDraftNodeToDiagram,
@@ -79,7 +79,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
@@ -93,14 +92,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const selectedClientName = useRef<string>();
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
-
-    useEffect(() => {
-        rpcClient.getVisualizerLocation().then((location) => {
-            if(location.metadata?.flowNodeStyle){
-                setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
-            }
-        });
-    }, [rpcClient]);
 
     useEffect(() => {
         console.log(">>> Updating sequence model...", syntaxTree);
@@ -128,7 +119,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setCompletions([]);
         setFilteredCompletions([]);
         triggerCompletionOnNextRequest.current = false;
-    }
+    };
 
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
@@ -201,7 +192,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 clearTimeout(suggestionFetchingTimeout);
                 setFetchingAiSuggestions(false);
             });
-    }
+    };
 
     const handleOnAddNode = (parent: FlowNode | Branch, target: LineRange) => {
         // clear previous click if had
@@ -223,43 +214,49 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         const request: BIGetFunctionsRequest = {
             position: {
                 startLine: targetRef.current.startLine,
-                endLine: targetRef.current.endLine
+                endLine: targetRef.current.endLine,
             },
             filePath: model.fileName,
-            queryMap: searchText.trim() ?
-                {
-                    q: searchText,
-                    limit: 12,
-                    offset: 0
-                } :
-                undefined
+            queryMap: searchText.trim()
+                ? {
+                      q: searchText,
+                      limit: 12,
+                      offset: 0,
+                  }
+                : undefined,
         };
         console.log(">>> Search function request", request);
-        rpcClient.getBIDiagramRpcClient().getFunctions(request).then((response) => {
-            console.log(">>> Searched List of functions", response);
-            setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-            setSidePanelView(SidePanelView.FUNCTION_LIST);
-            setShowSidePanel(true);
-        });
-    }
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getFunctions(request)
+            .then((response) => {
+                console.log(">>> Searched List of functions", response);
+                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                setSidePanelView(SidePanelView.FUNCTION_LIST);
+                setShowSidePanel(true);
+            });
+    };
 
     const handleOnSelectNode = (nodeId: string, metadata?: any) => {
         const { node, category } = metadata as { node: AvailableNode; category?: string };
         // node is function
         const nodeType: NodeKind = node.codedata.node;
         if (nodeType === "FUNCTION") {
-            rpcClient.getBIDiagramRpcClient().getFunctions({
-                position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
-                filePath: model.fileName,
-                queryMap: undefined,
-            }).then((response) => {
-                console.log(">>> List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-                setSidePanelView(SidePanelView.FUNCTION_LIST);
-                setShowSidePanel(true);
-            });
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFunctions({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                })
+                .then((response) => {
+                    console.log(">>> List of functions", response);
+                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                    setSidePanelView(SidePanelView.FUNCTION_LIST);
+                    setShowSidePanel(true);
+                });
         } else {
-            // default node 
+            // default node
             console.log(">>> on select panel node", { nodeId, metadata });
             selectedClientName.current = category;
             rpcClient
@@ -556,7 +553,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (triggerCharacter) {
             await debouncedGetCompletions.flush();
         }
-    }
+    };
 
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
@@ -566,7 +563,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
-    }
+    };
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
@@ -598,7 +595,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
-                                flowNodeStyle={flowNodeStyle}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,
@@ -621,12 +617,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 }
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <NodeList
-                        categories={categories}
-                        onSelect={handleOnSelectNode}
-                        onAddConnection={handleOnAddConnection}
-                        onClose={handleOnCloseSidePanel}
-                    />
+                    <div onClick={onDiscardSuggestions}>
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onAddConnection={handleOnAddConnection}
+                            onClose={handleOnCloseSidePanel}
+                        />
+                    </div>
                 )}
                 {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
                     <NodeList

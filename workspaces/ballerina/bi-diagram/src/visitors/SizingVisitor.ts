@@ -92,7 +92,7 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitNode = (node: FlowNode): void => this.createBaseNode(node);
 
-    endVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    endVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         const width = Math.round(NODE_WIDTH / 3) + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
         const height = Math.round(NODE_HEIGHT / 1.5) + NODE_BORDER_WIDTH * 2;
