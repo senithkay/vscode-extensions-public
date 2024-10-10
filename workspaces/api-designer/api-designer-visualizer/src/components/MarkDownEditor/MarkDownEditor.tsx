@@ -27,6 +27,7 @@ import {
 } from '@mdxeditor/editor';
 
 interface MakrDownEditorProps {
+    key: string;
     value: string;
     onChange: (value: string) => void;
     sx?: any;
@@ -43,7 +44,7 @@ function Separator() {
 }
 
 const StyledMDXEditor = styled(MDXEditor)<{ sx?: any }>`
-    --baseBg: var(--vscode-editorGroup-border);
+    --baseBg: var(--vscode-debugIcon-breakpointDisabledForeground);
     --basePageBg: var(--vscode-editorRuler-foreground);
     --baseBorderHover: var(--vscode-editor-inactiveSelectionBackground);
     --baseTextContrast: var(--vscode-editor-foreground);
@@ -65,11 +66,11 @@ const ToolbarUR = styled(UndoRedo)`
 `;
 
 export function MarkDownEditor(props: MakrDownEditorProps) {
-    const { value, sx, onChange } = props;
+    const { key, value, sx, onChange } = props;
 
     return (
         <StyledMDXEditor
-            key={value}
+            key={key}
             sx={sx}
             markdown={value || ""}
             onChange={onChange}

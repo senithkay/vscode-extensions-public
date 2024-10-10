@@ -25,7 +25,7 @@ export const MarkDownStory = () => {
     }
     return (
         <Container>
-            <MarkDownEditor value={'`This is an example description First second`'} onChange={handleChange}/>
+            <MarkDownEditor key="Test" value={'`This is an example description First second`'} onChange={handleChange}/>
         </Container>
     );
 };

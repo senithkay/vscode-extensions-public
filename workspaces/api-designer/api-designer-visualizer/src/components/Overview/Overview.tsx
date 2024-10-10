@@ -8,7 +8,6 @@
  */
 import { Dropdown, FormGroup, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import * as yup from "yup";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { useState } from 'react';
@@ -110,6 +109,7 @@ export function Overview(props: OverviewProps) {
         openAPIDefinition.info.summary = summary;
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
+    // Make handleDescriptionChange debounced
     const handleDescriptionChange = (description: string) => {
         openAPIDefinition.info.description = description;
         props.onOpenApiDefinitionChange(openAPIDefinition);
@@ -199,6 +199,7 @@ export function Overview(props: OverviewProps) {
                             <DescriptionWrapper>
                                 <label htmlFor="description">Description</label>
                                 <MarkDownEditor
+                                    key={`Description-${openAPIDefinition?.info?.title}-${openAPIDefinition?.info?.version}`}
                                     value={openAPIDefinition?.info?.description}
                                     onChange={(markdown: string) => handleDescriptionChange(markdown)}
                                     sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}

@@ -29,6 +29,7 @@ export interface TextFieldProps extends ComponentProps<"input"> {
     labelAdornment?: ReactNode;
     id?: string;
     autoFocus?: boolean;
+    forceAutoFocus?: boolean;
     icon?: IconProps;
     size?: number;
     readonly?: boolean;
@@ -66,7 +67,7 @@ const Description = styled.div<ContainerProps>`
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
     const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
         placeholder, description, validationMessage, errorMsg, sx, textFieldSx, inputProps, onTextChange,
-        labelAdornment, onKeyDown, ...rest
+        labelAdornment, onKeyDown, forceAutoFocus, ...rest
     } = props;
 
     const [, setIsFocused] = React.useState(false);
@@ -98,11 +99,18 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
     ) : undefined;
 
     useEffect(() => {
-        if (autoFocus && textFieldRef.current) {
+        if (autoFocus && textFieldRef.current && !props.value) {
             setIsFocused(true);
             textFieldRef.current?.focus()
         }
     }, [autoFocus, props.value]);
+
+    useEffect(() => {
+        if (forceAutoFocus && textFieldRef.current) {
+            setIsFocused(true);
+            textFieldRef.current?.focus()
+        }
+    }, [forceAutoFocus]);
 
     return (
         <Container sx={sx}>

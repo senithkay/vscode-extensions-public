@@ -162,7 +162,7 @@ export function Resource(props: ResourceProps) {
         onPathChange(newPath);
     };
 
-    const debouncedHandlePathChange = debounce((value: string) => {
+    const handlePathChange = (value: string) => {
         const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
         const modifiedPathParams = pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }));
         let p: Parameter[] = convertParamsToParameters(modifiedPathParams, "path");
@@ -182,10 +182,6 @@ export function Resource(props: ResourceProps) {
             }
         };
         onPathChange(newPath);
-    }, 400);
-
-    const handlePathChange = (value: string) => {
-        debouncedHandlePathChange(value);
     };
 
     const handleMethodChange = (value: string) => {
@@ -339,6 +335,7 @@ export function Resource(props: ResourceProps) {
                             <DescriptionWrapper>
                                 <label htmlFor="description">Description</label>
                                 <MarkDownEditor
+                                    key={`description-${path}-${method}`}
                                     value={values?.description}
                                     onChange={(markdown: string) => handleDescriptionChange(markdown)}
                                     sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}

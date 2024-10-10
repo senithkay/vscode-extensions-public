@@ -250,7 +250,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                                 onKeyDown={(evt: any) => 
                                                     handlePathEditKeyDown(evt, index)
                                                 }
-                                                autoFocus
+                                                forceAutoFocus
                                                 onBlur={() => setPathEditIndex(-1)}
                                             />
                                         ) : (

@@ -87,6 +87,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handlePathChange = (path: Path) => {
+        if (path.path === "") {
+            path.path = "/";
+        }
         // Update the OpenAPI definition with the new path
         const initialPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
         const initialPathItems = initialPath && openAPIDefinition.paths[initialPath];
@@ -180,11 +183,16 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handleAddResource = (path: string, method: string) => {
+        const pathParameters = openAPIDefinition.paths[path] && 
+            Object.keys(openAPIDefinition.paths[path]).map((key: string) => 
+                openAPIDefinition.paths[path][key]?.parameters?.find((param) => param.in === "path"));
+        const distinctPathParameters = pathParameters && pathParameters.filter((param: { name: any; }, index: any, self: any[]) =>
+            index === self.findIndex((t) => (t.name === param.name)));
         // Get current path
         const currentPath = openAPIDefinition.paths[path];
         // Add a new method to the current path
         currentPath[method] = {
-            parameters: []
+            parameters: distinctPathParameters || []
         };
         const updatedOpenAPIDefinition: OpenAPI = {
             ...openAPIDefinition,
