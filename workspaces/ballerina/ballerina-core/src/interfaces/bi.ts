@@ -169,7 +169,8 @@ export type NodePropertyKey =
     | "expression"
     | "statement"
     | "comment"
-    | "connection";
+    | "connection"
+    | "collection";
 
 export type BranchKind = "block" | "worker";
 
