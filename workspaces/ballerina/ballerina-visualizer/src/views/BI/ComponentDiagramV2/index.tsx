@@ -41,6 +41,13 @@ const CardTitleContainer = styled.div`
     margin-top: 24px;
 `;
 
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+`;
+
 const Content = styled.div`
     height: 100%;
 `;
@@ -134,10 +141,9 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
             if (segment.isCode) {
                 let code = segment.text;
                 let file = segment.fileName;
-                rpcClient.getAiPanelRpcClient().addToProject({ content: code, filePath:file });
+                rpcClient.getAiPanelRpcClient().addToProject({ content: code, filePath: file });
             }
         });
-
     }, [responseText]);
 
     const goToView = async (filePath: string, position: NodePosition) => {
@@ -200,7 +206,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         segments.forEach((segment) => {
             if (segment.isCode) {
                 let file = segment.fileName;
-                rpcClient.getAiPanelRpcClient().addToProject({ content: "", filePath:file });
+                rpcClient.getAiPanelRpcClient().addToProject({ content: "", filePath: file });
             }
         });
 
@@ -233,7 +239,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
 
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
-        let functions : any;
+        let functions: any;
         let buffer = "";
         while (true) {
             const { done, value } = await reader.read();
@@ -254,7 +260,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
                     if (event.event == "libraries") {
                         setLoadingMessage("Looking for libraries...");
                     } else if (event.event == "functions") {
-                        functions = event.body
+                        functions = event.body;
                         setLoadingMessage("Fetching functions...");
                     } else if (event.event == "content_block_delta") {
                         let textDelta = event.body.text;
@@ -265,23 +271,29 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
                         console.log(">>> Streaming stop: ", { responseText, assistant_response });
                         setLoadingMessage("Verifying components...");
                         console.log(assistant_response);
-                        const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response)
+                        const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
                         // Check diagnostics
-                        const diags: ProjectDiagnostics = await rpcClient.getAiPanelRpcClient().getShadowDiagnostics(newSourceFiles);
+                        const diags: ProjectDiagnostics = await rpcClient
+                            .getAiPanelRpcClient()
+                            .getShadowDiagnostics(newSourceFiles);
                         if (diags.diagnostics.length > 0) {
-                            console.log("Diagnostics : ")
-                            console.log(diags.diagnostics)
+                            console.log("Diagnostics : ");
+                            console.log(diags.diagnostics);
                             const diagReq = {
-                                "response": assistant_response,
-                                "diagnostics": diags.diagnostics
-                            }
+                                response: assistant_response,
+                                diagnostics: diags.diagnostics,
+                            };
                             const startTime = performance.now();
                             const response = await fetch(url + "/code/repair", {
-                                method: 'POST',
+                                method: "POST",
                                 headers: {
-                                    'Content-Type': 'application/json'
+                                    "Content-Type": "application/json",
                                 },
-                                body: JSON.stringify({ "usecase": readmeContent, diagnosticRequest: diagReq, functions: functions }),
+                                body: JSON.stringify({
+                                    usecase: readmeContent,
+                                    diagnosticRequest: diagReq,
+                                    functions: functions,
+                                }),
                                 signal: signal,
                             });
                             if (!response.ok) {
@@ -291,7 +303,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
                                 const jsonBody = await response.json();
                                 const repairResponse = jsonBody.repairResponse;
                                 // replace original response with new code blocks
-                                const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse)
+                                const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
                                 const endTime = performance.now();
                                 const executionTime = endTime - startTime;
                                 console.log(`Repair call time: ${executionTime} milliseconds`);
@@ -355,10 +367,15 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         return component;
     };
 
-    // TODO: improve loading ux
     if (!projectStructure) {
-        return <>Loading...</>;
+        return (
+            <SpinnerContainer>
+                <ProgressRing color={Colors.PRIMARY} />
+            </SpinnerContainer>
+        );
     }
+
+    console.log(">>> project structure", projectStructure);
 
     const project: Project = {
         name: projectName,
