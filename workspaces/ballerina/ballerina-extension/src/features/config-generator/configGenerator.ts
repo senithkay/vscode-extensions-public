@@ -18,12 +18,13 @@ import { BallerinaProject, PackageConfigSchema } from "@wso2-enterprise/ballerin
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean): Promise<void> {
+export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean,isBi?: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
 
     if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
-        const currentProject: BallerinaProject | undefined = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
+        const currentProject: BallerinaProject | undefined = isBi ? await getCurrentBIProject(configFile)
+        : await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
 
         if (!currentProject) {
             return;
@@ -33,7 +34,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
         if (!isCommand && currentProject.kind === 'SINGLE_FILE_PROJECT') {
             // TODO: How to pass config values to single files
-            executeRunCommand(ballerinaExtInstance);
+            executeRunCommand(ballerinaExtInstance, isBi);
             return;
         }
 
@@ -56,7 +57,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
             const configSchema = data.configSchema;
             if (!isCommand && Object.keys(configSchema.properties).length === 0) {
-                executeRunCommand(ballerinaExtInstance);
+                executeRunCommand(ballerinaExtInstance, isBi);
                 return;
             }
 
@@ -70,14 +71,14 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
 
             if (!isCommand && !orgName) {
-                executeRunCommand(ballerinaExtInstance);
+                executeRunCommand(ballerinaExtInstance, isBi);
                 return;
             }
 
             const configs: Property = orgName[packageName];
 
             if (!isCommand && configs.required?.length === 0) {
-                executeRunCommand(ballerinaExtInstance);
+                executeRunCommand(ballerinaExtInstance, isBi);
                 return;
             }
 
@@ -109,7 +110,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand);
             } else {
                 if (!isCommand) {
-                    executeRunCommand(ballerinaExtInstance);
+                    executeRunCommand(ballerinaExtInstance, isBi);
                 }
             }
         } catch (error) {
@@ -155,9 +156,14 @@ export async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance
             currentProject = await getCurrentBallerinaProject(document.fsPath);
         }
     }
-    
     return currentProject;
-}       
+}
+
+export async function getCurrentBIProject(projectPath: string): Promise<BallerinaProject | undefined> {
+    let currentProject: BallerinaProject = {};
+    currentProject = await getCurrentBallerinaProject(projectPath);
+    return currentProject;
+}
 
 export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
     let result;
@@ -213,8 +219,8 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
     }
 }
 
-function executeRunCommand(ballerinaExtInstance: BallerinaExtension): void {
-    if (ballerinaExtInstance.enabledRunFast()) {
+function executeRunCommand(ballerinaExtInstance: BallerinaExtension, isBi?: boolean): void {
+    if (ballerinaExtInstance.enabledRunFast() || isBi) {
         commands.executeCommand(DEBUG_RUN_COMMAND_ID);
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
