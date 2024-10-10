@@ -162,6 +162,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     paramValues: props.testCase.input.properties ? getParamManagerFromValues(props.testCase.input.properties, 0, 2) : [],
                     paramFields: inputPropertiesFields
                 } as any;
+                props.testCase.input.requestProtocol = props?.testCase?.input?.requestProtocol?.toLowerCase() ?? "http";
 
                 reset({
                     ...props.testCase,
@@ -179,7 +180,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 input: {
                     requestPath: !isSequence ? "/" : undefined,
                     requestMethod: !isSequence ? "GET" : undefined,
-                    requestProtocol: !isSequence ? "HTTP" : undefined,
+                    requestProtocol: !isSequence ? "http" : undefined,
                     payload: "",
                     properties: {
                         paramValues: [],
