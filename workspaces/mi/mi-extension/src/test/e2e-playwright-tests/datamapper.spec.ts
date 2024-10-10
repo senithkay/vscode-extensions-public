@@ -86,29 +86,14 @@ test('Add DataMapper in to resource', async () => {
   }, "Create Mapping");
 });
 
-// test('Edit mediator in resource', async () => {
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   const mediator = await diagram.getMediator('datamapper');
-//   await mediator.edit({
-//     values: {
-//       'Log Category': {
-//         type: 'combo',
-//         value: 'DEBUG',
-//       },
-//       'Log Separator': {
-//         type: 'input',
-//         value: ' - ',
-//       },
-//       'Description': {
-//         type: 'input',
-//         value: 'log mediator',
-//       }
-//     }
-//   });
-//   expect(await mediator.getDescription()).toEqual('log mediator');
+test('Open DataMapper in resource', async () => {
+  const diagram = new Diagram(page.page, 'Resource');
+  await diagram.init();
+  const mediator = await diagram.getMediator('DataMapper');
+  await mediator.open('dm1');
+  expect(await mediator.getDescription()).toEqual('log mediator');
 
-// });
+});
 
 // test('Add new connection', async () => {
 //   // Add connection from side panel
