@@ -69,13 +69,16 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             console.log(error);
         }
 
+        const iconValue = comp.name.includes('-') ? `${comp.name.split('-')[0]}-api` : icon;
+
         const fileEntry: ProjectStructureArtifactResponse = {
             name: dtype === DIRECTORY_MAP.SERVICES ? comp.filePath.replace(".bal", "") : comp.name,
             path: componentFile,
             type: 'HTTP',
-            icon: icon,
+            icon: iconValue,
             context: comp.name,
             st: stNode.syntaxTree,
+            resources: comp?.resources ? await getComponents(langClient, comp?.resources, projectPath, "") : [],
             position: {
                 endColumn: comp.endColumn,
                 endLine: comp.endLine,

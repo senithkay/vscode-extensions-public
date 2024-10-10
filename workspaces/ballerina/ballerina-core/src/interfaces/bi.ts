@@ -141,6 +141,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
 
