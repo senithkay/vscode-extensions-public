@@ -19,6 +19,7 @@ export interface NodeLinkModelOptions {
     showAddButton?: boolean; // default true
     showArrow?: boolean; // default true
     brokenLine?: boolean; // default false
+    disabled?: boolean; // default false
     alignBottom?: boolean; // default false
     onAddClick?: () => void;
 }
@@ -34,6 +35,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     showArrow: boolean;
     showAddButton = true;
     brokenLine = false;
+    disabled = false;
     alignBottom = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
     onAddClick?: () => void;
@@ -68,6 +70,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 if ((options as NodeLinkModelOptions).brokenLine === true) {
                     this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
                 }
+                if ((options as NodeLinkModelOptions).disabled === true) {
+                    this.disabled = (options as NodeLinkModelOptions).disabled;
+                }
                 if ((options as NodeLinkModelOptions).alignBottom === true) {
                     this.alignBottom = (options as NodeLinkModelOptions).alignBottom;
                 }
@@ -100,6 +105,22 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     getTarget(): LinePosition {
         return this.target;
+    }
+
+    setDisabled(disabled: boolean) {
+        this.disabled = disabled;
+    }
+
+    isDisabled(): boolean {
+        return this.disabled;
+    }
+
+    setBrokenLine(brokenLine: boolean) {
+        this.brokenLine = brokenLine;
+    }
+
+    isBrokenLine(): boolean {
+        return this.brokenLine;
     }
 
     getSVGPath(): string {
