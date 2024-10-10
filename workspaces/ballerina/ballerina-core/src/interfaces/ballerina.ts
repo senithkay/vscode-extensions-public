@@ -505,6 +505,8 @@ export interface ComponentSummary {
     enums: ComponentInfo[],
     listeners: ComponentInfo[],
     moduleVariables: ComponentInfo[],
+    automations: ComponentInfo[],
+    configurableVariables: ComponentInfo[],
 }
 
 export interface ComponentInfo {

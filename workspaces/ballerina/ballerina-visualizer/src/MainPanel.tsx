@@ -34,6 +34,7 @@ import {
     ServiceForm,
     PopupMessage,
     ComponentDiagram,
+    MainForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -211,6 +212,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         setViewComponent(<AddConnectionWizard />);
+                        break;
+                    case MACHINE_VIEW.BIMainFunctionForm:
+                        setViewComponent(<MainForm />);
                         break;
                     default:
                         setNavActive(false);
