@@ -85,7 +85,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     const [projectStructure, setProjectStructure] = useState<any>();
 
     const [allTestSuites, setAllTestSuites] = useState([]);
-    const artifactTypes = ["Api", "Sequence", "Template"];
+    const artifactTypes = ["API", "Sequence", "Template"];
     const syntaxTree = props.stNode;
     const filePath = props.filePath;
 
@@ -242,7 +242,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             const machineView = await rpcClient.getVisualizerState();
             const projectUri = machineView.projectUri;
             const artifacts = projectStructure.directoryMap.src?.main?.wso2mi?.artifacts;
-            const apis = artifacts?.apis?.map((api: ProjectStructureArtifactResponse) => { return { name: api.name, path: api.path.split(projectUri)[1], type: "Api" } });
+            const apis = artifacts?.apis?.map((api: ProjectStructureArtifactResponse) => { return { name: api.name, path: api.path.split(projectUri)[1], type: "API" } });
             const sequences = artifacts?.sequences?.map((sequence: ProjectStructureArtifactResponse) => { return { name: sequence.name, path: sequence.path.split(projectUri)[1], type: "Sequence" } });
             const templates = artifacts?.templates?.map((template: ProjectStructureArtifactResponse) => { return { name: template.name, path: template.path.split(projectUri)[1], type: "Template" } });
             const allArtifacts = [...apis, ...sequences, ...templates];
@@ -308,7 +308,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             } else {
                 reset({
                     name: "",
-                    artifactType: "Api",
+                    artifactType: "API",
                     artifact: apis[0]?.path,
                 })
                 paramConfigs.paramValues = [];
@@ -353,6 +353,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const submitForm = async (values: any) => {
         values.testCases = testCases;
+        values.artifact = values.artifact.startsWith(path.sep) ? values.artifact.slice(1) : values.artifact;
 
         const customProperties = params.paramValues.length === 0
             ? []
@@ -544,7 +545,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     const parts = fullPath.split(path.sep);
                     const startSegment = 'src';
                     const startIndex = parts.indexOf(startSegment);
-                    return path.sep + path.join(...parts.slice(startIndex));
+                    return path.join(...parts.slice(startIndex));
                 }
             }
         }

@@ -59,7 +59,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
 
     const [isLoaded, setIsLoaded] = useState(false);
     const requestMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'];
-    const requestProtocols = ['HTTP', 'HTTPS'];
+    const requestProtocols = ['http', 'https'];
     const isUpdate = !!props.testCase;
     const availableTestCases = props.availableTestCases || [];
     const testSuiteType = props.testSuiteType;
@@ -162,6 +162,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     paramValues: props.testCase.input.properties ? getParamManagerFromValues(props.testCase.input.properties, 0, 2) : [],
                     paramFields: inputPropertiesFields
                 } as any;
+                props.testCase.input.requestProtocol = props?.testCase?.input?.requestProtocol?.toLowerCase() ?? "http";
 
                 reset({
                     ...props.testCase,
@@ -179,7 +180,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 input: {
                     requestPath: !isSequence ? "/" : undefined,
                     requestMethod: !isSequence ? "GET" : undefined,
-                    requestProtocol: !isSequence ? "HTTP" : undefined,
+                    requestProtocol: !isSequence ? "http" : undefined,
                     payload: "",
                     properties: {
                         paramValues: [],
@@ -255,7 +256,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     <Dropdown
                         id="requestProtocol"
                         label="Resource Protocol"
-                        items={requestProtocols.map((method) => ({ value: method, content: method }))}
+                        items={requestProtocols.map((method) => ({ value: method, content: method.toUpperCase() }))}
                         errorMsg={errors.input?.requestProtocol?.message.toString()}
                         {...register('input.requestProtocol')} />
                 </>
