@@ -50,8 +50,11 @@ export function OptionPopup(props: OptionPopupProps) {
                         <Codicon sx={{marginLeft: 5, marginTop: 1}} name="chevron-down" />
                     </Button>
                 </PullUpButton>
-                {!hideDelete && <Button buttonSx={{background: "var(--vscode-errorForeground)"}} appearance="primary" onClick={handleOnDelete}> Delete Resource </Button>}
-                <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleSwitchToView}> 
+                {!hideDelete && 
+                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleOnDelete} tooltip='Delete Opeation'>
+                        <Codicon iconSx={{ color: "var(--vscode-inputValidation-errorBorder)" }} name="trash"/>
+                    </Button>}
+                <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleSwitchToView} tooltip='View Operation'> 
                     <Codicon name="eye" />
                 </Button>
             </ButtonWrapper>

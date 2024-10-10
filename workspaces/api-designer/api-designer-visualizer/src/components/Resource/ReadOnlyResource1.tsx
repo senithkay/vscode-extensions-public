@@ -130,7 +130,7 @@ export function ReadOnlyResource2(props: ReadOnlyResourceProps) {
                 </MethodWrapper>
                 <Typography sx={{ margin: 0, marginTop: 4 }} variant="h2">{path}</Typography>
                 <ButtonWrapper>
-                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={() => onEdit(method, path)}>
+                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={() => onEdit(method, path)} tooltip='Edit Operation'>
                         <Codicon name="edit" />
                     </Button>
                 </ButtonWrapper>
