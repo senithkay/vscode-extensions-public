@@ -134,7 +134,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         activateAiPanel(ballerinaExtInstance);
 
         // activate runtime services panel
-        activateRuntimeServicePanel(ballerinaExtInstance);
+        // activateRuntimeServicePanel(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

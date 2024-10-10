@@ -56,15 +56,10 @@ const ProjectSubtitle = styled.h2`
 export function BIHeader(props: { showAI?: boolean }) {
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
-    const [isBIProjectRunning, setIsBIProjectRunning] = React.useState<boolean>(false);
 
     useEffect(() => {
         rpcClient.getBIDiagramRpcClient().getWorkspaces().then(res => {
             setProjectName(res.workspaces[0].name);
-        })
-        rpcClient.getVisualizerLocation().then((res) => {
-            const biRunning = res.biRunning ? res.biRunning : false;
-            setIsBIProjectRunning(biRunning);
         });
     }, []);
 
@@ -72,43 +67,11 @@ export function BIHeader(props: { showAI?: boolean }) {
         rpcClient.getCommonRpcClient().executeCommand({ commands: [SHARED_COMMANDS.OPEN_AI_PANEL] });
     }
 
-    const handleBIProjectRunBtn = () => {
-        setIsBIProjectRunning(true);
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["BI.run"] });
-    }
-
-    const handleBIProjectStopBtn = () => {
-        setIsBIProjectRunning(false);
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["BI.stop"] });
-    }
-
-    const handleBIProjectRestartBtn = () => {
-        setIsBIProjectRunning(true);
-        rpcClient.getCommonRpcClient().executeCommand({ commands: ["BI.restart"] });
-    }
-
     return (
         <>
             <TitleContainer>
                 <ProjectTitle>{projectName}</ProjectTitle>
                 <ProjectSubtitle>Project</ProjectSubtitle>
-                { !isBIProjectRunning &&
-                <VSCodeButton appearance="icon" title="Run" onClick={() => handleBIProjectRunBtn()} 
-                style={{ marginLeft: 'auto' }}>
-                     <Codicon name="play" />
-                 </VSCodeButton>
-                }
-                { isBIProjectRunning &&
-                <VSCodeButton appearance="icon" title="Stop" onClick={() => handleBIProjectStopBtn()} 
-                style={{ marginLeft: 'auto' }}>
-                    <Codicon name="stop" />
-                </VSCodeButton>
-                }
-                { isBIProjectRunning &&
-                <VSCodeButton appearance="icon" title="Restart" onClick={() => handleBIProjectRestartBtn()}>
-                    <Codicon name="refresh" />
-                </VSCodeButton>
-                }
                 {props.showAI && <AIContainer>
                     <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleGenerateBtn}>
                         <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI

@@ -50,8 +50,6 @@ export function RuntimeServicesPanel() {
         setAvailableServices(runtimeServices);
     });
 
-    rpcClient.onBiRunningStateChanged(() => {
-    });
 
     const renderRuntimeServices = () => {
         if (services?.api?.count === 0) {
