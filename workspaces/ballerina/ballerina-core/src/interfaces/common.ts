@@ -61,7 +61,7 @@ export interface SubPanel {
     props?: SubPanelViewProps;
 }
 
-interface SubPanelViewProps {
+export interface SubPanelViewProps {
     inlineDataMapper?: InlineDataMapperProps;
 }
 

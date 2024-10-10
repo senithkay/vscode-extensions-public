@@ -30,9 +30,6 @@ import {
     SubPanel,
     SubPanelView,
 } from "@wso2-enterprise/ballerina-core";
-import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import {
     addDraftNodeToDiagram,

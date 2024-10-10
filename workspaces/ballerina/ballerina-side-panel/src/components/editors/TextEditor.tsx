@@ -61,7 +61,7 @@ interface TextEditorProps {
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { field } = props;
+    const { field, openSubPanel } = props;
     const { form } = useFormContext();
     const { register } = form;
 
