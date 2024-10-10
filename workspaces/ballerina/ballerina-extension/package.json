@@ -517,6 +517,11 @@
                 "category": "BI"
             },
             {
+                "command": "BI.view.typeDiagram",
+                "title": "Type Diagram",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add-connection",
                 "title": "Add Connection",
                 "icon": "$(add)",

@@ -248,7 +248,8 @@
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
@@ -584,6 +585,11 @@
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",
       "projectFolder": "workspaces/ballerina/persist-layer-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/type-diagram",
+      "projectFolder": "workspaces/ballerina/type-diagram",
       "versionPolicyName": "ballerina-extension"
     },
     {

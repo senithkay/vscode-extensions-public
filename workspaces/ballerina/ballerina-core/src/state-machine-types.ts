@@ -45,6 +45,7 @@ export enum MACHINE_VIEW {
     ERDiagram = "ER Diagram",
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
+    TypeDiagram = "Type Diagram",
     BIDiagram = "BI Diagram",
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",

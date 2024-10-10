@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
@@ -158,6 +158,10 @@ export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
+    useEffect(() => {
+        model.setAroundLinksDisabled(model.node.suggested);
+    }, [model.node.suggested]);
+
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             // Handle action when cmd key is pressed
@@ -215,7 +219,7 @@ export function BaseNodeCompactWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
-    const hasFullAssignment = model.node.properties.variable?.value && model.node.properties?.expression?.value;
+    const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
 
     return (
         <NodeStyles.Node
