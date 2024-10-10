@@ -387,9 +387,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         await onChange(text, updatedCursorPosition);
 
         // Update selected argument if the cursor is inside a function
-        const { isCursorInFunction } = getFunctionInfo(text, cursorPosition);
+        const { isCursorInFunction } = getFunctionInfo(text, updatedCursorPosition);
         if (isCursorInFunction) {
-            await updateFnSignature(cursorPosition);
+            await updateFnSignature(updatedCursorPosition);
         }
     };
 
