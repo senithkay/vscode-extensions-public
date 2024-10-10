@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
@@ -171,6 +171,10 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
+    useEffect(() => {
+        model.setAroundLinksDisabled(model.node.suggested);
+    }, [model.node.suggested]);
+
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             onGoToSource();
@@ -281,7 +285,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     fill={Colors.SURFACE_DIM}
                     stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
-                    strokeDasharray={disabled ? "4 2" : "none"}
+                    strokeDasharray={disabled ? "5 5" : "none"}
                     opacity={disabled ? 0.7 : 1}
                 />
                 <text

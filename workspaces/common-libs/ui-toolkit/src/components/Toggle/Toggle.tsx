@@ -23,7 +23,7 @@ const ToggleContainer = styled.div<ToggleContainerProps>`
     height: 22px;
     width: 40px;
     background-color: var(--vscode-input-background);
-    border: 1px solid var(--vscode-input-border);
+    border: 1px solid var(--vscode-dropdown-border);
     padding: 2px;
     cursor: ${(props: ToggleContainerProps) => (props.disabled ? "not-allowed" : "pointer")};
     opacity: ${(props: ToggleContainerProps) => (props.disabled ? 0.5 : 1)};
@@ -39,7 +39,7 @@ const TogglePill = styled.div<TogglePillProps>`
     height: 16px;
     width: 16px;
     background-color: ${(props: TogglePillProps) =>
-        props.active ? "var(--vscode-button-background)" : "var(--vscode-input-border)"};
+        props.active ? "var(--vscode-button-background)" : "var(--vscode-dropdown-border)"};
     transition: transform 0.5s ease;
 `;
 
