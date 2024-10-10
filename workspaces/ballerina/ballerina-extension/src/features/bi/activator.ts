@@ -20,7 +20,7 @@ export function activate(context: BallerinaExtension) {
         // Trigger to open the entrypoint view
     });
 
-    commands.registerCommand(BI_COMMANDS.ADD_SCHEMA, () => {
+    commands.registerCommand(BI_COMMANDS.ADD_TYPE, () => {
         // Trigger to open the schema import view
     });
 

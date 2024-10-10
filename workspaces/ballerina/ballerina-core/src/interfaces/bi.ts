@@ -114,7 +114,7 @@ export enum DIRECTORY_MAP {
     TASKS = "tasks",
     TRIGGERS = "triggers",
     CONNECTIONS = "connections",
-    SCHEMAS = "schemas",
+    TYPES = "types",
     CONFIGURATIONS = "configurations",
 }
 
@@ -124,7 +124,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
     };
 }

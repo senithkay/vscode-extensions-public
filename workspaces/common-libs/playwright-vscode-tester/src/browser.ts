@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
 import { CodeUtil, ReleaseQuality } from './codeUtil';
+const os = require('os');
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -16,7 +17,7 @@ export class VSBrowser {
     private static _instance: VSBrowser;
 
     constructor(codeVersion: string, releaseType: ReleaseQuality, private resources: string[], customSettings: object = {}) {
-        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
+        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : os.tmpdir();
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
@@ -49,7 +50,8 @@ export class VSBrowser {
             '--disable-dev-shm-usage',
             '--disable-ipc-flooding-protection',
             '--enable-precise-memory-info',
-            '--disable-workspace-trust'
+            '--disable-workspace-trust',
+            `--user-data-dir=${path.join(this.storagePath, 'settings', 'Code')}`,
         ];
 
         if (this.extensionsFolder) {

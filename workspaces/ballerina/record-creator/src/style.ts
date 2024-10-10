@@ -13,7 +13,7 @@ import { ComponentPropsWithoutRef } from "react";
 export const FormContainer: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`
     display: flex;
     flex-direction: column;
-    width: 600px;
+    width: inherit;
 `;
 
 export const FormWrapper: React.FC<ComponentPropsWithoutRef<"div">> = styled.div`

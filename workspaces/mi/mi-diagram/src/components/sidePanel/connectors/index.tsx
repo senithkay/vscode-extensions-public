@@ -436,6 +436,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             marginBottom: '10px'
                                         }}>
                                             <ComponentCard
+                                                id={connector.name}
                                                 key={`${connector.name}-${connector.version}`}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
@@ -498,6 +499,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
+                                                                            id={operation.name}
                                                                             key={operation.name}
                                                                             onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{
@@ -577,6 +579,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             marginBottom: '10px'
                                         }}>
                                             <ComponentCard
+                                                id={connector.name}
                                                 key={`${connector.name}-${connector.version}`}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
@@ -643,6 +646,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
+                                                                            id={operation.name}
                                                                             key={operation.name}
                                                                             onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{

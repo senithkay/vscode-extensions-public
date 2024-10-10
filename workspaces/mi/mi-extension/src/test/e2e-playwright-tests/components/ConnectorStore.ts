@@ -10,16 +10,16 @@
 import { Frame, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
-export class AddArtifact {
+export class ConnectorStore {
     private webView!: Frame;
 
-    constructor(private _page: Page) {
+    constructor(private _page: Page, private type: 'Connector Store Form' | 'Resource View') {
     }
 
     public async init() {
-        const webview = await switchToIFrame("Add Artifact", this._page)
+        const webview = await switchToIFrame(`${this.type}`, this._page)
         if (!webview) {
-            throw new Error("Failed to switch to Add Artifact iframe");
+            throw new Error("Failed to switch to Connector Store iframe");
         }
         this.webView = webview;
     }
@@ -31,4 +31,18 @@ export class AddArtifact {
         const btn = await createIntegrationSection.waitForSelector(`div:text("${artifactType}") >> ../../../..`);
         await btn.click();
     }
+
+    public async search(str: string) {
+        const searchInput = this.webView.locator("input");
+        await searchInput.type(str);
+    }
+
+    public async selectConnector(connectorName: string) {
+        const connectorSection = await this.webView.waitForSelector(`h2:text("Add New Connection") >> ../..`);
+        const connectorBtn = await connectorSection.waitForSelector(`div:text("${connectorName}") >> ../../../..`);
+        await connectorBtn.click();
+        await this.webView.waitForSelector(`span:text("Connector:") >> ../../..`);
+        await this.webView.waitForSelector(`div:text("${connectorName.toLowerCase()}") >> ../../..`);
+    }
+
 }

@@ -10,25 +10,26 @@
 import { Frame, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 
-export class AddArtifact {
+export class InboundEPForm {
     private webView!: Frame;
 
     constructor(private _page: Page) {
     }
 
     public async init() {
-        const webview = await switchToIFrame("Add Artifact", this._page)
+        const webview = await switchToIFrame(`Inbound EP Form`, this._page)
         if (!webview) {
-            throw new Error("Failed to switch to Add Artifact iframe");
+            throw new Error("Failed to switch to Inbound EP iframe");
         }
         this.webView = webview;
     }
 
-    public async add(artifactType: string) {
-        const createIntegrationSection = await this.webView.waitForSelector(`h3:text("Create an Integration") >> ..`);
-        const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
-        await viewMoreBtn.click();
-        const btn = await createIntegrationSection.waitForSelector(`div:text("${artifactType}") >> ../../../..`);
-        await btn.click();
+    public async selectType(type: string) {
+        const inboundEPSection = await this.webView.waitForSelector(`h2:text("Create new Listener") >> ../..`);
+        const inboundTypeBtn = await inboundEPSection.waitForSelector(`div:text("${type}") >> ../../../..`);
+        await inboundTypeBtn.click();
+        await this.webView.waitForSelector(`span:text("Type:") >> ../../..`);
+        await this.webView.waitForSelector(`div:text("${type} Inbound Endpoint") >> ../../..`);
     }
+
 }

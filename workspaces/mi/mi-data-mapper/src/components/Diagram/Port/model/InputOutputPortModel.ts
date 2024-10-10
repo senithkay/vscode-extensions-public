@@ -12,11 +12,11 @@ import { DMType } from "@wso2-enterprise/mi-core";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { getValueType, isConnectingArrays } from "../../utils/common-utils";
+import { genArrayElementAccessSuffix, getMappingType, getValueType, isConnectingArrays } from "../../utils/common-utils";
 import {
 	createSourceForMapping,
 	modifySourceForMultipleMappings,
-	updateExisitingValue
+	updateExistingValue
 } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
@@ -31,10 +31,16 @@ export enum ValueType {
 	NonEmpty
 }
 
+export enum MappingType {
+	ArrayToArray = "array-array",
+	ArrayToSingleton = "array-singleton",
+	Default = undefined // This is for non-array mappings currently
+}
+
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
 
 	public linkedPorts: PortModel[];
-	public pendingArrayToArray: boolean;
+	public pendingMappingType: MappingType;
 
 	constructor(
 		public field: DMType,
@@ -65,12 +71,16 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
-
-				const connectingArrays = isConnectingArrays(sourcePort, targetPort);
-
-				if (connectingArrays) {
+				
+				const mappingType = getMappingType(sourcePort, targetPort);
+				if (mappingType === MappingType.ArrayToArray) {
 					// Source update behavior is determined by the user when connecting arrays.
 					return;
+				}
+
+				let elementAccessSuffix = '';
+				if (mappingType === MappingType.ArrayToSingleton) {
+					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
 				}
 
 				const targetPortHasLinks = Object.values(targetPort.links)
@@ -78,11 +88,11 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					await updateExisitingValue(sourcePort, targetPort);
+					await updateExistingValue(sourcePort, targetPort, undefined, elementAccessSuffix);
 				} else if (targetPortHasLinks) {
-					await modifySourceForMultipleMappings(lm);
+					await modifySourceForMultipleMappings(lm, elementAccessSuffix);
 				} else {
-					await createSourceForMapping(lm);
+					await createSourceForMapping(lm, undefined, elementAccessSuffix);
 				}
 			})
 		});
@@ -90,7 +100,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {
-		if (this.portType === 'IN'){
+		if (this.portType === 'IN') {
 			this.parentModel?.setDescendantHasValue();
 		}
 		super.addLink(link);
@@ -100,13 +110,13 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		this.linkedPorts.push(port);
 	}
 
-	setIsPendingArrayToArray(pendingA2A: boolean): void {
-		this.pendingArrayToArray = pendingA2A;
+	setPendingMappingType(mappingType: MappingType): void {
+		this.pendingMappingType = mappingType;
 	}
 
 	setDescendantHasValue(): void {
 		this.descendantHasValue = true;
-		if (this.parentModel){
+		if (this.parentModel) {
 			this.parentModel.setDescendantHasValue();
 		}
 	}
@@ -123,6 +133,6 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 			})
 		}
 		return this.portType !== port.portType && !isLinkExists
-				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
+			&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 }
