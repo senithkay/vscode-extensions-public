@@ -11,7 +11,7 @@ import React, { SVGProps, useEffect, useState } from 'react';
 import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { Point } from '@projectstorm/geometry';
 import { EntityLinkModel } from './EntityLinkModel';
-import { Colors } from '../../resources';
+import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 interface WidgetProps {
 	engine: DiagramEngine,
@@ -68,17 +68,17 @@ export function EntityLinkWidget(props: WidgetProps) {
 		<g>
 			{link.cardinality ?
 				<>
-					<text {...getCardinalityProps(link.getSourcePort())}>
+					<text {...getCardinalityProps(link.getSourcePort())} style={{fill: ThemeColors.ON_SURFACE}}>
 						{isSelected || !multiLinkedSource ? transformCardinality(link.cardinality.self) : '...'}
 					</text>
 
-					<text {...getCardinalityProps(link.getTargetPort())}>
+					<text {...getCardinalityProps(link.getTargetPort())} style={{fill: ThemeColors.ON_SURFACE}}>
 						{isSelected || !multiLinkedTarget ? transformCardinality(link.cardinality.associate) : '...'}
 					</text>
 				</> :
 				<polygon
 					points={link.getArrowHeadPoints()}
-					fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
+					fill={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
 				/>
 			}
 			<path
@@ -89,7 +89,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 				onMouseLeave={unselectPath}
 				onMouseOver={selectPath}
 				pointerEvents={'all'}
-				stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
+				stroke={isSelected ? ThemeColors.SECONDARY : ThemeColors.PRIMARY}
 				strokeWidth={0.75}
 			/>
 		</g>

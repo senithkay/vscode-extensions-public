@@ -9,7 +9,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languageclient';
+import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-core';
 import { PrimaryKeyIcon } from '../../../resources/';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';

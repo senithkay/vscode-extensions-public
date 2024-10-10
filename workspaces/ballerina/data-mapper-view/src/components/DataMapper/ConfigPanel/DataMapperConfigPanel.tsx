@@ -16,8 +16,8 @@ import {
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, ComponentCard, Popover, Divider, Typography, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { Button, Divider, Typography, Codicon, SidePanel, Confirm } from "@wso2-enterprise/ui-toolkit";
 import {
     ExpressionFunctionBody,
     FunctionDefinition,
@@ -63,8 +63,8 @@ export interface DataMapperConfigPanelProps {
     onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    langServerRpcClient: LangServerRpcClient;
-    recordPanel?: (props: {targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void, onUpdate: (updated: boolean) => void}) => React.ReactElement;
+    langServerRpcClient: LangClientRpcClient;
+    recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void, onUpdate: (updated: boolean) => void }) => React.ReactElement;
 }
 
 
@@ -122,7 +122,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             setValidationInProgress(true);
             try {
                 const diagnostics = await getDiagnosticsForFnName(
-                    fnName, 
+                    fnName,
                     inputParams,
                     outputType.type,
                     fnST,
@@ -174,6 +174,14 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             onSaveForm();
         }
     }, [isClicked, isValidationInProgress, editConfirmPopoverOpen]);
+
+
+    const handleOnConfirm = (status: boolean) => {
+        if (status) {
+            onSaveForm();
+        }
+        handleClosePopover();
+    }
 
     const onSaveForm = () => {
         handleClosePopover();
@@ -413,7 +421,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         <SidePanel
             isOpen={true}
             alignment="right"
-            sx={{transition: "all 0.3s ease-in-out", width: 600}}
+            sx={{ transition: "all 0.3s ease-in-out", width: 600 }}
         >
             <div>
                 <WizardFormControlExtended
@@ -487,44 +495,16 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                                     Save
                                 </Button>
                             </ButtonContainer>
-                            <Popover
+                            <Confirm
                                 id={id}
-                                open={editConfirmPopoverOpen}
+                                isOpen={editConfirmPopoverOpen}
                                 anchorEl={popoverAnchorEl}
-                                handleClose={handleClosePopover}
+                                confirmText="Continue"
+                                message={editConfirmMessage.current}
+                                onConfirm={handleOnConfirm}
                                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                                sx={{ background: 'var(--vscode-editor-background)', padding: 0 }}
-                            >
-                                <ComponentCard
-                                    sx={{
-                                        width: 400,
-                                        flexDirection: 'column',
-                                        backgroundColor: 'var(--vscode-editor-background)',
-                                        borderColor: 'var(--vscode-editorIndentGuide-background)',
-                                        padding: '8px',
-                                        borderRadius: 0
-                                    }}
-                                >
-                                    <span>{editConfirmMessage.current}</span>
-                                        <PopoverButtonContainer>
-                                            <Button
-                                                appearance="secondary"
-                                                data-testid="dm-save-popover-cancel-btn"
-                                                onClick={handleClosePopover}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                appearance="primary"
-                                                data-testid="dm-save-popover-continue-btn"
-                                                onClick={onSaveForm}
-                                            >
-                                                Continue
-                                            </Button>
-                                        </PopoverButtonContainer>
-                                </ComponentCard>
-                            </Popover>
+                            />
                         </>
                     )}
                 </WizardFormControlExtended>
@@ -563,7 +543,7 @@ const CloseButton = styled(Button)`
     margin-left: auto;
 `
 
-export const Title = styled.div(() => ({
+export const Title = styled.div((element) => ({
     color: 'inherit',
     fontSize: "13px",
     letterSpacing: "normal",
@@ -578,16 +558,6 @@ const ButtonContainer = styled.div`
     display: flex;
     gap: 10px;
     padding: 0 20px;
-
-    & :nth-of-type(1) {
-        margin-left: auto;
-    }
-`;
-
-const PopoverButtonContainer = styled.div`
-    display: flex;
-    gap: 10px;
-    width: 100%;
 
     & :nth-of-type(1) {
         margin-left: auto;

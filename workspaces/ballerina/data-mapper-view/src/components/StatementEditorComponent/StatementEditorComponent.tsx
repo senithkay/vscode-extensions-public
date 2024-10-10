@@ -2,7 +2,7 @@
 import React from "react";
 
 import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { ExpressionInfo } from "../DataMapper/DataMapper";
@@ -10,7 +10,7 @@ import { ExpressionInfo } from "../DataMapper/DataMapper";
 
 export interface StatementEditorComponentProps {
     expressionInfo: ExpressionInfo,
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     libraryBrowserRpcClient: LibraryBrowserRpcClient;
     currentFile?: {
         content: string,

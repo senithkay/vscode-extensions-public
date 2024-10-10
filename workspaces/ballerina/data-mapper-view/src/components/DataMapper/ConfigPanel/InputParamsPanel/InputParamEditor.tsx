@@ -152,7 +152,7 @@ export function InputParamEditor(props: InputParamEditorProps) {
 }
 
 
-const ParamEditorContainer = styled.div(() => ({
+const ParamEditorContainer = styled.div((element) => ({
     boxSizing: "border-box",
     height: "153px",
     width: "100%",
@@ -161,7 +161,7 @@ const ParamEditorContainer = styled.div(() => ({
     padding: "15px 10px"
 }));
 
-const InputLabel = styled.div(() => ({
+const InputLabel = styled.div((element) => ({
     height: "24px",
     width: "38px",
     color: "var(--vscode-input-foreground)",
@@ -170,7 +170,7 @@ const InputLabel = styled.div(() => ({
     lineHeight: "24px"
 }));
 
-const ButtonContainer = styled.div(() => ({
+const ButtonContainer = styled.div((element) => ({
     display: "flex",
     alignItems: "center",
     gap: "8px",

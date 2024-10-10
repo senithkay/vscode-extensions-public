@@ -59,6 +59,7 @@ const Container = styled.div<ContainerProps>`
 const LabelContainer = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
+    margin-bottom: 2px;
 `;
 
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {

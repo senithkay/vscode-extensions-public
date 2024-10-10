@@ -81,7 +81,7 @@ export const ProjectName: React.FC<any> = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
-    max-width: ${LABEL_MAX_WIDTH}px;
+    /* max-width: ${LABEL_MAX_WIDTH}px; */
     &:hover {
         color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
         text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};

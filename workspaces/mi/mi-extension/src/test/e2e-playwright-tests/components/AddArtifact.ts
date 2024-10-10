@@ -26,6 +26,8 @@ export class AddArtifact {
 
     public async add(artifactType: string) {
         const createIntegrationSection = await this.webView.waitForSelector(`h3:text("Create an Integration") >> ..`);
+        const viewMoreBtn = await createIntegrationSection.waitForSelector(`p:text("View More") >> ..`);
+        await viewMoreBtn.click();
         const btn = await createIntegrationSection.waitForSelector(`div:text("${artifactType}") >> ../../../..`);
         await btn.click();
     }

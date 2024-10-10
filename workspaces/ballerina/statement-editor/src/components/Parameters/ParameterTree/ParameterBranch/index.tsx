@@ -64,6 +64,7 @@ export function ParameterBranch(props: ParameterBranchProps) {
                         data-testid="optional-toggle-button"
                         className={stmtEditorHelperClasses.listOptionalBtn}
                         onClick={toggleOptionalParams}
+                        appearance="secondary"
                     >
                         {showOptionalParams ? "Hide" : "Show"}
                     </Button>

@@ -15,6 +15,7 @@ import { MoreVertMenuItem } from "../../../../types";
 import { ProjectPortWidget } from "../../ProjectPort/ProjectPortWidget";
 import { generateRoundedOctagonSVG } from "../../../Cell/CellNode/CellWidget";
 import { CellBounds } from "../../../Cell/CellNode/CellModel";
+import { CELL_LINE_MIN_WIDTH, COMPONENT_CIRCLE_WIDTH } from "../../../../resources";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -27,8 +28,8 @@ interface ServiceHeadProps {
 export function ProjectHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isFocused } = props;
 
-    const cellHeight = 80;
-    const strokeWidth = 3;
+    const cellHeight = COMPONENT_CIRCLE_WIDTH;
+    const strokeWidth = CELL_LINE_MIN_WIDTH;
     const isExposedToInternet = node.project.connections?.some(
         (connection) => connection.source?.boundary === CellBounds.NorthBound
     );

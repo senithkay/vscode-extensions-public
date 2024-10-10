@@ -14,7 +14,10 @@ vsc-extension-quickstart.md
 coverage
 docs/
 .rush/
+.github/
+out/
 config/
+tests/
 **/*.log
 test-resources/
 
@@ -27,3 +30,5 @@ webview-ui/README.md
 webview-ui/package.json
 webview-ui/package-lock.json
 webview-ui/node_modules/**
+
+.env

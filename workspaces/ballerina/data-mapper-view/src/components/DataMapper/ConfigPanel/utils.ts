@@ -35,7 +35,7 @@ import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupp
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export const FILE_SCHEME = "file://";
@@ -239,7 +239,7 @@ export async function getDiagnosticsForFnName(name: string,
                                               targetPosition: NodePosition,
                                               currentFileContent: string,
                                               filePath: string,
-                                              langServerRpcClient: LangServerRpcClient) {
+                                              langServerRpcClient: LangClientRpcClient) {
     const parametersStr = inputParams
         .map((item) => `${item.type} ${item.name}`)
         .join(",");
@@ -292,7 +292,7 @@ export async function getDiagnosticsForFnName(name: string,
 export async function getDefaultFnName(
     filePath: string,
     targetPosition: NodePosition,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): Promise<string> {
     const completionParams: CompletionParams = {
         textDocument: {
@@ -324,7 +324,7 @@ export async function getDefaultFnName(
 async function getVirtualDiagnostics(filePath: string,
                                      currentFileContent: string,
                                      newContent: string,
-                                     langServerRpcClient: LangServerRpcClient): Promise<Diagnostic[]> {
+                                     langServerRpcClient: LangClientRpcClient): Promise<Diagnostic[]> {
     const docUri = URI.file(filePath).toString();
     langServerRpcClient.didChange({
         contentChanges: [

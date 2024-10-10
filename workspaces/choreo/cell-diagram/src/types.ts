@@ -56,6 +56,10 @@ export interface Component {
     buildPack?: string; // Component implemented language
     services: Services;
     connections: Connection[];
+    disabled?: {
+        status: boolean;
+        reason?: string;
+    };
 }
 
 export interface Services {

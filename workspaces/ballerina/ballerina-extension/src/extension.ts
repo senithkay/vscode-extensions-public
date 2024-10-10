@@ -9,28 +9,29 @@
 
 import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
-import { activate as activateDiagram } from './diagram';
-import { activate as activateBBE } from './bbe';
+import { activate as activateBBE } from './views/bbe';
 import {
     activate as activateTelemetryListener, CMP_EXTENSION_CORE, sendTelemetryEvent,
     TM_EVENT_EXTENSION_ACTIVATE
-} from './telemetry';
-import { activateDebugConfigProvider } from './debugger';
-import { activate as activateProjectFeatures } from './project';
-import { activate as activateEditorSupport } from './editor-support';
-import { activate as activateTesting } from './testing/activator';
+} from './features/telemetry';
+import { activateDebugConfigProvider } from './features/debugger';
+import { activate as activateProjectFeatures } from './features/project';
+import { activate as activateEditorSupport } from './features/editor-support';
+import { activate as activateTesting } from './features/testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
-import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
-import { activate as activatePerformanceForecaster } from './forecaster';
-import { activate as activateTryIt } from './tryIt/tryit';
-import { activate as activateNotebook } from './notebook';
-import { activate as activateLibraryBrowser } from './library-browser';
-import { activate as activateERDiagram } from './persist-layer-diagram';
+import { ExtendedLangClient } from './core/extended-language-client';
+import { activate as activateNotebook } from './views/notebook';
+import { activate as activateLibraryBrowser } from './features/library-browser';
+import { activate as activateBIFeatures } from './features/bi';
+import { activate as activateERDiagram } from './views/persist-layer-diagram';
+import { activateAiPanel } from './views/ai-panel';
 import { debug, handleResolveMissingDependencies, log } from './utils';
-import { activateUriHandlers } from './uri-handlers';
+import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
-import { activateSubscriptions } from './visualizer/activate';
+import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
+import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
+import { RPCLayer } from './RPCLayer';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -74,8 +75,10 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export async function activate(context: ExtensionContext) { 
+export async function activate(context: ExtensionContext) {
     extension.context = context;
+    // Init RPC Layer methods
+    RPCLayer.init();
     // Wait for the ballerina extension to be ready
     await StateMachine.initialize();
     // Then return the ballerina extension context
@@ -88,30 +91,46 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     ballerinaExtInstance.setContext(extension.context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
+    // Activate Subscription Commands
+    activateSubscriptions();
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
+        // <------------ CORE FUNCTIONS ----------->
+        // Activate Library Browser
         activateLibraryBrowser(ballerinaExtInstance);
-        activateSubscriptions();
-        // start the features.
-        // Enable Ballerina diagram
-        // activateDiagram(ballerinaExtInstance);
-        // Enable Ballerina by examples
-        activateBBE(ballerinaExtInstance);
-        // Enable Ballerina Debug Config Provider
-        activateDebugConfigProvider(ballerinaExtInstance);
+
         // Enable Ballerina Project related features
         activateProjectFeatures();
+
+        // Enable Ballerina Debug Config Provider
+        activateDebugConfigProvider(ballerinaExtInstance);
+
+        // Activate editor support
         activateEditorSupport(ballerinaExtInstance);
-        // // Enable performance forecaster
-        // activatePerformanceForecaster(ballerinaExtInstance);
-        // Enable try it views
-        activateTryIt(ballerinaExtInstance);
-        // Enable Ballerina Telemetry listener
-        activateTelemetryListener(ballerinaExtInstance);
+
+        // Activate Ballerina Testing
         activateTesting(ballerinaExtInstance);
-        // // Enable Ballerina Notebook
-        // activateNotebook(ballerinaExtInstance);
+
+        // <------------ MAIN FEATURES ----------->
+        // Enable Ballerina by examples
+        activateBBE(ballerinaExtInstance);
+
+        if (StateMachine.context().isBI) {
+            //Enable BI Feature
+            activateBIFeatures(ballerinaExtInstance);
+        }
+
+        // Enable Ballerina Notebook
+        activateNotebook(ballerinaExtInstance);
+
         // activateDesignDiagramView(ballerinaExtInstance);
         activateERDiagram(ballerinaExtInstance);
+
+        // <------------ OTHER FEATURES ----------->
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
+
+        //activate ai panel
+        activateAiPanel(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

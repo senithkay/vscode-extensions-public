@@ -29,7 +29,7 @@ import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFin
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
-import { InputOutputPortModel, ValueType } from "../Port";
+import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 import {
@@ -44,6 +44,7 @@ import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 import { View } from "../../../components/DataMapper/Views/DataMapperView";
 import { DataMapperLinkModel } from "../Link";
+import { getDMTypeDim } from "./type-utils";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -510,8 +511,12 @@ export function canConnectWithLinkConnector(
     return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
 }
 
-export function hasCallExpressions(node: Node): boolean {
+export function hasCallExpression(node: Node): boolean {
     return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+}
+
+export function hasElementAccessExpression(node: Node): boolean {
+    return Node.isPropertyAssignment(node) && Node.isElementAccessExpression(node.getInitializer());
 }
 
 export function isNodeCallExpression(node: Node): boolean {
@@ -735,14 +740,27 @@ export function isFunctionArgument(identifier: string, sourceFile: SourceFile): 
     return false;
 }
 
-export function isConnectingArrays(sourcePort: PortModel, targetPort: PortModel): boolean {
-    if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
-        return false;
-    }
-    const sourceKind = sourcePort.field.kind;
-    const targetKind = targetPort.field.kind;
+export function isConnectingArrays(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
+}
 
-    return sourceKind === TypeKind.Array && targetKind === TypeKind.Array;
+export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
+
+    if (sourcePort instanceof InputOutputPortModel
+        && targetPort instanceof InputOutputPortModel
+        && targetPort.field && sourcePort.field) {
+            
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+
+        if (sourceDim > 0) {
+            const dimDelta = sourceDim - targetDim;
+            if (dimDelta == 0) return MappingType.ArrayToArray;
+            if (dimDelta > 0) return MappingType.ArrayToSingleton;
+        }
+    }
+
+    return MappingType.Default;
 }
 
 export function getValueType(lm: DataMapperLinkModel): ValueType {
@@ -762,6 +780,31 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
 
     return ValueType.Empty;
 }
+
+export function genArrayElementAccessRepr(initializer: Expression): string {
+    let accessors: string[] = [];
+    while (Node.isElementAccessExpression(initializer) && initializer.getExpression()?.getType().isArray()) {
+        const argExpr = initializer.getArgumentExpression().getText();
+        accessors.push(argExpr);
+        initializer = initializer.getExpression();
+    }
+    accessors.reverse();
+    return `[${accessors.join(",")}]`;
+}
+
+export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
+    if (sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel) {
+        let suffix = '';
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+        const dimDelta = sourceDim - targetDim;
+        for (let i = 0; i < dimDelta; i++) {
+            suffix += '[0]';
+        }
+        return suffix;
+    }
+    return '';
+};
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();

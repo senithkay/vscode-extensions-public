@@ -76,10 +76,11 @@ export class NodeInitVisitor implements Visitor {
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
-            const callExpr = node.getInitializer() as CallExpression;
+            let exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
+            let initializer = node.getInitializer();
 
-            // Create output node
-            const exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
+            const callExpr = initializer as CallExpression;
+ 
             const returnStatement = getCallExprReturnStmt(callExpr);
 
             const innerExpr = returnStatement?.getExpression();
@@ -236,6 +237,8 @@ export class NodeInitVisitor implements Visitor {
         if (!isParentFocusedST && this.isWithinVariableStmt === 0) {
             if (isMapFn) {
                 this.isWithinArrayFn += 1;
+                while (parent.isKind(SyntaxKind.ElementAccessExpression) && parent.getParent())
+                    parent = parent.getParent();
                 const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
                 this.intermediateNodes.push(arrayFnConnectorNode);
             } else if (isFilterFn) {

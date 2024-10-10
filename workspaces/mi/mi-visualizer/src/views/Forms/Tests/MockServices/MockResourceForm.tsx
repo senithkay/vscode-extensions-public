@@ -184,11 +184,12 @@ export function MockResourceForm(props: MockResourceFormProps) {
                             />
                         )}
                     />
-                    {watch("method") !== "GET" && <TextArea
+                    <TextArea
                         label="Expected Request Payload"
                         id="expectedRequestPayload"
+                        disabled={ watch("method") === "GET" }
                         {...register("expectedRequestPayload")}
-                    />}
+                    />
                 </FormGroup>
             </ComponentCard>
 

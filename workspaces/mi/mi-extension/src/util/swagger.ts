@@ -8,7 +8,12 @@
  */
 
 import { cloneDeep } from "lodash";
-import { SWAGGER_PATH_TEMPLATE } from "../constants";
+import { SWAGGER_PATH_TEMPLATE, SWAGGER_REL_DIR } from "../constants";
+import { SwaggerFromAPIResponse } from "@wso2-enterprise/mi-core";
+import { StateMachine } from "../stateMachine";
+import { workspace, window } from "vscode";
+import path from "path";
+const fs = require('fs');
 
 export interface Swagger {
     openapi: string;
@@ -267,3 +272,33 @@ export const getResourceInfo = (props: SwaggerUtilProps): ResourceInfoResponse =
 
     return { added, removed, updated };
 };
+
+export function generateSwagger(apiPath: string): Promise<SwaggerFromAPIResponse> {
+    return new Promise(async (resolve) => {
+        const langClient = StateMachine.context().langClient!;
+        const response = await langClient.swaggerFromAPI({apiPath: apiPath});
+        const generatedSwagger = response.swagger;
+        const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+        const dirPath = path.join(workspacePath, SWAGGER_REL_DIR);
+        const swaggerPath = path.join(dirPath, path.basename(apiPath, path.extname(apiPath)) + '.yaml');
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+        fs.writeFileSync(swaggerPath, generatedSwagger);
+        resolve({ generatedSwagger: generatedSwagger });
+    });
+}
+
+export function deleteSwagger(apiPath: string) {
+    const projectRoot = StateMachine.context().projectUri!;
+    const swaggerDir = path.join(projectRoot!, SWAGGER_REL_DIR);
+    const swaggerFilePath = path.join(swaggerDir, path.basename(apiPath, path.extname(apiPath)) + '.yaml');
+    if (fs.existsSync(swaggerFilePath)) {
+        window.showInformationMessage(`API file ${path.basename(apiPath)} has been deleted. Do you want to delete the related Swagger file?`, 'Yes', 'No').then(answer => {
+            if (answer === 'Yes') {
+                fs.unlinkSync(swaggerFilePath);
+                window.showInformationMessage(`Swagger file ${path.basename(swaggerFilePath)} has been deleted.`);
+            }
+        });
+    }
+}

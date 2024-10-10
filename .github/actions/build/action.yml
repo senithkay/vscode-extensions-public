@@ -26,8 +26,8 @@ inputs:
     type: boolean
     required: false
     default: false
-  eggplant:
-    description: Update EggPlant extension version
+  bi:
+    description: Update BI extension version
     type: boolean
     required: false
     default: false
@@ -99,11 +99,11 @@ runs:
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
-    - name: Update version - EggPlant
-      if: ${{ inputs.eggplant == 'true' }}
+    - name: Update version - BI
+      if: ${{ inputs.bi == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
-        path: "eggplant/egglant-extension"
+        path: "bi/bi-extension"
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 

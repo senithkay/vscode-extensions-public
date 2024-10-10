@@ -10,8 +10,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { createContext } from "react";
 
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { CurrentFile } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CurrentFile, ExtendedLangClientInterface } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { NodeType } from "../NodeFilter";
@@ -26,7 +25,7 @@ interface GraphqlDiagramContextProps {
     fullST?: STNode;
     goToSource?: (filePath: string, position: NodePosition) => void
     recordEditor?: (recordModel: STNode, filePath?: string, completeST?: STNode) => void;
-    langClientPromise?: Promise<IBallerinaLangClient>;
+    langClientPromise?: Promise<ExtendedLangClientInterface>;
     currentFile?: CurrentFile;
     setSelectedNode?: (nodeId: string) => void;
     selectedDiagramNode?: string;
@@ -35,21 +34,21 @@ interface GraphqlDiagramContextProps {
 }
 
 export const DiagramContext = createContext({
-        functionPanel: (position: NodePosition, functionType: string, model?: STNode, filePath?: string, completeST?: STNode) => {},
-        servicePanel: () => {},
-        model: undefined,
-        operationDesignView: (functionPosition: NodePosition, filePath?: string) => {},
-        onDelete: (position: NodePosition) => {},
-        fullST: undefined,
-        goToSource: (filePath: string, position: NodePosition) => {},
-        recordEditor: (recordModel: STNode, filePath?: string, completeST?: STNode) => {},
-        langClientPromise: undefined,
-        currentFile: undefined,
-        setSelectedNode: (nodeId: string) => {},
-        selectedDiagramNode: undefined,
-        setFilteredNode: (nodeType: NodeType) => {},
-        filteredNode: undefined
-    }
+    functionPanel: (position: NodePosition, functionType: string, model?: STNode, filePath?: string, completeST?: STNode) => { },
+    servicePanel: () => { },
+    model: undefined,
+    operationDesignView: (functionPosition: NodePosition, filePath?: string) => { },
+    onDelete: (position: NodePosition) => { },
+    fullST: undefined,
+    goToSource: (filePath: string, position: NodePosition) => { },
+    recordEditor: (recordModel: STNode, filePath?: string, completeST?: STNode) => { },
+    langClientPromise: undefined,
+    currentFile: undefined,
+    setSelectedNode: (nodeId: string) => { },
+    selectedDiagramNode: undefined,
+    setFilteredNode: (nodeType: NodeType) => { },
+    filteredNode: undefined
+}
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {

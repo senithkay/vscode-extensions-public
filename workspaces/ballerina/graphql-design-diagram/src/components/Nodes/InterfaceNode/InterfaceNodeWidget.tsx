@@ -13,9 +13,8 @@ import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
 import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
-import { NodeFieldContainer } from "../../resources/styles/styles";
+import { NodeContainer, NodeFieldContainer } from "../../resources/styles/styles";
 import { getComponentName } from "../../utils/common-util";
-import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
 
 import { InterfaceHeadWidget } from "./InterfaceHead/InterfaceHead";
 import { InterfaceImplWidget } from "./InterfaceImplementation/InterfaceImplementation";
@@ -33,7 +32,7 @@ export function InterfaceNodeWidget(props: InterfaceNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.interfaceObject.name;
 
     return (
-        <ServiceNode isSelected={isNodeSelected} data-testid={`interface-node-${node?.interfaceObject?.name}`}>
+        <NodeContainer isSelected={isNodeSelected} data-testid={`interface-node-${node?.interfaceObject?.name}`}>
             <InterfaceHeadWidget node={node} engine={engine}/>
             {node.interfaceObject.resourceFunctions?.map((resourceFunction, index) => {
                 return (
@@ -50,6 +49,6 @@ export function InterfaceNodeWidget(props: InterfaceNodeWidgetProps) {
                     <InterfaceImplWidget key={index} node={node} engine={engine} field={possibleType}/>
                 );
             })}
-        </ServiceNode>
+        </NodeContainer>
     );
 }

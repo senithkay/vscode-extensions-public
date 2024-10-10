@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BallerinaProject, ballerinaExtInstance } from "../core";
+import { ballerinaExtInstance } from "../core";
 import {Uri, window, workspace} from "vscode";
 import * as path from 'path';
 import { isSupportedVersion, VERSION } from "./config";
+import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
 
 function getCurrentBallerinaProject(file?: string): Promise<BallerinaProject> {
     return new Promise((resolve, reject) => {

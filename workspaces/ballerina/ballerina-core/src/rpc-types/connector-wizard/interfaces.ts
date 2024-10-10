@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BallerinaConnectorInfo, BallerinaConnectorsRequest, Connector } from "../../interfaces/ballerina";
+import { BallerinaConnectorInfo, BallerinaConnectorsRequest, BallerinaConnector } from "../../interfaces/ballerina";
 
 export interface ConnectorRequest {
     id?: string
@@ -28,7 +28,7 @@ export interface ConnectorsRequest extends BallerinaConnectorsRequest {
 }
 
 export interface ConnectorsResponse {
-    central: Connector[];
-    local?: Connector[];
+    central: BallerinaConnector[];
+    local?: BallerinaConnector[];
     error?: string;
 }
