@@ -11,7 +11,7 @@ import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, get
 import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
-import { EggplantDiagramRpcManager } from './rpc-managers/eggplant-diagram/rpc-manager';
+import { BIDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 
@@ -22,7 +22,7 @@ interface MachineContext extends VisualizerLocation {
 
 export let history: History;
 export let undoRedoManager: UndoRedoManager;
-const showEggplantOverviewV2 = ballerinaExtInstance.eggplantOverviewV2();
+const showBIOverviewV2 = ballerinaExtInstance.biOverviewV2();
 
 const stateMachine = createMachine<MachineContext>(
     {
@@ -42,7 +42,7 @@ const stateMachine = createMachine<MachineContext>(
                     onDone: {
                         target: "activateLS",
                         actions: assign({
-                            isEggplant: (context, event) => event.data.isEggplant,
+                            isBI: (context, event) => event.data.isBI,
                             projectUri: (context, event) => event.data.projectUri
                         })
                     },
@@ -112,6 +112,7 @@ const stateMachine = createMachine<MachineContext>(
                                     identifier: (context, event) => event.data.identifier,
                                     position: (context, event) => event.data.position,
                                     syntaxTree: (context, event) => event.data.syntaxTree,
+                                    haveServiceType: (context, event) => event.data.haveServiceType,
                                 })
                             }
                         }
@@ -166,7 +167,7 @@ const stateMachine = createMachine<MachineContext>(
         activateLanguageServer: (context, event) => {
             return new Promise(async (resolve, reject) => {
                 try {
-                    commands.executeCommand('setContext', 'Eggplant.status', 'loading');
+                    commands.executeCommand('setContext', 'BI.status', 'loading');
                     const ls = await activateBallerina();
                     fetchAndCacheLibraryData();
                     StateMachineAI.initialize();
@@ -186,8 +187,8 @@ const stateMachine = createMachine<MachineContext>(
                         history = new History();
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
-                        if (webview && (context.isEggplant || context.view === MACHINE_VIEW.EggplantWelcome)) {
-                            webview.title = "Eggplant";
+                        if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
+                            webview.title = "WSO2 BI";
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
                                 dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
@@ -206,13 +207,13 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
-                        if (context.isEggplant && showEggplantOverviewV2) {
+                        if (context.isBI && showBIOverviewV2) {
                             // Render overview 2 if setting is enabled
                             history.push({ location: { view: MACHINE_VIEW.OverviewV2, documentUri: context.documentUri } });
                             return resolve();
                         }
-                        if (context.isEggplant) {
-                            const entryPoints = (await new EggplantDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
+                        if (context.isBI) {
+                            const entryPoints = (await new BIDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
                                 history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                                 return resolve();
@@ -262,7 +263,7 @@ const stateMachine = createMachine<MachineContext>(
                 }) as SyntaxTree;
 
                 if (!selectedEntry?.location.view) {
-                    if (context.isEggplant && showEggplantOverviewV2) {
+                    if (context.isBI && showBIOverviewV2) {
                         // Render overview 2 if setting is enabled
                         return resolve({ view: MACHINE_VIEW.OverviewV2, documentUri: context.documentUri });
                     }
@@ -378,14 +379,14 @@ export function updateView() {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
-    if (StateMachine.context().isEggplant) {
-        commands.executeCommand("Eggplant.project-explorer.refresh");
+    if (StateMachine.context().isBI) {
+        commands.executeCommand("BI.project-explorer.refresh");
     }
     notifyCurrentWebview();
 }
 
 async function checkForProjects() {
-    let isEggplant = false;
+    let isBI = false;
     let projectUri = '';
     try {
         const workspaceFolders = workspace.workspaceFolders;
@@ -399,11 +400,11 @@ async function checkForProjects() {
 
         if (fs.existsSync(ballerinaTomlPath)) {
             const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isEggplant = data.includes('eggplant = true');
+            isBI = data.includes('bi = true');
         }
     } catch (err) {
         console.error(err);
     }
-    commands.executeCommand('setContext', 'isEggplantProject', isEggplant);
-    return { isEggplant, projectUri };
+    commands.executeCommand('setContext', 'isBIProject', isBI);
+    return { isBI, projectUri };
 }

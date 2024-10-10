@@ -21,11 +21,13 @@ import { AccordionContainer, verticalIconStyles } from "../TestSuiteForm";
 import styled from "@emotion/styled";
 import { getColorByMethod } from "@wso2-enterprise/service-designer/lib/components/ResourceAccordion/ResourceAccordion";
 import { MockResourceEntry, MockResourceForm } from "./MockResourceForm";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 export interface MockServiceFormProps {
     filePath?: string;
     stNode?: MockService;
     availableMockServices?: string[];
+    isWindows: boolean;
     onGoBack?: () => void;
     onSubmit?: (values: any) => void;
 }
@@ -79,7 +81,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
     const mockService = props.stNode;
     const filePath = props.filePath;
 
-    const isWindows = navigator.platform.toLowerCase().includes("win");
+    const isWindows = props.isWindows;
     const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : "";
 
     // Schema
@@ -94,7 +96,8 @@ export function MockServiceForm(props: MockServiceFormProps) {
         handleSubmit,
         formState: { errors },
         register,
-        reset
+        reset,
+        control
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange",
@@ -158,14 +161,14 @@ export function MockServiceForm(props: MockServiceFormProps) {
             });
             setIsLoaded(true);
         })();
-    }, []);
+    }, [props.filePath, mockService]);
 
     const handleGoBack = () => {
         if (props.onGoBack) {
             props.onGoBack();
-            return;
+        } else {
+            openOverview();
         }
-        rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
     const openOverview = () => {
@@ -265,11 +268,12 @@ export function MockServiceForm(props: MockServiceFormProps) {
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <Typography variant="h3">Mock Service Details</Typography>
-                <TextField
-                    id="endpointName"
-                    label="Endpoint name"
-                    placeholder="Mocking endpoint name"
-                    required
+                <FormKeylookup
+                    control={control}
+                    label="Endpoint"
+                    name="endpointName"
+                    filterType="endpoint"
+                    path={props.filePath}
                     errorMsg={errors.endpointName?.message.toString()}
                     {...register("endpointName")}
                 />
@@ -325,7 +329,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
                 >
                     {`${isUpdate ? "Update" : "Create"}`}
                 </Button>
-                <Button appearance="secondary" onClick={openOverview}>
+                <Button appearance="secondary" onClick={handleGoBack}>
                     Cancel
                 </Button>
             </FormActions>

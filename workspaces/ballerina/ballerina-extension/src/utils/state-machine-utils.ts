@@ -16,6 +16,7 @@ import { FindNodeByUidVisitor } from "./history/find-node-by-uid";
 import { FindConstructByNameVisitor } from "./history/find-construct-by-name-visitor";
 import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
 import { getConstructBodyString } from "./history/util";
+import { ballerinaExtInstance } from "../core";
 
 export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
 
@@ -24,16 +25,30 @@ export async function getView(documentUri: string, position: NodePosition): Prom
 
     if (node.parseSuccess) {
         if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
-            return {
-                location: {
-                    view: MACHINE_VIEW.ERDiagram,
-                    documentUri: documentUri,
-                    position: position
-                }
-            };
+            const recordST = node.syntaxTree;
+            const name = recordST.typeName?.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to render composition view', recordST);
+            } else {
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`;
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: nodeId
+                    }
+                };
+            }
         }
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
+            let haveServiceType = false;
+            if (node.syntaxTree.typeDescriptor && STKindChecker.isSimpleNameReference(node.syntaxTree.typeDescriptor)) {
+                haveServiceType = true;
+            }
             if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
                 return {
                     location: {
@@ -49,7 +64,8 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        haveServiceType: haveServiceType
                     }
                 };
             }
@@ -70,12 +86,15 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
         ) {
-            if (StateMachine.context().isEggplant) {
+            if (StateMachine.context().isBI) {
                 return {
                     location: {
-                        view: MACHINE_VIEW.EggplantDiagram,
+                        view: MACHINE_VIEW.BIDiagram,
                         documentUri: documentUri,
-                        position: position
+                        position: node.syntaxTree.position,
+                        metadata: {
+                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                        }
                     },
                     dataMapperDepth: 0
                 };
@@ -143,3 +162,4 @@ function getSTByRangeReq(documentUri: string, position: NodePosition) {
         }
     };
 }
+

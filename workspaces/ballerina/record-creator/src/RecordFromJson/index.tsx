@@ -251,7 +251,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 <FormContainer data-testid="module-variable-config-form">
                     {!isHeaderHidden && (
                         <SidePanelTitleContainer sx={{paddingLeft: 20}}>
-                            <Typography variant="h3" sx={{margin: 0}}>Import Sample JSON</Typography>
+                            <Typography variant="h3" sx={{margin: 0, fontSize: "13px"}}>Import Sample JSON</Typography>
                             <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
                         </SidePanelTitleContainer>
                     )}

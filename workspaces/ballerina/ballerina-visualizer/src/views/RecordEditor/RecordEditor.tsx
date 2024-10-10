@@ -16,15 +16,17 @@ import styled from "@emotion/styled";
 import { URI } from "vscode-uri";
 import { FormField } from "@wso2-enterprise/ballerina-side-panel";
 import { RecordEditor as BalRecordEditor } from '@wso2-enterprise/record-creator';
+import { Colors } from "../../resources/constants";
 
 const DrawerContainer = styled.div`
-    width: 600px;
+    fontFamily: GilmerRegular;
 `;
 
 export interface RecordEditorProps {
     isRecordEditorOpen: boolean;
     fields?: FormField[];
     rpcClient: BallerinaRpcClient;
+    width?: string;
     onClose: () => void;
     updateFields?: (fields: FormField[]) => void;
 }
@@ -60,7 +62,7 @@ export function RecordEditor(props: RecordEditorProps) {
 
     const applyRecordModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const filePath =  (await rpcClient.getVisualizerLocation()).recordFilePath;
+        const filePath =  (await rpcClient.getVisualizerLocation()).metadata?.recordFilePath;
         let updatedModifications = modifications;
         if (modifications.length === 1) {
             // Change the start position of the modification to the beginning of the file
@@ -90,7 +92,7 @@ export function RecordEditor(props: RecordEditorProps) {
 
     useEffect(() => {
         rpcClient.getVisualizerLocation().then((vl) => {
-            setRecordPath(vl.recordFilePath);
+            setRecordPath(vl.metadata?.recordFilePath);
         });
     }, []);
     return (
@@ -98,6 +100,11 @@ export function RecordEditor(props: RecordEditorProps) {
             isOpen={isRecordEditorOpen}
             id="record-editor-drawer"
             isSelected={true}
+            sx={{
+                backgroundColor: Colors.SURFACE_DIM,
+                boxShadow: "none",
+                width: "inherit"
+            }}
         >
             <DrawerContainer>
                 <BalRecordEditor

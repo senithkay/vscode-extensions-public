@@ -9,7 +9,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, LinkButton, SidePanelBody, Switch } from "@wso2-enterprise/ui-toolkit";
+import {
+    Button,
+    Codicon,
+    CompletionItem,
+    LinkButton,
+    SidePanelBody,
+} from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField, FormValues } from "./types";
@@ -17,6 +23,7 @@ import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { Provider } from "../../context";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -43,6 +50,15 @@ namespace S {
         margin-top: 8px;
         padding-bottom: 14px;
         border-bottom: ${({ showBorder }) => (showBorder ? `1px solid ${Colors.OUTLINE_VARIANT}` : "none")};
+    `;
+
+    export const CheckboxRow = styled.div<{}>`
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
     `;
 
     export const Footer = styled.div<{}>`
@@ -133,16 +149,23 @@ namespace S {
         align-self: center;
     `;
 }
-
-interface FormProps {
+export interface FormProps {
     formFields: FormField[];
     projectPath?: string;
     selectedNode?: NodeKind;
-    canUpdateVariable?: boolean;
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    expressionEditor?: {
+        completions: CompletionItem[];
+        triggerCharacters: readonly string[];
+        onRetrieveCompletions: (value: string, offset: number) => any;
+        onCompletionSelect?: (value: string) => Promise<void>;
+        onFocus?: () => void | Promise<void>;
+        onBlur?: () => void | Promise<void>;
+        onCancel: () => void;
+    };
 }
 
 export function Form(props: FormProps) {
@@ -150,13 +173,13 @@ export function Form(props: FormProps) {
         formFields,
         projectPath,
         selectedNode,
-        canUpdateVariable,
         onSubmit,
         openRecordEditor,
         openView,
-        openSubPanel
+        openSubPanel,
+        expressionEditor,
     } = props;
-    const { getValues, register, setValue, handleSubmit, reset } = useForm<FormValues>();
+    const { control, getValues, register, handleSubmit, reset, watch } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -224,147 +247,123 @@ export function Form(props: FormProps) {
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
+    const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
+    const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
+
     //TODO: get assign variable field from model. need to fix from LS
     const updateVariableField = {
         key: "update-variable",
-        label: "Update variable",
+        label: "Variable",
         type: "IDENTIFIER",
         optional: false,
         editable: true,
-        documentation: "Select the variable to update",
+        documentation: "Select a variable to assign",
         value: "name",
+    };
+
+    const contextValue = {
+        form: {
+            control,
+            watch,
+            register,
+        },
+        expressionEditor,
     };
 
     // TODO: support multiple type fields
     return (
-        <S.Container>
-            <S.CategoryRow showBorder={variableField !== undefined || typeField !== undefined}>
-                {/* <S.TitleContainer>
-                    <S.Title>Input Parameters</S.Title>
-                    <S.BodyText>Lorem ipsum dolor sit amet, consectetur adipiscing</S.BodyText>
-                </S.TitleContainer> */}
-                {formFields
-                    .filter((field) => field.type !== "VIEW")
-                    .map((field) => {
-                        if (!field.optional && field.key !== "variable" && field.key !== "type") {
-                            return (
-                                <S.Row key={field.key}>
-                                    <EditorFactory
-                                        field={field}
-                                        register={register}
-                                        openRecordEditor={handleOpenRecordEditor}
-                                        openSubPanel={openSubPanel}
-                                    />
-                                </S.Row>
-                            );
-                        }
-                    })}
-                {isExistingDataMapper && (
-                    <S.DataMapperRow>
-                        <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
-                            Use Data Mapper
-                        </S.UseDataMapperButton>
-                    </S.DataMapperRow>
-                )}
-                {hasOptionalFields && (
-                    <S.Row>
-                        Optional Parameters
-                        <S.ButtonContainer>
-                            {!showAdvancedOptions && (
-                                <LinkButton
-                                    onClick={handleOnShowAdvancedOptions}
-                                    sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
-                                >
-                                    <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                                    Expand
-                                </LinkButton>
-                            )}
-                            {showAdvancedOptions && (
-                                <LinkButton
-                                    onClick={handleOnHideAdvancedOptions}
-                                    sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
-                                >
-                                    <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                                    Collapsed
-                                </LinkButton>
-                            )}
-                        </S.ButtonContainer>
-                    </S.Row>
-                )}
-                {hasOptionalFields &&
-                    showAdvancedOptions &&
-                    formFields.map((field) => {
-                        if (field.optional) {
-                            return (
-                                <S.Row key={field.key}>
-                                    <EditorFactory
-                                        field={field}
-                                        register={register}
-                                        openRecordEditor={handleOpenRecordEditor}
-                                        openSubPanel={openSubPanel}
-                                    />
-                                </S.Row>
-                            );
-                        }
-                    })}
-            </S.CategoryRow>
-            {variableField && (
-                <S.CategoryRow showBorder={false}>
-                    <S.TitleContainer>
-                        <S.Title>Variable</S.Title>
-                        <S.BodyText>Assign node output value to a variable</S.BodyText>
-                    </S.TitleContainer>
-                    {/* {canUpdateVariable && (
-                        <S.Row>
-                            <Switch
-                                leftLabel="New Variable"
-                                rightLabel="Update Variable"
-                                checked={!createNewVariable}
-                                checkedColor={Colors.PRIMARY}
-                                enableTransition={true}
-                                onChange={() => {
-                                    setCreateNewVariable(!createNewVariable);
-                                }}
-                                sx={{
-                                    margin: "auto",
-                                    zIndex: "2",
-                                    border: "unset",
-                                    width: "100%",
-                                }}
-                                disabled={false}
-                            />
-                        </S.Row>
-                    )} */}
-                    {variableField && createNewVariable && (
-                        // <S.EditorContainer key={variableField.key} color={Colors.PURPLE}>
-                            <EditorFactory field={variableField} register={register} />
-                        // </S.EditorContainer>
-                    )}
-                    {typeField && createNewVariable && (
-                        // <S.EditorContainer key={typeField.key} color={Colors.GREEN}>
+        <Provider {...contextValue}>
+            <S.Container>
+                {prioritizeVariableField && variableField && (
+                    <S.CategoryRow showBorder={true}>
+                        {variableField && createNewVariable && <EditorFactory field={variableField} />}
+                        {typeField && createNewVariable && (
                             <EditorFactory
                                 field={typeField}
-                                register={register}
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={openSubPanel}
                             />
-                        // </S.EditorContainer>
+                        )}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
+                    </S.CategoryRow>
+                )}
+                <S.CategoryRow showBorder={false}>
+                    {formFields
+                        .filter((field) => field.type !== "VIEW")
+                        .map((field) => {
+                            if (
+                                ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
+                                field.optional
+                            ) {
+                                return;
+                            }
+                            return (
+                                <S.Row key={field.key}>
+                                    <EditorFactory
+                                        field={field}
+                                        openRecordEditor={handleOpenRecordEditor}
+                                        openSubPanel={openSubPanel}
+                                    />
+                                </S.Row>
+                            );
+                        })}
+                    {isExistingDataMapper && (
+                        <S.DataMapperRow>
+                            <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
+                                Use Data Mapper
+                            </S.UseDataMapperButton>
+                        </S.DataMapperRow>
                     )}
-                    {/* {updateVariableField && !createNewVariable && (
-                        <S.EditorContainer key={updateVariableField.key} color={Colors.PURPLE}>
-                            <EditorFactory field={updateVariableField} register={register} />
-                        </S.EditorContainer>
-                    )} */}
+                    {hasOptionalFields && (
+                        <S.Row>
+                            Optional Parameters
+                            <S.ButtonContainer>
+                                {!showAdvancedOptions && (
+                                    <LinkButton
+                                        onClick={handleOnShowAdvancedOptions}
+                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                    >
+                                        <Codicon name={"chevron-down"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                                        Expand
+                                    </LinkButton>
+                                )}
+                                {showAdvancedOptions && (
+                                    <LinkButton
+                                        onClick={handleOnHideAdvancedOptions}
+                                        sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}
+                                    >
+                                        <Codicon name={"chevron-up"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                                        Collapsed
+                                    </LinkButton>
+                                )}
+                            </S.ButtonContainer>
+                        </S.Row>
+                    )}
+                    {hasOptionalFields &&
+                        showAdvancedOptions &&
+                        formFields.map((field) => {
+                            if (field.optional) {
+                                return (
+                                    <S.Row key={field.key}>
+                                        <EditorFactory
+                                            field={field}
+                                            openRecordEditor={handleOpenRecordEditor}
+                                            openSubPanel={openSubPanel}
+                                        />
+                                    </S.Row>
+                                );
+                            }
+                        })}
                 </S.CategoryRow>
-            )}
-            {onSubmit && (
-                <S.Footer>
-                    <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
-                        Save
-                    </Button>
-                </S.Footer>
-            )}
-        </S.Container>
+                {onSubmit && (
+                    <S.Footer>
+                        <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
+                            Save
+                        </Button>
+                    </S.Footer>
+                )}
+            </S.Container>
+        </Provider>
     );
 }
 

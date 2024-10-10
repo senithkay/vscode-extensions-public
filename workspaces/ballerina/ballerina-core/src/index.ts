@@ -15,7 +15,7 @@ export * from "./vscode";
 
 // ------ Ballerina related interfaces -------->
 export * from "./interfaces/ballerina";
-export * from "./interfaces/eggplant";
+export * from "./interfaces/bi";
 export * from "./interfaces/common";
 export * from "./interfaces/component";
 export * from "./interfaces/constants";
@@ -30,9 +30,9 @@ export * from "./ls-utils/WSConnection";
 export * from "./ls-utils/BallerinaLanguageClient";
 
 // ------ RPC interfaces -------->
-export * from "./rpc-types/eggplant-diagram";
-export * from "./rpc-types/eggplant-diagram/interfaces";
-export * from "./rpc-types/eggplant-diagram/rpc-type";
+export * from "./rpc-types/bi-diagram";
+export * from "./rpc-types/bi-diagram/interfaces";
+export * from "./rpc-types/bi-diagram/rpc-type";
 export * from "./rpc-types/sequence-diagram";
 export * from "./rpc-types/sequence-diagram/interfaces";
 export * from "./rpc-types/sequence-diagram/rpc-type";

@@ -7,8 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
-import { Button, Codicon, SearchBox, SidePanelBody, Switch, TextArea, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import React, { useEffect, useState } from "react";
+import {
+    Button,
+    Codicon,
+    ProgressRing,
+    SearchBox,
+    SidePanelBody,
+    Switch,
+    TextArea,
+    ThemeColors,
+    Tooltip,
+} from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BackIcon, CloseIcon, LogIcon } from "../../resources";
 import { Colors } from "../../resources/constants";
@@ -155,14 +165,13 @@ namespace S {
 
     export const HighlightedButton = styled.div`
         margin-top: 10px;
-        margin-bottom: 10px;
         width: 100%;
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
         gap: 8px;
-        padding: 20px 12px;
+        padding: 6px 2px;
         color: ${Colors.PRIMARY};
         border: 1px dashed ${Colors.PRIMARY};
         border-radius: 5px;
@@ -208,13 +217,29 @@ export function NodeList(props: NodeListProps) {
 
     const [searchText, setSearchText] = useState<string>("");
     const [showGeneratePanel, setShowGeneratePanel] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+
+    useEffect(() => {
+        if (onSearchTextChange) {
+            setIsSearching(true);
+            debouncedSearch(searchText);
+            return () => debouncedSearch.cancel();
+        }
+    }, [searchText]);
+
+    const handleSearch = (text: string) => {
+        onSearchTextChange(text);
+    };
+
+    const debouncedSearch = debounce(handleSearch, 1100);
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
-        if (onSearchTextChange) {
-            debounce(onSearchTextChange, 300)(text);
-        }
     };
+
+    useEffect(() => {
+        setIsSearching(false);
+    }, [categories]);
 
     const handleAddNode = (node: Node, category?: string) => {
         onSelect(node.id, { node: node.metadata, category });
@@ -231,14 +256,19 @@ export function NodeList(props: NodeListProps) {
 
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
-            {nodes.map((node, index) => (
-                // <Tooltip content={node.description} key={node.id + index + "tooltip"}>
+            {nodes.map((node, index) => {
+                if (["MATCH", "FOREACH"].includes(node.id)) {
+                    // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
+                    return;
+                }
+
+                return (
                     <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
                         <S.ComponentTitle>{node.label}</S.ComponentTitle>
                     </S.Component>
-                // </Tooltip>
-            ))}
+                );
+            })}
         </S.Grid>
     );
 
@@ -257,47 +287,70 @@ export function NodeList(props: NodeListProps) {
         </S.Grid>
     );
 
-    const getCategoryContainer = (groups: Category[], isSubCategory = false) => (
-        <>
-            {groups.map((group, index) => {
-                const isConnectionCategory = group.title === "Connections";
-                const isProjectFunctionsCategory = group.title === "Project";
-                if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
-                    return null;
-                }
-                return (
-                    <S.CategoryRow key={group.title + index} showBorder={!isSubCategory}>
-                        <S.Row>
-                            {isSubCategory && (
-                                <Tooltip content={group.description}>
-                                    <S.SubTitle>{group.title}</S.SubTitle>
-                                </Tooltip>
+    const getCategoryContainer = (groups: Category[], isSubCategory = false) => {
+        const content = (
+            <>
+                {groups.map((group, index) => {
+                    const isConnectionCategory = group.title === "Connections";
+                    const isProjectFunctionsCategory = group.title === "Project";
+                    if ((!group || group.items.length === 0) && !isConnectionCategory && !isProjectFunctionsCategory) {
+                        return null;
+                    }
+                    if (searchText && group.items.length === 0) {
+                        return null;
+                    }
+                    return (
+                        <S.CategoryRow key={group.title + index} showBorder={!isSubCategory}>
+                            <S.Row>
+                                {isSubCategory && (
+                                    <Tooltip content={group.description}>
+                                        <S.SubTitle>{group.title}</S.SubTitle>
+                                    </Tooltip>
+                                )}
+                                {!isSubCategory && (
+                                    <>
+                                        <S.Title>{group.title}</S.Title>
+                                        {(isConnectionCategory || isProjectFunctionsCategory) && (
+                                            <Button
+                                                appearance="icon"
+                                                tooltip={isConnectionCategory ? "Add Connection" : "Create Function"}
+                                                onClick={isConnectionCategory ? handleAddConnection : handleAddFunction}
+                                            >
+                                                <Codicon name="add" />
+                                            </Button>
+                                        )}
+                                    </>
+                                )}
+                            </S.Row>
+                            {/* {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>} */}
+                            {isConnectionCategory && group.items.length === 0 && (
+                                <S.HighlightedButton onClick={handleAddConnection}>
+                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                    Add Connection
+                                </S.HighlightedButton>
                             )}
-                            {!isSubCategory && <S.Title>{group.title}</S.Title>}
-                        </S.Row>
-                        {!isSubCategory && <S.BodyText>{group.description}</S.BodyText>}
-                        {isConnectionCategory && (
-                            <S.HighlightedButton onClick={handleAddConnection}>
-                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                Add Connection
-                            </S.HighlightedButton>
-                        )}
-                        {isProjectFunctionsCategory && (
-                            <S.HighlightedButton onClick={handleAddFunction}>
-                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                Add Function
-                            </S.HighlightedButton>
-                        )}
-                        {group.items.length > 0 && "id" in group.items.at(0)
-                            ? getNodesContainer(group.items as Node[])
-                            : isConnectionCategory || isProjectFunctionsCategory
-                            ? getConnectionContainer(group.items as Category[])
-                            : getCategoryContainer(group.items as Category[], true)}
-                    </S.CategoryRow>
-                );
-            })}
-        </>
-    );
+                            {isProjectFunctionsCategory && group.items.length === 0 && !searchText && !isSearching && (
+                                <S.HighlightedButton onClick={handleAddFunction}>
+                                    <Codicon name="add" iconSx={{ fontSize: 12 }} />
+                                    Create Function
+                                </S.HighlightedButton>
+                            )}
+                            {group.items.length > 0 && "id" in group.items.at(0)
+                                ? getNodesContainer(group.items as Node[])
+                                : isConnectionCategory || isProjectFunctionsCategory
+                                ? getConnectionContainer(group.items as Category[])
+                                : getCategoryContainer(group.items as Category[], true)}
+                        </S.CategoryRow>
+                    );
+                })}
+            </>
+        );
+
+        // Check if the content is empty
+        const isEmpty = React.Children.toArray(content.props.children).every((child) => child === null);
+
+        return isEmpty ? <div style={{ paddingTop: "10px" }}>No matching results found</div> : content;
+    };
 
     // filter out category items based on search text
     const filterItems = (items: Item[]): Item[] => {
@@ -325,7 +378,7 @@ export function NodeList(props: NodeListProps) {
     };
 
     const filteredCategories = cloneDeep(categories).map((category) => {
-        if (!category || !category.items) {
+        if (!category || !category.items || onSearchTextChange) {
             return category;
         }
         category.items = filterItems(category.items);
@@ -380,7 +433,16 @@ export function NodeList(props: NodeListProps) {
                     </S.Row>
                 )}
             </S.HeaderContainer>
-            {!showGeneratePanel && <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>}
+            {isSearching && (
+                <S.PanelBody>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                        <ProgressRing />
+                    </div>
+                </S.PanelBody>
+            )}
+            {!showGeneratePanel && !isSearching && (
+                <S.PanelBody>{getCategoryContainer(filteredCategories)}</S.PanelBody>
+            )}
             {showAiPanel && showGeneratePanel && (
                 <S.PanelBody>
                     <S.AiContainer>

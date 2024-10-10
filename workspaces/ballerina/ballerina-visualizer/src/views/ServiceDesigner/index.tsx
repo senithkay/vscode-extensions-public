@@ -17,7 +17,8 @@ import { ViewWrapper } from "../styles";
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    isEggplant?: boolean;
+    isBI?: boolean;
+    isEditingDisabled?: boolean;
 }
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
@@ -37,11 +38,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 rpcClients={{
                     serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
                     commonRpcClient: rpcClient.getCommonRpcClient(),
-
                 }}
                 applyModifications={applyModifications}
                 goToSource={handleOpenDiagram}
-                isEggplant={props.isEggplant}
+                isBI={props.isBI}
+                isEditingDisabled={props.isEditingDisabled}
             />
         </>
     );

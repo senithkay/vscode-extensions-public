@@ -34,7 +34,7 @@ import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ServiceDesignerRpcClient, AiPanelRpcClient } from "./rpc-clients";
-import { EggplantDiagramRpcClient } from "./rpc-clients/eggplant-diagram/rpc-client";
+import { BIDiagramRpcClient } from "./rpc-clients/bi-diagram/rpc-client";
 import { ConnectorWizardRpcClient } from "./rpc-clients/connector-wizard/rpc-client";
 import { SequenceDiagramRpcClient } from "./rpc-clients/sequence-diagram/rpc-client";
 import { InlineDataMapperRpcClient } from "./rpc-clients/inline-data-mapper/rpc-client";
@@ -50,7 +50,7 @@ export class BallerinaRpcClient {
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
     private _RecordCreator: RecordCreatorRpcClient;
-    private _eggplantDiagram: EggplantDiagramRpcClient;
+    private _biDiagram: BIDiagramRpcClient;
     private _SequenceDiagram: SequenceDiagramRpcClient;
     private _aiPanel: AiPanelRpcClient;
     private _connectorWizard: ConnectorWizardRpcClient;
@@ -67,7 +67,7 @@ export class BallerinaRpcClient {
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
         this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
-        this._eggplantDiagram = new EggplantDiagramRpcClient(this.messenger);
+        this._biDiagram = new BIDiagramRpcClient(this.messenger);
         this._SequenceDiagram = new SequenceDiagramRpcClient(this.messenger);
         this._aiPanel = new AiPanelRpcClient(this.messenger);
         this._connectorWizard = new ConnectorWizardRpcClient(this.messenger);
@@ -86,8 +86,8 @@ export class BallerinaRpcClient {
         return this._serviceDesigner;
     }
 
-    getEggplantDiagramRpcClient(): EggplantDiagramRpcClient {
-        return this._eggplantDiagram;
+    getBIDiagramRpcClient(): BIDiagramRpcClient {
+        return this._biDiagram;
     }
 
     getSequenceDiagramRpcClient(): SequenceDiagramRpcClient {

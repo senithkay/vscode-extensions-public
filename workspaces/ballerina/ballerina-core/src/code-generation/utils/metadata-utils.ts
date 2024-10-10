@@ -8,7 +8,7 @@
  */
 
 import { NMD_Metadata as Metadata } from "../../interfaces/metadata-types";
-// import { Node } from "../../interfaces/eggplant";
+// import { Node } from "../../interfaces/bi";
 
 export function encodeMetadata(obj: Metadata): string {
     return btoa(encodeURIComponent(JSON.stringify(obj)));

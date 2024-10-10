@@ -45,12 +45,14 @@ export enum MACHINE_VIEW {
     ERDiagram = "ER Diagram",
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
-    EggplantDiagram = "Eggplant Diagram",
-    EggplantWelcome = "Eggplant Welcome",
-    EggplantProjectForm = "Eggplant Project Form",
-    EggplantComponentView = "Eggplant Component View",
-    EggplantServiceForm = "Eggplant Service Form",
+    TypeDiagram = "Type Diagram",
+    BIDiagram = "BI Diagram",
+    BIWelcome = "BI Welcome",
+    BIProjectForm = "BI Project Form",
+    BIComponentView = "BI Component View",
+    BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    BIMainFunctionForm = "Add Automation Task",
 }
 
 export interface MachineEvent {
@@ -71,8 +73,14 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: NodePosition;
     syntaxTree?: STNode;
-    isEggplant?: boolean;
+    isBI?: boolean;
+    haveServiceType?: boolean;
+    metadata?: VisualizerMetadata;
+}
+
+export interface VisualizerMetadata {
     recordFilePath?: string;
+    enableSequenceDiagram?: boolean; // Enable sequence diagram view
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

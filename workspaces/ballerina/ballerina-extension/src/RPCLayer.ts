@@ -20,7 +20,7 @@ import { registerCommonRpcHandlers } from './rpc-managers/common/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
-import { registerEggplantDiagramRpcHandlers } from './rpc-managers/eggplant-diagram/rpc-handler';
+import { registerBIDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
 import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
@@ -29,6 +29,7 @@ import { StateMachinePopup } from './stateMachinePopup';
 import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
 import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
 import { registerInlineDataMapperRpcHandlers } from './rpc-managers/inline-data-mapper/rpc-handler';
+import { ballerinaExtInstance } from './core';
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -66,7 +67,7 @@ export class RPCLayer {
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
-        registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
+        registerBIDiagramRpcHandlers(RPCLayer._messenger);
         registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
         registerConnectorWizardRpcHandlers(RPCLayer._messenger);
 
@@ -78,7 +79,7 @@ export class RPCLayer {
         registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
 
          // ----- Popup Views RPC Methods
-         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
+        RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 
 }
@@ -92,9 +93,13 @@ async function getContext(): Promise<VisualizerLocation> {
             identifier: context.identifier,
             position: context.position,
             syntaxTree: context.syntaxTree,
-            isEggplant: context.isEggplant,
+            isBI: context.isBI,
             projectUri: context.projectUri,
-            recordFilePath: path.join(context.projectUri, 'types.bal'),
+            haveServiceType: context.haveServiceType,
+            metadata: {
+                recordFilePath: path.join(context.projectUri, "types.bal"),
+                enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+            },
         });
     });
 }

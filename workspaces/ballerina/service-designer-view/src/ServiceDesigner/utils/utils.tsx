@@ -215,6 +215,9 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
             service.absoluteResourcePath?.forEach((path) => {
                 absolutePath += path.value;
             });
+            if (service.typeDescriptor && STKindChecker.isSimpleNameReference(service.typeDescriptor)) {
+                absolutePath = service.typeDescriptor.name.value;
+            }
             serviceData = {
                 port: parseInt(port, 10),
                 path: absolutePath
@@ -224,7 +227,7 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
     return serviceData;
 }
 
-export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any, isEggplant?: boolean): Promise<Resource> {
+export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any, isBI?: boolean): Promise<Resource> {
     const pathConfig = getResourcePath(resource);
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);
@@ -248,7 +251,7 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         updatePosition: position,
         position: resource.position,
         errors: errors,
-        expandable: isEggplant ? false : true
+        expandable: isBI ? false : true
     };
 }
 
@@ -263,12 +266,16 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
     };
 }
 
-export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isEggplant?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isBI?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
     const serviceData: ServiceData = await getServiceData(serviceDecl);
+    let canEdit = true;
+    if (serviceDecl.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
+        canEdit = false;
+    }
     const resources: Resource[] = [];
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
-            const resource = await getResource(member, rpcClient, isEggplant);
+            const resource = await getResource(member, rpcClient, isBI);
             const editAction: Item = {
                 id: "edit",
                 label: "Edit",
@@ -280,7 +287,9 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
                 onClick: () => handleResourceDelete(resource),
             };
             const moreActions: Item[] = [editAction, deleteAction];
-            resource.additionalActions = moreActions;
+            if (canEdit) {
+                resource.additionalActions = moreActions;
+            }
             resources.push(resource);
         }
     }

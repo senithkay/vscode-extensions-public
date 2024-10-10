@@ -397,7 +397,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
                 documentIdentifier: {
                     uri: uriString
                 }
-            }, cancellationToken);
+            });
             const response = dependenciesResponse as SyntaxTree;
             if (response.parseSuccess) {
                 progress.report({ increment: 60 });

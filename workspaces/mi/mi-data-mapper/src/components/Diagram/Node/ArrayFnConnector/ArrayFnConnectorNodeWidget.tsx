@@ -15,11 +15,13 @@ import classnames from 'classnames';
 
 import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
-import { DataMapperPortWidget } from '../../Port';
-import { getMapFnIndex, getMapFnViewLabel } from '../../utils/common-utils';
+import { DataMapperPortWidget, InputOutputPortModel } from '../../Port';
+import { genArrayElementAccessRepr, getMapFnIndex, getMapFnViewLabel, hasElementAccessExpression } from '../../utils/common-utils';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { getSourceNodeType } from '../../utils/node-utils';
 import { SubMappingInfo, View } from '../../../../components/DataMapper/Views/DataMapperView';
+import { ElementAccessExpression, PropertyAssignment } from 'ts-morph';
+import { useDMExpressionBarStore } from "../../../../store/store";
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -32,10 +34,16 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const { addView, views } = context;
     const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
     const sourceNodeType = getSourceNodeType(sourcePort);
+    const isValueNodeForgotten = node.parentNode.wasForgotten();
+    const hasElementAccessExpr = !isValueNodeForgotten && hasElementAccessExpression(node.parentNode);
+
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const classes = useIntermediateNodeStyles();
+
+    const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
+
 
     const onClickOnExpand = () => {
         let label = getMapFnViewLabel(targetPort, views);
@@ -103,6 +111,11 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
         setDeleteInProgress(false);
     }
 
+    const onClickEdit = () => {
+        const targetPort = node.targetPort;
+        setExprBarFocusedPort(targetPort as InputOutputPortModel);
+    };
+
     const loadingScreen = (
         <ProgressRing sx={{ height: '16px', width: '16px' }} />
     );
@@ -116,26 +129,37 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                         <Tooltip content={"Array Function"} position="bottom">
                             <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                         </Tooltip>
-                        <Button
-                            appearance="icon"
-                            tooltip="Map array elements"
-                            onClick={onClickOnExpand}
-                            data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
-                        >
-                            <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                        </Button>
                         {deleteInProgress ? (
                             <div className={classnames(classes.element, classes.loadingContainer)}>
                                 {loadingScreen}
                             </div>
                         ) : (
-                            <Button
-                                appearance="icon"
-                                tooltip="Delete"
-                                onClick={deleteLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
-                            >
-                                <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                            </Button>
+                                <>
+                                    {hasElementAccessExpr ? (<Button
+                                        appearance="icon"
+                                        onClick={onClickEdit}
+                                        data-testid={`link-connector-indexing-${node?.value}`}
+                                        tooltip='indexing'
+                                    >
+                                        {genArrayElementAccessRepr((node.parentNode as PropertyAssignment).getInitializer())}
+                                    </Button>) : (<Button
+                                        appearance="icon"
+                                        tooltip="Map array elements"
+                                        onClick={onClickOnExpand}
+                                        data-testid={`expand-array-fn-${node?.targetFieldFQN}`}
+                                    >
+                                        <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                                    </Button>)
+                                    }
+                                    <Button
+                                        appearance="icon"
+                                        tooltip="Delete"
+                                        onClick={deleteLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
+                                    >
+                                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                                    </Button>
+                                </>
+
                         )}
                         <DataMapperPortWidget engine={engine} port={outPort} />
                     </div>

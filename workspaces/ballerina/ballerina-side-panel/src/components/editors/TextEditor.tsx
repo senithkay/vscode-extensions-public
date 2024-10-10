@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 import { FormField } from "../Form/types";
 import { Button, InputProps, TextField } from "@wso2-enterprise/ui-toolkit";
-import { FieldValues, UseFormRegister } from "react-hook-form";
+import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { TIcon } from "../../resources";
@@ -57,12 +57,13 @@ const InlineDataMapperText = styled.p`
 
 interface TextEditorProps {
     field: FormField;
-    register: UseFormRegister<FieldValues>;
     openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { field, register, openSubPanel } = props;
+    const { field } = props;
+    const { form } = useFormContext();
+    const { register } = form;
 
     const [subPanelView, setSubPanelView] = useState<SubPanelView>(SubPanelView.UNDEFINED);
 
@@ -107,12 +108,12 @@ export function TextEditor(props: TextEditorProps) {
     return (
         <TextField
             id={field.key}
-            {...register(field.key, { required: !field.optional, value: field.value })}
-            value={field.value}
+            name={field.key}
+            {...register(field.key, { required: !field.optional })}
             label={field.label}
             required={!field.optional}
             description={field.documentation}
-            labelAdornment={typeLabel(field.type)}
+            // labelAdornment={typeLabel(field.type)}
             sx={{ width: "100%" }}
             inputProps={field.key === "expression" ? inlineDMButton : undefined}
         />

@@ -10,7 +10,7 @@ endpointConfigurations:
       enabled: true
       securityType:
         basicEndpointSecurity:
-          secretName: "mysecret"
+          secretName: "backend-creds"
           userNameKey: "username"
           passwordKey: "password"
     certificate:
@@ -36,7 +36,7 @@ operations:
         - policyName: "Request Policy 1"
           policyVersion: "v1"
           parameters:
-            headerName: "header1"
+            header: "X-Header"
       response:
         - policyName: "Response Policy 1"
           policyVersion: "v1"
@@ -59,7 +59,7 @@ operations:
         - policyName: "Request Policy 2"
           policyVersion: "v1"
           parameters:
-            headerName: "header2"
+            header: "header2"
       response:
         - policyName: "Response Policy 2"
           policyVersion: "v1"
@@ -83,7 +83,6 @@ authentication:
     sendTokenToUpstream: false
     enabled: true
     headerName: "Authorization"
-    queryParamName: "apikey"
 additionalProperties:
   - name: "property1"
     value: "value1"

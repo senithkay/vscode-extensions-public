@@ -9,6 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ExportOASRequest,
+    ExportOASResponse,
     RecordSTRequest,
     RecordSTResponse,
 } from "./interfaces";
@@ -16,3 +18,4 @@ import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
 export const getRecordST: RequestType<RecordSTRequest, RecordSTResponse> = { method: `${_preFix}/getRecordST` };
+export const exportOASFile: RequestType<ExportOASRequest, ExportOASResponse> = { method: `${_preFix}/exportOASFile` };

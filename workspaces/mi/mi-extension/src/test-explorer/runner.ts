@@ -80,6 +80,9 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                     printToOutput(run, line, isError);
                 }
 
+                // compile project
+                await compileProject(projectRoot, printer);
+
                 // execute test
                 run.appendOutput(`Starting MI test server\r\n`);
                 const { cp } = await startTestServer(serverPath, printer);
@@ -248,6 +251,36 @@ function printToOutput(runner: TestRun, line: string, isError: boolean = false) 
     } else {
         runner.appendOutput(`${line}\r\n`);
     }
+}
+
+async function compileProject(projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
+        const testRunCmd = `${mvnCmd} compile`;
+
+        let finished = false;
+        const onData = (data: string) => {
+            if (data.includes("BUILD SUCCESS")) {
+                finished = true;
+                resolve();
+            }
+        }
+        const onError = (data: string) => {
+            window.showErrorMessage(data);
+            reject(data);
+        }
+        const onClose = (code: number) => {
+            if (code !== 0 && !finished) {
+                reject("Project build failed");
+            }
+        }
+
+        try {
+            runCommand(testRunCmd, projectRoot, onData, onError, onClose, printToOutput);
+        } catch (error) {
+            throw error;
+        }
+    });
 }
 
 async function runTests(testNames: string, projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {

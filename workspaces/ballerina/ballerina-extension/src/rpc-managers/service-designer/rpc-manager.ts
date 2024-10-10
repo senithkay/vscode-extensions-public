@@ -10,17 +10,21 @@
  */
 import {
     DIRECTORY_MAP,
+    ExportOASRequest,
+    ExportOASResponse,
+    OpenAPISpec,
     ProjectStructureResponse,
     RecordSTRequest,
     RecordSTResponse,
-    visitor as RecordsFinderVisitor,
     ServiceDesignerAPI,
-    SyntaxTreeResponse,
     buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
-import { TypeDefinition, traversNode } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "vscode";
+import * as yaml from 'js-yaml';
+import * as fs from 'fs';
+import * as path from 'path';
+import { TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../../stateMachine";
+import { window, workspace } from "vscode";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
@@ -28,12 +32,44 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            res.directoryMap[DIRECTORY_MAP.SCHEMAS].forEach(schema => {
-                if (schema.name === params.recordName) {
-                    resolve({ recordST: schema.st as TypeDefinition });
+            res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
+                if (type.name === params.recordName) {
+                    resolve({ recordST: type.st as TypeDefinition });
                 }
             });
             resolve(null);
+        });
+    }
+
+    async exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
+        return new Promise(async (resolve) => {
+            const res: ExportOASResponse = { openSpecFile: null };
+            const documentFilePath = params.documentFilePath ? params.documentFilePath : StateMachine.context().documentUri;
+            const spec = await StateMachine.langClient().convertToOpenAPI({ documentFilePath }) as OpenAPISpec;
+            if (spec.content) {
+                // Convert the OpenAPI spec to a YAML string
+                const yamlStr = yaml.dump(spec.content[0].spec);
+                window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Select OAS Save Location' })
+                    .then(uri => {
+                        if (uri && uri[0]) {
+                            const projectLocation = uri[0].fsPath;
+                            // Construct the correct path for the output file
+                            const filePath = path.join(projectLocation, `${spec.content[0]?.serviceName}_openapi.yaml`);
+
+                            // Save the YAML string to the file
+                            fs.writeFileSync(filePath, yamlStr, 'utf8');
+                            // Set the response
+                            res.openSpecFile = filePath;
+                            // Open the file in a new VSCode document
+                            workspace.openTextDocument(filePath).then(document => {
+                                window.showTextDocument(document);
+                            });
+                        }
+                    });
+            } else {
+                window.showErrorMessage(spec.error);
+            }
+            resolve(res);
         });
     }
 }
