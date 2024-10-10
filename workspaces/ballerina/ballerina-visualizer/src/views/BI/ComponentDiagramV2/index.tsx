@@ -9,15 +9,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
-    DIRECTORY_MAP,
-    EVENT_TYPE,
-    MACHINE_VIEW,
     ProjectDiagnostics,
     ProjectSource,
     ProjectStructureResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
 import {
     TextArea,
     Typography,
@@ -33,6 +29,8 @@ import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
+import ComponentDiagram from "../ComponentDiagram";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 const CardTitleContainer = styled.div`
     display: flex;
@@ -52,10 +50,6 @@ const Content = styled.div`
     height: 100%;
 `;
 
-const DiagramContainer = styled.div`
-    height: 400px;
-`;
-
 const ContentFooter = styled.div`
     display: flex;
     flex-direction: column;
@@ -72,10 +66,11 @@ const ButtonContainer = styled.div`
 `;
 
 interface ComponentDiagramProps {
-    stateUpdated: boolean;
+    //
 }
 
 export function ComponentDiagramV2(props: ComponentDiagramProps) {
+
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
@@ -145,38 +140,6 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
             }
         });
     }, [responseText]);
-
-    const goToView = async (filePath: string, position: NodePosition) => {
-        console.log(">>> component diagram: go to view", { filePath, position });
-        rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: filePath, position: position } });
-    };
-
-    const handleAddArtifact = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.BIComponentView,
-            },
-        });
-    };
-
-    const handleGoToEntryPoints = (entryPoint: EntryPoint) => {
-        if (entryPoint.location) {
-            goToView(entryPoint.location.filePath, entryPoint.location.position);
-        }
-    };
-
-    const handleAddConnection = () => {
-        handleAddArtifact();
-    };
-
-    const handleGoToConnection = (connection: Connection) => {
-        if (connection.location) {
-            goToView(connection.location.filePath, connection.location.position);
-        }
-    };
 
     const handleSaveOverview = (value: string) => {
         rpcClient.getBIDiagramRpcClient().handleReadmeContent({ content: value, read: false });
@@ -375,36 +338,6 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         );
     }
 
-    console.log(">>> project structure", projectStructure);
-
-    const project: Project = {
-        name: projectName,
-        entryPoints: [],
-        connections: [],
-    };
-    // generate project structure
-    projectStructure.directoryMap[DIRECTORY_MAP.SERVICES].forEach((service) => {
-        project.entryPoints.push({
-            id: service.name,
-            name: service.name,
-            type: "service",
-            location: {
-                filePath: service.path,
-                position: service.position,
-            },
-        });
-    });
-    projectStructure.directoryMap[DIRECTORY_MAP.CONNECTIONS].forEach((connection) => {
-        project.connections.push({
-            id: connection.name,
-            name: connection.name,
-            location: {
-                filePath: connection.path,
-                position: connection.position,
-            },
-        });
-    });
-
     // TODO: Refactor this component with meaningful components
     return (
         <View>
@@ -427,15 +360,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
                         <Title variant="h2">Architecture</Title>
                         {generateButton()}
                     </CardTitleContainer>
-                    <DiagramContainer>
-                        <Diagram
-                            project={project}
-                            onAddEntryPoint={handleAddArtifact}
-                            onAddConnection={handleAddConnection}
-                            onEntryPointSelect={handleGoToEntryPoints}
-                            onConnectionSelect={handleGoToConnection}
-                        />
-                    </DiagramContainer>
+                    <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
                     <ContentFooter>
                         <Title variant="h2">Quick Actions</Title>
                         <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
