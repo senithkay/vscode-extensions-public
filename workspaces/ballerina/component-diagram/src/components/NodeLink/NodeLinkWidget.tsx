@@ -8,7 +8,6 @@
  */
 
 /** @jsxImportSource @emotion/react */
-import { css, keyframes } from "@emotion/react";
 import { useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { NodeLinkModel } from "./NodeLinkModel";
@@ -19,21 +18,10 @@ interface NodeLinkWidgetProps {
     engine: DiagramEngine;
 }
 
-const fadeInZoomIn = keyframes`
-    0% {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-`;
-
 export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) => {
     const [isHovered, setIsHovered] = useState(false);
 
-    const linkColor = isHovered ? Colors.PRIMARY : Colors.ON_SURFACE;
+    const linkColor = link.visible ? (isHovered ? Colors.PRIMARY : Colors.ON_SURFACE) : "transparent";
 
     return (
         <g pointerEvents={"all"} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -44,15 +32,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={"transparent"}
                 strokeWidth={16}
             />
-            <path
-                id={link.getID()}
-                d={link.getSVGPath()}
-                fill={"none"}
-                stroke={link.showAddButton && linkColor}
-                strokeWidth={1.5}
-                strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                // markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head-old)` : ""}
-            />
+            <path id={link.getID()} d={link.getSVGPath()} fill={"none"} stroke={linkColor} strokeWidth={1.5} />
 
             <defs>
                 <marker
@@ -64,7 +44,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     orient="auto"
                     id={`${link.getID()}-arrow-head-old`}
                 >
-                    <polygon points="0,8 0,0 6,4" fill={link.showAddButton && linkColor}></polygon>
+                    <polygon points="0,8 0,0 6,4" fill={linkColor}></polygon>
                 </marker>
             </defs>
             <defs>
@@ -80,11 +60,11 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     <polyline
                         points="0,5 5,2.5 2,0"
                         fill="none"
-                        stroke-width="1.5"
-                        stroke={link.showAddButton && linkColor}
-                        stroke-linecap="round"
+                        strokeWidth="1.5"
+                        stroke={linkColor}
+                        strokeLinecap="round"
                         transform="matrix(1,0,0,1,1.5,2.5)"
-                        stroke-linejoin="round"
+                        strokeLinejoin="round"
                     ></polyline>
                 </marker>
             </defs>
