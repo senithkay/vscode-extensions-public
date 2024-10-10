@@ -31,7 +31,7 @@ test.beforeAll(async () => {
 test('Create new project', async () => {
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
-  await page.waitUntilExtensionReady();
+  // await page.waitUntilExtensionReady();
 
   await createProject(page);
 });
@@ -76,7 +76,14 @@ test('Add DataMapper in to resource', async () => {
   // diagram
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
-  await diagram.addMediator('DataMapper');
+  await diagram.addMediator('DataMapper', 0, {
+    values: {
+      'Name*': {
+        type: 'input',
+        value: 'dm1',
+      }
+    }
+  }, "Create Mapping");
 });
 
 // test('Edit mediator in resource', async () => {
