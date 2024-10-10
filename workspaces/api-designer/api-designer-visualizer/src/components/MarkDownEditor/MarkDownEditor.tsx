@@ -69,8 +69,9 @@ export function MarkDownEditor(props: MakrDownEditorProps) {
 
     return (
         <StyledMDXEditor
+            key={value}
             sx={sx}
-            markdown={value}
+            markdown={value || ""}
             onChange={onChange}
             plugins={[
                 headingsPlugin(),

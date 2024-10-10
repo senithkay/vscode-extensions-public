@@ -73,13 +73,13 @@ export function Resource(props: ResourceProps) {
     const [initailPath, setInitailPath] = useState<string>(path);
     const [initialMethod, setInitialMethod] = useState<string>(method);
     let selOpt: string[] = [];
-    if (resourceOperation.summary) {
+    if (resourceOperation.summary || resourceOperation.summary === "") {
         selOpt.push("Summary");
     }
-    if (resourceOperation.description) {
+    if (resourceOperation.description || resourceOperation.description === "") {
         selOpt.push("Description");
     }
-    if (resourceOperation.operationId) {
+    if (resourceOperation.operationId || resourceOperation.operationId === "") {
         selOpt.push("OperationId");
     }
     const [defaultOptions, setDefaultOptions] = useState<string[]>(selOpt);
@@ -201,12 +201,18 @@ export function Resource(props: ResourceProps) {
         let operation = resourceOperation;
         if (!options.includes("Summary") && defaultOptions.includes("Summary")) {
             operation = { ...operation, summary: "" };
+        } else if (!options.includes("Summary") && !defaultOptions.includes("Summary")) {
+            delete operation.summary;
         }
         if (!options.includes("Description") && defaultOptions.includes("Description")) {
             operation = { ...operation, description: "" };
+        } else if (!options.includes("Description") && !defaultOptions.includes("Description")) {
+            delete operation.description;
         }
         if (!options.includes("OperationId") && defaultOptions.includes("OperationId")) {
             operation = { ...operation, operationId: "" };
+        } else if (!options.includes("OperationId") && !defaultOptions.includes("OperationId")) {
+            delete operation.operationId;
         }
         onOperationChange(path, method, operation);
         setDefaultOptions(options);
@@ -335,7 +341,7 @@ export function Resource(props: ResourceProps) {
                                 <MarkDownEditor
                                     value={values?.description}
                                     onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                                    sx={{ maxHeight: "200px", overflowY: "auto", zIndex: 0 }}
+                                    sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
                                 />
                             </DescriptionWrapper>
                         )}

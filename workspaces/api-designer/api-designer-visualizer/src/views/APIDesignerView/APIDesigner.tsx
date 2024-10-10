@@ -53,12 +53,22 @@ export function APIDesigner(props: ServiceDesignerProps) {
                 filePath: fileUri,
             });
             console.log("resp", resp);
-            const convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
-            const serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
+            let convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
+            let serDesModel: Service | undefined;
+            if (convertedApiDefinition) {
+                serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
+            }
             setServiceDesModel(serDesModel);
             // If openapi field is not present in the response, then set the openapi field to the convertedApiDefinition
-            if (!convertedApiDefinition.openapi) {
-                convertedApiDefinition.openapi = "3.0.1";
+            if (!convertedApiDefinition) {
+                convertedApiDefinition = {
+                    openapi: "3.0.1",
+                    info: {
+                        title: "New API",
+                        version: "1.0.0",
+                    },
+                    paths: {},
+                };
             }
             // If no Info field is present in the response, then set the Info field
             if (!convertedApiDefinition.info) {

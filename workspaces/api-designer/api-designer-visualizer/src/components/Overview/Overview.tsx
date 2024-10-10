@@ -47,10 +47,10 @@ export function Overview(props: OverviewProps) {
     const { openAPIDefinition } = props;
     const [isReadOnly, setIsReadOnly] = useState(true);
     let selectedOptions: string[] = [];
-    if (openAPIDefinition?.info?.summary) {
+    if (openAPIDefinition?.info?.summary || openAPIDefinition?.info?.summary === "") {
         selectedOptions.push("Summary");
     }
-    if (openAPIDefinition?.info?.description) {
+    if (openAPIDefinition?.info?.description || openAPIDefinition?.info?.description === "") {
         selectedOptions.push("Description");
     }
     if (openAPIDefinition?.info?.license) {
@@ -70,7 +70,7 @@ export function Overview(props: OverviewProps) {
     const handleOptionChange = (options: string[]) => {
         if (options.includes("Summary") && !openAPIDefinition.info?.summary) {
             openAPIDefinition.info.summary = "";
-        } else if (!options.includes("Summary") && openAPIDefinition.info?.summary) {
+        } else if (!options.includes("Summary") && (openAPIDefinition.info?.summary || openAPIDefinition.info?.summary === "")) {
             delete openAPIDefinition.info.summary;
         }
         if (options.includes("License") && !openAPIDefinition.info?.license) {
@@ -85,7 +85,7 @@ export function Overview(props: OverviewProps) {
         }
         if (options.includes("Description") && !openAPIDefinition.info?.description) {
             openAPIDefinition.info.description = "";
-        } else if (!options.includes("Description") && openAPIDefinition.info?.description) {
+        } else if (!options.includes("Description") && (openAPIDefinition.info?.description || openAPIDefinition.info?.description === "")) {
             delete openAPIDefinition.info.description;
         }
         // TODO: Implement the same for other fields
@@ -201,7 +201,7 @@ export function Overview(props: OverviewProps) {
                                 <MarkDownEditor
                                     value={openAPIDefinition?.info?.description}
                                     onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                                    sx={{ maxHeight: "200px", overflowY: "auto", zIndex: 0 }}
+                                    sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
                                 />
                             </DescriptionWrapper>
                         )}

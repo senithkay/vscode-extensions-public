@@ -184,8 +184,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         const currentPath = openAPIDefinition.paths[path];
         // Add a new method to the current path
         currentPath[method] = {
-            summary: "",
-            description: "",
             parameters: []
         };
         const updatedOpenAPIDefinition: OpenAPI = {
