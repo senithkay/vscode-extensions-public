@@ -20,7 +20,7 @@ export class PositionVisitor implements BaseVisitor {
         console.log(">>> position visitor started");
     }
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;

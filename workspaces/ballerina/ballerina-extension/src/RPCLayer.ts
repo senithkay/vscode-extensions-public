@@ -95,7 +95,6 @@ async function getContext(): Promise<VisualizerLocation> {
             metadata: {
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                flowNodeStyle: ballerinaExtInstance.flowNodeStyle(),
             },
         });
     });

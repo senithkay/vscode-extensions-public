@@ -15,8 +15,8 @@ export interface BaseVisitor {
     beginVisitNode?(node: FlowNode, parent?: FlowNode): void;
     endVisitNode?(node: FlowNode, parent?: FlowNode): void;
 
-    beginVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
-    endVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
+    beginVisitEventStart?(node: FlowNode, parent?: FlowNode): void;
+    endVisitEventStart?(node: FlowNode, parent?: FlowNode): void;
 
     beginVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
     endVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;

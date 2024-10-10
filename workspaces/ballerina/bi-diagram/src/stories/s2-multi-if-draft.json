@@ -7,7 +7,7 @@
                 "label": "HTTP API"
             },
             "codedata": {
-                "node": "EVENT_HTTP_API",
+                "node": "EVENT_START",
                 "lineRange": {
                     "fileName": "petstore.bal",
                     "startLine": {

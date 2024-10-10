@@ -233,7 +233,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     orient="auto"
                     id={`${link.getID()}-arrow-head`}
                 >
-                    <polygon points="0,4 0,0 4,2" fill={link.showAddButton && linkColor}></polygon>
+                    <polygon points="0,4 0,0 4,2" fill={linkColor}></polygon>
                 </marker>
             </defs>
         </g>

@@ -80,7 +80,6 @@ export interface VisualizerLocation {
 export interface VisualizerMetadata {
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
-    flowNodeStyle?: string; // BI flow diagram flow node style
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
