@@ -9,11 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    CreateComponentRequest,
-    CreateComponentResponse,
-    DIRECTORY_MAP,
+    AIChatRequest,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -31,9 +27,14 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
-    OverviewFlow,
+    ComponentsRequest,
+    ComponentsResponse,
+    CreateComponentRequest,
+    CreateComponentResponse,
+    DIRECTORY_MAP,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    OverviewFlow,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -48,7 +49,7 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { commands, Uri, workspace } from "vscode";
+import { Uri, commands, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
@@ -531,5 +532,25 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     reject("Error fetching expression completions from ls");
                 });
         });
+    }
+
+    async getReadmeContent(): Promise<ReadmeContentResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    openReadme(): void {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    deployProject(): void {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    openAIChat(params: AIChatRequest): void {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }
