@@ -397,14 +397,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitForeach(node: FlowNode): void {
         const nodeModel = new ForeachNodeModel(node);
 
-        // TODO: Fix and enable code-block node
-        // const codeBlockNode = this.createCodeBlockNode(
-        //     `${node.id}-codeBlock`,
-        //     node.viewState.x + NODE_HEIGHT / 2 - node.viewState.cw / 2 - NODE_GAP_X / 2,
-        //     node.viewState.y + node.viewState.h + NODE_GAP_Y / 2 + NODE_BORDER_WIDTH / 2,
-        //     node.viewState.cw + NODE_GAP_X,
-        //     node.viewState.ch - node.viewState.h - NODE_GAP_Y / 2
-        // );
+        const codeBlockNode = this.createCodeBlockNode(
+            `${node.id}-codeBlock`,
+            node.viewState.x + NODE_HEIGHT / 2 - (node.viewState.cw + NODE_GAP_X) / 2,
+            node.viewState.y + node.viewState.h,
+            node.viewState.cw + NODE_GAP_X,
+            node.viewState.ch - node.viewState.h
+        );
 
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
