@@ -27,6 +27,10 @@ export interface BaseVisitor {
     beginVisitConditional?(node: Branch, parent?: FlowNode): void;
     endVisitConditional?(node: Branch, parent?: FlowNode): void;
 
+    // `Body` is inside `Foreach` node 
+    beginVisitBody?(node: Branch, parent?: FlowNode): void;
+    endVisitBody?(node: Branch, parent?: FlowNode): void;
+
     beginVisitElse?(node: Branch, parent?: FlowNode): void;
     endVisitElse?(node: Branch, parent?: FlowNode): void;
 

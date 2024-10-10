@@ -128,6 +128,11 @@ export class SizingVisitor implements BaseVisitor {
         this.createBlockNode(node);
     }
 
+    // `Body` is inside `Foreach` node 
+    endVisitBody(node: Branch, parent?: FlowNode): void {
+        this.createBlockNode(node);
+    }
+
     endVisitElse(node: Branch, parent?: FlowNode): void {
         this.createBlockNode(node);
     }
@@ -174,7 +179,7 @@ export class SizingVisitor implements BaseVisitor {
                 height = mainBranch.viewState.ch;
             }
         }
-        // add while node width and height
+        // add foreach node width and height
         height += FOREACH_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
 
         const foreachNodeWidth = FOREACH_NODE_WIDTH + VSCODE_MARGIN;

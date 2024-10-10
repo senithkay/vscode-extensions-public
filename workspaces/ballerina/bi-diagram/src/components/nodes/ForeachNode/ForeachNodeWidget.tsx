@@ -207,7 +207,7 @@ export function ForeachNodeWidget(props: ForeachNodeWidgetProps) {
                 </NodeStyles.Column>
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>{model.node.properties.condition?.value}</NodeStyles.Description>
+                    <NodeStyles.Description>{model.node.properties.collection?.value}</NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

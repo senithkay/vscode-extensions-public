@@ -82,6 +82,11 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY = node.viewState.y;
     }
 
+    beginVisitBody(node: Branch, parent?: FlowNode): void {
+        // `Body` is inside `Foreach` node 
+        this.lastNodeY = node.viewState.y;
+    }
+
     beginVisitElse(node: Branch, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y;
     }
@@ -141,7 +146,7 @@ export class PositionVisitor implements BaseVisitor {
         bodyBranch.viewState.x = centerX -  bodyBranch.viewState.cw / 2
     }
 
-    endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
@@ -158,7 +163,7 @@ export class PositionVisitor implements BaseVisitor {
         bodyBranch.viewState.x = centerX -  bodyBranch.viewState.cw / 2
     }
 
-    endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+    endVisitForeach(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
