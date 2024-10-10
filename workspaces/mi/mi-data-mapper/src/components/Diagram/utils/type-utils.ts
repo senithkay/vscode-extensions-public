@@ -162,6 +162,16 @@ export async function getSubMappingTypes(
     return smTypesResp.variableTypes;
 }
 
+export function getDMTypeDim(dmType: DMType) {
+    let dim = 0;
+    while (dmType?.kind == TypeKind.Array) {
+        dim++;
+        dmType = dmType.memberType;
+    }
+    return dim;
+}
+
+
 function getEnrichedPrimitiveType(
     field: DMType,
     node: Node,

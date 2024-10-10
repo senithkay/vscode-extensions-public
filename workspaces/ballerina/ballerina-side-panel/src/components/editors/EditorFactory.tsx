@@ -30,7 +30,7 @@ export function EditorFactory(props: FormFieldEditorProps) {
         return (
             <TypeEditor field={field} openRecordEditor={openRecordEditor} />
         );
-    } else if (!field.items && field.key === "expression") {
+    } else if (!field.items && (field.key === "expression" || field.type === "EXPRESSION")) {
         return (
             <ContextAwareExpressionEditor field={field} />
         );

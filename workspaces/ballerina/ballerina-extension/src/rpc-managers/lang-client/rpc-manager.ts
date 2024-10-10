@@ -17,6 +17,8 @@ import {
     CodeActionResponse,
     CompletionRequest,
     CompletionResponse,
+    ComponentModels,
+    ComponentModelsParams,
     DefinitionPositionRequest,
     DefinitionResponse,
     Diagnostics,
@@ -47,8 +49,8 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { workspace } from "vscode";
 import { URI } from "vscode-uri";
-import { StateMachine, updateView } from "../../stateMachine";
 import { ballerinaExtInstance } from "../../core";
+import { StateMachine } from "../../stateMachine";
 import { modifyFileContent } from "../../utils/modification";
 
 export class LangClientRpcManager implements LangClientAPI {
@@ -267,6 +269,13 @@ export class LangClientRpcManager implements LangClientAPI {
     async getBallerinaVersion(): Promise<BallerinaVersionResponse> {
         return new Promise(async (resolve) => {
             resolve({ version: ballerinaExtInstance.ballerinaVersion });
+        });
+    }
+
+    async getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels> {
+        return new Promise(async (resolve) => {
+            const components = await StateMachine.langClient().getPackageComponentModels(params) as ComponentModels;
+            resolve(components);
         });
     }
 }
