@@ -43,13 +43,13 @@ export class Diagram {
         return new Mediator(this.diagramWebView, mediatorNode);
     }
 
-    public async addMediator(mediatorName: string, index: number = 0) {
+    public async addMediator(mediatorName: string, index: number = 0, data?: FormFillProps, submitBtnText?: string) {
         await this.clickPlusButtonByIndex(index);
 
         const sidePanel = new SidePanel(this.diagramWebView);
         await sidePanel.init();
         await sidePanel.search(mediatorName);
-        await sidePanel.addMediator(mediatorName);
+        await sidePanel.addMediator(mediatorName, data, submitBtnText);
     }
 
     public async goToExternalsPage() {
@@ -180,9 +180,9 @@ class SidePanel {
         await searchInput.type(str);
     }
 
-    public async addMediator(mediatorName: string) {
+    public async addMediator(mediatorName: string, data?: FormFillProps, submitBtnText?: string) {
         const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
-        await mediator.waitFor();
+        await mediator.waitFor({ timeout: 180000 });
         await mediator.click();
 
         const drawer = this.sidePanel.locator("#drawer1");
@@ -191,7 +191,10 @@ class SidePanel {
         await formDiv.waitFor();
 
         const form = new Form(undefined, undefined, formDiv);
-        await form.submit("Submit");
+        if (data) {
+            await form.fill(data);
+        }
+        await form.submit(submitBtnText ?? "Submit");
     }
 
     public async updateMediator(props: FormFillProps) {
@@ -214,7 +217,7 @@ class SidePanel {
         await form.submit("Submit");
     }
 
-    public async selectConnectorOperationFromConnectorTab (connectorName: string, operationName: string) {
+    public async selectConnectorOperationFromConnectorTab(connectorName: string, operationName: string) {
         const connector = this.sidePanel.locator(`#card-select-${connectorName}`);
         await connector.waitFor();
         await connector.click();
