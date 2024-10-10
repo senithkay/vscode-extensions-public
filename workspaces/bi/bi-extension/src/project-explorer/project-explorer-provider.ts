@@ -236,7 +236,7 @@ function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplor
     for (const comp of items) {
         const fileEntry = new ProjectExplorerEntry(
             comp.name,
-            vscode.TreeItemCollapsibleState.None,
+            comp.resources.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None,
             comp.path,
             comp.icon
         );
@@ -245,6 +245,7 @@ function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplor
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
             "arguments": [vscode.Uri.parse(comp.path), comp.position]
         };
+        fileEntry.children = getComponents(comp.resources);
         entries.push(fileEntry);
     }
     return entries;
