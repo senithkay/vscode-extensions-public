@@ -179,3 +179,7 @@ export const centerDiagram = (engine: DiagramEngine) => {
 export const getNodeId = (nodeType: string, id: string) => {
     return `${nodeType}-${id}`;
 };
+
+export const getModelId = (nodeId: string) => {
+    return nodeId.split("-").pop();
+};
