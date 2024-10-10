@@ -118,11 +118,8 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                         if (test.id.endsWith(".xml")) {
                             const id = normalize(test.id);
 
-                            const key = Object.entries(testsJson).find(([key]) => normalize(key) === id)?.[0];
-                            if (key) {
-                                testResults = testsJson[testResults];
-                                testCases = test.children;
-                            }
+                            testResults = Object.entries(testsJson).find(([key]) => normalize(key) === id)?.[1];
+                            testCases = test.children;
                         } else {
                             const strs = test.id.split("/");
                             strs.pop();
