@@ -21,7 +21,7 @@ export class RemoveNodeVisitor implements BaseVisitor {
         this.nodeId = nodeId;
     }
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         this.flow.nodes.forEach((flowNode) => {
             if (flowNode.id === this.nodeId) {
                 console.log(">>> http-api remove node", { target: flowNode });

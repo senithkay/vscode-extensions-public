@@ -117,7 +117,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
     }; // only ui nodes have id
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         const nodeModel = new StartNodeModel(node);
         this.nodes.push(nodeModel);

@@ -242,7 +242,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                         </Tooltip>
                     </NodeStyles.Description>
                     <NodeStyles.Footer>
-                        {model.node.properties.variable?.value && (
+                        {model.node.properties?.variable?.value && (
                             <NodeStyles.Pill color={Colors.PURPLE}>
                                 <XIcon />
                                 {model.node.properties.variable.value}
