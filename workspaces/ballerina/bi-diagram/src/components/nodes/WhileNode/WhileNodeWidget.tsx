@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
@@ -45,8 +45,8 @@ export namespace NodeStyles {
     export const StyledButton = styled(Button)`
         border-radius: 5px;
         position: absolute;
-        top: -6px;
-        left: 46px;
+        top: -8px;
+        left: 40px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -134,6 +134,10 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
+    useEffect(() => {
+        model.setAroundLinksDisabled(model.node.suggested);
+    }, [model.node.suggested]);
+
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
             onGoToSource();
@@ -196,7 +200,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth="2.5"
-                                stroke={isHovered && !disabled ? Colors.PRIMARY : "currentColor"}
+                                stroke={Colors.ON_SURFACE}
                             >
                                 <path d="M12 3a9 9 0 1 1-5.657 2" />
                                 <path d="M3 4.5h4v4" />

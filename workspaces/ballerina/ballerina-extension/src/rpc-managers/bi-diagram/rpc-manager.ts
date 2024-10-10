@@ -51,7 +51,7 @@ import * as path from 'path';
 import { commands, Uri, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -65,8 +65,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 });
             }
 
-            const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
-
             const params: BIFlowModelRequest = {
                 filePath: Uri.parse(context.documentUri!).fsPath,
                 startLine: {
@@ -77,7 +75,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     line: context.position.endLine ?? 0,
                     offset: context.position.endColumn ?? 0,
                 },
-                forceAssign: flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments",
+                forceAssign: true, // TODO: remove this
             };
 
             StateMachine.langClient()
@@ -208,8 +206,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
         console.log(">>> requesting bi node template from ls", params);
-        const flowNodeStyle = ballerinaExtInstance.flowNodeStyle();
-        params.forceAssign = flowNodeStyle === "ballerina-statements" || flowNodeStyle === "only-assignments";
+        params.forceAssign = true; // TODO: remove this
 
         return new Promise((resolve) => {
             StateMachine.langClient()
@@ -249,6 +246,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             switch (params.type) {
                 case DIRECTORY_MAP.SERVICES:
                     res = await createBIService(params);
+                    break;
+                case DIRECTORY_MAP.AUTOMATION:
+                    res = await createBITask(params);
                     break;
                 default:
                     break;
@@ -318,7 +318,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
             } else {
                 const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
-                if(!enableAiSuggestions) {
+                if (!enableAiSuggestions) {
                     resolve(undefined);
                     return;
                 }
@@ -450,9 +450,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         switch (entry.type) {
                             case "service":
                                 const req: CreateComponentRequest = {
-                                    name: sanitizeName(entry.name),
-                                    path: "/",
-                                    port: "9090",
+                                    serviceType: {
+                                        name: sanitizeName(entry.name),
+                                        path: "/",
+                                        port: "9090",
+                                    },
                                     type: DIRECTORY_MAP.SERVICES
                                 };
                                 await handleServiceCreation(req);

@@ -25,4 +25,3 @@ export const ENABLE_INLAY_HINTS = "ballerina.enableInlayHints";
 export const ENABLE_SEQUENCE_DIAGRAM_VIEW = "ballerina.enableSequenceDiagramView";
 export const ENABLE_FULL_PROJECT_SCAFFOLDING = "ballerina.enableCompleteProjectScaffolding";
 export const ENABLE_AI_SUGGESTIONS = "ballerina.enableAiSuggestions";
-export const FLOW_NODE_STYLE = "ballerina.flowNodeStyle";

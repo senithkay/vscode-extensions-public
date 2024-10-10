@@ -31,7 +31,6 @@ import {
     ENABLE_LIVE_RELOAD,
     ENABLE_FULL_PROJECT_SCAFFOLDING,
     ENABLE_AI_SUGGESTIONS,
-    FLOW_NODE_STYLE,
     ENABLE_SEQUENCE_DIAGRAM_VIEW
 }
     from "./preferences";
@@ -641,10 +640,6 @@ export class BallerinaExtension {
 
     public enableAiSuggestions(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
-    }
-
-    public flowNodeStyle(): string {
-        return <string>workspace.getConfiguration().get(FLOW_NODE_STYLE);
     }
 
     public getDocumentContext(): DocumentContext {

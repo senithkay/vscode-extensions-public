@@ -13,6 +13,7 @@ import {
     BallerinaSTParams,
     CodeActionRequest,
     CompletionRequest,
+    ComponentModelsParams,
     DefinitionPositionRequest,
     DidChangeRequest,
     DidCloseRequest,
@@ -38,6 +39,7 @@ import {
     getDefinitionPosition,
     getDiagnostics,
     getExecutorPositions,
+    getPackageComponentModels,
     getST,
     getSTByRange,
     getSTForExpression,
@@ -87,4 +89,5 @@ export function registerLangClientRpcHandlers(messenger: Messenger) {
     messenger.onNotification(didOpen, (args: DidOpenRequest) => rpcManger.didOpen(args));
     messenger.onNotification(didChange, (args: DidChangeRequest) => rpcManger.didChange(args));
     messenger.onNotification(didClose, (args: DidCloseRequest) => rpcManger.didClose(args));
+    messenger.onRequest(getPackageComponentModels, (args: ComponentModelsParams) => rpcManger.getPackageComponentModels(args));
 }

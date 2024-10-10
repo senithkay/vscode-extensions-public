@@ -256,14 +256,19 @@ export function NodeList(props: NodeListProps) {
 
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
-            {nodes.map((node, index) => (
-                // <Tooltip content={node.description} key={node.id + index + "tooltip"}>
-                <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
-                    <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
-                    <S.ComponentTitle>{node.label}</S.ComponentTitle>
-                </S.Component>
-                // </Tooltip>
-            ))}
+            {nodes.map((node, index) => {
+                if (["MATCH"].includes(node.id)) {
+                    // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
+                    return;
+                }
+
+                return (
+                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
+                        <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
+                        <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                    </S.Component>
+                );
+            })}
         </S.Grid>
     );
 

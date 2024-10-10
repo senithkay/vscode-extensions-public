@@ -241,7 +241,7 @@ export function enrichFormPropertiesWithValueConstraint(
             const expression = formTemplateProperties[key as NodePropertyKey];
             if (expression) {
                 const valConstraint = formTemplateProperties[key as NodePropertyKey]?.valueTypeConstraint;
-                if (valConstraint) {
+                if (valConstraint && enrichedFormProperties[key as NodePropertyKey]) {
                     enrichedFormProperties[key as NodePropertyKey].valueTypeConstraint = valConstraint;
                 }
             }

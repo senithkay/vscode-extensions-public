@@ -17,6 +17,7 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
+import { ForeachNodeModel } from "../components/nodes/ForeachNode";
 
 export type NodeModel =
     | BaseNodeModel
@@ -24,6 +25,7 @@ export type NodeModel =
     | DraftNodeModel
     | IfNodeModel
     | WhileNodeModel
+    | ForeachNodeModel
     | CodeBlockNodeModel
     | StartNodeModel
     | ApiCallNodeModel
