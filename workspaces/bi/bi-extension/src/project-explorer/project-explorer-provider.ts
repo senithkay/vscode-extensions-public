@@ -192,7 +192,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS]);
     entries.push(connections);
 
-    // Connections
+    // Types
     const types = new ProjectExplorerEntry(
         "Types",
         vscode.TreeItemCollapsibleState.Expanded,
@@ -203,6 +203,18 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     types.contextValue = "types";
     types.children = getComponents(components.directoryMap[DIRECTORY_MAP.TYPES]);
     entries.push(types);
+
+    // Records
+    const records = new ProjectExplorerEntry(
+        "Records",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'folder',
+        true
+    );
+    records.contextValue = "records";
+    records.children = getComponents(components.directoryMap[DIRECTORY_MAP.RECORDS]);
+    entries.push(records);
 
     // Functions
     const functions = new ProjectExplorerEntry(
