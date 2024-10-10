@@ -413,11 +413,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const getMockServices = (mockServices: STNode[]): MockServiceEntry[] => {
         return mockServices.map((mockService) => {
-            const mockServicePath = mockService.textNode;
-            const mockServicesDirs = ["src", "test", "resources", "mock-services"];
-            const mockServicesRoot = isWindows ? path.win32.join(...mockServicesDirs) : path.join(...mockServicesDirs);
-            const fileName = mockServicePath.split(mockServicesRoot)[1];
-            const name = fileName ? fileName.substring(1, fileName.length - 4) : "";
+            const name = path.basename(mockService.textNode, ".xml");
 
             return {
                 name,
