@@ -10,7 +10,14 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, createNodesLink, generateEngine, getNodeId, registerListeners } from "../utils/diagram";
+import {
+    autoDistribute,
+    createNodesLink,
+    generateEngine,
+    getModelId,
+    getNodeId,
+    registerListeners,
+} from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -56,7 +63,7 @@ export function Diagram(props: DiagramProps) {
             const actorNode = new ActorNodeModel({ ...entryPoint, id: node.getID() + ACTOR_SUFFIX });
             nodes.push(actorNode);
             // create link between entry and actor nodes
-            const link = createNodesLink(actorNode, node);
+            const link = createNodesLink(actorNode, node, { visible: true });
             if (link) {
                 links.push(link);
             }
@@ -87,8 +94,8 @@ export function Diagram(props: DiagramProps) {
         // nodes.push(node);
 
         // create new component add button node
-        const node = new ButtonNodeModel({ id: NEW_COMPONENT, name: "New Component" });
-        nodes.push(node);
+        // const node = new ButtonNodeModel({ id: NEW_COMPONENT, name: "New Component" });
+        // nodes.push(node);
 
         // create links between entry and connection nodes
         project.entryPoints.forEach((entryPoint) => {
@@ -97,7 +104,9 @@ export function Diagram(props: DiagramProps) {
                 nodes
                     .filter((node) => node instanceof ConnectionNodeModel && node.getID() !== NEW_CONNECTION)
                     .forEach((connectionNode) => {
-                        const link = createNodesLink(entryNode, connectionNode);
+                        const link = createNodesLink(entryNode, connectionNode, {
+                            visible: entryPoint.connections?.includes(getModelId(connectionNode.getID())),
+                        });
                         if (link) {
                             links.push(link);
                         }
