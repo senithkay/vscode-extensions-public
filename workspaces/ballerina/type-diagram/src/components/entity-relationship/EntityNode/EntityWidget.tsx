@@ -25,7 +25,7 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { focusedNodeId } = useContext(DiagramContext);
+    const { focusedNodeId, selectedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
 
     useEffect(() => {
@@ -41,14 +41,14 @@ export function EntityWidget(props: EntityWidgetProps) {
         <EntityNode
             isAnonymous={node.entityObject.isAnonymous}
             isEditMode={false}
-            isSelected={node.isNodeSelected(selectedLink, node.getID())}
+            isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
             shouldShade={false}
             isFocused={node.getID() === focusedNodeId}
         >
             <EntityHeadWidget
                 engine={engine}
                 node={node}
-                isSelected={node.isNodeSelected(selectedLink, node.getID())}
+                isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
             />
 
             {node.entityObject.attributes.map((attribute, index) => {
