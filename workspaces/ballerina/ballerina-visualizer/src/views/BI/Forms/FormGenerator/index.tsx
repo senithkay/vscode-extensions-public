@@ -177,8 +177,6 @@ export function FormGenerator(props: FormProps) {
                     openRecordEditor={handleOpenRecordEditor}
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
-                    canUpdateVariable={node.codedata.node !== "NEW_CONNECTION"}
-                    editForm={editForm}
                     expressionEditor={expressionEditor}
                 />
             )}

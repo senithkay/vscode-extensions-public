@@ -11,6 +11,7 @@ import {
     COMMENT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     EMPTY_NODE_WIDTH,
+    FOREACH_NODE_WIDTH,
     IF_NODE_WIDTH,
     LABEL_HEIGHT,
     NODE_BORDER_WIDTH,
@@ -91,7 +92,7 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitNode = (node: FlowNode): void => this.createBaseNode(node);
 
-    endVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    endVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         const width = Math.round(NODE_WIDTH / 3) + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
         const height = Math.round(NODE_HEIGHT / 1.5) + NODE_BORDER_WIDTH * 2;
@@ -124,6 +125,11 @@ export class SizingVisitor implements BaseVisitor {
     //     this.createBlockNode(node);
     // }
     endVisitConditional(node: Branch, parent?: FlowNode): void {
+        this.createBlockNode(node);
+    }
+
+    // `Body` is inside `Foreach` node 
+    endVisitBody(node: Branch, parent?: FlowNode): void {
         this.createBlockNode(node);
     }
 
@@ -161,6 +167,23 @@ export class SizingVisitor implements BaseVisitor {
 
         const whileNodeWidth = WHILE_NODE_WIDTH + VSCODE_MARGIN;
         this.setNodeSize(node, whileNodeWidth, whileNodeWidth, width, height);
+    }
+
+    endVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        let width = 0;
+        let height = 0;
+        if (node.branches && node.branches.length == 1) {
+            const mainBranch: Branch = node.branches.at(0);
+            if (mainBranch.viewState) {
+                width = Math.max(width, Math.max(mainBranch.viewState.cw, NODE_GAP_X));
+                height = mainBranch.viewState.ch;
+            }
+        }
+        // add foreach node width and height
+        height += FOREACH_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
+
+        const foreachNodeWidth = FOREACH_NODE_WIDTH + VSCODE_MARGIN;
+        this.setNodeSize(node, foreachNodeWidth, foreachNodeWidth, width, height);
     }
 
     skipChildren(): boolean {

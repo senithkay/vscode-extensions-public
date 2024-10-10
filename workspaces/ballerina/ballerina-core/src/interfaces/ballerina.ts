@@ -505,15 +505,18 @@ export interface ComponentSummary {
     enums: ComponentInfo[],
     listeners: ComponentInfo[],
     moduleVariables: ComponentInfo[],
+    automations: ComponentInfo[],
+    configurableVariables: ComponentInfo[],
 }
 
 export interface ComponentInfo {
-    name: string,
-    filePath: string,
-    startLine: number,
-    startColumn: number,
-    endLine: number,
-    endColumn: number,
+    name: string;
+    filePath: string;
+    startLine: number;
+    startColumn: number;
+    endLine: number;
+    endColumn: number;
+    resources?: ComponentInfo[];
 }
 
 export type SequenceModel = {

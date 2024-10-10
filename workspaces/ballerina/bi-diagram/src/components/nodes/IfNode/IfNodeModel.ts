@@ -12,6 +12,8 @@ import { NodePortModel } from "../../NodePort";
 import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 import { FlowNode } from "../../../utils/types";
+import _ from "lodash";
+import { NodeLinkModel } from "../../NodeLink";
 
 export class IfNodeModel extends NodeModel {
     readonly node: FlowNode;
@@ -60,5 +62,14 @@ export class IfNodeModel extends NodeModel {
 
     getHeight(): number {
         return this.height;
+    }
+
+    setAroundLinksDisabled(disabled: boolean): void {
+        _.forEach(this.ports, (port) => {
+            _.forEach(port.getLinks(), (link) => {
+                (link as NodeLinkModel).setDisabled(disabled);
+                (link as NodeLinkModel).setBrokenLine(disabled);
+            });
+        });
     }
 }

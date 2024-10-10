@@ -11,16 +11,10 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
-import {
-    Colors,
-    NODE_BORDER_WIDTH,
-    ENTRY_NODE_WIDTH,
-    NEW_ENTRY,
-    ENTRY_NODE_HEIGHT,
-} from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { HttpIcon, PlusIcon } from "../../../resources";
+import { HttpIcon, TaskIcon, WebhookIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -33,8 +27,7 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: center;
         gap: 8px;
-        
-        
+
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -126,17 +119,24 @@ export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onAddEntryPoint, onEntryPointSelect } = useDiagramContext();
+    const { onEntryPointSelect } = useDiagramContext();
 
-    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (model.node.id === NEW_ENTRY) {
-            onAddEntryPoint();
-        } else {
-            onEntryPointSelect(model.node);
-        }
+    const handleOnClick = () => {
+        onEntryPointSelect(model.node);
     };
 
-    const isNewEntryPoint = model.node.id === NEW_ENTRY;
+    const getNodeIcon = () => {
+        switch (model.node.type) {
+            case "trigger":
+                return <WebhookIcon />;
+            case "task":
+            case "schedule-task":
+                return <TaskIcon />;
+            case "service":
+            default:
+                return <HttpIcon />;
+        }
+    };
 
     return (
         <NodeStyles.Node
@@ -147,12 +147,10 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Box hovered={isHovered}>
-                <NodeStyles.Icon>{isNewEntryPoint ? <PlusIcon /> : <HttpIcon />}</NodeStyles.Icon>
-                <NodeStyles.Header hovered={isHovered} inactive={isNewEntryPoint}>
-                    <NodeStyles.Title hovered={isHovered} inactive={isNewEntryPoint}>
-                        {model.node.name}
-                    </NodeStyles.Title>
-                    {!isNewEntryPoint && <NodeStyles.Description>{model.node.type}</NodeStyles.Description>}
+                <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
+                <NodeStyles.Header hovered={isHovered}>
+                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
+                    <NodeStyles.Description>{model.node.type.replace(/-/g, " ")}</NodeStyles.Description>
                 </NodeStyles.Header>
             </NodeStyles.Box>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

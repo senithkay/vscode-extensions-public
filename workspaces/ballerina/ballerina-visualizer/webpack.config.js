@@ -4,7 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   entry: "./src/index.tsx",
   target: "web",
-  devtool: "source-map",
+  devtool: "eval-cheap-module-source-map",
   output: {
     path: path.resolve(__dirname, "build"),
     filename: "Visualizer.js",
@@ -31,6 +31,7 @@ module.exports = {
         exclude: '/node_modules/',
         options: {
           configFile: path.resolve(__dirname, 'tsconfig.json'),
+          transpileOnly: true, 
         },
       },
       {

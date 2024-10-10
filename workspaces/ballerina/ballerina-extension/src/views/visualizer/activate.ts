@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import { PALETTE_COMMANDS } from '../../features/project/cmds/cmd-runner';
 import { StateMachine, openView } from '../../stateMachine';
 import { extension } from '../../BalExtensionContext';
-import { EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW, SHARED_COMMANDS } from '@wso2-enterprise/ballerina-core';
 import { ViewColumn } from 'vscode';
 
 export function activateSubscriptions() {
@@ -43,6 +43,12 @@ export function activateSubscriptions() {
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_WELCOME, () => {
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(BI_COMMANDS.OPEN_TYPE_DIAGRAM, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TypeDiagram } );
         })
     );
 

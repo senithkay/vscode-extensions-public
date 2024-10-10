@@ -8,11 +8,20 @@
  */
 
 import * as vscode from 'vscode';
-import { window } from 'vscode';
+import { window, Uri } from 'vscode';
 import path = require('path');
-import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
 
+interface Property {
+    name?: string;
+    type: string;
+    additionalProperties?: { type: string };
+    properties?: {};
+    required?: string[];
+    description?: string;
+    items?: Property;
+}
 export class ProjectExplorerEntry extends vscode.TreeItem {
     children: ProjectExplorerEntry[] | undefined;
     info: string | undefined;
@@ -121,6 +130,8 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
             for (const workspace of workspaceFolders) {
                 const rootPath = workspace.uri.fsPath;
                 const resp = await buildProjectStructure(rootPath, extension.langClient);
+                // Add all the configurations to the project tree
+                // await addConfigurations(rootPath, resp);
                 const projectTree = generateTreeData(workspace, resp);
                 if (projectTree) {
                     data.push(projectTree);
@@ -164,6 +175,9 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     );
     entryPoints.contextValue = "entryPoint";
     entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES]);
+    if (components.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
+        entryPoints.children.push(...getComponents(components.directoryMap[DIRECTORY_MAP.AUTOMATION]));
+    }
     entries.push(entryPoints);
 
     // Connections
@@ -178,10 +192,10 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS]);
     entries.push(connections);
 
-    // Connections
+    // Types
     const types = new ProjectExplorerEntry(
         "Types",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
@@ -190,22 +204,34 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     types.children = getComponents(components.directoryMap[DIRECTORY_MAP.TYPES]);
     entries.push(types);
 
+    // Records
+    const records = new ProjectExplorerEntry(
+        "Records",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'folder',
+        true
+    );
+    records.contextValue = "records";
+    records.children = getComponents(components.directoryMap[DIRECTORY_MAP.RECORDS]);
+    entries.push(records);
+
     // Functions
     const functions = new ProjectExplorerEntry(
         "Functions",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
     );
     functions.contextValue = "functions";
-    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.TASKS]);
+    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.FUNCTIONS]);
     entries.push(functions);
 
     // Configurations
     const configs = new ProjectExplorerEntry(
         "Configurations",
-        vscode.TreeItemCollapsibleState.Collapsed,
+        vscode.TreeItemCollapsibleState.Expanded,
         null,
         'folder',
         true
@@ -222,7 +248,7 @@ function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplor
     for (const comp of items) {
         const fileEntry = new ProjectExplorerEntry(
             comp.name,
-            vscode.TreeItemCollapsibleState.None,
+            comp.resources.length > 0 ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None,
             comp.path,
             comp.icon
         );
@@ -231,7 +257,42 @@ function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplor
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
             "arguments": [vscode.Uri.parse(comp.path), comp.position]
         };
+        fileEntry.children = getComponents(comp.resources);
         entries.push(fileEntry);
     }
     return entries;
+}
+
+async function addConfigurations(rootPath, resp) {
+    const filePath = `${rootPath}/Ballerina.toml`;
+    const response = await extension.langClient?.getBallerinaProjectConfigSchema({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString()
+        }
+    });
+    const project = await extension.langClient.getBallerinaProject({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString()
+        }
+    }) as BallerinaProject;
+    const packageName = project.packageName!;
+    const resData = response as PackageConfigSchema;
+    const configSchema = resData.configSchema;
+    const props: object = configSchema.properties;
+    let orgName;
+    for (const key of Object.keys(props)) {
+        if (props[key].properties[packageName]) {
+            orgName = props[key].properties;
+        }
+    }
+    if (orgName) {
+        const configs: Property = orgName[packageName];
+        const properties = configs.properties;
+        for (let propertyKey in properties) {
+            if (properties.hasOwnProperty(propertyKey)) {
+                const property: Property = properties[propertyKey];
+                resp.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push({ name: propertyKey, path: "", type: property.type, icon: "local-entry" });
+            }
+        }
+    }
 }
