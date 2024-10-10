@@ -16,7 +16,7 @@ import { FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { NodeKind, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -142,7 +142,7 @@ interface FormProps {
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
-    openSubPanel?: () => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function Form(props: FormProps) {

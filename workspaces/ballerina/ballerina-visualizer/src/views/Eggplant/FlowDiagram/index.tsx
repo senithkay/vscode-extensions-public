@@ -24,16 +24,19 @@ import {
     VisualizerLocation,
     MACHINE_VIEW,
     NodeKind,
+    SubPanel,
+    SubPanelView,
 } from "@wso2-enterprise/ballerina-core";
+import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+
 import {
     addDraftNodeToDiagram,
     convertEggplantCategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
     getContainerTitle,
 } from "../../../utils/eggplant";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
@@ -75,7 +78,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [showSubPanel, setShowSubPanel] = useState(false);
+    const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -106,7 +109,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
-        setShowSubPanel(false);
+        setSubPanel({ view: SubPanelView.UNDEFINED });
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -427,8 +430,8 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const handleSubPanel = (showSubPanel: boolean) => {
-        setShowSubPanel(showSubPanel);
+    const handleSubPanel = (subPanel: SubPanel) => {
+        setSubPanel(subPanel);
     };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
@@ -478,14 +481,11 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         : undefined
                 }
                 subPanelWidth={800}
-                subPanel={showSubPanel
+                subPanel={subPanel.view === SubPanelView.INLINE_DATA_MAPPER
                     ? (
                         <InlineDataMapper
-                            filePath="/Users/madusha/play/eggplant/ep0913/svc1.bal"
-                            range={{
-                                start: { line: 30, character: 12 },
-                                end: { line: 30, character: 44 },
-                            }}
+                            filePath={subPanel.props?.inlineDataMapper?.filePath}
+                            range={subPanel.props?.inlineDataMapper?.range}
                         />
                     )
                     : undefined
@@ -518,7 +518,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         targetLineRange={targetRef.current}
                         projectPath={projectPath}
                         onSubmit={handleOnFormSubmit}
-                        openSubPanel={() => handleSubPanel(!showSubPanel)}
+                        openSubPanel={handleSubPanel}
                     />
                 )}
             </PanelContainer>

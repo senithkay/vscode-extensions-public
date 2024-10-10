@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { EVENT_TYPE, FlowNode, LineRange, NodePosition, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertNodePropertiesToFormFields,
@@ -29,7 +29,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     onSubmit: (node?: FlowNode) => void;
-    openSubPanel: () => void;
+    openSubPanel: (subPanel: SubPanel) => void;
 }
 
 export function FormGenerator(props: FormProps) {

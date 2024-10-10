@@ -10,6 +10,7 @@
 import React from "react";
 
 import { FieldValues, UseFormRegister } from "react-hook-form";
+import { SubPanel } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { DropdownEditor } from "./DropdownEditor";
@@ -21,7 +22,7 @@ interface FormFieldEditorProps {
     field: FormField;
     register: UseFormRegister<FieldValues>;
     openRecordEditor?: (open: boolean) => void;
-    openSubPanel?: () => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function EditorFactory(props: FormFieldEditorProps) {

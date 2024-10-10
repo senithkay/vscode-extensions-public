@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { FormField } from "../Form/types";
 import { Button, InputProps, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FieldValues, UseFormRegister } from "react-hook-form";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { TIcon } from "../../resources";
+import { SubPanel, SubPanelView, SubPanelViewProps } from "@wso2-enterprise/ballerina-core";
 
 const AddTypeContainer = styled.div<{}>`
     display: flex;
@@ -57,11 +58,13 @@ const InlineDataMapperText = styled.p`
 interface TextEditorProps {
     field: FormField;
     register: UseFormRegister<FieldValues>;
-    openSubPanel?: () => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function TextEditor(props: TextEditorProps) {
     const { field, register, openSubPanel } = props;
+
+    const [subPanelView, setSubPanelView] = useState<SubPanelView>(SubPanelView.UNDEFINED);
 
     const typeLabel = (type: string) => (
         <AddTypeContainer>
@@ -72,14 +75,28 @@ export function TextEditor(props: TextEditorProps) {
         </AddTypeContainer>
     );
 
-    const handleOpenSubPanel = () => {
-        openSubPanel();
+    const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
+        const newView = subPanelView === SubPanelView.UNDEFINED ? view : SubPanelView.UNDEFINED;
+        setSubPanelView(newView);
+        openSubPanel({
+            view: newView,
+            props: newView === SubPanelView.UNDEFINED ? undefined : subPanelInfo
+        });
     }
-
 
     const inlineDMButton: InputProps = {
         endAdornment: (
-            <InlineDataMapper appearance="icon" tooltip="Create using Data Mapper" onClick={handleOpenSubPanel}>
+            <InlineDataMapper
+                appearance="icon"
+                tooltip="Create using Data Mapper"
+                onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
+                    filePath: "/Users/madusha/play/eggplant/ep0913/svc1.bal",
+                    range: {
+                        start: { line: 30, character: 12 },
+                        end: { line: 30, character: 44 },
+                    }
+                }})}
+            >
                 <InlineDataMapperText>DM</InlineDataMapperText>
             </InlineDataMapper>
         )
