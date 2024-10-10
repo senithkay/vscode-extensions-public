@@ -82,7 +82,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
-    const isChainedExpression = useRef<boolean>(false);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     const selectedNodeRef = useRef<FlowNode>();
@@ -128,7 +127,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // clear memory for expression editor
         setCompletions([]);
         setFilteredCompletions([]);
-        isChainedExpression.current = false;
         triggerCompletionOnNextRequest.current = false;
     };
 
@@ -485,28 +483,23 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const debouncedGetCompletions = debounce(
         async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
-            const endOfChainRegex = new RegExp(`[^a-zA-Z0-9_'${TRIGGER_CHARACTERS.join("")}]$`);
-            if (
-                offset > 0 &&
-                endOfChainRegex.test(value[offset - 1]) &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest
-            ) {
+            const effectiveText = value.slice(0, offset);
+            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+            const endOfStatementRegex = /[\)\]]\s*$/;
+            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
                 // Case 1: When a character unrelated to triggering completions is entered
-                isChainedExpression.current = false;
                 setCompletions([]);
             } else if (
                 completions.length > 0 &&
+                completionFetchText.length > 0 &&
                 !triggerCharacter &&
-                !isChainedExpression &&
                 !onlyVariables &&
-                !triggerCompletionOnNextRequest
+                !triggerCompletionOnNextRequest.current
             ) {
                 // Case 2: When completions have already been retrieved and only need to be filtered
                 expressionCompletions = completions
                     .filter((completion) => {
-                        const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-                        const lowerCaseText = text.toLowerCase();
+                        const lowerCaseText = completionFetchText.toLowerCase();
                         const lowerCaseLabel = completion.label.toLowerCase();
 
                         return lowerCaseLabel.includes(lowerCaseText);
@@ -514,17 +507,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     .sort((a, b) => a.sortText.localeCompare(b.sortText));
             } else {
                 // Case 3: When completions need to be retrieved from the language server
-                if (triggerCharacter) {
-                    isChainedExpression.current = true;
-                } else {
-                    const triggerRegex = new RegExp(`[${TRIGGER_CHARACTERS.join("")}]\\w*`);
-                    if (triggerRegex.test(value.slice(0, offset))) {
-                        isChainedExpression.current = true;
-                    } else {
-                        isChainedExpression.current = false;
-                    }
-                }
-
                 // Retrieve completions from the ls
                 let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                     filePath: model.fileName,
@@ -555,8 +537,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 } else {
                     expressionCompletions = convertedCompletions
                         .filter((completion) => {
-                            const text = value.slice(0, offset).match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-                            const lowerCaseText = text.toLowerCase();
+                            const lowerCaseText = completionFetchText.toLowerCase();
                             const lowerCaseLabel = completion.label.toLowerCase();
 
                             return lowerCaseLabel.includes(lowerCaseText);
@@ -592,6 +573,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
     };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    }
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
@@ -678,6 +663,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onRetrieveCompletions: handleGetCompletions,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
+                            onBlur: handleExpressionEditorBlur,
                         }}
                     />
                 )}
