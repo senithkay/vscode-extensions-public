@@ -347,7 +347,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         suffix: /^((?:\w|')*)/,
     };
 
-    const isDropdownOpen = completions.length > 0 || !!syntax?.item;
+    const isDropdownOpen = completions?.length > 0 || !!syntax?.item;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
