@@ -120,7 +120,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <RespondForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></RespondForm>,
             },
             {
-                title: "Data Mapper",
+                title: "DataMapper",
                 operationName: MEDIATORS.DATAMAPPER,
                 tooltip: "Transforms one data format to another, or changes the data structure in the message",
                 form: <DataMapperForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DataMapperForm>,
@@ -208,7 +208,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <PayloadForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PayloadForm>,
             },
             {
-                title: "Data Mapper",
+                title: "DataMapper",
                 operationName: MEDIATORS.DATAMAPPER,
                 tooltip: "Transforms one data format to another, or changes the data structure in the message",
                 form: <DataMapperForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DataMapperForm>,
