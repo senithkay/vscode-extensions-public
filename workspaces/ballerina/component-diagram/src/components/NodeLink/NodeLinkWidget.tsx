@@ -51,7 +51,6 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 stroke={link.showAddButton && linkColor}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
-                // markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head-old)` : ""}
             />
 
             <defs>
@@ -80,11 +79,11 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     <polyline
                         points="0,5 5,2.5 2,0"
                         fill="none"
-                        stroke-width="1.5"
+                        strokeWidth="1.5"
                         stroke={link.showAddButton && linkColor}
-                        stroke-linecap="round"
+                        strokeLinecap="round"
                         transform="matrix(1,0,0,1,1.5,2.5)"
-                        stroke-linejoin="round"
+                        strokeLinejoin="round"
                     ></polyline>
                 </marker>
             </defs>
