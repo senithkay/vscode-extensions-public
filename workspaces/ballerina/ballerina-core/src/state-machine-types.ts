@@ -52,6 +52,7 @@ export enum MACHINE_VIEW {
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    BIMainFunctionForm = "Add Automation Task",
 }
 
 export interface MachineEvent {
@@ -80,7 +81,6 @@ export interface VisualizerLocation {
 export interface VisualizerMetadata {
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
-    flowNodeStyle?: string; // BI flow diagram flow node style
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
