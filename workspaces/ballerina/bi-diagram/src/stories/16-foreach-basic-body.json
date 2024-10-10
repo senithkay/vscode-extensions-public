@@ -2,7 +2,7 @@
     "fileName": "/Users/dulaj/WSO2/MyBalProjects/eggplant-projects/Sample Project/Library.bal",
     "nodes": [
         {
-            "id": "41886",
+            "id": "41948",
             "metadata": {
                 "label": "HTTP API"
             },
@@ -15,33 +15,28 @@
                         "offset": 4
                     },
                     "endLine": {
-                        "line": 13,
+                        "line": 15,
                         "offset": 5
                     }
                 },
-                "sourceCode": "resource function get validate(boolean condition = true) returns json|http:InternalServerError|http:InternalServerError {\n        foreach User usr in users {\n        }\n    }"
+                "sourceCode": "resource function get validate(boolean condition = true) returns json|http:InternalServerError|http:InternalServerError {\n        foreach User usr in users {\n            var uid = usr.id;\n            int x = 1;\n        }\n    }"
             },
             "returning": false,
             "properties": {
                 "method": {
                     "metadata": {
-                        "label": "Method",
-                        "description": "HTTP Method"
+                        "label": "Path",
+                        "description": "HTTP Path"
                     },
-                    "valueType": "IDENTIFIER",
+                    "valueType": "STRING",
                     "value": "get",
                     "optional": false,
                     "editable": true
                 },
                 "path": {
-                    "metadata": {
-                        "label": "Path",
-                        "description": "HTTP Path"
-                    },
-                    "valueType": "STRING",
                     "value": "validate",
                     "optional": false,
-                    "editable": true
+                    "editable": false
                 }
             },
             "flags": 2048,
@@ -55,7 +50,7 @@
             }
         },
         {
-            "id": "42944",
+            "id": "43006",
             "metadata": {
                 "label": "Foreach",
                 "description": "Iterate over a block of code."
@@ -69,11 +64,11 @@
                         "offset": 8
                     },
                     "endLine": {
-                        "line": 12,
+                        "line": 14,
                         "offset": 9
                     }
                 },
-                "sourceCode": "foreach User usr in users {\n        }"
+                "sourceCode": "foreach User usr in users {\n            var uid = usr.id;\n            int x = 1;\n        }"
             },
             "returning": false,
             "branches": [
@@ -89,65 +84,163 @@
                                 "offset": 34
                             },
                             "endLine": {
-                                "line": 12,
+                                "line": 14,
                                 "offset": 9
                             }
                         },
-                        "sourceCode": "{\n        }"
+                        "sourceCode": "{\n            var uid = usr.id;\n            int x = 1;\n        }"
                     },
                     "repeatable": "ONE",
                     "children": [
                         {
-                            "id": "42944-Body-branch",
+                            "id": "44049",
+                            "metadata": {
+                                "label": "Assign",
+                                "description": "Assign a value to a variable"
+                            },
                             "codedata": {
-                                "node": "EMPTY"
+                                "node": "ASSIGN",
+                                "lineRange": {
+                                    "fileName": "Library.bal",
+                                    "startLine": {
+                                        "line": 12,
+                                        "offset": 12
+                                    },
+                                    "endLine": {
+                                        "line": 12,
+                                        "offset": 29
+                                    }
+                                },
+                                "sourceCode": "var uid = usr.id;"
                             },
                             "returning": false,
-                            "metadata": {
-                                "label": "",
-                                "description": ""
+                            "properties": {
+                                "expression": {
+                                    "metadata": {
+                                        "label": "Type",
+                                        "description": "Type of the variable"
+                                    },
+                                    "valueType": "EXPRESSION",
+                                    "value": "usr.id",
+                                    "optional": false,
+                                    "editable": true
+                                },
+                                "variable": {
+                                    "metadata": {
+                                        "label": "Variable",
+                                        "description": "Name of the variable"
+                                    },
+                                    "valueType": "IDENTIFIER",
+                                    "value": "uid",
+                                    "optional": false,
+                                    "editable": true
+                                },
+                                "type": {
+                                    "metadata": {
+                                        "label": "Type",
+                                        "description": "Type of the variable"
+                                    },
+                                    "valueType": "TYPE",
+                                    "value": "int",
+                                    "optional": false,
+                                    "editable": true
+                                }
                             },
-                            "branches": [],
+                            "flags": 0,
                             "viewState": {
-                                "x": 1992,
+                                "x": 1850.2,
                                 "y": 386.6,
-                                "w": 16,
-                                "h": 16,
-                                "cw": 140,
-                                "ch": 50
+                                "w": 299.6,
+                                "h": 73.6,
+                                "cw": 299.6,
+                                "ch": 73.6
+                            }
+                        },
+                        {
+                            "id": "45034",
+                            "metadata": {
+                                "label": "Assign",
+                                "description": "Assign a value to a variable"
+                            },
+                            "codedata": {
+                                "node": "ASSIGN",
+                                "lineRange": {
+                                    "fileName": "Library.bal",
+                                    "startLine": {
+                                        "line": 13,
+                                        "offset": 12
+                                    },
+                                    "endLine": {
+                                        "line": 13,
+                                        "offset": 22
+                                    }
+                                },
+                                "sourceCode": "int x = 1;"
+                            },
+                            "returning": false,
+                            "properties": {
+                                "expression": {
+                                    "metadata": {
+                                        "label": "Expression",
+                                        "description": "Expression"
+                                    },
+                                    "valueType": "EXPRESSION",
+                                    "value": "1",
+                                    "optional": false,
+                                    "editable": true
+                                },
+                                "variable": {
+                                    "metadata": {
+                                        "label": "Type",
+                                        "description": "Type of the variable"
+                                    },
+                                    "valueType": "IDENTIFIER",
+                                    "value": "x",
+                                    "optional": false,
+                                    "editable": true
+                                },
+                                "type": {
+                                    "value": "int",
+                                    "optional": false,
+                                    "editable": false
+                                }
+                            },
+                            "flags": 0,
+                            "viewState": {
+                                "x": 1850.2,
+                                "y": 500.20000000000005,
+                                "w": 299.6,
+                                "h": 73.6,
+                                "cw": 299.6,
+                                "ch": 73.6
                             }
                         }
                     ],
                     "viewState": {
-                        "x": 1930,
+                        "x": 1850.2,
                         "y": 386.6,
-                        "w": 140,
-                        "h": 100,
-                        "cw": 140,
-                        "ch": 100
+                        "w": 299.6,
+                        "h": 187.2,
+                        "cw": 299.6,
+                        "ch": 187.2
                     }
                 }
             ],
             "properties": {
                 "variable": {
                     "metadata": {
-                        "label": "Variable",
-                        "description": "Name of the variable"
+                        "label": "Type",
+                        "description": "Type of the variable"
                     },
                     "valueType": "IDENTIFIER",
-                    "value": "usr",
+                    "value": "User",
                     "optional": false,
                     "editable": true
                 },
                 "type": {
-                    "metadata": {
-                        "label": "Type",
-                        "description": "Type of the variable"
-                    },
-                    "valueType": "TYPE",
                     "value": "User",
                     "optional": false,
-                    "editable": true
+                    "editable": false
                 },
                 "collection": {
                     "metadata": {
@@ -166,12 +259,12 @@
                 "y": 276.6,
                 "w": 70,
                 "h": 70,
-                "cw": 140,
-                "ch": 230
+                "cw": 299.6,
+                "ch": 317.2
             }
         },
         {
-            "id": "42944-last",
+            "id": "43006-last",
             "codedata": {
                 "node": "EMPTY"
             },
@@ -183,7 +276,7 @@
             "branches": [],
             "viewState": {
                 "x": 1982,
-                "y": 546.6,
+                "y": 633.8,
                 "w": 16,
                 "h": 16,
                 "cw": 140,
