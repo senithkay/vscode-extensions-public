@@ -79,7 +79,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
@@ -93,14 +92,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const selectedClientName = useRef<string>();
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
-
-    useEffect(() => {
-        rpcClient.getVisualizerLocation().then((location) => {
-            if (location.metadata?.flowNodeStyle) {
-                setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
-            }
-        });
-    }, [rpcClient]);
 
     useEffect(() => {
         console.log(">>> Updating sequence model...", syntaxTree);
@@ -604,7 +595,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
-                                flowNodeStyle={flowNodeStyle}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,

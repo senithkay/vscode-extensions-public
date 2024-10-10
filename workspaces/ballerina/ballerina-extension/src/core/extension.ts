@@ -643,10 +643,6 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
     }
 
-    public flowNodeStyle(): string {
-        return <string>workspace.getConfiguration().get(FLOW_NODE_STYLE);
-    }
-
     public getDocumentContext(): DocumentContext {
         return this.documentContext;
     }

@@ -193,15 +193,6 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Enable AI suggestions from WSO2 BI Copilot."
-                    },
-                    "ballerina.flowNodeStyle": {
-                        "type": "string",
-                        "default": "default",
-                        "enum": [
-                            "default",
-                            "ballerina-statements"
-                        ],
-                        "description": "Select the style for flow diagram nodes."
                     }
                 }
             }

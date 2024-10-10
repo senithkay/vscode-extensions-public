@@ -84,7 +84,6 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         position: position,
                         metadata: {
                             enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                            flowNodeStyle: ballerinaExtInstance.flowNodeStyle()
                         }
                     },
                     dataMapperDepth: 0
