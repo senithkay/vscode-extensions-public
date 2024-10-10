@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ActorNodeModel } from "./ActorNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ACTOR_NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { PersonIcon } from "../../../resources";
+import { AppIcon, PersonIcon, ClockIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -122,6 +122,19 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
         // event.stopPropagation();
     };
 
+    const getNodeIcon = () => {
+        switch (model.node.type) {
+            case "trigger":
+                return <AppIcon />;
+            case "schedule-task":
+                return <ClockIcon />;
+            case "task":
+            case "service":
+            default:
+                return <PersonIcon />;
+        }
+    };
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -132,9 +145,7 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Header>
-                    <NodeStyles.Icon>
-                        <PersonIcon />
-                    </NodeStyles.Icon>
+                    <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
                 </NodeStyles.Header>
             </NodeStyles.Row>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
