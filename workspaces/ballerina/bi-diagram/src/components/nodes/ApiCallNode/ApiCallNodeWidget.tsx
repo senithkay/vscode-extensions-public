@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
@@ -22,7 +22,7 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
+import { MoreVertIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
@@ -165,11 +165,15 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode, flowNodeStyle } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+
+    useEffect(() => {
+        model.setAroundLinksDisabled(model.node.suggested);
+    }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
@@ -214,7 +218,6 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const showReturnType = flowNodeStyle === "default";
 
     return (
         <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -225,27 +228,16 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         <NodeIcon type={model.node.codedata.node} />
                     </NodeStyles.Icon>
                     <NodeStyles.Header onClick={handleOnClick}>
-                        <NodeStyles.Title>
-                            {model.node.codedata.module} : {model.node.metadata.label}
-                        </NodeStyles.Title>
-                        {/* <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description> */}
-                        <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
-                        {showReturnType && (
-                            <NodeStyles.Footer>
-                                {/* {model.node.properties.variable?.value && (
-                                    <NodeStyles.Pill color={Colors.PURPLE}>
-                                        <XIcon />
-                                        {model.node.properties.variable.value}
-                                    </NodeStyles.Pill>
-                                )} */}
-                                {/* {model.node.properties.type?.value && (
-                                <NodeStyles.Pill color={Colors.GREEN}>
-                                    <TIcon />
-                                    {model.node.properties.type.value}
+                        <NodeStyles.Title>{model.node.metadata.label}</NodeStyles.Title>
+                        <NodeStyles.Description>
+                            {model.node.properties?.variable?.value && (
+                                <NodeStyles.Pill color={Colors.PURPLE}>
+                                    <XIcon />
+                                    {model.node.properties.variable.value}
                                 </NodeStyles.Pill>
-                            )} */}
-                            </NodeStyles.Footer>
-                        )}
+                            )}
+                        </NodeStyles.Description>
+                        <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />
@@ -281,7 +273,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     fill={Colors.SURFACE_DIM}
                     stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
-                    strokeDasharray={disabled ? "4 2" : "none"}
+                    strokeDasharray={disabled ? "5 5" : "none"}
                     opacity={disabled ? 0.7 : 1}
                 />
                 <text

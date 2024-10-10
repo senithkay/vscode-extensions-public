@@ -31,6 +31,7 @@ import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
+import { NodeTypes } from "../resources/constants";
 
 export interface DiagramProps {
     model: Flow;
@@ -40,8 +41,6 @@ export interface DiagramProps {
     onNodeSelect: (node: FlowNode) => void;
     goToSource: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
-    // node customization
-    flowNodeStyle?: FlowNodeStyle;
     // ai suggestions callbacks
     suggestions?: {
         fetching: boolean;
@@ -60,7 +59,6 @@ export function Diagram(props: DiagramProps) {
         onNodeSelect,
         goToSource,
         openView,
-        flowNodeStyle,
         suggestions,
         projectPath,
     } = props;
@@ -124,7 +122,16 @@ export function Diagram(props: DiagramProps) {
         const newDiagramModel = new DiagramModel();
         newDiagramModel.addLayer(new OverlayLayerModel());
         // add nodes and links to the diagram
-        newDiagramModel.addAll(...nodes, ...links);
+
+        // get code block nodes from nodes
+        const codeBlockNodes = nodes.filter((node) => node.getType() === NodeTypes.CODE_BLOCK_NODE);
+        // get all other nodes
+        const otherNodes = nodes.filter((node) => node.getType() !== NodeTypes.CODE_BLOCK_NODE);
+
+        newDiagramModel.addAll(...codeBlockNodes);
+        newDiagramModel.addAll(...otherNodes, ...links );
+
+        console.log(">>> diagram model", newDiagramModel);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
@@ -176,7 +183,6 @@ export function Diagram(props: DiagramProps) {
         onNodeSelect: onNodeSelect,
         goToSource: goToSource,
         openView: openView,
-        flowNodeStyle: flowNodeStyle,
         suggestions: suggestions,
         projectPath: projectPath,
     };

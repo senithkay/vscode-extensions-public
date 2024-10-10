@@ -51,6 +51,7 @@ import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import ComponentDiagramV2 from "./views/BI/ComponentDiagramV2";
+import { TypeDiagram } from "./views/TypeDiagram";
 
 const globalStyles = css`
     *,
@@ -173,6 +174,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
+                        break;
+                    case MACHINE_VIEW.TypeDiagram:
+                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier}/>);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(

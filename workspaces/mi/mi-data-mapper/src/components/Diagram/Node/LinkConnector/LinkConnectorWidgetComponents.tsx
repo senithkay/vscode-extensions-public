@@ -12,6 +12,9 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 import { DataMapperPortWidget, IntermediatePortModel } from '../../Port';
+import { LinkConnectorNode } from './LinkConnectorNode';
+import { ElementAccessExpression, PropertyAssignment } from 'ts-morph';
+import { genArrayElementAccessRepr } from '../../utils/common-utils';
 
 export const renderPortWidget = (engine: DiagramEngine, port: IntermediatePortModel, label: string) => (
     <DataMapperPortWidget
@@ -56,6 +59,17 @@ export const renderEditButton = (onClick: () => void, nodeValue: string) => (
         tooltip='edit'
     >
         <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+    </Button>
+);
+
+export const renderIndexingButton = (onClick: () => void, node: LinkConnectorNode) => (
+    <Button
+        appearance="icon"
+        onClick={onClick}
+        data-testid={`link-connector-indexing-${node?.value}`}
+        tooltip='indexing'
+    >
+        {genArrayElementAccessRepr((node.valueNode as PropertyAssignment).getInitializer())}
     </Button>
 );
 
