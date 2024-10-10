@@ -90,12 +90,14 @@ export function TextEditor(props: TextEditorProps) {
                 appearance="icon"
                 tooltip="Create using Data Mapper"
                 onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                    filePath: "/Users/madusha/play/eggplant/ep0913/svc1.bal",
+                    // TODO: get filePath and range from getFlowModel API
+                    filePath: "/path/to/file",
                     range: {
-                        start: { line: 30, character: 12 },
-                        end: { line: 30, character: 44 },
+                        start: { line: 0, character: 0 },
+                        end: { line: 0, character: 0 },
                     }
                 }})}
+                disabled={true} // TODO: enable when file path and range are available
             >
                 <InlineDataMapperText>DM</InlineDataMapperText>
             </InlineDataMapper>

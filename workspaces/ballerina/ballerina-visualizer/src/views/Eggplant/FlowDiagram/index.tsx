@@ -434,6 +434,20 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
         setSubPanel(subPanel);
     };
 
+    const findSubPanelComponent = (subPanel: SubPanel) => {
+        switch (subPanel.view) {
+            case SubPanelView.INLINE_DATA_MAPPER:
+                return (
+                    <InlineDataMapper
+                        filePath={subPanel.props?.inlineDataMapper?.filePath}
+                        range={subPanel.props?.inlineDataMapper?.range}
+                    />
+                );
+            default:
+                return null;
+        }
+    }
+
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
@@ -481,15 +495,7 @@ export function EggplantFlowDiagram(props: EggplantFlowDiagramProps) {
                         : undefined
                 }
                 subPanelWidth={800}
-                subPanel={subPanel.view === SubPanelView.INLINE_DATA_MAPPER
-                    ? (
-                        <InlineDataMapper
-                            filePath={subPanel.props?.inlineDataMapper?.filePath}
-                            range={subPanel.props?.inlineDataMapper?.range}
-                        />
-                    )
-                    : undefined
-                }
+                subPanel={findSubPanelComponent(subPanel)}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                     <NodeList
