@@ -25,7 +25,7 @@ interface FormFieldEditorProps {
 }
 
 export function EditorFactory(props: FormFieldEditorProps) {
-    const { field, openRecordEditor } = props;
+    const { field, openRecordEditor, openSubPanel } = props;
 
     if (isDropdownField(field)) {
         return <DropdownEditor field={field} />;
@@ -35,7 +35,7 @@ export function EditorFactory(props: FormFieldEditorProps) {
         );
     } else if (!field.items && (field.key === "expression" || field.type === "EXPRESSION")) {
         return (
-            <ContextAwareExpressionEditor field={field} />
+            <ContextAwareExpressionEditor field={field} openSubPanel={openSubPanel} />
         );
     } else if (!field.items && (field.key !== "type")) {
         return (

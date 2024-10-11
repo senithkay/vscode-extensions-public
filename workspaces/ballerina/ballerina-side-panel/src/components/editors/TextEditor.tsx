@@ -7,14 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React from "react";
 import { FormField } from "../Form/types";
-import { Button, InputProps, TextField } from "@wso2-enterprise/ui-toolkit";
+import { TextField } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { TIcon } from "../../resources";
-import { SubPanel, SubPanelView, SubPanelViewProps } from "@wso2-enterprise/ballerina-core";
 
 const AddTypeContainer = styled.div<{}>`
     display: flex;
@@ -43,29 +42,14 @@ const Pill = styled.div`
     }
 `;
 
-const InlineDataMapper = styled(Button)`
-    & > vscode-button {
-        color: var(--vscode-button-secondaryForeground);
-        font-size: 10px;
-    }
-`;
-
-const InlineDataMapperText = styled.p`
-    font-size: 10px;
-    margin: 0;
-`;
-
 interface TextEditorProps {
     field: FormField;
-    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { field, openSubPanel } = props;
+    const { field } = props;
     const { form } = useFormContext();
     const { register } = form;
-
-    const [subPanelView, setSubPanelView] = useState<SubPanelView>(SubPanelView.UNDEFINED);
 
     const typeLabel = (type: string) => (
         <AddTypeContainer>
@@ -75,35 +59,6 @@ export function TextEditor(props: TextEditorProps) {
             </Pill>
         </AddTypeContainer>
     );
-
-    const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
-        const newView = subPanelView === SubPanelView.UNDEFINED ? view : SubPanelView.UNDEFINED;
-        setSubPanelView(newView);
-        openSubPanel({
-            view: newView,
-            props: newView === SubPanelView.UNDEFINED ? undefined : subPanelInfo
-        });
-    }
-
-    const inlineDMButton: InputProps = {
-        endAdornment: (
-            <InlineDataMapper
-                appearance="icon"
-                tooltip="Create using Data Mapper"
-                onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                    // TODO: get filePath and range from getFlowModel API
-                    filePath: "/path/to/file",
-                    range: {
-                        start: { line: 0, character: 0 },
-                        end: { line: 0, character: 0 },
-                    }
-                }})}
-                disabled={true} // TODO: enable when file path and range are available
-            >
-                <InlineDataMapperText>DM</InlineDataMapperText>
-            </InlineDataMapper>
-        )
-    };
 
     return (
         <TextField
@@ -115,7 +70,6 @@ export function TextEditor(props: TextEditorProps) {
             description={field.documentation}
             // labelAdornment={typeLabel(field.type)}
             sx={{ width: "100%" }}
-            inputProps={field.key === "expression" ? inlineDMButton : undefined}
         />
     );
 }
