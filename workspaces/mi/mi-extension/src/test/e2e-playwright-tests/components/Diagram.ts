@@ -155,8 +155,8 @@ class Mediator {
         await form.updateMediator(props);
     }
 
-    public async open(text: string) {
-        const link = this.mediatorNode.locator(`div:text("${text}")`);
+    public async clickLink(linkText: string) {
+        const link = this.mediatorNode.locator(`div:text("${linkText}")`);
         await link.waitFor();
         await link.click();
     }
@@ -188,7 +188,7 @@ class SidePanel {
 
     public async addMediator(mediatorName: string, data?: FormFillProps, submitBtnText?: string) {
         const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
-        await mediator.waitFor({ timeout: 180000 });
+        await mediator.waitFor();
         await mediator.click();
 
         const drawer = this.sidePanel.locator("#drawer1");
