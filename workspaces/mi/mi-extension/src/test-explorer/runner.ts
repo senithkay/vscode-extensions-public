@@ -98,7 +98,8 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 run.appendOutput(`Running tests ${testNames}\r\n`);
 
                 // run tests
-                await runTests(testNames, projectRoot, printer);
+                const triggerID = request?.include?.[0]?.id ?? "";
+                await runTests(testNames, projectRoot, triggerID, printer);
                 const EndTime = Date.now();
                 const timeElapsed = (EndTime - startTime) / queue.length;
 
@@ -299,10 +300,22 @@ async function compileProject(projectRoot: string, printToOutput?: (line: string
     });
 }
 
-async function runTests(testNames: string, projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
+async function runTests(testNames: string, projectRoot: string, triggerId: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
-        const testRunCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
+        const testLevel = triggerId.endsWith(".xml") ? "unitTest" : triggerId.includes(".xml") ? "testCase" : "testSuite";
+        const basicTestCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
+
+        let testRunCmd = basicTestCmd;
+        switch (testLevel) {
+            case "unitTest":
+                testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(triggerId)}`;
+                break;
+            // This needs to be further improved to run a specific test case after updating the mvn test plugin.
+            case "testCase":
+                testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(path.dirname(triggerId))}`;
+                break;
+        }
 
         const onData = (data: string) => { }
         const onError = (data: string) => { }
@@ -342,7 +355,7 @@ export function runCommand(command, pathToRun?: string,
 
             let foundError = false;
             rl.on('line', (line) => {
-                if (line.includes("] ERROR " || line.includes("[error]"))) {
+                if (line.includes("] ERROR ") || line.includes("[error]")) {
                     foundError = true;
                 } else if (line.includes("]  INFO ") || line.includes("[INFO]")) {
                     foundError = false;
