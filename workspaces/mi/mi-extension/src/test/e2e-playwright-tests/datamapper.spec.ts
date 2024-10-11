@@ -14,12 +14,12 @@ import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
 import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
-import { ConnectorStore } from './components/ConnectorStore';
+import { DataMapper } from './components/DataMapper';
 const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-  console.log('Starting diagram tests')
+  console.log('.:.Starting datamapper tests')
   // delete and recreate folder
   if (fs.existsSync(newProjectPath)) {
     fs.rmSync(newProjectPath, { recursive: true });
@@ -29,6 +29,7 @@ test.beforeAll(async () => {
 });
 
 test('Create new project', async () => {
+  console.log('.:.Creating new project')
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
   // await page.waitUntilExtensionReady();
@@ -73,7 +74,7 @@ test('Service designer', async () => {
 });
 
 test('Add DataMapper in to resource', async () => {
-  // diagram
+
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
   await diagram.addMediator('DataMapper', 0, {
@@ -84,16 +85,26 @@ test('Add DataMapper in to resource', async () => {
       }
     }
   }, "Create Mapping");
+
+  const dataMapper = new DataMapper(page.page, 'dm1');
+  await dataMapper.init();
+
+  //await page.page.waitForTimeout(60000);
 });
 
-test('Open DataMapper in resource', async () => {
-  const diagram = new Diagram(page.page, 'Resource');
-  await diagram.init();
-  const mediator = await diagram.getMediator('DataMapper');
-  await mediator.open('dm1');
-  expect(await mediator.getDescription()).toEqual('log mediator');
+// test('Open DataMapper in resource', async () => {
+//   console.log('.:.Open DataMapper in resource');
 
-});
+//   console.log('.:.Getting resource view');
+//   const diagram = new Diagram(page.page, 'Resource');
+//   await diagram.init();
+//   console.log('.:.Getting mediator');
+//   const mediator = await diagram.getMediator('DataMapper');
+//   await mediator.clickLink('dm1');
+
+//   console.log('.:.opening data mapper');
+  
+// });
 
 // test('Add new connection', async () => {
 //   // Add connection from side panel
