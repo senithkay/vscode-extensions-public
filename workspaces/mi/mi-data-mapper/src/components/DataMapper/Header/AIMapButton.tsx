@@ -45,21 +45,32 @@ const AIMapButton: React.FC<AIMapButtonProps> = ({ onClick, isLoading }) => {
   const { rpcClient } = useVisualizerContext();
 
   useEffect(() => {
-    rpcClient.getAIVisualizerState().then((machineView: any) => {
-      const maxTokens = machineView.userTokens.max_usage;
-      if (maxTokens == -1) {
-        setRemainingTokenPercentage("Unlimited");
-      } else {
-        const remainingTokens = machineView.userTokens.remaining_tokens;
-        const percentage = (remainingTokens / maxTokens) * 100;
-        if (percentage < 1 && percentage > 0) {
-          setRemainingTokenLessThanOne(true);
+    rpcClient.getAIVisualizerState()
+      .then((machineView: any) => {
+        if (machineView && machineView.userTokens) {
+          const maxTokens = machineView.userTokens.max_usage;
+          if (maxTokens === -1) {
+            setRemainingTokenPercentage("Unlimited");
+          } else {
+            const remainingTokens = machineView.userTokens.remaining_tokens;
+            const percentage = (remainingTokens / maxTokens) * 100;
+            if (percentage < 1 && percentage > 0) {
+              setRemainingTokenLessThanOne(true);
+            } else {
+              setRemainingTokenLessThanOne(false);
+            }
+            setRemainingTokenPercentage(Math.round(percentage));
+          }
         } else {
-          setRemainingTokenLessThanOne(false);
+          // Handle the case when machineView or userTokens is undefined
+          setRemainingTokenPercentage("Not Available");
         }
-        setRemainingTokenPercentage(Math.round(percentage));
-      }
-    });
+      })
+      .catch((error) => {
+        // Handle errors from the API call
+        console.error("Error fetching AI Visualizer State:", error);
+        setRemainingTokenPercentage("Not Available");
+      });
   }, []);
 
   var tokenUsageText = remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage : (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`);
