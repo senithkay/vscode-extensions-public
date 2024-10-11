@@ -10,7 +10,7 @@ import { Button, Codicon, FormGroup, SidePanelTitleContainer, Typography } from 
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { DataGrid } from '../DataGrid/DataGrid';
-import { MarkdownRenderer } from '../Resource/ReadOnlyResource1';
+import { MarkdownRenderer } from '../Resource/ReadOnlyResource';
 
 export const PanelBody = styled.div`
     height: calc(100% - 87px);

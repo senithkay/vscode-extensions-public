@@ -20,7 +20,7 @@ import {
 import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
-import { ReadOnlyResource2 } from './ReadOnlyResource1';
+import { ReadOnlyResource } from './ReadOnlyResource';
 import "@mdxeditor/editor/style.css";
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 
@@ -297,7 +297,7 @@ export function Resource(props: ResourceProps) {
         <>
             {isReadOnly ? (
                 <>
-                    <ReadOnlyResource2 resourceOperation={resourceOperation} method={method} path={path} onEdit={() =>      setIsReadOnly(false)} />
+                    <ReadOnlyResource resourceOperation={resourceOperation} method={method} path={path} onEdit={() =>      setIsReadOnly(false)} />
                 </>
             ) : (
                 <>
