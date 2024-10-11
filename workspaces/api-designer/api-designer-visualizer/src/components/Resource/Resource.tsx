@@ -23,6 +23,7 @@ import { ReadOnlyResource } from './ReadOnlyResource';
 import "@mdxeditor/editor/style.css";
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { Request } from './Request';
+import { Response } from './Response';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -354,6 +355,7 @@ export function Resource(props: ResourceProps) {
                         <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
                         <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
                         <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+                        <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
                     </PanelBody>
                 </>
             )}

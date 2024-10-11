@@ -49,7 +49,7 @@ const ResponseCodeWrapper = styled.div`
     flex-direction: row;
     gap: 10px;
 `;
-const ResponseCode = styled.div<ResponseCodeProps>`
+export const ResponseCode = styled.div<ResponseCodeProps>`
     display: flex;
     justify-content: center;
     width: 55px;

@@ -227,7 +227,7 @@ export function Request(props: ReadOnlyResourceProps) {
                     <label htmlFor="description">Description</label>
                     <MarkDownEditor
                         key={`requestBody-description-${path}-${method}`}
-                        value={resourceOperation.requestBody.description}
+                        value={resourceOperation?.requestBody?.description}
                         onChange={(markdown: string) => handleDescriptionChange(markdown)}
                         sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
                     />
@@ -258,7 +258,7 @@ export function Request(props: ReadOnlyResourceProps) {
                             <TextField
                                 placeholder="Default Value"
                                 value={type}
-                                sx={{ width: "33%" }}
+                                sx={{ width: "100%" }}
                                 onChange={(e) => updateSchemaType(e.target.value)}
                             />
                             <ButtonWrapper>

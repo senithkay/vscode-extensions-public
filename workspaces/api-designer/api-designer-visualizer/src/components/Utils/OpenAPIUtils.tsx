@@ -10,7 +10,7 @@
 import yaml from 'js-yaml';
 
 import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
-import { OpenAPI, Operation, Param, Parameter, PathItem, Schema, Response } from '../../Definitions/ServiceDefinitions';
+import { OpenAPI, Operation, Param, Parameter, PathItem, Schema, Response, Header } from '../../Definitions/ServiceDefinitions';
 import { colors, darkerColors } from '../../constants';
 
 export function resolveResponseType(response: Response): string {
@@ -202,6 +202,16 @@ export function getHeaderParametersFromParameters(parameters: Parameter[]): Para
         defaultValue: param.schema ? param.schema.default : "",
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
+    }));
+}
+
+export function getResponseHeadersFromResponse(response: Header[]): Param[] {
+    return Object.entries(response).map(([name, header]) => ({
+        name: header.name,
+        type: header.schema ? header.schema.type : "string",
+        defaultValue: header.schema ? header.schema.default : "",
+        isArray: header.schema ? header.schema.type === "array" : false,
+        isRequired: header.required || false,
     }));
 }
 
