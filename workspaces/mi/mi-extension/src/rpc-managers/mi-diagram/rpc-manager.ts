@@ -4286,6 +4286,7 @@ ${keyValuesXML}`;
             }
 
             await replaceFullContentToFile(filePath, content);
+            await this.rangeFormat({ uri: filePath });
 
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
@@ -4335,7 +4336,7 @@ ${keyValuesXML}`;
             workspaceEdit.replace(Uri.file(filePath), range, params.content);
             await workspace.applyEdit(workspaceEdit);
 
-            await this.rangeFormat({ uri: filePath, range: this.getFormatRange(range, params.content) });
+            await this.rangeFormat({ uri: filePath });
 
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test case ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {

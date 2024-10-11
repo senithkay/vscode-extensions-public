@@ -18,6 +18,8 @@ import model12 from "./12-if-else-if-empty-4-branch.json";
 import model13 from "./13-if-else-if-empty-3-branch.json";
 import model14 from "./14-while-basic-body.json";
 import model15 from "./15-while-empty-body.json";
+import model16 from "./16-foreach-basic-body.json";
+import model17 from "./17-foreach-empty-body.json";
 
 export default {
     title: "BI/Diagram",
@@ -114,4 +116,14 @@ WhileBasicBody.args = {
 export const WhileEmptyBody = Template.bind({});
 WhileEmptyBody.args = {
     model: model15,
+}
+
+export const ForeachBasicBody = Template.bind({});
+ForeachBasicBody.args = {
+    model: model16,
+}
+
+export const ForeachEmptyBody = Template.bind({});
+ForeachEmptyBody.args = {
+    model: model17,
 }

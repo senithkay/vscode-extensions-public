@@ -169,14 +169,16 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 id: 0,
                 type: "TextField",
                 label: "Name",
-                defaultValue: "parameter_key",
+                defaultValue: "",
+                placeholder: "parameter_key",
                 isRequired: true
             },
             {
                 id: 1,
                 type: "TextField",
                 label: "Value",
-                defaultValue: "parameter_value",
+                defaultValue: "",
+                placeholder: "parameter_value",
                 isRequired: true
             }]
     }
