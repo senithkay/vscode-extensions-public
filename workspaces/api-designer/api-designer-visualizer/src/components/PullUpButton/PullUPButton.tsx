@@ -41,8 +41,10 @@ export function PullUpButton(props: PullUpProps) {
     return (
         <Container sx={sx}>
             <MultiSelect
+                addHoverEffect
+                closeOnSelect
                 dropdownSx={{marginTop: 2}}
-                options={options} 
+                options={options}
                 displayValue={children}
                 values={selectedOptions}
                 onChange={onChangeValues}

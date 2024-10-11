@@ -27,3 +27,41 @@ export const darkerColors = {
     "OPTIONS": '#0b3f7d',
     "HEAD": '#6d0fcb'
 };
+
+// Media Types used in postman
+export const MediaTypes = [
+    "application/json",
+    "application/xml",
+    "application/vnd.api+json",
+    "application/x-www-form-urlencoded",
+    "application/octet-stream",
+    "multipart/form-data",
+    "text/plain",
+    "text/html",
+    "application/EDI-X12",
+    "application/EDIFACT",
+    "application/atom+xml",
+    "application/font-woff",
+    "application/gzip",
+    "application/javascript",
+    "application/ogg",
+    "application/pdf",
+    "application/postscript",
+    "application/soap+xml",
+    "application/bitTorrent",
+    "application/x-tex",
+    "application/xhtml+xml",
+    "application/xslt+xml",
+    "application/xml-dtd",
+    "application/xop+xml",
+    "application/zip",
+    "application/x-www-form-urlencoded"
+];
+
+export const BaseTypes = [
+    "string",
+    "number",
+    "integer",
+    "boolean",
+    "any",
+];

@@ -10,13 +10,13 @@ import { FormGroup, LinkButton, TextField, Button, Codicon } from '@wso2-enterpr
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 
-const HorizontalFieldWrapper = styled.div`
+export const HorizontalFieldWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
 `;
 
-const ButtonWrapper = styled.div`
+export const ButtonWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;

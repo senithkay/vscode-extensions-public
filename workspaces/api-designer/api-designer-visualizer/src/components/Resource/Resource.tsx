@@ -17,12 +17,12 @@ import {
     getPathParametersFromParameters,
     getQueryParametersFromParameters 
 } from '../Utils/OpenAPIUtils';
-import { debounce } from 'lodash';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
 import { ReadOnlyResource } from './ReadOnlyResource';
 import "@mdxeditor/editor/style.css";
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
+import { Request } from './Request';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -335,7 +335,7 @@ export function Resource(props: ResourceProps) {
                             <DescriptionWrapper>
                                 <label htmlFor="description">Description</label>
                                 <MarkDownEditor
-                                    key={`description-${path}-${method}`}
+                                    key={`resource-description-${path}-${method}`}
                                     value={values?.description}
                                     onChange={(markdown: string) => handleDescriptionChange(markdown)}
                                     sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
@@ -352,7 +352,8 @@ export function Resource(props: ResourceProps) {
                         )}
                         <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
                         <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                        <ParamEditor params={values?.headerParams} type="Header" onParamsChange=        {handleOnHeaderParamsChange} />
+                        <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                        <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
                     </PanelBody>
                 </>
             )}

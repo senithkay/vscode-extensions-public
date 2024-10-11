@@ -250,6 +250,19 @@ export function convertParamsToParameters(params: Param[], type: "path" | "query
     return parameters;
 }
 
+export function resolveTypeFromSchema(schema: Schema): string {
+    // Add [] if the schema is an array
+    if (schema.type === "array") {
+        return resolveTypeFromSchema(schema.items);
+    } else if (schema.$ref) {
+        return schema.$ref.replace("#/components/schemas/", "");
+    } else if (schema.items && schema.items.$ref) {
+        return schema.items.$ref.replace("#/components/schemas/", "");
+    } else {
+        return schema.type;
+    }
+}
+
 export function resolveResonseColor(responseCode: string): string {
     if (responseCode.startsWith("2")) {
         return 'var(--vscode-statusBarItem-remoteBackground)';

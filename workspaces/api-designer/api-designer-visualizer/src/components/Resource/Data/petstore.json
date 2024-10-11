@@ -88,6 +88,11 @@
                             "schema": {
                                 "$ref": "#/components/schemas/NewPet"
                             }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewPet"
+                            }
                         }
                     }
                 },

@@ -122,6 +122,7 @@ export interface Schema {
     items?: Schema;
     required?: string[];
     maximum?: number; // Added to handle "maximum" in schemas
+    isArray?: boolean; // Added to handle arrays in schemas
     [key: string]: any; // To accommodate extensions and additional properties
 }
 

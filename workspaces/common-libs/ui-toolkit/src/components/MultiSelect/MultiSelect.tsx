@@ -24,6 +24,7 @@ const MultiSelectContainer = styled.div<MultiSelectContainerProps>`
 interface ContainerProps {
     isOpen: boolean;
     hasDisplayValue?: boolean;
+    addHoverEffect?: boolean;
     dropdownSx?: any;
 }
 
@@ -71,7 +72,7 @@ const Dropdown = styled.div<ContainerProps>`
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     max-height: 200px;
     overflow-y: auto;
-    padding-left: 10px;
+    padding-left: ${(props: ContainerProps) => (props.addHoverEffect ? "4px" : "10px")};
     ${(props: ContainerProps) => props.dropdownSx};
 `;
 
@@ -94,11 +95,13 @@ export interface MultiSelectProps {
     sx?: any;
     iconSx?: any;
     dropdownSx?: any;
+    addHoverEffect?: boolean;
+    closeOnSelect?: boolean;
     onChange?: (values: string[]) => void;
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps) => {
-    const { id, className, values, placeholder, displayValue, options, sx, dropdownSx } = props;
+    const { id, className, values, placeholder, displayValue, options, sx, dropdownSx, closeOnSelect, addHoverEffect = false } = props;
     const [isComponentOpen, setIsComponentOpen] = React.useState(false);
     const [valueContainerPosition, setValueContainerPosition] = React.useState<DOMRect | null>(null);
     const containerRef = useRef<HTMLDivElement>(null); // Reference to the container
@@ -121,6 +124,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
             newValues = newValues.filter(value => value !== option);
         }
         props.onChange && props.onChange(newValues);
+        if (closeOnSelect) {
+            setIsComponentOpen(false);
+        }
     };
 
     const handleCloseComponent = () => {
@@ -147,6 +153,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
                         <Dropdown
                             dropdownSx={dropdownSx}
                             isOpen={isComponentOpen}
+                            addHoverEffect={addHoverEffect}
                             onClick={handleDropdownClick}
                             style={{
                                 top: (window.innerHeight - valueContainerPosition?.bottom < 200) ? 
@@ -157,6 +164,17 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
                             {options.map((option, key) => (
                                 <CheckBox
                                     key={key}
+                                    sx={addHoverEffect && {
+                                        margin: 0,
+                                        padding: 2,
+                                        "--checkbox-border": "var(--vscode-dropdown-background)",
+                                        "&:hover" : {
+                                            "--vscode-editor-background": "var(--vscode-editorHoverWidget-background)",
+                                            "--checkbox-background": "var(--vscode-editorHoverWidget-background)",
+                                            "--border-width": "0",
+                                            backgroundColor: "var(--vscode-editorHoverWidget-background)" 
+                                        } 
+                                    }}
                                     label={option}
                                     checked={(values?.length > 0) ? (values.indexOf(option) !== -1) : false}
                                     onChange={isSelected => handleChange(option, isSelected)}
