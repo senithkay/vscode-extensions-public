@@ -72,11 +72,20 @@ export const getParamManagerValues = (paramManager: ParamConfig, withAdditionalD
     }));
 }
 
-export const getParamManagerFromValues = (values: { [key: string]: any }[], keyIndex?: number, valueIndex: number = 1): any => {
+export const getParamManagerFromValues = (values: any[], keyIndex?: number, valueIndex: number = 1): any => {
 
-    values = typeof values?.[0] === 'object' ? values.map((v: any) => Object.values(v)) : values;
+    if (!values) {
+        return [];
+    }
+
+    values = typeof values?.[0] === 'object' && !values?.[0]?.additionalData ? values.map((v: any) => Object.values(v)) : values;
     const getParamValues = (value: any): any => {
         return value.map((v: any) => {
+            let additionalData
+            if (v?.additionalData) {
+                additionalData = v.additionalData;
+                v = v.value;
+            }
             if (v instanceof Array) {
                 return {
                     value: {
@@ -84,7 +93,7 @@ export const getParamManagerFromValues = (values: { [key: string]: any }[], keyI
                     }
                 }
             }
-            return { ...v };
+            return { value: v, additionalData };
         });
     }
 
