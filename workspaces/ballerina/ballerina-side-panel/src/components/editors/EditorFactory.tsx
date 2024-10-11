@@ -9,6 +9,8 @@
 
 import React from "react";
 
+import { SubPanel } from "@wso2-enterprise/ballerina-core";
+
 import { FormField } from "../Form/types";
 import { DropdownEditor } from "./DropdownEditor";
 import { TextEditor } from "./TextEditor";
@@ -19,10 +21,11 @@ import { isDropdownField } from "./utils";
 interface FormFieldEditorProps {
     field: FormField;
     openRecordEditor?: (open: boolean) => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function EditorFactory(props: FormFieldEditorProps) {
-    const { field, openRecordEditor } = props;
+    const { field, openRecordEditor, openSubPanel } = props;
 
     if (isDropdownField(field)) {
         return <DropdownEditor field={field} />;
@@ -32,7 +35,7 @@ export function EditorFactory(props: FormFieldEditorProps) {
         );
     } else if (!field.items && (field.key === "expression" || field.type === "EXPRESSION")) {
         return (
-            <ContextAwareExpressionEditor field={field} />
+            <ContextAwareExpressionEditor field={field} openSubPanel={openSubPanel} />
         );
     } else if (!field.items && (field.key !== "type")) {
         return (

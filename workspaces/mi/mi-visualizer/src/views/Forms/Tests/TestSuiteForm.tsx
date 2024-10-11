@@ -276,12 +276,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     const artifacts = syntaxTree.unitTestArtifacts.supportiveArtifacts.artifacts;
                     for (let i = 0; i < artifacts.length; i++) {
                         const param = artifacts[i];
-                        supportiveArtifacts.push({
-                            artifact: {
-                                value: path.basename(param.content, ".xml"),
-                                additionalData: { path: param.content },
-                            }
-                        });
+                        supportiveArtifacts.push([{
+                            value: path.basename(param.content, ".xml"),
+                            additionalData: { path: param.content },
+                        }]);
                     }
                 }
 
@@ -365,8 +363,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         values.artifact = values.artifact.startsWith(path.sep) ? values.artifact.slice(1) : values.artifact;
 
         values.supportiveArtifacts = getParamManagerValues(values.supportiveArtifacts, true).map((param: any) => {
-            const fpath = normalize(param[0].additionalData.path);
-            return path.posix.relative(normalize(projectUri), fpath);
+            return normalize(param[0].additionalData.path).replace(`${normalize(projectUri)}/`, '');
         });
 
         const mockServicePaths = [];

@@ -27,7 +27,10 @@ import {
     BIGetFunctionsRequest,
     TRIGGER_CHARACTERS,
     TriggerCharacter,
+    SubPanel,
+    SubPanelView,
 } from "@wso2-enterprise/ballerina-core";
+
 import {
     addDraftNodeToDiagram,
     convertBalCompletion,
@@ -47,6 +50,7 @@ import {
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
+import { InlineDataMapper } from "../../InlineDataMapper";
 import { debounce } from "lodash";
 import { Colors } from "../../../resources/constants";
 
@@ -97,6 +101,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
+    const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
 
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const selectedNodeRef = useRef<FlowNode>();
@@ -144,6 +149,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
+        setSubPanel({ view: SubPanelView.UNDEFINED });
         clearExpressionEditor();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
@@ -587,6 +593,24 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         250
     );
 
+    const handleSubPanel = (subPanel: SubPanel) => {
+        setSubPanel(subPanel);
+    };
+
+    const findSubPanelComponent = (subPanel: SubPanel) => {
+        switch (subPanel.view) {
+            case SubPanelView.INLINE_DATA_MAPPER:
+                return (
+                    <InlineDataMapper
+                        filePath={subPanel.props?.inlineDataMapper?.filePath}
+                        range={subPanel.props?.inlineDataMapper?.range}
+                    />
+                );
+            default:
+                return null;
+        }
+    }
+
     const handleGetCompletions = async (
         value: string,
         offset: number,
@@ -666,6 +690,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         ? handleOnFormBack
                         : undefined
                 }
+                subPanelWidth={800}
+                subPanel={findSubPanelComponent(subPanel)}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                     <div onClick={onDiscardSuggestions}>
@@ -698,6 +724,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         projectPath={projectPath}
                         editForm={showEditForm.current}
                         onSubmit={handleOnFormSubmit}
+                        openSubPanel={handleSubPanel}
                         expressionEditor={{
                             completions: filteredCompletions,
                             triggerCharacters: TRIGGER_CHARACTERS,
