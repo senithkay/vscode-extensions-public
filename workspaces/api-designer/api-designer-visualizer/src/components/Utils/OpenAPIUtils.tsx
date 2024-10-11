@@ -188,7 +188,7 @@ export function getPathParametersFromParameters(parameters: Parameter[]): Param[
 export function getQueryParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "query").map((param) => ({
         name: param.name,
-        type: param.schema ? param.schema.type : "string",
+        type: param.schema ? ( param.schema.type === "array" ? param.schema.items.type : param.schema.type ) : "string",
         defaultValue: param.schema ? param.schema.default : "",
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
@@ -198,7 +198,7 @@ export function getQueryParametersFromParameters(parameters: Parameter[]): Param
 export function getHeaderParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "header").map((param) => ({
         name: param.name,
-        type: param.schema ? param.schema.type : "string",
+        type: param.schema ? ( param.schema.type === "array" ? param.schema.items.type : param.schema.type ) : "string",
         defaultValue: param.schema ? param.schema.default : "",
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
@@ -208,7 +208,7 @@ export function getHeaderParametersFromParameters(parameters: Parameter[]): Para
 export function getResponseHeadersFromResponse(response: Header[]): Param[] {
     return Object.entries(response).map(([name, header]) => ({
         name: header.name,
-        type: header.schema ? header.schema.type : "string",
+        type: header.schema ? ( header.schema.type === "array" ? header.schema.items.type : header.schema.type ) : "string",
         defaultValue: header.schema ? header.schema.default : "",
         isArray: header.schema ? header.schema.type === "array" : false,
         isRequired: header.required || false,
