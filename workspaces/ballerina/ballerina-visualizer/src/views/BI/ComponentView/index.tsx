@@ -72,6 +72,13 @@ export function AddComponentView() {
                 },
                 isPopup: true,
             });
+        } else if (key === DIRECTORY_MAP.TASKS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIMainFunctionForm,
+                }
+            });
         } else {
             setPopupMessage(true);
         }

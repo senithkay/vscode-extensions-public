@@ -1,6 +1,7 @@
 name: "My API"
 basePath: "/myapi"
 type: "REST"
+version: 1.0.0
 endpointConfigurations:
   production:
     endpoint: "https://endpoint/production"

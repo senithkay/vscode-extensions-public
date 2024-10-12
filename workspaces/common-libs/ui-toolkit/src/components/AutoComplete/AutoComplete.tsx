@@ -293,7 +293,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const btnId = useMemo(() => name || label || identifier || getItemKey(items[0]), [name, items, label, identifier]);
 
     const handleChange = (item: string | ItemComponent) => {
-        onValueChange && onValueChange(getItemKey(item));
+        const index = items.findIndex(i => i === item);
+        onValueChange && onValueChange(getItemKey(item), index);
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
@@ -449,12 +450,11 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         )}
                                         {filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
                                             const item = getItem(filteredItem);
-                                            const itemKey = getItemKey(filteredItem);
                                             return (
                                                 <ComboboxOption key={i + indexOffset}>
                                                     <Combobox.Option
                                                         className={ComboboxOptionContainer}
-                                                        value={itemKey}
+                                                        value={filteredItem}
                                                         key={i}
                                                     >
                                                         {item}

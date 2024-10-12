@@ -47,6 +47,7 @@ export interface Param {
     openInDrawer?: boolean; // For ParamManager
     addParamText?: string; // For ParamManager
     paramFields?: ParamField[]; // For ParamManager
+    additionalData?: any;
 }
 
 interface TypeResolverProps {
@@ -63,8 +64,8 @@ export function TypeResolver(props: TypeResolverProps) {
         onChange({ ...param, value: newValue }, param.enableCondition);
     }
 
-    const handleOnExprChange = (newValue: string | ExpressionFieldValue) => {
-        onChange({ ...param, value: newValue }, param.enableCondition);
+    const handleOnExprChange = (newValue: string | ExpressionFieldValue, additionalData: any) => {
+        onChange({ ...param, value: newValue, additionalData }, param.enableCondition);
     }
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {

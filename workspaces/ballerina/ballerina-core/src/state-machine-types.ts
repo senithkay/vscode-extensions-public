@@ -45,12 +45,14 @@ export enum MACHINE_VIEW {
     ERDiagram = "ER Diagram",
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
+    TypeDiagram = "Type Diagram",
     BIDiagram = "BI Diagram",
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    BIMainFunctionForm = "Add Automation Task",
 }
 
 export interface MachineEvent {
@@ -79,7 +81,6 @@ export interface VisualizerLocation {
 export interface VisualizerMetadata {
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
-    flowNodeStyle?: string; // BI flow diagram flow node style
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

@@ -33,7 +33,7 @@ export class AddNodeVisitor implements BaseVisitor {
         });
     }
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // check flow nodes if one of them is target node, then add new node after the target node
         this.flow.nodes.forEach((flowNode) => {
             if (this.topNode && flowNode.id === this.topNode.id) {

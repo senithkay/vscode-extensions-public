@@ -71,7 +71,7 @@ export function HttpForm(props: HttpFormProps) {
 
     const handleCreateService = async () => {
         setIsLoading(true);
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, name, path, port, specPath });
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, serviceType: { name, path, port, specPath } });
         setIsLoading(res.response);
         setError(res.error);
     };

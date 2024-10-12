@@ -45,7 +45,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	}));
 
 	const hasLinks = Object.entries(port.links).length > 0;
-	const isPendingArrayToArray = port instanceof InputOutputPortModel && port.pendingArrayToArray;
+	const pendingMappingType = port instanceof InputOutputPortModel && port.pendingMappingType;
 	const isPortSelected = portState === PortState.PortSelected;
 
 	const hasError = Object.entries(port.links).some((link) => {
@@ -113,7 +113,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	}, []);
 
 	let portColor = defaultPortColor;
-	if (isPendingArrayToArray) {
+	if (pendingMappingType) {
 		portColor = tempLinkPortColor;
 	} else if (isPortSelected) {
 		portColor = portActiveColor;
@@ -142,7 +142,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		);
 	}
 
-	const isChecked = hasLinks || isPortSelected || isPendingArrayToArray;
+	const isChecked = hasLinks || isPortSelected || !!pendingMappingType;
 
 	return (
 		<PortWidget
