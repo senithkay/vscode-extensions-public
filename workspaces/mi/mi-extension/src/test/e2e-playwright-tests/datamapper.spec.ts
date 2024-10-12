@@ -19,7 +19,7 @@ const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
-  console.log('.:.Starting datamapper tests')
+  console.log('Starting datamapper tests')
   // delete and recreate folder
   if (fs.existsSync(newProjectPath)) {
     fs.rmSync(newProjectPath, { recursive: true });
@@ -29,7 +29,6 @@ test.beforeAll(async () => {
 });
 
 test('Create new project', async () => {
-  console.log('.:.Creating new project')
   // wait until extension is ready
   // Note: This is not required for CI/CD pipeline
   // await page.waitUntilExtensionReady();
@@ -38,7 +37,6 @@ test('Create new project', async () => {
 });
 
 test('Create new API', async () => {
-
   // wait until window reload
   // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
   // page = new ExtendedPage(await vscode!.firstWindow());
@@ -73,7 +71,7 @@ test('Service designer', async () => {
   await resource.click();
 });
 
-test('Add DataMapper in to resource', async () => {
+test('Add & Open DataMapper', async () => {
 
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
@@ -88,8 +86,7 @@ test('Add DataMapper in to resource', async () => {
 
   const dataMapper = new DataMapper(page.page, 'dm1');
   await dataMapper.init();
-
-  //await page.page.waitForTimeout(60000);
+  expect(dataMapper.verifyFileCreation()).toBeTruthy();
 });
 
 // test('Open DataMapper in resource', async () => {

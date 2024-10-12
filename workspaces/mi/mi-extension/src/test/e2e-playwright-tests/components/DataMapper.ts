@@ -13,9 +13,12 @@ import { Form, FormFillProps } from "./Form";
 import * as fs from 'fs';
 import { newProjectPath } from '../Utils';
 import path from "path";
+import { DM_OPERATORS_FILE_NAME } from "../../../constants";
 
 export class DataMapper {
-    private dataMapperWebView!: Frame;
+    private webView!: Frame;
+    configFolder!: string;
+    tsFile!: string;
 
     constructor(private _page: Page, private _name: string) {
     }
@@ -25,22 +28,22 @@ export class DataMapper {
         if (!webview) {
             throw new Error("Failed to switch to Data Mapper View iframe");
         }
-        this.dataMapperWebView = webview;
+        this.webView = webview;
 
-        const dataMapperConfigFolder = path.join(
+        this.configFolder = path.join(
             newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
 
-        const dmUtilsFile = path.join(dataMapperConfigFolder, 'dm-utils.ts');
-        const tsFile = path.join(dataMapperConfigFolder, `${this._name}.ts`);
-
-        if (!(fs.existsSync(dmUtilsFile) && fs.existsSync(tsFile))) {
-            throw new Error(`Data mapper files creation failed.`);
-        }
+        this.tsFile = path.join(this.configFolder, `${this._name}.ts`);
 
     }
 
+    public verifyFileCreation() {
+        const operatorsFile = path.join(this.configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
+        return fs.existsSync(operatorsFile) && fs.existsSync(this.tsFile);
+    }
+
     public async edit() {
-        const editButton = await this.dataMapperWebView.waitForSelector('vscode-button[title="Edit"]');
+        const editButton = await this.webView.waitForSelector('vscode-button[title="Edit"]');
         await editButton.click();
     }
 
@@ -56,26 +59,26 @@ export class DataMapper {
         const mediatorNode = (await this.getDiagramContainer()).locator(`[data-testid^="mediatorNode-${mediatorName}-"]`).nth(index).locator('div').first();
         await mediatorNode.waitFor();
         await mediatorNode.hover();
-        return new Mediator(this.dataMapperWebView, mediatorNode);
+        return new Mediator(this.webView, mediatorNode);
     }
 
     public async addMediator(mediatorName: string, index: number = 0, data?: FormFillProps, submitBtnText?: string) {
         await this.clickPlusButtonByIndex(index);
 
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         await sidePanel.search(mediatorName);
         await sidePanel.addMediator(mediatorName, data, submitBtnText);
     }
 
     public async goToExternalsPage() {
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         sidePanel.goToExternalsPage();
     }
 
     public async goToConnectorsPage() {
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         sidePanel.goToConnectorsPage();
     }
@@ -83,20 +86,20 @@ export class DataMapper {
     public async addNewConnection(index: number = 0) {
         await this.clickPlusButtonByIndex(index);
 
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         sidePanel.goToExternalsPage();
         sidePanel.addNewConnection();
     }
 
     public async addNewConnectionFromConnectorTab() {
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         sidePanel.addNewConnection();
     }
 
     public async verifyConnection(name: string, type: string) {
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         sidePanel.goToExternalsPage();
         return sidePanel.verifyConnection(name, type);
@@ -105,7 +108,7 @@ export class DataMapper {
     public async addConnector(connectionName: string, operationName: string, index: number = 0, props: FormFillProps) {
         await this.clickPlusButtonByIndex(index);
         await this.goToExternalsPage();
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
 
         await sidePanel.addConnector(connectionName, operationName, props);
@@ -114,7 +117,7 @@ export class DataMapper {
     public async selectConnectorFromConnectorTab(connectorName: string, operationName: string, index: number = 0) {
         await this.clickPlusButtonByIndex(index);
         await this.goToConnectorsPage();
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
 
         return await sidePanel.selectConnectorOperationFromConnectorTab(connectorName, operationName);
@@ -124,11 +127,11 @@ export class DataMapper {
         const connectorNode = (await this.getDiagramContainer()).locator(`[data-testid^="connectorNode-${connectorName}.${operationName}"]`).nth(index).locator('div').first();
         await connectorNode.waitFor();
         await connectorNode.hover();
-        return new Mediator(this.dataMapperWebView, connectorNode);
+        return new Mediator(this.webView, connectorNode);
     }
 
     public async closeSidePanel() {
-        const sidePanel = new SidePanel(this.dataMapperWebView);
+        const sidePanel = new SidePanel(this.webView);
         await sidePanel.init();
         await sidePanel.close();
     }
@@ -152,7 +155,7 @@ export class DataMapper {
     }
 
     private async getDiagramContainer() {
-        const continaer = this.dataMapperWebView.getByTestId("diagram-container");
+        const continaer = this.webView.getByTestId("diagram-container");
         await continaer.waitFor();
         return continaer;
     }
