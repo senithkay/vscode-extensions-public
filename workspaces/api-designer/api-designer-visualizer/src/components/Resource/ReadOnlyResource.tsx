@@ -14,6 +14,7 @@ import { getColorByMethod } from '@wso2-enterprise/service-designer';
 import { resolveResonseColor, resolveResonseHoverColor, resolveResponseType, resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { ContentType, ContentTypeWrapper } from './Response';
 
 const TitleWrapper = styled.div`
     display: flex;
@@ -98,6 +99,14 @@ interface ReadOnlyResourceProps {
 export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path, onEdit } = props;
     const [ selectedStatus, setSelectedStatus ] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
+    const [ selectedResposeMediaType, setSelectedResposeMediaType ] = useState<string | undefined>(
+        (resourceOperation?.responses && resourceOperation.responses[selectedStatus]?.content) ? 
+            Object.keys(resourceOperation.responses[selectedStatus].content)[0] : undefined
+    );
+    const [ selectedRequestMediaType, setSelectedRequestMediaType ] = useState<string | undefined>(
+        (resourceOperation?.requestBody && resourceOperation.requestBody.content) ? 
+            Object.keys(resourceOperation.requestBody.content)[0] : undefined
+    );
 
     const parameters = resourceOperation?.parameters;
     const parameterContent = parameters?.map((parameter) => {
@@ -112,6 +121,17 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     }) : [];
     const selectedResponse = responses ? responses[selectedStatus] : undefined;
     const selectedResponseHeaders = selectedResponse?.headers;
+    const responseMediaTypes = selectedResponse?.content && Object.keys(selectedResponse.content);
+    const responseBody = selectedResponse?.content && selectedResponse?.content[selectedResposeMediaType];
+    const requestMediaTypes = resourceOperation?.requestBody?.content && Object.keys(resourceOperation.requestBody.content);
+    const requestBody = resourceOperation?.requestBody?.content && resourceOperation.requestBody.content[selectedRequestMediaType];
+
+    const handleResponseCodeChange = (status: string) => {
+        setSelectedStatus(status);
+        if (responses && responses[status]?.content) {
+            setSelectedResposeMediaType(Object.keys(responses[status].content)[0]);
+        }
+    };
 
     useEffect(() => {
         setSelectedStatus(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
@@ -136,20 +156,6 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                 </ButtonWrapper>
             </TitleWrapper>
             <PanelBody>
-                {/* {parameters && resourceOperation.parameters.length > 0 && (
-                    <AccordionTable
-                        titile='Parameters'
-                        content={parameterContent}
-                        headers={["Name", "Kind", "Type"]}
-                    />
-                )}
-                {responses && Object.keys(responses).length > 0 && (
-                    <AccordionTable
-                        titile='Responses'
-                        content={responseContent}
-                        headers={["Status", "Type"]}
-                    />
-                )} */}
                 {resourceOperation.summary && (
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Summary </Typography>
@@ -211,6 +217,34 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                             ))}
                         </FormGroup>
                     )}
+                    {requestMediaTypes && (
+                        <FormGroup key="Request Body" title='Body' isCollapsed={!requestBody}>
+                            <ContentTypeWrapper>
+                                {requestMediaTypes.map((type: string) => (
+                                    <ContentType
+                                        key={type}
+                                        color={'var(--vscode-symbolIcon-variableForeground)'}
+                                        hoverBackground={'var(--vscode-minimap-selectionHighlight)'}
+                                        selected={selectedRequestMediaType === type}
+                                        onClick={() => setSelectedRequestMediaType(type)}
+                                    >
+                                        {type}
+                                    </ContentType>
+                                ))}
+                            </ContentTypeWrapper>
+                            <Typography 
+                                sx={{ margin: 0, fontWeight: "lighter" }}
+                                variant='body2'> {
+                                    requestBody?.schema?.type === "array" ? 
+                                    (requestBody?.schema?.items?.type === "object" ? 
+                                        requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") : 
+                                        requestBody?.schema?.items?.type 
+                                    ) : (requestBody?.schema?.type ? 
+                                    requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                }
+                            </Typography>
+                        </FormGroup>
+                    )}
                 </FormGroup>
 
                 <FormGroup key="Response" title='Response' isCollapsed={responseContent.length === 0}>
@@ -221,7 +255,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                 color={resolveResonseColor(status)}
                                 hoverBackground={resolveResonseHoverColor(status)}
                                 selected={selectedStatus === status}
-                                onClick={() => setSelectedStatus(status)}
+                                onClick={() => handleResponseCodeChange(status)}
                             >
                                 {status} 
                             </ResponseCode>
@@ -244,6 +278,34 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                     <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
                                 </ParamContainer>
                             ))}
+                        </FormGroup>
+                    )}
+                    {responseMediaTypes && (
+                        <FormGroup key="Response Body" title='Body' isCollapsed={!responseBody}>
+                            <ContentTypeWrapper>
+                                {responseMediaTypes.map((type: string) => (
+                                    <ContentType
+                                        key={type}
+                                        color={'var(--vscode-symbolIcon-variableForeground)'}
+                                        hoverBackground={'var(--vscode-minimap-selectionHighlight)'}
+                                        selected={selectedResposeMediaType === type}
+                                        onClick={() => setSelectedResposeMediaType(type)}
+                                    >
+                                        {type}
+                                    </ContentType>
+                                ))}
+                            </ContentTypeWrapper>
+                            <Typography 
+                                sx={{ margin: 0, fontWeight: "lighter" }}
+                                variant='body2'> {
+                                    requestBody?.schema?.type === "array" ? 
+                                    (requestBody?.schema?.items?.type === "object" ? 
+                                        requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") : 
+                                        requestBody?.schema?.items?.type 
+                                    ) : (requestBody?.schema?.type ? 
+                                    requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                }
+                            </Typography>
                         </FormGroup>
                     )}
                 </FormGroup>

@@ -19,17 +19,6 @@ import { convertParamsToParameters, getResponseHeadersFromResponse, resolveReson
 import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter/ParamEditor';
 import { ResponseCode } from './ReadOnlyResource';
 
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    padding: 16px;
-    border-bottom: 1px solid var(--vscode-panel-border);
-    font: inherit;
-    font-weight: bold;
-    gap: 20px;
-    color: var(--vscode-editor-foreground);
-`;
-
 const ParamWrapper = styled.div`
     display: flex;
     flex-direction: row;
@@ -48,12 +37,12 @@ interface ResponseCodeProps {
     selected?: boolean;
 }
 
-const ContentTypeWrapper = styled.div`
+export const ContentTypeWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
 `;
-const ContentType = styled.div<ResponseCodeProps>`
+export const ContentType = styled.div<ResponseCodeProps>`
     display: flex;
     justify-content: center;
     width: fit-content;
