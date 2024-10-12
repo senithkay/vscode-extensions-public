@@ -94,9 +94,9 @@ interface ReadOnlyResourceProps {
 export function Response(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path, onOperationChange } = props;
     const [selectedResponseType, setSelectedResponseType] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
-    const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses[selectedResponseType].content)[0] : undefined);
+    const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.responses && resourceOperation.responses[selectedResponseType]?.content ? Object.keys(resourceOperation.responses[selectedResponseType].content)[0] : undefined);
 
-    const responseContents = resourceOperation?.responses[selectedResponseType]?.content ? Object.entries(resourceOperation.responses[selectedResponseType].content) : [];
+    const responseContents = resourceOperation?.responses[selectedResponseType]?.content ? Object.entries(resourceOperation.responses[selectedResponseType].content && resourceOperation.responses[selectedResponseType].content) : [];
     const responseMediaTypes = responseContents ? responseContents.map(([key]) => key) : [];
     const selectedContentFromResponseMediaType = resourceOperation?.responses ? resourceOperation.responses[selectedResponseType] : undefined;
     const isInlinedObjectResponse = selectedContentFromResponseMediaType && 
@@ -105,7 +105,7 @@ export function Response(props: ReadOnlyResourceProps) {
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' && 
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties && 
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
-    const responseSchema = selectedContentFromResponseMediaType && selectedContentFromResponseMediaType.content[selectedMediaType]?.schema;
+    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && selectedContentFromResponseMediaType.content[selectedMediaType]?.schema;
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
     const headers: Header[] = resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
@@ -262,7 +262,11 @@ export function Response(props: ReadOnlyResourceProps) {
 
     return (
         <>
-            <FormGroup key="ResponseBody" title='Response Body' isCollapsed={responseContents.length === 0}>
+            <FormGroup
+                key="ResponseBody"
+                title='Response Body'
+                isCollapsed={(Object.keys(resourceOperation?.responses).length === 0)}
+            >
                 <ContentTypeWrapper>
                     {Object.keys(resourceOperation.responses).map((status) => (
                         <ResponseCode
