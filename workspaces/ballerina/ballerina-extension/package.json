@@ -155,17 +155,17 @@
                     },
                     "ballerina.rootUrl": {
                         "type": "string",
-                        "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/ballerina-copilot-api-byo/v2.0",
+                        "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
                         "description": "Ballerina AI Backend service"
                     },
                     "ballerina.authOrg": {
                         "type": "string",
-                        "default": "ballerinacopilotdev",
+                        "default": "ballerinacopilot",
                         "description": "Asgardeo Organization for Auth Services\nDefault: ballerinacopilot"
                     },
                     "ballerina.authClientID": {
                         "type": "string",
-                        "default": "XpQ6lphi7kjKkWzumYyqqNf7CjIa",
+                        "default": "9rKng8hSZd0VkeA45Lt4LOfCp9Aa",
                         "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: 9rKng8hSZd0VkeA45Lt4LOfCp9Aa"
                     },
                     "ballerina.authRedirectURL": {
