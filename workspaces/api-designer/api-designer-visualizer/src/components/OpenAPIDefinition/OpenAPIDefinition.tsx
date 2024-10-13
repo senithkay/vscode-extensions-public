@@ -20,7 +20,7 @@ import { SplitView } from "../SplitView/SplitView";
 import { Service } from "@wso2-enterprise/service-designer";
 import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
 import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
-import { Tabs } from "../Tabs/TabsSelector";
+import { Tabs } from "../Tabs/Tabs";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -315,6 +315,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 </NavigationPanelContainer>
 
                 <Tabs
+                    tabTitleSx={{marginLeft: 5}}
                     views={[
                         { id: Views.READ_ONLY, name: 'Docs' },
                         { id: Views.EDIT, name: 'Designer' },
