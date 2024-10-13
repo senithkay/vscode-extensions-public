@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
+import { FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation } from '../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Overview/Overview';
@@ -74,12 +74,10 @@ const MethodWrapper = styled.div<MethodWrapperProps>`
     color: white;
     background-color: ${(props: MethodWrapperProps) => props.color};
 `;
-const ButtonWrapper = styled.div`
+const PathWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
-    justify-content: flex-end;
-    flex-grow: 1;
 `;
 
 interface MarkdownRendererProps {
@@ -93,11 +91,10 @@ interface ReadOnlyResourceProps {
     method: string;
     path: string;
     resourceOperation: Operation;
-    onEdit: (method: string, path: string) => void;
 }
 
 export function ReadOnlyResource(props: ReadOnlyResourceProps) {
-    const { resourceOperation, method, path, onEdit } = props;
+    const { resourceOperation, method, path } = props;
     const [ selectedStatus, setSelectedStatus ] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
     const [ selectedResposeMediaType, setSelectedResposeMediaType ] = useState<string | undefined>(
         (resourceOperation?.responses && resourceOperation.responses[selectedStatus]?.content) ? 
@@ -139,23 +136,18 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
 
     return (
         <>
-            <TitleWrapper>
-                <MethodWrapper color={getColorByMethod(method)}>
-                    <Typography
-                        variant="h2"
-                        sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
-                    >
-                        {method}
-                    </Typography>
-                </MethodWrapper>
-                <Typography sx={{ margin: 0, marginTop: 4 }} variant="h2">{path}</Typography>
-                <ButtonWrapper>
-                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={() => onEdit(method, path)} tooltip='Edit Operation'>
-                        <Codicon name="edit" />
-                    </Button>
-                </ButtonWrapper>
-            </TitleWrapper>
             <PanelBody>
+                <PathWrapper>
+                <MethodWrapper color={getColorByMethod(method)}>
+                        <Typography
+                            variant="h2"
+                            sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
+                        >
+                            {method}
+                        </Typography>
+                    </MethodWrapper>
+                    <Typography sx={{ margin: 0, marginTop: 4 }} variant="h2">{path}</Typography>
+                </PathWrapper>
                 {resourceOperation.summary && (
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Summary </Typography>

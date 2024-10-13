@@ -34,24 +34,15 @@ const DescriptionWrapper = styled.div`
 
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
-    onSwitchToEdit?: () => void;
 }
 
 // Title, Vesrion are mandatory fields
 export function ReadOnlyOverview(props: OverviewProps) {
-    const { openAPIDefinition, onSwitchToEdit } = props;
+    const { openAPIDefinition } = props;
 
     // Define 2D string array for the accordion table
     return (
         <>
-            <SidePanelTitleContainer>
-                <Typography sx={{ margin: 0 }} variant="h1">Overview</Typography>
-                <ButtonWrapper>
-                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={() => onSwitchToEdit()}> 
-                        <Codicon name="edit" />
-                    </Button>
-                </ButtonWrapper>
-            </SidePanelTitleContainer>
             <PanelBody>
                 {openAPIDefinition?.info?.title && (
                     <>

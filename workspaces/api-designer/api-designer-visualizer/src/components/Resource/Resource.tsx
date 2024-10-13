@@ -7,15 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Dropdown, OptionProps, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, OptionProps, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI, Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
-import { 
+import {
     convertParamsToParameters,
     getHeaderParametersFromParameters,
     getPathParametersFromParameters,
-    getQueryParametersFromParameters 
+    getQueryParametersFromParameters
 } from '../Utils/OpenAPIUtils';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { PanelBody } from '../Overview/Overview';
@@ -29,16 +29,6 @@ const HorizontalFieldWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
-`;
-
-const TitleWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    padding: 16px;
-    border-bottom: 1px solid var(--vscode-panel-border);
-    font: inherit;
-    font-weight: bold;
-    color: var(--vscode-editor-foreground);
 `;
 
 const DescriptionWrapper = styled.div`
@@ -84,7 +74,6 @@ export function Resource(props: ResourceProps) {
         selOpt.push("OperationId");
     }
     const [defaultOptions, setDefaultOptions] = useState<string[]>(selOpt);
-    const [isReadOnly, setIsReadOnly] = useState<boolean>(true);
 
     const values: InputsFields = {
         method: method.toUpperCase(),
@@ -296,69 +285,58 @@ export function Resource(props: ResourceProps) {
 
     return (
         <>
-            {isReadOnly ? (
-                <>
-                    <ReadOnlyResource resourceOperation={resourceOperation} method={method} path={path} onEdit={() =>      setIsReadOnly(false)} />
-                </>
-            ) : (
-                <>
-                    <TitleWrapper>
-                        <Typography sx={{ margin: 0 }} variant="h1">Resource Path</Typography>
-                        <OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} onSwiychToReadOnly={() => setIsReadOnly(true)} />
-                    </TitleWrapper>
-                    <PanelBody>
-                        <HorizontalFieldWrapper>
-                            <Dropdown
-                                id="method"
-                                containerSx={{ width: "20%", gap: 0 }}
-                                dropdownContainerSx={{ gap: 0 }}
-                                items={dropDownItems}
-                                value={values?.method.toLowerCase()}
-                                onValueChange={handleMethodChange}
-                            />
-                            <TextField
-                                id="path"
-                                sx={{ width: "80%" }}
-                                autoFocus
-                                onTextChange={handlePathChange}
-                                value={values?.path}
-                            />
-                        </HorizontalFieldWrapper>
-                        {defaultOptions.includes("Summary") && (
-                            <TextField
-                                id="summary"
-                                label="Summary"
-                                value={values?.summary}
-                                onTextChange={handleSummaryChange}
-                            />
-                        )}
-                        {defaultOptions.includes("Description") && (
-                            <DescriptionWrapper>
-                                <label htmlFor="description">Description</label>
-                                <MarkDownEditor
-                                    key={`resource-description-${path}-${method}`}
-                                    value={values?.description}
-                                    onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                                    sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
-                                />
-                            </DescriptionWrapper>
-                        )}
-                        {defaultOptions.includes("OperationId") && (
-                            <TextField
-                                id="operationId"
-                                label="Operation ID"
-                                value={resourceOperation.operationId}
-                                onTextChange={handleOperationIdChange}
-                            />
-                        )}
-                        <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
-                        <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                        <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
-                        <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
-                        <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
-                    </PanelBody>
-                </>
-            )}
+            <PanelBody>
+                <OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} />
+                <HorizontalFieldWrapper>
+                    <Dropdown
+                        id="method"
+                        containerSx={{ width: "20%", gap: 0 }}
+                        dropdownContainerSx={{ gap: 0 }}
+                        items={dropDownItems}
+                        value={values?.method.toLowerCase()}
+                        onValueChange={handleMethodChange}
+                    />
+                    <TextField
+                        id="path"
+                        sx={{ width: "80%" }}
+                        autoFocus
+                        onTextChange={handlePathChange}
+                        value={values?.path}
+                    />
+                </HorizontalFieldWrapper>
+                {defaultOptions.includes("Summary") && (
+                    <TextField
+                        id="summary"
+                        label="Summary"
+                        value={values?.summary}
+                        onTextChange={handleSummaryChange}
+                    />
+                )}
+                {defaultOptions.includes("Description") && (
+                    <DescriptionWrapper>
+                        <label htmlFor="description">Description</label>
+                        <MarkDownEditor
+                            key={`resource-description-${path}-${method}`}
+                            value={values?.description}
+                            onChange={(markdown: string) => handleDescriptionChange(markdown)}
+                            sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
+                        />
+                    </DescriptionWrapper>
+                )}
+                {defaultOptions.includes("OperationId") && (
+                    <TextField
+                        id="operationId"
+                        label="Operation ID"
+                        value={resourceOperation.operationId}
+                        onTextChange={handleOperationIdChange}
+                    />
+                )}
+                <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
+                <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
+                <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+                <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+            </PanelBody>
         </>
     )
 }

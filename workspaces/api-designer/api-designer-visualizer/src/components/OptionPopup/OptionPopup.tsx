@@ -15,7 +15,7 @@ const ButtonWrapper = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
-    justify-content: flex-end;
+    justify-content: flex-start;
     flex-grow: 1;
 `;
 
@@ -51,12 +51,10 @@ export function OptionPopup(props: OptionPopupProps) {
                     </Button>
                 </PullUpButton>
                 {!hideDelete && 
-                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleOnDelete} tooltip='Delete Opeation'>
+                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleOnDelete} tooltip='Delete Operation'>
                         <Codicon iconSx={{ color: "var(--vscode-inputValidation-errorBorder)" }} name="trash"/>
-                    </Button>}
-                <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleSwitchToView} tooltip='View Operation'> 
-                    <Codicon name="eye" />
-                </Button>
+                    </Button>
+                }
             </ButtonWrapper>
         </>
     );

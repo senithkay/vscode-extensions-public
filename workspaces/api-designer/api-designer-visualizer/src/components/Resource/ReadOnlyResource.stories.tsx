@@ -30,7 +30,7 @@ const getOperation: Operation = pathItem.get;
 export const ReadOnlyResourceStory = () => {
     return (
         <Container>
-            <ReadOnlyResource resourceOperation={getOperation} method="get" path={path} onEdit={() => {}} />
+            <ReadOnlyResource resourceOperation={getOperation} method="get" path={path} />
         </Container>
     );
 };

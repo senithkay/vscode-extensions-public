@@ -13,7 +13,6 @@ import { getBackgroundColorByMethod, getColorByMethod, getResourceID } from "../
 import { TreeView } from "../Treeview/TreeView";
 import { TreeViewItem } from "../Treeview/TreeViewItem";
 import { useEffect, useRef, useState } from "react";
-import { pad } from "lodash";
 
 interface OpenAPIDefinitionProps {
     paths: Paths;
@@ -47,12 +46,16 @@ const Operation = styled.div<OperationProps>`
     }
 `;
 
-const OverviewTitle = styled.div`
+interface OverviewTitleProps {
+    selected: boolean;
+}
+const OverviewTitle = styled.div<OverviewTitleProps>`
     display: flex;
     flex-direction: row;
     gap: 6px;
     padding: 2px 0;
     cursor: pointer;
+    background-color: ${(props: OverviewTitleProps) => props.selected ? "var(--vscode-editorHoverWidget-background)" : "none"};
     &:hover {
         background-color: var(--vscode-editorHoverWidget-background);
     }
@@ -186,9 +189,10 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
         setSelPathID(selectedPathID);
     }, [selectedPathID]);
 
+    console.log("selectedPathID", selectedPathID === undefined);
     return (
         <PathsContainer ref={pathContinerRef}>
-            <OverviewTitle onClick={handleOverviewClick}>
+            <OverviewTitle selected={selectedPathID === undefined} onClick={handleOverviewClick}>
                 <Codicon name="globe" />
                 <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
             </OverviewTitle>

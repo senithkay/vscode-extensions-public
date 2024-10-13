@@ -18,6 +18,9 @@ import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID
 import { Resource } from "../Resource/Resource";
 import { SplitView } from "../SplitView/SplitView";
 import { Service } from "@wso2-enterprise/service-designer";
+import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
+import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
+import { Tabs } from "../Tabs/TabsSelector";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -62,9 +65,16 @@ const NavigationPanelContainer = styled.div`
     padding: 10px;
 `;
 
+// Views Enum
+enum Views {
+    READ_ONLY = "READ_ONLY",
+    EDIT = "EDIT"
+}
+
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const { openAPIDefinition: initialOpenAPIDefinition, serviceDesModel, onOpenApiDefinitionChange } = props;
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
+    const [currentView, setCurrentView] = useState<Views>(Views.READ_ONLY);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
 
     const {
@@ -264,6 +274,11 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     }
 
+    const handleViewChange = (view: string) => {
+        console.log("View changed to: ", view);
+        setCurrentView(view as Views);
+    };
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -299,25 +314,65 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     }
                 </NavigationPanelContainer>
 
-                <div>
-                    {(selectedPathID === undefined || !operation) && (
-                        <Overview
-                            openAPIDefinition={openAPIDefinition}
-                            onOpenApiDefinitionChange={onOpenApiDefinitionChange}
-                        />
-                    )}
-                    {operation && selectedPathID !== undefined && (
-                        <Resource
-                            openAPI={openAPIDefinition}
-                            resourceOperation={operation}
-                            method={selectedMethod}
-                            path={selectedPath}
-                            onPathChange={handlePathChange}
-                            onOperationChange={handleOperationChange}
-                            onDelete={onDeleteResource}
-                        />
-                    )}
-                </div>
+                <Tabs
+                    views={[
+                        { id: Views.READ_ONLY, name: 'Docs' },
+                        { id: Views.EDIT, name: 'Designer' },
+                    ]}
+                    currentViewId={currentView}
+                    onViewChange={handleViewChange}
+                >
+                    <div id={Views.EDIT}>
+                        {(selectedPathID === undefined || !operation) && ( 
+                            <Overview
+                                openAPIDefinition={openAPIDefinition}
+                                onOpenApiDefinitionChange={onOpenApiDefinitionChange}
+                            />
+                        )}
+                        {currentView === Views.EDIT && operation && selectedPathID !== undefined && (
+                            <Resource
+                                openAPI={openAPIDefinition}
+                                resourceOperation={operation}
+                                method={selectedMethod}
+                                path={selectedPath}
+                                onPathChange={handlePathChange}
+                                onOperationChange={handleOperationChange}
+                                onDelete={onDeleteResource}
+                            />
+                        )}
+                    </div>
+                    <div id={Views.READ_ONLY}>
+                        {(selectedPathID === undefined || !operation) && (
+                            <ReadOnlyOverview openAPIDefinition={openAPIDefinition} />
+                        )}
+                        {(operation && selectedPathID !== undefined) && (
+                            <ReadOnlyResource resourceOperation={operation} method={selectedMethod} path={selectedPath} />
+                        )}
+                    </div>
+                    {/* {(selectedPathID === undefined || !operation) && (
+                        <>
+                            <Overview
+                                openAPIDefinition={openAPIDefinition}
+                                onOpenApiDefinitionChange={onOpenApiDefinitionChange}
+                            />
+                            <ReadOnlyOverview openAPIDefinition={openAPIDefinition} />
+                        </>
+                    )} */}
+                    {/* {operation && selectedPathID !== undefined && (
+                        <>
+                            <Resource
+                                openAPI={openAPIDefinition}
+                                resourceOperation={operation}
+                                method={selectedMethod}
+                                path={selectedPath}
+                                onPathChange={handlePathChange}
+                                onOperationChange={handleOperationChange}
+                                onDelete={onDeleteResource}
+                            />
+                            <ReadOnlyResource resourceOperation={operation} method={selectedMethod} path={selectedPath} />
+                        </>
+                    )} */}
+                </Tabs>
             </SplitView>
         </NavigationContainer>
     )
