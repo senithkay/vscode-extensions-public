@@ -30,6 +30,15 @@ export async function initVSCode() {
     page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
 }
 
+export async function resumeVSCode() {
+    if (vscode || page) {
+        await page.executePaletteCommand('Reload Window');
+    } else {
+        vscode = await startVSCode(resourcesFolder, vscodeVersion, undefined, false, extensionsFolder, path.join(newProjectPath, 'testProject'));
+    }
+    page = new ExtendedPage(await vscode!.firstWindow({ timeout: 60000 }));
+}
+
 export async function createProject(page: ExtendedPage) {
     await page.selectSidebarItem('Micro Integrator');
     await page.page.waitForTimeout(5000); // To fix intermittent issue

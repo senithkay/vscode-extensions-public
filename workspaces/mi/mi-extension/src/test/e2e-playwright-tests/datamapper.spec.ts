@@ -13,236 +13,161 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, vscode } from './Utils';
+import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
 import { DataMapper } from './components/DataMapper';
+import { Overview } from './components/Overview';
 const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
-test.beforeAll(async () => {
-  console.log('Starting datamapper tests')
-  // delete and recreate folder
-  if (fs.existsSync(newProjectPath)) {
-    fs.rmSync(newProjectPath, { recursive: true });
-  }
-  fs.mkdirSync(newProjectPath, { recursive: true });
-  await initVSCode();
-});
+createAndAddDM();
 
-test('Create new project', async () => {
-  // wait until extension is ready
-  // Note: This is not required for CI/CD pipeline
-  // await page.waitUntilExtensionReady();
+function createAndAddDM() {
 
-  await createProject(page);
-});
-
-test('Create new API', async () => {
-  // wait until window reload
-  // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
-  // page = new ExtendedPage(await vscode!.firstWindow());
-  // await page.waitUntilExtensionReady();
-
-  const overviewPage = new AddArtifact(page.page);
-  await overviewPage.init();
-  await overviewPage.add('API');
-
-  const apiForm = new Form(page.page, 'API Form');
-  await apiForm.switchToFormView();
-  await apiForm.fill({
-    values: {
-      'Name*': {
-        type: 'input',
-        value: 'api1',
-      },
-      'Context*': {
-        type: 'input',
-        value: '/api1',
-      },
+  test.beforeAll(async () => {
+    console.log('Starting datamapper tests')
+    // delete and recreate folder
+    if (fs.existsSync(newProjectPath)) {
+      fs.rmSync(newProjectPath, { recursive: true });
     }
+    fs.mkdirSync(newProjectPath, { recursive: true });
+    await initVSCode();
+
   });
-  await apiForm.submit();
-});
 
-test('Service designer', async () => {
-  // service designer
-  const serviceDesigner = new ServiceDesigner(page.page);
-  await serviceDesigner.init();
-  const resource = await serviceDesigner.resource('GET', '/');
-  await resource.click();
-});
+  test('Create new project', async () => {
+    // wait until extension is ready
+    // Note: This is not required for CI/CD pipeline
+    // await page.waitUntilExtensionReady();
 
-test('Add & Open DataMapper', async () => {
+    await createProject(page);
+  });
 
-  const diagram = new Diagram(page.page, 'Resource');
-  await diagram.init();
-  await diagram.addMediator('DataMapper', 0, {
-    values: {
-      'Name*': {
-        type: 'input',
-        value: 'dm1',
+  test('Create new API', async () => {
+    // wait until window reload
+    // await page.page.waitForSelector('iframe.webview.ready', { state: 'detached' })
+    // page = new ExtendedPage(await vscode!.firstWindow());
+    // await page.waitUntilExtensionReady();
+
+    const overviewPage = new AddArtifact(page.page);
+    await overviewPage.init();
+    await overviewPage.add('API');
+
+    const apiForm = new Form(page.page, 'API Form');
+    await apiForm.switchToFormView();
+    await apiForm.fill({
+      values: {
+        'Name*': {
+          type: 'input',
+          value: 'api1',
+        },
+        'Context*': {
+          type: 'input',
+          value: '/api1',
+        },
       }
+    });
+    await apiForm.submit();
+  });
+
+  test('Service designer', async () => {
+    // service designer
+    const serviceDesigner = new ServiceDesigner(page.page);
+    await serviceDesigner.init();
+    const resource = await serviceDesigner.resource('GET', '/');
+    await resource.click();
+  });
+
+  test('Add & Open DataMapper', async () => {
+
+    const diagram = new Diagram(page.page, 'Resource');
+    await diagram.init();
+    await diagram.addMediator('DataMapper', 0, {
+      values: {
+        'Name*': {
+          type: 'input',
+          value: 'dm1',
+        }
+      }
+    }, "Create Mapping");
+
+    const dataMapper = new DataMapper(page.page, 'dm1');
+    await dataMapper.init();
+    expect(dataMapper.verifyFileCreation()).toBeTruthy();
+  });
+
+  // test('Open DataMapper in resource', async () => {
+  //   console.log('.:.Open DataMapper in resource');
+
+  //   console.log('.:.Getting resource view');
+  //   const diagram = new Diagram(page.page, 'Resource');
+  //   await diagram.init();
+  //   console.log('.:.Getting mediator');
+  //   const mediator = await diagram.getMediator('DataMapper');
+  //   await mediator.clickLink('dm1');
+
+  //   console.log('.:.opening data mapper');
+
+  // });
+
+
+
+  test.afterAll(async () => {
+    // await vscode?.close();
+
+    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
+    const video = page.page.video()
+    const videoDir = path.resolve(resourcesFolder, 'videos')
+    const videoPath = await video?.path()
+
+    if (video && videoPath) {
+      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
     }
-  }, "Create Mapping");
 
-  const dataMapper = new DataMapper(page.page, 'dm1');
-  await dataMapper.init();
-  expect(dataMapper.verifyFileCreation()).toBeTruthy();
-});
+    // cleanup
+    // if (fs.existsSync(newProjectPath)) {
+    //   fs.rmSync(newProjectPath, { recursive: true });
+    // }
+    console.log('Diagram tests completed')
+  });
 
-// test('Open DataMapper in resource', async () => {
-//   console.log('.:.Open DataMapper in resource');
+}
 
-//   console.log('.:.Getting resource view');
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   console.log('.:.Getting mediator');
-//   const mediator = await diagram.getMediator('DataMapper');
-//   await mediator.clickLink('dm1');
+function doMappings() {
 
-//   console.log('.:.opening data mapper');
-  
-// });
+  test.beforeAll(async () => {
+    console.log('Starting datamapper tests')
+    await resumeVSCode();
+  });
 
-// test('Add new connection', async () => {
-//   // Add connection from side panel
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   await diagram.addNewConnection(1);
-
-//   const connectorStore = new ConnectorStore(page.page, 'Resource View');
-//   await connectorStore.init();
-//   await connectorStore.selectConnector('File');
-
-//   const connectionForm = new Form(page.page, 'Resource View');
-//   await connectionForm.switchToFormView();
-//   await connectionForm.fill({
-//     values: {
-//       'Connection Name*': {
-//         type: 'input',
-//         value: 'file_connection',
-//       },
-//       'Host*': {
-//         type: 'input',
-//         value: 'example.com',
-//       },
-//       'Port*': {
-//         type: 'input',
-//         value: '80',
-//       },
-//       'User Directory Is Root': {
-//         type: 'combo',
-//         value: 'true',
-//       },
-//       'TrustStore Path*': {
-//         type: 'expression',
-//         value: 'exampletruststore.com',
-//       },
-//       'TrustStore Password*': {
-//         type: 'expression',
-//         value: 'examplePassword@123',
-//       }
-//     }
-//   });
-//   await closeNotification(page);
-//   await connectionForm.submit('Add');
-//   expect(await diagram.verifyConnection("file_connection", "File - FTPS Connection")).toBeTruthy();
-//   await diagram.closeSidePanel();
-// });
-
-// test('Add Connector Operation', async () => {
-//   // Add connector operation from externals tab
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   await diagram.addConnector('file_connection', "createDirectory", 1, {
-//     values: {
-//       'Directory Path*': {
-//         type: 'expression',
-//         value: '/Users/exampleUser/Documents/createdDirectories',
-//       }
-//     }
-//   });
-// })
-
-// test('Edit Connector Operation', async () => {
-//   // Edit connector operation
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   const connectorNode = await diagram.getConnector('file', 'createDirectory');
-//   await connectorNode.edit({
-//     values: {
-//       'Directory Path*': {
-//         type: 'expression',
-//         value: '/Users/exampleUser/Documents/newCreatedDirectories',
-//       }
-//     }
-//   });
-// })
-
-// test('Add connector operation from connector tab', async () => {
-//   // Add connector operation from connector tab
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   const operationForm = await diagram.selectConnectorFromConnectorTab("ldap", "addEntry", 2);
-//   operationForm.fill({
-//     values: {
-//       'objectClass': {
-//         type: 'expression',
-//         value: 'exampleClass',
-//       }
-//     }
-//   })
-//   await diagram.addNewConnectionFromConnectorTab();
-
-//   const connectionForm = new Form(page.page, 'Resource View');
-//   await connectionForm.switchToFormView();
-//   await connectionForm.fill({
-//     values: {
-//       'Connection Name*': {
-//         type: 'input',
-//         value: 'ldap_connection',
-//       }
-//     }
-//   });
-//   await connectionForm.fillParamManager({
-//     'Format': 'exampleFormat',
-//     'Type': 'exampleType'
-//   });
-//   await connectionForm.submit('Add');
+  test('Do Mappings', async () => {
+    console.log('.:.Do Mappings1');
+    await page.page.waitForTimeout(60000);
+    const overviewPage = new Overview(page.page);
+    await overviewPage.init();
+    console.log('.:.Do Mappings2');
+    await page.page.waitForTimeout(60000);
+    const dataMapper = new DataMapper(page.page, 'dm1');
+    await dataMapper.init();
+  });
 
 
-//   await operationForm.submit("Submit");
-// })
+  test.afterAll(async () => {
+    // await vscode?.close();
 
-// test('Edit Connector Operation Generated From Templates', async () => {
-//   // Edit connector operation generated from templates
-//   const diagram = new Diagram(page.page, 'Resource');
-//   await diagram.init();
-//   const connectorNode = await diagram.getConnector('ldap', 'addEntry');
-//   await connectorNode.edit({
-//     values: {
-//       'attributes': {
-//         type: 'expression',
-//         value: 'att',
-//       }
-//     }
-//   });
-// })
+    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
+    const video = page.page.video()
+    const videoDir = path.resolve(resourcesFolder, 'videos')
+    const videoPath = await video?.path()
 
-test.afterAll(async () => {
-  await vscode?.close();
+    if (video && videoPath) {
+      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
+    }
 
-  const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-  const video = page.page.video()
-  const videoDir = path.resolve(resourcesFolder, 'videos')
-  const videoPath = await video?.path()
+    // cleanup
+    // if (fs.existsSync(newProjectPath)) {
+    //   fs.rmSync(newProjectPath, { recursive: true });
+    // }
+    console.log('Diagram tests completed')
+  });
 
-  if (video && videoPath) {
-    video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-  }
-
-  // cleanup
-  if (fs.existsSync(newProjectPath)) {
-    fs.rmSync(newProjectPath, { recursive: true });
-  }
-  console.log('Diagram tests completed')
-});
+}
