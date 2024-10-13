@@ -428,12 +428,13 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
         if (response.status === 401) {
             const newAccessToken = await refreshAccessToken();
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
+            
             if (isErrorCode(retryResponse)) {
                 return (retryResponse as ErrorCode);
             }
 
             retryResponse = (retryResponse as Response);
-            let intermediateMapping = JSON.parse(await filterResponse(response) as string); 
+            let intermediateMapping = JSON.parse(await filterResponse(retryResponse) as string); 
             let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
             return finalCode;
         }
