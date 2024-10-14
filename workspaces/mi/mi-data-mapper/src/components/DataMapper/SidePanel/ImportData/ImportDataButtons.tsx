@@ -50,6 +50,7 @@ export function ImportDataButtons(props: ImportDataButtonsProps) {
             disabled={false}
             className={classes.importButton}
             sx={{ width: "100%" }}
+            data-testid={`${importType.type}-import-button`}
         >
             <Icon
                 sx={{ height: "18px", width: "18px", marginRight: "4px" }}

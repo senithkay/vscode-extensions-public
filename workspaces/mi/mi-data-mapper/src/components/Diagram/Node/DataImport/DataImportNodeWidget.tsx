@@ -36,7 +36,7 @@ export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
 
     return (
         <div >
-            <TreeContainer>
+            <TreeContainer data-testid={`${ioType}-data-import-node`}>
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', backgroundColor: 'var(--vscode-activityBarTop.activeForeground' }}>
                 <div style={{padding: '100px', justifyContent: 'space-between'}}>
                     <Codicon sx={{ margin: 5, zoom: 5}}  name="new-file" onClick={handleOnClick} />
