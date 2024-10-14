@@ -16,6 +16,7 @@ import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
 
 export class DataMapper {
+    
     private webView!: Frame;
     configFolder!: string;
     tsFile!: string;
@@ -42,149 +43,7 @@ export class DataMapper {
         return fs.existsSync(operatorsFile) && fs.existsSync(this.tsFile);
     }
 
-    public async edit() {
-        const editButton = await this.webView.waitForSelector('vscode-button[title="Edit"]');
-        await editButton.click();
-    }
-
-
-
-    // public async getRoot() {
-    //     const titleElement = await this.dataMapperWebView.waitForSelector('#root div');
-    //     const title = await titleElement.innerHTML();
-    //     return title;
-    // }
-
-    public async getMediator(mediatorName: string, index: number = 0) {
-        const mediatorNode = (await this.getDiagramContainer()).locator(`[data-testid^="mediatorNode-${mediatorName}-"]`).nth(index).locator('div').first();
-        await mediatorNode.waitFor();
-        await mediatorNode.hover();
-        return new Mediator(this.webView, mediatorNode);
-    }
-
-    public async addMediator(mediatorName: string, index: number = 0, data?: FormFillProps, submitBtnText?: string) {
-        await this.clickPlusButtonByIndex(index);
-
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        await sidePanel.search(mediatorName);
-        await sidePanel.addMediator(mediatorName, data, submitBtnText);
-    }
-
-    public async goToExternalsPage() {
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        sidePanel.goToExternalsPage();
-    }
-
-    public async goToConnectorsPage() {
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        sidePanel.goToConnectorsPage();
-    }
-
-    public async addNewConnection(index: number = 0) {
-        await this.clickPlusButtonByIndex(index);
-
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        sidePanel.goToExternalsPage();
-        sidePanel.addNewConnection();
-    }
-
-    public async addNewConnectionFromConnectorTab() {
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        sidePanel.addNewConnection();
-    }
-
-    public async verifyConnection(name: string, type: string) {
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        sidePanel.goToExternalsPage();
-        return sidePanel.verifyConnection(name, type);
-    }
-
-    public async addConnector(connectionName: string, operationName: string, index: number = 0, props: FormFillProps) {
-        await this.clickPlusButtonByIndex(index);
-        await this.goToExternalsPage();
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-
-        await sidePanel.addConnector(connectionName, operationName, props);
-    }
-
-    public async selectConnectorFromConnectorTab(connectorName: string, operationName: string, index: number = 0) {
-        await this.clickPlusButtonByIndex(index);
-        await this.goToConnectorsPage();
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-
-        return await sidePanel.selectConnectorOperationFromConnectorTab(connectorName, operationName);
-    }
-
-    public async getConnector(connectorName: string, operationName: string, index: number = 0) {
-        const connectorNode = (await this.getDiagramContainer()).locator(`[data-testid^="connectorNode-${connectorName}.${operationName}"]`).nth(index).locator('div').first();
-        await connectorNode.waitFor();
-        await connectorNode.hover();
-        return new Mediator(this.webView, connectorNode);
-    }
-
-    public async closeSidePanel() {
-        const sidePanel = new SidePanel(this.webView);
-        await sidePanel.init();
-        await sidePanel.close();
-    }
-
-    private async clickPlusButtonByPosition(line: number, column: number) {
-        const link = (await this.getDiagramContainer()).locator(`g[data-linkid=${line},${column}]`);
-        await link.waitFor();
-        await link.hover();
-        await link.getByTestId("add-mediator-button").click();
-    }
-
-    private async clickPlusButtonByIndex(index: number) {
-        const plusBtns = (await this.getDiagramContainer()).getByTestId("add-mediator-button");
-        if (await plusBtns.count() > 1) {
-            await plusBtns.nth(index).hover();
-            await plusBtns.nth(index).click();
-        } else {
-            await plusBtns.hover();
-            await plusBtns.click();
-        }
-    }
-
-    private async getDiagramContainer() {
-        const continaer = this.webView.getByTestId("diagram-container");
-        await continaer.waitFor();
-        return continaer;
-    }
-}
-
-
-class Mediator {
-
-    constructor(private container: Frame, private mediatorNode: Locator) {
-    }
-
-    public async edit(props: FormFillProps) {
-        await this.mediatorNode.click();
-        const form = new SidePanel(this.container);
-        await form.init();
-        await form.updateMediator(props);
-    }
-
-    public async open(text: string) {
-        const link = this.mediatorNode.locator(`div:text("${text}")`);
-        await link.waitFor();
-        await link.click();
-    }
-
-    public async getDescription() {
-        const description = this.mediatorNode.getByTestId("mediator-description");
-        await description.waitFor();
-        return await description.textContent();
-    }
+    
 }
 
 class SidePanel {
