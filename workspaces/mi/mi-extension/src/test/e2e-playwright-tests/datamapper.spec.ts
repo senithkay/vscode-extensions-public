@@ -19,7 +19,8 @@ import { Overview } from './components/Overview';
 const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
-createAndAddDM();
+// createAndAddDM();
+doMappings();
 
 function createAndAddDM() {
 
@@ -139,15 +140,31 @@ function doMappings() {
     await resumeVSCode();
   });
 
-  test('Do Mappings', async () => {
-    console.log('.:.Do Mappings1');
-    await page.page.waitForTimeout(60000);
-    const overviewPage = new Overview(page.page);
-    await overviewPage.init();
-    console.log('.:.Do Mappings2');
-    await page.page.waitForTimeout(60000);
+  // test('Do Mappings with time out', async () => {
+  //   console.log('.:.Do Mappings1');
+  //   await page.page.waitForTimeout(60000);
+  //   const overviewPage = new Overview(page.page);
+  //   await overviewPage.init();
+  //   console.log('.:.Do Mappings2');
+  //   await page.page.waitForTimeout(60000);
+  //   const dataMapper = new DataMapper(page.page, 'dm1');
+  //   await dataMapper.init();
+  // });
+
+  test('Open DataMapper from tree view', async () => {
+    // console.log('.:.Do Mappings1');
+    // await page.page.waitForTimeout(180000);
+    
+    // await page.page.waitForTimeout(5000);
+    
+    const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]',{ timeout: 180000 });
+    await dataMappersLabel.click();
+    const dataMapperItem = await page.page.waitForSelector('div[aria-label="dm1"]');
+    await dataMapperItem.click();
+ 
     const dataMapper = new DataMapper(page.page, 'dm1');
     await dataMapper.init();
+
   });
 
 
