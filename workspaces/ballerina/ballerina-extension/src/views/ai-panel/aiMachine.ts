@@ -80,18 +80,23 @@ const aiStateMachine = createMachine<AiMachineContext>({
             }
         },
         loggedOut: {
-            invoke: {
-                src: 'removeToken'
-            },
             on: {
                 LOGIN: {
                     target: "WaitingForLogin",
                 }
             }
         },
+        removeToken: {
+            invoke: {
+                src: 'removeToken',
+                onDone: {
+                    target: "loggedOut"
+                }
+            }
+        },
         Ready: {
             on: {
-                LOGOUT: "loggedOut",
+                LOGOUT: "removeToken",
                 EXECUTE: "Executing",
                 CLEAR: {
                     target: "Ready",
@@ -138,7 +143,6 @@ const aiStateMachine = createMachine<AiMachineContext>({
         checkToken: checkToken,
         openLogin: openLogin,
         removeToken: async (context, event) => {
-            //TODO: Check why is this getting called when ai window is closed?
             const logoutURL = await getLogoutUrl();
             vscode.env.openExternal(vscode.Uri.parse(logoutURL));
             await extension.context.secrets.delete('BallerinaAIUser');
