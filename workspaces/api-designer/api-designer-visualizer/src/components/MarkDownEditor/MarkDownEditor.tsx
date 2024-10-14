@@ -44,7 +44,7 @@ function Separator() {
 }
 
 const StyledMDXEditor = styled(MDXEditor)<{ sx?: any }>`
-    --baseBg: var(--vscode-debugIcon-breakpointDisabledForeground);
+    --baseBg: var(--vscode-badge-background);
     --basePageBg: var(--vscode-editorRuler-foreground);
     --baseBorderHover: var(--vscode-editor-inactiveSelectionBackground);
     --baseTextContrast: var(--vscode-editor-foreground);

@@ -38,7 +38,7 @@ interface ViewSelectorTabProps {
 const Tab = styled.div<ViewSelectorTabProps>`
     display: flex;
     flex-direction: row;
-    background-color: white;
+    background-color: var(--vscode-editor-background);
     color: ${(props: ViewSelectorTabProps) => props.isSelected ? 'var(--vscode-focusBorder)' : 'var(--vscode-editor-foreground)'};
     border: none;
     padding: 10px;
@@ -58,6 +58,13 @@ const TabContent = styled.div<ViewSelectorContainerProps>`
     flex-direction: column;
     ${(props: TabsProps) => props.sx};
 `
+const Container = styled.div`
+    background-color: var(--vscode-editor-background);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+`
+
 const ChildrenContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -73,27 +80,29 @@ export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
 
     return (
         <ViewSelectorContainer sx={sx}>
-            <ViewSelectorTabsContainer>
-                {
-                    views.map((view, index) => {
-                        return (
-                            <TabContent sx={tabTitleSx}>
-                                <Tab 
-                                    key={index} 
-                                    isFirst={index === 0}
-                                    isSelected={currentViewId === view.id}
-                                    onClick={() => onViewChange(view.id)}
-                                >
-                                    {view.icon}
-                                    {view.name}
-                                </Tab>
-                                <Divider sx={{margin: 0, borderTop: currentViewId === view.id ? '2px solid var(--vscode-focusBorder)' : 'none'}} />
-                            </TabContent>
-                        );
-                    })
-                }
-            </ViewSelectorTabsContainer>
-            <Divider sx={{margin: 0, borderTop: '1px solid var(--vscode-editorIndentGuide-background)'}} />
+            <Container>
+                <ViewSelectorTabsContainer>
+                    {
+                        views.map((view, index) => {
+                            return (
+                                <TabContent sx={tabTitleSx}>
+                                    <Tab 
+                                        key={index} 
+                                        isFirst={index === 0}
+                                        isSelected={currentViewId === view.id}
+                                        onClick={() => onViewChange(view.id)}
+                                    >
+                                        {view.icon}
+                                        {view.name}
+                                    </Tab>
+                                    <Divider sx={{margin: 0, borderTop: currentViewId === view.id ? '2px solid var(--vscode-focusBorder)' : 'none'}} />
+                                </TabContent>
+                            );
+                        })
+                    }
+                </ViewSelectorTabsContainer>
+                <Divider sx={{margin: 0, borderTop: '1px solid var(--vscode-editorIndentGuide-background)'}} />
+            </Container>
             {/* Render the children based on the currentViewId */}
             <ChildrenContainer>
                 {React.Children.map(children, child => {

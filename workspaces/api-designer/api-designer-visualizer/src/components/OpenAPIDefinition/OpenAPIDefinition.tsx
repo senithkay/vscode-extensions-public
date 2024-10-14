@@ -284,7 +284,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
     if (selectedMethod && selectedPath) {
-        serviceDesModel.resources.forEach((resource) => {
+        serviceDesModel?.resources.forEach((resource) => {
             if (resource.path === selectedPath && resource.methods.includes(selectedMethod)) {
                 resource.isOpen = true;
             } else {

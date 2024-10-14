@@ -9,7 +9,7 @@
 import { Button, CheckBox, Codicon, FormGroup, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Header, Operation, Param, Parameter, RequestBody, Responses } from '../../Definitions/ServiceDefinitions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
 import { PullUpButton } from '../PullUpButton/PullUPButton';
@@ -85,7 +85,7 @@ export function Response(props: ReadOnlyResourceProps) {
     const [selectedResponseType, setSelectedResponseType] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
     const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.responses && resourceOperation.responses[selectedResponseType]?.content ? Object.keys(resourceOperation.responses[selectedResponseType].content)[0] : undefined);
 
-    const responseContents = resourceOperation?.responses[selectedResponseType]?.content ? Object.entries(resourceOperation.responses[selectedResponseType].content && resourceOperation.responses[selectedResponseType].content) : [];
+    const responseContents = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.content ? Object.entries(resourceOperation.responses[selectedResponseType].content && resourceOperation.responses[selectedResponseType].content) : [];
     const responseMediaTypes = responseContents ? responseContents.map(([key]) => key) : [];
     const selectedContentFromResponseMediaType = resourceOperation?.responses ? resourceOperation.responses[selectedResponseType] : undefined;
     const isInlinedObjectResponse = selectedContentFromResponseMediaType && 
@@ -94,10 +94,10 @@ export function Response(props: ReadOnlyResourceProps) {
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' && 
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties && 
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
-    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && selectedContentFromResponseMediaType.content[selectedMediaType]?.schema;
+    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema;
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
-    const headers: Header[] = resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
+    const headers: Header[] = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
     const headerParams = getResponseHeadersFromResponse(headers);
 
     const handleOptionChange = (options: string[]) => {
@@ -248,16 +248,24 @@ export function Response(props: ReadOnlyResourceProps) {
         };
         onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     };
+    
+    // Implement useEffect to update the selectedMediaType when the responseMediaTypes changes
+    useEffect(() => {
+        if (!responseMediaTypes.includes(selectedMediaType)) {
+            setSelectedMediaType(responseMediaTypes[0]);
+            setSelectedResponseType(resourceOperation?.responses && Object.keys(resourceOperation?.responses)[0]);
+        }
+    }, [responseMediaTypes]);
 
     return (
         <>
             <FormGroup
                 key="ResponseBody"
                 title='Response Body'
-                isCollapsed={(Object.keys(resourceOperation?.responses).length === 0)}
+                isCollapsed={resourceOperation?.responses && (Object.keys(resourceOperation?.responses)?.length === 0)}
             >
                 <ContentTypeWrapper>
-                    {Object.keys(resourceOperation.responses).map((status) => (
+                    {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
                         <ResponseCode
                             key={status}
                             color={resolveResonseColor(status)}
@@ -273,7 +281,7 @@ export function Response(props: ReadOnlyResourceProps) {
                     <label htmlFor="description">Description</label>
                     <MarkDownEditor
                         key={`responseBody-description-${path}-${method}`}
-                        value={resourceOperation.responses.selectedMediaType?.description}
+                        value={resourceOperation?.responses?.selectedMediaType?.description}
                         onChange={(markdown: string) => handleDescriptionChange(markdown)}
                         sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
                     />

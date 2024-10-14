@@ -54,11 +54,11 @@ export function APIDesigner(props: ServiceDesignerProps) {
             });
             console.log("resp", resp);
             let convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
-            let serDesModel: Service | undefined;
-            if (convertedApiDefinition) {
-                serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
-            }
-            setServiceDesModel(serDesModel);
+            // let serDesModel: Service | undefined;
+            // if (convertedApiDefinition) {
+            //     serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
+            // }
+            // setServiceDesModel(serDesModel);
             // If openapi field is not present in the response, then set the openapi field to the convertedApiDefinition
             if (!convertedApiDefinition) {
                 convertedApiDefinition = {

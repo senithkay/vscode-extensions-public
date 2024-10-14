@@ -107,7 +107,9 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
 
     const parameters = resourceOperation?.parameters;
     const parameterContent = parameters?.map((parameter) => {
-        return [parameter.name, parameter.in, resolveTypeFormSchema(parameter.schema)];
+        if (parameter.name) {
+            return [parameter.name, parameter.in, parameter.schema && resolveTypeFormSchema(parameter.schema)];
+        }
     });
     const responses = resourceOperation?.responses;
     const queryParamaters = parameters?.filter((parameter) => parameter.in === "query");
