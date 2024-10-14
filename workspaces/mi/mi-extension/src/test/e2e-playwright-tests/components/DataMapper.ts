@@ -14,9 +14,12 @@ import * as fs from 'fs';
 import { newProjectPath } from '../Utils';
 import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
+import { IOType } from "@wso2-enterprise/mi-core";
 
+
+type SchemaTypeLabel = "JSON" | "JSON Schema" | "XML" | "CSV";
 export class DataMapper {
-    
+
     private webView!: Frame;
     configFolder!: string;
     tsFile!: string;
@@ -43,25 +46,47 @@ export class DataMapper {
         return fs.existsSync(operatorsFile) && fs.existsSync(this.tsFile);
     }
 
-    
+    public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, content: string) {
+        const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
+        await importNode.waitFor();
+        await importNode.click();
+
+        const importForm = new ImportForm(this.webView);
+        await importForm.init();
+        await importForm.importData(schemaType, content);
+        await importNode.waitFor({ state: 'detached' });
+    }
+
+    public async waitForCanvasToLoad() {
+        await this.webView.waitForSelector(`div#data-mapper-canvas-container`);
+    }
+
+
 }
 
-class SidePanel {
+class ImportForm {
     private sidePanel!: Locator;
 
     constructor(private container: Frame) {
     }
 
     public async init() {
-        this.sidePanel = this.container.getByTestId("sidepanel");
+        this.sidePanel = this.container.getByTestId("import-data-form");
         await this.sidePanel.waitFor();
-        const loader = this.sidePanel.getByTestId("sidepanel-loader");
-        await loader.waitFor({ state: "hidden" });
     }
 
-    public async search(str: string) {
-        const searchInput = this.sidePanel.locator("input");
-        await searchInput.type(str);
+    public async importData(importTypeLabel: SchemaTypeLabel, content: string) {
+        const typeButton = this.sidePanel.getByText(`Import from ${importTypeLabel}`, { exact: true });
+        await typeButton.waitFor();
+        await typeButton.click();
+
+        const textArea = this.sidePanel.locator(`textarea`);
+        await textArea.waitFor();
+        await textArea.fill(content);
+
+        const submitBtn = this.sidePanel.locator(`vscode-button:text("Save")`);
+        await submitBtn.waitFor();
+        await submitBtn.click();
     }
 
     public async addMediator(mediatorName: string, data?: FormFillProps, submitBtnText?: string) {

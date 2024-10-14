@@ -16,11 +16,12 @@ import { Diagram } from './components/Diagram';
 import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
 import { DataMapper } from './components/DataMapper';
 import { Overview } from './components/Overview';
+import { IOType } from '@wso2-enterprise/mi-core';
 const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
-createAndAddDM();
-//doMappings();
+// createAndAddDM();
+doMappings();
 
 function createAndAddDM() {
 
@@ -165,6 +166,14 @@ function doMappings() {
     const dataMapper = new DataMapper(page.page, 'dm1');
     await dataMapper.init();
 
+  });
+
+  test('Load Schemas', async () => {
+    const dataMapper = new DataMapper(page.page, 'dm1');
+    await dataMapper.init();
+    await dataMapper.importSchema(IOType.Input, 'JSON', '{"name":"John", "age":30, "city":"New York"}');
+    await dataMapper.importSchema(IOType.Output, 'JSON', '{"name":"John", "age":30, "home":"New York"}');
+    await page.page.waitForTimeout(30000);
   });
 
 
