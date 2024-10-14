@@ -10,7 +10,6 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { BaseNodeModel } from "./BaseNodeModel";
 import {
     Colors,
     DRAFT_NODE_BORDER_WIDTH,
@@ -19,11 +18,12 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
-import { FlowNode } from "../../../utils/types";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { MoreVertIcon } from "../../../resources";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
+import { BaseNodeModel } from "./BaseNodeModel";
+import { FlowNode } from "@wso2-enterprise/ballerina-core";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -222,6 +222,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => deleteNode() },
     ];
 
+    const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -233,22 +235,20 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
                     <NodeIcon type={model.node.codedata.node} />
+                    {/* {model.node.properties.variable?.value && (
+                        <NodeStyles.Description>{model.node.properties.variable.value}</NodeStyles.Description>
+                    )} */}
                 </NodeStyles.Icon>
                 <NodeStyles.Header onClick={handleOnClick}>
                     <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        <Tooltip content={model.node.metadata.description}>
-                            {model.node.metadata.description || "..."}
-                        </Tooltip>
-                    </NodeStyles.Description>
-                    <NodeStyles.Footer>
-                        {model.node.properties.variable?.value && (
-                            <NodeStyles.Pill color={Colors.PURPLE}>
-                                <XIcon />
-                                {model.node.properties.variable.value}
-                            </NodeStyles.Pill>
-                        )}
-                    </NodeStyles.Footer>
+                    {hasFullAssignment && (
+                        <NodeStyles.Description>{`${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`}</NodeStyles.Description>
+                    )}
+                    {!hasFullAssignment && (
+                        <NodeStyles.Description>
+                            {model.node.properties?.variable?.value || model.node.properties?.expression?.value}
+                        </NodeStyles.Description>
+                    )}
                 </NodeStyles.Header>
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

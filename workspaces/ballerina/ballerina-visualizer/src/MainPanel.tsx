@@ -33,7 +33,9 @@ import {
     AddComponentView,
     ServiceForm,
     PopupMessage,
-    ComponentDiagram,
+    ComponentDiagramV1,
+    MainForm,
+    ComponentDiagramV2
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -49,7 +51,7 @@ import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
-import ComponentDiagramV2 from "./views/BI/ComponentDiagramV2";
+import { TypeDiagram } from "./views/TypeDiagram";
 
 const globalStyles = css`
     *,
@@ -147,13 +149,13 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-                            setViewComponent(<ComponentDiagram stateUpdated />);
+                            setViewComponent(<ComponentDiagramV1 stateUpdated />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
                     case MACHINE_VIEW.OverviewV2:
-                        setViewComponent(<ComponentDiagramV2 stateUpdated />);
+                        setViewComponent(<ComponentDiagramV2 />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
@@ -172,6 +174,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.ERDiagram:
                         setViewComponent(<ERDiagram />);
+                        break;
+                    case MACHINE_VIEW.TypeDiagram:
+                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier}/>);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
@@ -207,6 +212,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         setViewComponent(<AddConnectionWizard />);
+                        break;
+                    case MACHINE_VIEW.BIMainFunctionForm:
+                        setViewComponent(<MainForm />);
                         break;
                     default:
                         setNavActive(false);

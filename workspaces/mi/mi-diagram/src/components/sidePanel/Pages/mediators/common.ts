@@ -60,10 +60,13 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
     });
 }
 
-export const getParamManagerValues = (paramManager: ParamConfig): any[] => {
+export const getParamManagerValues = (paramManager: ParamConfig, withAdditionalData: boolean = false): any[] => {
     return paramManager.paramValues.map((param: any) => param.paramValues.map((p: any) => {
         if (p?.value?.paramValues) {
-            return getParamManagerValues(p.value);
+            return getParamManagerValues(p.value, withAdditionalData);
+        }
+        if (withAdditionalData) {
+            return { value: p.value, additionalData: p.additionalData };
         }
         return p.value;
     }));
@@ -71,9 +74,18 @@ export const getParamManagerValues = (paramManager: ParamConfig): any[] => {
 
 export const getParamManagerFromValues = (values: any[], keyIndex?: number, valueIndex: number = 1): any => {
 
-    values = typeof values?.[0] === 'object' ? values.map((v: any) => Object.values(v)) : values;
+    if (!values) {
+        return [];
+    }
+
+    values = typeof values?.[0] === 'object' && !values?.[0]?.additionalData ? values.map((v: any) => Object.values(v)) : values;
     const getParamValues = (value: any): any => {
         return value.map((v: any) => {
+            let additionalData
+            if (v?.additionalData) {
+                additionalData = v.additionalData;
+                v = v.value;
+            }
             if (v instanceof Array) {
                 return {
                     value: {
@@ -81,7 +93,7 @@ export const getParamManagerFromValues = (values: any[], keyIndex?: number, valu
                     }
                 }
             }
-            return { value: v };
+            return { value: v, additionalData };
         });
     }
 

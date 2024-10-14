@@ -248,7 +248,8 @@
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
@@ -587,6 +588,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/type-diagram",
+      "projectFolder": "workspaces/ballerina/type-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
       "projectFolder": "workspaces/ballerina/statement-editor",
       "versionPolicyName": "ballerina-extension"
@@ -696,6 +702,11 @@
     {
       "packageName": "@wso2-enterprise/record-creator",
       "projectFolder": "workspaces/ballerina/record-creator",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/ballerina-inline-data-mapper",
+      "projectFolder": "workspaces/ballerina/inline-data-mapper",
       "versionPolicyName": "ballerina-extension"
     }
   ]

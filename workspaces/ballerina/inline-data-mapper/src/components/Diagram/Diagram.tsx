@@ -1,0 +1,173 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useEffect, useState } from 'react';
+
+import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
+import {
+	DefaultDiagramState,
+	DefaultLabelFactory,
+	DefaultLinkFactory,
+	DefaultNodeFactory,
+	DefaultPortFactory,
+	DiagramEngine,
+	DiagramModel,
+	NodeLayerFactory,
+	PathFindingLinkFactory
+} from "@projectstorm/react-diagrams";
+
+import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
+import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
+import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
+import { DefaultState as LinkState } from './LinkState/DefaultState';
+import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
+import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
+import { useDiagramModel, useRepositionedNodes } from '../Hooks';
+import { throttle } from 'lodash';
+import { defaultModelOptions } from './utils/constants';
+import { calculateZoomLevel } from './utils/diagram-utils';
+import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
+import { useDMExpressionBarStore } from '../../store/store';
+import { isOutputNode } from './Actions/utils';
+import { InputOutputPortModel } from './Port';
+import * as Nodes from "./Node";
+import * as Ports from "./Port";
+import * as Labels from "./Label";
+import * as Links from "./Link";
+
+interface DataMapperDiagramProps {
+	nodes?: DataMapperNodeModel[];
+	hideCanvas?: boolean;
+	onError?: (kind: ErrorNodeKind) => void;
+}
+
+function initDiagramEngine() {
+	const engine = new DiagramEngine({
+		registerDefaultPanAndZoomCanvasAction: false,
+		registerDefaultZoomCanvasAction: false,
+	});
+
+	// register model factories
+	engine.getLayerFactories().registerFactory(new NodeLayerFactory());
+	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
+	engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
+
+	// engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
+	// engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
+	// engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
+	// engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
+	// engine.getPortFactories().registerFactory(new DefaultPortFactory());
+
+	// register the default interaction behaviours
+	engine.getStateMachine().pushState(new DefaultDiagramState());
+	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
+
+	engine.getPortFactories().registerFactory(new Ports.InputOutputPortFactory());
+	engine.getPortFactories().registerFactory(new Ports.IntermediatePortFactory());
+
+	engine.getLabelFactories().registerFactory(new Labels.ExpressionLabelFactory());
+
+	// engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
+	// engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory());
+
+	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
+
+	const state = engine.getStateMachine().getCurrentState();
+	if (state instanceof DefaultDiagramState) {
+		state.dragNewLink.config.allowLooseLinks = false;
+	}
+
+	engine.getStateMachine().pushState(new LinkState());
+	return engine;
+}
+
+function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
+	const { nodes, hideCanvas, onError } = props;
+
+	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
+	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+	const [, forceUpdate] = useState({});
+
+	const zoomLevel = calculateZoomLevel(screenWidth);
+
+	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel);
+
+	engine.setModel(diagramModel);
+
+	useEffect(() => {
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+	useEffect(() => {
+        if (!isFetching) {
+            setDiagramModel(updatedModel);
+        }
+    }, [isFetching, updatedModel]);
+
+	useEffect(() => {
+		if (!isFetching && engine.getModel()) {
+			const modelNodes = engine.getModel().getNodes();
+			// const nodesToUpdate = modelNodes.filter(node => 
+			// 	node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode
+			// );
+
+			// nodesToUpdate.forEach((node: LinkConnectorNode | ArrayFnConnectorNode) => {
+			// 	node.initLinks();
+			// 	const targetPortPosition = node.targetPort?.getPosition();
+			// 	if (targetPortPosition) {
+			// 		node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
+			// 	}
+			// });
+	
+			// if (nodesToUpdate.length > 0) {
+			// 	forceUpdate({});
+			// }
+
+			// Update the expression bar focused output port if any
+			const focusedPort = useDMExpressionBarStore.getState().focusedPort;
+			const outputPorts = (modelNodes.find(node => isOutputNode(node)) as DataMapperNodeModel)?.getPorts();
+			const outputPortEntries = outputPorts ? Object.entries(outputPorts) : [];
+			outputPortEntries.forEach((entry) => {
+				const port = entry[1] as InputOutputPortModel;
+				if (port.getName() === focusedPort?.getName() && port.getID() !== focusedPort?.getID()) {
+					useDMExpressionBarStore.getState().setFocusedPort(port);
+				}
+			});
+		}
+	}, [diagramModel, isFetching, screenWidth]);
+
+	const handleResize = throttle(() => {
+		const newScreenWidth = window.innerWidth;
+		if (newScreenWidth !== screenWidth) {
+			setScreenWidth(newScreenWidth);
+		}
+	}, 100);
+
+	return (
+		<>
+			{engine && engine.getModel() && (
+				<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
+					<DataMapperCanvasWidget engine={engine} />
+				</DataMapperCanvasContainerWidget>
+			)}
+		</>
+	);
+}
+
+export default React.memo(DataMapperDiagram);

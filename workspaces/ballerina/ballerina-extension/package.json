@@ -193,15 +193,6 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Enable AI suggestions from WSO2 BI Copilot."
-                    },
-                    "ballerina.flowNodeStyle": {
-                        "type": "string",
-                        "default": "default",
-                        "enum": [
-                            "default",
-                            "ballerina-statements"
-                        ],
-                        "description": "Select the style for flow diagram nodes."
                     }
                 }
             }
@@ -517,6 +508,11 @@
                 "category": "BI"
             },
             {
+                "command": "BI.view.typeDiagram",
+                "title": "Type Diagram",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add-connection",
                 "title": "Add Connection",
                 "icon": "$(add)",
@@ -531,8 +527,8 @@
                 "category": "BI"
             },
             {
-                "command": "BI.project-explorer.add-schema",
-                "title": "Add Schema",
+                "command": "BI.project-explorer.add-type",
+                "title": "Add Types",
                 "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"

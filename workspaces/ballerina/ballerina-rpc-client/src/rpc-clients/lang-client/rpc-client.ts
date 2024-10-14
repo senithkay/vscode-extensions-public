@@ -17,6 +17,8 @@ import {
     CodeActionResponse,
     CompletionRequest,
     CompletionResponse,
+    ComponentModels,
+    ComponentModelsParams,
     DefinitionPositionRequest,
     DefinitionResponse,
     DiagnosticsResponse,
@@ -53,6 +55,7 @@ import {
     getDefinitionPosition,
     getDiagnostics,
     getExecutorPositions,
+    getPackageComponentModels,
     getST,
     getSTByRange,
     getSTForExpression,
@@ -186,5 +189,9 @@ export class LangClientRpcClient implements LangClientAPI {
 
     didClose(params: DidCloseRequest): void {
         return this._messenger.sendNotification(didClose, HOST_EXTENSION, params);
+    }
+
+    getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels> {
+        return this._messenger.sendRequest(getPackageComponentModels, HOST_EXTENSION, params);
     }
 }

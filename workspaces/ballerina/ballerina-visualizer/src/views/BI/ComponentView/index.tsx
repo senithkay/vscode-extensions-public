@@ -72,6 +72,13 @@ export function AddComponentView() {
                 },
                 isPopup: true,
             });
+        } else if (key === DIRECTORY_MAP.TASKS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIMainFunctionForm,
+                }
+            });
         } else {
             setPopupMessage(true);
         }
@@ -136,9 +143,9 @@ export function AddComponentView() {
                                 />
                                 <ButtonCard
                                     icon={<Codicon name="layout" />}
-                                    title="Schema"
+                                    title="Types"
                                     description="Define and manage data types with JSON schema."
-                                    onClick={() => handleClick(DIRECTORY_MAP.SCHEMAS)}
+                                    onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
                                 />
                                 <ButtonCard
                                     icon={<Codicon name="gear" />}

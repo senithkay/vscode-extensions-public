@@ -15,8 +15,6 @@ import {
     CompletionItem,
     LinkButton,
     SidePanelBody,
-    Toggle,
-    Switch,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
@@ -24,7 +22,7 @@ import { FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { NodeKind, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 
 namespace S {
@@ -155,11 +153,10 @@ export interface FormProps {
     formFields: FormField[];
     projectPath?: string;
     selectedNode?: NodeKind;
-    canUpdateVariable?: boolean;
-    editForm?: boolean;
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
@@ -176,11 +173,10 @@ export function Form(props: FormProps) {
         formFields,
         projectPath,
         selectedNode,
-        canUpdateVariable,
-        editForm,
         onSubmit,
         openRecordEditor,
         openView,
+        openSubPanel,
         expressionEditor,
     } = props;
     const { control, getValues, register, handleSubmit, reset, watch } = useForm<FormValues>();
@@ -280,20 +276,15 @@ export function Form(props: FormProps) {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {canUpdateVariable && !editForm && (
-                            <S.CheckboxRow>
-                                Assign to a new variable
-                                <Toggle
-                                    checked={createNewVariable}
-                                    onChange={() => setCreateNewVariable(!createNewVariable)}
-                                />
-                            </S.CheckboxRow>
-                        )}
                         {variableField && createNewVariable && <EditorFactory field={variableField} />}
                         {typeField && createNewVariable && (
-                            <EditorFactory field={typeField} openRecordEditor={handleOpenRecordEditor} />
+                            <EditorFactory
+                                field={typeField}
+                                openRecordEditor={handleOpenRecordEditor}
+                                openSubPanel={openSubPanel}
+                            />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} />}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -308,7 +299,11 @@ export function Form(props: FormProps) {
                             }
                             return (
                                 <S.Row key={field.key}>
-                                    <EditorFactory field={field} openRecordEditor={handleOpenRecordEditor} />
+                                    <EditorFactory
+                                        field={field}
+                                        openRecordEditor={handleOpenRecordEditor}
+                                        openSubPanel={openSubPanel}
+                                    />
                                 </S.Row>
                             );
                         })}
@@ -350,7 +345,11 @@ export function Form(props: FormProps) {
                             if (field.optional) {
                                 return (
                                     <S.Row key={field.key}>
-                                        <EditorFactory field={field} openRecordEditor={handleOpenRecordEditor} />
+                                        <EditorFactory
+                                            field={field}
+                                            openRecordEditor={handleOpenRecordEditor}
+                                            openSubPanel={openSubPanel}
+                                        />
                                     </S.Row>
                                 );
                             }

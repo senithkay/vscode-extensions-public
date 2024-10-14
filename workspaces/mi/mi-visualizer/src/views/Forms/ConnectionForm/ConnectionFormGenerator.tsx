@@ -301,7 +301,8 @@ export function AddConnection(props: AddConnectionProps) {
         const template = create();
 
         const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
-        const connectorTag = localEntryTag.ele(`${getValues("name")}.init`);
+        const connectorTag = localEntryTag.ele(`${props.connector.name}.init`);
+        connectorTag.ele('name', getValues("name"));
 
         params.paramValues.forEach(param => {
             connectorTag.ele(param.key).txt(param.value);

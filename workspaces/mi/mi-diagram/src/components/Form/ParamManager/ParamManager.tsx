@@ -18,9 +18,11 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
+import { ResourceType } from "@wso2-enterprise/mi-core";
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue | ParamConfig;
+    additionalData?: any;
     isEnabled?: boolean;
 }
 
@@ -62,7 +64,7 @@ export interface ParamField {
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     filter?: (value: string) => boolean; // For KeyLookup
-    filterType?: FilterType; // For KeyLookup
+    filterType?: FilterType | ResourceType[]; // For KeyLookup
     paramManager?: ParamManagerProps; // For nested ParamManager
 }
 
@@ -351,6 +353,7 @@ export function ParamManager(props: ParamManagerProps) {
                 placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,
                 isEnabled: paramVal.isEnabled,
+                additionalData: paramVal.additionalData,
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
                 values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
                 enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
@@ -415,7 +418,8 @@ export function ParamManager(props: ParamManagerProps) {
             const paramValues = paramConfig.parameters.map(param => {
                 return {
                     value: param.value,
-                    isEnabled: param.isEnabled
+                    isEnabled: param.isEnabled,
+                    additionalData: param.additionalData
                 };
             });
             updatedParameters[index] = {

@@ -98,6 +98,7 @@ export const generateProxyData = (model: Proxy): EditProxyForm => {
         startOnLoad: model.startOnLoad,
         inSequenceEdited: false,
         outSequenceEdited: false,
+        faultSequenceEdited: false,
         statistics: model.statistics === "enable" ? true : false,
         trace: model.trace === "enable" ? true : false,
     };
@@ -305,36 +306,51 @@ export const onProxyEdit = async (
     for (let i = 0; i < edits.length; i++) {
         await rpcClient.getMiDiagramRpcClient().applyEdit(edits[i]);
     }
-    const sequences = ["out" , "in"]
-    for(const sequence of sequences){
-        if(data[`${sequence}SequenceEdited` as keyof typeof data]) { 
-            if(formValues[`${sequence}Sequence` as keyof typeof formValues] !== ""){
-            const range:Range = {
-                start:sequence === "in"?model.target.inSequence.range.startTagRange.start:model.target.outSequence.range.startTagRange.start,
-                end:sequence === "in"?model.target.inSequence.range.endTagRange.end:model.target.outSequence.range.endTagRange.end
-            }
-            await rpcClient.getMiDiagramRpcClient().applyEdit({
-                text:` `,
-                documentUri:documentUri,
-                range:range
-            })
-            } else {
-                const range:Range = {
-                    start:model.target.range.startTagRange.end,
-                    end:model.target.range.startTagRange.end
-                }
-                await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    text:`<${sequence}Sequence>
-                    </${sequence}Sequence>`,
-                    documentUri:documentUri,
-                    range:range
-                })
-            } 
-        }
-    }
     await rpcClient.getMiDiagramRpcClient().rangeFormat({
         uri: documentUri
     });
+    const sequences = ["fault", "in"];
+    let isInSequenceUpdated = false;
+    for(const sequence of sequences){
+        if(data[`${sequence}SequenceEdited` as keyof typeof data]) {
+            if(formValues[`${sequence}Sequence` as keyof typeof formValues] !== ""){
+                if (isInSequenceUpdated) {
+                    await rpcClient.getMiDiagramRpcClient().rangeFormat({
+                        uri: documentUri
+                    });
+                    const updatedST = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: documentUri });
+                    model = updatedST.syntaxTree.proxy;
+                }
+                if (sequence === "in") {
+                    isInSequenceUpdated = true;
+                }
+                let range:Range = {
+                    start:sequence === "in" ? model.target.inSequence.range.startTagRange.start : model.target.faultSequence.range.startTagRange.start,
+                    end:sequence === "in" ? model.target.inSequence.range.endTagRange.end : model.target.faultSequence.range.startTagRange.end
+                };
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    text:` `,
+                    documentUri:documentUri,
+                    range:range
+                });
+            } else {
+                const range:Range = {
+                    start:sequence === "in" ? model.target.range.startTagRange.end : model.target.range.endTagRange.start,
+                    end:sequence === "in" ? model.target.range.startTagRange.end : model.target.range.endTagRange.start
+                };
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    text:sequence === "in" ?
+                        `<inSequence>
+                         </inSequence>` : "<faultSequence/>",
+                    documentUri:documentUri,
+                    range:range
+                })
+            }
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({
+                uri: documentUri
+            });
+        }
+    }
 }
 
 const proxyRange = (model:Proxy,tag:string):Range => {

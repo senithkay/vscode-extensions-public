@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { commands } from 'vscode';
-import { BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { BallerinaExtension } from '../../core';
+import { openView } from '../../stateMachine';
 
 export function activate(context: BallerinaExtension) {
 
@@ -17,10 +18,10 @@ export function activate(context: BallerinaExtension) {
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_ENTRY_POINT, () => {
-        // Trigger to open the entrypoint view
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIComponentView });
     });
 
-    commands.registerCommand(BI_COMMANDS.ADD_SCHEMA, () => {
+    commands.registerCommand(BI_COMMANDS.ADD_TYPE, () => {
         // Trigger to open the schema import view
     });
 

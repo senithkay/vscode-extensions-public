@@ -903,6 +903,7 @@
     "cors-anywhere": "^0.4.4",
     "@apidevtools/json-schema-ref-parser": "11.6.1",
     "adm-zip": "~0.5.14",
-    "@wso2-enterprise/mi-diagram": "workspace:*"
+    "@wso2-enterprise/mi-diagram": "workspace:*",
+    "upath": "~2.0.1"
   }
 }
