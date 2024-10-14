@@ -91,7 +91,7 @@ export type ExpressionBarBaseProps = {
 
     // Function signature props
     // - Returns information about the function that is currently being edited
-    extractArgsFromFunction: (cursorPosition: number) => Promise<{
+    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;

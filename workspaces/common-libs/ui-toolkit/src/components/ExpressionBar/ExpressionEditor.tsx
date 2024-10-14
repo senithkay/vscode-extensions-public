@@ -375,8 +375,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     // This allows us to update the Function Signature UI
-    const updateFnSignature = async (cursorPosition: number) => {
-        const { label, args, currentArgIndex } = await extractArgsFromFunction(cursorPosition);
+    const updateFnSignature = async (value: string, cursorPosition: number) => {
+        const { label, args, currentArgIndex } = await extractArgsFromFunction(value, cursorPosition);
         setFnSignature({ label, args, currentArgIndex });
     };
 
@@ -389,7 +389,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // Update selected argument if the cursor is inside a function
         const { isCursorInFunction } = getFunctionInfo(text, updatedCursorPosition);
         if (isCursorInFunction) {
-            await updateFnSignature(updatedCursorPosition);
+            await updateFnSignature(text,updatedCursorPosition);
         }
     };
 
