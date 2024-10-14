@@ -19,8 +19,8 @@ import { Overview } from './components/Overview';
 const fs = require('fs');
 test.describe.configure({ mode: 'serial' });
 
-// createAndAddDM();
-doMappings();
+createAndAddDM();
+//doMappings();
 
 function createAndAddDM() {
 
