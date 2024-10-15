@@ -44,8 +44,16 @@ export class VisualizerWebview {
             }
         }, extension.context);
 
+        vscode.workspace.onDidDeleteFiles(() => {
+            sendUpdateNotificationToWebview();
+        });
+
         this._panel.onDidChangeViewState(() => {
             vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
+            // Refresh the webview when becomes active
+            if (this._panel?.active) {
+                sendUpdateNotificationToWebview();
+            }
         });
     }
 
