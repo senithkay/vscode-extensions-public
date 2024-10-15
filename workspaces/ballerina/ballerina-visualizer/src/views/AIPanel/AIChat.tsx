@@ -286,24 +286,11 @@ export function AIChat() {
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        async function fetchWithToken(url: string, options: RequestInit) {
-            let response = await fetch(url, options);
-            if (response.status === 401) {
-                console.log("Token expired. Refreshing token...");
-                // await rpcClient.getAiPanelRpcClient().refreshAccessToken();
-                const newToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
-                console.log("refreshed token : " + newToken);
-                if (newToken) {
-                    options.headers = {
-                        ...options.headers,
-                        'Authorization': `Bearer ${newToken}`,
-                    };
-                    response = await fetch(url, options);
-                }
-            }
-            return response;
+        if (!token) {
+            await rpcClient.getAiPanelRpcClient().promptLogin();
+            setIsLoading(false);
+            return;
         }
-
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const response = await fetchWithToken(backendRootUri + "/code", {
             method: 'POST',
@@ -313,11 +300,17 @@ export function AIChat() {
             },
             body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray, sourceFiles: project.sourceFiles }),
             signal: signal,
-        });
+        }, rpcClient);
 
         let functions : any;
 
         if (!response.ok) {
+            if (response.status >= 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
@@ -400,7 +393,7 @@ export function AIChat() {
                         },
                         body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray, "sourceFiles": project.sourceFiles, diagnosticRequest: diagReq, functions: functions }),
                         signal: signal,
-                    });
+                    }, rpcClient);
                     if (!response.ok) {
                         console.log("errr");
                     } else {
@@ -520,14 +513,6 @@ export function AIChat() {
                     <ResetsInBadge>
                         {`Resets in: 30 days`}
                     </ResetsInBadge>
-                    <Button
-                        appearance="icon"
-                        onClick={() => handleClearChat()}
-                        tooltip="Clear Chat"
-                        disabled={isLoading}
-                    >
-                        <Codicon name="clear-all" />&nbsp;&nbsp;Clear
-                    </Button>
                 </Badge>
                 <HeaderButtons>
                     <Button
@@ -817,6 +802,23 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
     );
 };
 
+export async function fetchWithToken(url: string, options: RequestInit, rpcClient: any) {
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
+}
 
 // Define the different event body types
 interface ContentBlockDeltaBody {

@@ -39,6 +39,10 @@ export async function getAuthUrl(callbackUri: string): Promise<string> {
     return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=https://98c70105-822c-4359-8579-4da58f0ab4b7.e1-us-east-azure.choreoapps.dev&client_id=${AUTH_CLIENT_ID}&scope=openid&state=${state}`;
 }
 
+export function getLogoutUrl() : string {
+    return `https://api.asgardeo.io/t/${AUTH_ORG}/oidc/logout`
+}
+
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
     const params = new URLSearchParams({
         client_id: AUTH_CLIENT_ID,
@@ -101,7 +105,7 @@ export async function exchangeAuthCode(authCode: string) {
 
             StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
         } catch (error: any) {
-            const errMsg = "Error while signing in to MI AI! " + error?.message;
+            const errMsg = "Error while signing in to Copilot! " + error?.message;
             throw new Error(errMsg);
         }
     }
