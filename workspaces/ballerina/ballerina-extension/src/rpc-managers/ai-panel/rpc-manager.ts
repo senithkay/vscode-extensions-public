@@ -355,10 +355,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         //remove unused imports?
 
-        //add imports?
-
         // check project diagnostics
         let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+
+        let projectModified = await addMissingImports(projectDiags);
+        if (projectModified) {
+            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
+        }
+
         let isDiagsRefreshed: boolean = await isModuleNotFoundDiagsExist(projectDiags, langClient);
         if (isDiagsRefreshed) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
@@ -371,12 +375,65 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 }
 
+interface BalModification {
+    fileUri: string;
+    moduleName: string;
+}
+
+async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
+    let modifications : BalModification[] = [];
+    let projectModified = false;
+    for (const diagnostic of diagnosticsResult) {
+        const fielUri = diagnostic.uri;
+        for (const diag of diagnostic.diagnostics) {
+            //undefined module 'io'(BCE2000)
+            if (diag.code !== "BCE2000") {
+                continue;
+            }
+            const module = getContentInsideQuotes(diag.message);
+            modifications.push({fileUri: fielUri, moduleName: module});
+        }
+    }
+
+    for (const mod of modifications) {
+        const fileUri = mod.fileUri;
+        const moduleName = mod.moduleName;
+        let importStatement = "";
+        if (moduleName == 'io') {
+            importStatement = `import ballerina/io;\n`;
+        } else if (moduleName == 'http') {
+            importStatement = `import ballerina/http;\n`;
+        } else if (moduleName == 'log') {
+            importStatement = `import ballerina/log;\n`;
+        } else if (moduleName == 'runtime') {
+            importStatement = `import ballerina/lang.runtime;\n`;
+        } else {
+            continue
+        }
+
+        const document = await workspace.openTextDocument(Uri.parse(fileUri));
+        const content = document.getText();
+        const updatedContent = importStatement + content;
+
+        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
+        projectModified = true;
+    }
+
+    return projectModified;
+}
+
+function getContentInsideQuotes(input: string): string | null {
+    const match = input.match(/'([^']+)'/);
+    return match ? match[1] : null;
+}
+
 async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], langClient): Promise<boolean> {
     for (const diagnostic of diagnosticsResult) {
         // if (diagnostic.uri !== Uri.file(tempFilePath).toString()) {
         //     continue;
         // }
         for (const diag of diagnostic.diagnostics) {
+            //Example: cannot resolve module 'ballerinax/aws.s3 as s3'(BCE2003)
             if (diag.code !== "BCE2003") {
                 continue;
             }

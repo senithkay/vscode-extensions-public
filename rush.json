@@ -703,6 +703,11 @@
       "packageName": "@wso2-enterprise/record-creator",
       "projectFolder": "workspaces/ballerina/record-creator",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/ballerina-inline-data-mapper",
+      "projectFolder": "workspaces/ballerina/inline-data-mapper",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }
