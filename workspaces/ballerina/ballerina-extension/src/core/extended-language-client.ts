@@ -171,6 +171,7 @@ enum EXTENDED_APIS {
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
+    BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -208,8 +209,7 @@ enum VSCODE_APIS {
     DOC_SYMBOL = 'textDocument/documentSymbol',
     CODE_ACTION = 'textDocument/codeAction',
     EXECUTE_CMD = 'workspace/executeCommand',
-    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics',
-    SIGNATURE_HELP = 'textDocument/signatureHelp'
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
 }
 
 export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
@@ -277,9 +277,6 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(VSCODE_APIS.EXECUTE_CMD, params);
     }
 
-    async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
-        return this.sendRequest(VSCODE_APIS.SIGNATURE_HELP, params);
-    }
     // <------------ VS CODE RELATED APIS END --------------->
 
     // <------------ EXTENDED APIS START --------------->
@@ -613,6 +610,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getComponentsFromContent(params: ComponentsFromContent): Promise<BallerinaProjectComponents> {
         return this.sendRequest<BallerinaProjectComponents>(EXTENDED_APIS.BI_GET_COMPONENTS_FROM_CONTENT, params);
+    }
+
+    async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return this.sendRequest(EXTENDED_APIS.BI_SIGNATURE_HELP, params);
     }
 
     // <------------ BI APIS END --------------->

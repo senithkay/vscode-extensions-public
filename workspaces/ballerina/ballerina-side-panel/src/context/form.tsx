@@ -26,7 +26,7 @@ export interface FormContext {
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        extractArgsFromFunction: (cursorPosition: number) => Promise<{
+        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;

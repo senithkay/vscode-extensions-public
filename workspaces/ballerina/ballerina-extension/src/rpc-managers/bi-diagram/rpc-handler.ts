@@ -21,6 +21,7 @@ import {
     ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    ExpressionCompletionsRequest,
     SignatureHelpRequest,
     createComponent,
     createComponents,

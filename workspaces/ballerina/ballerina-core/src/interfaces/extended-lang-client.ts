@@ -590,10 +590,10 @@ export interface ExpressionCompletionItem {
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
 export interface SignatureHelpRequest {
-    textDocument: {
-        uri: string;
-    };
-    position: LinePosition;
+    filePath: string;
+    expression: string;
+    startLine: LinePosition;
+    offset: number;
     context: {
         isRetrigger: boolean;
         triggerCharacter?: TriggerCharacter;
