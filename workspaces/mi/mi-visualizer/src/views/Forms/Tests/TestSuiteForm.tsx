@@ -397,6 +397,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 requestMethod: testCase?.input?.requestMethod?.textNode,
                 requestProtocol: testCase?.input?.requestProtocol?.textNode,
                 payload: testCase?.input?.payload?.textNode,
+                properties: testCase?.input?.properties?.properties?.map((property) => { return [property.name, property.scope, property.value] })
             }
 
             return {
