@@ -9,15 +9,13 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
-    DIRECTORY_MAP,
-    EVENT_TYPE,
-    MACHINE_VIEW,
     ProjectDiagnostics,
     ProjectSource,
     ProjectStructureResponse,
+    EVENT_TYPE,
+    MACHINE_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
 import {
     TextArea,
     Typography,
@@ -33,6 +31,10 @@ import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
+import ComponentDiagram from "../ComponentDiagram";
+import { STNode } from "@wso2-enterprise/syntax-tree";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import ReactMarkdown from 'react-markdown';
 
 const CardTitleContainer = styled.div`
     display: flex;
@@ -41,12 +43,15 @@ const CardTitleContainer = styled.div`
     margin-top: 24px;
 `;
 
-const Content = styled.div`
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
 `;
 
-const DiagramContainer = styled.div`
-    height: 400px;
+const Content = styled.div`
+    height: 100%;
 `;
 
 const ContentFooter = styled.div`
@@ -64,11 +69,20 @@ const ButtonContainer = styled.div`
     gap: 8px;
 `;
 
+const Readme = styled.div`
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 4px;
+    padding: 16px;
+    overflow-y: auto;
+    min-height: 300px;
+`;
+
 interface ComponentDiagramProps {
-    stateUpdated: boolean;
+    //
 }
 
 export function Overview(props: ComponentDiagramProps) {
+
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
     const [readmeContent, setReadmeContent] = React.useState<string>("");
@@ -110,6 +124,10 @@ export function Overview(props: ComponentDiagramProps) {
             .then((res) => {
                 backendRootUri.current = res;
             });
+
+        rpcClient.getBIDiagramRpcClient().getReadmeContent().then((res) => {
+            setReadmeContent(res.content);
+        });
     };
 
     rpcClient?.onProjectContentUpdated((state: boolean) => {
@@ -137,40 +155,7 @@ export function Overview(props: ComponentDiagramProps) {
                 rpcClient.getAiPanelRpcClient().addToProject({ content: code, filePath: file });
             }
         });
-
     }, [responseText]);
-
-    const goToView = async (filePath: string, position: NodePosition) => {
-        console.log(">>> component diagram: go to view", { filePath, position });
-        rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: filePath, position: position } });
-    };
-
-    const handleAddArtifact = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.BIComponentView,
-            },
-        });
-    };
-
-    const handleGoToEntryPoints = (entryPoint: EntryPoint) => {
-        if (entryPoint.location) {
-            goToView(entryPoint.location.filePath, entryPoint.location.position);
-        }
-    };
-
-    const handleAddConnection = () => {
-        handleAddArtifact();
-    };
-
-    const handleGoToConnection = (connection: Connection) => {
-        if (connection.location) {
-            goToView(connection.location.filePath, connection.location.position);
-        }
-    };
 
     const handleSaveOverview = (value: string) => {
         rpcClient.getBIDiagramRpcClient().handleReadmeContent({ content: value, read: false });
@@ -206,6 +191,11 @@ export function Overview(props: ComponentDiagramProps) {
 
         setResponseText("");
     };
+
+    function isEmptyProject(): boolean {
+        console.log(">>> projectStructure", { projectStructure });
+        return Object.values(projectStructure.directoryMap || {}).every(array => array.length === 0);
+    }
 
     async function fetchAiResponse(isQuestion: boolean = false) {
         if (readmeContent === "" && !isQuestion) {
@@ -254,7 +244,7 @@ export function Overview(props: ComponentDiagramProps) {
                     if (event.event == "libraries") {
                         setLoadingMessage("Looking for libraries...");
                     } else if (event.event == "functions") {
-                        functions = event.body
+                        functions = event.body;
                         setLoadingMessage("Fetching functions...");
                     } else if (event.event == "content_block_delta") {
                         let textDelta = event.body.text;
@@ -265,23 +255,29 @@ export function Overview(props: ComponentDiagramProps) {
                         console.log(">>> Streaming stop: ", { responseText, assistant_response });
                         setLoadingMessage("Verifying components...");
                         console.log(assistant_response);
-                        const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response)
+                        const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
                         // Check diagnostics
-                        const diags: ProjectDiagnostics = await rpcClient.getAiPanelRpcClient().getShadowDiagnostics(newSourceFiles);
+                        const diags: ProjectDiagnostics = await rpcClient
+                            .getAiPanelRpcClient()
+                            .getShadowDiagnostics(newSourceFiles);
                         if (diags.diagnostics.length > 0) {
-                            console.log("Diagnostics : ")
-                            console.log(diags.diagnostics)
+                            console.log("Diagnostics : ");
+                            console.log(diags.diagnostics);
                             const diagReq = {
-                                "response": assistant_response,
-                                "diagnostics": diags.diagnostics
-                            }
+                                response: assistant_response,
+                                diagnostics: diags.diagnostics,
+                            };
                             const startTime = performance.now();
                             const response = await fetch(url + "/code/repair", {
-                                method: 'POST',
+                                method: "POST",
                                 headers: {
-                                    'Content-Type': 'application/json'
+                                    "Content-Type": "application/json",
                                 },
-                                body: JSON.stringify({ "usecase": readmeContent, diagnosticRequest: diagReq, functions: functions }),
+                                body: JSON.stringify({
+                                    usecase: readmeContent,
+                                    diagnosticRequest: diagReq,
+                                    functions: functions,
+                                }),
                                 signal: signal,
                             });
                             if (!response.ok) {
@@ -291,7 +287,7 @@ export function Overview(props: ComponentDiagramProps) {
                                 const jsonBody = await response.json();
                                 const repairResponse = jsonBody.repairResponse;
                                 // replace original response with new code blocks
-                                const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse)
+                                const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
                                 const endTime = performance.now();
                                 const executionTime = endTime - startTime;
                                 console.log(`Repair call time: ${executionTime} milliseconds`);
@@ -355,46 +351,59 @@ export function Overview(props: ComponentDiagramProps) {
         return component;
     };
 
-    // TODO: improve loading ux
     if (!projectStructure) {
-        return <>Loading...</>;
+        return (
+            <SpinnerContainer>
+                <ProgressRing color={Colors.PRIMARY} />
+            </SpinnerContainer>
+        );
     }
 
-    const project: Project = {
-        name: projectName,
-        entryPoints: [],
-        connections: [],
+    const handleAddConstruct = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIComponentView,
+            },
+        });
     };
-    // generate project structure
-    projectStructure.directoryMap[DIRECTORY_MAP.SERVICES].forEach((service) => {
-        project.entryPoints.push({
-            id: service.name,
-            name: service.name,
-            type: "service",
-            location: {
-                filePath: service.path,
-                position: service.position,
-            },
+
+    const handleDeploy = () => {
+        rpcClient.getBIDiagramRpcClient().deployProject();
+    };
+
+    const handleGenerate = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
         });
-    });
-    projectStructure.directoryMap[DIRECTORY_MAP.CONNECTIONS].forEach((connection) => {
-        project.connections.push({
-            id: connection.name,
-            name: connection.name,
-            location: {
-                filePath: connection.path,
-                position: connection.position,
-            },
-        });
-    });
+
+    };
+
+    const handleEditReadme = () => {
+        rpcClient.getBIDiagramRpcClient().openReadme();
+    };
+
+    const getActionButtons = (): React.ReactNode[] => {
+        return [
+            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleDeploy}>
+                <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
+            </VSCodeButton>,
+            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleGenerate}>
+                <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
+            </VSCodeButton>,
+            <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
+                <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
+            </VSCodeButton>
+        ];
+    };
 
     // TODO: Refactor this component with meaningful components
     return (
         <View>
             <ViewContent padding>
-                <BIHeader />
+                <BIHeader actions={getActionButtons()} />
                 <Content>
-                    <Title variant="h2">Project Overview Test</Title>
+                    {/* <Title variant="h2">Project Overview</Title>
                     <BodyText>
                         To create a tailored integration solution, please provide a brief description of your project.
                         What problem are you trying to solve? What systems or data sources will be involved?
@@ -405,37 +414,54 @@ export function Overview(props: ComponentDiagramProps) {
                         style={{ width: "100%" }}
                         value={readmeContent}
                         onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
-                    />
+                    /> */}
                     <CardTitleContainer>
                         <Title variant="h2">Architecture</Title>
-                        {generateButton()}
+                        {/* {generateButton()} */}
                     </CardTitleContainer>
-                    <DiagramContainer>
-                        <Diagram
-                            project={project}
-                            onAddEntryPoint={handleAddArtifact}
-                            onAddConnection={handleAddConnection}
-                            onEntryPointSelect={handleGoToEntryPoints}
-                            onConnectionSelect={handleGoToConnection}
-                        />
-                    </DiagramContainer>
-                    <ContentFooter>
-                        <Title variant="h2">Quick Actions</Title>
-                        <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                            <Codicon name={"output"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
-                            Import your schema
-                        </LinkButton>
-                        <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                            <Codicon name={"settings"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
-                            Add your configurations
-                        </LinkButton>
-                        <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
-                            <Codicon name={"cloud"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
-                            Create connector from Open API
-                        </LinkButton>
-                    </ContentFooter>
+                    {isEmptyProject() ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', border: '1px dashed var(--vscode-input-border)', borderRadius: '4px', padding: '20px', textAlign: 'center' }}>
+                            <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                Your project is empty
+                            </Typography>
+                            <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                Start by adding constructs or use AI to generate your project structure
+                            </Typography>
+                            <ButtonContainer>
+                                <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
+                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
+                                </VSCodeButton>
+                                <VSCodeButton appearance="secondary" onClick={handleGenerate}>
+                                    <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
+                                </VSCodeButton>
+                            </ButtonContainer>
+                        </div>
+                    ) : (
+                        <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
+                    )}
+                    <CardTitleContainer>
+                        <Title variant="h2">Readme</Title>
+                        <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
+                            <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit Readme
+                        </VSCodeButton>
+                    </CardTitleContainer>
+                    <Readme>
+                        {readmeContent ? (
+                            <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                        ) : (
+                            <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleEditReadme}>
+                                    Create Readme
+                                </VSCodeButton>
+                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                    Create a README to describe your project and use AI to generate components
+                                </Typography>
+                            </div>
+                        )}
+                    </Readme>
                 </Content>
             </ViewContent>
         </View>
     );
 }
+

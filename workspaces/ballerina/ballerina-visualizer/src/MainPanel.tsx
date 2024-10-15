@@ -150,23 +150,15 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-<<<<<<< HEAD
-                            setViewComponent(<ComponentDiagramV1 stateUpdated />);
-=======
                             // setViewComponent(<ComponentDiagram stateUpdated />);
-                            setViewComponent(<OverviewBI stateUpdated />);
->>>>>>> Update Overview
+                            setViewComponent(<OverviewBI />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
                     case MACHINE_VIEW.OverviewV2:
-<<<<<<< HEAD
-                        setViewComponent(<ComponentDiagramV2 />);
-=======
-                        setViewComponent(<OverviewBI stateUpdated />);
+                        setViewComponent(<OverviewBI />);
                         // setViewComponent(<ComponentDiagramV2 stateUpdated />);
->>>>>>> Update Overview
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
