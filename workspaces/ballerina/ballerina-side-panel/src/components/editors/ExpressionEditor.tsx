@@ -91,8 +91,10 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         onCompletionSelect,
         onSave,
         onCancel,
-        openSubPanel,
+        openSubPanel
     } = props;
+
+    const { targetLineRange, fileName } = useFormContext();
 
     const [subPanelView, setSubPanelView] = useState<SubPanelView>(SubPanelView.UNDEFINED);
 
@@ -162,6 +164,17 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         )
     };
 
+    const handleHelperPaneOpen = () => {
+        handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
+            filePath: fileName,
+            range: {
+                startLine: targetLineRange.startLine,
+                endLine: targetLineRange.endLine,
+            },
+            editorKey: field.key
+        }});
+    };
+
     return (
         <S.Container>
             <S.LabelContainer>
@@ -202,6 +215,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}
+                        handleHelperPaneOpen={handleHelperPaneOpen}
                         sx={{ paddingInline: '0' }}
                     />
                 )}

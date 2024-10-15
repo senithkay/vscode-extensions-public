@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertNodePropertiesToFormFields,
     enrichFormPropertiesWithValueConstraint,
@@ -41,6 +41,8 @@ interface FormProps {
         onCancel: () => void;
         onBlur: () => void;
     };
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
 }
 
 export function FormGenerator(props: FormProps) {
@@ -56,6 +58,8 @@ export function FormGenerator(props: FormProps) {
         onSubmit,
         openSubPanel,
         expressionEditor,
+        updatedExpressionField,
+        resetUpdatedExpressionField,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -181,6 +185,10 @@ export function FormGenerator(props: FormProps) {
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
                     expressionEditor={expressionEditor}
+                    targetLineRange={targetLineRange}
+                    fileName={fileName}
+                    updatedExpressionField={updatedExpressionField}
+                    resetUpdatedExpressionField={resetUpdatedExpressionField}
                 />
             )}
             {showRecordEditor && (

@@ -12,6 +12,7 @@ import React, { forwardRef } from 'react';
 import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
+import { Button } from '../Button/Button';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -84,6 +85,7 @@ export type ExpressionBarBaseProps = {
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
+    handleHelperPaneOpen?: () => void;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -121,11 +123,14 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, ...rest } = props;
+    const { id, handleHelperPaneOpen, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
-            <Icon name="function-icon" />
+            <Button appearance="icon" onClick={handleHelperPaneOpen}>
+                <Icon name="function-icon" />
+            </Button>
+            {/* <Icon name="function-icon" /> */}
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
