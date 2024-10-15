@@ -138,7 +138,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 			items.push(<ComponentSummaryItem title="Node Version" text={buildDetails?.spaNodeVersion} />);
 			items.push(<ComponentSummaryItem title="Build Command" text={buildDetails?.spaBuildCommand} />);
 			items.push(<ComponentSummaryItem title="Output directory" text={buildDetails?.spaOutputDir} />);
-		} else if (buildDetails?.buildPackLang) {
+		} else if (buildDetails?.langVersion) {
 			// Build pack type
 			items.push(<ComponentSummaryItem title="Language Version" text={buildDetails?.langVersion} />);
 			if (type === ChoreoComponentType.WebApplication) {

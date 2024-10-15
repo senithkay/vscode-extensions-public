@@ -72,6 +72,7 @@ import {
 	getShortenedHash,
 	ShowTextInOutputChannel,
 	ReadFile,
+	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
@@ -247,13 +248,13 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
 		if (existsSync(componentYamlPath)) {
 			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			endpointFileContent.endpoints = params.endpoints?.map(item=>({
-				name: item.name!,
+			endpointFileContent.endpoints = params.endpoints?.map((item, index)=>({
+				name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
 				service: { port: item.port, basePath: item.context },
 				type: item.type || "REST",
 				displayName: item.name,
-				networkVisibilities: item.networkVisibilities,
-				schemaFilePath: item.schemaFilePath
+				networkVisibilities: [item.networkVisibility ?? "Public"],
+				schemaFilePath: item.schemaFilePath,
 			})) ?? [];
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 			if (!deepEqual(originalContent, endpointFileContent)) {
@@ -265,12 +266,12 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			}
 			const endpointFileContent: ComponentYamlContent = {
 				schemaVersion: 1.1,
-				endpoints: params.endpoints?.map(item=>({
-					name: item.name!,
+				endpoints: params.endpoints?.map((item, index)=>({
+					name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
 					service: { port: item.port, basePath: item.context },
 					type: item.type || "REST",
 					displayName: item.name,
-					networkVisibilities: item.networkVisibilities,
+					networkVisibilities: [item.networkVisibility ?? "Public"],
 					schemaFilePath: item.schemaFilePath
 				})) ?? []
 			};

@@ -25,22 +25,29 @@ import { getLogger } from "./logger/logger";
 import * as os from 'os';
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
-	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
 
 	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>
 		eps?.map((item) => {
 			if (item.schemaFilePath) {
 				const fileExists = existsSync(join(componentPath, item.schemaFilePath));
-				return { ...item, schemaFilePath: fileExists ? item.schemaFilePath : "", networkVisibilities: item.networkVisibility ? [item.networkVisibility] : item.networkVisibilities ?? [] };
+				return { ...item, schemaFilePath: fileExists ? item.schemaFilePath : "", networkVisibility: item.networkVisibility || item.networkVisibilities?.[0] || "Public"  };
 			}
-			return item;
+			return { ...item, networkVisibility: item.networkVisibility || item.networkVisibilities?.[0] || "Public" };
 		});
 
-	if (existsSync(endpointsYamlPath)) {
-		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
+	const componentYamlPath = join(componentPath, ".choreo", "component.yaml");
+	if (existsSync(componentYamlPath)) {
+		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 		return {
-			endpoints: filterEndpointSchemaPath(endpointFileContent.endpoints),
-			filePath: endpointsYamlPath,
+			endpoints: filterEndpointSchemaPath(endpointFileContent?.endpoints?.map(item=>({
+				name: item.displayName || item.name,
+				port: item.service?.port,
+				context: item.service?.basePath,
+				networkVisibilities: item.networkVisibilities,
+				type: item.type,
+				schemaFilePath: item.schemaFilePath,
+			}))  ?? []),
+			filePath: componentYamlPath,
 		};
 	}
 
@@ -53,19 +60,12 @@ export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpoi
 		};
 	}
 
-	const componentYamlPath = join(componentPath, ".choreo", "component.yaml");
-	if (existsSync(componentYamlPath)) {
-		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
+	if (existsSync(endpointsYamlPath)) {
+		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
 		return {
-			endpoints: filterEndpointSchemaPath(endpointFileContent?.endpoints?.map(item=>({
-				name: item.name,
-				port: item.service?.port,
-				context: item.service?.basePath,
-				networkVisibilities: item.networkVisibilities,
-				type: item.type,
-				schemaFilePath: item.schemaFilePath,
-			}))  ?? []),
-			filePath: componentConfigYamlPath,
+			endpoints: filterEndpointSchemaPath(endpointFileContent.endpoints),
+			filePath: endpointsYamlPath,
 		};
 	}
 
