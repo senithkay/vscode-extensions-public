@@ -9,11 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    CreateComponentRequest,
-    CreateComponentResponse,
-    DIRECTORY_MAP,
+    AIChatRequest,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -31,9 +27,14 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
-    OverviewFlow,
+    ComponentsRequest,
+    ComponentsResponse,
+    CreateComponentRequest,
+    CreateComponentResponse,
+    DIRECTORY_MAP,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    OverviewFlow,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -48,7 +49,7 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { commands, Uri, workspace } from "vscode";
+import { Uri, ViewColumn, commands, window, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
@@ -531,5 +532,114 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     reject("Error fetching expression completions from ls");
                 });
         });
+    }
+
+    async getReadmeContent(): Promise<ReadmeContentResponse> {
+        return new Promise((resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders || workspaceFolders.length === 0) {
+                resolve({ content: '' });
+                return;
+            }
+
+            const projectRoot = workspaceFolders[0].uri.fsPath;
+            const readmePath = path.join(projectRoot, 'README.md');
+
+            if (!fs.existsSync(readmePath)) {
+                resolve({ content: '' });
+                return;
+            }
+
+            fs.readFile(readmePath, 'utf8', (err, data) => {
+                if (err) {
+                    console.error('Error reading README.md:', err);
+                    resolve({ content: '' });
+                } else {
+                    resolve({ content: data });
+                }
+            });
+        });
+    }
+
+    openReadme(): void {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            window.showErrorMessage('No workspace folder is open.');
+            return;
+        }
+
+        const projectRoot = workspaceFolders[0].uri.fsPath;
+        const readmePath = path.join(projectRoot, 'README.md');
+
+        if (!fs.existsSync(readmePath)) {
+            // Create README.md if it doesn't exist
+            fs.writeFileSync(readmePath, '# Project Overview\n\nAdd your project description here.');
+        }
+
+        // Open README.md in the editor
+        workspace.openTextDocument(readmePath).then(doc => {
+            window.showTextDocument(doc, ViewColumn.Beside);
+        });
+    }
+
+    async createChoreoComponent(name: string, type: "service" | "manualTask" | "scheduleTask"): Promise<void> {
+        const params = {
+            initialValues: {
+                name,
+                type,
+                buildPackLang: "ballerina"
+            }
+        };
+
+        await commands.executeCommand("wso2.choreo.create.component", params);
+    }
+
+    deployProject(): void {
+        // Show a quick pick to select deployment option
+        window.showQuickPick([
+            {
+                label: "$(package) Deploy with an executable",
+                detail: "Create a standalone executable for your Ballerina Integrator project"
+            },
+            {
+                label: "$(package) Deploy with Docker",
+                detail: "Containerize your Ballerina Integrator project using Docker"
+            },
+            {
+                label: "$(cloud) Deploy on Choreo",
+                detail: "Deploy your project to Choreo cloud platform",
+                key: "deploy-on-choreo"
+            }
+        ].map(item => ({
+            ...item,
+        })), {
+            placeHolder: "Select deployment option"
+        }).then(selection => {
+            if (!selection) {
+                return; // User cancelled the selection
+            }
+
+            switch (selection.label) {
+                case "Deploy with an executable":
+                    // Logic for deploying with an executable
+                    console.log("Deploying with an executable");
+                    // TODO: Implement executable deployment
+                    break;
+                case "Deploy with Docker":
+                    // Logic for deploying with Docker
+                    console.log("Deploying with Docker");
+                    // TODO: Implement Docker deployment
+                    break;
+                case "$(cloud) Deploy on Choreo":
+                    this.createChoreoComponent("test", "service");
+                    break;
+                default:
+                    window.showErrorMessage("Invalid deployment option selected");
+            }
+        });
+    }
+
+    openAIChat(params: AIChatRequest): void {
+        commands.executeCommand('ballerina.open.ai.panel');
     }
 }
