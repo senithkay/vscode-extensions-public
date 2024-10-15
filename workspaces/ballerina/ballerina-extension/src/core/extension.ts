@@ -20,14 +20,18 @@ import {
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
-import { getServerOptions } from '../server/server';
-import { BallerinaProject, ExtendedLangClient } from './extended-language-client';
-import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
+import { getServerOptions } from '../utils/server/server';
+import { ExtendedLangClient } from './extended-language-client';
+import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION, isSupportedSLVersion } from '../utils';
 import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH
+    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
+    ENABLE_LIVE_RELOAD,
+    ENABLE_FULL_PROJECT_SCAFFOLDING,
+    ENABLE_AI_SUGGESTIONS,
+    ENABLE_SEQUENCE_DIAGRAM_VIEW
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -36,10 +40,11 @@ import {
     TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED,
     TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED,
     getMessageObject
-} from "../telemetry";
-import { BALLERINA_COMMANDS, runCommand } from "../project";
-import { gitStatusBarItem } from "../editor-support/git-status";
-import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
+} from "../features/telemetry";
+import { BALLERINA_COMMANDS, runCommand } from "../features/project";
+import { gitStatusBarItem } from "../features/editor-support/git-status";
+import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
+import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -311,12 +316,14 @@ export class BallerinaExtension {
     registerPreInitHandlers(): any {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-            if (params.affectsConfiguration(BALLERINA_HOME) || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
-                || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
-                params.affectsConfiguration(ENABLE_DEBUG_LOG)
-                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
-                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES) ||
-                params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)) {
+            if (params.affectsConfiguration(BALLERINA_HOME) 
+                || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
+                || params.affectsConfiguration(ENABLE_ALL_CODELENS)
+                || params.affectsConfiguration(ENABLE_DEBUG_LOG)
+                || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG)
+                || params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES)
+                || params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)
+                || params.affectsConfiguration(ENABLE_LIVE_RELOAD)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
         });
@@ -595,6 +602,10 @@ export class BallerinaExtension {
         return this.overrideBallerinaHome() && <boolean>workspace.getConfiguration().get(ENABLE_BALLERINA_LS_DEBUG);
     }
 
+    public enabledLiveReload(): boolean {
+        return isSupportedSLVersion(this, 2201100) && workspace.getConfiguration().get(ENABLE_LIVE_RELOAD);
+    }
+
     public enabledPerformanceForecasting(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_PERFORMANCE_FORECAST);
     }
@@ -617,6 +628,18 @@ export class BallerinaExtension {
 
     public async updatePerformanceForecastSetting(status: boolean) {
         await workspace.getConfiguration().update(ENABLE_PERFORMANCE_FORECAST, status);
+    }
+
+    public enableSequenceDiagramView(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_SEQUENCE_DIAGRAM_VIEW);
+    }
+
+    public biOverviewV2(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_FULL_PROJECT_SCAFFOLDING);
+    }
+
+    public enableAiSuggestions(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
     }
 
     public getDocumentContext(): DocumentContext {

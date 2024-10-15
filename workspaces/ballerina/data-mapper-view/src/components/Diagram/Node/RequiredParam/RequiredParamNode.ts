@@ -16,6 +16,7 @@ import { getSearchFilteredInput, getTypeOfInputParam } from "../../utils/dm-util
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
+const NODE_ID = "required-param-node";
 
 export class RequiredParamNode extends DataMapperNodeModel {
     public typeDef: TypeField;
@@ -29,6 +30,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         public typeDesc: TypeDescriptor,
         public hasNoMatchingFields?: boolean) {
         super(
+            `${NODE_ID}-${value.paramName.value}`,
             context,
             REQ_PARAM_NODE_TYPE
         );

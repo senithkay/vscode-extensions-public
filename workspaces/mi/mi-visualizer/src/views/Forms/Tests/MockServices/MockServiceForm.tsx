@@ -21,6 +21,7 @@ import { AccordionContainer, verticalIconStyles } from "../TestSuiteForm";
 import styled from "@emotion/styled";
 import { getColorByMethod } from "@wso2-enterprise/service-designer/lib/components/ResourceAccordion/ResourceAccordion";
 import { MockResourceEntry, MockResourceForm } from "./MockResourceForm";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 export interface MockServiceFormProps {
     filePath?: string;
@@ -95,7 +96,8 @@ export function MockServiceForm(props: MockServiceFormProps) {
         handleSubmit,
         formState: { errors },
         register,
-        reset
+        reset,
+        control
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange",
@@ -266,11 +268,12 @@ export function MockServiceForm(props: MockServiceFormProps) {
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <Typography variant="h3">Mock Service Details</Typography>
-                <TextField
-                    id="endpointName"
-                    label="Endpoint name"
-                    placeholder="Mocking endpoint name"
-                    required
+                <FormKeylookup
+                    control={control}
+                    label="Endpoint"
+                    name="endpointName"
+                    filterType="endpoint"
+                    path={props.filePath}
                     errorMsg={errors.endpointName?.message.toString()}
                     {...register("endpointName")}
                 />

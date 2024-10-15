@@ -10,9 +10,9 @@
  */
 import {
     HistoryEntry,
+    OpenViewRequest,
     UpdateUndoRedoMangerRequest,
     VisualizerAPI,
-    VisualizerLocation,
     addToHistory,
     addToUndoStack,
     getHistory,
@@ -34,16 +34,16 @@ export class VisualizerRpcClient implements VisualizerAPI {
         this._messenger = messenger;
     }
 
-    openView(params: VisualizerLocation): void {
+    openView(params: OpenViewRequest): void {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 
-    getHistory(): Promise<HistoryEntry[]> {
+    async getHistory(): Promise<HistoryEntry[]> {
         return this._messenger.sendRequest(getHistory, HOST_EXTENSION);
     }
 
-    addToHistory(params: HistoryEntry): void {
-        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, params);
+    addToHistory(entry: HistoryEntry): void {
+        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, entry);
     }
 
     goBack(): void {

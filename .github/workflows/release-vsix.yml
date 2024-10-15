@@ -26,8 +26,8 @@ on:
         type: boolean
         required: true
         default: false
-      eggplant:
-        description: Release Eggplant extension
+      bi:
+        description: Release BI extension
         type: boolean
         required: true
         default: false
@@ -59,10 +59,11 @@ jobs:
       choreo: ${{ inputs.choreo }}
       api-chat: ${{ inputs.api-chat }}
       apk: ${{ inputs.apk }}
-      eggplant:  ${{ inputs.eggplant }}
+      bi:  ${{ inputs.bi }}
       mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
+      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX

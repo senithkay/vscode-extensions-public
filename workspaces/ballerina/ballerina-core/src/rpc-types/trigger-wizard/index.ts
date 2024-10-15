@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TriggerRequest, TriggerResponse, TriggersRequest, TriggersResponse } from "./interfaces";
+import { TriggerParams, TriggersParams, Triggers, Trigger } from "../../interfaces/extended-lang-client";
 
 export interface TriggerWizardAPI {
-    getTriggers: (params: TriggersRequest) => Promise<TriggersResponse>;
-    getTrigger: (params: TriggerRequest) => Promise<TriggerResponse>;
+    getTriggers: (params: TriggersParams) => Promise<Triggers>;
+    getTrigger: (params: TriggerParams) => Promise<Trigger>;
 }

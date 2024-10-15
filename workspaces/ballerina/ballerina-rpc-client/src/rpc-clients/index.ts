@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./lang-server/rpc-client";
+export * from "./lang-client/rpc-client";
 export * from "./library-browser/rpc-client";
 export * from "./service-designer/rpc-client";
 export * from "./common/rpc-client";
 export * from "./persist-diagram/rpc-client";
 export * from "./graphql-designer/rpc-client";
-export * from "./project-design-diagram/rpc-client";
 export * from "./record-creator/rpc-client";
+export * from "./ai-panel/rpc-client";
+export * from "./connector-wizard/rpc-client";

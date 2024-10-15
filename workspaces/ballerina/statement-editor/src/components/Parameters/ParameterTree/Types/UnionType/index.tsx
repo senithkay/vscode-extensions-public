@@ -23,7 +23,7 @@ export default function UnionType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const requiredParam = isRequiredParam(param);
-    const memberTypes = param.members?.map((field, index) => ({id: index.toString(), value: getUnionParamName(field)}));
+    const memberTypes = param.members?.map((field, index) => ({ id: index.toString(), value: getUnionParamName(field) }));
     const initSelectedMember = getSelectedUnionMember(param);
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
@@ -31,7 +31,7 @@ export default function UnionType(props: TypeProps) {
     const [parameter, setParameter] = useState<TypeField>(initSelectedMember);
     const initialRendering = useRef(false);
 
-    if (!(param.members && param.members.length > 0)){
+    if (!(param.members && param.members.length > 0)) {
         return <></>;
     }
 
@@ -66,7 +66,7 @@ export default function UnionType(props: TypeProps) {
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <VSCodeCheckbox
                         checked={paramSelected}
-                        disabled={requiredParam}
+                        {...(requiredParam && { disabled: true })}
                         onClick={toggleParamCheck}
                         className={stmtEditorHelperClasses.parameterCheckbox}
                         data-testid="arg-check"
@@ -93,6 +93,7 @@ export default function UnionType(props: TypeProps) {
                             value={selectedMemberType}
                             items={memberTypes}
                             data-testid="arg-dropdown-component"
+                            sx={{ marginLeft: '5px' }}
                         />
                     </div>
                 </div>

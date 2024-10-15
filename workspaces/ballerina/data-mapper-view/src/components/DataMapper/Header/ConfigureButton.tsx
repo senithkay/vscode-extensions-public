@@ -21,9 +21,12 @@ import { css } from '@emotion/css';
 const useStyles = () => ({
     configureBtn: css({
         "& > vscode-button": {
-            height: "26px",
-            borderRadius: 0,
-            padding: "0 2px",
+            textTransform: 'none',
+            boxSizing: 'border-box',
+            color: 'var(--vscode-sideBarSectionHeader-foreground)',
+            fontWeight: 300,
+            height: '26px',
+            marginLeft: '10px'
         }
     })
 });
@@ -39,7 +42,11 @@ export default function ConfigureButton(props: ConfigureButtonProps) {
 
     return (
         <Tooltip content={"Edit data mapper name, inputs and the output"} position="bottom-start">
-            <Button onClick={onClick} appearance="icon" className={classes.configureBtn}>
+            <Button
+                onClick={onClick}
+                appearance="secondary"
+                className={classes.configureBtn}
+            >
                 <Codicon sx={{ marginRight: 5 }} name="edit" />
                 {showText ? "Configure" : null}
             </Button>

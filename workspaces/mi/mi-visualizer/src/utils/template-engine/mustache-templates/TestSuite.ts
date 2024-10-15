@@ -21,15 +21,15 @@ function modityTestCaseData(data: TestCaseEntry) {
     if (data.input.payload && data.input.payload.startsWith("<![CDATA[")) {
         data.input.payload = data.input.payload.substring(9, data.input.payload.length - 3);
     }
-    if ((data?.input?.properties as any)?.properties) {
+    if (data?.input?.properties) {
         if (
-            (Array.isArray((data.input.properties as any).properties) &&
-                (data.input.properties as any).properties.length === 0) ||
-            (data.input.properties as any).properties === undefined
+            (Array.isArray(data.input.properties) &&
+                data.input.properties.length === 0) ||
+            data.input.properties === undefined
         ) {
             delete data.input.properties;
         } else {
-            (data.input.properties as any).properties = (data.input.properties as any).properties.map((property: any) => {
+            (data.input.properties as any) = data.input.properties.map((property: any) => {
                 return {
                     name: property[0],
                     scope: property[1],
@@ -88,7 +88,7 @@ function getTestSuiteMustacheTemplate() {
         </test-artifact>
         <supportive-artifacts>
             {{#supportiveArtifacts}}
-                <artifact>{{{.}}}</artifact>
+            <artifact>{{{.}}}</artifact>
             {{/supportiveArtifacts}}
         </supportive-artifacts>
     </artifacts>
@@ -111,12 +111,12 @@ function getTestCaseMustacheTemplate() {
                 <request-path>{{{input.requestPath}}}</request-path>{{/input.requestPath}}{{#input.requestMethod}}
                 <request-method>{{input.requestMethod}}</request-method>{{/input.requestMethod}}{{#input.requestProtocol}}
                 <request-protocol>{{input.requestProtocol}}</request-protocol>{{/input.requestProtocol}}{{#input.payload}}
-                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}{{#input.properties}}
+                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}{{#input.properties.length}}
                 <properties>
-                    {{#properties}}
+                    {{#input.properties}}
                     <property name="{{name}}" scope="{{scope}}" value="{{value}}" />
-                    {{/properties}}
-                </properties>{{/input.properties}}
+                    {{/input.properties}}
+                </properties>{{/input.properties.length}}
             </input>
             <assertions>
                 {{#assertions}}

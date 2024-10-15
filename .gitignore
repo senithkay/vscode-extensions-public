@@ -19,7 +19,6 @@ test-resources
 # gradle
 .gradle
 !gradle-wrapper.jar
-build
 
 # Compiled class file
 *.class

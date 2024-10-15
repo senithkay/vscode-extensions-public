@@ -19,8 +19,6 @@ import {
 import { HorizontalIconsWithSeparator } from '../HorizontalIconsWithSeparator/HorizontalIconsWithSeparator';
 import { FormContainer } from '../../../styles';
 
-const FORM_WIDTH = 600;
-
 export interface TypeSelectorProps {
     id?: string;
     className?: string;
@@ -41,7 +39,7 @@ export const PanelContent = styled(VSCodePanelView)`
 const PanelWrapper = styled.div`
     margin-top: 10px;
     margin-left: -6px;
-    width: ${FORM_WIDTH + 6}px;
+    width: "calc(100% + 6px)";
 `;
 
 export const TypeSelector = (props: TypeSelectorProps) => {
@@ -54,7 +52,7 @@ export const TypeSelector = (props: TypeSelectorProps) => {
     };
 
     return (
-        <FormContainer id={id} className={className} width={FORM_WIDTH} sx={sx}>
+        <FormContainer id={id} className={className} width={700} sx={sx}>
             <Header/>
             <Typography variant="h6" sx={{ marginTop: 0 }}>Welcome to Project Choreo, an experimental web-based development workspace from WSO2.</Typography>
             <Typography variant="h5" sx={{ marginTop: 0, marginBottom: 16 }}> Create a new workspace </Typography>
@@ -71,10 +69,10 @@ export const TypeSelector = (props: TypeSelectorProps) => {
                     <VSCodePanelTab label="shared-workspaces"> Shared with you </VSCodePanelTab>
 
                     <PanelContent>
-                        <HorizontalIconsWithSeparator onClick={() => handleSelection("sample 1")} sx={{marginBottom: 5}} leftIconName='react' rightIconName='ellipsis' title='sample 1' description="sample-1 • Accessed 3 hours ago"/>
+                        <HorizontalIconsWithSeparator onClick={() => handleSelection("sample 1")} sx={{marginBottom: 5, flexGrow: 1}} leftIconName='react' rightIconName='ellipsis' title='sample 1' description="sample-1 • Accessed 3 hours ago"/>
                     </PanelContent>
                     <PanelContent>
-                        <HorizontalIconsWithSeparator onClick={() => handleSelection("sample 2")} sx={{marginBottom: 5}} leftIconName='nextjs' rightIconName='ellipsis' title='sample 2' description="sample-2 • Accessed 4 hours ago"/>
+                        <HorizontalIconsWithSeparator onClick={() => handleSelection("sample 2")} sx={{marginBottom: 5, flexGrow: 1}} leftIconName='nextjs' rightIconName='ellipsis' title='sample 2' description="sample-2 • Accessed 4 hours ago"/>
                     </PanelContent>
                 </VSCodePanels>
             </PanelWrapper>

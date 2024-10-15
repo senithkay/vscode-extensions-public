@@ -7,41 +7,76 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { URI } from "vscode-uri";
-import { transformNodePosition } from './utils/utils';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-export const useSyntaxTreeFromRange = (
-    location: NodePosition,
-    filePath: string,
-    identifier: string,
-    hasFileChanged?: boolean
-) => {
-    const { rpcClient } = useVisualizerContext();
-    const getST = async () => {
-        if (location && filePath) {
-            try {
-                const response = await rpcClient?.getLangServerRpcClient().getSTByRange({
-                    lineRange: transformNodePosition(location),
-                    documentIdentifier: {
-                        uri: URI.file(filePath).toString()
-                    }
-                });
-                return response;
-            } catch (networkError: any) {
-                console.error('Error while fetching syntax tree', networkError);
-            }
+import { useQuery } from '@tanstack/react-query';
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { LinePosition, Range } from '@wso2-enterprise/ballerina-core';
+import { URI } from 'vscode-uri';
+
+export const useExperimentalEnabled = () => {
+    const { rpcClient } = useRpcContext();
+
+    const isExperimentalEnabled = async () => {
+        return await rpcClient.getCommonRpcClient().experimentalEnabled();
+    }
+
+    const {
+        data: experimentalEnabled,
+        isFetching: isFetchingExperimentalEnabled,
+        isError,
+        refetch,
+    } = useQuery(['isExperimentalEnabled', {}], () => isExperimentalEnabled(), {});
+
+    return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
+};
+
+export const useIOTypes = (filePath: string, position: LinePosition) => {
+    const { rpcClient } = useRpcContext();
+    const getIOTypes = async () => {
+        try {
+            const res = await rpcClient
+                .getInlineDataMapperRpcClient()
+                .getIOTypes({ filePath, position });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
         }
     }
 
     const {
-        data,
-        isFetching,
-        isError,
-        refetch,
-    } = useQuery(['getST', { location, filePath, identifier, hasFileChanged }], () => getST(), {});
+        data: dmIOTypes,
+        isFetching: isFetchingIOTypes,
+        isError: isIOTypeError,
+        refetch
+    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), {});
 
-    return { data, isFetching, isError, refetch };
+    return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
+};
+
+export const useSTNodeByRange = (filePath: string, range: Range) => {
+    const { rpcClient } = useRpcContext();
+    const getSTNode = async () => {
+        try {
+            const res = await rpcClient
+                .getLangClientRpcClient()
+                .getSTByRange({
+                    documentIdentifier: { uri: URI.file(filePath).toString() },
+                    lineRange: range
+                });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const {
+        data: stNode,
+        isFetching: isFetchingSTNode,
+        isError: isSTNodeError,
+        refetch
+    } = useQuery(['getSTNode', { filePath }], () => getSTNode(), {});
+
+    return {stNode, isFetchingSTNode, isSTNodeError, refetch};
 };

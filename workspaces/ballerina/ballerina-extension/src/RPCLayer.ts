@@ -10,49 +10,76 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerLocation, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
-import { VisualizerWebview } from './visualizer/webview';
+import { stateChanged, getVisualizerLocation, VisualizerLocation, projectContentUpdated, aiStateChanged, sendAIStateEvent, AI_EVENT_TYPE, popupStateChanged, getPopupVisualizerState, PopupVisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
-import { registerLangServerRpcHandlers } from './rpc-managers/lang-server/rpc-handler';
+import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
 import { registerLibraryBrowserRpcHandlers } from './rpc-managers/library-browser/rpc-handler';
 import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
 import { registerCommonRpcHandlers } from './rpc-managers/common/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
-import { registerProjectDesignDiagramRpcHandlers } from './rpc-managers/project-design-diagram/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
+import { registerBIDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
+import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
+import { AiPanelWebview } from './views/ai-panel/webview';
+import { StateMachineAI } from './views/ai-panel/aiMachine';
+import path from 'path';
+import { StateMachinePopup } from './stateMachinePopup';
+import { registerConnectorWizardRpcHandlers } from './rpc-managers/connector-wizard/rpc-handler';
+import { registerSequenceDiagramRpcHandlers } from './rpc-managers/sequence-diagram/rpc-handler';
+import { registerInlineDataMapperRpcHandlers } from './rpc-managers/inline-data-mapper/rpc-handler';
+import { ballerinaExtInstance } from './core';
 
 export class RPCLayer {
-    static _messenger: Messenger;
+    static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
-        RPCLayer._messenger = new Messenger();
         if (isWebviewPanel(webViewPanel)) {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
                 RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
+            // Popup machine transition
+            StateMachinePopup.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(popupStateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
+            });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
-            // StateMachine.service().onTransition((state) => {
-            //     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-            // });
+            StateMachineAI.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(aiStateChanged, { type: 'webview', webviewType: AiPanelWebview.viewType }, state.value);
+            });
         }
+    }
 
+    static create(webViewPanel: WebviewPanel | WebviewView) {
+        return new RPCLayer(webViewPanel);
+    }
+
+    static init() {
+        // ----- Main Webview RPC Methods
         RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
-        registerLangServerRpcHandlers(RPCLayer._messenger);
+        registerLangClientRpcHandlers(RPCLayer._messenger);
         registerLibraryBrowserRpcHandlers(RPCLayer._messenger);
         registerServiceDesignerRpcHandlers(RPCLayer._messenger);
         registerCommonRpcHandlers(RPCLayer._messenger);
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
-        registerProjectDesignDiagramRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
-    }
+        registerBIDiagramRpcHandlers(RPCLayer._messenger);
+        registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
+        registerConnectorWizardRpcHandlers(RPCLayer._messenger);
 
-    static create(webViewPanel: WebviewPanel | WebviewView) {
-        return new RPCLayer(webViewPanel);
+        // ----- AI Webview RPC Methods
+        registerAiPanelRpcHandlers(RPCLayer._messenger);
+        RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));
+
+        // ----- Inline Data Mapper Webview RPC Methods
+        registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
+
+         // ----- Popup Views RPC Methods
+        RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 
 }
@@ -60,11 +87,39 @@ export class RPCLayer {
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
-        resolve({ documentUri: context.documentUri, view: context.view, identifier: context.identifier, position: context.position, syntaxTree: context.syntaxTree });
+        resolve({
+            documentUri: context.documentUri,
+            view: context.view,
+            identifier: context.identifier,
+            position: context.position,
+            syntaxTree: context.syntaxTree,
+            isBI: context.isBI,
+            projectUri: context.projectUri,
+            haveServiceType: context.haveServiceType,
+            metadata: {
+                recordFilePath: path.join(context.projectUri, "types.bal"),
+                enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+            },
+        });
+    });
+}
+
+async function getPopupContext(): Promise<PopupVisualizerLocation> {
+    const context = StateMachinePopup.context();
+    return new Promise((resolve) => {
+        resolve({
+            documentUri: context.documentUri,
+            view: context.view,
+            recentIdentifier: context.recentIdentifier
+        });
     });
 }
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;
     return title === VisualizerWebview.panelTitle;
+}
+
+export function notifyCurrentWebview() {
+    RPCLayer._messenger.sendNotification(projectContentUpdated, { type: 'webview', webviewType: VisualizerWebview.viewType }, true);
 }

@@ -49,7 +49,8 @@ export function ResourceResponse(props: ResourceParamProps) {
         setEditingSegmentId(updatedParameters.length);
         const newResp: ResponseConfig = {
             id: updatedParameters.length,
-            code: getDefaultResponse(method)
+            code: getDefaultResponse(method),
+            isNew: true
         };
         updatedParameters.push(newResp);
         onChange(updatedParameters);
@@ -81,7 +82,7 @@ export function ResourceResponse(props: ResourceParamProps) {
     const onSaveParam = (paramConfig: ResponseConfig, defineRecordName: string) => {
         const updatedParameters = [...response];
         let modifiedParamConfig: ResponseConfig;
-        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method))) {
+        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method)) && !paramConfig.type.includes("error")) {
             modifiedParamConfig = {
                 ...paramConfig,
                 source: getResponseRecordCode(paramConfig.code, paramConfig.type)
@@ -109,14 +110,16 @@ export function ResourceResponse(props: ResourceParamProps) {
             };
         }
         if (defineRecordName && paramConfig.type) {
-            const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
             modifiedParamConfig = {
                 ...modifiedParamConfig,
                 code: paramConfig.code,
-                type: defineRecordName,
+                type: paramConfig.type,
                 source: defineRecordName
             };
-            addNameRecord(recordCode);
+            if (defineRecordName !== paramConfig.namedRecord) {
+                const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
+                addNameRecord(recordCode);
+            }
         }
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
@@ -145,12 +148,15 @@ export function ResourceResponse(props: ResourceParamProps) {
                             id: index,
                             type: param.type,
                             code: param.code,
-                            source: param.source
+                            source: param.source,
+                            isTypeArray: param.isTypeArray,
+                            namedRecord: param.namedRecord,
+                            defaultCode: getDefaultResponse(method)
                         }}
                         serviceEndPosition={serviceEndPosition}
                         commonRpcClient={commonRpcClient}
                         isBallerniaExt={isBallerniaExt}
-                        isEdit={true}
+                        isEdit={!param.isNew}
                         onChange={onChangeParam}
                         onSave={onSaveParam}
                         onCancel={onParamEditCancel}

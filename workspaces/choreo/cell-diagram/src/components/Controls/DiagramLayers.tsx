@@ -79,7 +79,7 @@ export function DiagramLayers(props: DiagramLayersProps) {
     const {
         diagramLayers: { addLayer, removeLayer, hasLayer, activeLayers },
     } = useDiagramContext();
-    const [hover, setHover] = useState(false);
+    const [hover, setHover] = useState(true);
     const controlPanelRef = useRef(null);
     const canRemoveLayer = activeLayers.length > 1;
 

@@ -22,8 +22,7 @@ import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
 import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
-
-import { useStyles } from "./style";
+import { useIONodesStyles } from "../../../styles";
 
 export interface LetVarDeclItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -38,7 +37,7 @@ export interface LetVarDeclItemProps {
 
 export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const { engine, typeDesc, id, declaration, context, getPort, handleCollapse, valueLabel } = props;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -57,7 +56,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classes.inputTypeLabel}>
                     {typeName !== `$CompilationError$` ? typeName : 'var'}
                 </span>
             )}
@@ -118,7 +117,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                         </div>
                     )}
                 </span>
-                <span className={classes.treeLabelOutPort}>
+                <span className={classes.outPort}>
                     {portOut && (
                         <DataMapperPortWidget
                             engine={engine}

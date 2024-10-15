@@ -7,9 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, TypeDefinition } from "@wso2-enterprise/syntax-tree";
-import { CompletionResponse } from "../lang-server/interfaces";
+import { TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
+export interface RecordSTRequest {
+    recordName: string;
+}
+export interface ExportOASRequest {
+    documentFilePath?: string;
+}
+export interface ExportOASResponse {
+    openSpecFile: string;
+}
+
+export interface RecordSTResponse {
+    recordST: TypeDefinition;
+}
 export interface ResponseCode {
     code: number;
     title: string;
@@ -76,48 +88,3 @@ export const responseCodes: ResponseCode[] = [
     { code: 510, title: "510 - Not Extended", source: "http:NotExtended" },
     { code: 511, title: "511 - Network Authentication Required", source: "http:NetworkAuthorizationRequired" }
 ]
-
-export interface CreateServiceRequest {
-    position: NodePosition;
-}
-
-export interface UpdateServiceRequest {
-    position: NodePosition;
-}
-
-export interface DeleteServiceRequest {
-    position: NodePosition;
-}
-
-export interface CreateResourceRequest {
-    position: NodePosition;
-    source: string;
-}
-
-export interface UpdateResourceRequest {
-    position: NodePosition;
-}
-
-export interface DeleteResourceRequest {
-    position: NodePosition;
-}
-
-export interface KeywordTypeResponse {
-    data: CompletionResponse;
-}
-
-export interface RecordSTRequest {
-    recordName: string;
-}
-
-export interface RecordSTResponse {
-    recordST: TypeDefinition;
-}
-
-export interface ServiceResponse {
-    error?: string;
-}
-
-export interface ResourceResponse {
-    error?: string;
-}

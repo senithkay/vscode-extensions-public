@@ -14,9 +14,14 @@ export const ENABLE_ALL_CODELENS = "ballerina.codeLens.all.enabled";
 export const ENABLE_SEMANTIC_HIGHLIGHTING = "ballerina.enableSemanticHighlighting";
 export const ENABLE_PERFORMANCE_FORECAST = "ballerina.enablePerformanceForecast";
 export const ENABLE_DEBUG_LOG = "ballerina.debugLog";
+export const ENABLE_LIVE_RELOAD = "ballerina.enableLiveReload";
 export const ENABLE_BALLERINA_LS_DEBUG = "ballerina.enableLanguageServerDebug";
 export const ENABLE_EXPERIMENTAL_FEATURES = "ballerina.experimental";
 export const ENABLE_NOTEBOOK_DEBUG = "ballerina.enableNotebookDebug";
 export const ENABLE_RUN_FAST = "ballerina.enableRunFast";
 export const FILE_DOWNLOAD_PATH = "ballerina.samplesDownloadDirectory";
 export const ENABLE_INLAY_HINTS = "ballerina.enableInlayHints";
+
+export const ENABLE_SEQUENCE_DIAGRAM_VIEW = "ballerina.enableSequenceDiagramView";
+export const ENABLE_FULL_PROJECT_SCAFFOLDING = "ballerina.enableCompleteProjectScaffolding";
+export const ENABLE_AI_SUGGESTIONS = "ballerina.enableAiSuggestions";

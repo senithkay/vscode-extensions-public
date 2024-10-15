@@ -9,11 +9,11 @@
 
 import React from 'react';
 
-import { Colors } from '../../model';
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 export function GraphQLIcon() {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 29.999 30" fill={Colors.PRIMARY}>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 29.999 30" fill={ThemeColors.PRIMARY}>
             <path d="M4.08 22.864l-1.1-.636L15.248.98l1.1.636z"/>
             <path d="M2.727 20.53h24.538v1.272H2.727z"/>
             <path d="M15.486 28.332L3.213 21.246l.636-1.1 12.273 7.086zm10.662-18.47L13.874 2.777l.636-1.1 12.273 7.086z"/>

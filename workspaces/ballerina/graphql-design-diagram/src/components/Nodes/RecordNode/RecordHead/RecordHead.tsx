@@ -48,7 +48,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <RecordHeaderMenu location={node.recordObject.position} nodeName={displayName} />
+                {/* <RecordHeaderMenu location={node.recordObject.position} nodeName={displayName} /> */}
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}
