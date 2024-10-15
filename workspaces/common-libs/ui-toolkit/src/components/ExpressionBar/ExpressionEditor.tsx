@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getFunctionInfo, getIcon, setCursor } from './utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
@@ -376,8 +376,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     // This allows us to update the Function Signature UI
     const updateFnSignature = async (value: string, cursorPosition: number) => {
-        const { label, args, currentArgIndex } = await extractArgsFromFunction(value, cursorPosition);
-        setFnSignature({ label, args, currentArgIndex });
+        const fnSignature = await extractArgsFromFunction(value, cursorPosition);
+        setFnSignature(fnSignature);
     };
 
     const handleChange = async (text: string, cursorPosition?: number) => {
@@ -386,10 +386,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
-        // Update selected argument if the cursor is inside a function
-        const { isCursorInFunction } = getFunctionInfo(text, updatedCursorPosition);
-        if (isCursorInFunction) {
-            await updateFnSignature(text,updatedCursorPosition);
+        const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
+        if (cursorInFunction) {
+            // Update function signature if the cursor is inside a function
+            await updateFnSignature(text, updatedCursorPosition);
+        } else if (fnSignature) {
+            // Clear the function signature if the cursor is not in a function
+            setFnSignature(undefined);
         }
     };
 
