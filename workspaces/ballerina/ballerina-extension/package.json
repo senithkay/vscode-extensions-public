@@ -512,13 +512,6 @@
                 "category": "BI"
             },
             {
-                "command": "BI.open.runtime.view",
-                "title": "Open Runtime Services Panel",
-                "category": "BI",
-                "icon": "$(server)",
-                "when": "BI.biRunning== 'true'"
-            },
-            {
                 "command": "BI.project-explorer.refresh",
                 "title": "Refresh BI",
                 "category": "BI"
@@ -642,12 +635,6 @@
                     "group": "navigation@1",
                     "title": "Run project",
                     "when": "isBalVisualizerActive && isBIProject"
-                },
-                {
-                    "command": "BI.open.runtime.view",
-                    "group": "navigation@2",
-                    "when": "isBalVisualizerActive && isBIProject && biRunning",
-                    "title": "Open Runtime Services Panel"
                 }
             ],
             "notebook/toolbar": [

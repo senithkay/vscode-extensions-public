@@ -13,7 +13,6 @@ import { AIMachineStateValue, MachineStateValue } from "@wso2-enterprise/balleri
 import MainPanel from "./MainPanel";
 import { LoadingRing } from "./components/Loader";
 import AIPanel from "./views/AIPanel/AIPanel";
-import { RuntimeServicesPanel } from "./views/RuntimeServicesPanel/RuntimeServicesPanel";
 
 const MODES = {
     VISUALIZER: "visualizer",
@@ -51,9 +50,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case MODES.VISUALIZER:
                         return <VisualizerComponent state={state} />
                     case MODES.AI:
-                        return <AIPanel state={aiState} />
-                    case MODES.RUNTIME_SERVICES:
-                        return <RuntimeServicesPanel />    
+                        return <AIPanel state={aiState} />  
                 }
             })()}
         </>

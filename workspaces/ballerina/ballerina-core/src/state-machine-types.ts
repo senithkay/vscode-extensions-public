@@ -76,7 +76,6 @@ export interface VisualizerLocation {
     isBI?: boolean;
     haveServiceType?: boolean;
     metadata?: VisualizerMetadata;
-    biRunning? : boolean;
 }
 
 export interface VisualizerMetadata {
