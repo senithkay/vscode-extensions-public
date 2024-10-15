@@ -30,7 +30,7 @@ export const SignInToCopilotMessage = (props: { showProjectHeader?: boolean }) =
     const { rpcClient } = useRpcContext();
     const { showProjectHeader } = props;
 
-    const signInToMIAI = () => {
+    const signInToCopilot = () => {
         rpcClient.getAiPanelRpcClient().login();
     };
 
@@ -39,9 +39,9 @@ export const SignInToCopilotMessage = (props: { showProjectHeader?: boolean }) =
         <Container>
             <AlertBox
                 buttonTitle="Sign In"
-                onClick={signInToMIAI} // Define or import the signInToMIAI function
+                onClick={signInToCopilot}
                 subTitle={
-                    "Please sign in to enable MI Copilot Artifical Intelligence features"
+                    "Please sign in to enable Copilot Artifical Intelligence features"
                 }
                 title={"Ballerina Copilot Account Not Found"}
             />
