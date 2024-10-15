@@ -155,25 +155,36 @@ function doMappings() {
   test('Open DataMapper from tree view', async () => {
     // console.log('.:.Do Mappings1');
     // await page.page.waitForTimeout(180000);
-    
+
     // await page.page.waitForTimeout(5000);
-    
-    const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]',{ timeout: 180000 });
+
+    const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
     await dataMappersLabel.click();
     const dataMapperItem = await page.page.waitForSelector('div[aria-label="dm1"]');
     await dataMapperItem.click();
- 
+
     const dataMapper = new DataMapper(page.page, 'dm1');
     await dataMapper.init();
 
   });
 
-  test('Load Schemas', async () => {
+  // test('Load Schemas', async () => {
+  //   const dataMapper = new DataMapper(page.page, 'dm1');
+  //   await dataMapper.init();
+  //   await dataMapper.importSchema(IOType.Input, 'JSON', '{"name":"John", "age":30, "city":"New York"}');
+  //   await dataMapper.importSchema(IOType.Output, 'JSON', '{"name":"John", "age":30, "home":"New York"}');
+  //   // await page.page.waitForTimeout(30000);
+  // });
+
+  test('Do Mappings', async () => {
     const dataMapper = new DataMapper(page.page, 'dm1');
     await dataMapper.init();
-    await dataMapper.importSchema(IOType.Input, 'JSON', '{"name":"John", "age":30, "city":"New York"}');
-    await dataMapper.importSchema(IOType.Output, 'JSON', '{"name":"John", "age":30, "home":"New York"}');
-    await page.page.waitForTimeout(30000);
+
+    // await dataMapper.mapFields('input.city', 'objectOutput.home');
+
+    expect(dataMapper.verifyTsFileContent()).toBeTruthy();
+    
+    
   });
 
 

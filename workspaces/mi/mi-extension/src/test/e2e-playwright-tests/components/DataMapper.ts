@@ -11,7 +11,7 @@ import { expect, Frame, Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form, FormFillProps } from "./Form";
 import * as fs from 'fs';
-import { newProjectPath } from '../Utils';
+import { newProjectPath, resourcesFolder } from '../Utils';
 import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
 import { IOType } from "@wso2-enterprise/mi-core";
@@ -21,8 +21,8 @@ type SchemaTypeLabel = "JSON" | "JSON Schema" | "XML" | "CSV";
 export class DataMapper {
 
     private webView!: Frame;
-    configFolder!: string;
-    tsFile!: string;
+    // configFolder!: string;
+    // tsFile!: string;
 
     constructor(private _page: Page, private _name: string) {
     }
@@ -34,16 +34,16 @@ export class DataMapper {
         }
         this.webView = webview;
 
-        this.configFolder = path.join(
-            newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
-
-        this.tsFile = path.join(this.configFolder, `${this._name}.ts`);
-
     }
 
     public verifyFileCreation() {
-        const operatorsFile = path.join(this.configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
-        return fs.existsSync(operatorsFile) && fs.existsSync(this.tsFile);
+        const configFolder = path.join(
+            newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
+
+        const tsFile = path.join(configFolder, `${this._name}.ts`);
+        const operatorsFile = path.join(configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
+
+        return fs.existsSync(operatorsFile) && fs.existsSync(tsFile);
     }
 
     public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, content: string) {
@@ -60,6 +60,33 @@ export class DataMapper {
     public async waitForCanvasToLoad() {
         await this.webView.waitForSelector(`div#data-mapper-canvas-container`);
     }
+
+    public async mapFields(sourceFieldFQN: string, targetFieldFQN: string) {
+        const links = this.webView.locator('g[data-linkid]');
+        const linkCount = await links.count();
+
+        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
+        await sourceField.waitFor();
+        await sourceField.click();
+
+        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
+        await targetField.waitFor();
+        await targetField.click();
+
+        await expect(links).not.toHaveCount(linkCount);
+    }
+
+    public verifyTsFileContent() {
+        const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
+        const comparingFile = path.join(resourcesFolder, 'file-snapshots', `${this._name}.ts`);
+
+        const tsFileContent = fs.readFileSync(tsFile, 'utf8');
+        const comparingFileContent = fs.readFileSync(comparingFile, 'utf8');
+        
+        return tsFileContent === comparingFileContent;
+    }
+
+
 
 
 }
@@ -88,6 +115,13 @@ class ImportForm {
         await submitBtn.waitFor();
         await submitBtn.click();
     }
+
+
+
+
+
+
+    //--------------------------------------------------------------------------------
 
     public async addMediator(mediatorName: string, data?: FormFillProps, submitBtnText?: string) {
         const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
@@ -139,23 +173,7 @@ class ImportForm {
         return form;
     }
 
-    public async goToExternalsPage() {
-        const externalPageBtn = this.sidePanel.locator(`vscode-button:text("Externals") >> ..`);
-        await externalPageBtn.waitFor();
-        await externalPageBtn.click();
-    }
 
-    public async goToConnectorsPage() {
-        const connectorsPageBtn = this.sidePanel.locator(`vscode-button:text("Connectors") >> ..`);
-        await connectorsPageBtn.waitFor();
-        await connectorsPageBtn.click();
-    }
-
-    public async addNewConnection() {
-        const addNewConnectionBtn = await this.sidePanel.locator(`div:text("Add new connection")`);
-        await addNewConnectionBtn.waitFor();
-        await addNewConnectionBtn.click();
-    }
 
     public async verifyConnection(name: string, type: string) {
         const connectionSection = this.sidePanel.locator(`h4:text("Available Connections") >> ../..`);
