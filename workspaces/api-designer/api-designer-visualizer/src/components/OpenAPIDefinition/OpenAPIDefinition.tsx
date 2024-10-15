@@ -318,6 +318,11 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     sx={{paddingLeft: 10}}
                     childrenSx={{overflowY: "auto", maxHeight: "90vh"}}
                     tabTitleSx={{marginLeft: 5}}
+                    titleContainerSx={{
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 5,
+                    }}
                     views={[
                         { id: Views.READ_ONLY, name: 'Docs' },
                         { id: Views.EDIT, name: 'Designer' },

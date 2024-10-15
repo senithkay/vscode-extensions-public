@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, FormGroup, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, FormGroup, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
 import { PullUpButton } from '../PullUpButton/PullUPButton';
@@ -17,16 +17,13 @@ import { BaseTypes, MediaTypes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor';
+import { Tabs, ViewItem } from '../Tabs/Tabs';
 
-const TitleWrapper = styled.div`
+const RequestTypeWrapper = styled.div`
     display: flex;
-    flex-direction: row;
-    padding: 16px;
-    border-bottom: 1px solid var(--vscode-panel-border);
-    font: inherit;
-    font-weight: bold;
-    gap: 20px;
-    color: var(--vscode-editor-foreground);
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
 `;
 
 const ParamWrapper = styled.div`
@@ -104,6 +101,12 @@ export function Request(props: ReadOnlyResourceProps) {
     const schema = selectedContentFromMediaType && selectedContentFromMediaType.schema;
     const type = schema && resolveTypeFromSchema(schema);
     const isSchemaArray = schema && schema.type === "array";
+    const requestContentTabViewItems: ViewItem[] = mediaTypes?.map((type: string) => {
+        return {
+            id: type,
+            name: type, // Added the missing 'name' property
+        };
+    });
 
     const handleOptionChange = (options: string[]) => {
         const colnedMediaTypes = [...requestContents];
@@ -222,50 +225,47 @@ export function Request(props: ReadOnlyResourceProps) {
 
     return (
         <>
-            <FormGroup key="RequestBody" title='Request Body' isCollapsed={requestContents.length === 0}>
-                <DescriptionWrapper>
-                    <label htmlFor="description">Description</label>
-                    <MarkDownEditor
-                        key={`requestBody-description-${path}-${method}`}
-                        value={resourceOperation?.requestBody?.description}
-                        onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                        sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
-                    />
-                </DescriptionWrapper>
-                <FormGroup key="body" title='Body' isCollapsed={mediaTypes.length === 0}>
+            <FormGroup key="Requests" title='Requests Body' isCollapsed={requestContents.length === 0}>
+                <TextArea
+                    label='Description'
+                    value={resourceOperation?.requestBody?.description}
+                    onChange={(e) => handleDescriptionChange(e.target.value)}
+                />
+                <FormGroup key="Requests" title='Body' disableCollapse>
                     <PullUpButton options={MediaTypes} selectedOptions={mediaTypes} onOptionChange={handleOptionChange}>
                         <Button appearance="primary">
-                            More Options
+                            Add Content Type
                             <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
                         </Button>
                     </PullUpButton>
-                    <ContentTypeWrapper>
-                        {mediaTypes.map((type: string) => (
-                            <ContentType
-                                key={type}
-                                color={'var(--vscode-symbolIcon-variableForeground)'}
-                                hoverBackground={'var(--vscode-minimap-selectionHighlight)'}
-                                selected={selectedMediaType === type}
-                                onClick={() => setSelectedMediaType(type)}
-                            >
-                                {type}
-                            </ContentType>
-                        ))}
-                    </ContentTypeWrapper>
-                    <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} />
-                    {!isInlinedObject && (
-                        <HorizontalFieldWrapper>
-                            <TextField
-                                placeholder="Default Value"
-                                value={type}
-                                sx={{ width: "100%" }}
-                                onChange={(e) => updateSchemaType(e.target.value)}
-                            />
-                            <ButtonWrapper>
-                                <Codicon iconSx={{ background: isSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
-                                <Codicon name="trash" onClick={() => removeType()} />
-                            </ButtonWrapper>
-                        </HorizontalFieldWrapper>
+                    {requestContentTabViewItems.length > 0 && (
+                        <Tabs
+                            views={requestContentTabViewItems}
+                            currentViewId={selectedMediaType}
+                            onViewChange={setSelectedMediaType}
+                        >
+                            {requestContents.map(([key, value], index) => (
+                                <div key={index} id={key}>
+                                    <RequestTypeWrapper>
+                                        <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} />
+                                        {!isInlinedObject && (
+                                            <HorizontalFieldWrapper>
+                                                <TextField
+                                                    placeholder="Default Value"
+                                                    value={type}
+                                                    sx={{ width: "100%" }}
+                                                    onChange={(e) => updateSchemaType(e.target.value)}
+                                                />
+                                                <ButtonWrapper>
+                                                    <Codicon iconSx={{ background: isSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
+                                                    <Codicon name="trash" onClick={() => removeType()} />
+                                                </ButtonWrapper>
+                                            </HorizontalFieldWrapper>
+                                        )}
+                                    </RequestTypeWrapper>
+                                </div>
+                            ))}
+                        </Tabs>
                     )}
                 </FormGroup>
             </FormGroup>

@@ -14,6 +14,7 @@ import { OpenAPI, Operation, Param, Parameter, PathItem, Schema, Response, Heade
 import { colors, darkerColors } from '../../constants';
 
 export function resolveResponseType(response: Response): string {
+    const contentType = Object.keys(response.content)[0];
     if (!response.content || Object.keys(response.content).length === 0) {
         return response.description;
     } else if (response.content["application/json"].schema.type === "array" && response.content["application/json"].schema.items.$ref) {

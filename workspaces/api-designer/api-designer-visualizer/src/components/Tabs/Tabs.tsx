@@ -21,6 +21,7 @@ export interface TabsProps {
     currentViewId?: string;
     sx?: any;
     childrenSx?: any;
+    titleContainerSx?: any;
     tabTitleSx?: any;
     onViewChange?: (view: string) => void;
 }
@@ -59,11 +60,9 @@ const TabContent = styled.div<ViewSelectorContainerProps>`
     flex-direction: column;
     ${(props: TabsProps) => props.sx};
 `
-const Container = styled.div`
+const Container = styled.div<ViewSelectorContainerProps>`
     background-color: var(--vscode-editor-background);
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    ${(props: ViewSelectorContainerProps) => props.sx};
 `
 interface ChildrenContainerProps {
     sx: any;
@@ -76,7 +75,7 @@ const ChildrenContainer = styled.div<ChildrenContainerProps>`
 `
 
 export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
-    const { views, children, currentViewId, onViewChange, sx, childrenSx, tabTitleSx } = props;
+    const { views, children, currentViewId, onViewChange, sx, childrenSx, tabTitleSx, titleContainerSx } = props;
 
     useEffect(() => {
         
@@ -84,7 +83,7 @@ export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
 
     return (
         <ViewSelectorContainer sx={sx}>
-            <Container>
+            <Container sx={titleContainerSx}>
                 <ViewSelectorTabsContainer>
                     {
                         views.map((view, index) => {

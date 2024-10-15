@@ -26,20 +26,24 @@ export const ButtonWrapper = styled.div`
 interface OverviewProps {
     params: Param[];
     type: string;
+    title?: string;
+    addButtonText?: string;
+    hideTitle?: boolean;
+    disableCollapse?: boolean;
     onParamsChange: (params: Param[]) => void;
 }
 
 export function ParamEditor(props: OverviewProps) {
-    const { params, type, onParamsChange } = props;
+    const { params, type, title, hideTitle = false, addButtonText, disableCollapse, onParamsChange } = props;
 
     const updateParentComponent = ( row: number, param: string, value: string) => {
-        // Coppy params array
-        const paramsCoppy: Param[] = [...params];
-        paramsCoppy[row] = {
-            ...paramsCoppy[row],
+        // Copy params array
+        const paramsCopy: Param[] = [...params];
+        paramsCopy[row] = {
+            ...paramsCopy[row],
             [param]: value
         };
-        onParamsChange(paramsCoppy);
+        onParamsChange(paramsCopy);
     }
 
     const addNewParam = () => {
@@ -83,38 +87,71 @@ export function ParamEditor(props: OverviewProps) {
 
     return (
         <>
-            <FormGroup title={`${type} Parameters`} isCollapsed={false}>
-            <LinkButton onClick={addNewParam}> {`Add ${type} Parameter`} </LinkButton>
-            {params?.map((param, index) => (
-                <HorizontalFieldWrapper key={index}>
-                    <TextField
-                        placeholder="Name"
-                        name={`params[${index}].name`}
-                        value={param.name || ""}
-                        sx={{ width: "33%" }}
-                        onChange={(e) => updateParentComponent(index, "name", e.target.value)}
-                    />
-                    <TextField
-                        placeholder="Type"
-                        value={param.type || ""}
-                        sx={{ width: "33%" }}
-                        onChange={(e) => updateParentComponent(index, "type", e.target.value)}
-                    />
-                    <TextField
-                        placeholder="Default Value"
-                        value={param.defaultValue || ""}
-                        sx={{ width: "33%" }}
-                        onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
-                    />
-                    <ButtonWrapper>
-                        <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
-                        <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
-                        <Codicon name="trash" onClick={() => removeParam(index)} />
-                    </ButtonWrapper>
-                </HorizontalFieldWrapper>
-            ))}
-            </FormGroup>
-            
+            {hideTitle ? (
+                <>
+                    <LinkButton onClick={addNewParam}> {title ? title : `Add ${type} Parameter` } </LinkButton>
+                    {params?.map((param, index) => (
+                        <HorizontalFieldWrapper key={index}>
+                            <TextField
+                                placeholder="Name"
+                                name={`params[${index}].name`}
+                                value={param.name || ""}
+                                sx={{ width: "33%" }}
+                                onChange={(e) => updateParentComponent(index, "name", e.target.value)}
+                            />
+                            <TextField
+                                placeholder="Type"
+                                value={param.type || ""}
+                                sx={{ width: "33%" }}
+                                onChange={(e) => updateParentComponent(index, "type", e.target.value)}
+                            />
+                            <TextField
+                                placeholder="Default Value"
+                                value={param.defaultValue || ""}
+                                sx={{ width: "33%" }}
+                                onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
+                            />
+                            <ButtonWrapper>
+                                <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
+                                <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
+                                <Codicon name="trash" onClick={() => removeParam(index)} />
+                            </ButtonWrapper>
+                        </HorizontalFieldWrapper>
+                    ))}
+                </>
+            ) : (
+                <FormGroup title={title ? title : `${type} Parameters`} isCollapsed={false} disableCollapse={disableCollapse}>
+                    <LinkButton onClick={addNewParam}> {addButtonText ? addButtonText : `Add ${type} Parameter`} </LinkButton>
+                    {params?.map((param, index) => (
+                        <HorizontalFieldWrapper key={index}>
+                            <TextField
+                                placeholder="Name"
+                                name={`params[${index}].name`}
+                                value={param.name || ""}
+                                sx={{ width: "33%" }}
+                                onChange={(e) => updateParentComponent(index, "name", e.target.value)}
+                            />
+                            <TextField
+                                placeholder="Type"
+                                value={param.type || ""}
+                                sx={{ width: "33%" }}
+                                onChange={(e) => updateParentComponent(index, "type", e.target.value)}
+                            />
+                            <TextField
+                                placeholder="Default Value"
+                                value={param.defaultValue || ""}
+                                sx={{ width: "33%" }}
+                                onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
+                            />
+                            <ButtonWrapper>
+                                <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
+                                <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
+                                <Codicon name="trash" onClick={() => removeParam(index)} />
+                            </ButtonWrapper>
+                        </HorizontalFieldWrapper>
+                    ))}
+                </FormGroup>
+            )}
         </>
     )
 }

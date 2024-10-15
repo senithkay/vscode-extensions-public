@@ -6,18 +6,18 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, FormGroup, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, FormGroup, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Header, Operation, Param, Parameter, RequestBody, Responses } from '../../Definitions/ServiceDefinitions';
+import { Header, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
 import { PullUpButton } from '../PullUpButton/PullUPButton';
-import { BaseTypes, MediaTypes } from '../../constants';
+import { BaseTypes, MediaTypes, StatusCodes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
-import { convertParamsToParameters, getResponseHeadersFromResponse, resolveResonseColor, resolveResonseHoverColor, resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
+import { convertParamsToParameters, getResponseHeadersFromResponse, resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter/ParamEditor';
-import { ResponseCode } from './ReadOnlyResource';
+import { Tabs, ViewItem } from '../Tabs/Tabs';
 
 const ParamWrapper = styled.div`
     display: flex;
@@ -57,13 +57,11 @@ export const ContentType = styled.div<ResponseCodeProps>`
     }
 `;
 
-interface MethodWrapperProps {
-    color: string;
-}
-const DescriptionWrapper = styled.div`
+const ResponseTypeWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 10px;
+    margin-top: 10px;
 `;
 
 interface MarkdownRendererProps {
@@ -88,17 +86,25 @@ export function Response(props: ReadOnlyResourceProps) {
     const responseContents = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.content ? Object.entries(resourceOperation.responses[selectedResponseType].content && resourceOperation.responses[selectedResponseType].content) : [];
     const responseMediaTypes = responseContents ? responseContents.map(([key]) => key) : [];
     const selectedContentFromResponseMediaType = resourceOperation?.responses ? resourceOperation.responses[selectedResponseType] : undefined;
-    const isInlinedObjectResponse = selectedContentFromResponseMediaType && 
+    const isInlinedObjectResponse = selectedContentFromResponseMediaType &&
         selectedContentFromResponseMediaType.content && selectedContentFromResponseMediaType.content[selectedMediaType] &&
-        selectedContentFromResponseMediaType.content[selectedMediaType].schema && 
-        selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' && 
-        selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties && 
+        selectedContentFromResponseMediaType.content[selectedMediaType].schema &&
+        selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' &&
+        selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties &&
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
     const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema;
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
     const headers: Header[] = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
     const headerParams = getResponseHeadersFromResponse(headers);
+    const statusCodes = resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => ({ status }));
+    const statusTabViewItems: ViewItem[] = statusCodes?.map((status) => ({ id: status.status, name: status.status }));
+    const respMediaTypeTabViewItems: ViewItem[] = responseMediaTypes.map((type) => ({ id: type, name: type }));
+    const statusCodeList: string[] = Object.entries(StatusCodes).map(([key, value]) => `${key}: ${value}`);
+    const selectedStatusCode: string[] = resourceOperation?.responses && statusCodes?.map((status) => {
+        const statusValue = StatusCodes[status.status as keyof typeof StatusCodes]; // Type assertion added here
+        return `${status.status}: ${statusValue}`;
+    });
 
     const handleOptionChange = (options: string[]) => {
         const colnedMediaTypes = [...responseContents];
@@ -132,19 +138,54 @@ export function Response(props: ReadOnlyResourceProps) {
                     ...resourceOperation.responses[selectedResponseType],
                     content: {
                         ...resourceOperation.responses[selectedResponseType].content,
-                        [currentMediaType]: selectedContentFromResponseMediaType.content[currentMediaType]
+                        [currentMediaType]: selectedContentFromResponseMediaType.content[currentMediaType] || { schema: {} }
                     }
                 }
             };
             onOperationChange(path, method, { ...resourceOperation, responses: newResponses });
         }
     };
+    const handleStatusCodeChange = (status: string[]) => {
+        let isItemDeleted = false;
+        statusCodes?.forEach((code) => {
+            const extractedCodes = status.map((status) => status.split(":")[0]);
+            if (!extractedCodes.includes(code.status)) {
+                // Remove the status code from the responses
+                const newResponses: Responses = { ...resourceOperation.responses };
+                delete newResponses[code.status];
+                isItemDeleted = true;
+                onOperationChange(path, method, { ...resourceOperation, responses: newResponses });
+            }
+        });
+        if (!isItemDeleted) {
+            status.forEach((code) => {
+                const newCode = code.split(":")[0];
+                if (!statusCodes?.map((status) => status.status).includes(newCode)) {
+                    // Add the status code to the responses
+                    const newResponses: Responses = {
+                        ...resourceOperation.responses,
+                        [newCode]: {
+                            description: "",
+                            content: {}
+                        }
+                    };
+                    onOperationChange(path, method, { ...resourceOperation, responses: newResponses });
+                    setSelectedResponseType(newCode);
+                }
+            });
+        }
+    };
+
     const handleDescriptionChange = (markdown: string) => {
-        const newRequestBody: RequestBody = {
-            ...resourceOperation.requestBody,
-            description: markdown
+        // Update the newResponseBody with Response description
+        const newResponseBody: Responses = {
+            ...resourceOperation.responses,
+            [selectedResponseType]: {
+                ...resourceOperation.responses[selectedResponseType],
+                description: markdown
+            }
         };
-        onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
+        onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     };
     const handleInlineOptionChange = (evt: any) => {
         // TODO: Implement inline object change
@@ -248,83 +289,88 @@ export function Response(props: ReadOnlyResourceProps) {
         };
         onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     };
-    
+
     // Implement useEffect to update the selectedMediaType when the responseMediaTypes changes
     useEffect(() => {
         if (!responseMediaTypes.includes(selectedMediaType)) {
             setSelectedMediaType(responseMediaTypes[0]);
-            setSelectedResponseType(resourceOperation?.responses && Object.keys(resourceOperation?.responses)[0]);
         }
     }, [responseMediaTypes]);
+    useEffect(() => {
+        if (resourceOperation?.responses && Object.keys(resourceOperation.responses)[0]) {
+            setSelectedResponseType(Object.keys(resourceOperation.responses)[0]);
+        }
+    }, [resourceOperation?.responses && Object.keys(resourceOperation.responses)[0]]);
 
     return (
         <>
             <FormGroup
                 key="ResponseBody"
-                title='Response Body'
+                title='Responses'
                 isCollapsed={resourceOperation?.responses && (Object.keys(resourceOperation?.responses)?.length === 0)}
-            >
-                <ContentTypeWrapper>
-                    {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
-                        <ResponseCode
-                            key={status}
-                            color={resolveResonseColor(status)}
-                            hoverBackground={resolveResonseHoverColor(status)}
-                            selected={selectedResponseType === status}
-                            onClick={() => setSelectedResponseType(status)}
-                        >
-                            {status} 
-                        </ResponseCode>
-                    ))}
-                </ContentTypeWrapper>
-                <DescriptionWrapper>
-                    <label htmlFor="description">Description</label>
-                    <MarkDownEditor
-                        key={`responseBody-description-${path}-${method}`}
-                        value={resourceOperation?.responses?.selectedMediaType?.description}
-                        onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                        sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
-                    />
-                </DescriptionWrapper>
-                <FormGroup key="body" title='Headers' isCollapsed={Object.keys(headers).length === 0}>
-                    <ParamEditor params={headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
-                </FormGroup>
-                <FormGroup key="body" title='Body' isCollapsed={responseMediaTypes?.length === 0}>
-                    <PullUpButton options={MediaTypes} selectedOptions={responseMediaTypes} onOptionChange={handleOptionChange}>
-                        <Button appearance="primary">
-                            More Options
-                            <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
-                        </Button>
-                    </PullUpButton>
-                    <ContentTypeWrapper>
-                        {responseMediaTypes.map((type: string) => (
-                            <ContentType
-                                key={type}
-                                color={'var(--vscode-symbolIcon-variableForeground)'}
-                                hoverBackground={'var(--vscode-minimap-selectionHighlight)'}
-                                selected={selectedMediaType === type}
-                                onClick={() => setSelectedMediaType(type)}
-                            >
-                                {type}
-                            </ContentType>
+            >   
+                <PullUpButton options={statusCodeList} selectedOptions={selectedStatusCode || []} onOptionChange={handleStatusCodeChange}>
+                    <Button appearance="primary">
+                        Add Status
+                        <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
+                    </Button>
+                </PullUpButton>
+                {statusTabViewItems?.length > 0 && (
+                    <Tabs views={statusTabViewItems} currentViewId={selectedResponseType} onViewChange={setSelectedResponseType}>
+                        {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
+                            <div id={status}>
+                                <TextArea
+                                    key={`responseBody-description-${path}-${method}-${status}`}
+                                    value={resourceOperation?.responses[status]?.description}
+                                    onTextChange={(markdown: string) => handleDescriptionChange(markdown)}
+                                    sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
+                                />
+                                <ParamEditor
+                                    params={headerParams}
+                                    title='Headers'
+                                    addButtonText='Add Header'
+                                    type="Header" disableCollapse
+                                    onParamsChange={handleOnHeaderParamsChange}
+                                />
+                                <FormGroup key="body" title='Body' disableCollapse>
+                                    <PullUpButton options={MediaTypes} selectedOptions={responseMediaTypes} onOptionChange={handleOptionChange}>
+                                        <Button appearance="primary">
+                                            Add Media Type
+                                            <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
+                                        </Button>
+                                    </PullUpButton>
+                                    <Tabs views={respMediaTypeTabViewItems} currentViewId={selectedMediaType} onViewChange={setSelectedMediaType}>
+                                        <div id={selectedMediaType}>
+                                            <ResponseTypeWrapper>
+                                                <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} />
+                                                {!isInlinedObjectResponse && selectedMediaType && (
+                                                    <HorizontalFieldWrapper>
+                                                        <TextField
+                                                            placeholder="Default Value"
+                                                            value={responseMediaType}
+                                                            sx={{ width: "100%" }}
+                                                            onChange={(e) => updateSchemaType(e.target.value)}
+                                                        />
+                                                        <ButtonWrapper>
+                                                            <Codicon iconSx={{ background: isResponseSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
+                                                            <Codicon name="trash" onClick={() => removeType()} />
+                                                        </ButtonWrapper>
+                                                    </HorizontalFieldWrapper>
+                                                )}
+                                            </ResponseTypeWrapper>
+                                        </div>
+                                    </Tabs>
+                                </FormGroup>
+                                {/* <MarkDownEditor
+                                key={`responseBody-description-${path}-${method}`}
+                                value={resourceOperation?.responses[status]?.description}
+                                onChange={(markdown: string) => handleDescriptionChange(markdown)}
+                                sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
+                            /> */}
+                            </div>
                         ))}
-                    </ContentTypeWrapper>
-                    <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} />
-                    {!isInlinedObjectResponse && (
-                        <HorizontalFieldWrapper>
-                            <TextField
-                                placeholder="Default Value"
-                                value={responseMediaType}
-                                sx={{ width: "100%" }}
-                                onChange={(e) => updateSchemaType(e.target.value)}
-                            />
-                            <ButtonWrapper>
-                                <Codicon iconSx={{ background: isResponseSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
-                                <Codicon name="trash" onClick={() => removeType()} />
-                            </ButtonWrapper>
-                        </HorizontalFieldWrapper>
-                    )}
-                </FormGroup>
+                    </Tabs>
+                )}
             </FormGroup>
         </>
     )
