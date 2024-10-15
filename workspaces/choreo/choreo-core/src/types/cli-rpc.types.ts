@@ -18,11 +18,13 @@ import type {
 	ComponentKind,
 	ConnectionDetailed,
 	ConnectionListItem,
+	DeploymentLogsData,
 	DeploymentTrack,
 	Environment,
 	MarketplaceItem,
 	Pagination,
 	Project,
+	ProjectBuildLogsData,
 	ProxyDeploymentInfo,
 } from "./common.types";
 import type { InboundConfig, ServiceReferenceEnv } from "./config-file.types";
@@ -117,7 +119,7 @@ export interface GetDeploymentTracksReq {
 	orgId: string;
 	orgHandler: string;
 	projectId: string;
-	componentId: string;
+	componentHandle: string;
 }
 export interface GetCommitsReq {
 	orgId: string;
@@ -149,6 +151,7 @@ export interface CreateDeploymentReq {
 	orgHandler: string;
 	componentName: string;
 	componentId: string;
+	componentHandle: string;
 	componentDisplayType: string;
 	projectHandle: string;
 	projectId: string;
@@ -159,6 +162,8 @@ export interface CreateDeploymentReq {
 	buildRef: string;
 	cronExpression?: string;
 	cronTimezone?: string;
+	proxyTargetUrl?: string;
+	proxySandboxUrl?: string;
 }
 export interface GetTestKeyReq {
 	apimId: string;
@@ -312,6 +317,22 @@ export interface GetProxyDeploymentInfoReq {
 	envId: string;
 }
 
+export interface GetBuildLogsReq {
+	orgId: string;
+	orgHandler: string;
+	componentId: string;
+	displayType: string;
+	projectId: string;
+	buildId: number;
+}
+
+export interface GetBuildLogsForTypeReq {
+	orgId: string;
+	componentId: string;
+	logType: string;
+	buildId: number;
+}
+
 export interface IChoreoRPCClient {
 	getProjects(orgID: string): Promise<Project[]>;
 	// this also can be removed
@@ -345,6 +366,8 @@ export interface IChoreoRPCClient {
 	enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
 	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
 	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null>;
+	getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData | null>;
+	getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -440,6 +463,12 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null> {
 		return this._messenger.sendRequest(ChoreoRpcGetProxyDeploymentInfo, HOST_EXTENSION, params);
 	}
+	getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData | null> {
+		return this._messenger.sendRequest(ChoreoRpcGetBuildLogs, HOST_EXTENSION, params);
+	}
+	getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null> {
+		return this._messenger.sendRequest(ChoreoRpcGetBuildLogsForType, HOST_EXTENSION, params);
+	}
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: "rpc/project/getProjects" };
@@ -485,4 +514,8 @@ export const ChoreoRpcGetConnectionGuide: RequestType<GetConnectionGuideReq, Get
 export const ChoreoRpcGetAutoBuildStatus: RequestType<GetAutoBuildStatusReq, GetAutoBuildStatusResp> = { method: "rpc/build/getAutoBuildStatus" };
 export const ChoreoRpcEnableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/enableAutoBuild" };
 export const ChoreoRpcDisableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/disableAutoBuild" };
-export const ChoreoRpcGetProxyDeploymentInfo: RequestType<GetProxyDeploymentInfoReq, ProxyDeploymentInfo | null> = { method: "rpc/deployment/getProxyDeploymentInfo" };
+export const ChoreoRpcGetProxyDeploymentInfo: RequestType<GetProxyDeploymentInfoReq, ProxyDeploymentInfo | null> = {
+	method: "rpc/deployment/getProxyDeploymentInfo",
+};
+export const ChoreoRpcGetBuildLogs: RequestType<GetBuildLogsReq, DeploymentLogsData> = { method: "rpc/build/logs" };
+export const ChoreoRpcGetBuildLogsForType: RequestType<GetBuildLogsForTypeReq, ProjectBuildLogsData> = { method: "rpc/build/getLogsForType" };

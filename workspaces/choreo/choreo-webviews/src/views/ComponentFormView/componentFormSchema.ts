@@ -15,38 +15,14 @@ import {
 	type ComponentKind,
 	EndpointType,
 	GoogleProviderBuildPackNames,
+	type OpenApiSpec,
 	WebAppSPATypes,
 	capitalizeFirstLetter,
 	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
+import * as yaml from "js-yaml";
 import { z } from "zod";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
-
-// todo: delete if not used
-export const componentFormSchema = z.object({
-	name: z
-		.string()
-		.min(1, "Required")
-		.max(60, "Max length exceeded")
-		.regex(/^[A-Za-z]/, "Needs to start with alphabetic letter")
-		.regex(/^[A-Za-z\s\d\-_]+$/, "Cannot have special characters"),
-	type: z.string().min(1, "Required"),
-	buildPackLang: z.string().min(1, "Required"),
-	subPath: z.string(),
-	repoUrl: z.string().min(1, "Required"),
-	branch: z.string().min(1, "Required"),
-	langVersion: z.string(),
-	dockerFile: z.string(),
-	port: z.number({ coerce: true }),
-	outboundVisibility: z.string(),
-	// TODO // required if its REST or GQL types
-	// outboundType: z.string(),
-	// outboundContext: z.string(),
-	// outboundSchemaPath: z.string(),
-	spaBuildCommand: z.string(),
-	spaNodeVersion: z.string().regex(/^(?=.*\d)\d+(\.\d+)*(?:-[a-zA-Z0-9]+)?$/, "Invalid Node version"),
-	spaOutputDir: z.string(),
-});
 
 export const componentGeneralDetailsSchema = z.object({
 	name: z
@@ -79,7 +55,6 @@ export const componentEndpointItemSchema = z
 		type: z.string().min(1, "Required"),
 		networkVisibility: z.string().min(1, "Required"),
 		context: z.string(),
-		// TODO: better to check if this file exists
 		schemaFilePath: z.string(),
 	})
 	.superRefine((data, ctx) => {
@@ -108,23 +83,63 @@ export const componentEndpointsFormSchema = z.object({
 		}),
 });
 
+export const getComponentEndpointsFormSchema = (directoryFsPath: string, subPath: string) =>
+	componentEndpointsFormSchema.partial().superRefine(async (data, ctx) => {
+		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+		for (const [index, endpointItem] of data.endpoints.entries()) {
+			if (endpointItem.type === EndpointType.REST) {
+				const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, endpointItem.schemaFilePath]);
+				const schemaFileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFilePath);
+				if (!schemaFileExists) {
+					ctx.addIssue({ path: [`endpoints.${index}.schemaFilePath`], code: z.ZodIssueCode.custom, message: "Invalid Path" });
+				} else {
+					const isValidSchema = await isValidOpenApiSpec(schemaFilePath);
+					if (!isValidSchema) {
+						ctx.addIssue({ path: [`endpoints.${index}.schemaFilePath`], code: z.ZodIssueCode.custom, message: "Invalid Schema File" });
+					}
+				}
+			}
+		}
+	});
+
+export const httpsUrlSchema = z
+	.string()
+	.url() // Ensure it's a valid URL
+	.min(1, { message: "Required" })
+	.regex(/^https:\/\/[^\/]+/) // Check for the "https://" prefix
+	.refine(
+		(url) => {
+			try {
+				new URL(url); // Verify URL parsing
+				return true;
+			} catch (error) {
+				return false;
+			}
+		},
+		{
+			message: "Invalid URL",
+		},
+	);
+
 export const componentGitProxyFormSchema = z.object({
-	proxyTargetUrl: z.string().url().min(1, "Required"),
+	proxyTargetUrl: httpsUrlSchema,
 	// todo: check if duplicate exist if its returned from API
 	proxyContext: z
 		.string()
 		.min(1, "Required")
 		.regex(/^(?:\/)?[\w-]+(?:\/[\w-]+)*$/, "Invalid Context Path"),
-	proxyVersion: z.string().min(1, "Required"),
+	proxyVersion: z
+		.string()
+		.min(1, "Required")
+		.regex(/^v\d+\.\d+$/, {
+			message: "Must use semantic versioning (e.g. v1.0)",
+		}),
 	componentConfig: z
 		.object({
 			type: z.string().min(1, "Required"),
 			networkVisibility: z.string().min(1, "Required"),
-			// TODO: validate path
 			schemaFilePath: z.string().min(1, "Required"),
-			// TODO: validate path
 			thumbnailPath: z.string(),
-			// TODO: validate path
 			docPath: z.string(),
 		})
 		.superRefine((data, ctx) => {
@@ -133,6 +148,37 @@ export const componentGitProxyFormSchema = z.object({
 			}
 		}),
 });
+
+export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath: string) =>
+	componentGitProxyFormSchema.partial().superRefine(async (data, ctx) => {
+		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+		const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, data.componentConfig?.schemaFilePath]);
+		const schemaFileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFilePath);
+		if (!schemaFileExists) {
+			ctx.addIssue({ path: ["componentConfig.schemaFilePath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
+		} else {
+			const isValidSchema = await isValidOpenApiSpec(schemaFilePath);
+			if (!isValidSchema) {
+				ctx.addIssue({ path: ["componentConfig.schemaFilePath"], code: z.ZodIssueCode.custom, message: "Invalid Schema File" });
+			}
+		}
+
+		if (data.componentConfig?.thumbnailPath?.length > 0) {
+			const thumbnailPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, data.componentConfig?.thumbnailPath]);
+			const thumbnailExists = await ChoreoWebViewAPI.getInstance().fileExist(thumbnailPath);
+			if (!thumbnailExists) {
+				ctx.addIssue({ path: ["componentConfig.thumbnailPath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
+			}
+		}
+
+		if (data.componentConfig?.docPath?.length > 0) {
+			const docPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, data.componentConfig?.docPath]);
+			const docPathExists = await ChoreoWebViewAPI.getInstance().fileExist(docPath);
+			if (!docPathExists) {
+				ctx.addIssue({ path: ["componentConfig.docPath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
+			}
+		}
+	});
 
 export const getComponentFormSchemaGenDetails = (existingComponents: ComponentKind[]) =>
 	componentGeneralDetailsSchema.partial().superRefine(async (data, ctx) => {
@@ -145,7 +191,7 @@ export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath
 	componentBuildDetailsSchema.partial().superRefine(async (data, ctx) => {
 		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
 		if (
-			[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles].includes(
+			[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles, ChoreoBuildPackNames.Prism].includes(
 				data.buildPackLang as ChoreoBuildPackNames,
 			)
 		) {
@@ -186,77 +232,6 @@ export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath
 						path: ["buildPackLang"],
 						code: z.ZodIssueCode.custom,
 						message: capitalizeFirstLetter(`${getExpectedFileNames(expectedFiles)} is required within the selected directory`),
-					});
-				}
-			}
-
-			if (data.buildPackLang === ChoreoImplementationType.Docker) {
-				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, data.dockerFile]);
-				const isDockerFileExist = await ChoreoWebViewAPI.getInstance().fileExist(dockerFilePath);
-				if (!isDockerFileExist) {
-					ctx.addIssue({ path: ["dockerFile"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
-				}
-			}
-		}
-	});
-
-// todo: delete if not used
-export const getComponentFormSchema = (existingComponents: ComponentKind[], directoryFsPath: string) =>
-	componentFormSchema.partial().superRefine(async (data, ctx) => {
-		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, data.subPath]);
-		if (
-			[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles].includes(
-				data.buildPackLang as ChoreoBuildPackNames,
-			)
-		) {
-			// do nothing
-		} else if (data.buildPackLang === ChoreoBuildPackNames.Docker) {
-			if (data?.dockerFile?.length === 0) {
-				ctx.addIssue({ path: ["dockerFile"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-			if (data.type === ChoreoComponentType.WebApplication && !data.port) {
-				ctx.addIssue({ path: ["port"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-		} else if (WebAppSPATypes.includes(data.buildPackLang as ChoreoBuildPackNames)) {
-			if (!data.spaBuildCommand) {
-				ctx.addIssue({ path: ["spaBuildCommand"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-			if (!data.spaNodeVersion) {
-				ctx.addIssue({ path: ["spaNodeVersion"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-			if (!data.spaOutputDir) {
-				ctx.addIssue({ path: ["spaOutputDir"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-		} else {
-			// Build pack type
-			if (!data.langVersion) {
-				ctx.addIssue({ path: ["langVersion"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-			if (data.type === ChoreoComponentType.WebApplication && !data.port) {
-				ctx.addIssue({ path: ["port"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-		}
-
-		if (existingComponents.some((item) => item.metadata.name === makeURLSafe(data.name))) {
-			ctx.addIssue({ path: ["name"], code: z.ZodIssueCode.custom, message: "Name already exists" });
-		}
-
-		if (data.type === ChoreoComponentType.Service && !data.port) {
-			const endpoints = await ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(compPath);
-			if (endpoints?.endpoints?.length === 0) {
-				ctx.addIssue({ path: ["port"], code: z.ZodIssueCode.custom, message: "Required" });
-			}
-		}
-
-		if (data.type && data.buildPackLang) {
-			const expectedFiles = getExpectedFilesForBuildPack(data.buildPackLang);
-			if (expectedFiles.length > 0) {
-				const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compPath);
-				if (!expectedFiles.some((item) => containsMatchingElement(files, item))) {
-					ctx.addIssue({
-						path: ["subPath"],
-						code: z.ZodIssueCode.custom,
-						message: `Expected ${getExpectedFileNames(expectedFiles)} within the directory`,
 					});
 				}
 			}
@@ -351,4 +326,53 @@ export const sampleEndpointItem = {
 	type: EndpointType.REST,
 	schemaFilePath: "",
 	networkVisibility: "Public",
+};
+
+export const isValidOpenApiSpec = async (filePath: string): Promise<boolean> => {
+	try {
+		const content = await getOpenApiContent(filePath);
+		return !!content;
+	} catch {
+		return false;
+	}
+};
+
+export const getOpenApiContent = async (filePath: string): Promise<OpenApiSpec | null> => {
+	try {
+		const fileContent = await ChoreoWebViewAPI.getInstance().readFile(filePath);
+		try {
+			const parsedSpec: OpenApiSpec = JSON.parse(fileContent);
+			if (parsedSpec?.openapi) {
+				return parsedSpec;
+			}
+		} catch {
+			try {
+				const parsedSpec = yaml.load(fileContent) as OpenApiSpec;
+				if (parsedSpec?.openapi) {
+					return parsedSpec;
+				}
+			} catch {
+				return null;
+			}
+		}
+	} catch {
+		return null;
+	}
+};
+
+export const getOpenApiFiles = async (compPath: string) => {
+	const extensions = [".yaml", ".yml", ".json"];
+	const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compPath);
+	const filteredFileNames: string[] = [];
+	for (const item of files) {
+		const extension = item.slice(item.lastIndexOf("."));
+		if (extensions.includes(extension)) {
+			const fileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, item]);
+			const isValid = await isValidOpenApiSpec(fileFullPath);
+			if (isValid) {
+				filteredFileNames.push(item);
+			}
+		}
+	}
+	return filteredFileNames;
 };

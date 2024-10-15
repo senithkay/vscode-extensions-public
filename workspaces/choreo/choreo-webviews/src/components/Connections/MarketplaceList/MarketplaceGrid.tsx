@@ -106,7 +106,7 @@ export const MarketplaceGrid: FC<Props> = ({ enabled, org, project, component, o
 	const totalCount = marketplaceData?.pages?.[0]?.pagination?.total ?? 0;
 
 	return (
-		<div className="flex h-[calc(100vh-96px)] flex-col gap-2 overflow-y-auto">
+		<div className="flex h-[calc(100vh-96px)] flex-col gap-2 overflow-y-auto px-4 sm:px-6">
 			<VSCodeTextField className="mb-2 w-full" placeholder="Search..." onKeyUpCapture={handleSearchQueryChange} />
 			<div className="flex items-center gap-2 sm:gap-4">
 				<h1 className="font-light text-xs opacity-50">

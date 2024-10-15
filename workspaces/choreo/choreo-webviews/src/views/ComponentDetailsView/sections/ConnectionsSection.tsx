@@ -14,6 +14,7 @@ import {
 	ComponentViewDrawers,
 	type ConnectionDetailed,
 	type ConnectionListItem,
+	type DeploymentTrack,
 	type MarketplaceItem,
 	type Organization,
 	type Project,
@@ -41,9 +42,10 @@ type Props = {
 	project: Project;
 	component: ComponentKind;
 	directoryPath: string;
+	deploymentTrack: DeploymentTrack;
 };
 
-export const ConnectionsSection: FC<Props> = ({ org, project, component, directoryPath }) => {
+export const ConnectionsSection: FC<Props> = ({ org, project, component, directoryPath, deploymentTrack }) => {
 	const webviewState = useExtWebviewContext();
 	const [selectedItem, setSelectedItem] = useState<MarketplaceItem>();
 
@@ -54,12 +56,14 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 		data: componentConnections = [],
 		isLoading: isLoadingComponentConnections,
 		refetch: refetchComponentConnectionList,
+		isRefetching: isRefetchingComponentConnectionList,
 	} = useComponentConnectionList(component, project, org);
 
 	const {
 		data: projectConnections = [],
 		isLoading: isLoadingProjectConnections,
 		refetch: refetchProjectConnectionList,
+		isRefetching: isRefetchingProjectConnectionList,
 	} = useProjectConnectionList(project, org);
 
 	const {
@@ -146,7 +150,26 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 			key="Dependencies"
 			title={
 				<div className="flex items-center justify-between gap-2">
-					<span className="line-clamp-1 break-all">API Dependencies</span>
+					<div className="flex items-center gap-2">
+						<span className="line-clamp-1 break-all">API Dependencies</span>
+						{!isLoadingComponentConnections && !isLoadingProjectConnections && (
+							<Button
+								onClick={() => {
+									refetchComponentConnectionList();
+									refetchProjectConnectionList();
+								}}
+								appearance="icon"
+								title={`${isRefetchingComponentConnectionList || isRefetchingProjectConnectionList ? "Refreshing" : "Refresh"} Dependency List`}
+								className="opacity-50"
+								disabled={isRefetchingComponentConnectionList || isRefetchingProjectConnectionList}
+							>
+								<Codicon
+									name="refresh"
+									className={classNames((isRefetchingComponentConnectionList || isRefetchingProjectConnectionList) && "animate-spin")}
+								/>
+							</Button>
+						)}
+					</div>
 					<Button
 						appearance="icon"
 						title={directoryPath ? "Add API Dependency" : "Only allowed if you are within the Git repo directory"}
@@ -222,6 +245,7 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 								project={project}
 								component={component}
 								directoryPath={directoryPath}
+								deploymentTrack={deploymentTrack}
 								onCreate={(item) => {
 									refetchComponentConnectionList();
 									openGuidePanel(item);
@@ -246,12 +270,7 @@ const ConnectionItem: FC<{
 	onGuideClick: () => void;
 }> = ({ item, onDelete, onGuideClick, deletingItem, isDeleting }) => {
 	return (
-		<div
-			className={classNames(
-				"group flex flex-wrap items-center gap-0.5 duration-200 hover:bg-vsc-editorHoverWidget-background",
-				isDeleting && deletingItem && "animate-pulse",
-			)}
-		>
+		<div className={classNames("group flex flex-wrap items-center gap-0.5", isDeleting && deletingItem && "animate-pulse")}>
 			{item.groupUuid ? (
 				<VSCodeLink onClick={onGuideClick} className="line-clamp-1 flex-1 font-light text-vsc-foreground" title="View connection guide">
 					{item.name}

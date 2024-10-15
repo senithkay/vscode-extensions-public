@@ -10,19 +10,24 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+	type BuildKind,
 	ChoreoComponentType,
+	ComponentDisplayType,
 	type ComponentsDetailsWebviewProps,
 	type DeploymentTrack,
 	type Environment,
 	WebviewQuickPickItemKind,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
-import React, { type FC, useEffect, useState } from "react";
+import classNames from "classnames";
+import React, { type FC, useEffect, useState, type ReactNode, useMemo } from "react";
 import { Banner } from "../../components/Banner";
 import { Divider } from "../../components/Divider";
-import { queryKeys, useGetProjectEnvs } from "../../hooks/use-queries";
+import { Drawer } from "../../components/Drawer";
+import { queryKeys, useGetBuildList, useGetBuildLogs, useGetProjectEnvs } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import { BuildConfigsSection } from "./sections/BuildConfigsSection";
+import { BuildDetailsSection } from "./sections/BuildDetailsSection";
 import { BuildsSection } from "./sections/BuildsSection";
 import { ConnectionsSection } from "./sections/ConnectionsSection";
 import { DeploymentsSection } from "./sections/DeploymentsSection";
@@ -38,6 +43,8 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 	const type = getTypeForDisplayType(props.component.spec?.type);
 
 	const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
+	const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
+	const [buildDetailsPanel, setBuildDetailsPanel] = useState<{ open: boolean; build?: BuildKind }>({ open: false, build: null });
 
 	useEffect(() => {
 		if (!deploymentTrack || !deploymentTracks?.find((item) => item.id === deploymentTrack.id)) {
@@ -45,17 +52,18 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		}
 	}, [deploymentTrack, deploymentTracks]);
 
+	// todo: need to add and delete deployment tracks too
 	const { mutate: switchDeploymentTrack } = useMutation({
 		mutationFn: async () => {
 			const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
 				title: "Select Deployment Track",
 				items: [
 					{ kind: WebviewQuickPickItemKind.Separator, label: "Selected" },
-					{ label: deploymentTrack.branch, picked: true, detail: deploymentTrack.description },
+					{ label: deploymentTrack.branch, picked: true, detail: deploymentTrack.description, description: `API ${deploymentTrack.apiVersion}` },
 					{ kind: WebviewQuickPickItemKind.Separator, label: "Available Tracks" },
 					...deploymentTracks
 						.filter((item) => item.branch !== deploymentTrack.branch)
-						.map((item) => ({ label: item.branch, detail: item.description, item })),
+						.map((item) => ({ label: item.branch, detail: item.description, description: `API ${item.apiVersion}`, item })),
 				],
 			});
 			if (pickedItem?.item) {
@@ -64,15 +72,14 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 		},
 	});
 
-	const { data: envs = [], isLoading: loadingEnvs } = useGetProjectEnvs(project, organization, {
+	const {
+		data: envs = [],
+		isLoading: loadingEnvs,
+		isFetching: isFetchingEnvs,
+	} = useGetProjectEnvs(project, organization, {
 		initialData: initialEnvs,
 		enabled: initialEnvs.length === 0,
 	});
-
-	const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>();
-	const onTriggerDeployment = (env: Environment, deploying: boolean) => {
-		setTriggeredDeployment({ ...triggeredDeployment, [`${deploymentTrack?.branch}-${env.name}`]: deploying });
-	};
 
 	const { data: hasLocalChanges } = useQuery({
 		queryKey: queryKeys.getHasLocalChanges(directoryPath),
@@ -82,20 +89,128 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 	});
 
 	const { data: configDriftFiles = [] } = useQuery({
-		queryKey: queryKeys.getComponentConfigDraft(directoryPath, component),
+		queryKey: queryKeys.getComponentConfigDraft(directoryPath, component, deploymentTrack?.branch),
 		queryFn: () =>
 			ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
 				type: getTypeForDisplayType(component?.spec?.type),
 				repoDir: directoryPath,
-				branch: component?.spec?.source?.github?.branch || component?.spec?.source?.bitbucket?.branch,
+				branch: deploymentTrack?.branch,
 				repoUrl: component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository,
 			}),
 		enabled: !!directoryPath,
 		refetchOnWindowFocus: true,
 	});
 
+	const { data: endpointsResp } = useQuery({
+		queryKey: ["get-service-endpoints", { directoryPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(directoryPath),
+		enabled: !!directoryPath && type === ChoreoComponentType.Service,
+		refetchOnWindowFocus: true,
+	});
+
+	const { data: localProxyConfig } = useQuery({
+		queryKey: ["get-local-proxy-config", { directoryPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(directoryPath),
+		enabled: !!directoryPath && type === ChoreoComponentType.ApiProxy,
+		refetchOnWindowFocus: true,
+	});
+
+	const buildLogsQueryData = useGetBuildLogs(component, organization, project, buildDetailsPanel?.build, {
+		enabled: !!buildDetailsPanel?.build,
+	});
+
+	const buildListQueryData = useGetBuildList(deploymentTrack, component, project, organization, {
+		onSuccess: (builds) => {
+			setHasOngoingBuilds(builds.some((item) => item.status?.conclusion === ""));
+			if (buildDetailsPanel?.open && buildDetailsPanel?.build) {
+				const matchingItem = builds.find((item) => item.status?.runId === buildDetailsPanel?.build?.status?.runId);
+				if (matchingItem) {
+					setBuildDetailsPanel((state) => ({ ...state, build: matchingItem }));
+				}
+				buildLogsQueryData.refetch();
+			}
+		},
+		enabled: !!deploymentTrack,
+		refetchInterval: hasOngoingBuilds ? 5000 : false,
+	});
+
+	const succeededBuilds = useMemo(
+		() => buildListQueryData?.data?.filter((item) => item.status?.conclusion === "success"),
+		[buildListQueryData?.data],
+	);
+
+	const rightPanel: { node: ReactNode; key: string }[] = [];
+	if (configDriftFiles?.length > 0) {
+		rightPanel.push({
+			key: "config-drift",
+			node: (
+				<RightPanelSection>
+					<Banner
+						type="warning"
+						className="my-1"
+						title="Configuration Drift Detected"
+						subTitle={`Please commit and push the changes in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to your remote Git repo.`}
+					/>
+				</RightPanelSection>
+			),
+		});
+	} else if (hasLocalChanges) {
+		rightPanel.push({
+			key: "local-changes",
+			node: (
+				<RightPanelSection>
+					<Banner className="my-1" title="Local Changes Detected" subTitle="Please commit and push your local changes to the remote repository." />
+				</RightPanelSection>
+			),
+		});
+	}
+	if (type !== ChoreoComponentType.ApiProxy) {
+		rightPanel.push({ key: "build-config", node: <BuildConfigsSection component={component} /> });
+	}
+	if (type === ChoreoComponentType.Service && endpointsResp?.endpoints?.length > 0) {
+		rightPanel.push({
+			key: "endpoints",
+			node: <EndpointsSection endpointFilePath={endpointsResp?.filePath} endpoints={endpointsResp?.endpoints} directoryPath={directoryPath} />,
+		});
+	}
+	if (type === ChoreoComponentType.ApiProxy && localProxyConfig?.proxy) {
+		rightPanel.push({
+			key: "git-proxy-config",
+			node: <ProxyConfigSection proxyConfig={localProxyConfig?.proxy} configFilePath={localProxyConfig?.filePath} directoryPath={directoryPath} />,
+		});
+	}
+	if (type !== ChoreoComponentType.ApiProxy && component?.spec?.type !== ComponentDisplayType.PrismMockService) {
+		rightPanel.push({
+			key: "connections",
+			node: (
+				<ConnectionsSection
+					org={organization}
+					project={project}
+					component={component}
+					directoryPath={directoryPath}
+					deploymentTrack={deploymentTrack}
+				/>
+			),
+		});
+	}
+
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
+			<Drawer
+				open={buildDetailsPanel?.open}
+				onClose={() => setBuildDetailsPanel((state) => ({ ...state, open: false }))}
+				maxWidthClassName="max-w-sm"
+				title={`Build Details ${buildDetailsPanel?.build?.status?.runId ? `- ${buildDetailsPanel?.build?.status?.runId}` : ""}`}
+			>
+				<BuildDetailsSection
+					component={component}
+					data={buildLogsQueryData?.data}
+					loadingData={buildLogsQueryData?.isLoading}
+					org={organization}
+					isVisible={buildDetailsPanel?.open}
+					buildItem={buildDetailsPanel?.build}
+				/>
+			</Drawer>
 			<div className="container">
 				<div className="mx-auto flex max-w-6xl flex-col p-4">
 					<HeaderSection
@@ -106,52 +221,38 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 					/>
 					<div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-0">
 						<Divider className="mt-4 block lg:hidden" />
-						<div className="relative col-span-1 flex flex-col gap-6 border-vsc-editorIndentGuide-background pt-6 lg:col-span-3 lg:border-r-1 lg:p-4">
-							<BuildsSection {...props} deploymentTrack={deploymentTrack} envs={envs} onTriggerDeployment={(env) => onTriggerDeployment(env, true)} />
+						<div
+							className={classNames(
+								"relative col-span-1 flex flex-col gap-6 pt-6 lg:p-4",
+								rightPanel.length === 0 ? "lg:col-span-full" : "border-vsc-editorIndentGuide-background lg:col-span-3 lg:border-r-1",
+							)}
+						>
+							<BuildsSection
+								{...props}
+								deploymentTrack={deploymentTrack}
+								envs={envs}
+								buildListQueryData={buildListQueryData}
+								openBuildDetailsPanel={(build) => setBuildDetailsPanel({ open: true, build })}
+							/>
 							<DeploymentsSection
 								{...props}
 								deploymentTrack={deploymentTrack}
 								envs={envs}
-								loadingEnvs={loadingEnvs}
-								triggeredDeployment={triggeredDeployment}
-								onLoadDeploymentStatus={(env) => onTriggerDeployment(env, false)}
+								loadingEnvs={loadingEnvs || (initialEnvs.length === 0 && isFetchingEnvs)}
+								builds={succeededBuilds}
+								openBuildDetailsPanel={(build) => setBuildDetailsPanel({ open: true, build })}
 							/>
 						</div>
-						<div className="order-first flex flex-col gap-6 pt-6 lg:order-last lg:p-4" ref={rightPanelRef}>
-							{configDriftFiles?.length > 0 && (
-								<RightPanelSection showDivider={false}>
-									<Banner
-										type="warning"
-										className="my-1"
-										title="Configuration Drift Detected"
-										subTitle={`Please commit and push the changes in the ${configDriftFiles.join(",")} ${configDriftFiles?.length > 1 ? "files" : "file"} to your remote Git repo.`}
-									/>
-								</RightPanelSection>
-							)}
-							{configDriftFiles.length === 0 && hasLocalChanges && (
-								<RightPanelSection showDivider={false}>
-									<Banner
-										className="my-1"
-										title="Local Changes Detected"
-										subTitle="Please commit and push your local changes to the remote repository."
-									/>
-								</RightPanelSection>
-							)}
-							{type !== ChoreoComponentType.ApiProxy && (
-								<BuildConfigsSection component={component} showDivider={!!directoryPath && (hasLocalChanges || configDriftFiles?.length > 0)} />
-							)}
-							{type === ChoreoComponentType.Service && <EndpointsSection component={component} directoryPath={directoryPath} />}
-							{type !== ChoreoComponentType.ApiProxy && (
-								<ConnectionsSection org={organization} project={project} component={component} directoryPath={directoryPath} />
-							)}
-							{type === ChoreoComponentType.ApiProxy && (
-								<ProxyConfigSection
-									component={component}
-									directoryPath={directoryPath}
-									showDivider={!!directoryPath && (hasLocalChanges || configDriftFiles?.length > 0)}
-								/>
-							)}
-						</div>
+						{rightPanel.length > 0 && (
+							<div className="order-first flex flex-col gap-6 pt-6 lg:order-last lg:p-4" ref={rightPanelRef}>
+								{rightPanel.map((item, index) => (
+									<React.Fragment key={item.key}>
+										{index !== 0 && <Divider key={`right-panel-divider-${item.key}`} />}
+										{item.node}
+									</React.Fragment>
+								))}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

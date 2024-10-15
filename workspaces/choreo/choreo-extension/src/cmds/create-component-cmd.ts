@@ -17,6 +17,7 @@ import {
 	type ICreateComponentParams,
 	type SubmitComponentCreateReq,
 	type WorkspaceConfig,
+	getComponentTypeText,
 } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
@@ -56,11 +57,11 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					let selectedType: string | undefined = params?.initialValues?.type;
 					if (!selectedType) {
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = [
-							{ label: "Service", value: ChoreoComponentType.Service },
-							{ label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-							{ label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
-							{ label: "Web Application", value: ChoreoComponentType.WebApplication },
-							{ label: "Proxy", value: ChoreoComponentType.ApiProxy },
+							{ label: getComponentTypeText(ChoreoComponentType.Service), value: ChoreoComponentType.Service },
+							{ label: getComponentTypeText(ChoreoComponentType.WebApplication), value: ChoreoComponentType.WebApplication },
+							{ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy },
+							{ label: getComponentTypeText(ChoreoComponentType.ScheduledTask), value: ChoreoComponentType.ScheduledTask },
+							{ label: getComponentTypeText(ChoreoComponentType.ManualTrigger), value: ChoreoComponentType.ManualTrigger },
 						];
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, { title: "Select Component Type" });
 						if (selectedTypePick?.value) {
@@ -81,9 +82,9 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						}
 					}
 
-					if (componentWizard) {
-						componentWizard.dispose();
-					}
+					// todo: ask for the directory here itself
+					// if directory is outside of the vscode workspace, open it after creating the component
+
 
 					let dirName = "";
 					let dirPath = "";
@@ -107,6 +108,10 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						dirPath = Uri.file(os.homedir()).path;
 					}
 
+					if (componentWizard) {
+						componentWizard.dispose();
+					}
+
 					componentWizard = new ComponentFormView(ext.context.extensionUri, {
 						directoryPath: dirPath,
 						directoryFsPath: dirFsPath,
@@ -117,6 +122,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							type: selectedType,
 							buildPackLang: params?.initialValues?.buildPackLang,
 							subPath: subPath || "",
+							name: params?.initialValues?.name,
 						},
 					});
 					componentWizard.getWebview()?.reveal();
@@ -142,17 +148,21 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 		if (type !== ChoreoComponentType.ApiProxy && autoBuildOnCommit) {
 			const envs = dataCacheStore.getState().getEnvs(org.handle, project.handler);
 			const matchingTrack = createdComponent?.deploymentTracks.find((item) => item.branch === createParams.branch);
-			if (matchingTrack) {
-				await window.withProgress(
-					{ title: `Enabling auto build on commit for component ${createParams.displayName}...`, location: ProgressLocation.Notification },
-					() =>
-						ext.clients.rpcClient.enableAutoBuildOnCommit({
-							componentId: createdComponent?.metadata?.id,
-							orgId: org.id.toString(),
-							versionId: matchingTrack.id,
-							envId: envs[0]?.id,
-						}),
-				);
+			if (matchingTrack && envs.length > 0) {
+				try{
+					await window.withProgress(
+						{ title: `Enabling auto build on commit for component ${createParams.displayName}...`, location: ProgressLocation.Notification },
+						() =>
+							ext.clients.rpcClient.enableAutoBuildOnCommit({
+								componentId: createdComponent?.metadata?.id,
+								orgId: org.id.toString(),
+								versionId: matchingTrack.id,
+								envId: envs[0]?.id,
+							}),
+					);
+				}catch{
+					console.log("Failed to enable auto build on commit", )
+				}
 			}
 		}
 

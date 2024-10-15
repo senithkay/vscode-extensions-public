@@ -25,7 +25,7 @@ import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
 import { ext } from "../extensionVariables";
-import { getGitRoot } from "../git/util";
+import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
 import { isSubpath } from "../utils";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
@@ -64,6 +64,7 @@ export const contextStore = createStore(
 						set(({ state }) => ({ state: { ...state, loading: false, items, selected, components } }));
 						if (selected) {
 							locationStore.getState().setLocation(selected, components);
+							updateProjectEnvCache(selected);
 						}
 					}
 				} catch (err) {
@@ -261,48 +262,69 @@ const getComponentsInfoCache = async (selected?: ContextItemEnriched): Promise<C
 	return mapComponentList(componentCache, selected);
 };
 
+
+const updateProjectEnvCache = async (selected: ContextItemEnriched): Promise<void> => {
+	if(selected){
+		ext.clients.rpcClient.getEnvs({
+			orgId: selected?.org?.id.toString()!,
+			orgUuid: selected?.org?.uuid!,
+			projectId: selected?.project?.id!,
+		}).then(envs=>{
+			dataCacheStore.getState().setEnvs(selected?.orgHandle, selected?.projectHandle, envs);
+		})
+	}
+};
+
 const getComponentsInfo = async (selected?: ContextItemEnriched): Promise<ContextStoreComponentState[]> => {
 	if (!selected || !selected?.org?.id) {
 		return getComponentsInfoCache(selected);
 	}
 
-	const [components, envs] = await Promise.all([
-		ext.clients.rpcClient.getComponentList({
-			orgId: selected?.org?.id.toString(),
-			orgHandle: selected?.org?.handle,
-			projectHandle: selected.projectHandle,
-			projectId: selected.project?.id!,
-		}),
-		ext.clients.rpcClient.getEnvs({
-			orgId: selected?.org?.id.toString(),
-			orgUuid: selected?.org?.uuid,
-			projectId: selected.project?.id!,
-		}),
-	]);
+	const components = await ext.clients.rpcClient.getComponentList({
+		orgId: selected?.org?.id.toString(),
+		orgHandle: selected?.org?.handle,
+		projectHandle: selected.projectHandle,
+		projectId: selected.project?.id!,
+	})
 
 	dataCacheStore.getState().setComponents(selected.orgHandle, selected.projectHandle, components);
-	dataCacheStore.getState().setEnvs(selected.orgHandle, selected.projectHandle, envs);
-
 	return mapComponentList(components, selected);
 };
 
 const mapComponentList = async (components: ComponentKind[], selected?: ContextItemEnriched): Promise<ContextStoreComponentState[]> => {
 	const comps: ContextStoreComponentState[] = [];
-
 	for (const componentItem of components) {
 		if (selected?.contextDirs) {
 			// biome-ignore lint/correctness/noUnsafeOptionalChaining:
 			for (const item of selected?.contextDirs) {
-				const projectDirPath = path.dirname(path.dirname(item.contextFileFsPath));
-				const subPathDir = path.join(projectDirPath, componentItem.spec.source.github?.path ?? "");
-				const isSubPath = isSubpath(item.dirFsPath, subPathDir);
-				if (isSubPath && existsSync(subPathDir) && !comps.some((item) => item.component?.metadata?.id === componentItem.metadata?.id)) {
-					comps.push({
-						component: componentItem,
-						workspaceName: item.workspaceName,
-						componentFsPath: subPathDir,
-						componentRelativePath: path.relative(item.dirFsPath, subPathDir),
-					});
+				const gitRoot = await getGitRoot(ext.context, item.projectRootFsPath);
+				if (gitRoot) {
+					const remotes = await getGitRemotes(ext.context, gitRoot);
+					const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
+					const parsedRepoUrl = parseGitURL(repoUrl)
+					if(parsedRepoUrl){
+						const [repoOrg, repoName, repoProvider]  = parsedRepoUrl
+						const hasMatchingRemote = remotes.some(remoteItem=>{
+							const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl)
+							if(parsedRemoteUrl){
+								const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl
+								return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider
+							}
+						})
+
+						if(hasMatchingRemote){
+							const subPathDir = path.join(gitRoot, componentItem.spec.source.github?.path || componentItem.spec.source.bitbucket?.path || "");
+							const isSubPath = isSubpath(item.dirFsPath, subPathDir);
+							if (isSubPath && existsSync(subPathDir) && !comps.some((item) => item.component?.metadata?.id === componentItem.metadata?.id)) {
+								comps.push({
+									component: componentItem,
+									workspaceName: item.workspaceName,
+									componentFsPath: subPathDir,
+									componentRelativePath: path.relative(item.dirFsPath, subPathDir),
+								});
+							}
+						}
+					}
 				}
 			}
 		}

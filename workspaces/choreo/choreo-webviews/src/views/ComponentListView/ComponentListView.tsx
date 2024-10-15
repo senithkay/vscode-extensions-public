@@ -8,33 +8,20 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ComponentsListActivityViewProps, getComponentKey } from "@wso2-enterprise/choreo-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
-import React, { type FC, useEffect } from "react";
+import React, { type FC } from "react";
 import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
-import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
+import { useLinkedDirStateContext } from "../../providers/linked-dir-state-ctx-provider";
 import { ComponentListItem } from "./ComponentListItem";
 import { ComponentsEmptyView } from "./ComponentsEmptyView";
 import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
 import { NoContextView } from "./NoContextView";
 
 export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
-	const queryClient = useQueryClient();
 	const webviewState = useExtWebviewContext();
 
-	const { data: linkedDirState, isLoading } = useQuery({
-		queryKey: ["context_state"],
-		queryFn: () => ChoreoWebViewAPI.getInstance().getContextState(),
-		refetchOnWindowFocus: true,
-	});
-
-	useEffect(() => {
-		ChoreoWebViewAPI.getInstance().refreshContextState();
-		ChoreoWebViewAPI.getInstance().onContextStateChanged((contextState) => {
-			queryClient.setQueryData(["context_state"], contextState);
-		});
-	}, []);
+	const { state: linkedDirState, isLoading } = useLinkedDirStateContext();
 
 	const [componentListRef] = useAutoAnimate();
 

@@ -7,33 +7,58 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { type } from "node:os";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useMutation } from "@tanstack/react-query";
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UseQueryResult, useMutation, useQueryClient } from "@tanstack/react-query";
+import { VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import {
+	type BuildKind,
 	ChoreoComponentType,
+	type ComponentDeployment,
+	ComponentDisplayType,
 	type ComponentEP,
 	type ComponentKind,
+	type CreateDeploymentReq,
+	DeploymentLogsData,
+	DeploymentStatus,
 	type DeploymentTrack,
 	EndpointDeploymentStatus,
 	type Environment,
 	type Organization,
 	type Project,
+	type ProxyDeploymentInfo,
 	type StateReason,
+	type WebviewQuickPickItem,
+	WebviewQuickPickItemKind,
+	capitalizeFirstLetter,
+	getShortenedHash,
 	getTimeAgo,
 	getTypeForDisplayType,
 	toTitleCase,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
+import classnames from "classnames";
 import clipboardy from "clipboardy";
-import React, { type FC, type ReactNode, useState } from "react";
+import React, { type FC, type ReactNode, useState, useEffect } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { listTimeZones } from "timezone-support";
+import { z } from "zod";
+import { Banner } from "../../../components/Banner";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
 import { Divider } from "../../../components/Divider";
+import { Drawer } from "../../../components/Drawer";
+import { Empty } from "../../../components/Empty";
+import { Dropdown } from "../../../components/FormElements/Dropdown";
+import { TextField } from "../../../components/FormElements/TextField";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { useGetDeployedEndpoints, useGetDeploymentStatus, useGetProxyDeploymentInfo } from "../../../hooks/use-queries";
+import { queryKeys, useGetDeployedEndpoints, useGetDeploymentStatus, useGetProxyDeploymentInfo } from "../../../hooks/use-queries";
+import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
+import { httpsUrlSchema } from "../../ComponentFormView/componentFormSchema";
+import { ApiTestSection } from "../sections/ApiTestSection";
 
 interface Props {
 	component: ComponentKind;
@@ -42,14 +67,19 @@ interface Props {
 	deploymentTrack?: DeploymentTrack;
 	envs: Environment[];
 	loadingEnvs: boolean;
-	triggeredDeployment: { [key: string]: boolean };
-	onLoadDeploymentStatus: (env: Environment) => void;
+	builds: BuildKind[];
+	openBuildDetailsPanel: (item: BuildKind) => void;
 }
 
 export const DeploymentsSection: FC<Props> = (props) => {
-	const { envs, loadingEnvs, deploymentTrack, component, organization, project, triggeredDeployment = {}, onLoadDeploymentStatus } = props;
+	const { envs, loadingEnvs, deploymentTrack, component, organization, project, builds = [], openBuildDetailsPanel } = props;
 	const [hasInactiveEndpoints, setHasInactiveEndpoints] = useState(false);
 	const componentType = getTypeForDisplayType(component.spec.type);
+
+	const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>({});
+	const onTriggerDeployment = (env: Environment, deploying: boolean) => {
+		setTriggeredDeployment({ ...triggeredDeployment, [`${deploymentTrack?.branch}-${env.name}`]: deploying });
+	};
 
 	const { data: endpoints = [], refetch: refetchEndpoints } = useGetDeployedEndpoints(deploymentTrack, component, organization, {
 		enabled: !!deploymentTrack?.id && componentType === ChoreoComponentType.Service,
@@ -61,7 +91,7 @@ export const DeploymentsSection: FC<Props> = (props) => {
 		return (
 			<>
 				{Array.from(new Array(2)).map((_, index) => (
-					<EnvItemSkeleton key={index} />
+					<EnvItemSkeleton key={index} index={index} />
 				))}
 			</>
 		);
@@ -79,7 +109,8 @@ export const DeploymentsSection: FC<Props> = (props) => {
 						project={project}
 						deploymentTrack={deploymentTrack}
 						triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
-						loadedDeploymentStatus={() => onLoadDeploymentStatus(item)}
+						loadedDeploymentStatus={(deploying) => onTriggerDeployment(item, deploying)}
+						builds={builds}
 					/>
 				))}
 			</>
@@ -98,8 +129,10 @@ export const DeploymentsSection: FC<Props> = (props) => {
 					organization={organization}
 					project={project}
 					deploymentTrack={deploymentTrack}
+					builds={builds}
 					triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
-					loadedDeploymentStatus={() => onLoadDeploymentStatus(item)}
+					loadedDeploymentStatus={(deploying) => onTriggerDeployment(item, deploying)}
+					openBuildDetailsPanel={openBuildDetailsPanel}
 				/>
 			))}
 		</>
@@ -114,12 +147,30 @@ const EnvItem: FC<{
 	env: Environment;
 	endpoints: ComponentEP[];
 	refetchEndpoint: () => void;
+	builds: BuildKind[];
 	triggeredDeployment?: boolean;
-	loadedDeploymentStatus: () => void;
-}> = ({ organization, project, deploymentTrack, component, env, endpoints, refetchEndpoint, triggeredDeployment, loadedDeploymentStatus }) => {
+	loadedDeploymentStatus: (deploying: boolean) => void;
+	openBuildDetailsPanel: (item: BuildKind) => void;
+}> = ({
+	organization,
+	project,
+	deploymentTrack,
+	component,
+	env,
+	endpoints,
+	refetchEndpoint,
+	builds = [],
+	loadedDeploymentStatus,
+	triggeredDeployment,
+	openBuildDetailsPanel,
+}) => {
 	const componentType = getTypeForDisplayType(component.spec.type);
 	const [envDetailsRef] = useAutoAnimate();
 	const [isDeploymentInProgress, setDeploymentInProgress] = useState(false);
+	const webviewState = useExtWebviewContext();
+	const choreoEnv = webviewState?.choreoEnv;
+	const [isTestPanelOpen, setTestPanelOpen] = useState(false);
+	const [isEndpointsPanelOpen, setIsEndpointsPanelOpen] = useState(false);
 
 	const {
 		data: deploymentStatus,
@@ -132,11 +183,10 @@ const EnvItem: FC<{
 			if (refetchEndpoint) {
 				refetchEndpoint();
 			}
-			refetchEndpoint();
 			if (triggeredDeployment) {
-				loadedDeploymentStatus();
+				loadedDeploymentStatus(false);
 			}
-			setDeploymentInProgress(data?.deploymentStatusV2 === "IN_PROGRESS");
+			setDeploymentInProgress(data?.deploymentStatusV2 === DeploymentStatus.InProgress);
 		},
 		refetchInterval: isDeploymentInProgress ? 5000 : false,
 	});
@@ -146,8 +196,8 @@ const EnvItem: FC<{
 		timeAgo = getTimeAgo(new Date(deploymentStatus?.build?.deployedAt));
 	}
 
-	let statusStr = deploymentStatus?.deploymentStatusV2;
-	if (statusStr === "ACTIVE") {
+	let statusStr: string = deploymentStatus?.deploymentStatusV2;
+	if (statusStr === DeploymentStatus.Active) {
 		statusStr = "Deployed";
 	}
 
@@ -155,12 +205,17 @@ const EnvItem: FC<{
 
 	const { selectLogType } = useSelectLogType(componentType, (logType) => viewRuntimeLogs(logType));
 
+	const publicEndpoints = endpoints?.filter((item) => item.visibility === "Public");
 	const activePublicEndpoints = endpoints?.filter((item) => item.visibility === "Public" && item.state === "Active");
 
 	const getStatusText = () => {
 		if (deploymentStatus) {
 			if (triggeredDeployment) {
-				if (["ERROR", "SUSPENDED", "ACTIVE"].includes(deploymentStatus?.deploymentStatusV2)) {
+				if (
+					[DeploymentStatus.Active, DeploymentStatus.Suspended, DeploymentStatus.Error].includes(
+						deploymentStatus?.deploymentStatusV2 as DeploymentStatus,
+					)
+				) {
 					return "Redeploying";
 				}
 				return "In Progress";
@@ -173,11 +228,54 @@ const EnvItem: FC<{
 		return "Not Deployed";
 	};
 
+	const getLogTypeLabel = (componentType: string) => {
+		if ([ChoreoComponentType.Service, ChoreoComponentType.Webhook].includes(componentType as ChoreoComponentType)) {
+			return "Runtime Logs";
+		}
+		if (componentType === ChoreoComponentType.ApiProxy) {
+			return "Gateway Logs";
+		}
+		return "Application Logs";
+	};
+
+	const deployedBuild = builds?.find((item) => item.status?.runId?.toString() === deploymentStatus?.build?.runId);
+
 	return (
 		<>
+			<Drawer
+				open={isTestPanelOpen}
+				onClose={() => setTestPanelOpen(false)}
+				maxWidthClassName="max-w-4xl"
+				title={`OpenAPI Console - ${capitalizeFirstLetter(env.name)} Environment`}
+			>
+				<ApiTestSection
+					choreoEnv={choreoEnv}
+					component={component}
+					env={env}
+					org={organization}
+					endpoints={
+						endpoints?.length > 0
+							? endpoints?.map((item) => ({
+									publicUrl: item.publicUrl,
+									displayName: item.displayName,
+									apimId: item.apimId,
+									revisionId: item.apimRevisionId,
+								}))
+							: []
+					}
+				/>
+			</Drawer>
+			<Drawer
+				open={isEndpointsPanelOpen}
+				onClose={() => setIsEndpointsPanelOpen(false)}
+				maxWidthClassName="max-w-sm"
+				title={`Endpoint${endpoints.length > 1 ? "s" : ""} - ${capitalizeFirstLetter(env.name)} Environment`}
+			>
+				<EndpointDetailsSection endpoints={endpoints} />
+			</Drawer>
 			<Divider />
 			<div>
-				<div className="mb-3 flex items-center gap-2">
+				<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
 					<h3 className="text-base capitalize lg:text-lg">{env.name} Environment</h3>
 					{!loadingDeploymentStatus && (
 						<Button
@@ -190,7 +288,23 @@ const EnvItem: FC<{
 							<Codicon name="refresh" className={classNames(isRefetchingDeploymentStatus && "animate-spin")} />
 						</Button>
 					)}
+					<div className="flex-1" />
+					{!loadingDeploymentStatus && builds.length > 0 && (
+						<DeployButton
+							builds={builds}
+							component={component}
+							componentType={componentType}
+							deploymentTrack={deploymentTrack}
+							env={env}
+							isDeployed={!!deploymentStatus}
+							loadedDeploymentStatus={loadedDeploymentStatus}
+							organization={organization}
+							project={project}
+							deploymentStatus={deploymentStatus}
+						/>
+					)}
 				</div>
+
 				<div className="flex flex-col gap-3 ">
 					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3" ref={envDetailsRef}>
 						{loadingDeploymentStatus ? (
@@ -198,7 +312,7 @@ const EnvItem: FC<{
 								<GridColumnItem label="Status">
 									<SkeletonText className="w-24" />
 								</GridColumnItem>
-								<GridColumnItem label="Commit">
+								<GridColumnItem label="Build">
 									<SkeletonText className="w-12" />
 								</GridColumnItem>
 								<GridColumnItem label="URL">
@@ -210,17 +324,25 @@ const EnvItem: FC<{
 								<GridColumnItem label="Status">
 									<span
 										className={classNames({
-											"font-medium text-vsc-errorForeground": deploymentStatus?.deploymentStatusV2 === "ERROR",
-											"text-vsc-charts-lines": deploymentStatus?.deploymentStatusV2 === "SUSPENDED",
-											"text-vsc-foreground": deploymentStatus?.deploymentStatusV2 === "NOT_DEPLOYED",
-											"font-medium text-vsc-charts-green": deploymentStatus?.deploymentStatusV2 === "ACTIVE",
-											"animate-pulse text-vsc-charts-orange": deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS" || triggeredDeployment,
+											"font-medium text-vsc-errorForeground": deploymentStatus?.deploymentStatusV2 === DeploymentStatus.Error,
+											"text-vsc-charts-lines": deploymentStatus?.deploymentStatusV2 === DeploymentStatus.Suspended,
+											"text-vsc-foreground": deploymentStatus?.deploymentStatusV2 === DeploymentStatus.NotDeployed,
+											"font-medium text-vsc-charts-green": deploymentStatus?.deploymentStatusV2 === DeploymentStatus.Active,
+											"animate-pulse text-vsc-charts-orange":
+												deploymentStatus?.deploymentStatusV2 === DeploymentStatus.InProgress || triggeredDeployment,
 										})}
 									>
 										{getStatusText()}
 									</span>
-									{timeAgo && <span className="ml-2 opacity-70">{`(${timeAgo})`}</span>}
+									{timeAgo && <span className="ml-2 font-thin text-[11px] opacity-70">{`${timeAgo}`}</span>}
 								</GridColumnItem>
+								{deployedBuild && (
+									<GridColumnItem label={deploymentStatus?.deploymentStatusV2 === DeploymentStatus.Active ? "Deployed Build" : "Build"}>
+										<VSCodeLink title="View Build Details" className="text-vsc-foreground" onClick={() => openBuildDetailsPanel(deployedBuild)}>
+											{deployedBuild.status?.runId}
+										</VSCodeLink>
+									</GridColumnItem>
+								)}
 								{deploymentStatus?.build?.commit?.sha && (
 									<GridColumnItem label="Commit">
 										<CommitLink
@@ -230,7 +352,7 @@ const EnvItem: FC<{
 										/>
 									</GridColumnItem>
 								)}
-								{["ACTIVE", "IN_PROGRESS"].includes(deploymentStatus?.deploymentStatusV2) && (
+								{[DeploymentStatus.Active, DeploymentStatus.InProgress].includes(deploymentStatus?.deploymentStatusV2) && (
 									<>
 										{deploymentStatus?.invokeUrl && (
 											<EndpointItem
@@ -241,74 +363,45 @@ const EnvItem: FC<{
 												showOpen={true}
 											/>
 										)}
-										{componentType === ChoreoComponentType.Service && (
-											<>
-												{endpoints.map((item) => {
-													const endpointsNodes: ReactNode[] = [];
-													endpointsNodes.push(
-														<EndpointItem
-															type="Project"
-															name={item.displayName}
-															url={item.projectUrl}
-															hasMultiple={endpoints.length > 1}
-															state={item.state}
-															stateReason={item.stateReason}
-														/>,
-													);
-													if (item.visibility === "Organization") {
-														endpointsNodes.push(
-															<EndpointItem
-																type="Organization"
-																name={item.displayName}
-																url={item.organizationUrl}
-																hasMultiple={endpoints.length > 1}
-																state={item.state}
-																stateReason={item.stateReason}
-															/>,
-														);
-													} else if (item.visibility === "Public") {
-														endpointsNodes.push(
-															<EndpointItem
-																type="Public"
-																name={item.displayName}
-																url={item.publicUrl}
-																showOpen={true}
-																hasMultiple={endpoints.length > 1}
-																state={item.state}
-																stateReason={item.stateReason}
-															/>,
-														);
-													}
-													return endpointsNodes;
-												})}
-											</>
-										)}
-
-										{activePublicEndpoints.length > 0 && (
+										{[ChoreoComponentType.Service, ChoreoComponentType.Webhook].includes(componentType as ChoreoComponentType) &&
+											endpoints?.length > 0 && (
+												<GridColumnItem label={`${endpoints.length} Endpoint${endpoints.length > 1 ? "s" : ""}`}>
+													<VSCodeLink
+														className={classNames({
+															"text-vsc-foreground": !endpoints?.some((item) => item.state === EndpointDeploymentStatus.Error),
+															"text-vsc-errorForeground": endpoints?.some((item) => item.state === EndpointDeploymentStatus.Error),
+															"animate-pulse": endpoints?.some((item) =>
+																[EndpointDeploymentStatus.InProgress, EndpointDeploymentStatus.Pending].includes(item.state),
+															),
+														})}
+														title="View Endpoint Details"
+														onClick={() => setIsEndpointsPanelOpen(true)}
+													>
+														Details
+													</VSCodeLink>
+												</GridColumnItem>
+											)}
+										{publicEndpoints.length > 0 && (
 											<GridColumnItem label="Test">
 												<VSCodeLink
-													className="text-vsc-foreground"
-													onClick={() =>
-														ChoreoWebViewAPI.getInstance().openTestView({
-															component,
-															project,
-															org: organization,
-															env,
-															deploymentTrack,
-															endpoints: activePublicEndpoints,
-														})
-													}
+													className={classNames("text-vsc-foreground", activePublicEndpoints.length === 0 && "cursor-not-allowed opacity-50")}
+													onClick={activePublicEndpoints.length > 0 ? () => setTestPanelOpen(true) : undefined}
+													title="View OpenAPI console to test the deployed component"
 												>
-													Open Swagger View
+													OpenAPI Console
 												</VSCodeLink>
 											</GridColumnItem>
 										)}
 									</>
 								)}
-								{["ACTIVE", "IN_PROGRESS", "ERROR"].includes(deploymentStatus?.deploymentStatusV2) && (
+								{[DeploymentStatus.Active, DeploymentStatus.InProgress, DeploymentStatus.Error].includes(deploymentStatus?.deploymentStatusV2) && (
 									<GridColumnItem label="Observability">
-										<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
-											View Runtime Logs
+										<VSCodeLink
+											className="text-vsc-foreground"
+											onClick={() => selectLogType()}
+											title={`View ${getLogTypeLabel(componentType)} of your deployed component`}
+										>
+											{getLogTypeLabel(componentType)}
 										</VSCodeLink>
 									</GridColumnItem>
 								)}
@@ -328,11 +421,15 @@ const ProxyEnvItem: FC<{
 	deploymentTrack?: DeploymentTrack;
 	env: Environment;
 	triggeredDeployment?: boolean;
-	loadedDeploymentStatus: () => void;
-}> = ({ organization, project, deploymentTrack, component, env, triggeredDeployment, loadedDeploymentStatus }) => {
+	loadedDeploymentStatus: (deploying: boolean) => void;
+	builds: BuildKind[];
+}> = ({ organization, project, deploymentTrack, component, env, triggeredDeployment, loadedDeploymentStatus, builds = [] }) => {
+	const [isTestPanelOpen, setTestPanelOpen] = useState(false);
 	const componentType = getTypeForDisplayType(component.spec.type);
 	const [envDetailsRef] = useAutoAnimate();
 	const latestApiVersion = component?.apiVersions?.find((item) => item.latest);
+	const webviewState = useExtWebviewContext();
+	const choreoEnv = webviewState?.choreoEnv;
 
 	const {
 		data: proxyDeploymentData,
@@ -342,7 +439,7 @@ const ProxyEnvItem: FC<{
 	} = useGetProxyDeploymentInfo(component, organization, env, latestApiVersion, {
 		enabled: !!latestApiVersion,
 		onSuccess: () => {
-			loadedDeploymentStatus();
+			loadedDeploymentStatus(false);
 		},
 		refetchInterval: triggeredDeployment ? 5000 : false,
 	});
@@ -361,6 +458,9 @@ const ProxyEnvItem: FC<{
 			if (triggeredDeployment) {
 				return "Redeploying";
 			}
+			if (["CREATED", "PUBLISHED"].includes(proxyDeploymentData?.lifecycleStatus)) {
+				return "Deployed";
+			}
 			return toTitleCase(proxyDeploymentData?.lifecycleStatus);
 		}
 		if (triggeredDeployment) {
@@ -371,9 +471,28 @@ const ProxyEnvItem: FC<{
 
 	return (
 		<>
+			<Drawer
+				open={isTestPanelOpen}
+				onClose={() => setTestPanelOpen(false)}
+				maxWidthClassName="max-w-4xl"
+				title={`OpenAPI Console - ${capitalizeFirstLetter(env.name)} Environment`}
+			>
+				<ApiTestSection
+					choreoEnv={choreoEnv}
+					component={component}
+					env={env}
+					org={organization}
+					// todo: add sandbox url here as well
+					endpoints={
+						proxyDeploymentData
+							? [{ apimId: proxyDeploymentData?.apiId, publicUrl: proxyDeploymentData?.invokeUrl, revisionId: proxyDeploymentData?.apiRevision?.id }]
+							: []
+					}
+				/>
+			</Drawer>
 			<Divider />
 			<div>
-				<div className="mb-3 flex items-center gap-2">
+				<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
 					<h3 className="text-base capitalize lg:text-lg">{env.name} Environment</h3>
 					{!isLoadingProxyDeploymentData && (
 						<Button
@@ -386,7 +505,23 @@ const ProxyEnvItem: FC<{
 							<Codicon name="refresh" className={classNames(isRefetchingProxyDeploymentData && "animate-spin")} />
 						</Button>
 					)}
+					<div className="flex-1" />
+					{!isLoadingProxyDeploymentData && builds.length > 0 && (
+						<DeployButton
+							builds={builds}
+							component={component}
+							componentType={componentType}
+							deploymentTrack={deploymentTrack}
+							env={env}
+							isDeployed={!!proxyDeploymentData}
+							loadedDeploymentStatus={loadedDeploymentStatus}
+							organization={organization}
+							project={project}
+							proxyDeploymentData={proxyDeploymentData}
+						/>
+					)}
 				</div>
+
 				<div className="flex flex-col gap-3 ">
 					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3" ref={envDetailsRef}>
 						<>
@@ -413,15 +548,15 @@ const ProxyEnvItem: FC<{
 										>
 											{getStatusText()}
 										</span>
-										{timeAgo && <span className="ml-2 opacity-70">{`(${timeAgo})`}</span>}
+										{timeAgo && <span className="ml-2 font-thin text-[11px] opacity-70">{`${timeAgo}`}</span>}
 									</GridColumnItem>
 									{proxyDeploymentData?.invokeUrl && (
 										<EndpointItem type="Proxy" name="proxy-url" state={EndpointDeploymentStatus.Active} url={proxyDeploymentData?.invokeUrl} />
 									)}
 									{proxyDeploymentData && (
 										<GridColumnItem label="Observability">
-											<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
-												View Runtime Logs
+											<VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()} title="View Gateway of your deployed component">
+												Gateway Logs
 											</VSCodeLink>
 										</GridColumnItem>
 									)}
@@ -429,27 +564,10 @@ const ProxyEnvItem: FC<{
 										<GridColumnItem label="Test">
 											<VSCodeLink
 												className="text-vsc-foreground"
-												onClick={() =>
-													ChoreoWebViewAPI.getInstance().openTestView({
-														component,
-														project,
-														org: organization,
-														env,
-														deploymentTrack,
-														// TODO: have a better way to pass this prop
-														// make it usable with both services and proxies
-														endpoints: [
-															{
-																id: proxyDeploymentData?.apiRevision?.id,
-																apimRevisionId: proxyDeploymentData?.apiRevision?.id,
-																apimId: proxyDeploymentData?.apiId,
-																publicUrl: proxyDeploymentData?.invokeUrl,
-															} as any,
-														],
-													})
-												}
+												onClick={() => setTestPanelOpen(true)}
+												title="View OpenAPI console to test the deployed proxy"
 											>
-												Open Swagger View
+												OpenAPI Console
 											</VSCodeLink>
 										</GridColumnItem>
 									)}
@@ -463,27 +581,27 @@ const ProxyEnvItem: FC<{
 	);
 };
 
-const EnvItemSkeleton: FC = () => {
+const EnvItemSkeleton: FC<{ index: number }> = ({ index }) => {
 	return (
 		<>
 			<Divider />
 			<div>
-				<div className="mb-3 flex items-center gap-1">
-					<SkeletonText className="w-52" />
-					<div className="flex-1" />
+				<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+					<SkeletonText className={classNames(index % 2 === 0 ? "w-52" : "w-48")} />
 					<Button disabled appearance="icon" className="opacity-50">
 						<Codicon name="refresh" />
 					</Button>
-					<Button appearance="secondary" disabled>
-						View Logs
+					<div className="flex-1" />
+					<Button appearance="secondary" disabled className="animate-pulse">
+						Deploy
 					</Button>
 				</div>
 				<div className="flex flex-col gap-3 ">
-					<div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3">
 						<GridColumnItem label="Status">
 							<SkeletonText className="w-24" />
 						</GridColumnItem>
-						<GridColumnItem label="Commit">
+						<GridColumnItem label="Build">
 							<SkeletonText className="w-12" />
 						</GridColumnItem>
 						<GridColumnItem label="URL">
@@ -497,7 +615,7 @@ const EnvItemSkeleton: FC = () => {
 };
 
 const GridColumnItem: FC<{ label: string; children?: ReactNode }> = ({ label, children }) => (
-	<div className="flex flex-col duration-200 hover:bg-vsc-editorHoverWidget-background">
+	<div className={classNames("flex flex-col")}>
 		<div className="font-light text-[9px] opacity-75 md:text-xs">{label}</div>
 		<div className="line-clamp-1 w-full">{children}</div>
 	</div>
@@ -507,11 +625,9 @@ const EndpointItem: FC<{
 	type: string;
 	name: string;
 	url: string;
-	hasMultiple?: boolean;
 	state?: EndpointDeploymentStatus;
-	stateReason?: StateReason;
 	showOpen?: boolean;
-}> = ({ name, type, url, hasMultiple, state, showOpen, stateReason }) => {
+}> = ({ name, type, url, state, showOpen }) => {
 	const { mutate: copyUrl } = useMutation({
 		mutationFn: (url: string) => clipboardy.write(url),
 		onSuccess: () => ChoreoWebViewAPI.getInstance().showInfoMsg("The URL has been copied to the clipboard."),
@@ -520,7 +636,7 @@ const EndpointItem: FC<{
 	const openExternal = (url: string) => ChoreoWebViewAPI.getInstance().openExternal(url);
 
 	return (
-		<GridColumnItem label={`${type} URL ${hasMultiple ? `(${name})` : ""}`} key={`${name}-${type}`}>
+		<GridColumnItem label={`${type} URL`} key={`${name}-${type}`}>
 			{url ? (
 				<div className="flex items-center gap-1">
 					<VSCodeLink
@@ -546,17 +662,265 @@ const EndpointItem: FC<{
 					)}
 				</div>
 			) : (
-				<>
-					{state === EndpointDeploymentStatus.Error ? (
-						<div className="line-clamp-1 text-vsc-errorForeground" title={stateReason?.details}>
-							{stateReason?.details ?? "Failed to load endpoint"}
-						</div>
-					) : (
-						<SkeletonText className="w-24" />
-					)}
-				</>
+				<>{state !== EndpointDeploymentStatus.Error && <SkeletonText className="w-24" />}</>
 			)}
 		</GridColumnItem>
+	);
+};
+
+const DeployButton: FC<{
+	componentType: string;
+	component: ComponentKind;
+	organization: Organization;
+	env: Environment;
+	project: Project;
+	deploymentTrack: DeploymentTrack;
+	builds: BuildKind[];
+	isDeployed: boolean;
+	loadedDeploymentStatus: (deploying: boolean) => void;
+	deploymentStatus?: ComponentDeployment;
+	proxyDeploymentData?: ProxyDeploymentInfo;
+}> = ({
+	componentType,
+	component,
+	organization,
+	env,
+	project,
+	deploymentTrack,
+	builds = [],
+	loadedDeploymentStatus,
+	isDeployed,
+	deploymentStatus,
+	proxyDeploymentData,
+}) => {
+	const queryClient = useQueryClient();
+	const [isDeployPanelOpen, setIsDeployPanelOpen] = useState(false);
+	const [selectedBuild, setSelectedBuild] = useState<BuildKind>();
+
+	const displayType = component?.spec?.type;
+
+	const { mutate: triggerDeployment, isLoading: isDeploying } = useMutation({
+		mutationFn: async (params: {
+			build: BuildKind;
+			args?: { cronExpression?: string; cronTimeZone?: string; proxyTargetUrl?: string; proxySandboxUrl?: string };
+		}) => {
+			const req: CreateDeploymentReq = {
+				commitHash: params.build.spec.revision,
+				buildRef: componentType === ChoreoComponentType.ApiProxy ? params.build.status?.runId?.toString() : params.build.status.images?.[0]?.id,
+				componentName: component.metadata.name,
+				componentId: component.metadata.id,
+				componentHandle: component.metadata.handler,
+				componentDisplayType: component.spec.type,
+				envId: env.id,
+				envName: env.name,
+				versionId:
+					componentType === ChoreoComponentType.ApiProxy ? component?.apiVersions?.find((item) => item.latest)?.versionId : deploymentTrack?.id,
+				orgId: organization.id.toString(),
+				orgHandler: organization.handle,
+				projectId: project.id,
+				projectHandle: project.handler,
+			};
+			if (componentType === ChoreoComponentType.ScheduledTask && params?.args?.cronExpression && params?.args?.cronTimeZone) {
+				req.cronExpression = params?.args?.cronExpression;
+				req.cronTimezone = params?.args?.cronTimeZone;
+			}
+			if (componentType === ChoreoComponentType.ApiProxy) {
+				if (params?.args?.proxyTargetUrl) {
+					req.proxyTargetUrl = params?.args?.proxyTargetUrl;
+				}
+				if (params?.args?.proxySandboxUrl) {
+					req.proxySandboxUrl = params?.args?.proxySandboxUrl;
+				}
+			}
+			await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment(req);
+			loadedDeploymentStatus(true);
+		},
+		onSuccess: () => {
+			ChoreoWebViewAPI.getInstance().showInfoMsg(
+				`Deployment of component ${component.metadata.displayName} for the ${env?.name} environment has been successfully triggered`,
+			);
+		},
+		onSettled: () => {
+			queryClient.refetchQueries({
+				queryKey: queryKeys.getDeploymentStatus(deploymentTrack, component, organization, env),
+			});
+			queryClient.refetchQueries({
+				queryKey: queryKeys.getDeployedEndpoints(deploymentTrack, component, organization),
+			});
+
+			setSelectedBuild(undefined);
+			setIsDeployPanelOpen(false);
+		},
+	});
+
+	const { mutate: selectBuildToDeploy } = useMutation({
+		mutationFn: async (showConfigMenu?: boolean) => {
+			if (builds.length > 1) {
+				const latestItem = builds[0];
+				const selected = await ChoreoWebViewAPI.getInstance().showQuickPicks({
+					title: "Select Build to Deploy",
+					items: [
+						{ label: "Latest Build", kind: WebviewQuickPickItemKind.Separator },
+						{
+							label: `Build ID: ${latestItem?.status?.runId}`,
+							detail: `Commit: ${getShortenedHash(latestItem.spec?.revision)} | ${latestItem.status?.gitCommit?.message || "-"}`,
+							description: getTimeAgo(new Date(latestItem.status?.startedAt)),
+							item: latestItem,
+						},
+						{ kind: WebviewQuickPickItemKind.Separator, label: "Previous Builds" },
+						...builds.slice(1, builds.length).map((item) => ({
+							label: `Build ID: ${item?.status?.runId}`,
+							detail: `Commit: ${getShortenedHash(item.spec?.revision)} | ${item.status?.gitCommit?.message || "-"}`,
+							description: getTimeAgo(new Date(item.status?.startedAt)),
+							item,
+						})),
+					],
+				});
+				if (selected?.item) {
+					if (showConfigMenu) {
+						setSelectedBuild(selected?.item);
+						setIsDeployPanelOpen(true);
+					} else {
+						triggerDeployment({ build: selected?.item });
+					}
+				}
+			} else if (builds.length === 1) {
+				if (showConfigMenu) {
+					setSelectedBuild(builds[0]);
+					setIsDeployPanelOpen(true);
+				} else {
+					triggerDeployment({ build: builds[0] });
+				}
+			}
+		},
+	});
+
+	return (
+		<>
+			<Drawer
+				open={isDeployPanelOpen}
+				onClose={() => setIsDeployPanelOpen(false)}
+				maxWidthClassName="max-w-sm"
+				title={`Configure Deployment - ${capitalizeFirstLetter(env.name)} Environment`}
+			>
+				<div className="flex h-[calc(100vh-96px)] flex-col gap-4 overflow-y-auto">
+					<form className="relative flex flex-col gap-4 px-4 sm:px-6">
+						{
+							{
+								[ChoreoComponentType.ScheduledTask]: (
+									<CronDeployForm
+										deploymentStatus={deploymentStatus}
+										onSubmit={(args) => triggerDeployment({ build: selectedBuild, args })}
+										isDeploying={isDeploying}
+									/>
+								),
+								[ChoreoComponentType.ApiProxy]: (
+									<GitProxyDeployForm
+										proxyDeploymentData={proxyDeploymentData}
+										onSubmit={(args) => triggerDeployment({ build: selectedBuild, args })}
+										isDeploying={isDeploying}
+									/>
+								),
+							}[componentType]
+						}
+					</form>
+				</div>
+			</Drawer>
+			<div className="flex items-center gap-1">
+				{/* {displayType === ComponentDisplayType.GitProxy && proxyDeploymentData && (
+					<Button
+						appearance="icon"
+						title="Configure Proxy and deploy"
+						onClick={() => selectBuildToDeploy(true)}
+						className="opacity-60 duration-200 hover:opacity-100"
+					>
+						<Codicon name="settings-gear" />
+					</Button>
+				)} */}
+				<Button disabled={isDeploying} onClick={() => selectBuildToDeploy(componentType === ChoreoComponentType.ScheduledTask)} appearance="primary">
+					{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}
+				</Button>
+			</div>
+		</>
+	);
+};
+
+const CronDeployForm: FC<{
+	deploymentStatus: ComponentDeployment;
+	onSubmit: (params: { cronExpression?: string; cronTimezone?: string }) => void;
+	isDeploying: boolean;
+}> = ({ deploymentStatus, onSubmit, isDeploying }) => {
+	const deploySchema = z.object({
+		cronTimeZone: z.string().min(1, "Required"),
+		cronExpression: z
+			.string()
+			.min(1, "Required")
+			.regex(/^((\*|\d+|\d+-\d+)(\/\d+)? ){4}(\*|\d+|\d+-\d+)(\/\d+)?$/, "Invalid Cron Expression"),
+	});
+
+	const form = useForm<z.infer<typeof deploySchema>>({
+		resolver: zodResolver(deploySchema),
+		mode: "all",
+		defaultValues: {
+			cronExpression: deploymentStatus?.cron || "",
+			cronTimeZone: deploymentStatus?.cronTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone?.toString() || "UTC",
+		},
+	});
+
+	const onSubmitForm: SubmitHandler<z.infer<typeof deploySchema>> = (data) => onSubmit(data);
+
+	useEffect(() => {
+		form.reset({
+			cronExpression: deploymentStatus?.cron || "",
+			cronTimeZone: deploymentStatus?.cronTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone?.toString() || "UTC",
+		});
+	}, [deploymentStatus]);
+
+	return (
+		<>
+			<TextField label="Cron Expression" required name="cronExpression" placeholder="0 */1 * * *" control={form.control} />
+			<Dropdown label="Time Zone" required name="cronTimeZone" items={listTimeZones().map((item) => ({ value: item }))} control={form.control} />
+			<div className="flex justify-end gap-3 pt-6 pb-2">
+				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={isDeploying}>
+					{isDeploying ? "Deploying..." : "Deploy"}
+				</Button>
+			</div>
+		</>
+	);
+};
+
+const GitProxyDeployForm: FC<{
+	proxyDeploymentData: ProxyDeploymentInfo;
+	onSubmit: (params: { proxyTargetUrl?: string; proxySandboxUrl?: string }) => void;
+	isDeploying: boolean;
+}> = ({ proxyDeploymentData, onSubmit, isDeploying }) => {
+	const deploySchema = z.object({ proxyTargetUrl: httpsUrlSchema, proxySandboxUrl: z.union([z.literal(""), httpsUrlSchema]) });
+
+	const form = useForm<z.infer<typeof deploySchema>>({
+		resolver: zodResolver(deploySchema),
+		mode: "all",
+		defaultValues: { proxyTargetUrl: proxyDeploymentData?.endpoint || "", proxySandboxUrl: proxyDeploymentData?.sandboxEndpoint || "" },
+	});
+
+	const onSubmitForm: SubmitHandler<z.infer<typeof deploySchema>> = (data) => onSubmit(data);
+
+	useEffect(() => {
+		form.reset({
+			proxyTargetUrl: proxyDeploymentData?.endpoint || "",
+			proxySandboxUrl: proxyDeploymentData?.sandboxEndpoint || "",
+		});
+	}, [proxyDeploymentData]);
+
+	return (
+		<>
+			<TextField label="Endpoint" required name="proxyTargetUrl" placeholder="https://url.com/api/v1" control={form.control} />
+			<TextField label="Sandbox Endpoint" name="proxySandboxUrl" placeholder="https://sandbox-url.com/api/v1" control={form.control} />
+			<div className="flex justify-end gap-3 pt-6 pb-2">
+				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={isDeploying}>
+					{isDeploying ? "Deploying..." : "Deploy"}
+				</Button>
+			</div>
+		</>
 	);
 };
 
@@ -604,4 +968,67 @@ const useSelectLogType = (componentType: string, onSelectLogType: (logType: "com
 		},
 	});
 	return { selectLogType };
+};
+
+const EndpointDetailsSectionDetailItem: FC<{ label: string; value: ReactNode }> = ({ label, value }) => (
+	<div className="flex items-center justify-between">
+		<div className="font-extralight opacity-75">{label}</div>
+		<div className="text-right">{value}</div>
+	</div>
+);
+
+export const EndpointDetailsSection: FC<{ endpoints: ComponentEP[] }> = ({ endpoints = [] }) => {
+	return (
+		<div className="flex flex-col gap-4 overflow-y-auto">
+			<div className="flex flex-col gap-4 px-4 sm:px-6">
+				{endpoints.length === 0 ? (
+					<Empty text="No Endpoints Found" />
+				) : (
+					<>
+						{endpoints?.map((item, index) => (
+							<React.Fragment key={item.id}>
+								{index !== 0 && <Divider className="my-2" />}
+								{item?.state === EndpointDeploymentStatus.Error && (
+									<Banner type="error" title={item?.stateReason?.message ?? "Failed to load endpoint"} subTitle={item?.stateReason?.details} />
+								)}
+								<div className="mb-1 flex flex-col gap-2">
+									<EndpointDetailsSectionDetailItem label="Name" value={item.displayName} />
+									<EndpointDetailsSectionDetailItem
+										label="Status"
+										value={
+											<span
+												className={classNames({
+													"text-vsc-errorForeground": item.state === EndpointDeploymentStatus.Error,
+													"text-vsc-charts-green": item.state === EndpointDeploymentStatus.Active,
+													"animate-pulse text-vsc-charts-orange": [EndpointDeploymentStatus.InProgress, EndpointDeploymentStatus.Pending].includes(
+														item.state,
+													),
+												})}
+											>
+												{item.state}
+											</span>
+										}
+									/>
+									<EndpointDetailsSectionDetailItem label="Port" value={item.port} />
+									<EndpointDetailsSectionDetailItem label="Type" value={item.type} />
+									{item.networkVisibilities?.length > 0 && (
+										<EndpointDetailsSectionDetailItem label="Network Visibilities" value={item.networkVisibilities.join(", ")} />
+									)}
+									{item.apiDefinitionPath && <EndpointDetailsSectionDetailItem label="Schema" value={item.apiDefinitionPath} />}
+									{item.apiContext && <EndpointDetailsSectionDetailItem label="API Context" value={item.apiContext} />}
+								</div>
+								<EndpointItem type="Project" name={item.displayName} url={item.projectUrl} state={item.state} />
+								{item.visibility === "Organization" && (
+									<EndpointItem type="Organization" name={item.displayName} url={item.organizationUrl} state={item.state} />
+								)}
+								{item.visibility === "Public" && (
+									<EndpointItem type="Public" name={item.displayName} url={item.publicUrl} showOpen={true} state={item.state} />
+								)}
+							</React.Fragment>
+						))}
+					</>
+				)}
+			</div>
+		</div>
+	);
 };

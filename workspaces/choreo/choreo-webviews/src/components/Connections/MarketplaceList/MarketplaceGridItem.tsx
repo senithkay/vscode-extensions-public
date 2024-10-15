@@ -58,7 +58,7 @@ export const MarketplaceGridItem: FC<Props> = ({ onClick, item, loading }) => {
 				{item ? (
 					<>
 						<div className="line-clamp-1">Visibility: {visibility}</div>
-						<div className="line-clamp-1">Created: {getTimeAgo(new Date(Number.parseInt(item.createdTime) * 1000))}</div>
+						<div className="line-clamp-1 font-extralight opacity-70">Created: {getTimeAgo(new Date(Number.parseInt(item.createdTime) * 1000))}</div>
 					</>
 				) : (
 					<>

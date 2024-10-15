@@ -29,7 +29,7 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 			<div className="flex gap-2">
 				<div className="flex flex-1 flex-wrap items-center gap-3 md:mb-1">
 					<h1 className="font-bold text-2xl md:text-3xl">{title}</h1>
-					<h2 className="hidden font-thin text-2xl opacity-30 sm:block md:text-3xl">{secondaryTitle}</h2>
+					<h2 className="hidden font-thin text-2xl tracking-wider opacity-30 sm:block md:text-3xl">{secondaryTitle}</h2>
 				</div>
 				<span className="mt-1">{secondaryIcon}</span>
 			</div>

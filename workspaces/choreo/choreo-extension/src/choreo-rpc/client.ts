@@ -25,11 +25,14 @@ import type {
 	CreateProjectReq,
 	DeleteCompReq,
 	DeleteConnectionReq,
+	DeploymentLogsData,
 	DeploymentTrack,
 	Environment,
 	GetAutoBuildStatusReq,
 	GetAutoBuildStatusResp,
 	GetBranchesReq,
+	GetBuildLogsForTypeReq,
+	GetBuildLogsReq,
 	GetBuildsReq,
 	GetCommitsReq,
 	GetComponentEndpointsReq,
@@ -54,11 +57,11 @@ import type {
 	MarketplaceIdlResp,
 	MarketplaceListResp,
 	Project,
+	ProjectBuildLogsData,
 	ProxyDeploymentInfo,
 	ToggleAutoBuildReq,
 	ToggleAutoBuildResp,
 	UserInfo,
-	ViewBuildLogsReq,
 } from "@wso2-enterprise/choreo-core";
 import { type MessageConnection, Trace, type Tracer } from "vscode-jsonrpc";
 import { handlerError } from "../error-utils";
@@ -323,7 +326,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		);
 		return response?.deploymentInfo ?? null;
 	}
-	
+
 	async createDeployment(params: CreateDeploymentReq): Promise<void> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
@@ -331,12 +334,20 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		await this.client.sendRequest("deployment/create", params);
 	}
 
-	async getBuildLogs(params: ViewBuildLogsReq): Promise<string> {
+	async getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		const response: { logs: string } = await this.client.sendRequest("build/logs", params);
-		return response.logs;
+		const response: any = await this.client.sendRequest("build/logs", params);
+		return response.data?.data as DeploymentLogsData;
+	}
+
+	async getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: any = await this.client.sendRequest("build/getLogsForType", params);
+		return response.data ? response.data as ProjectBuildLogsData : null;
 	}
 
 	async obtainGithubToken(params: { code: string; orgId: string }): Promise<void> {

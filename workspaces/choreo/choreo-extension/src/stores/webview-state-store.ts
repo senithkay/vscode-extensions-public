@@ -8,6 +8,7 @@
  */
 
 import type { ComponentViewDrawers, WebviewState } from "@wso2-enterprise/choreo-core";
+import { workspace } from "vscode";
 import { createStore } from "zustand";
 
 interface WebviewStateStore {
@@ -19,7 +20,7 @@ interface WebviewStateStore {
 }
 
 export const webviewStateStore = createStore<WebviewStateStore>((set) => ({
-	state: { openedComponentKey: "", componentViews: {} },
+	state: { openedComponentKey: "", componentViews: {}, choreoEnv: workspace.getConfiguration().get<string>("Advanced.ChoreoEnvironment") || "prod" },
 	setOpenedComponentKey: (openedComponentKey) => set(({ state }) => ({ state: { ...state, openedComponentKey } })),
 	onCloseComponentView: (openedComponentKey) =>
 		set(({ state }) => ({

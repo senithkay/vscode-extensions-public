@@ -16,6 +16,7 @@ import {
 	type Endpoint,
 	type NewComponentWebviewProps,
 	type SubmitComponentCreateReq,
+	getComponentTypeText,
 	getRandomNumber,
 	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
@@ -27,11 +28,13 @@ import { type StepItem, VerticalStepper } from "../../components/VerticalStepper
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import {
 	type componentBuildDetailsSchema,
-	componentEndpointsFormSchema,
+	type componentEndpointsFormSchema,
 	type componentGeneralDetailsSchema,
-	componentGitProxyFormSchema,
+	type componentGitProxyFormSchema,
+	getComponentEndpointsFormSchema,
 	getComponentFormSchemaBuildDetails,
 	getComponentFormSchemaGenDetails,
+	getComponentGitProxyFormSchema,
 	sampleEndpointItem,
 } from "./componentFormSchema";
 import { ComponentFormBuildSection } from "./sections/ComponentFormBuildSection";
@@ -46,7 +49,7 @@ type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
 type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
-	const { project, organization, directoryFsPath, initialValues, existingComponents } = props;
+	const { project, organization, directoryFsPath, directoryPath, initialValues, existingComponents } = props;
 	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
 
@@ -56,7 +59,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		resolver: zodResolver(getComponentFormSchemaGenDetails(existingComponents), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: {
-			name: "",
+			name: initialValues?.name || "",
 			subPath: initialValues?.subPath || "",
 			repoUrl: "",
 			branch: "",
@@ -86,25 +89,33 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const buildPackLang = buildDetailsForm.watch("buildPackLang");
 
 	const endpointDetailsForm = useForm<ComponentFormEndpointsType>({
-		resolver: zodResolver(componentEndpointsFormSchema),
+		resolver: zodResolver(getComponentEndpointsFormSchema(directoryFsPath, subPath), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: { endpoints: [] },
 	});
 
 	const gitProxyForm = useForm<ComponentFormGitProxyType>({
-		resolver: zodResolver(componentGitProxyFormSchema),
+		resolver: zodResolver(getComponentGitProxyFormSchema(directoryFsPath, subPath), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: {
 			proxyTargetUrl: "",
-			proxyVersion: "1.0",
+			proxyVersion: "v1.0",
 			componentConfig: { type: "REST", schemaFilePath: "", docPath: "", thumbnailPath: "", networkVisibility: "Public" },
 		},
 	});
 
-	const { data: compPath = directoryFsPath } = useQuery({
-		queryKey: ["comp-create-path", { directoryFsPath, subPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]),
+	const { data: compPath = directoryPath } = useQuery({
+		queryKey: ["comp-create-path", { directoryPath, subPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, subPath]),
 	});
+
+	// // TODO: uri.parse expects path & file read/write expects fsPath. Need to updated and check on windows
+	// todo: check path on windows
+	// for fspath use path.join, for uri path use vscode.Uri.joinPath
+	// const { data: compFsPath = directoryFsPath } = useQuery({
+	// 	queryKey: ["comp-create-fs-path", { directoryFsPath, subPath }],
+	// 	queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]),
+	// });
 
 	useQuery({
 		queryKey: ["service-dir-endpoints", { compPath, type }],
@@ -211,6 +222,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					{...props}
 					key="gen-details-step"
 					form={genDetailsForm}
+					componentType={type}
 					onNextClick={() => {
 						gitProxyForm.setValue(
 							"proxyContext",
@@ -235,6 +247,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					form={buildDetailsForm}
 					selectedType={type}
 					subPath={subPath}
+					baseDirPath={directoryFsPath}
 					compPath={compPath}
 				/>
 			),
@@ -242,7 +255,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	}
 
 	if (type === ChoreoComponentType.Service) {
-		if (buildPackLang !== ChoreoBuildPackNames.MicroIntegrator || useDefaultEndpoints) {
+		if (buildPackLang !== ChoreoBuildPackNames.MicroIntegrator || (buildPackLang === ChoreoBuildPackNames.MicroIntegrator && !useDefaultEndpoints)) {
 			steps.push({
 				label: "Endpoint Details",
 				content: (
@@ -294,12 +307,14 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		),
 	});
 
+	const componentTypeText = getComponentTypeText(type);
+
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
 			<div className="container">
 				<form className="mx-auto flex max-w-4xl flex-col gap-2 p-4">
 					<HeaderSection
-						title="Create New Component"
+						title={`Create ${["a", "e", "i", "o", "u"].includes(componentTypeText[0].toLowerCase()) ? `an ${componentTypeText}` : `a ${componentTypeText}`}`}
 						tags={[
 							{ label: "Project", value: project.name },
 							{ label: "Organization", value: organization.name },

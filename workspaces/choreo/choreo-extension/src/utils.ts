@@ -22,6 +22,7 @@ import {
 import * as yaml from "js-yaml";
 import { Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
+import * as os from 'os';
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
 	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
@@ -30,7 +31,7 @@ export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpoi
 		eps?.map((item) => {
 			if (item.schemaFilePath) {
 				const fileExists = existsSync(join(componentPath, item.schemaFilePath));
-				return { ...item, schemaFilePath: fileExists ? item.schemaFilePath : "" };
+				return { ...item, schemaFilePath: fileExists ? item.schemaFilePath : "", networkVisibilities: item.networkVisibility ? [item.networkVisibility] : item.networkVisibilities ?? [] };
 			}
 			return item;
 		});
@@ -52,12 +53,28 @@ export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpoi
 		};
 	}
 
+	const componentYamlPath = join(componentPath, ".choreo", "component.yaml");
+	if (existsSync(componentYamlPath)) {
+		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+		return {
+			endpoints: filterEndpointSchemaPath(endpointFileContent?.endpoints?.map(item=>({
+				name: item.name,
+				port: item.service?.port,
+				context: item.service?.basePath,
+				networkVisibilities: item.networkVisibilities,
+				type: item.type,
+				schemaFilePath: item.schemaFilePath,
+			}))  ?? []),
+			filePath: componentConfigYamlPath,
+		};
+	}
+
 	// TODO: also read from component.yaml and the order should be reversed. read from component.yaml first, then component-config and finally endpoints.yaml
 	return { endpoints: [], filePath: "" };
 };
 
 export const readLocalProxyConfig = (componentPath: string): ReadLocalProxyConfigResp => {
-	const componentYamlPath = join(componentPath, ".choreo", "component.yml");
+	const componentYamlPath = join(componentPath, ".choreo", "component.yaml");
 	if (existsSync(componentYamlPath)) {
 		const fileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 		return { proxy: fileContent.proxy, filePath: componentYamlPath };
@@ -67,8 +84,8 @@ export const readLocalProxyConfig = (componentPath: string): ReadLocalProxyConfi
 
 // TODO: move into ChoreoExtensionApi()
 export const goTosource = async (filePath: string, focusFileExplorer?: boolean) => {
-	if (existsSync(filePath)) {
-		const sourceFile = await workspace.openTextDocument(filePath);
+	if (existsSync(getNormalizedPath(filePath))) {
+		const sourceFile = await workspace.openTextDocument(getNormalizedPath(filePath));
 		await window.showTextDocument(sourceFile);
 		if (focusFileExplorer) {
 			await commands.executeCommand("workbench.explorer.fileView.focus");
@@ -144,8 +161,8 @@ export const saveFile = async (
 };
 
 export const isSubpath = (parent: string, sub: string): boolean => {
-	const normalizedParent = path.normalize(parent).toLowerCase();
-	const normalizedSub = path.normalize(sub).toLowerCase();
+	const normalizedParent = getNormalizedPath(parent).toLowerCase();
+	const normalizedSub = getNormalizedPath(sub).toLowerCase();
 	if (normalizedParent === normalizedSub) {
 		return true;
 	}
@@ -155,8 +172,8 @@ export const isSubpath = (parent: string, sub: string): boolean => {
 };
 
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
-	const normalizedParent = path.normalize(parentPath);
-	const normalizedSub = path.normalize(subPath);
+	const normalizedParent = getNormalizedPath(parentPath);
+	const normalizedSub = getNormalizedPath(subPath);
 	if (normalizedParent === normalizedSub) {
 		return ".";
 	}
@@ -172,6 +189,22 @@ export const getSubPath = (subPath: string, parentPath: string): string | null =
 	}
 	return null;
 };
+
+// TODO: use this for all normalize() operations
+export const getNormalizedPath = (filePath: string)=>{
+	if(os.platform() === 'win32'){
+		return filePath.replace(/^\//, '').replace(/\//g, '\\');
+	}
+	return path.normalize(filePath);
+}
+
+// TODO: uri.parse expects path & file read/write expects fsPath. Need to updated and check on windows
+// for fspath use path.join, for uri path use vscode.Uri.joinPath
+
+// TODO: use this for all join() operations
+export const getJoinedFilePaths = (...files:string[])=>{
+	return os.platform() === 'win32' ? join(...files).replace(/\\/g, '/') : join(...files)
+}
 
 export const createDirectory = (basePath: string, dirName: string) => {
 	let newDirName = dirName;

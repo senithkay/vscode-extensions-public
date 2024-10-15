@@ -105,8 +105,9 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 			ChoreoWebViewAPI.getInstance().saveFile({
 				baseDirectory: directoryPath,
 				fileContent: typeof fileContent === "object" ? JSON.stringify(fileContent) : fileContent,
+				shouldPromptDirSelect: true,
 				fileName: `idl.${getIdlFileExt(fileContent)}`,
-				shouldOpen: true,
+				shouldOpen: false,
 				dialogTitle: "Select directory to save IDL file",
 				successMessage: `The API definition file of ${item.name} has been saved successfully within the selected directory`,
 			});
@@ -158,29 +159,31 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 		},
 	];
 
-	if (item.description) {
+	if (item.description?.trim()) {
 		panelTabs.unshift({
 			key: "overview",
 			title: "Overview",
-			view: <Markdown>{item.description}</Markdown>,
+			view: <Markdown>{item.description?.trim()}</Markdown>,
 		});
 	}
 
 	return (
-		<div className="flex h-[calc(100vh-96px)] flex-col gap-2 overflow-y-auto">
+		<div className="flex flex-col gap-2 overflow-y-auto px-4 sm:px-6">
 			<div className="flex flex-wrap gap-1">
 				<Badge>Type: {item?.serviceType}</Badge>
 				<Badge>Version: {item?.version}</Badge>
 				<Badge className="capitalize">Status: {item?.status}</Badge>
 			</div>
-			<p className="mt-4 text-xs">{item.summary}</p>
-			<div className="mt-2 flex flex-wrap gap-1 opacity-80">
-				{item.tags?.map((tagItem) => (
-					<Badge key={tagItem} className="border-1 border-vsc-editorIndentGuide-background bg-vsc-editor-background">
-						{tagItem}
-					</Badge>
-				))}
-			</div>
+			{item.summary?.trim() && <p className="mt-4 text-xs">{item.summary?.trim()}</p>}
+			{item?.tags.length > 0 && (
+				<div className="mt-2 flex flex-wrap gap-1 opacity-80">
+					{item.tags?.map((tagItem) => (
+						<Badge key={tagItem} className="border-1 border-vsc-editorIndentGuide-background bg-vsc-editor-background">
+							{tagItem}
+						</Badge>
+					))}
+				</div>
+			)}
 			<div className="mt-3 flex flex-wrap justify-between gap-4">
 				<Button onClick={onCreateClick}>Use Dependency</Button>
 			</div>

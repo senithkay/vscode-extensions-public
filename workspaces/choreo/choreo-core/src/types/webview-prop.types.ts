@@ -7,36 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { ComponentEP, ComponentKind, DeploymentTrack, Environment, Organization, Project } from "./common.types";
+import type { ComponentKind, Environment, Organization, Project } from "./common.types";
 
-export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "ComponentDetailsView" | "TestView" | "ChoreoCellView";
-
-export interface TestWebviewProps {
-	type: "TestView";
-	choreoEnv: string;
-	component: ComponentKind;
-	project: Project;
-	org: Organization;
-	env: Environment;
-	deploymentTrack: DeploymentTrack;
-	endpoints: ComponentEP[];
-}
+export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "ComponentDetailsView" | "ChoreoCellView";
 
 export interface NewComponentWebviewProps {
 	type: "NewComponentForm";
-	choreoEnv: string;
 	directoryPath: string;
 	directoryFsPath: string;
 	directoryName: string;
 	organization: Organization;
 	project: Project;
 	existingComponents: ComponentKind[];
-	initialValues?: { type?: string; buildPackLang?: string; subPath?: string };
+	initialValues?: { type?: string; buildPackLang?: string; subPath?: string; name?: string; };
 }
 
 export interface ComponentsDetailsWebviewProps {
 	type: "ComponentDetailsView";
-	choreoEnv: string;
 	organization: Organization;
 	project: Project;
 	component: ComponentKind;
@@ -46,8 +33,7 @@ export interface ComponentsDetailsWebviewProps {
 
 export interface ComponentsListActivityViewProps {
 	type: "ComponentsListActivityView";
-	choreoEnv: string;
 	directoryPath?: string;
 }
 
-export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | ComponentsListActivityViewProps | TestWebviewProps;
+export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | ComponentsListActivityViewProps;

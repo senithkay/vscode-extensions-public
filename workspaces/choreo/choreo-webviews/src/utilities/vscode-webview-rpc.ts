@@ -43,8 +43,8 @@ import {
 	type OpenDialogOptions,
 	OpenExternal,
 	OpenSubDialogRequest,
-	OpenTestView,
 	type OpenTestViewReq,
+	ReadFile,
 	ReadLocalEndpointsConfig,
 	type ReadLocalEndpointsConfigResp,
 	ReadLocalProxyConfig,
@@ -63,17 +63,17 @@ import {
 	type ShowConfirmBoxReq,
 	ShowConfirmMessage,
 	ShowErrorMessage,
+	type ShowInOutputChannelReq,
 	ShowInfoMessage,
 	ShowInputBox,
 	ShowQuickPick,
+	ShowTextInOutputChannel,
 	type ShowWebviewInputBoxReq,
 	type ShowWebviewQuickPickItemsReq,
 	SubmitComponentCreate,
 	type SubmitComponentCreateReq,
 	TriggerGithubAuthFlow,
 	TriggerGithubInstallFlow,
-	type ViewBuildLogsReq,
-	ViewBuildsLogs,
 	ViewRuntimeLogs,
 	type ViewRuntimeLogsReq,
 	type WebviewQuickPickItem,
@@ -214,8 +214,8 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(ShowInputBox, HOST_EXTENSION, params);
 	}
 
-	public async viewBuildLogs(params: ViewBuildLogsReq): Promise<void> {
-		return this._messenger.sendRequest(ViewBuildsLogs, HOST_EXTENSION, params);
+	public async showTextInOutputPanel(params: ShowInOutputChannelReq): Promise<void> {
+		return this._messenger.sendRequest(ShowTextInOutputChannel, HOST_EXTENSION, params);
 	}
 
 	public async viewRuntimeLogs(params: ViewRuntimeLogsReq): Promise<void> {
@@ -250,8 +250,8 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(FileExists, HOST_EXTENSION, path);
 	}
 
-	public async openTestView(params: OpenTestViewReq): Promise<void> {
-		return this._messenger.sendRequest(OpenTestView, HOST_EXTENSION, params);
+	public async readFile(path: string): Promise<string | null> {
+		return this._messenger.sendRequest(ReadFile, HOST_EXTENSION, path);
 	}
 
 	public async goToSource(filePath: string): Promise<void> {

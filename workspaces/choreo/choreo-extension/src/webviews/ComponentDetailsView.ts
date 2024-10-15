@@ -14,7 +14,6 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
-import { getChoreoEnv } from "../choreo-rpc/cli-install";
 
 const componentViewMap = new Map<string, ComponentDetailsView>();
 
@@ -34,7 +33,7 @@ class ComponentDetailsView {
 	private static createWebview(component: ComponentKind): vscode.WebviewPanel {
 		const panel = vscode.window.createWebviewPanel(
 			`ComponentDetailsView-${component.metadata.name}`,
-			`Component: ${component.metadata.displayName}`,
+			component.metadata.displayName,
 			vscode.ViewColumn.One,
 			{ enableScripts: true, retainContextWhenHidden: true },
 		);
@@ -82,7 +81,6 @@ class ComponentDetailsView {
                   document.getElementById("root"),
                   ${JSON.stringify({
 										type: "ComponentDetailsView",
-										choreoEnv: getChoreoEnv(),
 										directoryPath,
 										organization,
 										project,

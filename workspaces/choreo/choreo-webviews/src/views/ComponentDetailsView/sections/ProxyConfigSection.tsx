@@ -9,7 +9,13 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoComponentType, type ComponentKind, getTypeForDisplayType } from "@wso2-enterprise/choreo-core";
+import {
+	ChoreoComponentType,
+	type ComponentKind,
+	type ProxyConfig,
+	ReadLocalProxyConfigResp,
+	getTypeForDisplayType,
+} from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
@@ -19,73 +25,63 @@ import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
 interface Props {
 	directoryPath: string;
-	component: ComponentKind;
-	showDivider?: boolean;
+	proxyConfig: ProxyConfig;
+	configFilePath: string;
 }
 
-export const ProxyConfigSection: FC<Props> = ({ directoryPath, component, showDivider }) => {
-	const componentType = getTypeForDisplayType(component?.spec?.type);
-
-	const { data: localProxyConfig } = useQuery({
-		queryKey: ["get-local-proxy-config", { directoryPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(directoryPath),
-		enabled: !!directoryPath && componentType === ChoreoComponentType.ApiProxy,
-		refetchOnWindowFocus: true,
-	});
-
+export const ProxyConfigSection: FC<Props> = ({ directoryPath, configFilePath, proxyConfig }) => {
 	const { openFile } = useGoToSource();
 
 	return (
 		<>
-			{localProxyConfig?.proxy && Object.keys(localProxyConfig?.proxy).length > 0 && (
+			{proxyConfig && Object.keys(proxyConfig).length > 0 && (
 				<RightPanelSection
 					key="proxy-local-config"
 					title={
 						<div className="flex items-center justify-between gap-2">
 							<span className="line-clamp-1 break-all">Proxy Configurations</span>
-							<Button appearance="icon" title="Edit endpoint" onClick={() => openFile([localProxyConfig.filePath])}>
+							<Button appearance="icon" title="Edit proxy configurations" onClick={() => openFile([configFilePath])}>
 								<Codicon name="edit" />
 							</Button>
 						</div>
 					}
-					showDivider={showDivider}
 				>
-					{localProxyConfig?.proxy?.type && <RightPanelSectionItem label="Type" value={localProxyConfig?.proxy?.type} />}
+					{proxyConfig?.type && <RightPanelSectionItem label="Type" value={proxyConfig?.type} />}
 
-					{localProxyConfig?.proxy?.schemaFilePath && (
+					{proxyConfig?.schemaFilePath && (
 						<RightPanelSectionItem
 							label="API Schema"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, localProxyConfig?.proxy?.schemaFilePath])} className="text-vsc-foreground">
-									View
+								<VSCodeLink onClick={() => openFile([directoryPath, proxyConfig?.schemaFilePath])} className="text-vsc-foreground">
+									View File
 								</VSCodeLink>
 							}
 						/>
 					)}
-					{localProxyConfig?.proxy?.docPath && (
+					{proxyConfig?.docPath && (
 						<RightPanelSectionItem
 							label="Documentation"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, localProxyConfig?.proxy?.docPath])} className="text-vsc-foreground">
-									View
+								<VSCodeLink onClick={() => openFile([directoryPath, proxyConfig?.docPath])} className="text-vsc-foreground">
+									View File
 								</VSCodeLink>
 							}
 						/>
 					)}
-					{localProxyConfig?.proxy?.thumbnailPath && (
+					{proxyConfig?.thumbnailPath && (
 						<RightPanelSectionItem
 							label="Thumbnail"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, localProxyConfig?.proxy?.thumbnailPath])} className="ext-vsc-foreground">
-									View
+								<VSCodeLink onClick={() => openFile([directoryPath, proxyConfig?.thumbnailPath])} className="ext-vsc-foreground">
+									View File
 								</VSCodeLink>
 							}
 						/>
 					)}
-					{localProxyConfig?.proxy?.networkVisibilities?.length > 0 && (
+					{proxyConfig?.networkVisibilities?.length > 0 && (
 						<RightPanelSectionItem
-							label={localProxyConfig?.proxy?.networkVisibilities?.length > 1 ? "Network Visibilities" : "Network Visibility"}
-							value={localProxyConfig?.proxy?.networkVisibilities?.join(",")}
+							label={proxyConfig?.networkVisibilities?.length > 1 ? "Network Visibilities" : "Network Visibility"}
+							value={proxyConfig?.networkVisibilities?.join(",")}
 						/>
 					)}
 				</RightPanelSection>

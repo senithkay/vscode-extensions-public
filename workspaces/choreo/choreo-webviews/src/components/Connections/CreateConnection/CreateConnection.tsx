@@ -14,6 +14,7 @@ import {
 	type ConnectionDetailed,
 	type ConnectionListItem,
 	type CreateComponentConnectionReq,
+	type DeploymentTrack,
 	type MarketplaceItem,
 	type Organization,
 	type Project,
@@ -41,9 +42,10 @@ interface Props {
 	project: Project;
 	onCreate: (createdItem: ConnectionDetailed) => void;
 	directoryPath: string;
+	deploymentTrack: DeploymentTrack;
 }
 
-export const CreateConnection: FC<Props> = ({ item, component, org, project, directoryPath, onCreate }) => {
+export const CreateConnection: FC<Props> = ({ item, component, org, project, directoryPath, deploymentTrack, onCreate }) => {
 	const queryClient = useQueryClient();
 
 	const defaultSchema = item.connectionSchemas?.find((item) => item.isDefault) || item.connectionSchemas?.[0];
@@ -89,7 +91,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				const connectionQueryKey = queryKeys.getComponentConnections(component, project, org);
 				const connectionItems: ConnectionListItem[] = queryClient.getQueryData(connectionQueryKey) ?? [];
 				queryClient.setQueryData(connectionQueryKey, [...connectionItems, { name: data.name }]);
-				queryClient.refetchQueries({ exact: true, queryKey: queryKeys.getComponentConfigDraft(directoryPath, component) });
+				queryClient.refetchQueries({ exact: true, queryKey: queryKeys.getComponentConfigDraft(directoryPath, component, deploymentTrack?.branch) });
 			}
 		},
 		onError: () => {
@@ -100,7 +102,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 	const onSubmit: SubmitHandler<CreateConnectionForm> = (data) => createConnection(data);
 
 	return (
-		<div className="flex h-[calc(100vh-96px)] flex-col gap-2 overflow-y-auto">
+		<div className="flex flex-col gap-2 overflow-y-auto px-4 sm:px-6">
 			<form className="grid gap-4">
 				<TextField label="Name" required name="name" placeholder="connection-name" control={form.control} />
 				<div>

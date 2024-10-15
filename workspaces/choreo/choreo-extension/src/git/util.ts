@@ -693,8 +693,8 @@ export const getConfigFileDrifts = async (type: string, gitUrl: string, branch: 
 						fileNames.add("endpoints.yaml")
 					}else if(item.path.endsWith('component-config.yaml')){
 						fileNames.add("component-config.yaml")
-					}else if(item.path.endsWith('component.yml')){
-						fileNames.add("component.yml")
+					}else if(item.path.endsWith('component.yaml')){
+						fileNames.add("component.yaml")
 					}
 
 					if(type === ChoreoComponentType.Service){
@@ -741,7 +741,7 @@ export const getConfigFileDrifts = async (type: string, gitUrl: string, branch: 
 					const changes = await gitRepo.diffWith(`${matchingRemoteName}/${branch}`)
 					const componentConfigYamlPath = join(directoryPath, '.choreo', 'component-config.yaml')
 					const endpointsYamlPath = join(directoryPath, '.choreo', 'endpoints.yaml')
-					const componentYamlPath = join(directoryPath, '.choreo', 'component.yml')
+					const componentYamlPath = join(directoryPath, '.choreo', 'component.yaml')
 					const configPaths = [componentYamlPath, componentConfigYamlPath, endpointsYamlPath];
 
 					if(type === ChoreoComponentType.Service){

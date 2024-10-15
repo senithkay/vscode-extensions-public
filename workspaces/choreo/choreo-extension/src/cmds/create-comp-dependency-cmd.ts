@@ -77,6 +77,8 @@ export function createComponentDependencyCommand(context: ExtensionContext) {
 						params?.isCodeLens ? ViewColumn.Beside : undefined,
 					);
 
+					// TODO: passing this as a prop to component details view seems cleaner
+					// remove this and try to pass opened drawer a a prop
 					webviewStateStore
 						.getState()
 						.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.CreateConnection);

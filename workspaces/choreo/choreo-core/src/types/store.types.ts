@@ -35,6 +35,7 @@ export interface AuthState {
 }
 
 export interface WebviewState {
+	choreoEnv: string;
 	openedComponentKey: string;
 	componentViews: {
 		[componentKey: string]: {

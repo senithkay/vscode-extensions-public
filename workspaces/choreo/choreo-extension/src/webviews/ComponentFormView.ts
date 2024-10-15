@@ -13,7 +13,6 @@ import { ext } from "../extensionVariables";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
-import { getChoreoEnv } from "../choreo-rpc/cli-install";
 
 interface IComponentCreateFormParams {
 	directoryPath: string;
@@ -21,7 +20,7 @@ interface IComponentCreateFormParams {
 	directoryName: string;
 	organization: Organization;
 	project: Project;
-	initialValues?: { type?: string; buildPackLang?: string; subPath?: string };
+	initialValues?: { type?: string; buildPackLang?: string; subPath?: string; name?: string; };
 }
 
 export class ComponentFormView {
@@ -38,7 +37,7 @@ export class ComponentFormView {
 	}
 
 	private static createWebview(): vscode.WebviewPanel {
-		const panel = vscode.window.createWebviewPanel("create-new-component", "Create New Component", vscode.ViewColumn.One, {
+		const panel = vscode.window.createWebviewPanel("create-new-component", "Create Component", vscode.ViewColumn.One, {
 			enableScripts: true,
 			retainContextWhenHidden: true,
 		});
@@ -79,7 +78,6 @@ export class ComponentFormView {
                   document.getElementById("root"),
                   ${JSON.stringify({
 										type: "NewComponentForm",
-										choreoEnv: getChoreoEnv(),
 										existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
 										...params,
 									} as NewComponentWebviewProps)}

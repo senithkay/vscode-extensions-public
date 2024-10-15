@@ -10,7 +10,7 @@
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import classNames from "classnames";
 import React, { type HTMLProps } from "react";
-import type { PropsWithChildren, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { FC } from "react";
 import { Button } from "../Button";
 import { Codicon } from "../Codicon";
@@ -65,6 +65,7 @@ export const Banner: FC<Props> = ({ className, title, subTitle, type, refreshBtn
 				{refreshBtn && (
 					<Button
 						appearance="icon"
+						key="banner-refresh-btn"
 						title={refreshBtn.title ?? "Refresh"}
 						className={classNames({
 							"opacity-60": true,

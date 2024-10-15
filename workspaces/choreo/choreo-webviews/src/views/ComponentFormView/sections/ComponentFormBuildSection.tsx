@@ -26,12 +26,13 @@ import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useGetBuildPacks } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { type componentBuildDetailsSchema, getComponentFormSchemaBuildDetails, getPossibleBuildPack } from "../componentFormSchema";
+import { type componentBuildDetailsSchema, getPossibleBuildPack } from "../componentFormSchema";
 
 type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>;
 
 interface Props extends NewComponentWebviewProps {
 	selectedType: string;
+	baseDirPath: string;
 	compPath: string;
 	subPath: string;
 	onNextClick: () => void;
@@ -40,7 +41,7 @@ interface Props extends NewComponentWebviewProps {
 }
 
 export const ComponentFormBuildSection: FC<Props> = (props) => {
-	const { onBackClick, onNextClick, compPath, organization, selectedType, subPath, form } = props;
+	const { onBackClick, onNextClick, compPath, baseDirPath, organization, selectedType, subPath, form } = props;
 
 	const [buildConfigSections] = useAutoAnimate();
 
@@ -56,6 +57,36 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 			if (buildpacks.length > 0 && (!selectedLang || !buildpacks.find((item) => item.language === selectedLang))) {
 				form.setValue("buildPackLang", possiblePack || "");
 				form.setValue("langVersion", "");
+			}
+			return null;
+		},
+		enabled: buildpacks?.length > 0,
+	});
+
+	// automatically set dockerfile path
+	useQuery({
+		queryKey: ["set-dockerfile", { buildpacks, compPath }],
+		queryFn: async () => {
+			if (form.getValues("dockerFile") === "") {
+				const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([baseDirPath, subPath, "Dockerfile"]);
+				const dockerFileExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFileFullPath);
+				if (dockerFileExists) {
+					const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
+					form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
+				}
+			} else {
+				const dockerFilePreviousPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([baseDirPath, form.getValues("dockerFile")]);
+				const dockerFilePreviousExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFilePreviousPath);
+				if (!dockerFilePreviousExists) {
+					const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([baseDirPath, subPath, "Dockerfile"]);
+					const dockerFileExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFileFullPath);
+					if (dockerFileExists) {
+						const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
+						form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
+					} else {
+						form.setValue("dockerFile", "");
+					}
+				}
 			}
 			return null;
 		},
@@ -78,21 +109,8 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 
 	const onSubmitForm: SubmitHandler<ComponentFormBuildDetailsType> = () => onNextClick();
 
-	useQuery({
-		queryKey: ["initial-dockerfile-path", { compPath, buildpacks, selectedLang }],
-		queryFn: async () => {
-			const possiblePack = await getPossibleBuildPack(compPath, buildpacks);
-			if (possiblePack === ChoreoBuildPackNames.Docker) {
-				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
-				form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
-			}
-			return null;
-		},
-		enabled: selectedLang === ChoreoImplementationType.Docker,
-	});
-
 	const buildConfigs: ReactNode[] = [];
-	if ([ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.StaticFiles].includes(selectedLang as ChoreoBuildPackNames)) {
+	if ([ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.StaticFiles, ChoreoBuildPackNames.Prism].includes(selectedLang as ChoreoBuildPackNames)) {
 		// do nothing
 	} else if (selectedLang === ChoreoBuildPackNames.MicroIntegrator) {
 		if (selectedType === ChoreoComponentType.Service) {
@@ -113,7 +131,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 				label="Dockerfile path"
 				required
 				control={form.control}
-				basePath={compPath}
+				basePath={baseDirPath}
 				type="file"
 				key="docker-path"
 				promptTitle="Select Dockerfile"

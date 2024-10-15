@@ -9,23 +9,21 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import type { TestWebviewProps } from "@wso2-enterprise/choreo-core";
+import type { ComponentKind, Environment, Organization } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import clipboardy from "clipboardy";
-import React, { type FC, useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, type FC } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Banner } from "../../components/Banner";
-import { Button } from "../../components/Button";
-import { Codicon } from "../../components/Codicon";
-import { Dropdown } from "../../components/FormElements/Dropdown";
-import { FormElementWrap } from "../../components/FormElements/FormElementWrap";
-import { HeaderSection } from "../../components/HeaderSection";
-import { SkeletonText } from "../../components/SkeletonText";
-import { SwaggerUI } from "../../components/SwaggerUI";
-import { SwaggerUISkeleton } from "../../components/SwaggerUI/SwaggerUI";
-import { useGetSwaggerSpec, useGetTestKey } from "../../hooks/use-queries";
-import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
+import { Button } from "../../../components/Button";
+import { Codicon } from "../../../components/Codicon";
+import { Dropdown } from "../../../components/FormElements/Dropdown";
+import { FormElementWrap } from "../../../components/FormElements/FormElementWrap";
+import { SkeletonText } from "../../../components/SkeletonText";
+import { SwaggerUI } from "../../../components/SwaggerUI";
+import { SwaggerUISkeleton } from "../../../components/SwaggerUI/SwaggerUI";
+import { useGetSwaggerSpec, useGetTestKey } from "../../../hooks/use-queries";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 
 const MAX_RESPONSE_SIZE = 4 * 1024 * 1024;
 
@@ -42,11 +40,11 @@ interface SwaggerSecuritySchemas {
 	value: SwaggerSecuritySchemasValue;
 }
 
-const serviceTestSchema = z.object({
+const endpointFormSchema = z.object({
 	endpoint: z.string().min(1, "Required"),
 });
 
-type serviceTestType = z.infer<typeof serviceTestSchema>;
+type TestEndpointFormType = z.infer<typeof endpointFormSchema>;
 
 const disableAuthorizeAndInfoPluginDefaultSecuritySchema = {
 	statePlugins: {
@@ -66,20 +64,35 @@ const disableAuthorizeAndInfoPluginCustomSecuritySchema = {
 	wrapComponents: { info: () => (): any => null },
 };
 
-export const ComponentTestView: FC<TestWebviewProps> = ({ env, choreoEnv, component, org, project, deploymentTrack, endpoints }) => {
+interface Props {
+	org: Organization;
+	component: ComponentKind;
+	env: Environment;
+	choreoEnv: string;
+	endpoints: {
+		revisionId: string;
+		apimId: string;
+		publicUrl: string;
+		displayName?: string;
+	}[];
+}
+
+export const ApiTestSection: FC<Props> = ({ endpoints = [], env, org, choreoEnv }) => {
 	const INTERNAL_KEY_HEADER_NAME = choreoEnv === "prod" ? "api-key" : "test-key";
 	const [refetchInterval, setRefetchInterval] = useState(10 * 60 * 1000);
 	const [isRefreshPressed, setIsRefreshPressed] = useState(false);
 
-	const form = useForm<serviceTestType>({
-		resolver: zodResolver(serviceTestSchema),
+	const form = useForm<TestEndpointFormType>({
+		resolver: zodResolver(endpointFormSchema),
 		mode: "all",
-		defaultValues: { endpoint: endpoints[0]?.id || "" },
+		defaultValues: { endpoint: endpoints[0]?.revisionId || "" },
 	});
 
 	const selectedEndpointId = form.watch("endpoint");
 
-	const selectedEndpoint = endpoints.find((item) => item.id === selectedEndpointId);
+	const selectedEndpoint = endpoints.find((item) => item.revisionId === selectedEndpointId);
+	const selectedEndpointRevisionId = selectedEndpoint?.revisionId || "";
+	const selectedEndpointApimId = selectedEndpoint?.apimId || "";
 
 	const { mutate: copyUrl } = useMutation({
 		mutationFn: (params: { value: string; label: string }) => clipboardy.write(params.value),
@@ -91,19 +104,18 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, choreoEnv, compon
 		refetch: refetchTestKey,
 		isLoading: isLoadingTestKey,
 		isFetching: isFetchingTestKey,
-	} = useGetTestKey(selectedEndpoint, env, org, {
-		enabled: !!selectedEndpoint,
+	} = useGetTestKey(selectedEndpointApimId, env, org, {
+		enabled: !!selectedEndpointApimId,
 		refetchInterval: refetchInterval - 15000, // Refetch every 10 minutes minus 15 seconds
 		cacheTime: 0,
-		refetchOnWindowFocus: true,
 		onSuccess: (data) => {
 			setRefetchInterval(data.validityTime * 1000);
 			setIsRefreshPressed(false);
 		},
 	});
 
-	const { data: swaggerSpec, isLoading: isLoadingSwagger } = useGetSwaggerSpec(selectedEndpoint, org, {
-		enabled: !!selectedEndpoint,
+	const { data: swaggerSpec, isLoading: isLoadingSwagger } = useGetSwaggerSpec(selectedEndpointRevisionId, org, {
+		enabled: !!selectedEndpointRevisionId,
 	});
 
 	const securitySchemas = useMemo(() => {
@@ -160,75 +172,71 @@ export const ComponentTestView: FC<TestWebviewProps> = ({ env, choreoEnv, compon
 		return response;
 	};
 
-	const headerLabels: { label: string; value: string }[] = [
-		{ label: "Component", value: component.metadata.displayName },
-		{ label: "Deployment Track", value: deploymentTrack.branch },
-		{ label: "Project", value: project.name },
-		{ label: "Organization", value: org.name },
-	];
-
 	return (
-		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
-			<div className="container">
-				<div className="mx-auto flex max-w-5xl flex-col gap-4 p-4">
-					<HeaderSection title={`${env.name} Environment`} tags={headerLabels} />
-					{endpoints.length > 1 && (
-						<Dropdown
-							wrapClassName="max-w-xs"
-							label="Endpoint"
-							required
-							name="endpoint"
-							items={endpoints.map((item) => ({ label: item.displayName, value: item.id }))}
-							control={form.control}
-						/>
-					)}
-					<FormElementWrap label="Invoke URL" wrapClassName="max-w-sm">
-						<div className="flex items-center gap-2">
-							<span className="line-clamp-1 break-all">{selectedEndpoint?.publicUrl}</span>
+		<div className="flex flex-col gap-4 overflow-y-auto">
+			<div className="flex flex-col gap-4 px-4 sm:px-6">
+				{endpoints.length > 1 && (
+					<Dropdown
+						wrapClassName="max-w-xs"
+						label="Endpoint"
+						required
+						name="endpoint"
+						items={endpoints.map((item) => ({ label: item.displayName, value: item.revisionId }))}
+						control={form.control}
+					/>
+				)}
+				<FormElementWrap label="Invoke URL" wrapClassName="max-w-sm">
+					<div className="flex items-center gap-2">
+						<span className="line-clamp-1 break-all">{selectedEndpoint?.publicUrl}</span>
+						{selectedEndpoint?.publicUrl && (
 							<Button appearance="icon" onClick={() => copyUrl({ value: selectedEndpoint?.publicUrl, label: "Invocation URL" })}>
 								<Codicon name="chrome-restore" className="mr-1" /> Copy
 							</Button>
-						</div>
-					</FormElementWrap>
-					<FormElementWrap label="Security Header" wrapClassName="max-w-md">
-						<div className="flex items-center gap-2">
-							{isLoadingTestKey || !testKeyResp?.apiKey ? (
-								<SkeletonText className="w-full max-w-72" />
-							) : (
+						)}
+					</div>
+				</FormElementWrap>
+				<FormElementWrap label="Security Header" wrapClassName="max-w-md">
+					<div className="flex items-center gap-2">
+						{isLoadingTestKey || !testKeyResp?.apiKey ? (
+							<SkeletonText className="w-full max-w-72" />
+						) : (
+							<>
 								<span className="line-clamp-1 text-clip">{testKeyResp?.apiKey?.replace(/./g, "*")}</span>
-							)}
-							<Button
-								disabled={isLoadingTestKey || !testKeyResp?.apiKey}
-								appearance="icon"
-								onClick={() => copyUrl({ value: testKeyResp?.apiKey, label: "Security Header" })}
-							>
-								<Codicon name="chrome-restore" className="mr-1" /> Copy
-							</Button>
-							<Button
-								appearance="icon"
-								disabled={isFetchingTestKey}
-								onClick={() => {
-									refetchTestKey();
-									setIsRefreshPressed(true);
-								}}
-							>
-								<Codicon name="refresh" className={classNames("mr-1", isFetchingTestKey && "animate-spin")} /> Regenerate
-							</Button>
-						</div>
-					</FormElementWrap>
-					{(isLoadingSwagger || isLoadingTestKey) && <SwaggerUISkeleton />}
-					{swaggerObj && !isLoadingTestKey && testKeyResp?.apiKey && !isRefreshPressed && (
-						<SwaggerUI
-							spec={swaggerObj}
-							requestInterceptor={requestInterceptor}
-							responseInterceptor={responseInterceptor}
-							plugins={getDisableAuthorizeAndInfoPlugin()}
-							defaultModelExpandDepth={-1}
-							docExpansion="list"
-							tryItOutEnabled={!isLoadingTestKey}
-						/>
-					)}
-				</div>
+								<Button
+									disabled={isFetchingTestKey || !testKeyResp?.apiKey}
+									appearance="icon"
+									onClick={() => copyUrl({ value: testKeyResp?.apiKey, label: "Security Header" })}
+								>
+									<Codicon name="chrome-restore" className="mr-1" /> Copy
+								</Button>
+							</>
+						)}
+						<Button
+							appearance="icon"
+							disabled={isFetchingTestKey}
+							onClick={() => {
+								refetchTestKey();
+								setIsRefreshPressed(true);
+							}}
+						>
+							<Codicon name="refresh" className={classNames("mr-1", isFetchingTestKey && "animate-spin")} /> Regenerate
+						</Button>
+					</div>
+				</FormElementWrap>
+			</div>
+			{(isLoadingSwagger || isFetchingTestKey) && <SwaggerUISkeleton className="px-4 sm:px-6" />}
+			<div className="flex-1 overflow-y-auto px-4 sm:px-6">
+				{swaggerObj && !isFetchingTestKey && testKeyResp?.apiKey && !isRefreshPressed && (
+					<SwaggerUI
+						spec={swaggerObj}
+						requestInterceptor={requestInterceptor}
+						responseInterceptor={responseInterceptor}
+						plugins={getDisableAuthorizeAndInfoPlugin()}
+						defaultModelExpandDepth={-1}
+						docExpansion="list"
+						tryItOutEnabled={true}
+					/>
+				)}
 			</div>
 		</div>
 	);

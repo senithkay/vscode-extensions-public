@@ -88,7 +88,7 @@ export function handlerError(err: any) {
 				break;
 			case ErrorCode.EpYamlNotFound:
 				w.showErrorMessage(
-					".choreo/component-config.yaml file is required in your remote repository. Try again after committing & pushing your component-config.yaml file",
+					".choreo/component.yaml file is required in your remote repository. Try again after committing & pushing your component.yaml file",
 					"View Documentation",
 				).then((res) => {
 					if (res === "View Documentation") {

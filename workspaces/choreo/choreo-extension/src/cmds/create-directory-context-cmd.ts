@@ -15,7 +15,7 @@ import { CommandIds, type ContextItem, type Organization, type Project, type Use
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot } from "../git/util";
+import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { isSubpath } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
@@ -57,6 +57,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 								directoryUrl = componentDir[0];
 
 								if (!isSubpath(workspace.workspaceFolders[0].uri.fsPath, componentDir[0].fsPath)) {
+									// todo: we should show a prompt to open up the directory instead of existing here
 									throw new Error("Selected directory is not a sub directory within the opened workspace");
 								}
 							}
@@ -99,13 +100,42 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 						`Select project from '${selectedOrg.name}'`,
 					);
 
-					const contextFilePath = updateContextFile(gitRoot, userInfo, selectedProject, selectedOrg, projectList);
-
-					await waitForContextStoreToLoad();
-
 					await window.withProgress({ title: `Switching to organization ${selectedOrg.name}...`, location: ProgressLocation.Notification }, () =>
 						ext?.clients?.rpcClient?.changeOrgContext(selectedOrg?.id?.toString()!),
 					);
+
+					const components = await window.withProgress({ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification }, () =>
+						ext?.clients?.rpcClient?.getComponentList({orgId: selectedOrg?.id?.toString(), orgHandle: selectedOrg.handle, projectHandle: selectedProject.handler, projectId: selectedProject.id}),
+					);
+
+					if(components.length > 0){
+						// Check if user is trying to link with the correct Git directory
+						const hasMatchingRemote = components.some(componentItem=>{
+							const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
+							const parsedRepoUrl = parseGitURL(repoUrl)
+							if(parsedRepoUrl){
+								const [repoOrg, repoName, repoProvider]  = parsedRepoUrl
+								return remotes.some(remoteItem=>{
+									const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl)
+									if(parsedRemoteUrl){
+										const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl
+										return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider
+									}
+								})
+							}
+						})
+	
+						if(!hasMatchingRemote){
+							const resp = await window.showInformationMessage("The selected directory does not have any Git remotes that match with the repositories associated with the selected project. Do you wish to continue?",{modal: true},"Continue")
+							if(resp !== 'Continue'){
+								return
+							}
+						}
+					}
+
+					const contextFilePath = updateContextFile(gitRoot, userInfo, selectedProject, selectedOrg, projectList);
+
+					await waitForContextStoreToLoad();
 
 					contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
 						contextFileFsPath: contextFilePath,
@@ -132,7 +162,7 @@ export const updateContextFile = (
 	const contextFilePath = path.join(gitRoot, ".choreo", "context.yaml");
 	if (existsSync(contextFilePath)) {
 		let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
-		if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
+		if (!Array.isArray(parsedData) && (parsedData as any)?.org && (parsedData as any)?.project) {
 			parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
 		}
 
@@ -162,7 +192,7 @@ export const removeContext = (selectedProject: Project, selectedOrg: Organizatio
 		const contextFilePath = path.join(projectRootPath, ".choreo", "context.yaml");
 		if (existsSync(contextFilePath)) {
 			let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
-			if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
+			if (!Array.isArray(parsedData) && (parsedData as any)?.org && (parsedData as any)?.project) {
 				parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
 			}
 

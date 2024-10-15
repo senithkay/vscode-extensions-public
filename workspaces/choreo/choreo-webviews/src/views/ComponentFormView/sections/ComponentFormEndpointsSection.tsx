@@ -8,7 +8,7 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { EndpointType, type NewComponentWebviewProps } from "@wso2-enterprise/choreo-core";
 import React, { type FC, type ReactNode } from "react";
@@ -22,7 +22,7 @@ import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useCreateNewOpenApiFile, useGoToSource } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { type componentEndpointItemSchema, type componentEndpointsFormSchema, sampleEndpointItem } from "../componentFormSchema";
+import { type componentEndpointItemSchema, type componentEndpointsFormSchema, getOpenApiFiles, sampleEndpointItem } from "../componentFormSchema";
 
 type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
 type ComponentFormEndpointItemType = z.infer<typeof componentEndpointItemSchema>;
@@ -89,6 +89,25 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints
 	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
 		compPath,
 		onSuccess: (subPath) => form.setValue(`endpoints.${index}.schemaFilePath`, subPath, { shouldValidate: true }),
+	});
+
+	// automatically detect open api files and select if only one available within the selected directory
+	useQuery({
+		queryKey: ["get-possible-openapi-schemas", { compPath }],
+		queryFn: async () => getOpenApiFiles(compPath),
+		onSuccess: async (fileNames) => {
+			if (fileNames.length === 1) {
+				if (form.getValues(`endpoints.${index}.schemaFilePath`) === "") {
+					form.setValue(`endpoints.${index}.schemaFilePath`, fileNames[0], { shouldValidate: true });
+				} else {
+					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, form.getValues(`endpoints.${index}.schemaFilePath`)]);
+					const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFullPath);
+					if (!fileExists) {
+						form.setValue(`endpoints.${index}.schemaFilePath`, "");
+					}
+				}
+			}
+		},
 	});
 
 	const { openFile } = useGoToSource();

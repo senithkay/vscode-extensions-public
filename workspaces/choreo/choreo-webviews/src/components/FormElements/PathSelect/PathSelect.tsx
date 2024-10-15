@@ -51,6 +51,8 @@ export const PathSelect: FC<Props> = (props) => {
 		},
 	});
 
+	// TODO: make this component accessible
+
 	return (
 		<Controller
 			name={name}

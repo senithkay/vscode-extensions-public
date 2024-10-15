@@ -8,6 +8,7 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import type { NewComponentWebviewProps } from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
@@ -18,7 +19,8 @@ import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useCreateNewOpenApiFile, useGoToSource } from "../../../hooks/use-queries";
-import type { componentGitProxyFormSchema } from "../componentFormSchema";
+import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
+import { type componentGitProxyFormSchema, getOpenApiContent, getOpenApiFiles, httpsUrlSchema } from "../componentFormSchema";
 
 type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
@@ -45,19 +47,45 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 		onSuccess: (subPath) => form.setValue("componentConfig.schemaFilePath", subPath, { shouldValidate: true }),
 	});
 
+	// automatically detect open api files and select if only one available within the selected directory
+	useQuery({
+		queryKey: ["get-possible-openapi-schemas", { compPath }],
+		queryFn: async () => getOpenApiFiles(compPath),
+		onSuccess: async (fileNames) => {
+			if (fileNames.length === 1) {
+				if (form.getValues("componentConfig.schemaFilePath") === "") {
+					form.setValue("componentConfig.schemaFilePath", fileNames[0], { shouldValidate: true });
+				} else {
+					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, form.getValues("componentConfig.schemaFilePath")]);
+					const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFullPath);
+					if (!fileExists) {
+						form.setValue("componentConfig.schemaFilePath", "");
+					}
+				}
+			}
+		},
+	});
+
+	// automatically set the target url from swagger file
+	useQuery({
+		queryKey: ["get-possible-target-url", { schemaFilePath }],
+		queryFn: async () => {
+			const schemaFileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, schemaFilePath]);
+			const fileContent = await getOpenApiContent(schemaFileFullPath);
+			if (fileContent && fileContent.servers?.length > 0) {
+				return fileContent.servers.filter((item) => httpsUrlSchema.safeParse(item.url).success);
+			}
+		},
+		onSuccess: (urls) => {
+			if (form.getValues("proxyTargetUrl") === "" && urls.length > 0) {
+				form.setValue("proxyTargetUrl", urls[0]?.url, { shouldValidate: true });
+			}
+		},
+	});
+
 	return (
 		<>
 			<div className="col-span-2 grid gap-4 md:col-span-4" ref={proxyDetailsSections}>
-				<TextField
-					label="Target URL"
-					required
-					name="proxyTargetUrl"
-					placeholder="https://www.target-url.com"
-					control={form.control}
-					wrapClassName="col-span-2"
-				/>
-				<TextField label="API Context" required name="proxyContext" placeholder="/base-path" control={form.control} wrapClassName="col-span-2" />
-				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control} wrapClassName="col-span-2" />
 				<Dropdown
 					label="Type"
 					required
@@ -72,6 +100,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					items={[{ value: "Public" }, { value: "Organization" }]}
 					control={form.control}
 				/>
+				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control} wrapClassName="col-span-2" />
 				{proxyType === "REST" && (
 					<div key="proxy-schema" className="col-span-2 md:col-span-4">
 						<PathSelect
@@ -96,6 +125,15 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 						)}
 					</div>
 				)}
+				<TextField
+					label="Target URL"
+					required
+					name="proxyTargetUrl"
+					placeholder="https://www.target-url.com"
+					control={form.control}
+					wrapClassName="col-span-2"
+				/>
+				<TextField label="API Context" required name="proxyContext" placeholder="/base-path" control={form.control} wrapClassName="col-span-2" />
 				<PathSelect
 					name="componentConfig.docPath"
 					label="Documentation File Path"

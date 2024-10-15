@@ -19,6 +19,8 @@ import {
 	ChoreoRpcEnableAutoBuild,
 	ChoreoRpcGetAutoBuildStatus,
 	ChoreoRpcGetBranchesRequest,
+	ChoreoRpcGetBuildLogs,
+	ChoreoRpcGetBuildLogsForType,
 	ChoreoRpcGetBuildPacksRequest,
 	ChoreoRpcGetBuildsRequest,
 	ChoreoRpcGetCommitsRequest,
@@ -103,4 +105,6 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	messenger.onRequest(ChoreoRpcGetAutoBuildStatus, (params) => rpcClient.getAutoBuildStatus(params));
 	messenger.onRequest(ChoreoRpcEnableAutoBuild, (params) => rpcClient.enableAutoBuildOnCommit(params));
 	messenger.onRequest(ChoreoRpcDisableAutoBuild, (params) => rpcClient.disableAutoBuildOnCommit(params));
+	messenger.onRequest(ChoreoRpcGetBuildLogs, (params) => rpcClient.getBuildLogs(params));
+	messenger.onRequest(ChoreoRpcGetBuildLogsForType, (params) => rpcClient.getBuildLogsForType(params));
 }

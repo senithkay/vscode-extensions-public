@@ -15,6 +15,7 @@ import {
 	ChoreoComponentType,
 	type NewComponentWebviewProps,
 	WebAppSPATypes,
+	getComponentTypeText,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type HTMLProps, type FC, type ReactNode, useMemo } from "react";
@@ -24,7 +25,6 @@ import { Banner } from "../../../components/Banner";
 import { Button } from "../../../components/Button";
 import { queryKeys } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { getComponentTypeText } from "../../ComponentDetailsView/utils";
 import type {
 	componentBuildDetailsSchema,
 	componentEndpointsFormSchema,
@@ -146,7 +146,6 @@ export const ComponentFormSummarySection: FC<Props> = ({
 			}
 		}
 
-		// todo: check if we need to handle MI
 		if (type === ChoreoComponentType.Service && endpointDetails?.endpoints?.length) {
 			items.push(
 				<ComponentSummaryItem

@@ -12,7 +12,7 @@ import type { WebviewState } from "@wso2-enterprise/choreo-core";
 import React, { type FC, type ReactNode, useContext, useEffect } from "react";
 import { ChoreoWebViewAPI } from "../utilities/vscode-webview-rpc";
 
-const defaultContext: WebviewState = { openedComponentKey: "", componentViews: {} };
+const defaultContext: WebviewState = { openedComponentKey: "", componentViews: {}, choreoEnv: "prod" };
 
 const ExtWebviewContext = React.createContext(defaultContext);
 

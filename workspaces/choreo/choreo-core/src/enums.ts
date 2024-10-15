@@ -90,6 +90,7 @@ export enum ChoreoImplementationType {
 	PHP = "php",
 	Ruby = "ruby",
 	MicroIntegrator = "microintegrator",
+	Prism = "prism"
 }
 
 export enum ChoreoComponentType {

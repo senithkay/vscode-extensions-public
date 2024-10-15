@@ -3,8 +3,8 @@
   "displayName": "Choreo",
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
-  "version": "2.0.0",
-  "cliVersion": "v1.2.62410011535",
+  "version": "2.1.2",
+  "cliVersion": "v1.2.62410151522",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"

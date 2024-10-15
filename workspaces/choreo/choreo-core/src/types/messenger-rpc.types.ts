@@ -44,14 +44,14 @@ export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQui
 export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: "showWebviewInputBoxReq" };
 export const ReadLocalEndpointsConfig: RequestType<string, ReadLocalEndpointsConfigResp> = { method: "readLocalEndpointsConfig" };
 export const ReadLocalProxyConfig: RequestType<string, ReadLocalProxyConfigResp> = { method: "readLocalProxyConfig" };
-export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: "viewBuildLogs" };
+export const ShowTextInOutputChannel: RequestType<ShowInOutputChannelReq, void> = { method: "showTextInOutputChannel" };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: "viewRuntimeLogs" };
 export const TriggerGithubAuthFlow: RequestType<string, void> = { method: "triggerGithubAuthFlow" };
 export const TriggerGithubInstallFlow: RequestType<string, void> = { method: "triggerGithubInstallFlow" };
 export const SubmitComponentCreate: RequestType<SubmitComponentCreateReq, ComponentKind> = { method: "submitComponentCreate" };
 export const GetDirectoryFileNames: RequestType<string, string[]> = { method: "getDirectoryFileNames" };
 export const FileExists: RequestType<string, boolean> = { method: "fileExists" };
-export const OpenTestView: RequestType<OpenTestViewReq, void> = { method: "openTestView" };
+export const ReadFile: RequestType<string, string | null> = { method: "readFile" };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: "executeCommand" };
 export const OpenExternal: RequestType<string, void> = { method: "openExternal" };
 export const ShowOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "showOpenDialog" };
@@ -108,13 +108,9 @@ export interface CreateLocalProxyConfigReq {
 	proxy: ProxyConfig;
 }
 
-export interface ViewBuildLogsReq {
-	orgId: string;
-	orgHandler: string;
-	componentId: string;
-	displayType: string;
-	projectId: string;
-	buildId: number;
+export interface ShowInOutputChannelReq {
+	key: string;
+	output: string;
 }
 
 export interface ViewRuntimeLogsReq {

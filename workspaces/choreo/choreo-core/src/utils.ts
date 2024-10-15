@@ -99,6 +99,29 @@ export const getTypeForDisplayType = (displayType: string): string => {
 	}
 };
 
+export const getComponentTypeText = (componentType: string): string => {
+	switch (componentType) {
+		case ChoreoComponentType.Service:
+			return "Service";
+		case ChoreoComponentType.ManualTrigger:
+			return "Manual Task";
+		case ChoreoComponentType.ScheduledTask:
+			return "Scheduled Task";
+		case ChoreoComponentType.WebApplication:
+			return "Web Application";
+		case ChoreoComponentType.Webhook:
+			return "Webhook";
+		case ChoreoComponentType.EventHandler:
+			return "Event Handler";
+		case ChoreoComponentType.TestRunner:
+			return "Test Runner";
+		case ChoreoComponentType.ApiProxy:
+			return "API Proxy";
+		default:
+			return componentType;
+	}
+};
+
 export const toTitleCase = (str: string): string => {
 	return str
 		?.replaceAll("_", " ")

@@ -156,11 +156,13 @@ export function cloneRepoCommand(context: ExtensionContext) {
 								(item) => selectedRepoUrl === (item.spec.source.github?.repository || item.spec.source.bitbucket?.repository),
 							);
 
+							const latestDeploymentTrack = matchingComp?.deploymentTracks?.find(item=>item.latest)
+
 							const clonedResp = await cloneRepositoryWithProgress(selectedCloneDir.fsPath, [
 								{
 									orgName: parsedRepo[0],
 									repoName: parsedRepo[1],
-									branch: matchingComp?.spec.source.github?.branch || matchingComp?.spec.source.bitbucket?.branch,
+									branch: latestDeploymentTrack?.branch,
 									gitProvider: parsedRepo[2],
 								},
 							]);
@@ -199,10 +201,12 @@ export function cloneRepoCommand(context: ExtensionContext) {
 										(item) => selectedRepoUrl === (item.spec.source.github?.repository || item.spec.source.bitbucket?.repository),
 									);
 
+									const latestDeploymentTrack = matchingComp?.deploymentTracks?.find(item=>item.latest)
+
 									return {
 										orgName: parsedRepo[0],
 										repoName: parsedRepo[1],
-										branch: matchingComp?.spec.source.github?.branch || matchingComp?.spec.source.bitbucket?.branch,
+										branch: latestDeploymentTrack?.branch,
 										gitProvider: parsedRepo[2],
 									};
 								}),

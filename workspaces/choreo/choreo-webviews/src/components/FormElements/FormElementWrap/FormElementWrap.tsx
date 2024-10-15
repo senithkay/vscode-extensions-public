@@ -23,18 +23,16 @@ interface Props extends PropsWithChildren {
 }
 
 export const FormElementWrap: FC<Props> = (props) => {
-	const [labelWrapRef] = useAutoAnimate();
-
 	const { label, required, errorMsg, loading, wrapClassName, labelWrapClassName, children } = props;
 	return (
 		<div className={classNames("flex w-full flex-col", wrapClassName)}>
-			<div className={classNames("flex justify-between gap-1", labelWrapClassName)} ref={labelWrapRef}>
+			<div className={classNames("flex justify-between gap-1", labelWrapClassName)}>
 				<span className="flex gap-1">
 					<label className="font-light">{label}</label>
 					{required && <RequiredFormInput />}
 				</span>
 				{errorMsg && (
-					<label className="line-clamp-1 text-right text-vsc-errorForeground" title={errorMsg}>
+					<label className="line-clamp-1 flex-1 text-right text-vsc-errorForeground" title={errorMsg}>
 						{errorMsg}
 					</label>
 				)}

@@ -52,7 +52,7 @@ export const ConnectionGuide: FC<Props> = ({ component, org, item, isVisible }) 
 	});
 
 	return (
-		<div className={classNames(isLoadingGuide && "animate-pulse", "flex h-[calc(100vh-96px)] flex-col gap-2 overflow-y-auto")}>
+		<div className={classNames(isLoadingGuide && "animate-pulse", "flex flex-col gap-2 overflow-y-auto px-4 sm:px-6")}>
 			{guideData?.guide ? (
 				<Markdown>{guideData?.guide}</Markdown>
 			) : (

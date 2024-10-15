@@ -8,13 +8,18 @@
  */
 
 import { useMutation } from "@tanstack/react-query";
-import { CommandIds, type ComponentsDetailsWebviewProps, type DeploymentTrack, getTypeForDisplayType } from "@wso2-enterprise/choreo-core";
+import {
+	CommandIds,
+	type ComponentsDetailsWebviewProps,
+	type DeploymentTrack,
+	getComponentTypeText,
+	getTypeForDisplayType,
+} from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { HeaderSection as HeaderSectionView } from "../../../components/HeaderSection";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { getComponentTypeText } from "../utils";
 
 export const HeaderSection: FC<
 	ComponentsDetailsWebviewProps & {

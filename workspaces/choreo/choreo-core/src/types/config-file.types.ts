@@ -16,6 +16,7 @@ export interface InboundConfig {
 }
 
 export interface Endpoint extends InboundConfig {
+	networkVisibilities?: string[];
 	networkVisibility?: string;
 }
 
