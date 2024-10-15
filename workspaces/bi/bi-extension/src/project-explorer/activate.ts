@@ -24,7 +24,7 @@ export function activateProjectExplorer(context: ExtensionContext, isBI: boolean
 	projectTree.onDidChangeVisibility(res => {
 		if (res.visible) {
 			if (isBI) {
-				commands.executeCommand(BI_COMMANDS.REFRESH_COMMAND);
+				projectExplorerDataProvider.refresh();
 			} else {
 				commands.executeCommand('setContext', 'BI.status', 'unknownProject');
 				commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
