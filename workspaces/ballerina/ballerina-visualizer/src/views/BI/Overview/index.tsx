@@ -33,7 +33,7 @@ import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from 'react-markdown';
 
 const CardTitleContainer = styled.div`
@@ -403,18 +403,6 @@ export function Overview(props: ComponentDiagramProps) {
             <ViewContent padding>
                 <BIHeader actions={getActionButtons()} />
                 <Content>
-                    {/* <Title variant="h2">Project Overview</Title>
-                    <BodyText>
-                        To create a tailored integration solution, please provide a brief description of your project.
-                        What problem are you trying to solve? What systems or data sources will be involved?
-                    </BodyText>
-                    <TextArea
-                        placeholder="E.g. A webhook to trigger an email notification. Accept JSON payloads with event details and send an email based on the event type. Include error handling for invalid data."
-                        rows={6}
-                        style={{ width: "100%" }}
-                        value={readmeContent}
-                        onKeyUp={(e) => handleSaveOverview(e.currentTarget.value)}
-                    /> */}
                     <CardTitleContainer>
                         <Title variant="h2">Architecture</Title>
                         {/* {generateButton()} */}
@@ -442,7 +430,7 @@ export function Overview(props: ComponentDiagramProps) {
                     <CardTitleContainer>
                         <Title variant="h2">Readme</Title>
                         <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
-                            <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit Readme
+                            <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
                         </VSCodeButton>
                     </CardTitleContainer>
                     <Readme>
@@ -450,12 +438,15 @@ export function Overview(props: ComponentDiagramProps) {
                             <ReactMarkdown>{readmeContent}</ReactMarkdown>
                         ) : (
                             <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleEditReadme}>
-                                    Create Readme
-                                </VSCodeButton>
-                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
-                                    Create a README to describe your project and use AI to generate components
+                                <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                    Add a README
                                 </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                    Describe your integration and generate your constructs with AI
+                                </Typography>
+                                <VSCodeLink onClick={handleEditReadme}>
+                                    Add a README
+                                </VSCodeLink>
                             </div>
                         )}
                     </Readme>
