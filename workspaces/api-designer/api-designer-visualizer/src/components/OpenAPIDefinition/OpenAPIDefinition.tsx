@@ -29,9 +29,9 @@ interface OpenAPIDefinitionProps {
 }
 
 const NavigationContainer = styled.div`
-    padding: 10px;
-    height: 97vh;
-    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: 15px 10px 0px 10px;
 `;
 
 const TitleWrapper = styled.div`
@@ -299,7 +299,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     return (
         <NavigationContainer>
-            <SplitView defaultWidths={[25, 75]}>
+            <SplitView defaultWidths={[18, 82]} sx={{maxWidth: 1200}} dynamicContainerSx={{height: "96vh"}}>
                 <NavigationPanelContainer>
                     {openAPIDefinition &&
                         <PathsComponent
@@ -315,6 +315,8 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 </NavigationPanelContainer>
 
                 <Tabs
+                    sx={{paddingLeft: 10}}
+                    childrenSx={{overflowY: "auto", maxHeight: "90vh"}}
                     tabTitleSx={{marginLeft: 5}}
                     views={[
                         { id: Views.READ_ONLY, name: 'Docs' },

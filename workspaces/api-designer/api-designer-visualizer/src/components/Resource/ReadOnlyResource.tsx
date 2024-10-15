@@ -145,7 +145,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                             variant="h2"
                             sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
                         >
-                            {method}
+                            {method.toUpperCase()}
                         </Typography>
                     </MethodWrapper>
                     <Typography sx={{ margin: 0, marginTop: 4 }} variant="h2">{path}</Typography>

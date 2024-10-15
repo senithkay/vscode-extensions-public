@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Paths } from "../../Definitions/ServiceDefinitions";
-import { Codicon, ContextMenu, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ContextMenu, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { getBackgroundColorByMethod, getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
@@ -29,20 +29,17 @@ const PathsContainer = styled.div`
 `;
 
 interface OperationProps {
-    backgroundColor: string;
-    hoverBackgroundColor?: string;
+    foreGroundColor: string;
+    hoverForeGroundColor?: string;
     selected: boolean;
 }
 
 const Operation = styled.div<OperationProps>`
-    background-color: ${(props: OperationProps) => props.selected ? props.hoverBackgroundColor : props.backgroundColor};
-    /* border: ${(props: OperationProps) => props.selected ? "2px solid var(--vscode-inputOption-activeForeground)" : "2px solid transparent"};
-    border-radius: 4px; */
     width: fit-content;
-    color: white;
+    color: ${(props: OperationProps) => props.foreGroundColor};
     cursor: pointer;
     &:hover { // Added hover style
-        background-color: ${(props: OperationProps) => props.hoverBackgroundColor || props.backgroundColor};
+        color: ${(props: OperationProps) => props.hoverForeGroundColor || props.foreGroundColor};
     }
 `;
 
@@ -53,7 +50,7 @@ const OverviewTitle = styled.div<OverviewTitleProps>`
     display: flex;
     flex-direction: row;
     gap: 6px;
-    padding: 2px 0;
+    padding: 0px 0;
     cursor: pointer;
     background-color: ${(props: OverviewTitleProps) => props.selected ? "var(--vscode-editorHoverWidget-background)" : "none"};
     &:hover {
@@ -108,7 +105,7 @@ export const PathItemWrapper = styled.div`
     flex-direction: row;
     gap: 6px;
     width: 100%;
-    padding: 2px 0;
+    padding: 0px 0;
     cursor: pointer;
 `;
 export const PathSummary = styled.div`
@@ -193,8 +190,8 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
     return (
         <PathsContainer ref={pathContinerRef}>
             <OverviewTitle selected={selectedPathID === undefined} onClick={handleOverviewClick}>
-                <Codicon name="globe" />
-                <Typography variant="h3" sx={{ margin: 0 }}>Overview</Typography>
+                <Codicon sx={{marginTop: -1}} name="globe" />
+                <Typography variant="h4" sx={{ margin: 0, fontWeight: 300 }}>Overview</Typography>
             </OverviewTitle>
             <TreeView 
                 rootTreeView
@@ -203,7 +200,7 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                 content={
                     <PathContainer>
                         <LeftPathContainer>
-                            <Typography sx={{ margin: "0 0 0 2px" }} variant="h3">Paths</Typography>
+                            <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Paths</Typography>
                         </LeftPathContainer>
                         <RightPathContainer>
                             <ContextMenu iconSx={contextMenuSx} sx={menuVerticalIconWrapper} menuItems={menuItems} />
@@ -264,8 +261,9 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                                     overflow: "hidden",
                                                     textOverflow: "ellipsis",
                                                     width: (currentDivWidth - 50),
-                                                    margin: "0 0 0 2px" 
-                                                }} variant="h3">
+                                                    margin: "0 0 0 2px",
+                                                    fontWeight: 300
+                                                }} variant="h4">
                                                 {path}
                                             </Typography>
                                         )}
@@ -284,17 +282,19 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
                                 return (
                                     <TreeViewItem id={getResourceID(path, operation)}>
                                         <PathItemWrapper>
-                                            <Operation
-                                                backgroundColor={getColorByMethod(operation.toUpperCase())}
-                                                hoverBackgroundColor={getBackgroundColorByMethod(operation.toUpperCase())}
-                                                selected={selectedPathID === getResourceID(path, operation)}
-                                                onClick={() => onPathChange && onPathChange(selectedPathID)}
-                                            >
-                                                <Typography variant="h4" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 50 }}>{operation}</Typography>
-                                            </Operation>
-                                            <PathSummary>
-                                                <Typography sx={{ margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}} variant='body2'>{pathItem[operation].summary}</Typography>
-                                            </PathSummary>
+                                            <Tooltip content={pathItem[operation]?.summary}>
+                                                <Operation
+                                                    foreGroundColor={getColorByMethod(operation.toUpperCase())}
+                                                    hoverForeGroundColor={getBackgroundColorByMethod(operation.toUpperCase())}
+                                                    selected={selectedPathID === getResourceID(path, operation)}
+                                                    onClick={() => onPathChange && onPathChange(selectedPathID)}
+                                                >
+                                                    <Typography variant="h5" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "flex-start", width: 45, fontWeight: 300 }}>{operation.toUpperCase()}</Typography>
+                                                </Operation>
+                                            </Tooltip>
+                                            {/* <PathSummary>
+                                                <Typography sx={{ margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}} variant='body3'>{pathItem[operation].summary}</Typography>
+                                            </PathSummary> */}
                                         </PathItemWrapper>
                                     </TreeViewItem>
                                 );

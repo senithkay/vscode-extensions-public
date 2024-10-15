@@ -37,7 +37,6 @@ const IconContainer = styled.div<IconContainerProps>`
     gap: 5px;
     align-items: center;
     padding-top: 3px;
-    padding-bottom: 3px;
     background-color: ${(props: IconContainerProps) => props.isSelected ? "var(--vscode-editorHoverWidget-background)" : "transparent"};
     &:hover {
         background-color: var(--vscode-editorHoverWidget-background);

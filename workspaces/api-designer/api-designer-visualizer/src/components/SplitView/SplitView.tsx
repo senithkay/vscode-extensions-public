@@ -18,10 +18,11 @@ const Container = styled.div<SplitViewProps>`
     ${(props: SplitViewProps) => props.sx};
 `;
 
-const DynamicDiv = styled.div<{ width: number }>`
+const DynamicDiv = styled.div<{ width: number, lastChild: boolean, sx: any }>`
     width: ${(props: { width: number; }) => props.width}%;
     overflow: auto;
-    border: 1px solid var(--vscode-editorWidget-border);
+    border-right: ${(props: { lastChild: boolean; }) => props.lastChild ? "none" : "1px solid var(--vscode-editorWidget-border)"};
+    ${(props: SplitViewProps) => props.sx};
 `;
 
 const Resizer = styled.div`
@@ -35,11 +36,12 @@ const Resizer = styled.div`
 interface SplitViewProps {
     children: ReactNode[];
     sx?: any;
+    dynamicContainerSx?: any;
     defaultWidths?: number[];
 }
 
 export function SplitView(props: SplitViewProps) {
-    const { children, sx, defaultWidths } = props;
+    const { children, sx, dynamicContainerSx, defaultWidths } = props;
     const initialWidths = defaultWidths || new Array(children.length).fill(100 / children.length); // Use default widths if provided
 
     const [widths, setWidths] = useState<number[]>(initialWidths);
@@ -84,7 +86,7 @@ export function SplitView(props: SplitViewProps) {
         <Container sx={sx}>
             {children.map((child, index) => (
                 <>
-                    <DynamicDiv key={index} width={widths[index]}>
+                    <DynamicDiv key={index} sx={dynamicContainerSx} width={widths[index]} lastChild={index === children.length - 1}>
                         {child}
                     </DynamicDiv>
                     {index < children.length - 1 && (

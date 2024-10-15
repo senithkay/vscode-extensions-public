@@ -14,15 +14,6 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "api-designer",
-          "title": "API Designer",
-          "icon": "assets/icon.svg"
-        }
-      ]
-    },
     "views": {
       "api-designer": [
         {

@@ -20,6 +20,7 @@ export interface TabsProps {
     children: ReactNode;
     currentViewId?: string;
     sx?: any;
+    childrenSx?: any;
     tabTitleSx?: any;
     onViewChange?: (view: string) => void;
 }
@@ -64,15 +65,18 @@ const Container = styled.div`
     top: 0;
     z-index: 5;
 `
-
-const ChildrenContainer = styled.div`
+interface ChildrenContainerProps {
+    sx: any;
+}
+const ChildrenContainer = styled.div<ChildrenContainerProps>`
     display: flex;
     flex-direction: column;
     padding-top: 10px;
+    ${(props: ChildrenContainerProps) => props.sx};
 `
 
 export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
-    const { views, children, currentViewId, onViewChange, sx, tabTitleSx } = props;
+    const { views, children, currentViewId, onViewChange, sx, childrenSx, tabTitleSx } = props;
 
     useEffect(() => {
         
@@ -104,7 +108,7 @@ export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
                 <Divider sx={{margin: 0, borderTop: '1px solid var(--vscode-editorIndentGuide-background)'}} />
             </Container>
             {/* Render the children based on the currentViewId */}
-            <ChildrenContainer>
+            <ChildrenContainer sx={childrenSx}>
                 {React.Children.map(children, child => {
                     if (React.isValidElement(child) && child.props.id === currentViewId) {
                         return child;

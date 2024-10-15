@@ -61,7 +61,7 @@ export function Visualizer({ mode }: { mode: string }) {
     };
 
     return (
-        <ErrorBoundary goHome={goHome} errorMsg="An error occurred in the MI Diagram" issueUrl={""} ref={errorBoundaryRef}>
+        <ErrorBoundary errorMsg="An error occurred in the API Designer" ref={errorBoundaryRef}>
             {(() => {
                 switch (mode) {
                     case MODES.VISUALIZER:
