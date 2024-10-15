@@ -64,7 +64,7 @@ export function BIHeader(props: { showAI?: boolean, actions?: React.ReactNode[] 
     useEffect(() => {
         rpcClient.getBIDiagramRpcClient().getWorkspaces().then(res => {
             setProjectName(res.workspaces[0].name);
-        })
+        });
     }, []);
 
     const handleGenerateBtn = () => {

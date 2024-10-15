@@ -10,8 +10,13 @@ import { commands } from 'vscode';
 import { BI_COMMANDS, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { BallerinaExtension } from '../../core';
 import { openView } from '../../stateMachine';
+import { configGenerator } from '../config-generator/configGenerator';
+import { StateMachine } from '../../stateMachine';
 
 export function activate(context: BallerinaExtension) {
+    commands.registerCommand("BI.project.run", () => {
+        configGenerator(context, StateMachine.context().projectUri, false, true);
+    });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONNECTIONS, () => {
         // Trigger to open the connections popup view
