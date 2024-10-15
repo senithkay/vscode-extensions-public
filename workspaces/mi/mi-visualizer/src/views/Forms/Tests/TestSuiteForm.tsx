@@ -456,7 +456,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const editTestCase = (testCase: TestCaseEntry) => {
         setCurrentTestCase(testCase);
-        setTestCases(testCases.filter(tc => tc !== testCase));
         setShowAddTestCase(true);
     };
 
@@ -489,14 +488,15 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     if (showAddTestCase) {
         const goBack = () => {
-            if (currentTestCase) {
-                setTestCases([...testCases, currentTestCase]);
-            }
             setCurrentTestCase(undefined);
             setShowAddTestCase(false);
         }
         const onSubmit = (values: TestCaseEntry) => {
-            setTestCases([...testCases, values]);
+            if (currentTestCase) {
+                setTestCases(testCases.map(tc => tc === currentTestCase ? values : tc));
+            } else {
+                setTestCases([...testCases, values]);
+            }
             setCurrentTestCase(undefined);
             setShowAddTestCase(false);
         };
