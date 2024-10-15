@@ -36,6 +36,7 @@ import {
     convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
+    convertToFnSignature,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -624,6 +625,21 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: model.fileName,
+            expression: value,
+            startLine: targetRef.current.startLine,
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            }
+        });
+
+        return convertToFnSignature(signatureHelp);
+    }
+
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
@@ -729,6 +745,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             completions: filteredCompletions,
                             triggerCharacters: TRIGGER_CHARACTERS,
                             retrieveCompletions: handleGetCompletions,
+                            extractArgsFromFunction: extractArgsFromFunction,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
                             onBlur: handleExpressionEditorBlur,

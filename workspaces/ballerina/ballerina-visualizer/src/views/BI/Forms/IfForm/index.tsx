@@ -15,7 +15,7 @@ import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter } fro
 import { Colors } from "../../../../resources/constants";
 import { FormValues, ExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertBalCompletion, convertNodePropertyToFormField } from "../../../../utils/bi";
+import { convertBalCompletion, convertNodePropertyToFormField, convertToFnSignature } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -199,6 +199,21 @@ export function IfForm(props: IfFormProps) {
         }
     }
 
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: fileName,
+            expression: value,
+            startLine: targetLineRange.startLine,
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            }
+        });
+
+        return convertToFnSignature(signatureHelp);
+    }
+
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
@@ -240,6 +255,7 @@ export function IfForm(props: IfFormProps) {
                                 completions={activeEditor === index ? filteredCompletions : []}
                                 triggerCharacters={TRIGGER_CHARACTERS}
                                 retrieveCompletions={handleGetCompletions}
+                                extractArgsFromFunction={extractArgsFromFunction}
                                 onCompletionSelect={handleCompletionSelect}
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}
