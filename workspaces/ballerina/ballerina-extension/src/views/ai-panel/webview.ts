@@ -64,7 +64,6 @@ export class AiPanelWebview {
                 background-color: var(--vscode-editor-background);
                 height: 100vh;
                 width: 100%;
-                display: flex;
             }
             .loader-wrapper {
                 display: flex;
