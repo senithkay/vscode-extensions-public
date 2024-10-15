@@ -82,3 +82,7 @@ export interface ComponentsRequest {
 export interface ComponentsResponse {
     response: boolean;
 }
+
+export interface AIChatRequest {
+    scafold: boolean;
+}
