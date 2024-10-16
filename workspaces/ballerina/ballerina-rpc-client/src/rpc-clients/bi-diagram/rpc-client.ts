@@ -24,9 +24,11 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    BITriggersRequest,
+    BITriggersResponse,
+    ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
-    ComponentRequest,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -44,6 +46,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getBITriggers,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -60,7 +63,7 @@ import {
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class BIDiagramRpcClient implements BIDiagramAPI {
+export class BiDiagramRpcClient implements BIDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
@@ -117,6 +120,10 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getBIConnectors(params: BIConnectorsRequest): Promise<BIConnectorsResponse> {
         return this._messenger.sendRequest(getBIConnectors, HOST_EXTENSION, params);
+    }
+
+    getBITriggers(params: BITriggersRequest): Promise<BITriggersResponse> {
+        return this._messenger.sendRequest(getBITriggers, HOST_EXTENSION, params);
     }
 
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {

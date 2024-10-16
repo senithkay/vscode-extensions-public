@@ -52,6 +52,7 @@ import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
+import AddTriggerWizard from "./views/BI/Trigger/AddTriggerWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 
@@ -216,6 +217,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         setViewComponent(<AddConnectionWizard />);
+                        break;
+                    case MACHINE_VIEW.AddTriggerWizard:
+                        setViewComponent(<AddTriggerWizard />);
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);

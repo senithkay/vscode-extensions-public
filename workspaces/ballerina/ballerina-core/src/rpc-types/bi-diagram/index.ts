@@ -26,6 +26,8 @@ import {
     BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    BITriggersRequest,
+    BITriggersResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 
@@ -43,11 +45,12 @@ export interface BIDiagramAPI {
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
+    getBITriggers: (params: BITriggersRequest) => Promise<BITriggersResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
-    getReadmeContent:() => Promise<ReadmeContentResponse>;
-    openReadme:() => void;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
 }

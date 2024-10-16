@@ -27,9 +27,11 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
+    BITriggersRequest,
+    BITriggersResponse,
+    ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
-    ComponentRequest,
     CreateComponentResponse,
     DIRECTORY_MAP,
     ExpressionCompletionsRequest,
@@ -42,6 +44,7 @@ import {
     ReadmeContentResponse,
     STModification,
     SyntaxTree,
+    TriggerModel,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure
@@ -52,9 +55,9 @@ import * as path from 'path';
 import { Uri, ViewColumn, commands, window, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, createBIAutomation, handleServiceCreation, sanitizeName, createBIFunction } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, handleServiceCreation, sanitizeName } from "../../utils/bi";
 
-export class BIDiagramRpcManager implements BIDiagramAPI {
+export class BiDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
         return new Promise((resolve) => {
@@ -253,6 +256,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS:
                     res = await createBIFunction(params);
+                    break;
+                case DIRECTORY_MAP.TRIGGERS:
+                    res = await createBITrigger(params);
                     break;
                 default:
                     break;
@@ -645,4 +651,396 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     openAIChat(params: AIChatRequest): void {
         commands.executeCommand('ballerina.open.ai.panel');
     }
+
+    async getBITriggers(params: BITriggersRequest): Promise<BITriggersResponse> {
+        return new Promise((resolve) => {
+            const res: BITriggersResponse = {
+                triggers: getTriggersHardcoded()
+            };
+            resolve(res);
+        });
+    }
+}
+
+
+
+function getTriggersHardcoded() {
+    const response: TriggerModel[] = []
+    const kafkaTriggerModel: TriggerModel = {
+        name: "Kafka",
+        listener: {
+            bootstrapServers: {
+                required: true,
+                type: "string",
+                description: "List of remote server endpoints of Kafka brokers"
+            },
+            config: {
+                required: false,
+                type: "kafka:ConsumerConfiguration",
+                record: true
+            }
+        },
+        service: {
+            basePath: {
+                required: false
+            },
+            functions: {
+                onConsumerRecord: {
+                    required: true,
+                    params: {
+                        records: {
+                            type: "array",
+                            required: true,
+                            description: "Consumer records"
+                        },
+                        caller: {
+                            type: "kafka:Caller",
+                            required: false,
+                            description: "Caller object"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "error?"
+                    },
+                    description: "Trigger function that processes consumer records"
+                },
+                onError: {
+                    required: false,
+                    params: {
+                        err: {
+                            type: "kafka:Error",
+                            required: true,
+                            description: "error"
+                        }
+                    },
+                    returns: {
+                        type: "error?",
+                        description: "Optional error return type",
+                        error: true,
+                        nilable: true
+                    },
+                    description: "Handles errors encountered during consumption"
+                }
+            }
+        }
+    }
+    const rabbitmqTriggerModel: TriggerModel = {
+        name: "RabbitMQ",
+        listener: {
+            host: {
+                type: "string",
+                required: true,
+                description: "The host used for establishing the connection"
+            },
+            port: {
+                type: "int",
+                required: true,
+                description: "The port used for establishing the connection"
+            },
+            qosSettings: {
+                type: "rabbitmq:QosSettings",
+                required: false,
+                description: "The consumer prefetch settings"
+            },
+            connectionData: {
+                type: "rabbitmq:ConnectionData",
+                required: false,
+                description: "The connection data"
+            }
+        },
+        service: {
+            basePath: {
+                required: true,
+                description: "The queue name"
+            },
+            functions: {
+                onMessage: {
+                    required: true,
+                    params: {
+                        message: {
+                            type: "rabbitmq:AnydataMessage",
+                            required: true,
+                            description: "The message"
+                        },
+                        caller: {
+                            type: "rabbitmq:Caller",
+                            required: false,
+                            description: "Caller object"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "error?"
+                    },
+                    description: "Trigger function that processes messages"
+                },
+                onRequest: {
+                    required: false,
+                    params: {
+                        message: {
+                            type: "rabbitmq:AnydataMessage",
+                            required: true,
+                            description: "The message"
+                        },
+                        caller: {
+                            type: "rabbitmq:Caller",
+                            required: false,
+                            description: "Caller object"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "anydata|error?"
+                    },
+                    description: "Trigger function that processes requests"
+                },
+                onError: {
+                    required: false,
+                    params: {
+                        message: {
+                            type: "rabbitmq:AnydataMessage",
+                            required: true,
+                            description: "The message"
+                        },
+                        err: {
+                            type: "rabbitmq:Error",
+                            required: true,
+                            description: "error"
+                        }
+                    },
+                    returns: {
+                        type: "error?",
+                        error: true,
+                        nilable: true
+                    },
+                    description: "Handles errors encountered during consumption"
+                }
+            }
+        }
+    }
+    const natsTriggerModel: TriggerModel = {
+        name: "NATS",
+        listener: {
+            url: {
+                type: "string|string[]",
+                required: true,
+                description: "The NATS broker URL. For a clustered use case, provide the URLs as a string array"
+            },
+            config: {
+                type: "nats:ConnectionConfiguration",
+                required: false,
+                description: "The connection configurations"
+            }
+        },
+        service: {
+            basePath: {
+                required: true,
+                description: "The subject name"
+            },
+            functions: {
+                onMessage: {
+                    required: true,
+                    params: {
+                        message: {
+                            type: "nats:AnydataMessage",
+                            required: true,
+                            description: "The message"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "error?"
+                    },
+                    description: "Trigger function that processes messages"
+                },
+                onRequest: {
+                    required: false,
+                    params: {
+                        "message": {
+                            type: "nats:AnydataMessage",
+                            required: true,
+                            description: "The message"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "anydata|error?"
+                    },
+                    description: "Trigger function that processes requests"
+                },
+                onError: {
+                    required: false,
+                    params: {
+                        "message": {
+                            type: "nats:AnydataMessage",
+                            required: true,
+                            description: "The message"
+                        },
+                        "err": {
+                            type: "nats:Error",
+                            required: true,
+                            description: "error"
+                        }
+                    },
+                    returns: {
+                        type: "error?",
+                        error: true,
+                        nilable: true
+                    },
+                    description: "Handles errors encountered during consumption"
+                }
+            }
+        }
+    }
+    const mqttTriggerModel: TriggerModel = {
+        name: "MQTT",
+        listener: {
+            serverUri: {
+                type: "string",
+                required: true,
+                description: "The URI of the remote MQTT server"
+            },
+            clientId: {
+                type: "string",
+                required: true,
+                description: "The unique client ID to identify the listener"
+            },
+            subscriptions: {
+                type: "string|string[]|mqtt:Subscription|mqtt:Subscription[]",
+                required: true,
+                description: "The topics to be subscribed to"
+            },
+            config: {
+                type: "mqtt:ListenerConfiguration",
+                required: false,
+                description: "The listener configurations"
+            }
+        },
+        service: {
+            basePath: {
+                required: false
+            },
+            functions: {
+                onMessage: {
+                    required: true,
+                    params: {
+                        message: {
+                            type: "mqtt:Message",
+                            required: true,
+                            description: "The message"
+                        },
+                        caller: {
+                            type: "mqtt:Caller",
+                            required: false,
+                            description: "Caller object"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "error?"
+                    },
+                    description: "Trigger function that processes messages"
+                },
+                onError: {
+                    required: false,
+                    params: {
+                        err: {
+                            type: "mqtt:Error",
+                            required: true,
+                            description: "error"
+                        }
+                    },
+                    returns: {
+                        type: "error?",
+                        error: true,
+                        nilable: true
+                    },
+                    description: "Handles errors encountered during consumption"
+                },
+                onComplete: {
+                    required: false,
+                    params: {
+                        token: {
+                            type: "mqtt:DeliveryToken",
+                            required: true,
+                            description: "The delivery token"
+                        }
+                    },
+                    returns: {
+                        type: "error?",
+                        error: true,
+                        nilable: true
+                    },
+                    description: "Trigger function on message delivery completion"
+                }
+            }
+        }
+    }
+    const jmsTriggerModel: TriggerModel = {
+        name: "JMS",
+        listener: {
+            listenerConfig: {
+                type: "jms:MessageListenerConfigurations",
+                required: true,
+                description: "Message listener configurations"
+            }
+        },
+        service: {
+            basePath: {
+                required: false
+            },
+            functions: {
+                onMessage: {
+                    required: true,
+                    params: {
+                        message: {
+                            type: "jms:Message",
+                            required: true,
+                            description: "The message"
+                        },
+                        caller: {
+                            type: "jms:Caller",
+                            required: false,
+                            description: "Caller object"
+                        }
+                    },
+                    returns: {
+                        error: true,
+                        nilable: true,
+                        type: "error?"
+                    },
+                    description: "Trigger function that processes messages"
+                },
+                onError: {
+                    required: false,
+                    params: {
+                        err: {
+                            type: "jms:Error",
+                            required: true,
+                            description: "error"
+                        }
+                    },
+                    returns: {
+                        type: "error?",
+                        error: true,
+                        nilable: true
+                    },
+                    description: "Handles errors encountered during consumption"
+                }
+            }
+        }
+    }
+    response.push(kafkaTriggerModel);
+    response.push(rabbitmqTriggerModel);
+    response.push(natsTriggerModel);
+    response.push(mqttTriggerModel);
+    response.push(jmsTriggerModel);
+    return response;
 }

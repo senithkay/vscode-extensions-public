@@ -10,6 +10,7 @@
 import { LineRange } from "../../interfaces/common";
 import { DIRECTORY_MAP, Flow, OverviewFlow } from "../../interfaces/bi";
 import { BallerinaProjectComponents } from "../../interfaces/extended-lang-client";
+import { TriggerFormField } from "../../interfaces/triggers";
 
 export interface ProjectRequest {
     projectName: string;
@@ -30,7 +31,8 @@ export interface WorkspaceFolder {
 export interface ComponentRequest {
     type: DIRECTORY_MAP;
     serviceType?: ComponentServiceType;
-    functionType?: ComponentFunctionkType;
+    functionType?: ComponentFunctionType;
+    triggerType?: ComponentTriggerType;
 }
 
 export interface ComponentServiceType {
@@ -39,11 +41,17 @@ export interface ComponentServiceType {
     port: string;
     specPath?: string;
 }
-export interface ComponentFunctionkType {
+export interface ComponentFunctionType {
     name: string;
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;
+}
+export interface ComponentTriggerType {
+    name: string;
+    listener: TriggerFormField[];
+    service: TriggerFormField[];
+    functions: Record<string, TriggerFormField[]>;
 }
 
 export interface FunctionParameters {

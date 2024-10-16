@@ -15,6 +15,7 @@ import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleRespon
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData } from "./bi";
+import { TriggerModel } from "./triggers";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 
@@ -511,6 +512,14 @@ export type BIConnectorsRequest = {
 
 export type BIConnectorsResponse = {
     categories: Category[];
+}
+
+export type BITriggersRequest = {
+    queryMap: SearchQueryParams;
+}
+
+export type BITriggersResponse = {
+    triggers: TriggerModel[];
 }
 
 export type ServiceFromOASRequest = {

@@ -24,6 +24,7 @@ export * from "./interfaces/event";
 export * from "./interfaces/store";
 export * from "./interfaces/performance";
 export * from "./interfaces/extended-lang-client";
+export * from "./interfaces/triggers";
 
 // ------ LS Utils -------->
 export * from "./ls-utils/WSConnection";

@@ -16,6 +16,7 @@ import {
     BIGetFunctionsRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    BITriggersRequest,
     ComponentRequest,
     ComponentsRequest,
     ExpressionCompletionsRequest,
@@ -29,6 +30,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getBITriggers,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -43,10 +45,10 @@ import {
     openReadme
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
-import { BIDiagramRpcManager } from "./rpc-manager";
+import { BiDiagramRpcManager } from "./rpc-manager";
 
-export function registerBIDiagramRpcHandlers(messenger: Messenger) {
-    const rpcManger = new BIDiagramRpcManager();
+export function registerBiDiagramRpcHandlers(messenger: Messenger) {
+    const rpcManger = new BiDiagramRpcManager();
     messenger.onRequest(getFlowModel, () => rpcManger.getFlowModel());
     messenger.onRequest(getSourceCode, (args: BISourceCodeRequest) => rpcManger.getSourceCode(args));
     messenger.onRequest(deleteFlowNode, (args: BISourceCodeRequest) => rpcManger.deleteFlowNode(args));
@@ -60,6 +62,7 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
+    messenger.onRequest(getBITriggers, (args: BITriggersRequest) => rpcManger.getBITriggers(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));

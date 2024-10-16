@@ -177,7 +177,12 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     `,
     FLUSH_STATEMENT: `
     error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
-    `
+    `,
+    KAFKA: `
+service on new kafka:Listener({{{ ENDPOINT }}}) {
+    remote function onConsumerRecord({{{ TYPE }}} {{{ NAME }}}) returns error? {
+    }
+}`
 };
 
 export default templates;

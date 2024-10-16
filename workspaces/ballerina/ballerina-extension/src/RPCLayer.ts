@@ -20,7 +20,7 @@ import { registerCommonRpcHandlers } from './rpc-managers/common/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
-import { registerBIDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
+import { registerBiDiagramRpcHandlers } from './rpc-managers/bi-diagram/rpc-handler';
 import { registerAiPanelRpcHandlers } from './rpc-managers/ai-panel/rpc-handler';
 import { AiPanelWebview } from './views/ai-panel/webview';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
@@ -67,7 +67,7 @@ export class RPCLayer {
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
-        registerBIDiagramRpcHandlers(RPCLayer._messenger);
+        registerBiDiagramRpcHandlers(RPCLayer._messenger);
         registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
         registerConnectorWizardRpcHandlers(RPCLayer._messenger);
 
@@ -78,7 +78,7 @@ export class RPCLayer {
         // ----- Inline Data Mapper Webview RPC Methods
         registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
 
-         // ----- Popup Views RPC Methods
+        // ----- Popup Views RPC Methods
         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 

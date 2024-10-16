@@ -24,7 +24,8 @@ import {
     Flow,
     Branch,
     LineRange,
-    ExpressionCompletionItem
+    ExpressionCompletionItem,
+    TriggerModel
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -184,9 +185,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
             if (activeNode.codedata?.node === "ACTION_CALL") {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             }
-            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
-                activeNode.metadata.label
-            }`;
+            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
+                }`;
         default:
             return "";
     }
@@ -268,4 +268,70 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         kind,
         sortText
     }
+}
+
+// TRIGGERS RELATED HELPERS
+export function convertTriggerListenerConfig(trigger: TriggerModel): FormField[] {
+    const formFields: FormField[] = [];
+
+    for (const key in trigger.listener) {
+        if (trigger.listener.hasOwnProperty(key)) {
+            const expression = trigger.listener[key];
+            const formField: FormField = {
+                key: key,
+                label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                documentation: expression.description,
+                optional: !expression.required,
+                type: expression.type,
+                editable: true,
+                value: ""
+            }
+            formFields.push(formField);
+        }
+    }
+
+    return formFields;
+}
+
+export function convertTriggerServiceConfig(trigger: TriggerModel): FormField[] {
+    const formFields: FormField[] = [];
+    const formField: FormField = {
+        key: "basePath",
+        label: "Base Path",
+        documentation: trigger.service.basePath.description,
+        optional: false,
+        type: "string",
+        editable: true,
+        value: ""
+    }
+    if (trigger.service.basePath.required) {
+        formFields.push(formField);
+    }
+    return formFields;
+}
+
+export function convertTriggerFunctionsConfig(trigger: TriggerModel): Record<string, FormField[]> {
+    const response: Record<string, FormField[]> = {};
+    for (const key in trigger.service.functions) {
+        const triggerFunction = trigger.service.functions[key];
+        const formFields: FormField[] = [];
+        if (trigger.service.functions.hasOwnProperty(key)) {
+            for (const param in triggerFunction.params) {
+                const expression = triggerFunction.params[param];
+                const formField: FormField = {
+                    key: param,
+                    label: param.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                    documentation: expression?.description,
+                    optional: !expression?.required,
+                    type: expression?.type,
+                    editable: true,
+                    value: ""
+                }
+                formFields.push(formField);
+            }
+        }
+        response[key] = formFields;
+    }
+    console.log("xxx", response);
+    return response;
 }

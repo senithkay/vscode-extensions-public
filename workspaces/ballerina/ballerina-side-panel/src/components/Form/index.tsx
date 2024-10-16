@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
@@ -150,10 +150,12 @@ namespace S {
     `;
 }
 export interface FormProps {
+    refKey?: string;
     formFields: FormField[];
+    hideSave?: boolean;
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues) => void;
+    onSubmit?: (data: FormValues, refKey?: string) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
@@ -168,8 +170,9 @@ export interface FormProps {
     };
 }
 
-export function Form(props: FormProps) {
+export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        refKey,
         formFields,
         projectPath,
         selectedNode,
@@ -178,6 +181,7 @@ export function Form(props: FormProps) {
         openView,
         openSubPanel,
         expressionEditor,
+        hideSave
     } = props;
     const { control, getValues, register, handleSubmit, reset, watch } = useForm<FormValues>();
 
@@ -200,9 +204,14 @@ export function Form(props: FormProps) {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> form values", data);
-        onSubmit && onSubmit(data);
+        console.log(">>> form values xxx refKey", refKey, data);
+        onSubmit && onSubmit(data, refKey);
     };
+
+    // Expose a method to trigger the save
+    useImperativeHandle(ref, () => ({
+        triggerSave: () => handleSubmit(handleOnSave)(), // Call handleSubmit with the save function
+    }));
 
     const handleOpenRecordEditor = (open: boolean) => {
         openRecordEditor?.(open, getValues());
@@ -284,7 +293,7 @@ export function Form(props: FormProps) {
                                 openSubPanel={openSubPanel}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel} />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -355,7 +364,7 @@ export function Form(props: FormProps) {
                             }
                         })}
                 </S.CategoryRow>
-                {onSubmit && (
+                {!hideSave && onSubmit && (
                     <S.Footer>
                         <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
                             Save
@@ -365,6 +374,6 @@ export function Form(props: FormProps) {
             </S.Container>
         </Provider>
     );
-}
+});
 
 export default Form;
