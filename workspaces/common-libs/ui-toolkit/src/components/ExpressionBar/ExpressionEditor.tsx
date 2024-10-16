@@ -153,8 +153,11 @@ const KeyContainer = styled.div`
 const SyntaxBody = styled.div`
     display: flex;
     align-items: center;
-    padding-inline: 16px;
-    margin: 0;
+    margin: 0 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
 `;
 
 const SelectedArg = styled(Typography)`
@@ -287,6 +290,13 @@ Dropdown.displayName = 'Dropdown';
 
 const FnSignatureEl = (props: FnSignatureElProps) => {
     const { label, args, currentArgIndex, sx } = props;
+    const selectedArgRef = useRef<HTMLParagraphElement>(null);
+
+    useEffect(() => {
+        if (selectedArgRef.current) {
+            selectedArgRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [currentArgIndex]);
 
     return (
         <>
@@ -301,7 +311,7 @@ const FnSignatureEl = (props: FnSignatureElProps) => {
                             if (index === currentArgIndex) {
                                 return (
                                     <Fragment key={`arg-${index}`}>
-                                        <SelectedArg>{arg}</SelectedArg>
+                                        <SelectedArg ref={selectedArgRef}>{arg}</SelectedArg>
                                         {!lastArg && <Typography variant="body3">{`, `}</Typography>}
                                     </Fragment>
                                 );
