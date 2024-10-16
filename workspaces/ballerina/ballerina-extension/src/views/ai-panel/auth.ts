@@ -40,7 +40,7 @@ export async function getAuthUrl(callbackUri: string): Promise<string> {
 }
 
 export function getLogoutUrl() : string {
-    return `https://api.asgardeo.io/t/${AUTH_ORG}/oidc/logout`
+    return `https://api.asgardeo.io/t/${AUTH_ORG}/oidc/logout`;
 }
 
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
