@@ -18,6 +18,7 @@ import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { convertParamsToParameters, getResponseHeadersFromResponse, resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter/ParamEditor';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
+import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 
 const ParamWrapper = styled.div`
     display: flex;
@@ -316,11 +317,12 @@ export function Response(props: ReadOnlyResourceProps) {
                     <Tabs views={statusTabViewItems} currentViewId={selectedResponseType} onViewChange={setSelectedResponseType}>
                         {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
                             <div id={status}>
-                                <TextArea
-                                    key={`responseBody-description-${path}-${method}-${status}`}
+                                <CodeTextArea
+                                    key="responseBody-description-${path}-${method}-${status}"
                                     value={resourceOperation?.responses[status]?.description}
-                                    onTextChange={(markdown: string) => handleDescriptionChange(markdown)}
-                                    sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
+                                    onChange={(evt) => handleDescriptionChange(evt.target.value)}
+                                    resize="vertical" 
+                                    growRange={{ start: 2, offset: 10 }} 
                                 />
                                 <ParamEditor
                                     params={headerParams}

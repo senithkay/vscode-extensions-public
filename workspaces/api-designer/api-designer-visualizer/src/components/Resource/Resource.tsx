@@ -24,6 +24,7 @@ import "@mdxeditor/editor/style.css";
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { Request } from './Request';
 import { Response } from './Response';
+import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -314,12 +315,13 @@ export function Resource(props: ResourceProps) {
                 )}
                 {defaultOptions.includes("Description") && (
                     <DescriptionWrapper>
-                        <label htmlFor="description">Description</label>
-                        <MarkDownEditor
-                            key={`resource-description-${path}-${method}`}
+                        <CodeTextArea
+                            id="description"
+                            label='Decription'
                             value={values?.description}
-                            onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                            sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
+                            onChange={(evt) => handleDescriptionChange(evt.target.value)}
+                            resize="vertical" 
+                            growRange={{ start: 5, offset: 10 }} 
                         />
                     </DescriptionWrapper>
                 )}

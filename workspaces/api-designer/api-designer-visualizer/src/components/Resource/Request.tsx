@@ -18,6 +18,7 @@ import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
+import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 
 const RequestTypeWrapper = styled.div`
     display: flex;
@@ -226,10 +227,12 @@ export function Request(props: ReadOnlyResourceProps) {
     return (
         <>
             <FormGroup key="Requests" title='Requests Body' isCollapsed={requestContents.length === 0}>
-                <TextArea
-                    label='Description'
+                <CodeTextArea
+                    id="description"
                     value={resourceOperation?.requestBody?.description}
-                    onChange={(e) => handleDescriptionChange(e.target.value)}
+                    onChange={(evt) => handleDescriptionChange(evt.target.value)}
+                    resize="vertical" 
+                    growRange={{ start: 2, offset: 10 }} 
                 />
                 <FormGroup key="Requests" title='Body' disableCollapse>
                     <PullUpButton options={MediaTypes} selectedOptions={mediaTypes} onOptionChange={handleOptionChange}>
