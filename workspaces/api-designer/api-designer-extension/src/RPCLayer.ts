@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { WebviewView, WebviewPanel, window } from 'vscode';
+import { WebviewView, WebviewPanel, window, QuickPickItem } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState, VisualizerLocation, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged } from '@wso2-enterprise/api-designer-core';
+import { stateChanged, getVisualizerState, VisualizerLocation, getPopupVisualizerState, PopupVisualizerLocation, popupStateChanged, selectQuickPickItem, WebviewQuickPickItem, selectQuickPickItems, showConfirmMessage, showInputBox, showInfoNotification, showErrorNotification } from '@wso2-enterprise/api-designer-core';
 import { VisualizerWebview } from './visualizer/webview';
 import { StateMachinePopup } from './stateMachinePopup';
 import path = require('path');
@@ -45,6 +45,27 @@ export class RPCLayer {
 
         // ----- Popup Views RPC Methods
         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
+
+        // ----- VScode interactions RPC Methods
+        RPCLayer._messenger.onRequest(selectQuickPickItem, async (params) => {
+            const itemSelection = await window.showQuickPick(params.items as QuickPickItem[],{title: params.title, placeHolder:params.placeholder});
+            return itemSelection as WebviewQuickPickItem;
+        });
+        RPCLayer._messenger.onRequest(selectQuickPickItems, async (params) => {
+            const itemSelection = await window.showQuickPick(params.items as QuickPickItem[],{title: params.title, placeHolder:params.placeholder,canPickMany: true});
+            return itemSelection as WebviewQuickPickItem[];
+        });
+        RPCLayer._messenger.onRequest(showConfirmMessage, async (params) => {
+            const response = await window.showInformationMessage(params.message, { modal: true }, params.buttonText);
+		    return response === params.buttonText;
+        });
+        RPCLayer._messenger.onRequest(showInputBox, async (params) => window.showInputBox(params));
+        RPCLayer._messenger.onNotification(showInfoNotification,  (message) => {
+            window.showInformationMessage(message);
+        });
+        RPCLayer._messenger.onNotification(showErrorNotification,  (message) => {
+            window.showErrorMessage(message);
+        });
     }
 
 }

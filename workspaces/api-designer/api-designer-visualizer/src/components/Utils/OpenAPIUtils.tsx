@@ -48,7 +48,7 @@ export function resolveResponseFromOperation(operation: Operation): ResponseConf
 }
 
 export function resolveTypeFormSchema(schema: Schema): string {
-    if (schema.type === "array") {
+    if (schema?.type === "array") {
         return resolveTypeFormSchema(schema.items) + "[]";
     }
     return schema.type;

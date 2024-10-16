@@ -56,11 +56,56 @@ export interface ParentPopupData {
     recentIdentifier: string;
 }
 
+export enum WebviewQuickPickItemKind {
+	Separator = -1,
+	Default = 0,
+}
+
+export interface WebviewQuickPickItem {
+	kind?: WebviewQuickPickItemKind;
+	/**  A human-readable string which is rendered prominent. */
+	label: string;
+	/** A human-readable string which is rendered less prominent in the same line. */
+	description?: string;
+	/** A human-readable string which is rendered less prominent in a separate line */
+	detail?: string;
+	/** Always show this item. */
+	alwaysShow?: boolean;
+	/** Optional flag indicating if this item is picked initially.  */
+	picked?: boolean;
+	/** Any data to be passed */
+	item?: any;
+}
+
+export interface SelectQuickPickItemReq {
+	items: WebviewQuickPickItem[];
+	title: string;
+    placeholder?: string;
+}
+
+export interface ShowConfirmBoxReq {
+	message: string;
+	buttonText: string;
+}
+
+export interface ShowWebviewInputBoxReq {
+	title: string;
+	value?: string;
+	placeholder?: string;
+}
+
 // ------------> Main RPC Methods <-----------
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
+export const showErrorNotification: NotificationType<string> = { method: "showErrorNotification" };
+export const showInfoNotification: NotificationType<string> = { method: "showInfoNotification" };
+
+export const selectQuickPickItem: RequestType<SelectQuickPickItemReq, WebviewQuickPickItem | undefined> = { method: 'selectQuickPickItem' };
+export const selectQuickPickItems: RequestType<SelectQuickPickItemReq, WebviewQuickPickItem[] | undefined> = { method: 'selectQuickPickItems' };
+export const showConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: "showConfirmMessage" };
+export const showInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: "showWebviewInputBoxReq" };
 
 // ------------> Popup RPC Methods <-----------
 export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };

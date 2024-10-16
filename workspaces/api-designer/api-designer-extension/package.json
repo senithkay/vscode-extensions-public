@@ -14,14 +14,6 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "views": {
-      "api-designer": [
-        {
-          "id": "APIDesigner.project-explorer",
-          "name": "Project Explorer"
-        }
-      ]
-    },
     "viewsWelcome": [
       {
         "view": "APIDesigner.project-explorer",
