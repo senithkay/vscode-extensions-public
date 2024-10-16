@@ -27,10 +27,10 @@ export interface WorkspaceFolder {
     fsPath: string;
 }
 
-export interface CreateComponentRequest {
+export interface ComponentRequest {
     type: DIRECTORY_MAP;
     serviceType?: ComponentServiceType;
-    taskType?: ComponentTaskType;
+    functionType?: ComponentFunctionkType;
 }
 
 export interface ComponentServiceType {
@@ -39,14 +39,18 @@ export interface ComponentServiceType {
     port: string;
     specPath?: string;
 }
-export interface ComponentTaskType {
+export interface ComponentFunctionkType {
     name: string;
-    triggerType: "SCHEDULED" | "MANUAL";
-    argType?: string;
-    argName?: string;
+    parameters: FunctionParameters[],
+    returnType?: string;
     cron?: string;
 }
 
+export interface FunctionParameters {
+    type: string;
+    name: string;
+    defaultValue?: string;
+}
 export interface CreateComponentResponse {
     response: boolean,
     error: string

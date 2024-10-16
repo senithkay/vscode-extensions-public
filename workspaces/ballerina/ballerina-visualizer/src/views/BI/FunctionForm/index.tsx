@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, RadioButtonGroup, FormGroup, Dropdown, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, ParamManager, ParamConfig, Parameters, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -54,43 +54,26 @@ const Link = styled.a`
     color: var(--button-primary-background);
 `;
 
-export function MainForm() {
+export function FunctionForm() {
     const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
-    const [cron, setCron] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [automation, setAutomation] = useState<ProjectStructureArtifactResponse>(null);
-    const [error, setError] = useState("");
+    const [returnType, setReturnType] = useState("void");
     const [params, setParams] = useState(parameterConfig);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleFunctionCreate = async () => {
         setIsLoading(true);
         const paramList = getFunctionParametersList(params);
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { name, parameters: paramList, cron } });
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
         setIsLoading(res.response);
         setError(res.error);
     };
 
     const validate = () => {
-        return !name || isLoading || automation !== null;
+        return !name || isLoading;
     }
-
-    const openAutomation = () => {
-        rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: automation.path, position: automation.position } });
-    }
-
-    useEffect(() => {
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getProjectStructure()
-            .then((res) => {
-                if (res.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
-                    setAutomation(res.directoryMap[DIRECTORY_MAP.AUTOMATION][0]);
-                }
-            });
-    }, []);
 
     const handleParamChange = (params: ParamConfig) => {
         const modifiedParams = {
@@ -103,35 +86,40 @@ export function MainForm() {
                 return {
                     ...param,
                     key: param.parameters[0].value as string,
-                    value: value,
+                    value: value
                 }
             })
         };
         setParams(modifiedParams);
     };
 
-
     return (
         <View>
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    {automation &&
-                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link></Typography>
-                    }
-                    <Typography variant="h2">Create Automation</Typography>
+                    <Typography variant="h2">Create New Function</Typography>
                     <BodyText>
-                        Implement an automation for either scheduled or manual jobs.
+                        Define a function that can be used within the integration.
                     </BodyText>
                     <FormContainer>
                         <TextField
                             onTextChange={setName}
                             value={name}
-                            label="Automation Name"
-                            placeholder="Enter automation name"
+                            label="Function Name"
+                            placeholder="Enter function name"
                         />
                         <FormGroup title="Parameters" isCollapsed={true}>
                             <ParamManager paramConfigs={params} readonly={false} onChange={handleParamChange} />
+                        </FormGroup>
+                        <FormGroup title="Return Type" isCollapsed={true}>
+                            <Dropdown
+                                id="return"
+                                label="Return Type"
+                                items={[{ value: "void" }, { value: "string" }, { value: "int" }]}
+                                onChange={(value) => setReturnType(value.target.value)}
+                                value={returnType}
+                            />
                         </FormGroup>
                         <ButtonWrapper>
                             <Button
@@ -139,12 +127,9 @@ export function MainForm() {
                                 onClick={handleFunctionCreate}
                                 appearance="primary"
                             >
-                                Create Automation
+                                Create Function
                             </Button>
                         </ButtonWrapper>
-                        <BodyText >
-                            Please Note: Only one automation can be created per project.
-                        </BodyText>
                         {error && <ErrorBanner errorMsg={error} />}
                     </FormContainer>
                 </Container>

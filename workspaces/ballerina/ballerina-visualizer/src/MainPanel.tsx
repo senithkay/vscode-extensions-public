@@ -35,7 +35,8 @@ import {
     PopupMessage,
     ComponentDiagramV1,
     MainForm,
-    ComponentDiagramV2
+    ComponentDiagramV2,
+    FunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -176,7 +177,7 @@ const MainPanel = () => {
                         setViewComponent(<ERDiagram />);
                         break;
                     case MACHINE_VIEW.TypeDiagram:
-                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier}/>);
+                        setViewComponent(<TypeDiagram selectedRecordId={value?.identifier} />);
                         break;
                     case MACHINE_VIEW.DataMapper:
                         setViewComponent(
@@ -215,6 +216,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
+                        break;
+                    case MACHINE_VIEW.BIFunctionForm:
+                        setViewComponent(<FunctionForm />);
                         break;
                     default:
                         setNavActive(false);
