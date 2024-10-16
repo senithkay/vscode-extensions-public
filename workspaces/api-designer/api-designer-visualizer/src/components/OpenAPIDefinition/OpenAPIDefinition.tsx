@@ -192,18 +192,20 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
-    const handleAddResource = (path: string, method: string) => {
+    const handleAddResources = (path: string, methods: string[] = []) => {
         const pathParameters = openAPIDefinition.paths[path] && 
             Object.keys(openAPIDefinition.paths[path]).map((key: string) => 
                 openAPIDefinition.paths[path][key]?.parameters?.find((param) => param.in === "path"));
         const distinctPathParameters = pathParameters && pathParameters.filter((param: { name: any; }, index: any, self: any[]) =>
-            index === self.findIndex((t) => (t.name === param.name)));
+            index === self.findIndex((t) => param && t?.name === param?.name));
         // Get current path
         const currentPath = openAPIDefinition.paths[path];
         // Add a new method to the current path
-        currentPath[method] = {
-            parameters: distinctPathParameters || []
-        };
+        methods?.forEach(method=>{
+            currentPath[method] = {
+                parameters: distinctPathParameters || []
+            };
+        })
         const updatedOpenAPIDefinition: OpenAPI = {
             ...openAPIDefinition,
             paths: {
@@ -211,7 +213,12 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 [path]: currentPath
             }
         };
-        setSelectedPathID(getResourceID(path, method));
+
+        const oldMethods = Object.keys(currentPath);
+        const newMethods = methods?.filter(item => !oldMethods.includes(item))
+        if(newMethods.length === 1){
+            setSelectedPathID(getResourceID(path, newMethods[0]));
+        }
         setOpenAPIDefinition(updatedOpenAPIDefinition);
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
@@ -307,7 +314,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             selectedPathID={selectedPathID}
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}
-                            onAddResource={handleAddResource}
+                            onAddResources={handleAddResources}
                             onDeletePath={onDeletePath}
                             onPathRename={handleRenamePath}
                         />
