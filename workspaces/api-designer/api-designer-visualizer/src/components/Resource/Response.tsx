@@ -136,10 +136,7 @@ export function Response(props: ReadOnlyResourceProps) {
                 ...resourceOperation.responses,
                 [selectedResponseType]: {
                     ...resourceOperation.responses[selectedResponseType],
-                    content: {
-                        ...resourceOperation.responses[selectedResponseType].content,
-                        [currentMediaType]: selectedContentFromResponseMediaType.content[currentMediaType] || { schema: {} }
-                    }
+                    content: Object.fromEntries(colnedMediaTypes)
                 }
             };
             onOperationChange(path, method, { ...resourceOperation, responses: newResponses });

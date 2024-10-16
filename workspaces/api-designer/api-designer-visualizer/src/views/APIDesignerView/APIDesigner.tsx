@@ -41,8 +41,8 @@ export function APIDesigner(props: ServiceDesignerProps) {
         });
         if (resp.success) {
             setApiDefinition(openApiDefinition);
-            const serDesModel = convertOpenAPItoService(openApiDefinition);
-            setServiceDesModel(serDesModel);
+            // const serDesModel = convertOpenAPItoService(openApiDefinition);
+            // setServiceDesModel(serDesModel);
         }
     };
     const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 1000);
