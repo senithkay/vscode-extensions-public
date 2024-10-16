@@ -229,14 +229,6 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     </NodeStyles.Icon>
                     <NodeStyles.Header onClick={handleOnClick}>
                         <NodeStyles.Title>{model.node.metadata.label}</NodeStyles.Title>
-                        <NodeStyles.Description>
-                            {model.node.properties?.variable?.value && (
-                                <NodeStyles.Pill color={Colors.PURPLE}>
-                                    <XIcon />
-                                    {model.node.properties.variable.value}
-                                </NodeStyles.Pill>
-                            )}
-                        </NodeStyles.Description>
                         <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>

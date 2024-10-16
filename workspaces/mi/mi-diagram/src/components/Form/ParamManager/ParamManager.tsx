@@ -22,6 +22,7 @@ import { ResourceType } from "@wso2-enterprise/mi-core";
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue | ParamConfig;
+    additionalData?: any;
     isEnabled?: boolean;
 }
 
@@ -352,6 +353,7 @@ export function ParamManager(props: ParamManagerProps) {
                 placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,
                 isEnabled: paramVal.isEnabled,
+                additionalData: paramVal.additionalData,
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
                 values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
                 enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
@@ -416,7 +418,8 @@ export function ParamManager(props: ParamManagerProps) {
             const paramValues = paramConfig.parameters.map(param => {
                 return {
                     value: param.value,
-                    isEnabled: param.isEnabled
+                    isEnabled: param.isEnabled,
+                    additionalData: param.additionalData
                 };
             });
             updatedParameters[index] = {

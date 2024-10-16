@@ -257,7 +257,7 @@ export function NodeList(props: NodeListProps) {
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
             {nodes.map((node, index) => {
-                if (["MATCH", "FOREACH"].includes(node.id)) {
+                if (["MATCH"].includes(node.id)) {
                     // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
                     return;
                 }

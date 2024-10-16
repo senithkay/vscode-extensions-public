@@ -70,6 +70,7 @@ export class VisualizerWebview {
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
             const projectUri = StateMachine.context().projectUri!;
+            const currentView = StateMachine.context().view;
             if (SWAGGER_LANG_ID === document.languageId) {
                 // Check if the saved document is a swagger file
                 const relativePath = vscode.workspace.asRelativePath(document.uri);
@@ -79,6 +80,12 @@ export class VisualizerWebview {
             } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
                 return;
             }
+
+            const mockServicesDir = path.join(projectUri!, 'src', 'test', 'resources', 'mock-services');
+            if (document.uri.toString().includes(mockServicesDir) && currentView == MACHINE_VIEW.TestSuite) {
+                return;
+            }
+
             RPCLayer._messenger.sendNotification(
                 onDocumentSave,
                 { type: 'webview', webviewType: VisualizerWebview.viewType },

@@ -37,6 +37,7 @@ import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
 import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { StateMachine } from '../../stateMachine';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -229,6 +230,12 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     }
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
         Thenable<DebugAdapterDescriptor> {
+        if (session.configuration.noDebug && StateMachine.context().isBI) {
+            return new Promise((resolve) => {
+                resolve(new DebugAdapterInlineImplementation(new BIRunAdapter()));
+            });
+        }
+
         if (session.configuration.noDebug && ballerinaExtInstance.enabledRunFast()) {
             return new Promise((resolve) => {
                 resolve(new DebugAdapterInlineImplementation(new FastRunDebugAdapter()));
@@ -312,6 +319,48 @@ class FastRunDebugAdapter extends LoggingDebugSession {
         });
     }
 
+}
+
+const outputChannel = window.createOutputChannel("Ballerina Integrator Executor");
+
+class BIRunAdapter extends LoggingDebugSession {
+
+    notificationHandler: Disposable | null = null;
+    root: string | null = null;
+
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
+        const langClient = ballerinaExtInstance.langClient;
+        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
+            if (params.verbose === "stopped") { // even if a single channel (stderr,stdout) stopped, we stop the debug session
+                notificationHandler!.dispose();
+                this.sendEvent(new TerminatedEvent());
+            } else {
+                const category = params.verbose === 'err' ? 'stderr' : 'stdout';
+                outputChannel.append(params.message);
+            }
+        });
+        this.notificationHandler = notificationHandler;
+        this.root = StateMachine.context().projectUri;
+        runFast(this.root).then((didRan) => {
+            response.success = didRan;
+            if (didRan) {
+                outputChannel.show();
+            }
+            this.sendResponse(response);
+        });
+    }
+
+    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+        const notificationHandler = this.notificationHandler;
+        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
+            response.success = didStop;
+            if (didStop) {
+                outputChannel.hide();
+            }
+            notificationHandler!.dispose();
+            this.sendResponse(response);
+        });
+    }
 }
 
 async function runFast(root: string) {

@@ -48,6 +48,7 @@ import {
     TypeFromExpressionParams,
     TypeFromSymbolParams,
     TypesFromFnDefinitionParams,
+    VisibleVariableTypesParams,
     GraphqlDesignServiceParams,
     SyntaxTreeParams,
     BallerinaExampleListParams,
@@ -97,7 +98,8 @@ import {
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
-    ExpressionCompletionsResponse
+    ExpressionCompletionsResponse,
+    VisibleVariableTypes,
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -163,7 +165,8 @@ enum EXTENDED_APIS {
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
-    BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion'
+    BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
+    VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
 }
 
 enum EXTENDED_APIS_ORG {
@@ -419,6 +422,15 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
             return Promise.resolve(NOT_SUPPORTED);
         }
         return this.sendRequest<TypesFromSymbol>(EXTENDED_APIS.SYMBOL_TYPES_FROM_FN_SIGNATURE, params);
+    }
+
+    async getVisibleVariableTypes(params: VisibleVariableTypesParams): Promise<VisibleVariableTypes | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES);
+        // if (!isSupported) {
+        //     return Promise.resolve(NOT_SUPPORTED);
+        // }
+        // return this.sendRequest<TypesFromSymbol>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
+        return this.sendRequest<VisibleVariableTypes>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
     }
 
     async getGraphqlModel(params: GraphqlDesignServiceParams): Promise<GraphqlDesignService | NOT_SUPPORTED_TYPE> {
