@@ -8,7 +8,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, APIDesignerVisualizerAPI  } from "@wso2-enterprise/api-designer-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation, webviewReady, onFileContentUpdate, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, APIDesignerVisualizerAPI, SelectQuickPickItemReq, WebviewQuickPickItem, selectQuickPickItem, selectQuickPickItems, showConfirmMessage, ShowConfirmBoxReq, showInputBox, ShowWebviewInputBoxReq, showInfoNotification, showErrorNotification  } from "@wso2-enterprise/api-designer-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { ApiDesignerVisualizerRpcClient } from "./rpc-clients/api-designer-visualizer/rpc-client";
 
@@ -53,6 +53,30 @@ export class RpcClient {
 
     onParentPopupSubmitted(callback: (parent: ParentPopupData) => void) {
         this.messenger.onNotification(onParentPopupSubmitted, callback);
+    }
+
+    selectQuickPickItem(params: SelectQuickPickItemReq): Promise<WebviewQuickPickItem | undefined> {
+        return this.messenger.sendRequest(selectQuickPickItem, HOST_EXTENSION, params);
+    }
+
+    selectQuickPickItems(params: SelectQuickPickItemReq): Promise<WebviewQuickPickItem[] | undefined> {
+        return this.messenger.sendRequest(selectQuickPickItems, HOST_EXTENSION, params);
+    }
+
+    showConfirmMessage(params: ShowConfirmBoxReq): Promise<boolean> {
+        return this.messenger.sendRequest(showConfirmMessage, HOST_EXTENSION, params);
+    }
+
+    showInputBox(params: ShowWebviewInputBoxReq): Promise<string | undefined> {
+        return this.messenger.sendRequest(showInputBox, HOST_EXTENSION, params);
+    }
+
+    showInfoNotification(message: string): void {
+        this.messenger.sendNotification(showInfoNotification, HOST_EXTENSION, message);
+    }
+
+    showErrorNotification(message: string): void {
+        this.messenger.sendNotification(showErrorNotification, HOST_EXTENSION, message);
     }
 }
 
