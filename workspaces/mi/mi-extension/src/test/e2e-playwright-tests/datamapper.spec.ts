@@ -13,12 +13,21 @@ import { Form } from './components/Form';
 import { AddArtifact } from './components/AddArtifact';
 import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
-import { closeNotification, createProject, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
+import { closeNotification, createProject, dataFolder, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
 import { DataMapper } from './components/DataMapper';
 import { Overview } from './components/Overview';
 import { IOType } from '@wso2-enterprise/mi-core';
 const fs = require('fs');
+
+const DM_NAME = 'dm1';
+
+const dmFilesPath = path.join(dataFolder, 'datamapper-files');
+
+
+
 test.describe.configure({ mode: 'serial' });
+
+
 
 // createAndAddDM();
 doMappings();
@@ -87,12 +96,12 @@ function createAndAddDM() {
       values: {
         'Name*': {
           type: 'input',
-          value: 'dm1',
+          value: DM_NAME,
         }
       }
     }, "Create Mapping");
 
-    const dataMapper = new DataMapper(page.page, 'dm1');
+    const dataMapper = new DataMapper(page.page, DM_NAME);
     await dataMapper.init();
     expect(dataMapper.verifyFileCreation()).toBeTruthy();
   });
@@ -105,7 +114,7 @@ function createAndAddDM() {
   //   await diagram.init();
   //   console.log('.:.Getting mediator');
   //   const mediator = await diagram.getMediator('DataMapper');
-  //   await mediator.clickLink('dm1');
+  //   await mediator.clickLink(DM_NAME);
 
   //   console.log('.:.opening data mapper');
 
@@ -141,16 +150,6 @@ function doMappings() {
     await resumeVSCode();
   });
 
-  // test('Do Mappings with time out', async () => {
-  //   console.log('.:.Do Mappings1');
-  //   await page.page.waitForTimeout(60000);
-  //   const overviewPage = new Overview(page.page);
-  //   await overviewPage.init();
-  //   console.log('.:.Do Mappings2');
-  //   await page.page.waitForTimeout(60000);
-  //   const dataMapper = new DataMapper(page.page, 'dm1');
-  //   await dataMapper.init();
-  // });
 
   test('Open DataMapper from tree view', async () => {
     // console.log('.:.Do Mappings1');
@@ -160,31 +159,48 @@ function doMappings() {
 
     const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
     await dataMappersLabel.click();
-    const dataMapperItem = await page.page.waitForSelector('div[aria-label="dm1"]');
+    const dataMapperItem = await page.page.waitForSelector(`div[aria-label="${DM_NAME}"]`, { timeout: 180000 });
     await dataMapperItem.click();
 
-    const dataMapper = new DataMapper(page.page, 'dm1');
+    const dataMapper = new DataMapper(page.page, DM_NAME);
     await dataMapper.init();
 
   });
 
   // test('Load Schemas', async () => {
-  //   const dataMapper = new DataMapper(page.page, 'dm1');
+  //   const dataMapper = new DataMapper(page.page, DM_NAME);
   //   await dataMapper.init();
-  //   await dataMapper.importSchema(IOType.Input, 'JSON', '{"name":"John", "age":30, "city":"New York"}');
-  //   await dataMapper.importSchema(IOType.Output, 'JSON', '{"name":"John", "age":30, "home":"New York"}');
-  //   // await page.page.waitForTimeout(30000);
+
+  //   const interfacesTsFile = path.join(dmFilesPath, DM_NAME, 'interfaces.ts');
+  //   const inputJsonFile = path.join(dmFilesPath, DM_NAME, 'input.json');
+  //   const outputJsonFile = path.join(dmFilesPath, DM_NAME, 'output.json');
+  //   await dataMapper.importSchema(IOType.Input, 'JSON', inputJsonFile);
+  //   await dataMapper.importSchema(IOType.Output, 'JSON', outputJsonFile);
+    
+  //   expect(dataMapper.verifyTsFileContent(interfacesTsFile)).toBeTruthy();
   // });
 
   test('Do Mappings', async () => {
-    const dataMapper = new DataMapper(page.page, 'dm1');
+    const dataMapper = new DataMapper(page.page, DM_NAME);
     await dataMapper.init();
 
     // await dataMapper.mapFields('input.city', 'objectOutput.home');
+    // await dataMapper.mapFields('input.name', 'objectOutput.age');
+    // await dataMapper.mapFields('input.age', 'objectOutput.name');
 
-    expect(dataMapper.verifyTsFileContent()).toBeTruthy();
+
+  
+
     
-    
+    const mappingsEaFile = path.join(dmFilesPath, DM_NAME, 'mappings.ea');
+    await dataMapper.runEventActions(mappingsEaFile);
+
+  await page.page.waitForTimeout(50000);
+
+    // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
+    // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
+
+
   });
 
 

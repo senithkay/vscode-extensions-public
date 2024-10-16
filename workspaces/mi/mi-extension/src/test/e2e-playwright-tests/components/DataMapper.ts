@@ -11,7 +11,7 @@ import { expect, Frame, Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form, FormFillProps } from "./Form";
 import * as fs from 'fs';
-import { newProjectPath, resourcesFolder } from '../Utils';
+import { newProjectPath, page, resourcesFolder } from '../Utils';
 import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
 import { IOType } from "@wso2-enterprise/mi-core";
@@ -36,24 +36,16 @@ export class DataMapper {
 
     }
 
-    public verifyFileCreation() {
-        const configFolder = path.join(
-            newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
 
-        const tsFile = path.join(configFolder, `${this._name}.ts`);
-        const operatorsFile = path.join(configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
 
-        return fs.existsSync(operatorsFile) && fs.existsSync(tsFile);
-    }
-
-    public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, content: string) {
+    public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, schemaFile: string) {
         const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
         await importNode.waitFor();
         await importNode.click();
 
         const importForm = new ImportForm(this.webView);
         await importForm.init();
-        await importForm.importData(schemaType, content);
+        await importForm.importData(schemaType, fs.readFileSync(schemaFile, 'utf8'));
         await importNode.waitFor({ state: 'detached' });
     }
 
@@ -62,7 +54,7 @@ export class DataMapper {
     }
 
     public async mapFields(sourceFieldFQN: string, targetFieldFQN: string) {
-        const links = this.webView.locator('g[data-linkid]');
+        const links = this.webView.locator('g [data-testid]');
         const linkCount = await links.count();
 
         const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
@@ -76,17 +68,49 @@ export class DataMapper {
         await expect(links).not.toHaveCount(linkCount);
     }
 
-    public verifyTsFileContent() {
+    public async runEventActions(eaFile: string) {
+        const eaFileContent = fs.readFileSync(eaFile, 'utf8');
+        const actionLines = eaFileContent.split('\n');
+
+        const links = this.webView.locator('g [data-testid]');
+        let linkCount = await links.count();
+
+        for (const actionLine of actionLines) {
+            const [_, actionType, elementId] = actionLine.split(':');
+            switch (actionType) {
+                case 'click':
+                    linkCount = await links.count();
+                    const element = this.webView.locator(`div[id="${elementId}"]`);
+                    await element.waitFor();
+                    await element.click();
+                    break;
+                case 'wait':
+                    await expect(links).not.toHaveCount(linkCount);
+                    //await page.page.waitForTimeout(3000);
+                    break;
+            }
+        }
+
+    }
+
+    public verifyTsFileContent(comparingFile: string) {
         const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
-        const comparingFile = path.join(resourcesFolder, 'file-snapshots', `${this._name}.ts`);
 
         const tsFileContent = fs.readFileSync(tsFile, 'utf8');
         const comparingFileContent = fs.readFileSync(comparingFile, 'utf8');
-        
+
         return tsFileContent === comparingFileContent;
     }
 
+    public verifyFileCreation() {
+        const configFolder = path.join(
+            newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
 
+        const tsFile = path.join(configFolder, `${this._name}.ts`);
+        const operatorsFile = path.join(configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
+
+        return fs.existsSync(operatorsFile) && fs.existsSync(tsFile);
+    }
 
 
 }
