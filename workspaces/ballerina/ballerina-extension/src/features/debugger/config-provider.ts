@@ -354,9 +354,6 @@ class BIRunAdapter extends LoggingDebugSession {
         const notificationHandler = this.notificationHandler;
         ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
             response.success = didStop;
-            if (didStop) {
-                outputChannel.hide();
-            }
             notificationHandler!.dispose();
             this.sendResponse(response);
         });
