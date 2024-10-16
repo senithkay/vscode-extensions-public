@@ -9,7 +9,7 @@
 import { useEffect, useState } from "react";
 import { OpenAPI, Operation, Path, PathItem } from "../../Definitions/ServiceDefinitions";
 import styled from "@emotion/styled";
-import { PathsComponent } from "../PathsComponent/PathsComponent";
+import { PathsNavigator } from "../PathsNavigator/PathsNavigator";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -302,7 +302,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
             <SplitView defaultWidths={[18, 82]} sx={{maxWidth: 1200}} dynamicContainerSx={{height: "96vh"}}>
                 <NavigationPanelContainer>
                     {openAPIDefinition &&
-                        <PathsComponent
+                        <PathsNavigator
                             paths={openAPIDefinition.paths}
                             selectedPathID={selectedPathID}
                             onPathChange={handlePathClick}

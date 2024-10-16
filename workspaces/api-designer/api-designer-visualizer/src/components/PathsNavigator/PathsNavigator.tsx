@@ -119,7 +119,7 @@ const APIResources = [
     "get","post","put","delete","patch","head","options","trace"
 ];
 
-export function PathsComponent(props: OpenAPIDefinitionProps) {
+export function PathsNavigator(props: OpenAPIDefinitionProps) {
     const { paths, selectedPathID, onAddPath, onAddResource, onDeletePath, onPathChange, onPathRename } = props;
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
@@ -186,7 +186,6 @@ export function PathsComponent(props: OpenAPIDefinitionProps) {
         setSelPathID(selectedPathID);
     }, [selectedPathID]);
 
-    console.log("selectedPathID", selectedPathID === undefined);
     return (
         <PathsContainer ref={pathContinerRef}>
             <OverviewTitle selected={selectedPathID === undefined} onClick={handleOverviewClick}>
