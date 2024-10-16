@@ -37,6 +37,7 @@ import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, Rec
 import { BIDiagramRpcClient } from "./rpc-clients/bi-diagram/rpc-client";
 import { ConnectorWizardRpcClient } from "./rpc-clients/connector-wizard/rpc-client";
 import { SequenceDiagramRpcClient } from "./rpc-clients/sequence-diagram/rpc-client";
+import { InlineDataMapperRpcClient } from "./rpc-clients/inline-data-mapper/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -53,6 +54,7 @@ export class BallerinaRpcClient {
     private _SequenceDiagram: SequenceDiagramRpcClient;
     private _aiPanel: AiPanelRpcClient;
     private _connectorWizard: ConnectorWizardRpcClient;
+    private _inlineDataMapper: InlineDataMapperRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -69,6 +71,7 @@ export class BallerinaRpcClient {
         this._SequenceDiagram = new SequenceDiagramRpcClient(this.messenger);
         this._aiPanel = new AiPanelRpcClient(this.messenger);
         this._connectorWizard = new ConnectorWizardRpcClient(this.messenger);
+        this._inlineDataMapper = new InlineDataMapperRpcClient(this.messenger);
     }
 
     getConnectorWizardRpcClient(): ConnectorWizardRpcClient {
@@ -119,6 +122,10 @@ export class BallerinaRpcClient {
         return this._aiPanel;
     }
 
+    getInlineDataMapperRpcClient(): InlineDataMapperRpcClient {
+        return this._inlineDataMapper;
+    }
+
     getVisualizerLocation(): Promise<VisualizerLocation> {
         return this.messenger.sendRequest(getVisualizerLocation, HOST_EXTENSION);
     }
@@ -154,5 +161,5 @@ export class BallerinaRpcClient {
     getPopupVisualizerState(): Promise<PopupVisualizerLocation> {
         return this.messenger.sendRequest(getPopupVisualizerState, HOST_EXTENSION);
     }
-
+    
 }

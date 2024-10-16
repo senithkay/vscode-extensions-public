@@ -91,7 +91,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                     location: {
                         view: MACHINE_VIEW.BIDiagram,
                         documentUri: documentUri,
-                        position: position,
+                        position: node.syntaxTree.position,
                         metadata: {
                             enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
                         }

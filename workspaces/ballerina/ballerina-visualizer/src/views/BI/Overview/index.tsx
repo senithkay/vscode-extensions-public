@@ -7,125 +7,92 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-    DIRECTORY_MAP,
-    EVENT_TYPE,
-    MACHINE_VIEW,
-    ProjectStructureArtifactResponse,
+    ProjectDiagnostics,
+    ProjectSource,
     ProjectStructureResponse,
+    EVENT_TYPE,
+    MACHINE_VIEW
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
-    Button,
-    Codicon,
-    TextField,
+    TextArea,
     Typography,
     View,
     ViewContent,
+    LinkButton,
+    Codicon,
+    ProgressRing,
+    Button,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BIHeader } from "../BIHeader";
-import { EmptyCard } from "../../../components/EmptyCard";
-import { ButtonCard } from "../../../components/ButtonCard";
-import { useVisualizerContext } from "../../../Context";
+import { BodyText } from "../../styles";
+import { Colors } from "../../../resources/constants";
+import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
+import ComponentDiagram from "../ComponentDiagram";
+import { STNode } from "@wso2-enterprise/syntax-tree";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import ReactMarkdown from 'react-markdown';
 
-interface OverviewProps {
-    stateUpdated: boolean;
+const CardTitleContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 24px;
+`;
+
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+`;
+
+const Content = styled.div`
+    height: 100%;
+`;
+
+const ContentFooter = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+`;
+
+const Title = styled(Typography)`
+    margin: 8px 0;
+`;
+
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 8px;
+`;
+
+const Readme = styled.div`
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 4px;
+    padding: 16px;
+    overflow-y: auto;
+    min-height: 300px;
+`;
+
+interface ComponentDiagramProps {
+    //
 }
 
-const CardContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-`;
+export function Overview(props: ComponentDiagramProps) {
 
-const SectionTitle = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-const GridContainer = styled.div`
-    display: grid;
-    grid-template-columns: 1fr;
-
-    & > *:not(:last-child) {
-        border-right: unset;
-        border-bottom: 1px solid var(--vscode-editorIndentGuide-background);
-    }
-
-    @media (min-width: 1024px) {
-        grid-template-columns: 3fr 1fr;
-        & > *:not(:last-child) {
-            border-right: 1px solid var(--vscode-editorIndentGuide-background);
-            border-bottom: unset;
-        }
-    }
-`;
-
-const InnerGridContainer = styled.div`
-    display: grid;
-    grid-template-columns: 1fr;
-
-    & > *:not(:last-child) {
-        border-right: unset;
-    }
-
-    @media (min-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-        & > *:not(:last-child) {
-            border-right: 1px solid var(--vscode-editorIndentGuide-background);
-        }
-    }
-`;
-
-const SectionContainer = styled.div`
-    padding: 8px 20px 20px;
-`;
-
-const LeftColumn = styled.div`
-    display: grid;
-    grid-template-columns: 1fr;
-
-    & > *:not(:last-child) {
-        border-bottom: 1px solid var(--vscode-editorIndentGuide-background);
-    }
-`;
-
-const SchemaItem = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    cursor: pointer;
-    &:hover {
-        background-color: var(--vscode-editorIndentGuide-background);
-    }
-    padding: 8px;
-`;
-
-const Row = styled.div`
-    display: flex;
-`;
-
-const CardGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    width: 100%;
-`;
-
-export function Overview(props: OverviewProps) {
     const { rpcClient } = useRpcContext();
-    const { setPopupMessage, setSidePanel } = useVisualizerContext();
     const [projectName, setProjectName] = React.useState<string>("");
-    const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
+    const [readmeContent, setReadmeContent] = React.useState<string>("");
+    const [isCodeGenerating, setIsCodeGenerating] = React.useState<boolean>(false);
+    const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>();
 
-    rpcClient?.onProjectContentUpdated((state: boolean) => {
-        if (state) {
-            fetchContext();
-        }
-    });
+    const [responseText, setResponseText] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState("");
+    const backendRootUri = useRef("");
 
     const fetchContext = () => {
         rpcClient
@@ -140,19 +107,259 @@ export function Overview(props: OverviewProps) {
             .then((res) => {
                 setProjectName(res.workspaces[0].name);
             });
-    }
+
+        rpcClient
+            .getBIDiagramRpcClient()
+            .handleReadmeContent({ read: true })
+            .then((res) => {
+                setReadmeContent(res.content);
+            });
+
+        // setResponseText("");
+
+        // Fetching the backend root URI
+        rpcClient
+            .getAiPanelRpcClient()
+            .getBackendURL()
+            .then((res) => {
+                backendRootUri.current = res;
+            });
+
+        rpcClient.getBIDiagramRpcClient().getReadmeContent().then((res) => {
+            setReadmeContent(res.content);
+        });
+    };
+
+    rpcClient?.onProjectContentUpdated((state: boolean) => {
+        if (state) {
+            fetchContext();
+        }
+    });
 
     useEffect(() => {
         fetchContext();
     }, []);
 
-    const goToView = async (res: ProjectStructureArtifactResponse) => {
-        rpcClient
-            .getVisualizerRpcClient()
-            .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: res.path, position: res.position } });
+    useEffect(() => {
+        console.log(">>> ai responseText", { responseText });
+        if (!responseText) {
+            return;
+        }
+        const segments = splitContent(responseText);
+        console.log(">>> ai code", { segments });
+
+        segments.forEach((segment) => {
+            if (segment.isCode) {
+                let code = segment.text;
+                let file = segment.fileName;
+                rpcClient.getAiPanelRpcClient().addToProject({ content: code, filePath: file });
+            }
+        });
+    }, [responseText]);
+
+    const handleSaveOverview = (value: string) => {
+        rpcClient.getBIDiagramRpcClient().handleReadmeContent({ content: value, read: false });
+        setReadmeContent(value);
     };
 
-    const handleAddArtifact = () => {
+    const handleOverviewGenerate = async () => {
+        fetchAiResponse();
+    };
+
+    const handleDiagramOnAccept = async () => {
+        setIsCodeGenerating(true);
+        setResponseText("");
+        // HACK: code is already added to the project. here just show feedback
+        setTimeout(() => {
+            setIsCodeGenerating(false);
+        }, 2000);
+    };
+
+    const handleDiagramOnReject = () => {
+        // INFO: forcefully clear the response text and files
+        if (!responseText) {
+            return;
+        }
+        const segments = splitContent(responseText);
+
+        segments.forEach((segment) => {
+            if (segment.isCode) {
+                let file = segment.fileName;
+                rpcClient.getAiPanelRpcClient().addToProject({ content: "", filePath: file });
+            }
+        });
+
+        setResponseText("");
+    };
+
+    function isEmptyProject(): boolean {
+        console.log(">>> projectStructure", { projectStructure });
+        return Object.values(projectStructure.directoryMap || {}).every(array => array.length === 0);
+    }
+
+    async function fetchAiResponse(isQuestion: boolean = false) {
+        if (readmeContent === "" && !isQuestion) {
+            return;
+        }
+
+        setIsLoading(true);
+        setLoadingMessage("Reading...");
+        let assistant_response = "";
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const url = backendRootUri.current;
+        const response = await fetch(url + "/code", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ usecase: readmeContent, chatHistory: [] }),
+            signal: signal,
+        });
+        if (!response.ok) {
+            setIsLoading(false);
+            throw new Error("Failed to fetch response");
+        }
+
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let functions: any;
+        let buffer = "";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                setIsLoading(false);
+                break;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary = buffer.indexOf("\n\n");
+            while (boundary !== -1) {
+                const chunk = buffer.slice(0, boundary + 2);
+                buffer = buffer.slice(boundary + 2);
+
+                try {
+                    const event = parseSSEEvent(chunk);
+                    if (event.event == "libraries") {
+                        setLoadingMessage("Looking for libraries...");
+                    } else if (event.event == "functions") {
+                        functions = event.body;
+                        setLoadingMessage("Fetching functions...");
+                    } else if (event.event == "content_block_delta") {
+                        let textDelta = event.body.text;
+                        assistant_response += textDelta;
+                        console.log(">>> Text Delta: " + textDelta);
+                        setLoadingMessage("Generating components...");
+                    } else if (event.event == "message_stop") {
+                        console.log(">>> Streaming stop: ", { responseText, assistant_response });
+                        setLoadingMessage("Verifying components...");
+                        console.log(assistant_response);
+                        const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
+                        // Check diagnostics
+                        const diags: ProjectDiagnostics = await rpcClient
+                            .getAiPanelRpcClient()
+                            .getShadowDiagnostics(newSourceFiles);
+                        if (diags.diagnostics.length > 0) {
+                            console.log("Diagnostics : ");
+                            console.log(diags.diagnostics);
+                            const diagReq = {
+                                response: assistant_response,
+                                diagnostics: diags.diagnostics,
+                            };
+                            const startTime = performance.now();
+                            const response = await fetch(url + "/code/repair", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    usecase: readmeContent,
+                                    diagnosticRequest: diagReq,
+                                    functions: functions,
+                                }),
+                                signal: signal,
+                            });
+                            if (!response.ok) {
+                                console.log("repair error");
+                                setIsLoading(false);
+                            } else {
+                                const jsonBody = await response.json();
+                                const repairResponse = jsonBody.repairResponse;
+                                // replace original response with new code blocks
+                                const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
+                                const endTime = performance.now();
+                                const executionTime = endTime - startTime;
+                                console.log(`Repair call time: ${executionTime} milliseconds`);
+                                assistant_response = fixedResponse;
+                            }
+                        }
+                        setResponseText(assistant_response);
+                        setIsLoading(false);
+                    } else if (event.event == "error") {
+                        console.log(">>> Streaming Error: " + event.body);
+                        setIsLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Failed to parse SSE event:", error);
+                }
+
+                boundary = buffer.indexOf("\n\n");
+            }
+        }
+    }
+
+    const generateButton = () => {
+        let component = (
+            <LinkButton
+                onClick={handleOverviewGenerate}
+                sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}
+            >
+                <Codicon name={"wand"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
+                Generate components using overview
+            </LinkButton>
+        );
+        if (isLoading) {
+            component = (
+                <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
+                    <ProgressRing sx={{ height: "16px", width: "16px" }} />
+                    {loadingMessage || "Reading project overview..."}
+                </LinkButton>
+            );
+        }
+        if (responseText) {
+            component = (
+                <ButtonContainer>
+                    <Button appearance="primary" onClick={handleDiagramOnAccept}>
+                        Accept
+                    </Button>
+                    <Button appearance="secondary" onClick={handleDiagramOnReject}>
+                        Reject
+                    </Button>
+                </ButtonContainer>
+            );
+            if (isCodeGenerating) {
+                component = (
+                    <LinkButton onClick={() => { }} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
+                        <ProgressRing sx={{ height: "16px", width: "16px" }} />
+                        Applying changes to the project...
+                    </LinkButton>
+                );
+            }
+        }
+
+        return component;
+    };
+
+    if (!projectStructure) {
+        return (
+            <SpinnerContainer>
+                <ProgressRing color={Colors.PRIMARY} />
+            </SpinnerContainer>
+        );
+    }
+
+    const handleAddConstruct = () => {
         rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
@@ -161,183 +368,91 @@ export function Overview(props: OverviewProps) {
         });
     };
 
-    const handleAddConnection = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.AddConnectionWizard,
-            },
-            isPopup: false
+    const handleDeploy = () => {
+        rpcClient.getBIDiagramRpcClient().deployProject();
+    };
+
+    const handleGenerate = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
         });
+
     };
 
-    const handleAddShema = () => {
-        setSidePanel("RECORD_EDITOR");
+    const handleEditReadme = () => {
+        rpcClient.getBIDiagramRpcClient().openReadme();
     };
 
+    const getActionButtons = (): React.ReactNode[] => {
+        return [
+            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleDeploy}>
+                <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
+            </VSCodeButton>,
+            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleGenerate}>
+                <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
+            </VSCodeButton>,
+            <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
+                <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
+            </VSCodeButton>
+        ];
+    };
+
+    // TODO: Refactor this component with meaningful components
     return (
         <View>
             <ViewContent padding>
-                <BIHeader showAI={projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].length === 0} />
-                {/*  Main Content with Two Columns */}
-                <GridContainer>
-                    {/*  Left Column */}
-                    <LeftColumn>
-                        {/* Entry Points Section */}
-                        <SectionContainer>
-                            <SectionTitle>
-                                <Typography variant="h2">Entry Points</Typography>
-                                {projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].length > 0 && (
-                                    <Button appearance="icon" onClick={handleAddArtifact} tooltip="Add Artifact">
-                                        <Codicon name="add" />
-                                    </Button>
-                                )}
-                            </SectionTitle>
-                            <Row>
-                                {projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].length > 0 ? (
-                                    <CardGrid>
-                                        {projectStructure?.directoryMap[DIRECTORY_MAP.SERVICES].map((res, index) => (
-                                            <ButtonCard
-                                                key={index}
-                                                title={`${res.name} ${res.type === "HTTP" ? "service" : ""}`}
-                                                caption={res.type}
-                                                description={`Path: ${res.context}`}
-                                                icon={<Codicon name="globe" />}
-                                                onClick={() => goToView(res)}
-                                            />
-                                        ))}
-                                    </CardGrid>
-                                ) : (
-                                    <EmptyCard
-                                        description="Define how your integration starts, such as services, tasks, or webhook triggers. You can add multiple entry points."
-                                        actionText="Add Entry Point"
-                                        onClick={handleAddArtifact}
-                                    />
-                                )}
-                            </Row>
-                        </SectionContainer>
-                        {/* Connections Section*/}
-                        <SectionContainer>
-                            <SectionTitle>
-                                <h2 className="text-base mb-4">Connections</h2>
-                                {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].length > 0 && (
-                                    <Button appearance="icon" onClick={handleAddConnection} tooltip="Add Connection">
-                                        <Codicon name="add" />
-                                    </Button>
-                                )}
-                            </SectionTitle>
-                            <Row>
-                                {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].length > 0 ? (
-                                    <CardGrid>
-                                        {projectStructure?.directoryMap[DIRECTORY_MAP.CONNECTIONS].map((res, index) => (
-                                            <ButtonCard
-                                                key={index}
-                                                title={res.name}
-                                                description={`Module: ${(res.st as any).initializer?.typeData?.typeSymbol?.moduleID
-                                                    ?.moduleName || res.type
-                                                    }`}
-                                                icon={<Codicon name="link" />}
-                                                onClick={() => goToView(res)}
-                                            />
-                                        ))}
-                                    </CardGrid>
-                                ) : (
-                                    <EmptyCard
-                                        description="Set up connections to external services like databases or third-party APIs. Predefine your connections here."
-                                        actionText="Add Connection"
-                                        onClick={handleAddConnection}
-                                    />
-                                )}
-                            </Row>
-                        </SectionContainer>
-                        {/*  Second Content with Two Columns */}
-                        <InnerGridContainer>
-                            {/* Types Section*/}
-                            <SectionContainer>
-                                <SectionTitle>
-                                    <h2 className="text-base">Types</h2>
-                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TYPES].length > 0 && (
-                                        <Button appearance="icon" onClick={handleAddShema} tooltip="Add Artifact">
-                                            <Codicon name="add" />
-                                        </Button>
-                                    )}
-                                </SectionTitle>
-                                <div className="p-4max-h-64 overflow-y-auto">
-                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TYPES].length > 0 ? (
-                                        <>
-                                            <CardContainer>
-                                                <span>Name</span>
-                                                <span>Action</span>
-                                            </CardContainer>
-                                            {projectStructure?.directoryMap[DIRECTORY_MAP.TYPES].map((res, index) => (
-                                                <SchemaItem key={index} onClick={() => goToView(res)}>
-                                                    <span>{res.name}</span>
-                                                    <span>...</span>
-                                                </SchemaItem>
-                                            ))}
-                                        </>
-                                    ) : (
-                                        <EmptyCard
-                                            description="Create and manage data types using JSON schema. Generate reusable types for your integration."
-                                            actionText="Add Type"
-                                            onClick={handleAddShema}
-                                        />
-                                    )}
-                                </div>
-                            </SectionContainer>
-
-                            {/* Function Section*/}
-                            <SectionContainer>
-                                <SectionTitle>
-                                    <h2 className="text-base">Functions</h2>
-                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].length > 0 && (
-                                        <Button appearance="icon" onClick={() => setPopupMessage(true)} tooltip="Add Function">
-                                            <Codicon name="add" />
-                                        </Button>
-                                    )}
-                                </SectionTitle>
-                                {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].length > 0 && (
-                                    <TextField onTextChange={null} value={null} placeholder="Search function" />
-                                )}
-                                <div className="p-2">
-                                    {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].length > 0 ? (
-                                        <>
-                                            <CardContainer>
-                                                <span>Name</span>
-                                                <span>Type</span>
-                                            </CardContainer>
-                                            {projectStructure?.directoryMap[DIRECTORY_MAP.TASKS].map((res, index) => (
-                                                <SchemaItem key={index} onClick={() => goToView(res)}>
-                                                    <span>{res.name}</span>
-                                                    <span>Data Mapper</span>
-                                                </SchemaItem>
-                                            ))}
-                                        </>
-                                    ) : (
-                                        <EmptyCard
-                                            description="Add reusable functions to be used within your entry points. Enhance your integration with custom logic"
-                                            actionText="Add Function"
-                                            onClick={() => setPopupMessage(true)}
-                                        />
-                                    )}
-                                </div>
-                            </SectionContainer>
-                        </InnerGridContainer>
-                    </LeftColumn>
-
-                    {/* Configurations Section*/}
-                    <SectionContainer>
-                        <SectionTitle>
-                            <h2 className="text-base">Configurations</h2>
-                        </SectionTitle>
-                        <EmptyCard
-                            description="Manage environment variables and secrets. Share them across different entry points and functions in your project."
-                            actionText="Add Configuration"
-                            onClick={() => setPopupMessage(true)}
-                        />
-                    </SectionContainer>
-                </GridContainer>
+                <BIHeader actions={getActionButtons()} />
+                <Content>
+                    <CardTitleContainer>
+                        <Title variant="h2">Architecture</Title>
+                        {/* {generateButton()} */}
+                    </CardTitleContainer>
+                    {isEmptyProject() ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', border: '1px dashed var(--vscode-input-border)', borderRadius: '4px', padding: '20px', textAlign: 'center' }}>
+                            <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                Your project is empty
+                            </Typography>
+                            <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                Start by adding constructs or use AI to generate your project structure
+                            </Typography>
+                            <ButtonContainer>
+                                <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
+                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
+                                </VSCodeButton>
+                                <VSCodeButton appearance="secondary" onClick={handleGenerate}>
+                                    <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
+                                </VSCodeButton>
+                            </ButtonContainer>
+                        </div>
+                    ) : (
+                        <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
+                    )}
+                    <CardTitleContainer>
+                        <Title variant="h2">Readme</Title>
+                        <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
+                            <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
+                        </VSCodeButton>
+                    </CardTitleContainer>
+                    <Readme>
+                        {readmeContent ? (
+                            <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                        ) : (
+                            <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                    Add a README
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                    Describe your integration and generate your constructs with AI
+                                </Typography>
+                                <VSCodeLink onClick={handleEditReadme}>
+                                    Add a README
+                                </VSCodeLink>
+                            </div>
+                        )}
+                    </Readme>
+                </Content>
             </ViewContent>
-        </View >
+        </View>
     );
 }
+

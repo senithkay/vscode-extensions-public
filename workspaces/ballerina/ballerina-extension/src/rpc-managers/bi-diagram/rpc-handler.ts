@@ -9,21 +9,23 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    CreateComponentRequest,
+    AIChatRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
     BIGetFunctionsRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    ComponentsRequest,
+    CreateComponentRequest,
+    ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
-    ExpressionCompletionsRequest,
     createComponent,
     createComponents,
     createProject,
     deleteFlowNode,
+    deployProject,
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
@@ -33,9 +35,12 @@ import {
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
+    getReadmeContent,
     getSourceCode,
     getWorkspaces,
-    handleReadmeContent
+    handleReadmeContent,
+    openAIChat,
+    openReadme
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BIDiagramRpcManager } from "./rpc-manager";
@@ -58,4 +63,8 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
+    messenger.onNotification(openReadme, () => rpcManger.openReadme());
+    messenger.onNotification(deployProject, () => rpcManger.deployProject());
+    messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
 }

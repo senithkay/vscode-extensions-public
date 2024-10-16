@@ -503,6 +503,15 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project.run",
+                "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.refresh",
                 "title": "Refresh BI",
                 "category": "BI"
@@ -620,6 +629,12 @@
                     "group": "navigation@1",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram || (isBalVisualizerActive && isBIProject)",
                     "title": "Open AI Panel"
+                },
+                {
+                    "command": "BI.project.run",
+                    "group": "navigation@1",
+                    "title": "Run project",
+                    "when": "isBalVisualizerActive && isBIProject"
                 }
             ],
             "notebook/toolbar": [

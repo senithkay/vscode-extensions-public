@@ -9,11 +9,11 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, Platform, ResourceType } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, ResourceType } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { TestCaseEntry, TestCaseForm, TestSuiteType } from "./TestCaseForm";
 import { UnitTest, TestCase, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
@@ -21,7 +21,8 @@ import path from "path";
 import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 import { SelectMockService } from "./MockServices/SelectMockService";
 import { MI_UNIT_TEST_GENERATION_BACKEND_URL } from "../../../constants";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { getParamManagerFromValues, getParamManagerValues, ParamConfig, ParamField, ParamManager, ParamValue } from "@wso2-enterprise/mi-diagram";
+import { normalize } from "upath";
 
 interface TestSuiteFormProps {
     stNode?: UnitTest;
@@ -82,28 +83,22 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     const [currentTestCase, setCurrentTestCase] = useState<TestCaseEntry | undefined>(undefined);
     const [currentMockService, setCurrentMockService] = useState<MockServiceEntry | undefined>(undefined);
     const [projectUri, setProjectUri] = useState("");
-    const [projectStructure, setProjectStructure] = useState<any>();
 
     const [allTestSuites, setAllTestSuites] = useState([]);
-    const artifactTypes = ["Api", "Sequence", "Template"];
+    const artifactTypes = ["API", "Sequence", "Template"];
     const syntaxTree = props.stNode;
     const filePath = props.filePath;
 
     const isWindows = props.isWindows;
     const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : undefined;
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "KeyLookup",
-                label: "Name",
-                filterType: ["sequence", "endpoint", "api", "messageStore", "messageProcessor", "task", "sequenceTemplate", "endpointTemplate", "proxyService", "dataService", "dataSource", "localEntry", "dataMapper"] as ResourceType[],
-                isRequired: true
-            }]
-    }
-    const [params, setParams] = useState(paramConfigs);
+    const paramConfigs: ParamField = {
+        id: 0,
+        type: "KeyLookup",
+        label: "Name",
+        filterType: ["sequence", "endpoint", "api", "messageStore", "messageProcessor", "task", "sequenceTemplate", "endpointTemplate", "proxyService", "dataService", "dataSource", "localEntry", "dataMapper"] as ResourceType[],
+        isRequired: true
+    };
 
     // Schema
     const schema = yup.object({
@@ -121,9 +116,11 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 }),
         artifactType: yup.string().required("Artifact type is required"),
         artifact: yup.string().required("Artifact is required"),
+        supportiveArtifacts: yup.object<ParamConfig>()
     });
 
     const {
+        control,
         handleSubmit,
         formState: { errors },
         register,
@@ -134,10 +131,19 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange",
+        defaultValues: {
+            name: "",
+            artifactType: "",
+            artifact: "",
+            supportiveArtifacts: {
+                paramValues: [],
+                paramFields: [paramConfigs]
+            }
+        }
     });
 
     const openUpdateExtensionView = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension }});
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension } });
     };
 
     const handleCreateUnitTests = async (values: any) => {
@@ -181,7 +187,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     // Retrieve a new token
                     await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
                     const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-    
+
                     // Make the request again with the new token
                     response = await fetch(url, {
                         method: 'POST',
@@ -200,7 +206,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     } else {
                         openUpdateExtensionView();
                         return response; // Exit the function if maximum retries reached
-                    }                
+                    }
                 }
 
                 if (!response.ok) {
@@ -238,11 +244,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         (async () => {
             // get available artifacts
             const projectStructure = await rpcClient.getMiVisualizerRpcClient().getProjectStructure({});
-            setProjectStructure(projectStructure);
             const machineView = await rpcClient.getVisualizerState();
             const projectUri = machineView.projectUri;
             const artifacts = projectStructure.directoryMap.src?.main?.wso2mi?.artifacts;
-            const apis = artifacts?.apis?.map((api: ProjectStructureArtifactResponse) => { return { name: api.name, path: api.path.split(projectUri)[1], type: "Api" } });
+            const apis = artifacts?.apis?.map((api: ProjectStructureArtifactResponse) => { return { name: api.name, path: api.path.split(projectUri)[1], type: "API" } });
             const sequences = artifacts?.sequences?.map((sequence: ProjectStructureArtifactResponse) => { return { name: sequence.name, path: sequence.path.split(projectUri)[1], type: "Sequence" } });
             const templates = artifacts?.templates?.map((template: ProjectStructureArtifactResponse) => { return { name: template.name, path: template.path.split(projectUri)[1], type: "Template" } });
             const allArtifacts = [...apis, ...sequences, ...templates];
@@ -257,35 +262,25 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             if (syntaxTree && filePath) {
                 let artifactType = "";
                 let artifactPath = "";
-
-                if (syntaxTree.unitTestArtifacts.supportiveArtifacts?.artifacts) {
-                    paramConfigs.paramValues = [];
-                    setParams(paramConfigs);
-                    let count = 1;
-                    syntaxTree.unitTestArtifacts.supportiveArtifacts.artifacts.map((param: any) => {
-                        setParams((prev: any) => {
-                            return {
-                                ...prev,
-                                paramValues: [...prev.paramValues, {
-                                    id: prev.paramValues.length,
-                                    paramValues: [
-                                        { value: path.basename(param.content, path.extname(param.content)) }
-                                    ],
-                                    key: count++,
-                                    value: path.basename(param.content, path.extname(param.content))
-                                }
-                                ]
-                            }
-                        });
-                    });
-                } else {
-                    paramConfigs.paramValues = [];
-                    setParams(paramConfigs);
-                }
+                let supportiveArtifacts: any[] = [];
 
                 if (syntaxTree.unitTestArtifacts.testArtifact.artifact) {
-                    artifactPath = syntaxTree.unitTestArtifacts.testArtifact.artifact.content;
-                    artifactType = allArtifacts.find(artifact => path.relative(artifact.path, artifactPath) === "")?.type;
+                    artifactPath = normalize(syntaxTree.unitTestArtifacts.testArtifact.artifact.content);
+                    artifactType = allArtifacts.find(artifact => {
+                        const aPath = normalize(artifact.path).substring(1);
+                        return path.relative(aPath, artifactPath) === ""
+                    })?.type;
+                }
+
+                if (syntaxTree.unitTestArtifacts.supportiveArtifacts?.artifacts) {
+                    const artifacts = syntaxTree.unitTestArtifacts.supportiveArtifacts.artifacts;
+                    for (let i = 0; i < artifacts.length; i++) {
+                        const param = artifacts[i];
+                        supportiveArtifacts.push([{
+                            value: path.basename(param.content, ".xml"),
+                            additionalData: { path: param.content },
+                        }]);
+                    }
                 }
 
                 // get test cases
@@ -303,16 +298,22 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 reset({
                     name: fileName,
                     artifactType: artifactType,
-                    artifact: artifactPath
+                    artifact: artifactPath,
+                    supportiveArtifacts: {
+                        paramValues: getParamManagerFromValues(supportiveArtifacts, undefined, 0),
+                        paramFields: [paramConfigs]
+                    }
                 });
             } else {
                 reset({
                     name: "",
-                    artifactType: "Api",
+                    artifactType: "API",
                     artifact: apis[0]?.path,
+                    supportiveArtifacts: {
+                        paramValues: [],
+                        paramFields: [paramConfigs]
+                    }
                 })
-                paramConfigs.paramValues = [];
-                setParams(paramConfigs);
             }
             setIsLoaded(true);
         })();
@@ -323,7 +324,13 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             return;
         }
 
-        const filteredArtifacts = artifacts.filter(artifact => artifact.type === getValues("artifactType")).map((artifact) => { return { id: artifact.name, value: artifact.path, content: artifact.name } });
+        const filteredArtifacts = artifacts.filter(artifact => artifact.type === getValues("artifactType")).map((artifact) => {
+            return {
+                id: artifact.name,
+                value: normalize(artifact.path).substring(1),
+                content: artifact.name
+            }
+        });
         setFilteredArtifacts(filteredArtifacts);
 
         if (!filteredArtifacts || filteredArtifacts.length === 0) {
@@ -353,27 +360,23 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const submitForm = async (values: any) => {
         values.testCases = testCases;
+        values.artifact = values.artifact.startsWith(path.sep) ? values.artifact.slice(1) : values.artifact;
 
-        const customProperties = params.paramValues.length === 0
-            ? []
-            : await Promise.all(
-                params.paramValues.map(async (param: any) => {
-                    return await findParentByName(param.paramValues[0].value);
-                })
-            );
-        values.supportiveArtifacts = customProperties;
+        values.supportiveArtifacts = getParamManagerValues(values.supportiveArtifacts, true).map((param: any) => {
+            return normalize(param[0].additionalData.path).replace(`${normalize(projectUri)}/`, '');
+        });
 
         const mockServicePaths = [];
         const mockServicesDirs = ["src", "test", "resources", "mock-services"];
         for (let i = 0; i < mockServices.length; i++) {
             const fileName = mockServices[i].name + ".xml";
-            const mockService = isWindows ? path.win32.join(...mockServicesDirs, fileName) : path.join(...mockServicesDirs, fileName);
-            mockServicePaths.push(`${isWindows ? path.win32.sep : path.sep}` + mockService);
+            const mockService = path.posix.join(...mockServicesDirs, fileName);
+            mockServicePaths.push(mockService);
         }
         values.mockServices = mockServicePaths;
 
         const xml = getTestSuiteXML(values);
-        const artifact = isWindows ? path.win32.join(projectUri, values.artifact) : path.join(projectUri, values.artifact);
+        const artifact = path.posix.join(projectUri, values.artifact);
         rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: xml, name: values.name, artifact }).then(() => {
             openOverview();
         });
@@ -394,6 +397,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 requestMethod: testCase?.input?.requestMethod?.textNode,
                 requestProtocol: testCase?.input?.requestProtocol?.textNode,
                 payload: testCase?.input?.payload?.textNode,
+                properties: testCase?.input?.properties?.properties?.map((property) => { return [property.name, property.scope, property.value] })
             }
 
             return {
@@ -407,11 +411,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const getMockServices = (mockServices: STNode[]): MockServiceEntry[] => {
         return mockServices.map((mockService) => {
-            const mockServicePath = mockService.textNode;
-            const mockServicesDirs = ["src", "test", "resources", "mock-services"];
-            const mockServicesRoot = isWindows ? path.win32.join(...mockServicesDirs) : path.join(...mockServicesDirs);
-            const fileName = mockServicePath.split(mockServicesRoot)[1];
-            const name = fileName ? fileName.substring(1, fileName.length - 4) : "";
+            const name = path.basename(mockService.textNode, ".xml");
 
             return {
                 name,
@@ -456,7 +456,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const editTestCase = (testCase: TestCaseEntry) => {
         setCurrentTestCase(testCase);
-        setTestCases(testCases.filter(tc => tc !== testCase));
         setShowAddTestCase(true);
     };
 
@@ -483,34 +482,21 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         });
     };
 
-    const handlePropertiesOnChange = (params: any) => {
-        let count = 1;
-        const modifiedParams = {
-            ...params, paramValues: params.paramValues.map((param: any) => {
-                return {
-                    ...param,
-                    key: count++,
-                    value: param.paramValues[0].value
-                }
-            })
-        };
-        setParams(modifiedParams);
-    };
-
     if (!isLoaded) {
         return <ProgressIndicator />;
     }
 
     if (showAddTestCase) {
         const goBack = () => {
-            if (currentTestCase) {
-                setTestCases([...testCases, currentTestCase]);
-            }
             setCurrentTestCase(undefined);
             setShowAddTestCase(false);
         }
         const onSubmit = (values: TestCaseEntry) => {
-            setTestCases([...testCases, values]);
+            if (currentTestCase) {
+                setTestCases(testCases.map(tc => tc === currentTestCase ? values : tc));
+            } else {
+                setTestCases([...testCases, values]);
+            }
             setCurrentTestCase(undefined);
             setShowAddTestCase(false);
         };
@@ -533,22 +519,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         };
         const availableMockServices = mockServices.map((mockService) => mockService.name);
 
-        return <SelectMockService name={currentMockService?.name} availableMockServices={availableMockServices} isWindows={isWindows} onGoBack={goBack} onSubmit={onSubmit}/>
-    }
-
-    async function findParentByName(name: string): Promise<string | null> {
-        for (const [parent, artifacts] of Object.entries(projectStructure.directoryMap.src.main.wso2mi.artifacts) as [string, any][]) {
-            for (const artifact of artifacts) {
-                if (artifact.name === name) {
-                    const fullPath = artifact.path;
-                    const parts = fullPath.split(path.sep);
-                    const startSegment = 'src';
-                    const startIndex = parts.indexOf(startSegment);
-                    return path.sep + path.join(...parts.slice(startIndex));
-                }
-            }
-        }
-        return null;
+        return <SelectMockService name={currentMockService?.name} availableMockServices={availableMockServices} isWindows={isWindows} onGoBack={goBack} onSubmit={onSubmit} />
     }
 
     return (
@@ -578,11 +549,29 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 sx={{ zIndex: 99 }}
                 {...register("artifact")}
             ></Dropdown>
-            <ParamManager
-                addParamText="Add Supportive Artifact"
-                paramConfigs={params}
-                readonly={false}
-                onChange={handlePropertiesOnChange} />
+            <Controller
+                name="supportiveArtifacts"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                    <ParamManager
+                        paramConfigs={value as ParamConfig}
+                        addParamText="Add Supportive Artifact"
+                        readonly={false}
+                        onChange={(values) => {
+                            values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                const property: ParamValue[] = param.paramValues;
+                                param.key = index + 1;
+                                param.value = (property[0]?.value as any)?.value ?? property[0]?.value;
+                                param.icon = 'query';
+
+                                return param;
+                            });
+                            onChange(values);
+                        }}
+                    />
+                )}
+            />
+
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <FormGroup title="Test cases" isCollapsed={false}>
                     <Button appearance="secondary" onClick={openAddTestCase}>Add test case</Button>

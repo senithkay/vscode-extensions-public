@@ -63,7 +63,7 @@ interface IKeylookupBase {
     borderBox?: boolean;
     errorMsg?: string;
     value?: string | ExpressionFieldValue;
-    onValueChange?: (value: string | ExpressionFieldValue) => void;
+    onValueChange?: (value: string | ExpressionFieldValue, additionalData?: any) => void;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
@@ -264,7 +264,7 @@ export const Keylookup = (props: IKeylookup) => {
         let initialItem: ItemComponent;
         if (result?.resources) {
             result.resources.forEach((resource) => {
-                const item = { key: resource.name, item: getItemComponent(resource.name) };
+                const item = { key: resource.name, item: getItemComponent(resource.name, resource.type), path: resource.absolutePath };
                 if (resource.name === getValue(value)) {
                     initialItem = item;
                     return;
@@ -298,15 +298,15 @@ export const Keylookup = (props: IKeylookup) => {
         setItems(items);
     };
 
-    const handleValueChange = (val: string) => {
+    const handleValueChange = (val: string, index?: number) => {
+        const path = (items[index] as any)?.path;
         if (isExpressionFieldValue(value)) {
             onValueChange && onValueChange({ ...value, value: val });
         } else {
-            onValueChange && onValueChange(val);
+            onValueChange && onValueChange(val, { path });
         }
     };
 
-    
     const ExButton = (props: { isActive: boolean; onClick: () => void }) => {
         return (
             <ExBtn.Container>
@@ -316,11 +316,11 @@ export const Keylookup = (props: IKeylookup) => {
             </ExBtn.Container>
         );
     }
-    
+
     return (
         <Container>
             {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
-            !isExpressionFieldValue(value)) ? (
+                !isExpressionFieldValue(value)) ? (
                 <AutoComplete
                     {...rest}
                     value={getValue(value)}
@@ -347,7 +347,7 @@ export const Keylookup = (props: IKeylookup) => {
                             />
                         ],
                     }}
-                /> 
+                />
             ) : (
                 <ExpressionField
                     label={props.label}
