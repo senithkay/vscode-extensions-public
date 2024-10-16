@@ -311,9 +311,8 @@ async function runTests(testNames: string, projectRoot: string, triggerId: strin
             case "unitTest":
                 testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(triggerId)}`;
                 break;
-            // This needs to be further improved to run a specific test case after updating the mvn test plugin.
             case "testCase":
-                testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(path.dirname(triggerId))}`;
+                testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(path.dirname(triggerId))} -DtestCaseName=${testNames}`;
                 break;
         }
 
