@@ -548,6 +548,10 @@ export type SequenceModelResponse = {
     sequenceDiagram: SqFlow;
 };
 
+export interface ComponentsFromContent {
+    content: string;
+}
+
 export enum TriggerKind {
     INVOKED = 1,
     TRIGGER_CHARACTER = 2,
@@ -606,6 +610,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

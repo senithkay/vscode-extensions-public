@@ -31,7 +31,7 @@ export function activate(context: BallerinaExtension) {
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_FUNCTION, () => {
-        // Trigger to open the function create view
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIFunctionForm });
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_CONFIGURATION, () => {

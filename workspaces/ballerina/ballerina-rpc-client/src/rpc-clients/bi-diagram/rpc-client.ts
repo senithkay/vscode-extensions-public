@@ -26,7 +26,7 @@ import {
     BISourceCodeResponse,
     ComponentsRequest,
     ComponentsResponse,
-    CreateComponentRequest,
+    ComponentRequest,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -111,7 +111,7 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getProjectComponents, HOST_EXTENSION);
     }
 
-    createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+    createComponent(params: ComponentRequest): Promise<CreateComponentResponse> {
         return this._messenger.sendRequest(createComponent, HOST_EXTENSION, params);
     }
 
