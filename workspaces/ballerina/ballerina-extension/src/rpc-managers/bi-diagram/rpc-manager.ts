@@ -29,7 +29,7 @@ import {
     BISuggestedFlowModelRequest,
     ComponentsRequest,
     ComponentsResponse,
-    CreateComponentRequest,
+    ComponentRequest,
     CreateComponentResponse,
     DIRECTORY_MAP,
     ExpressionCompletionsRequest,
@@ -52,7 +52,7 @@ import * as path from 'path';
 import { Uri, ViewColumn, commands, window, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIProjectPure, createBIService, createBIAutomation, handleServiceCreation, sanitizeName, createBIFunction } from "../../utils/bi";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -241,7 +241,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+    async createComponent(params: ComponentRequest): Promise<CreateComponentResponse> {
         return new Promise(async (resolve) => {
             let res: CreateComponentResponse;
             switch (params.type) {
@@ -249,7 +249,10 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     res = await createBIService(params);
                     break;
                 case DIRECTORY_MAP.AUTOMATION:
-                    res = await createBITask(params);
+                    res = await createBIAutomation(params);
+                    break;
+                case DIRECTORY_MAP.FUNCTIONS:
+                    res = await createBIFunction(params);
                     break;
                 default:
                     break;
@@ -450,7 +453,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     if (entry.status === "insert") {
                         switch (entry.type) {
                             case "service":
-                                const req: CreateComponentRequest = {
+                                const req: ComponentRequest = {
                                     serviceType: {
                                         name: sanitizeName(entry.name),
                                         path: "/",
