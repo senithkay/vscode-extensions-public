@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, FormGroup, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
@@ -19,6 +19,7 @@ import { resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
+import { ContentWrapper } from '../Overview/Overview';
 
 const RequestTypeWrapper = styled.div`
     display: flex;
@@ -226,7 +227,8 @@ export function Request(props: ReadOnlyResourceProps) {
 
     return (
         <>
-            <FormGroup key="Requests" title='Requests Body' isCollapsed={requestContents.length === 0}>
+            <Typography variant="h3" sx={{ margin: 0 }}>Requests Body</Typography>
+            <ContentWrapper>
                 <CodeTextArea
                     id="description"
                     value={resourceOperation?.requestBody?.description}
@@ -234,7 +236,8 @@ export function Request(props: ReadOnlyResourceProps) {
                     resize="vertical" 
                     growRange={{ start: 2, offset: 10 }} 
                 />
-                <FormGroup key="Requests" title='Body' disableCollapse>
+                <Typography variant="h4" sx={{ margin: 0 }}>Content Type</Typography>
+                <ContentWrapper>
                     <PullUpButton options={MediaTypes} selectedOptions={mediaTypes} onOptionChange={handleOptionChange}>
                         <Button appearance="primary">
                             Add Content Type
@@ -270,8 +273,8 @@ export function Request(props: ReadOnlyResourceProps) {
                             ))}
                         </Tabs>
                     )}
-                </FormGroup>
-            </FormGroup>
+                </ContentWrapper>
+            </ContentWrapper>
         </>
     )
 }

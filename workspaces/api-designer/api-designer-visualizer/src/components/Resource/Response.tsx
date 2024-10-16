@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, FormGroup, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Header, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
@@ -19,6 +19,7 @@ import { convertParamsToParameters, getResponseHeadersFromResponse, resolveTypeF
 import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter/ParamEditor';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
+import { ContentWrapper } from '../Overview/Overview';
 
 const ParamWrapper = styled.div`
     display: flex;
@@ -302,11 +303,8 @@ export function Response(props: ReadOnlyResourceProps) {
 
     return (
         <>
-            <FormGroup
-                key="ResponseBody"
-                title='Responses'
-                isCollapsed={resourceOperation?.responses && (Object.keys(resourceOperation?.responses)?.length === 0)}
-            >   
+            <Typography variant="h3" sx={{ margin: 0 }}>Responses</Typography>
+            <ContentWrapper>
                 <PullUpButton options={statusCodeList} selectedOptions={selectedStatusCode || []} onOptionChange={handleStatusCodeChange}>
                     <Button appearance="primary">
                         Add Status
@@ -316,7 +314,7 @@ export function Response(props: ReadOnlyResourceProps) {
                 {statusTabViewItems?.length > 0 && (
                     <Tabs views={statusTabViewItems} currentViewId={selectedResponseType} onViewChange={setSelectedResponseType}>
                         {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
-                            <div id={status}>
+                            <div id={status} style={{display: "flex", flexDirection: "column", gap: 15}}>
                                 <CodeTextArea
                                     key="responseBody-description-${path}-${method}-${status}"
                                     value={resourceOperation?.responses[status]?.description}
@@ -324,14 +322,16 @@ export function Response(props: ReadOnlyResourceProps) {
                                     resize="vertical" 
                                     growRange={{ start: 2, offset: 10 }} 
                                 />
+                                <Typography variant="h3" sx={{ margin: 0 }}>Headers</Typography>
                                 <ParamEditor
+                                    hideTitle
                                     params={headerParams}
-                                    title='Headers'
                                     addButtonText='Add Header'
                                     type="Header" disableCollapse
                                     onParamsChange={handleOnHeaderParamsChange}
                                 />
-                                <FormGroup key="body" title='Body' disableCollapse>
+                                <Typography variant="h3" sx={{ margin: 0 }}>Content</Typography>
+                                <ContentWrapper>
                                     <PullUpButton options={MediaTypes} selectedOptions={responseMediaTypes} onOptionChange={handleOptionChange}>
                                         <Button appearance="primary">
                                             Add Media Type
@@ -359,18 +359,12 @@ export function Response(props: ReadOnlyResourceProps) {
                                             </ResponseTypeWrapper>
                                         </div>
                                     </Tabs>
-                                </FormGroup>
-                                {/* <MarkDownEditor
-                                key={`responseBody-description-${path}-${method}`}
-                                value={resourceOperation?.responses[status]?.description}
-                                onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                                sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
-                            /> */}
+                                </ContentWrapper>
                             </div>
                         ))}
                     </Tabs>
                 )}
-            </FormGroup>
+            </ContentWrapper>
         </>
     )
 }

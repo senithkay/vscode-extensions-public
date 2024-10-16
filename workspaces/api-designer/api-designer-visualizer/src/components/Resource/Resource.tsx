@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Dropdown, OptionProps, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, OptionProps, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI, Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
@@ -18,10 +18,7 @@ import {
     getQueryParametersFromParameters
 } from '../Utils/OpenAPIUtils';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
-import { PanelBody } from '../Overview/Overview';
-import { ReadOnlyResource } from './ReadOnlyResource';
-import "@mdxeditor/editor/style.css";
-import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
+import { ContentWrapper, PanelBody } from '../Overview/Overview';
 import { Request } from './Request';
 import { Response } from './Response';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
@@ -333,9 +330,18 @@ export function Resource(props: ResourceProps) {
                         onTextChange={handleOperationIdChange}
                     />
                 )}
-                <ParamEditor params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
-                <ParamEditor params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                <ParamEditor params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                <Typography sx={{ margin: 0 }} variant="h3">Path Parameters</Typography>
+                <ContentWrapper>
+                    <ParamEditor params={values?.pathParams} hideTitle type="Path" onParamsChange={handleOnPathParamsChange} />
+                </ContentWrapper>
+                <Typography sx={{ margin: 0 }} variant="h3">Query Parameters</Typography>
+                <ContentWrapper>
+                    <ParamEditor params={values?.queryParams} hideTitle type="Query" onParamsChange={handleOnQueryParamsChange} />
+                </ContentWrapper>
+                <Typography sx={{ margin: 0 }} variant="h3">Header Parameters</Typography>
+                <ContentWrapper>
+                    <ParamEditor params={values?.headerParams} hideTitle type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                </ContentWrapper>
                 <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
                 <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
             </PanelBody>
