@@ -8,10 +8,11 @@
  */
 
 import React from "react";
-import { ApiIcon, FitScreenIcon, MinusIcon, PlusIcon } from "../../resources";
+import { FitScreenIcon, MinusIcon, PlusIcon } from "../../resources";
 import styled from "@emotion/styled";
 import { Colors, NodeTypes } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { saveDiagramZoomAndPosition } from "../../utils/diagram";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -87,6 +88,9 @@ export function Controls(props: ControlsProps) {
         if (!nodes || nodes.length === 0) {
             return;
         }
+        if(!engine.getCanvas().getBoundingClientRect()){
+            return;
+        }
 
         const startNode = nodes.find((node) => node.getType() === NodeTypes.START_NODE);
         if (startNode) {
@@ -96,6 +100,7 @@ export function Controls(props: ControlsProps) {
         } else {
             engine.zoomToFitNodes({ margin: 0, maxZoom: 1 });
         }
+        saveDiagramZoomAndPosition(engine.getModel());
     };
 
     const onZoom = (zoomIn: boolean) => {

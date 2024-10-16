@@ -165,9 +165,10 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode } = useDiagramContext();
 
-    const [isHovered, setIsHovered] = useState(false);
+    const [isBoxHovered, setIsBoxHovered] = useState(false);
+    const [isCircleHovered, setIsCircleHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
 
@@ -186,6 +187,11 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const onNodeClick = () => {
         onClick && onClick(model.node);
         onNodeSelect && onNodeSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onConnectionClick = () => {
+        onConnectionSelect && onConnectionSelect(model.node.properties?.connection?.value);
         setAnchorEl(null);
     };
 
@@ -220,8 +226,13 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const disabled = model.node.suggested;
 
     return (
-        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-            <NodeStyles.Box disabled={disabled} hovered={isHovered}>
+        <NodeStyles.Node>
+            <NodeStyles.Box
+                disabled={disabled}
+                hovered={isBoxHovered}
+                onMouseEnter={() => setIsBoxHovered(true)}
+                onMouseLeave={() => setIsBoxHovered(false)}
+            >
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
                     <NodeStyles.Icon onClick={handleOnClick}>
@@ -257,13 +268,16 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT}
                 height={NODE_HEIGHT + LABEL_HEIGHT}
                 viewBox="0 0 130 70"
+                onClick={onConnectionClick}
+                onMouseEnter={() => setIsCircleHovered(true)}
+                onMouseLeave={() => setIsCircleHovered(false)}
             >
                 <circle
                     cx="80"
                     cy="24"
                     r="22"
                     fill={Colors.SURFACE_DIM}
-                    stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                    stroke={isCircleHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
                     strokeDasharray={disabled ? "5 5" : "none"}
                     opacity={disabled ? 0.7 : 1}
@@ -289,7 +303,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     x2="57"
                     y2="25"
                     style={{
-                        stroke: disabled ? Colors.ON_SURFACE : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
+                        stroke: disabled ? Colors.ON_SURFACE : isBoxHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                         strokeWidth: 1.5,
                         markerEnd: `url(#${model.node.id}-arrow-head)`,
                     }}
@@ -306,7 +320,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     >
                         <polygon
                             points="0,4 0,0 4,2"
-                            fill={disabled ? Colors.ON_SURFACE : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                            fill={disabled ? Colors.ON_SURFACE : isBoxHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
                         ></polygon>
                     </marker>
                 </defs>
