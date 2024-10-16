@@ -13,7 +13,7 @@ import { Welcome } from "./components/Welcome";
 import path from "path";
 import { ElectronApplication } from "@playwright/test";
 
-const dataFolder = path.join(__dirname, 'data');
+export const dataFolder = path.join(__dirname, 'data');
 const extensionsFolder = path.join(__dirname, '..', '..', '..', 'vsix');
 const vscodeVersion = '1.91.1';
 export const resourcesFolder = path.join(__dirname, '..', 'test-resources');

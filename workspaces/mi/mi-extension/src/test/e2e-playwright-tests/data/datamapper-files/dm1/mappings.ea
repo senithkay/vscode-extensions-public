@@ -1,0 +1,9 @@
+[EA]:click:recordfield-input.city
+[EA]:click:recordfield-objectOutput.home
+[EA]:wait
+[EA]:click:recordfield-input.name
+[EA]:click:recordfield-objectOutput.age
+[EA]:wait
+[EA]:click:recordfield-input.age
+[EA]:click:recordfield-objectOutput.name
+[EA]:wait
