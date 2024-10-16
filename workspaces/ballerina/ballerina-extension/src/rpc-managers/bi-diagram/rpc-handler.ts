@@ -16,8 +16,8 @@ import {
     BIGetFunctionsRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    ComponentRequest,
     ComponentsRequest,
-    CreateComponentRequest,
     ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
@@ -58,7 +58,7 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
-    messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
+    messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
