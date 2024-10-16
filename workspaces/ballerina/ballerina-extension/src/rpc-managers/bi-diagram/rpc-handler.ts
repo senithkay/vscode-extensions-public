@@ -32,6 +32,7 @@ import {
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
+    getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
@@ -63,6 +64,7 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
     messenger.onNotification(deployProject, () => rpcManger.deployProject());

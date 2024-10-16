@@ -22,6 +22,8 @@ import {
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIModuleNodesRequest,
+    BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
@@ -44,7 +46,7 @@ import {
     SyntaxTree,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -641,5 +643,35 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         commands.executeCommand('ballerina.open.ai.panel');
+    }
+
+    async getModuleNodes(): Promise<BIModuleNodesResponse> {
+        console.log(">>> requesting bi module nodes from ls");
+        return new Promise((resolve) => {
+            const context = StateMachine.context();
+            if (!context.projectUri) {
+                console.log(">>> projectUri not found in the context");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            const params: BIModuleNodesRequest = {
+                filePath: Uri.parse(context.projectUri!).fsPath,
+            };
+
+            StateMachine.langClient()
+                .getModuleNodes(params)
+                .then((model) => {
+                    console.log(">>> bi module nodes from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching bi module nodes from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
     }
 }

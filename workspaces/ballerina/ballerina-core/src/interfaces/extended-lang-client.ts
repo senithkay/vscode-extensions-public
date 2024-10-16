@@ -488,6 +488,14 @@ export type BINodeTemplateResponse = {
     flowNode: FlowNode;
 };
 
+export interface BIModuleNodesRequest {
+    filePath: string;
+}
+
+export type BIModuleNodesResponse = {
+    flowModel: Flow;
+};
+
 export type SearchQueryParams = {
     q?: string;
     limit?: number;

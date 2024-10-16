@@ -100,6 +100,8 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    BIModuleNodesRequest,
+    BIModuleNodesResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -165,6 +167,7 @@ enum EXTENDED_APIS {
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
+    BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
 }
@@ -600,6 +603,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this.sendRequest<ExpressionCompletionsResponse>(EXTENDED_APIS.BI_EXPRESSION_COMPLETIONS, params);
+    }
+
+    async getModuleNodes(params: BIModuleNodesRequest): Promise<BIModuleNodesResponse> {
+        return this.sendRequest<BIModuleNodesResponse>(EXTENDED_APIS.BI_MODULE_NODES, params);
     }
 
     // <------------ BI APIS END --------------->
