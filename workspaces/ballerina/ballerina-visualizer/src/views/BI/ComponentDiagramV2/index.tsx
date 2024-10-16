@@ -9,6 +9,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
+    EVENT_TYPE,
+    MACHINE_VIEW,
     ProjectDiagnostics,
     ProjectSource,
     ProjectStructureResponse,
@@ -352,6 +354,16 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         );
     }
 
+    const handleViewConfigVariables = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ViewConfigVariables,
+            },
+            isPopup: false
+        });
+    };
+
     // TODO: Refactor this component with meaningful components
     return (
         <View>
@@ -381,7 +393,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
                             <Codicon name={"output"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
                             Import your schema
                         </LinkButton>
-                        <LinkButton onClick={() => {}} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
+                        <LinkButton onClick={handleViewConfigVariables} sx={{ fontSize: 14, padding: 8, color: Colors.PRIMARY, gap: 8 }}>
                             <Codicon name={"settings"} iconSx={{ fontSize: 16 }} sx={{ height: 16 }} />
                             Add your configurations
                         </LinkButton>

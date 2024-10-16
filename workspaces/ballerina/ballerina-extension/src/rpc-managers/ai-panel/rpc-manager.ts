@@ -408,7 +408,7 @@ async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<bool
         } else if (moduleName == 'runtime') {
             importStatement = `import ballerina/lang.runtime;\n`;
         } else {
-            continue
+            continue;
         }
 
         const document = await workspace.openTextDocument(Uri.parse(fileUri));

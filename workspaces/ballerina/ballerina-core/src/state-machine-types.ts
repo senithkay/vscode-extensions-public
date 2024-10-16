@@ -53,6 +53,7 @@ export enum MACHINE_VIEW {
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
     BIMainFunctionForm = "Add Automation Task",
+    ViewConfigVariables = "View Config Variables",
 }
 
 export interface MachineEvent {

@@ -52,6 +52,7 @@ import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
+import ViewConfigVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 
 const globalStyles = css`
     *,
@@ -215,6 +216,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
+                        break;
+                    case MACHINE_VIEW.ViewConfigVariables:
+                        setViewComponent(<ViewConfigVariables />);
                         break;
                     default:
                         setNavActive(false);
