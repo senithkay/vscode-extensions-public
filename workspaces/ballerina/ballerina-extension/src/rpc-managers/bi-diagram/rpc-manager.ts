@@ -665,7 +665,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
 
 function getTriggersHardcoded() {
-    const response: TriggerModel[] = []
+    const response: TriggerModel[] = [];
     const kafkaTriggerModel: TriggerModel = {
         name: "Kafka",
         listener: {
@@ -725,7 +725,7 @@ function getTriggersHardcoded() {
                 }
             }
         }
-    }
+    };
     const rabbitmqTriggerModel: TriggerModel = {
         name: "RabbitMQ",
         listener: {
@@ -821,7 +821,7 @@ function getTriggersHardcoded() {
                 }
             }
         }
-    }
+    };
     const natsTriggerModel: TriggerModel = {
         name: "NATS",
         listener: {
@@ -897,7 +897,7 @@ function getTriggersHardcoded() {
                 }
             }
         }
-    }
+    };
     const mqttTriggerModel: TriggerModel = {
         name: "MQTT",
         listener: {
@@ -982,7 +982,7 @@ function getTriggersHardcoded() {
                 }
             }
         }
-    }
+    };
     const jmsTriggerModel: TriggerModel = {
         name: "JMS",
         listener: {
@@ -1036,7 +1036,7 @@ function getTriggersHardcoded() {
                 }
             }
         }
-    }
+    };
     response.push(kafkaTriggerModel);
     response.push(rabbitmqTriggerModel);
     response.push(natsTriggerModel);

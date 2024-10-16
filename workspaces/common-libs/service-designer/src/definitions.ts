@@ -42,6 +42,7 @@ export interface ParameterConfig {
 export interface ServiceData {
     path: string;
     port: number;
+    listener?: string;
 }
 
 export interface Resource {
@@ -68,6 +69,7 @@ export interface PathConfig {
 export interface Service {
     path: string;
     port?: number;
+    listener?: string;
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;

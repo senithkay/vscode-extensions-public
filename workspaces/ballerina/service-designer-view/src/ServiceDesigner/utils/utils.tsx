@@ -11,7 +11,7 @@ import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification }
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
-import { Annotation, NodePosition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Annotation, NodePosition, ObjectMethodDefinition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
 import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig, Service, ServiceData } from '@wso2-enterprise/service-designer';
 import { Item } from '@wso2-enterprise/ui-toolkit';
@@ -215,12 +215,13 @@ export const getServiceData = async (service: ServiceDeclaration): Promise<Servi
             service.absoluteResourcePath?.forEach((path) => {
                 absolutePath += path.value;
             });
-            if (service.typeDescriptor && STKindChecker.isSimpleNameReference(service.typeDescriptor)) {
+            if (service?.typeDescriptor && STKindChecker.isSimpleNameReference(service.typeDescriptor)) {
                 absolutePath = service.typeDescriptor.name.value;
             }
             serviceData = {
-                port: parseInt(port, 10),
-                path: absolutePath
+                port: isNaN(Number(port)) ? null : Number(port),
+                path: absolutePath,
+                listener: port
             };
         }
     }
@@ -255,6 +256,31 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
     };
 }
 
+export async function getFunction(resource: ObjectMethodDefinition, rpcClient: any, isBI?: boolean): Promise<Resource> {
+    const pathConfig = resource.functionName.value;
+    const queryParams: ParameterConfig[] = [];
+    const payloadConfig: ParameterConfig = null;
+    const advanceParams: Map<string, ParameterConfig> = null;
+    const response: ResponseConfig[] = null;
+    const position = {
+        ...resource.position
+    };
+    const errors = resource.typeData?.diagnostics.filter((diag: DiagramDiagnostic) => diag.diagnosticInfo.severity === DIAGNOSTIC_SEVERITY.ERROR);
+    return {
+        methods: [resource.functionName.value],
+        path: pathConfig,
+        pathSegments: [],
+        params: queryParams,
+        advancedParams: advanceParams,
+        payloadConfig: payloadConfig,
+        responses: response,
+        updatePosition: position,
+        position: resource.position,
+        errors: errors,
+        expandable: isBI ? false : true
+    };
+}
+
 export function getServicePosition(service: ServiceDeclaration): NodePosition {
     const serviceKeywordPosition = service.serviceKeyword?.position;
     const serviceExpressionPosition = service.expressions[0]?.position;
@@ -269,13 +295,31 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
 export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isBI?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
     const serviceData: ServiceData = await getServiceData(serviceDecl);
     let canEdit = true;
-    if (serviceDecl.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
+    if (serviceDecl?.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
         canEdit = false;
     }
     const resources: Resource[] = [];
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
             const resource = await getResource(member, rpcClient, isBI);
+            const editAction: Item = {
+                id: "edit",
+                label: "Edit",
+                onClick: () => handleResourceEdit(resource),
+            };
+            const deleteAction: Item = {
+                id: "delete",
+                label: "Delete",
+                onClick: () => handleResourceDelete(resource),
+            };
+            const moreActions: Item[] = [editAction, deleteAction];
+            if (canEdit) {
+                resource.additionalActions = moreActions;
+            }
+            resources.push(resource);
+        }
+        if (STKindChecker.isObjectMethodDefinition(member)) {
+            const resource = await getFunction(member, rpcClient, isBI);
             const editAction: Item = {
                 id: "edit",
                 label: "Edit",

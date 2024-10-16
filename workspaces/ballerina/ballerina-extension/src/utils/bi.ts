@@ -326,7 +326,7 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
         if (!val.optional && val.value) {
             endpoint = val.value;
         }
-    })
+    });
 
 
     for (const key in functionsList) {
@@ -336,7 +336,7 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
                     type = val.value;
                     name = "param";
                 }
-            })
+            });
         }
     }
 

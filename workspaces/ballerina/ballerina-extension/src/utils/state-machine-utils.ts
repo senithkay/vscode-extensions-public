@@ -85,6 +85,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
+            || STKindChecker.isObjectMethodDefinition(node.syntaxTree)
         ) {
             if (StateMachine.context().isBI) {
                 return {

@@ -155,6 +155,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     <ServiceHeader>
                         {isEditingDisabled && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">This is generated from {serviceConfig?.path} contract</Typography>}
                         {serviceConfig?.port && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Listening on: {serviceConfig.port}</Typography>}
+                        {serviceConfig?.listener && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Remote Endpoint: {serviceConfig.listener}</Typography>}
                     </ServiceHeader>
                     <ViewContent padding>
                         <ServiceDesigner
